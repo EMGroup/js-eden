@@ -243,27 +243,23 @@ EdenScriptGutter.prototype.clear = function() {
 
 
 
-EdenScriptGutter.prototype.setAgent = function(name) {
-	if (this.agents[name] === undefined) {
-		this.agents[name] = [];
-	}
+EdenScriptGutter.prototype.setBaseAST = function(base) {
 	while (this.gutter.firstChild) {
 		this.gutter.removeChild(this.gutter.firstChild);
 	}
-	this.lines = this.agents[name];
-	this.agent = Eden.Agent.agents[name];
+	this.lines = base.lines;
 }
 
 
 
 EdenScriptGutter.prototype.executeSelected = function() {
-	if (this.agent === undefined) return;
+	if (this.ast === undefined) return;
 	//console.log("Execute Selected");
 
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i].selected) {
 			var sellines = this.ast.getBlockLines(i);
-			this.agent.executeLine(i);
+			this.ast.executeLine(i);
 			i = sellines[1];
 		}
 	}

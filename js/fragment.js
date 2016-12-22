@@ -1,5 +1,5 @@
 Eden.Fragment = function(selector) {
-	this.name = "*Fragment:"+selector;
+	this.name = selector;
 	this.selector = selector;
 	this.originast = undefined;
 	this.origin = undefined;
@@ -8,6 +8,7 @@ Eden.Fragment = function(selector) {
 	this.locked = true;
 	this.remote = false;
 	this.results = [];
+	this.title = selector;
 
 	//console.error("FRAGMENT");
 
@@ -69,6 +70,7 @@ Eden.Fragment.prototype.reset = function() {
 		}
 
 		if (me.originast) {
+			me.name = (me.originast.name) ? me.originast.name : me.selector;
 			me.source = me.originast.getInnerSource();
 			me.ast = new Eden.AST(me.source, undefined, me);
 			var p = me.originast;
@@ -76,6 +78,14 @@ Eden.Fragment.prototype.reset = function() {
 			me.origin = p.base.origin;
 			me.remote = me.origin.remote;
 			me.locked = me.originast.lock > 0 || me.remote;
+
+			var dcom = me.originast.doxyComment;
+			if (dcom) {
+				var ctrls = dcom.getControls();
+				if (ctrls["@title"]) {
+					me.title = ctrls["@title"][0];
+				}
+			}
 
 			Eden.Fragment.emit("changed", [me]);
 			//Eden.Fragment.emit("status", [me]);

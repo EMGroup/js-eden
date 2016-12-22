@@ -266,7 +266,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					intextarea.focus();
 					checkScroll();
 
-					gutter.setAgent(tab_frags[curtab]);
+					setTitle(tab_frags[curtab].title);
+
+					//gutter.setBaseAST(scriptast);
 				}
 
 				if (tab_frags[curtab].locked) {
@@ -594,7 +596,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 
 					if (scriptast) {
-						title.textContent = tab_frags[curtab].name + " " + text;
+						title.textContent = tab_frags[curtab].selector + " " + text;
 					} else {
 						title.textContent = text;
 					}
