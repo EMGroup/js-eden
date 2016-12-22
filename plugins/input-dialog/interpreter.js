@@ -2502,7 +2502,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				resizeStop: viewdata.resize
 			});
 
-		viewdata.confirmClose = !("MenuBar" in edenUI.plugins);
+		viewdata.confirmClose = false;
 
 		return viewdata;
 	};
