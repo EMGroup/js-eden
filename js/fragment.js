@@ -30,7 +30,6 @@ Eden.Fragment = function(selector) {
 
 	Eden.Fragment.listenTo("patch", this, function(frag, ast) {
 		if (ast === me.originast) {
-			console.log("I AM OUT OF DATE",me.name);
 			me.source = me.originast.getInnerSource();
 			me.ast = new Eden.AST(me.source, undefined, me);
 			Eden.Fragment.emit("changed", [me]);
@@ -39,7 +38,6 @@ Eden.Fragment = function(selector) {
 
 	Eden.Fragment.listenTo("lock", this, function(frag, ast) {
 		if (ast === me.originast) {
-			console.log("IVE BECOME LOCKED", me.name);
 			me.locked = true;
 			Eden.Fragment.emit("locked", [me]);
 		}
@@ -79,7 +77,6 @@ Eden.Fragment.prototype.reset = function() {
 	var me = this;
 
 	Eden.Selectors.query(this.selector, undefined, undefined, true, function(res) {
-		console.log("SELECTOR");
 		me.results = res;
 
 		if (me.results && me.results.length > 0 && me.results[0].type == "script") {
@@ -160,7 +157,6 @@ Eden.Fragment.prototype.setSource = function(src) {
 }
 
 Eden.Fragment.prototype.lock = function() {
-	console.log("LOCK",this);
 	//this.locked = true;
 	// Recursively lock parents...
 	var p = this.originast.parent;

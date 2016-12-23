@@ -145,6 +145,7 @@ Eden.Agent.AUTOSAVE_INTERVAL = 2000;
  *     - noexec: Do not execute.
  */
 Eden.Agent.importAgent = function(path, tag, options, callback) {
+	console.error("IMPORTAGENT SHOULD NOT BE USED", path);
 	var ag;
 	if (callback === undefined) {
 		console.trace("DEPRECATED USE OF IMPORT");

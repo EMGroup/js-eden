@@ -3,12 +3,8 @@ Eden.Selectors = {
 };
 
 Eden.Selectors.findLocalBase = function(path, ctx, filters) {
-	console.log("PATH",path);
-	console.log("FILTERS", filters);
 	var scripts = [];
-
 	var paths = path.split(",");
-	//console.log(paths);
 
 	for (var i=0; i<paths.length; i++) {
 		var path = paths[i].trim();
@@ -16,7 +12,6 @@ Eden.Selectors.findLocalBase = function(path, ctx, filters) {
 		if (path == "" || path == eden.project.name) {
 			scripts.push(eden.project.ast.script);
 		} else {
-			console.log(ctx);
 			var script = ctx.getActionByName(path);
 			if (script) {
 				scripts.push(script);
@@ -26,59 +21,15 @@ Eden.Selectors.findLocalBase = function(path, ctx, filters) {
 			// Check cached scripts
 			if (Eden.Selectors.cache[path]) {
 				scripts.push(Eden.Selectors.cache[path]);
+				//console.log("FOUND CACHE",path);
 				continue;
 			}
 
 			// Now check for : and # queries amongst existing cached projects
 			// before giving up entirely.
 		}
-
-		/*if (path == "/" || path == "*") {
-			var src = Eden.Generator.symbolScript();
-			var ast = new Eden.AST(src, undefined, Symbol.jsAgent);
-			scripts.push(ast.script);
-		} else if (path == "") {
-			if (eden.project) scripts.push(eden.project.ast.script);
-		}
-
-		if (path.startsWith("/")) {
-			if (path.includes("*")) {
-				var regexp = edenUI.regExpFromStr(path, undefined, true, "simple");
-				for (var x in Eden.Agent.agents) {
-					if (regexp.test(x)) {
-						var ag = Eden.Agent.agents[x];
-						if (ag.ast) scripts.push(ag.ast.script);
-					}
-				}
-			} else {
-				// Find local action first
-				var script = undefined;
-				if (ctx) {
-					script = ctx.getActionByName(path);
-				}
-
-				// Now attempt to find exact agent...
-				if (script === undefined) {
-					var ag = Eden.Agent.agents[path];
-					if (!ag) return []
-					script = ag.ast.script;
-				}
-				if (!script) return [];
-				scripts.push(script);
-			}
-		} else {
-			// Look in project ast
-			if (path.includes("*")) {
-
-			} else {
-				var script = undefined;
-				if (eden.project) {
-					script = eden.project.ast.getActionByName(path);
-				}
-			}
-		}*/
 	}
-	//console.log(scripts);
+
 	return scripts;
 }
 
@@ -90,22 +41,24 @@ Eden.Selectors.getScriptBase = function(stat) {
 
 Eden.Selectors.getID = function(stat) {
 	var res;
-	var indexes = [];
-	var p = stat;
-	while(p.parent) {
-		var children = getChildren([p.parent], false);
+	if (stat.type == "script" && stat.name) {
+		res = "."+stat.name;
+	} else if (stat.parent) {
+		var children = Eden.Selectors.getChildren([stat.parent], false);
 		for (var i=0; i<children.length; i++) {
-			if (children[i] === p) {
-				indexes.push(i);
+			if (children[i] === stat) {
+				res = ":"+i;
 				break;
 			}
 		}
-		p = p.parent;
+	} else {
+		res = stat.base.origin.name;
 	}
-	res = p.base.origin.name;
-	for (var i=indexes.length-1; i>=0; i--) {
-		res += " > :" + (indexes[i]+1);
+
+	if (stat.parent) {
+		res = Eden.Selectors.getID(stat.parent)+res;
 	}
+
 	return res;
 }
 
@@ -146,38 +99,41 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 	for (var i=0; i<statements.length; i++) {
 		if (statements[i].type == "script") {
 			nstats.push.apply(nstats,statements[i].statements);
-			if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statements, recurse));
+			if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statements, recurse));
 		} else if (statements[i].type == "for") {
 			if (statements[i].statement && statements[i].statement.type == "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
-				if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
 		} else if (statements[i].type == "if") {
 			if (statements[i].statement && statements[i].statement.type == "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
-				if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
 			if (statements[i].elsestatement && statements[i].elsestatement.type == "script") {
 				nstats.push.apply(nstats,statements[i].elsestatement.statements);
-				if (recurse) nstats.push.apply(nstats, getChildren(statements[i].elsestatement.statements, recurse));
+				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].elsestatement.statements, recurse));
 			}
 		} else if (statements[i].type == "when") {
 			if (statements[i].statement && statements[i].statement.type == "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
-				if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
 		} else if (statements[i].type == "while") {
 			if (statements[i].statement && statements[i].statement.type == "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
-				if (recurse) nstats.push.apply(nstats, getChildren(statements[i].statement.statements, recurse));
+				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
 		} else if (statements[i].type == "do") {
 			if (statements[i].script && statements[i].script.type == "script") {
 				nstats.push.apply(nstats,statements[i].script.statements);
-				if (recurse) nstats.push.apply(nstats, getChildren(statements[i].script.statements, recurse));
+				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].script.statements, recurse));
 			}
 		}
 	}
+	nstats = nstats.filter(function(stat) {
+		return stat.type != "dummy";
+	});
 	return nstats;
 }
 
@@ -202,10 +158,7 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "comment"	:	if (stat.doxyComment) {
 										val = stat.doxyComment.stripped();
 									} break;
-				case "source"	:	var p = stat;
-									while (p.parent) p = p.parent;
-									var base = p.base;
-									val = base.getSource(stat);
+				case "source"	:	val = stat.getSource();
 									break;
 				case "innersource"	:	if (stat.type == "script") {
 											val = stat.getInnerSource();
@@ -257,8 +210,6 @@ Eden.Selectors.processResults = function(statements, o) {
 }
 
 Eden.Selectors.query = function(s, o, ctx, single, cb) {
-	console.log("SELECTOR",s);
-
 	if (ctx === undefined) ctx = eden.project.ast;
 
 	var pathix = s.search(/[\.\:\#\@\>]/);
@@ -302,7 +253,6 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 
 			if (s.charAt(1).match(/[0-9]+/)) {
 				var snum = parseInt(command);
-				console.log("NUM SEL",snum);
 
 				statements = statements.filter(function(stat) {
 					return Eden.Selectors.getChildren([stat.parent], false)[snum-1] === stat;
@@ -347,6 +297,9 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 				case "unexecuted"	:	statements = statements.filter(function(stat) {
 											return stat.executed == 0;
 										}); break;
+				case "executed"	:	statements = statements.filter(function(stat) {
+										return stat.executed == 1;
+									}); break;
 
 				case "nth"		:	statements = [statements[parseInt(param)]];
 									break;
@@ -404,7 +357,6 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 			processNode(s.substring(endix).trim());
 		}
 	}
-	processNode(s.substring(pathix).trim());
 
 	if (statements === undefined) statements = [];
 
@@ -414,7 +366,7 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 		if (Eden.Project.local[path]) {
 			$.get(Eden.Project.local[path].file, function(data) {
 				var res = [(new Eden.AST(data, undefined, {name: s, remote: true})).script];
-				Eden.Selectors.cache[s] = res[0];
+				Eden.Selectors.cache[path] = res[0];
 				statements = res;
 				processNode(s.substring(pathix).trim());
 				res = Eden.Selectors.processResults(statements, o);
@@ -422,24 +374,27 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 			}, "text");
 		} else {
 			//Then need to do a remote search
-			console.log("DO REMOTE SELECTOR SEARCH");
 			Eden.DB.searchSelector(s, (o === undefined) ? "source" : o, function(stats) {
 				if (o === undefined && stats.length > 0) {
 					// Need to generate an AST for each result, or first only if single
 					if (single) {
-						var res = [(new Eden.AST(stats[0], undefined, {name: s, remote: true})).script];
-						Eden.Selectors.cache[s] = res[0];
-						cb(res);
-						return;
+						statements = [(new Eden.AST(stats[0], undefined, {name: s, remote: true})).script];
+						Eden.Selectors.cache[path] = res[0];
+						//cb(res);
+						//return;
 					} else {
 						// Loop and do all...
 					}
 				}
-				cb(stats);
+				processNode(s.substring(pathix).trim());
+				var res = Eden.Selectors.processResults(statements, o);
+				cb(res);
 			});
 		}
 
 		return;
+	} else if (statements.length > 0) {
+		processNode(s.substring(pathix).trim());
 	}
 
 	var res = Eden.Selectors.processResults(statements, o);

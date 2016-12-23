@@ -14,6 +14,8 @@ Eden.AST.Script = function() {
 Eden.AST.Script.prototype.getActionByName = function(name) {
 	var script;
 
+	// TODO Add index to boost performance.
+
 	for (var i=0; i<this.statements.length; i++) {
 		if (this.statements[i].type == "script" && this.statements[i].name == name) return this.statements[i];
 	}
@@ -28,7 +30,7 @@ Eden.AST.Script.prototype.getSource = function() {
 Eden.AST.Script.prototype.getInnerSource = function() {
 	var res = "";
 	for (var i=0; i<this.statements.length; i++) {
-		if (typeof this.statements[i].getSource != "function") console.error("NO GET SOURCE", this.statements[i].type);
+		//if (typeof this.statements[i].getSource != "function") console.error("NO GET SOURCE", this.statements[i].type);
 		res += this.statements[i].getSource();
 	}
 	return res;
@@ -40,23 +42,28 @@ Eden.AST.Script.prototype.patchScript = function(ast) {
 		p = p.parent;
 	}
 
-	for (var i=0; i<this.statements.length; i++) {
-		if (ast.script.statements[i].type == "script" && ast.script.statements[i].name == "ACTIVE") {
-			console.log("PATCH ROOT");
-			ast.script.statements[i] = eden.root;
-			ast.scripts["ACTIVE"] = eden.root;
-			break;
+	if (this.parent === undefined) {
+		// May need to replace the ACTIVE virtual root
+		for (var i=0; i<ast.script.statements.length; i++) {
+			if (ast.script.statements[i].type == "script" && ast.script.statements[i].name == "ACTIVE") {
+				ast.script.statements[i] = eden.root;
+				ast.scripts["ACTIVE"] = eden.root;
+			} else {
+				ast.script.statements[i].parent = this;
+			}
+		}
+	} else {
+		for (var i=0; i<ast.script.statements.length; i++) {
+			// Each parent must be updated to real parent
+			ast.script.statements[i].parent = this;
 		}
 	}
 
+	// Patch the statements
 	this.statements = ast.script.statements;
 
-	// TODO The virtual ACTIVE action needs replacing...
-	//if (this.base.origin === eden.project) {
-		
-	//}
-
 	// Update script index...
+	// Is this needed now??
 	for (var x in ast.scripts) {
 		p.base.scripts[x] = ast.scripts[x];
 	}
@@ -74,7 +81,6 @@ Eden.AST.Script.prototype.setLocals = function(locals) {
 }
 
 Eden.AST.Script.prototype.subscribeDynamic = function(ix,name) {
-	console.log("SUBDYN: " + name);
 	return eden.root.lookup(name);
 }
 

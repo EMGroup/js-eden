@@ -50,11 +50,19 @@ Eden.Project.fromOldPath = function(path, tag, cb) {
 }
 
 Eden.Project.newFromExisting = function(name, cb) {
-	Eden.Agent.importAgent(name, undefined, ["noexec"], function(ag) {
-		var src = ag.getSource();
-		eden.project = new Eden.Project(undefined, name, src);
-		if (cb) cb(eden.project);
-	});
+	if (Eden.Project.local[name]) {
+		$.get(Eden.Project.local[name].file, function(data) {
+			eden.project = new Eden.Project(undefined, name, data);
+			eden.project.start();
+			if (cb) cb(eden.project);
+		}, "text");
+	} else {
+		Eden.Agent.importAgent(name, undefined, ["noexec"], function(ag) {
+			var src = ag.getSource();
+			eden.project = new Eden.Project(undefined, name, src);
+			if (cb) cb(eden.project);
+		});
+	}
 }
 
 Eden.Project.search = function(q, cb) {
@@ -76,21 +84,24 @@ Eden.Project.load = function(name, cb) {
 }
 
 Eden.Project.prototype.start = function() {
-	// Get patches from local storage... but don't apply
-	this.ast.execute(this);
+	var me = this;
 
-	if (this.ast.scripts["ACTIVE"]) {
-		// Find the active action and replace
-		for (var i=0; i<this.ast.script.statements.length; i++) {
-			if (this.ast.script.statements[i] === this.ast.scripts["ACTIVE"]) {
-				this.ast.script.statements[i] = eden.root;
-				break;
+	this.ast.execute(this, function() {
+		if (me.ast.scripts["ACTIVE"]) {
+			// Find the active action and replace
+			for (var i=0; i<me.ast.script.statements.length; i++) {
+				if (me.ast.script.statements[i] === me.ast.scripts["ACTIVE"]) {
+					me.ast.script.statements[i] = eden.root;
+					break;
+				}
 			}
+		} else {
+			me.ast.script.append(eden.root);
 		}
-	} else {
-		this.ast.scripts["ACTIVE"] = eden.root;
-		this.ast.script.append(eden.root);
-	}
+
+		eden.root.parent = me.ast.script;
+		me.ast.scripts["ACTIVE"] = eden.root;
+	});
 }
 
 Eden.Project.prototype.save = function(pub, callback) {

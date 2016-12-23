@@ -546,7 +546,6 @@ EdenUI.ScriptBox.prototype.setSource = function(src) {
 	this.highlightContent(this.ast, -1, 0);
 	this.intextarea.focus();
 	if (this.ast.script && this.ast.script.errors.length == 0) {
-		console.log("NO ERRORS!!!");
 		//Eden.Statement.statements[this.currentstatement].setSource(src,this.ast);
 		changeClass(this.outdiv.parentNode,"error",false);
 	} else if (src == "") {
@@ -585,7 +584,6 @@ EdenUI.ScriptBox.prototype.updateLineHighlight = function() {
 	//rebuildNotifications();
 
 	if (this.ast.script && this.ast.script.errors.length == 0) {
-		console.log("NO ERRORS!!!");
 		//Eden.Statement.statements[this.currentstatement].setSource(this.intextarea.value,this.ast);
 		changeClass(this.outdiv.parentNode,"error",false);
 	} else {
@@ -633,7 +631,6 @@ EdenUI.ScriptBox.prototype.updateEntireHighlight = function(rerun) {
 	this.highlightContent(this.ast, -1, pos);
 
 	if (this.ast.script && this.ast.script.errors.length == 0) {
-		console.log("NO ERROR so execute!");
 		//Eden.Statement.statements[this.currentstatement].setSource(this.intextarea.value,this.ast);
 		//changeClass(this.outdiv.parentNode.childNodes[(this.showstars)?2:1],"error",false);
 	} else {

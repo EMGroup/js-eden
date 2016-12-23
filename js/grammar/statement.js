@@ -314,7 +314,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 
 	//var endline = this.stream.line;
 	for (var i=curline+1; i<endline; i++) {
-		if (this.lines[i] === undefined || stat.errors.length > 0) this.lines[i] = stat;
+		//if (this.lines[i] === undefined || stat.errors.length > 0) 
+		this.lines[i] = stat;
 	}
 	return stat;
 };

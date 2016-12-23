@@ -603,8 +603,7 @@ See LICENSE.txt
 				//Eden.loadFromURL("library2/NewProject.js-e");
 				//Eden.loadFromString("import lib; jseden_project_title = \"New Project\";");
 
-				eden.project = new Eden.Project(undefined, "New Project", "action start {\n\n}\ndo lib:unexecuted;\ndo start;\n");
-				eden.project.start();
+				Eden.Project.newFromExisting("NewProject");
 
 				lopts.css("display","none");
 			})

@@ -81,11 +81,11 @@ Eden.Query.search = function(q, cb) {
 			if (words[0] == "select:") {
 				// Do a code selector query...
 				var selector = q.substring(words[0].length).trim();
-				res.all = Eden.Query.querySelector(selector);
+				res.all = Eden.Selectors.query(selector, "source");
 				if (res.all === undefined) res.all = [];
 				if (cb) cb(res);
 
-				if (cb) {
+				if (cb && selector.length >= 3) {
 					if (Eden.Query.dbseltimeout) clearTimeout(Eden.Query.dbseltimeout);
 
 					Eden.Query.dbseltimeout = setTimeout( function() {
@@ -100,7 +100,7 @@ Eden.Query.search = function(q, cb) {
 							cb(res);
 							//console.log(results);
 						});
-					}, 500);
+					}, 1000);
 				}
 				return res;
 			}

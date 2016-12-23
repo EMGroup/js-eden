@@ -236,11 +236,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var tab_frags = [];
 		var readonly = false;
 
-		var obs_tabix = "_view_"+name+"_current";
-		var obs_showtabs = "_view_"+name+"_showtabs";
-		var obs_showbuttons = "_view_"+name+"_showbuttons";
-		var obs_tabs = "_view_"+name+"_tabs";
-		var obs_zoom = "_view_"+name+"_zoom";
+		var obs_tabix = "view_"+name+"_current";
+		var obs_showtabs = "view_"+name+"_showtabs";
+		var obs_showbuttons = "view_"+name+"_showbuttons";
+		var obs_tabs = "view_"+name+"_tabs";
+		var obs_zoom = "view_"+name+"_zoom";
 
 		var tabsSym = eden.root.lookup(obs_tabs);
 		var zoomSym = eden.root.lookup(obs_zoom);
@@ -268,7 +268,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 					setTitle(tab_frags[curtab].title);
 
-					//gutter.setBaseAST(scriptast);
+					gutter.setBaseAST(scriptast);
 				}
 
 				if (tab_frags[curtab].locked) {
@@ -497,7 +497,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (tab_frags[id] && tab_frags[id].ast) {
 				if (tab_frags[id].ast.errors && tab_frags[id].ast.errors.length > 0) {
 					iconclass = "tab-icon errored";
-				} else if (tab_frags[id].ast.executed) {
+				} else if (tab_frags[id].originast.executed) {
 					iconclass = "tab-icon executed";
 				} else {
 					iconclass = "tab-icon";
@@ -678,13 +678,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		// Use the agent wrapper for dealing with view interaction via symbols.
 
-		function viewobs(obs) { return "_view_"+name+"_"+obs; };
+		function viewobs(obs) { return "view_"+name+"_"+obs; };
 		// Associate observables with dialog
 		var observables = [
-			viewobs("script"),
-			viewobs("file"),
 			viewobs("tabs"),
-			viewobs("agent"),
+			viewobs("current"),
 			viewobs("showtabs"),
 			viewobs("showbuttons"),
 			viewobs("zoom")

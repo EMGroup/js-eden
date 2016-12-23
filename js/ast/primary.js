@@ -36,7 +36,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 	if (ctx && ctx.locals) {
 		if (ctx.locals.type == "declarations") {
 			if (ctx.locals.list.indexOf(this.observable) != -1) {
-				console.log("OUT OF DATE DECLARATIONS");
+				//console.log("OUT OF DATE DECLARATIONS");
 				res = this.observable;
 				for (var i=0; i<this.extras.length; i++) {
 					res += this.extras[i].generate(ctx, scope, {bound: false});

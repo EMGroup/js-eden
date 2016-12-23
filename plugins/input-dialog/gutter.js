@@ -247,7 +247,8 @@ EdenScriptGutter.prototype.setBaseAST = function(base) {
 	while (this.gutter.firstChild) {
 		this.gutter.removeChild(this.gutter.firstChild);
 	}
-	this.lines = base.lines;
+	this.ast = base;
+	this.lines = [];
 }
 
 
@@ -257,6 +258,8 @@ EdenScriptGutter.prototype.executeSelected = function() {
 	//console.log("Execute Selected");
 
 	var agent = {name: "*Gutter"};
+
+	console.log("EXE SEL",this.ast);
 
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i].selected) {

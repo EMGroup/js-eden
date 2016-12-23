@@ -39,8 +39,7 @@ function Folder(name, parent, root) {
 	 * @type {Folder}
 	 * @private
 	 */
-	this.parent = parent || this;
-
+	this.parent = undefined;
 	this.base = undefined;
 
 	this.errors = [];
@@ -107,7 +106,6 @@ function Folder(name, parent, root) {
 		enumerable: true,
 		get: function() {
 			// Generate AST Nodes for each symbol.
-			console.log("GENERATE VIRTUAL AST");
 			return [];
 		}
 	});

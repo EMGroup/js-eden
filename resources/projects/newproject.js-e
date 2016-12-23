@@ -1,0 +1,14 @@
+/**
+ * @title Start Your Model
+ */
+action start {
+}
+
+do lib:unexecuted;
+do ACTIVE;
+do start;
+
+action ACTIVE {_views_list = ["myscript"];
+_view_myscript_type = "ScriptInput";
+view_myscript_tabs = ["start"];}
+

@@ -197,7 +197,7 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
  */
 Eden.AST.prototype.getBase = function(statement) {
 	var base = statement;
-	while (base && base.parent && base.parent != this.script) base = base.parent;
+	while (base && base.base === undefined && base.parent) base = base.parent;
 	return base; 
 }
 

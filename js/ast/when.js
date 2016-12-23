@@ -36,8 +36,13 @@ Eden.AST.When.prototype.setSource = function(start, end, src) {
 
 	if (!src) return;
 
-	this.prefix = src.substring(0, this.statement.start-start);
-	this.postfix = src.substring(this.statement.end-start);
+	if (this.statement) {
+		this.prefix = src.substring(0, this.statement.start-start);
+		this.postfix = src.substring(this.statement.end-start);
+	} else {
+		this.prefix = src.substring(0,end);
+		this.postfix = "";
+	}
 }
 
 Eden.AST.When.prototype.getLine = function() { return this.line; }
