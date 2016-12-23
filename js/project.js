@@ -1,26 +1,50 @@
 Eden.Project = function(id, name, source) {
-	this.title = undefined;
-	this.name = name.replace(/[^a-bA-B0-9]/g, "");
+	this.title = name;
+	this.name = name.replace(/[^a-zA-Z0-9]/g, "");
 	this.author = undefined;
 	this.tags = undefined;
 	this.src = source;
 	this.ast = new Eden.AST(source, undefined, this);
+	this.ast.script.lock = 1;
 	this.id = id;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
-		if (this.ast.mainDoxyComment) {
-			var controls = this.ast.mainDoxyComment.getControls();
-			if (controls["@title"]) this.title = controls["@title"][0];
-			if (controls["@author"]) this.author = controls["@author"][0];
-			this.tags = this.ast.mainDoxyComment.getHashTags();
-		}
+		// Fabricate a fake doxy comment for the script using meta data.
+		var doxystring = "/** "+ name + "\n * @title " + this.title + "\n * @author " + this.author + "\n */";
+		var doxy = new Eden.AST.DoxyComment(doxystring);
+		this.ast.script.doxyComment = doxy;	
 	}
+
+	eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, this);
+	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, this);
+}
+
+Eden.Project.init = function() {
+	var titleSym = eden.root.lookup("jseden_project_title");
+	titleSym.addJSObserver("project", function(sym, value) {
+		if (sym.last_modified_by !== eden.project) {
+			if (eden.project === undefined) return;
+			eden.project.title = value;
+			eden.project.name = value.replace(/[^a-zA-Z0-9]/g, "");
+			// Fabricate a fake doxy comment for the script using meta data.
+			var doxystring = "/** "+ eden.project.name + "\n * @title " + eden.project.title + "\n * @author " + eden.project.author + "\n */";
+			var doxy = new Eden.AST.DoxyComment(doxystring);
+			eden.project.ast.script.doxyComment = doxy;
+			// TODO Notify relevant fragments...
+			Eden.Fragment.emit("aststatus", [eden.project.ast.script]);
+		}
+	});
+
+	$.get("resources/projects.db.json", function(data) {
+		Eden.Project.local = data;
+	}, "json");
 }
 
 Eden.Project.fromOldPath = function(path, tag, cb) {
 	Eden.Agent.importAgent(path, tag, ["noexec"], function(ag) {
 		var src = ag.getSource();
 		eden.project = new Eden.Project(ag.meta.saveID, path, src);
+		eden.project.start();
 		if (cb) cb(eden.project);
 	});
 }

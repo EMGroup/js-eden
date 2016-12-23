@@ -1,0 +1,14 @@
+{
+	"lib": {
+		"title": "Library",
+		"file": "resources/projects/lib.js-e",
+		"author": "EM Group",
+		"tags": ["lib","library"]
+	},
+	"NewProject": {
+		"title": "New Project",
+		"file": "resources/projects/newproject.js-e",
+		"author": "EM Group",
+		"tags": ["new","project","blank"]
+	}
+}

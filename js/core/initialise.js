@@ -161,6 +161,7 @@ function Construit(options,callback) {
 
 		edenUI = new EdenUI(eden);
 		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
+		Eden.Project.init();
 
 		// Put JS-EDEN version number or name in top-right corner.
 		$.ajax({
@@ -274,16 +275,16 @@ function Construit(options,callback) {
 										else doImport(ix);
 									});
 								}
-								Eden.Agent.importAgent("lib","default", [], function() {
+								//Eden.Agent.importAgent("lib","default", [], function() {
 									doImport(0);
-								});
+								//});
 							} else if (load != "" && tag != "") {
 								Eden.load(load,parseInt(tag),function(){ doneLoading(true); });
 							} else if (restore != "") {
 								doneLoading(Eden.restore());
 							} else {
 								// Background load library...
-								Eden.Agent.importAgent("lib","default", [], function() {});
+								//Eden.Agent.importAgent("lib","default", [], function() {});
 								doneLoading(false);
 							}
 						});

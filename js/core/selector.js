@@ -16,7 +16,8 @@ Eden.Selectors.findLocalBase = function(path, ctx, filters) {
 		if (path == "" || path == eden.project.name) {
 			scripts.push(eden.project.ast.script);
 		} else {
-			var script = eden.project.ast.getActionByName(path);
+			console.log(ctx);
+			var script = ctx.getActionByName(path);
 			if (script) {
 				scripts.push(script);
 				continue;
@@ -258,11 +259,13 @@ Eden.Selectors.processResults = function(statements, o) {
 Eden.Selectors.query = function(s, o, ctx, single, cb) {
 	console.log("SELECTOR",s);
 
+	if (ctx === undefined) ctx = eden.project.ast;
+
 	var pathix = s.search(/[\.\:\#\@\>]/);
 	if (pathix == -1) pathix = s.length;
 	var path = s.substring(0,pathix).trim();
 	var script;
-	var pathixf = s.search(/[\.\>]/);
+	var pathixf = s.search(/[\>]/);
 	if (pathixf == -1) pathixf = s.length;
 	
 	var statements = Eden.Selectors.findLocalBase(path, ctx, s.substring(pathix,pathixf).trim());
@@ -372,15 +375,19 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 			statements = nstats;
 			processNode(s.substring(tag.length).trim());
 		} else if (s.charAt(0) == ".") {
-			var nstats = [];
 			var tag = s.match(/.[a-zA-Z0-9_]+/);
 			if (tag === null) return [];
 			tag = tag[0].substring(1);
+			var nstats = [];
 			for (var i=0; i<statements.length; i++) {
-				if (statements[i].base && statements[i].base.scripts[tag]) {
-					nstats.push(statements[i].base.scripts[tag]);
+				var stat = statements[i];
+				if (stat.type == "script") {
+					for (j=0; j<stat.statements.length; j++) {
+						if (stat.statements[j].type == "script" && stat.statements[j].name == tag)
+							nstats.push(stat.statements[j]);
+					}
 				}
-			}
+			};
 			statements = nstats;
 			processNode(s.substring(tag.length+1).trim());
 		} else if (s.charAt(0).match(/[a-z]+/)) {
@@ -402,22 +409,36 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 	if (statements === undefined) statements = [];
 
 	if (cb && ((statements.length == 0 && single) || !single)) {
-		//Then need to do a remote search
-		console.log("DO REMOTE SELECTOR SEARCH");
-		Eden.DB.searchSelector(s, (o === undefined) ? "source" : o, function(stats) {
-			if (o === undefined && stats.length > 0) {
-				// Need to generate an AST for each result, or first only if single
-				if (single) {
-					var res = [(new Eden.AST(stats[0], undefined, {name: s, remote: true})).script];
-					Eden.Selectors.cache[s] = res[0];
-					cb(res);
-					return;
-				} else {
-					// Loop and do all...
+
+		// Look for local projects
+		if (Eden.Project.local[path]) {
+			$.get(Eden.Project.local[path].file, function(data) {
+				var res = [(new Eden.AST(data, undefined, {name: s, remote: true})).script];
+				Eden.Selectors.cache[s] = res[0];
+				statements = res;
+				processNode(s.substring(pathix).trim());
+				res = Eden.Selectors.processResults(statements, o);
+				cb(res);
+			}, "text");
+		} else {
+			//Then need to do a remote search
+			console.log("DO REMOTE SELECTOR SEARCH");
+			Eden.DB.searchSelector(s, (o === undefined) ? "source" : o, function(stats) {
+				if (o === undefined && stats.length > 0) {
+					// Need to generate an AST for each result, or first only if single
+					if (single) {
+						var res = [(new Eden.AST(stats[0], undefined, {name: s, remote: true})).script];
+						Eden.Selectors.cache[s] = res[0];
+						cb(res);
+						return;
+					} else {
+						// Loop and do all...
+					}
 				}
-			}
-			cb(stats);
-		});
+				cb(stats);
+			});
+		}
+
 		return;
 	}
 

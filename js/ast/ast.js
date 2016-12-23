@@ -320,7 +320,7 @@ Eden.AST.prototype.next = function() {
 				} else if (this.lastDoxyComment.content.startsWith("@}")) {
 					if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
 				}
-				if (startline == 1) this.mainDoxyComment = this.lastDoxyComment;
+				//if (startline == 1) this.mainDoxyComment = this.lastDoxyComment;
 			}
 			this.token = this.stream.readToken();
 		// Skip line comments

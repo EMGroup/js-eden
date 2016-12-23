@@ -601,7 +601,11 @@ See LICENSE.txt
 			})
 			.on("click","#loadnew",function() {
 				//Eden.loadFromURL("library2/NewProject.js-e");
-				Eden.loadFromString("import lib; jseden_project_title = \"New Project\";");
+				//Eden.loadFromString("import lib; jseden_project_title = \"New Project\";");
+
+				eden.project = new Eden.Project(undefined, "New Project", "action start {\n\n}\ndo lib:unexecuted;\ndo start;\n");
+				eden.project.start();
+
 				lopts.css("display","none");
 			})
 			.on("click","#importfile",function() {
@@ -642,9 +646,11 @@ See LICENSE.txt
 				$(".loadmodal").show();
 				$(".loadmessage").html("Loading " + Eden.DB.meta[path].title + "...");
 
-				Eden.load(path,tag,function() {
+				//Eden.load(path,tag,function() {
 
-				});
+				Eden.Project.fromOldPath(path, tag);
+
+				//});
 			});
 
 			function setLoadObserver() {

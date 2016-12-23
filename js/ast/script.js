@@ -8,6 +8,19 @@ Eden.AST.Script = function() {
 	this.postfix = "";
 };
 
+/**
+ * Recursive search of all imports for the required action code.
+ */
+Eden.AST.Script.prototype.getActionByName = function(name) {
+	var script;
+
+	for (var i=0; i<this.statements.length; i++) {
+		if (this.statements[i].type == "script" && this.statements[i].name == name) return this.statements[i];
+	}
+
+	return script;
+}
+
 Eden.AST.Script.prototype.getSource = function() {
 	return this.prefix + this.getInnerSource() + this.postfix;
 }
@@ -22,21 +35,31 @@ Eden.AST.Script.prototype.getInnerSource = function() {
 }
 
 Eden.AST.Script.prototype.patchScript = function(ast) {
-	this.patched = true;
-	var p = this.parent;
-	while (p) {
-		p.patched = true;
+	var p = this;
+	while (p.parent) {
 		p = p.parent;
 	}
+
+	for (var i=0; i<this.statements.length; i++) {
+		if (ast.script.statements[i].type == "script" && ast.script.statements[i].name == "ACTIVE") {
+			console.log("PATCH ROOT");
+			ast.script.statements[i] = eden.root;
+			ast.scripts["ACTIVE"] = eden.root;
+			break;
+		}
+	}
+
 	this.statements = ast.script.statements;
 
-	// Extract outer source prefix
-	
-	// Extract outer source postfix
+	// TODO The virtual ACTIVE action needs replacing...
+	//if (this.base.origin === eden.project) {
+		
+	//}
 
-	//this.patch_inner = newsrc;
-	//this.patch_src = outer_pre + newsrc + outer_post;
-	//this.statements = newstats;
+	// Update script index...
+	for (var x in ast.scripts) {
+		p.base.scripts[x] = ast.scripts[x];
+	}
 }
 
 Eden.AST.Script.prototype.getLine = function() {

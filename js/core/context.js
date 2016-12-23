@@ -113,8 +113,8 @@ function Folder(name, parent, root) {
 	});
 }
 
-Folder.prototype.getSource = function() {
-	var res = "\n\naction ACTIVE {\n";
+Folder.prototype.getInnerSource = function() {
+	var res = "";
 	for (var x in this.symbols) {
 		var sym = this.symbols[x];
 		if (sym.last_modified_by.name.charAt(0) != "*" || sym.last_modified_by.name == "*Default") continue;
@@ -124,7 +124,13 @@ Folder.prototype.getSource = function() {
 			res += x + " = " + Eden.edenCodeForValue(sym.value()) + ";\n";
 		}
 	}
-	res += "}\n";
+	return res;
+}
+
+Folder.prototype.getSource = function() {
+	var res = "action ACTIVE {\n";
+	res += this.getInnerSource();
+	res += "\n}";
 	return res;
 }
 

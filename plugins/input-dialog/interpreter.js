@@ -297,10 +297,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				//	tab_frags[i].unlock();
 				//}
 				tab_queries = value;
-				// TODO Reuse existing fragments.
+				var oldfrags = {};
+				for (var i=0; i<tab_frags.length; i++) {
+					oldfrags[tab_frags[i].selector] = tab_frags[i];
+				}
+
+				console.log("OLDFRAGS",oldfrags);
+
 				tab_frags = [];
 				for (var i=0; i<value.length; i++) {
 					tab_frags.push(Eden.Fragment.fromSelector(value[i]));
+					oldfrags[value[i]] = undefined;
+				}
+
+				for (var x in oldfrags) {
+					if (oldfrags[x]) {
+						console.log("REMOVE FRAG",x);
+						oldfrags[x].unlock();
+					}
 				}
 
 				curChanged(curSym, curSym.value());
@@ -344,6 +358,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			//if (frag === tab_frags[curtab]) {
 				rebuildTabs();
 			//}
+		});
+
+		Eden.Fragment.listenTo("status", this, function(frag) {
+			if (frag === tab_frags[curtab]) {
+				rebuildTabs();
+				setTitle(tab_frags[curtab].title);
+			}
 		});
 
 
@@ -891,31 +912,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			//inputhider.scrollTop = oldscrolltop;
 			//console.log("SCROLLTOP",oldscrolltop);
 
-			// Process the scripts main doxy comment for changes.
-			if (ast.mainDoxyComment) { // && (lineno == -1 || (lineno >= 1 && lineno <= ast.mainDoxyComment.endline))) {
-				// Find all doc tags
-				var taglines = ast.mainDoxyComment.content.match(/@[a-z]+.*\n/ig);
-				var tagix = ast.mainDoxyComment.content.search("@title");
-				if (tagix >= 0) {
-					var content = ast.mainDoxyComment.content.substr(tagix+7).split("\n")[0].trim();
-					setTitle(content);
-				}
-				/*if (taglines) {
-					for (var i=0; i<taglines.length; i++) {
-						// Extract tag and content
-						var ix = taglines[i].search(/\s/);
-						if (ix >= 0) {
-							var tag = taglines[i].substring(0,ix);
-							var content = taglines[i].substr(ix).trim();
-
-							// Set title tag found
-							if (tag == "@title") {
-								setTitle(content);
-							}
-						}
-					}
-				}*/
-			}
 
 			// Make sure caret remains inactive if we don't have focus
 			if (document.activeElement !== intextarea) {

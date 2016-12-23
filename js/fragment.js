@@ -15,6 +15,19 @@ Eden.Fragment = function(selector) {
 	this.reset();
 	var me = this;
 
+	Eden.Fragment.listenTo("aststatus", this, function(ast) {
+		if (ast === me.originast) {
+			var dcom = me.originast.doxyComment;
+			if (dcom) {
+				var ctrls = dcom.getControls();
+				if (ctrls["@title"]) {
+					me.title = ctrls["@title"][0];
+				}
+			}
+			Eden.Fragment.emit("status", [me]);
+		}
+	});
+
 	Eden.Fragment.listenTo("patch", this, function(frag, ast) {
 		if (ast === me.originast) {
 			console.log("I AM OUT OF DATE",me.name);
@@ -56,6 +69,10 @@ Eden.Fragment.fromSelector = function(selector) {
 		Eden.Fragment.cache[selector] = frag;
 		return frag;
 	}
+}
+
+Eden.Fragment.prototype.destroy = function() {
+	
 }
 
 Eden.Fragment.prototype.reset = function() {
@@ -144,9 +161,10 @@ Eden.Fragment.prototype.setSource = function(src) {
 
 Eden.Fragment.prototype.lock = function() {
 	console.log("LOCK",this);
+	//this.locked = true;
 	// Recursively lock parents...
 	var p = this.originast.parent;
-	this.originast.lock++;
+	//this.originast.lock++;
 	while (p) {
 		p.lock++;
 		Eden.Fragment.emit("lock", [this, p]);
@@ -156,10 +174,10 @@ Eden.Fragment.prototype.lock = function() {
 }
 
 Eden.Fragment.prototype.unlock = function() {
-	if (this.originast.lock == 0) return;
+	//if (!this.locked) return;
 	// Recursively lock parents...
 	var p = this.originast.parent;
-	this.originast.lock--;
+	//this.originast.lock--;
 	while (p) {
 		p.lock--;
 		if (p.lock == 0) Eden.Fragment.emit("unlock", [this, p]);

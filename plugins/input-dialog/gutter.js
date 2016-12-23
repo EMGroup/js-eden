@@ -256,10 +256,12 @@ EdenScriptGutter.prototype.executeSelected = function() {
 	if (this.ast === undefined) return;
 	//console.log("Execute Selected");
 
+	var agent = {name: "*Gutter"};
+
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i].selected) {
 			var sellines = this.ast.getBlockLines(i);
-			this.ast.executeLine(i);
+			this.ast.executeLine(i, agent);
 			i = sellines[1];
 		}
 	}

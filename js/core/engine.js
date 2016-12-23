@@ -187,13 +187,15 @@ function runEdenAction(source, action, cb) {
 						var err = new Eden.RuntimeError(me, Eden.RuntimeError.ACTIONNAME, delay.value, "Selector '"+delay.value.selector+"' has no results");
 						err.line = delay.value.line;
 						delay.value.errors.push(err);
-						Eden.Agent.emit("error", [source,err]);
+						Eden.Agent.emit("warning", [source,err]);
+						runEdenAction.call(me,source, action, cb);
 					}
 				}
 
 				// Note that getActionByName can return entire agents!
 				if (delay.value.name) {
-					Eden.Selectors.query(delay.value.selector, undefined, me, true, docb);
+					// Get contextual root...
+					Eden.Selectors.query(delay.value.selector, undefined, delay.value.parent, true, docb);
 				} else {
 					stats = delay.value.script.statements;
 					docb(stats);
