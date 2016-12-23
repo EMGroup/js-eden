@@ -7,6 +7,7 @@ Eden.Project = function(id, name, source) {
 	this.ast = new Eden.AST(source, undefined, this);
 	this.ast.script.lock = 1;
 	this.id = id;
+	this.triggers = {};
 
 	if (this.ast && this.ast.script.errors.length == 0) {
 		// Fabricate a fake doxy comment for the script using meta data.
@@ -38,6 +39,22 @@ Eden.Project.init = function() {
 	$.get("resources/projects.db.json", function(data) {
 		Eden.Project.local = data;
 	}, "json");
+
+	// Watch to trigger whens
+	eden.root.addGlobal(function(sym, create) {
+		if (eden.project === undefined) return;
+		//if (me.ast && me.executed && me.ast.script.errors.length == 0) {
+			var whens = eden.project.triggers[sym.name];
+			if (whens) {
+				//clearExecutedState();
+				for (var i=0; i<whens.length; i++) {
+					whens[i].statement.trigger(undefined, whens[i].scope);
+				}
+				//gutter.generate(this.ast,-1);
+				//me.clearExecutedState();
+			}
+		//}
+	});
 }
 
 Eden.Project.fromOldPath = function(path, tag, cb) {
@@ -160,5 +177,17 @@ Eden.Project.prototype.addAction = function(name) {
 
 Eden.Project.prototype.generate = function() {
 	return this.ast.getSource();
+}
+
+Eden.Project.prototype.registerAgent = function(when) {
+	console.log("REGISTER WHEN", when);
+	for (var x in when.dependencies) {
+		if (this.triggers[x] === undefined) this.triggers[x] = [];
+		this.triggers[x].push({statement: when, scope: eden.root.scope});
+	}
+}
+
+Eden.Project.prototype.removeAgent = function(when) {
+	console.log("REMOVE WHEN", when);
 }
 

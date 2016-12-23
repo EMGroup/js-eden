@@ -13,6 +13,7 @@ Eden.AST.When = function() {
 	this.local = false;
 	this.dirty = false;
 	this.statement = undefined;
+	this.enabled = false;
 };
 
 Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
@@ -115,9 +116,9 @@ Eden.AST.When.prototype.compile = function(base) {
 	}
 
 	// Register with base to be triggered
-	for (var d in this.dependencies) {
-		this.addTrigger(base, d);
-	}
+	//for (var d in this.dependencies) {
+	//	this.addTrigger(base, d);
+	//}
 
 	return "";
 }
@@ -194,6 +195,11 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 }
 
 Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
+	if (!this.enabled) {
+		// Register agent with project.
+		eden.project.registerAgent(this);
+	}
+	this.enabled = true;
 	//if (this.scope && this.compScope === undefined) {
 	//	try {
 	//		this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })").call(this, eden.root, eden.root.scope);

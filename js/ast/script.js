@@ -59,6 +59,12 @@ Eden.AST.Script.prototype.patchScript = function(ast) {
 		}
 	}
 
+	// Find all old when's and remove them from the project.
+	var whens = Eden.Selectors.queryWithin([this], ">>when");
+	for (var i=0; i<whens.length; i++) {
+		if (whens[i].enabled) eden.project.removeAgent(whens[i]);
+	}
+
 	// Patch the statements
 	this.statements = ast.script.statements;
 
