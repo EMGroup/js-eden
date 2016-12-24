@@ -162,7 +162,12 @@ Eden.Project.prototype.restore = function() {
 }
 
 Eden.Project.prototype.patch = function(oldast, newast) {
-	
+
+}
+
+Eden.Project.prototype.snapshot = function() {
+	// Generate a DIFF and save
+	// Allow entire project to rollback
 }
 
 Eden.Project.prototype.addAction = function(name) {

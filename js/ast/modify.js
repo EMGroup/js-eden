@@ -1,3 +1,6 @@
+/**
+ * Modification operations such as +=. This AST node represents all of these.
+ */
 Eden.AST.Modify = function(kind, expression) {
 	this.type = "modify";
 	Eden.AST.BaseContext.apply(this);
@@ -8,12 +11,12 @@ Eden.AST.Modify = function(kind, expression) {
 	this.lvalue = undefined;
 };
 
-Eden.AST.Modify.prototype.getParameterByNumber = function(index) {
+/*Eden.AST.Modify.prototype.getParameterByNumber = function(index) {
 	if (this.parent && this.parent.getParameterByNumber) {
 		return this.parent.getParameterByNumber(index);
 	}
 	return undefined;
-}
+}*/
 
 Eden.AST.Modify.prototype.setSource = Eden.AST.BaseStatement.setSource;
 Eden.AST.Modify.prototype.getSource = Eden.AST.BaseStatement.getSource;
@@ -123,10 +126,6 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 			}
 
 			this.scopes = [];
-
-			/*console.log(_scopes);
-			console.log(this.scopes);
-			console.log(rhs);*/
 
 			var newval;
 

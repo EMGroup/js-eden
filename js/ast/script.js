@@ -30,7 +30,6 @@ Eden.AST.Script.prototype.getSource = function() {
 Eden.AST.Script.prototype.getInnerSource = function() {
 	var res = "";
 	for (var i=0; i<this.statements.length; i++) {
-		//if (typeof this.statements[i].getSource != "function") console.error("NO GET SOURCE", this.statements[i].type);
 		res += this.statements[i].getSource();
 	}
 	return res;
@@ -147,6 +146,10 @@ Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
 	var filtered = [];
 	this.executed = 1;
 
+	// TODO Optimise by compiling if possible
+	// Blocking statements would need special treatment and it may not always
+	// be possible to compile them simply.
+
 	if (this.locals && this.locals.list.length > 0) {
 		if (ctx.locals === undefined) ctx.locals = {};
 		for (var i=0; i<this.locals.list.length; i++) {
@@ -154,6 +157,7 @@ Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
 		}
 	}
 
+	// Remove nested scripts that shouldn't be executed
 	for (var i=0; i<this.statements.length; i++) {
 		if (this.statements[i].type != "script") filtered.push(this.statements[i]);
 	}

@@ -25,6 +25,8 @@ Eden.AST.Return.prototype.generate = function(ctx,scope) {
 }
 
 Eden.AST.Return.prototype.execute = function(ctx,base,scope,agent) {
+	// Can't use a return inside procedures/scripts.
+	// TODO Might be desirable, somehow.
 	var err = new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Return not supported here");
 	err.line = this.line;
 	this.errors.push(err);

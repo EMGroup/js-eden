@@ -148,11 +148,11 @@ div.eden-gutter-item.live:before {
 }
 
 div.eden-gutter-item.errorblock {
-	border-right: 2px solid #ff0000;
+	border-right: 3px solid #ff0000;
 }
 
 div.eden-gutter-item.executed {
-	border-right: 2px solid #00ff00;
+	border-right: 3px solid #00ff00;
 	/*animation: clearborder 0.4s linear;
 	animation-fill-mode: forwards;*/
 }
@@ -164,7 +164,7 @@ div.eden-gutter-item.executed {
 }
 
 div.eden-gutter-item.guarded {
-	border-right: 2px solid #ffee00;
+	border-right: 3px solid #ffee00;
 }
 
 div.eden-gutter-item.error {

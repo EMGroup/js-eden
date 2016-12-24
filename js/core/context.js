@@ -132,6 +132,8 @@ Folder.prototype.getSource = function() {
 	return res;
 }
 
+Folder.prototype.execute = function() {}
+
 /**
  * Looks up the the Symbol with the given name.
  *

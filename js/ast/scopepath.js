@@ -40,13 +40,9 @@ Eden.AST.ScopePath.prototype.setPrimary = function(prim) {
 }
 
 Eden.AST.ScopePath.prototype.generate = function(ctx, scope, options) {
-	// Add scope to list of scopes in the context
-	//console.log(ctx);
-	//ctx.scopes.push(this.path.generate(ctx, scope, true)+".scope");
+	// Generate the expression to get the scope
 	var path = this.path.generate(ctx, scope, {bound: true, scopeonly: true})
-	//this.scopestr = "_scopes[" + (ctx.scopes.length-1) + "]";
-	// And then use that scope to access the primary.
-	//return this.primary.generate(ctx, "_scopes["+(ctx.scopes.length-1)+"]");
+	// Generate the primary within the above calculated scope
 	return this.primary.generate(ctx, path, options);
 }
 

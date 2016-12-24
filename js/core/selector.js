@@ -226,7 +226,7 @@ Eden.Selectors.processNode = function(statements, s) {
 		}
 	} else if (s.charAt(0) == ":") {
 		var ns = s.substring(1);
-		var endix = ns.search(/[^a-zA-Z0-9]/);
+		var endix = ns.search(/[^a-zA-Z0-9\-]/);
 		if (endix == -1) endix = ns.length;
 		var command = ns.substring(0,endix);
 		var param = undefined;
@@ -287,6 +287,10 @@ Eden.Selectors.processNode = function(statements, s) {
 									}); break;
 			case "executed"	:	statements = statements.filter(function(stat) {
 									return stat.executed == 1;
+								}); break;
+
+			case "has-name"	:	statements = statements.filter(function(stat) {
+									return stat.name !== undefined;
 								}); break;
 
 			case "nth"		:	statements = [statements[parseInt(param)]];
@@ -365,13 +369,14 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 	var statements = Eden.Selectors.findLocalBase(path, ctx, s.substring(pathix,pathixf).trim());
 	if (statements === undefined) statements = [];
 	statements = Eden.Selectors.queryWithin(statements, s.substring(pathix).trim(), undefined);
+	if (statements === undefined) statements = [];
 
 	if (cb && ((statements.length == 0 && single) || !single)) {
 
 		// Look for local projects
 		if (Eden.Project.local[path]) {
 			$.get(Eden.Project.local[path].file, function(data) {
-				var res = [(new Eden.AST(data, undefined, {name: s, remote: true})).script];
+				var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 				Eden.Selectors.cache[path] = res[0];
 				statements = res;
 				statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
@@ -384,15 +389,17 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 				if (o === undefined && stats.length > 0) {
 					// Need to generate an AST for each result, or first only if single
 					if (single) {
-						statements = [(new Eden.AST(stats[0], undefined, {name: s, remote: true})).script];
-						Eden.Selectors.cache[path] = res[0];
+						statements = [(new Eden.AST(stats[0], undefined, {name: path, remote: true})).script];
+						Eden.Selectors.cache[path] = statements[0];
 						//cb(res);
 						//return;
 					} else {
 						// Loop and do all...
 					}
+				} else {
+					statements = stats;
 				}
-				statements = Eden.Selectors.processNode(statements, s);
+				statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
 				var res = Eden.Selectors.processResults(statements, o);
 				cb(res);
 			});

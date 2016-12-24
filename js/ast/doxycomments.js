@@ -51,6 +51,7 @@ Eden.AST.DoxyComment.prototype.getControls = function() {
 
 Eden.AST.DoxyComment.prototype.stripped = function() {
 	var controls = {};
+	var tags = {};
 	var lines = this.content.split("\n");
 	//console.log(lines);
 	var res = "";
@@ -78,6 +79,8 @@ Eden.AST.DoxyComment.prototype.stripped = function() {
 		for (var j=0; j<words.length; j++) {
 			if (words[j] != "" && words[j].charAt(0) != "#" && words[j].charAt(0) != "@") {
 				res += words[j] + " ";
+			} else if (words[j].charAt(0) == "#") {
+				tags[words[j]] = true;
 			}
 		}
 		//res = res.trim();
@@ -85,6 +88,7 @@ Eden.AST.DoxyComment.prototype.stripped = function() {
 	}
 
 	this.controls = controls;
+	this.tags = tags;
 	//console.log(res);
 	return res.trim();
 }
