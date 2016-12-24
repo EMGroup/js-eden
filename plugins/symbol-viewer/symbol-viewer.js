@@ -19,17 +19,6 @@ var edenfunctions = {};
 EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	var me = this;
 
-	// Obtain function meta data from server
-	$.ajax({
-		url: "library/functions.json",
-		dataType: 'json',
-		success: function (data) {
-			edenfunctions = data;
-		},
-		cache: false,
-		async: true
-	});
-
 	/**
 	 * Array of symbol list instances
 	 * @see SymbolList

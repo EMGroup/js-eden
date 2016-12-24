@@ -40,7 +40,7 @@ Eden.AST.prototype.pDO = function() {
 
 		return w;
 	// Must have a name otherwise, or error
-	} else if (this.token != "OBSERVABLE") {
+	} else if (this.token != "OBSERVABLE" && this.token != "." && this.token != ">>" && this.token != ":") {
 		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DONAME));
 		this.parent = parent;
 		return w;

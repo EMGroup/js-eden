@@ -364,7 +364,7 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 
 	var statements = Eden.Selectors.findLocalBase(path, ctx, s.substring(pathix,pathixf).trim());
 	if (statements === undefined) statements = [];
-	statements = Eden.Selectors.queryWithin(statements, s.substring(pathix).trim(), o);
+	statements = Eden.Selectors.queryWithin(statements, s.substring(pathix).trim(), undefined);
 
 	if (cb && ((statements.length == 0 && single) || !single)) {
 

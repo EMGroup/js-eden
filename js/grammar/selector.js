@@ -112,6 +112,7 @@ Eden.AST.prototype.pCODESELECTOR_P = function() {
 
 Eden.AST.prototype.pCODESELECTOR = function() {
 	var path = this.pAGENTPATH();
+	if (path == "_ERROR_") path = "";
 	var expr = new Eden.AST.Literal("STRING", path);
 
 	while (this.token == ".") {

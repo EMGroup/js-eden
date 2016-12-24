@@ -158,11 +158,13 @@ EdenUI.Sharebox = function(element) {
 		} else {
 			me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
 		}
-		Eden.Agent.uploadAll(function() {
-			console.log("ALL UPLOADED");
-			Eden.DB.save(title, function(status) {
-				if (status.path) {
-					var url = "?load="+status.path+"&tag="+status.saveID;
+		//Eden.Agent.uploadAll(function() {
+			//console.log("ALL UPLOADED");
+			eden.project.thumb = me.thumbdata;
+			eden.project.tags = tagstr;
+			eden.project.save(function(status) {
+				if (status) {
+					var url = "?load="+eden.project.name+"&id="+eden.project.id;
 					me.sharebox.find(".projecturl").html(window.location.href+url);
 					//function selectElementContents(el) {
 					var range = document.createRange();
@@ -174,8 +176,8 @@ EdenUI.Sharebox = function(element) {
 				} else {
 					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
 				}
-			}, {thumb: me.thumbdata, tags: tagstr, hidden: tagstr.indexOf("hidden") >= 0});
-		});
+			});
+		//});
 	});
 
 	this.sharebox.on("click",".publish", function(e) {
@@ -191,7 +193,7 @@ EdenUI.Sharebox = function(element) {
 		} else {
 			me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
 		}
-		Eden.Agent.publishAll(function() {
+		//Eden.Agent.publishAll(function() {
 			Eden.DB.save(title, function(status) {
 				if (status.path) {
 					var url = "?load="+status.path+"&tag="+status.saveID;
@@ -207,7 +209,7 @@ EdenUI.Sharebox = function(element) {
 					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
 				}
 			}, {publish: true, thumb: me.thumbdata, tags: tagstr, hidden: tagstr.indexOf("hidden") >= 0, official: tagstr.indexOf("official") >= 0});
-		});
+		//});
 	});
 }
 
@@ -241,9 +243,9 @@ EdenUI.Sharebox.prototype.update = function() {
 
 	//Saved to your projects and shared at:<div class="projecturl"></div>
 
-	var tags;
+	var tags = eden.project.tags;
 
-	if (tags === undefined || tags.length == 0) {
+	/*if (tags === undefined || tags.length == 0) {
 		tags = title.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
 		//console.log(tags);
 		//for (var i=0; i<tags.length; i++) tags[i] = "#" + tags[i];
@@ -252,7 +254,7 @@ EdenUI.Sharebox.prototype.update = function() {
 			var nametags = Eden.DB.username.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
 			tags.push.apply(tags,nametags);
 		}
-	}
+	}*/
 
 	if (tags && tags.length > 0) {
 		var taghtml = "";
@@ -263,7 +265,7 @@ EdenUI.Sharebox.prototype.update = function() {
 		me.sharebox.find(".projecttags").html(taghtml);
 	}
 
-	me.projectsource = Eden.DB.generateSource(title);
+	me.projectsource = eden.project.generate();
 	var source = "data:application/octet-stream," + encodeURIComponent(me.projectsource);
 	me.sharebox.find(".downloadurl").html('<a href="'+source+'" download="'+title+'.js-e">'+title+'.js-e</a>');
 }

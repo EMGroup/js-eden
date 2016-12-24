@@ -620,9 +620,14 @@ See LICENSE.txt
 				.on("click","#openfile",function() {
 					var fileinput = $("#theimportfile").get(0);
 					var file = fileinput.files[0];
+					var filename = file.name;
+					filename = filename.substring(0,filename.lastIndexOf("."));
+					console.log("FILE",file);
 					var reader = new FileReader();
 					reader.onload = function(e) {
-						Eden.loadFromString(e.target.result);
+						//Eden.loadFromString(e.target.result);
+						eden.project = new Eden.Project(undefined, filename, e.target.result);
+						eden.project.start();
 						importfile.css("display","none");
 					};
 					reader.readAsText(file);
