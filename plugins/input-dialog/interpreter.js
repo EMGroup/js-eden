@@ -694,7 +694,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var gutterinterval = setInterval(function() {
 			if (scriptast === undefined) return;
-			gutter.generate(scriptast, -1);
+			gutter.generate(scriptast, currentlineno);
 			//scriptast.clearExecutedState();
 		}, 200);
 

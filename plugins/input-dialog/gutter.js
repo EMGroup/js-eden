@@ -91,7 +91,7 @@ function EdenScriptGutter(parent, infob) {
 			if (me.ast.lines[line]) {
 				if (me.lines[line].live) {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
-				} else {
+				} else if (me.ast.lines[line].executed == 0) {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-play'>&#xf04b;</span";
 					if (!shiftdown) changeClass(me.gutter.childNodes[line], "play", true);
 				}
@@ -287,7 +287,7 @@ EdenScriptGutter.prototype.selectLine = function(lineno) {
 	changeClass(this.gutter.childNodes[sellines[1]],"last",true);
 	for (var i=sellines[0]; i<=sellines[1]; i++) {
 		changeClass(this.gutter.childNodes[i],"current",true);
-		if (i == this.curline && this.ast.lines[i]) changeClass(this.gutter.childNodes[i],"play",true);
+		if (i == this.curline && this.ast.lines[i] && this.ast.lines[i].executed == 0) changeClass(this.gutter.childNodes[i],"play",true);
 	}
 }
 
@@ -359,7 +359,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 				}
 				if (stat.executed == 1) {
 					className += " executed";
-					doreplace = true;
+					doupdate = true;
 				} else if (stat.executed == 2) {
 					className += " guarded";
 					doupdate = true;
@@ -399,8 +399,11 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			}
 		} else if (doupdate) {
 			if (this.gutter.childNodes[i].className.indexOf("hover") >= 0) className += " hover";
+			if (this.gutter.childNodes[i].className.indexOf("current") >= 0) className += " current";
 			this.gutter.childNodes[i].innerHTML = content;
 			this.gutter.childNodes[i].className = className;
 		}
 	}
+
+	//this.selectLine(lineno);
 }

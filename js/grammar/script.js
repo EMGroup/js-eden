@@ -36,7 +36,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	}
 
 	this.scripts[name] = script;
-	script.base = this;
+	//script.base = this;
 
 	return script;
 }
@@ -49,7 +49,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
  */
 Eden.AST.prototype.pSCRIPT = function() {
 	var ast = new Eden.AST.Script();
-	ast.base = this;
+	//ast.base = this;
 	ast.parent = this.parent;
 	var parent = this.parent;
 	this.parent = ast;
