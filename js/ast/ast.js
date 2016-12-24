@@ -197,7 +197,7 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
  */
 Eden.AST.prototype.getBase = function(statement) {
 	var base = statement;
-	while (base && base.base === undefined && base.parent) base = base.parent;
+	while (base && base.parent && base.parent.base === undefined) base = base.parent;
 	return base; 
 }
 
@@ -215,7 +215,7 @@ Eden.AST.prototype.getBlockLines = function(lineno) {
 	while (line > 0 && this.lines[line-1] && this.getBase(this.lines[line-1]) == startstatement) line--;
 	var startline = line;
 
-	while (line < this.lines.length-1 && this.lines[line+1] && (this.lines[line+1] === startstatement || this.lines[line+1].parent != this.script)) line++;
+	while (line < this.lines.length-1 && this.lines[line+1] && (this.lines[line+1] === startstatement || this.lines[line+1].parent.base === undefined)) line++;
 	var endline = line;
 
 	return [startline,endline];

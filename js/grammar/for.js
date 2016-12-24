@@ -90,7 +90,7 @@ Eden.AST.prototype.pFOR = function() {
 	}
 
 	forast.setStatement(this.pSTATEMENT());
-	forast.statement.parent = forast;
+	if (forast.statement) forast.statement.parent = forast;
 	forast.parent = parent;
 	this.parent = parent;
 	return forast;

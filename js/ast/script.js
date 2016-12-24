@@ -67,6 +67,7 @@ Eden.AST.Script.prototype.patchScript = function(ast) {
 
 	// Patch the statements
 	this.statements = ast.script.statements;
+	this.base = ast;
 
 	// Update script index...
 	// Is this needed now??
