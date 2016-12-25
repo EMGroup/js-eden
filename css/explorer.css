@@ -244,6 +244,7 @@ div.explore-tabs {
 	border-bottom: 1px solid #719ECE;
 	overflow: hidden;
 	padding-left: 20px;
+	flex-shrink: 0;
 }
 
 div.explore-tab-container {

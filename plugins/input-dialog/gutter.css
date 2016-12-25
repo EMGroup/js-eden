@@ -26,7 +26,9 @@ div.eden-gutter-item {
 }
 
 div.eden-gutter-item.hover {
-	background-color: white;
+	background-color: rgba(255,255,255,0.8);
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
 }
 
 div.eden-gutter-item.hover:before {
@@ -41,9 +43,12 @@ div.eden-gutter-item.hover:before {
 }
 
 div.eden-gutter-item.current {
-	background-color: white;
+	background-color: rgba(255,255,255,0.8);
 	/*border-top: 1px solid #ddd;
 	border-bottom: 1px solid #ddd;*/
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+	border-left: 1px solid #bbb;
 }
 
 div.eden-gutter-item.current.first {
@@ -91,13 +96,13 @@ div.eden-gutter-item.select {
 }*/
 
 div.eden-gutter-item.play:after {
-	color: #00dd00;
-	text-shadow: 3px 3px 8px #888;
+	color: #44dd44;
+	text-shadow: 2px 2px 8px #444;
 	font-family: "FontAwesome";
 	font-size: 24pt;
 	content: "\f04b";
 	position: absolute;
-	left: 5px;
+	left: 8px;
 	margin-top: -5px;
 	line-height: 24px;
 }

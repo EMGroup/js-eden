@@ -215,7 +215,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	 * Common input window view constructor.
 	 */
 	this.createCommon = function (name, mtitle, code, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="agent-tabs"></div><div class="inputhider"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="agent-tabs"></div><div class="scriptsubcontent"><div class="inputhider"><div class="control-bar noselect"><button class="script-run"><span class="explorer-control-icon">&#xf04b;</span>Run</button><span class="scratchsearch"><input type="text" class="scratchsearch" placeholder="Populate..."></input></span></div><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
@@ -371,9 +371,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
 
-		var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button share control-enabled">&#xf1e0;</button--><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="'+Language.ui.input_window.inspect+'">&#xf002;</button><button class="control-button rewind-input" title="'+Language.ui.input_window.rewind+'">&#xf122;</button><button class="control-button previous-input" title="'+Language.ui.input_window.undo+'">&#xf112;</button><button class="control-button next-input" title="'+Language.ui.input_window.redo+'">&#xf064;</button><button class="control-button fa-flip-horizontal fastforward-input" title="'+Language.ui.input_window.fast_forward+'">&#xf122;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
-		$buttonbar.appendTo($dialogContents);
-		var buttonbar = $buttonbar.get(0);
+		//var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button share control-enabled">&#xf1e0;</button--><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="'+Language.ui.input_window.inspect+'">&#xf002;</button><button class="control-button rewind-input" title="'+Language.ui.input_window.rewind+'">&#xf122;</button><button class="control-button previous-input" title="'+Language.ui.input_window.undo+'">&#xf112;</button><button class="control-button next-input" title="'+Language.ui.input_window.redo+'">&#xf064;</button><button class="control-button fa-flip-horizontal fastforward-input" title="'+Language.ui.input_window.fast_forward+'">&#xf122;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
+		//$buttonbar.appendTo($dialogContents);
+		//var buttonbar = $buttonbar.get(0);
 
 		var $optionsmenu = $('<div class="options-menu noselect"></div>');
 		var optionsmenu = $optionsmenu.get(0);
@@ -532,10 +532,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			// Remove existing tabs
 			while (tabs.firstChild) tabs.removeChild(tabs.firstChild);
 
+			var curix = curSym.value();
+
 			// Add scroll left
-			var left = document.createElement("div");
-			left.className = "agent-tableft noselect";
-			tabs.appendChild(left);
+			if (tab_frags.length > 3 && curix != 0) {
+				var left = document.createElement("div");
+				left.className = "agent-tableft noselect";
+				tabs.appendChild(left);
+			}
 
 			var tabcontainer = document.createElement("div");
 			tabcontainer.className = "agent-tab-container";
@@ -543,7 +547,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			
 			//var agents = tabsSym.value();
 			//if (nstanceof Array) {
-				var curix = curSym.value();
+				
 				//tab_asts = [];
 
 				// For each entry, do a query to get the AST
@@ -575,10 +579,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			newtab.style.left = ""+(tab_frags.length*160 + 20)+"px";
 			tabcontainer.appendChild(newtab);
 
-			// Add scroll right
-			var right = document.createElement("div");
-			right.className = "agent-tabright noselect";
-			tabs.appendChild(right);
+			if (tab_frags.length > 3 && curix != tab_frags.length-1) {
+				// Add scroll right
+				var right = document.createElement("div");
+				right.className = "agent-tabright noselect";
+				tabs.appendChild(right);
+			}
 		}
 		
 
@@ -1949,8 +1955,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				minWidth: 300,
 				dialogClass: "input-dialog",
 				/*close: viewdata.close,*/
-				resizeStop: viewdata.resize
+				resizeStop: viewdata.resize,
+				draggable: false
 			});
+		$dialog.parent().draggable({
+			handle: ".agent-tab-current"
+		});
 
 		viewdata.confirmClose = false;
 
