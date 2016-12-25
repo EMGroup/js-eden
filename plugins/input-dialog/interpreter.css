@@ -187,12 +187,23 @@ div.agent-newtab:hover {
 	color: white;
 }
 
+span.close {
+	font-family: "FontAwesome";
+	color: #888;
+	margin-left: 12px;
+	cursor: pointer;
+}
+
+span.close:hover {
+	color: #222;
+}
+
 div.agent-tab {
 	/*float: left;*/
 	flex-shrink: 0;
 	/*width: 150px;*/
 	padding-left: 25px;
-	padding-right: 25px;
+	padding-right: 15px;
 	height: 100%;
 	margin-left: 10px;
 	font-family: Verdana,Arial,sans-serif;
@@ -202,7 +213,7 @@ div.agent-tab {
 	opacity: 0.70;
 	text-align: center;
 	font-weight: bold;
-	line-height: 25px;
+	line-height: 26px;
 	border-left: 1px solid transparent;
 	border-right: 1px solid transparent;
 	border-top: 1px solid transparent;
@@ -213,7 +224,6 @@ div.agent-tab {
 	cursor: pointer;
 	overflow: hidden;
 	display: flex;
-	line-height: 30px;
 	background: rgba(229,229,229,0.8);
 }
 
@@ -437,6 +447,10 @@ button.script-run {
 	height: 24px;
 	cursor: pointer;
 	color: white;
+}
+
+button.script-run:hover {
+	background: #29454B;
 }
 
 input.scratchsearch {

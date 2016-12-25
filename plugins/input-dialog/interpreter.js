@@ -297,25 +297,21 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				//	tab_frags[i].unlock();
 				//}
 				tab_queries = value;
-				var oldfrags = {};
-				for (var i=0; i<tab_frags.length; i++) {
-					oldfrags[tab_frags[i].selector] = tab_frags[i];
-				}
+				var oldfrags = tab_frags;
 
-				console.log("OLDFRAGS",oldfrags);
+				//console.log("OLDFRAGS",oldfrags);
 
 				tab_frags = [];
 				for (var i=0; i<value.length; i++) {
-					tab_frags.push(Eden.Fragment.fromSelector(value[i]));
-					oldfrags[value[i]] = undefined;
-				}
-
-				for (var x in oldfrags) {
-					if (oldfrags[x]) {
-						console.log("REMOVE FRAG",x);
-						oldfrags[x].unlock();
+					if (oldfrags.length > i && oldfrags[i].selector == value[i]) {
+						tab_frags.push(oldfrags[i]);
+					} else {
+						tab_frags.push(new Eden.Fragment(value[i]));
+						if (oldfrags.length > i) oldfrags[i].unlock();
 					}
 				}
+
+				console.log("FRAGS:",tab_frags);
 
 				curChanged(curSym, curSym.value());
 			}
@@ -497,7 +493,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (tab_frags[id] && tab_frags[id].ast) {
 				if (tab_frags[id].ast.errors && tab_frags[id].ast.errors.length > 0) {
 					iconclass = "tab-icon errored";
-				} else if (tab_frags[id].originast.executed) {
+				} else if (tab_frags[id].originast && tab_frags[id].originast.executed) {
 					iconclass = "tab-icon executed";
 				} else {
 					iconclass = "tab-icon";
@@ -513,7 +509,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 			tab.className = classname;
-			tab.innerHTML = "<span class='"+iconclass+"'>"+icon+"</span>"+tabname;
+			tab.innerHTML = "<span class='"+iconclass+"'>"+icon+"</span>"+tabname+"<span class='close'>&#xf00d;</span>";
 			tab.draggable = true;
 			tab.setAttribute("data-index", id);
 			/*if (tabs.childNodes.length < tabscrollix) {
@@ -1558,6 +1554,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 
+		function onRun() {
+			if (scriptast) scriptast.execute(tab_frags[curtab]);
+		}
+
 
 		/**
 		 * Move script to previous in history, or toggle symbol for custom
@@ -1673,18 +1673,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		function onNewTab() {
-			showSubDialog("newAgent", function(status, value) {
-				if (status) {
-					//Eden.Agent.importAgent(value, "default", ["noexec","create"], function(ag) {
-					//	agent.state[obs_agent] = value;
-					//});
-					var tabs = tabsSym.value();
-					tabs.push(value);
-					tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
-				} else if (value) {
-					//showBrowseDialog();
-				}
-			});
+			var tabs = tabsSym.value();
+			tabs.push("");
+			tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
+			curSym.assign(tabs.length-1, eden.root.scope, Symbol.localJSAgent);
 		}
 
 
@@ -1871,6 +1863,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		//.on('click', '.share', onShareAgent)
 		.on('click', '.menu-input', onMenu)
 		.on('click', '.search-mode', onInspect)
+		.on('click', '.script-run', onRun)
 		.on('click', '.agent-tab', onTabClick)
 		.on('click', '.agent-tableft', onTabLeft)
 		.on('click', '.agent-tabright', onTabRight)

@@ -9,6 +9,8 @@ Eden.Fragment = function(selector) {
 	this.remote = false;
 	this.results = [];
 	this.title = selector;
+	this.scratch = false;
+	this.edited = false;
 
 	//console.error("FRAGMENT");
 
@@ -55,19 +57,22 @@ Eden.Fragment = function(selector) {
 Eden.Fragment.listenTo = listenTo;
 Eden.Fragment.emit = emit;
 Eden.Fragment.listeners = {};
-Eden.Fragment.cache = {};
+//Eden.Fragment.cache = {};
 
-Eden.Fragment.fromSelector = function(selector) {
+/*Eden.Fragment.fromSelector = function(selector) {
 	if (Eden.Fragment.cache[selector]) {
 		var frag = Eden.Fragment.cache[selector];
 		frag.reset();
+		if (frag.scratch) Eden.Fragment.cache[selector] = undefined;
 		return frag;
 	} else {
 		var frag = new Eden.Fragment(selector);
-		Eden.Fragment.cache[selector] = frag;
+		if (!frag.scratch) {
+			Eden.Fragment.cache[selector] = frag;
+		}
 		return frag;
 	}
-}
+}*/
 
 Eden.Fragment.prototype.destroy = function() {
 	
@@ -79,8 +84,13 @@ Eden.Fragment.prototype.reset = function() {
 	Eden.Selectors.query(this.selector, undefined, undefined, true, function(res) {
 		me.results = res;
 
-		if (me.results && me.results.length > 0 && me.results[0].type == "script") {
+		if (me.results && me.results.length == 1 && me.results[0].type == "script") {
+			console.log(res);
 			me.originast = me.results[0];
+		} else if (me.results && me.results.length > 1) {
+			me.source = "";
+		} else {
+			me.source = "";
 		}
 
 		if (me.originast) {
@@ -107,6 +117,14 @@ Eden.Fragment.prototype.reset = function() {
 			if (me.locked) {
 				Eden.Fragment.emit("locked", [me]);
 			}
+		} else {
+			console.log("Make scratch fragment");
+			// Scratch
+			me.locked = false;
+			me.remote = false;
+			me.ast = new Eden.AST(me.source, undefined, me);
+			me.name = "*Scratch*";
+			me.title = me.name;
 		}
 		me.lock();
 	});
@@ -120,36 +138,23 @@ Eden.Fragment.prototype.getSource = function() {
 Eden.Fragment.prototype.setSource = function(src) {
 	//var oldast = this.ast;
 	this.source = src;
+	this.edited = true;
 
 	// Build a new AST
 	this.ast = new Eden.AST(src, undefined, this);
 
 	if (this.ast.script.errors.length == 0) {
-		// Patch the origin...
-		var parent = this.originast.parent;
-		//var ix = 0;
+		if (this.originast) {
+			// Patch the origin...
+			var parent = this.originast.parent;
+			this.originast.patchScript(this.ast);
 
-		//for (; ix < parent.statements.length; ix++)
-		//	if (parent.statements[ix] === this.originast) break;
-
-		//var o = this.originast; //parent.statements[ix];
-		//o.statements = this.ast.script.statements;
-		// Do NOT set parent, allows correct source to be extracted later...
-		//this.ast.parent = parent;
-		//console.log(this.originast);
-		this.originast.patchScript(this.ast);
-
-		// Notify all parent fragments of patch
-		while (parent) {
-			Eden.Fragment.emit("patch", [this, parent]);
-			parent = parent.parent;
+			// Notify all parent fragments of patch
+			while (parent) {
+				Eden.Fragment.emit("patch", [this, parent]);
+				parent = parent.parent;
+			}
 		}
-
-
-		//this.originast = this.origin.patch(this.originast, this.ast);
-		// TODO Need to notify any parent fragments of change!!
-		//console.log("origin:",this.originast.getInnerSource());
-		//console.log("new:",this.ast.script.getInnerSource());
 	} else {
 		// Oops, errors.
 		Eden.Fragment.emit("errored", [this]);
@@ -159,12 +164,14 @@ Eden.Fragment.prototype.setSource = function(src) {
 Eden.Fragment.prototype.lock = function() {
 	//this.locked = true;
 	// Recursively lock parents...
-	var p = this.originast.parent;
-	//this.originast.lock++;
-	while (p) {
-		p.lock++;
-		Eden.Fragment.emit("lock", [this, p]);
-		p = p.parent;
+	if (this.originast) {
+		var p = this.originast.parent;
+		//this.originast.lock++;
+		while (p) {
+			p.lock++;
+			Eden.Fragment.emit("lock", [this, p]);
+			p = p.parent;
+		}
 	}
 	// TODO Notify parent fragments of lock
 }
@@ -172,18 +179,19 @@ Eden.Fragment.prototype.lock = function() {
 Eden.Fragment.prototype.unlock = function() {
 	//if (!this.locked) return;
 	// Recursively lock parents...
-	var p = this.originast.parent;
-	//this.originast.lock--;
-	while (p) {
-		p.lock--;
-		if (p.lock == 0) Eden.Fragment.emit("unlock", [this, p]);
-		p = p.parent;
+	if (this.originast) {
+		var p = this.originast.parent;
+		//this.originast.lock--;
+		while (p) {
+			p.lock--;
+			if (p.lock == 0) Eden.Fragment.emit("unlock", [this, p]);
+			p = p.parent;
+		}
 	}
 }
 
 Eden.Fragment.prototype.getTitle = function() {
 	if (this.originast && this.originast.name) return this.originast.name;
-	if (this.selector == "") return "Project";
-	return this.selector;
+	return this.name;
 }
 

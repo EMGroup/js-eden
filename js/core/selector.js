@@ -9,7 +9,7 @@ Eden.Selectors.findLocalBase = function(path, ctx, filters) {
 	for (var i=0; i<paths.length; i++) {
 		var path = paths[i].trim();
 
-		if (path == "" || path == eden.project.name) {
+		if (path == "" || path == "*" || path == eden.project.name) {
 			scripts.push(eden.project.ast.script);
 		} else {
 			var script = ctx.getActionByName(path);
@@ -357,6 +357,11 @@ Eden.Selectors.queryWithin = function(within, s, o) {
 }
 
 Eden.Selectors.query = function(s, o, ctx, single, cb) {
+	if (s == "") {
+		var res = [];
+		if (cb) cb(res);
+		return res;
+	}
 	if (ctx === undefined) ctx = eden.project.ast;
 
 	var pathix = s.search(/[\.\:\#\@\>]/);
