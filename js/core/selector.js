@@ -249,7 +249,7 @@ Eden.Selectors.processNode = function(statements, s) {
 			switch(command) {
 			case "name"		:	var regex = edenUI.regExpFromStr(param);
 								statements = statements.filter(function(stat) {
-									return stat.lvalue && regex.test(stat.lvalue.name);
+									return (stat.lvalue && regex.test(stat.lvalue.name)) || (stat.name && regex.test(stat.name));
 								}); break;
 
 			case "type"		:	statements = statements.filter(function(stat) {
@@ -376,6 +376,8 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 	statements = Eden.Selectors.queryWithin(statements, s.substring(pathix).trim(), undefined);
 	if (statements === undefined) statements = [];
 
+	statements = Eden.Selectors.processResults(statements, o);
+
 	if (cb && ((statements.length == 0 && single) || !single)) {
 
 		// Look for local projects
@@ -394,7 +396,7 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 				if (o === undefined && stats.length > 0) {
 					// Need to generate an AST for each result, or first only if single
 					if (single) {
-						statements = [(new Eden.AST(stats[0], undefined, {name: path, remote: true})).script];
+						statements.push((new Eden.AST(stats[0], undefined, {name: path, remote: true})).script);
 						Eden.Selectors.cache[path] = statements[0];
 						//cb(res);
 						//return;
@@ -402,19 +404,19 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 						// Loop and do all...
 					}
 				} else {
-					statements = stats;
+					statements.push.apply(statements,stats);
 				}
-				statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
-				var res = Eden.Selectors.processResults(statements, o);
-				cb(res);
+				//statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
+				//var res = Eden.Selectors.processResults(statements, o);
+				cb(statements);
 			});
 		}
 
 		return;
 	}
 
-	var res = Eden.Selectors.processResults(statements, o);
-	if (cb) cb(res);
-	return res;
+	//var res = Eden.Selectors.processResults(statements, o);
+	if (cb) cb(statements);
+	return statements;
 }
 

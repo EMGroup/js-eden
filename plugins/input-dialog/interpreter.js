@@ -1692,7 +1692,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			dragSX = e.originalEvent.offsetX;
 			dragSY = e.originalEvent.offsetY;
 
-			if (scriptagent.name == name) {
+			/*if (scriptagent.name == name) {
 				scriptagent.setOwned(false);
 				scriptagent = undefined;
 				readonly = true;
@@ -1700,7 +1700,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				//outdiv.className = "outputcontent readonly";
 				changeClass(outdiv, "readonly", true);
 				outdiv.contentEditable = false;
-			}
+			}*/
 		}
 
 		function shiftTab(tabs, old_index, new_index) {
@@ -1840,9 +1840,21 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 
+		function onScratchSearch(e) {
+			var q = e.target.value;
+			Eden.Selectors.query(q,"source", undefined, false, function(res) {
+				console.log(res);
+				intextarea.value = res.join("\n");
+				refreshentire = true;
+				rebuild();
+			});
+		}
+
+
 
 		// Set the event handlers
 		$dialogContents
+		.on('keyup', 'input.scratchsearch', onScratchSearch)
 		.on('input', '.hidden-textarea', onInputChanged)
 		.on('keydown', '.hidden-textarea', onTextKeyDown)
 		.on('keyup', '.hidden-textarea', onTextKeyUp)
