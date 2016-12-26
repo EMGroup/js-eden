@@ -178,6 +178,7 @@ Eden.Project.prototype.addAction = function(name) {
 	script.parent = this.ast.script;
 	this.ast.script.append(script);
 	this.ast.scripts[name] = script;
+	return script;
 }
 
 Eden.Project.prototype.generate = function() {

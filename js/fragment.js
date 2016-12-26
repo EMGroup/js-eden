@@ -125,6 +125,7 @@ Eden.Fragment.prototype.reset = function() {
 			me.ast = new Eden.AST(me.source, undefined, me);
 			me.name = "*Scratch*";
 			me.title = me.name;
+			me.scratch = true;
 		}
 		me.lock();
 	});
@@ -133,6 +134,23 @@ Eden.Fragment.prototype.reset = function() {
 Eden.Fragment.prototype.getSource = function() {
 	if (this.source) return this.source;
 	else return "";
+}
+
+Eden.Fragment.prototype.makeReal = function(name) {
+	if (!this.scratch) return;
+	this.selector = name;
+	this.originast = eden.project.addAction(name);
+	this.scratch = false;
+	this.setSource(this.source);
+	var p = this.originast;
+	while (p && p.parent) p = p.parent;
+	this.origin = p.base.origin;
+	this.lock();
+}
+
+Eden.Fragment.prototype.setSourceInitial = function(src) {
+	this.source = src;
+	this.ast = new Eden.AST(src, undefined, this);
 }
 
 Eden.Fragment.prototype.setSource = function(src) {
@@ -155,6 +173,8 @@ Eden.Fragment.prototype.setSource = function(src) {
 				parent = parent.parent;
 			}
 		}
+
+		Eden.Fragment.emit("changed", [this]);
 	} else {
 		// Oops, errors.
 		Eden.Fragment.emit("errored", [this]);

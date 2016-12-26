@@ -433,7 +433,7 @@ textarea.hidden-textarea {
 	tab-size: 4;
 }
 
-button.script-run {
+button.script-button {
 	/*font-family: "FontAwesome";*/
 	font-size: 10pt;
 	border-radius: 5px;
@@ -449,7 +449,7 @@ button.script-run {
 	color: white;
 }
 
-button.script-run:hover {
+button.script-button:hover {
 	background: #29454B;
 }
 
@@ -469,13 +469,41 @@ input.scratchsearch {
 }
 
 span.scratchsearch:before {
-	color: #bbb;
+	color: #aaa;
 	font-size: 12pt;
 	left: 35px;
 	position: relative;
 	content: "\f002";
 	background: none;
-	top: 1px;
+	top: 2px;
+	margin-top: 0;
+	z-index: 2;
+	font-family: "FontAwesome";
+}
+
+input.editname {
+	width: 200px;
+	background: white;
+	color: #222;
+	font-size: 10pt;
+	padding: 2px;
+	padding-left: 40px;
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	outline: none;
+	box-sizing: border-box;
+	margin-left: 5px;
+	height: 24px;
+}
+
+span.editname:before {
+	color: #aaa;
+	font-size: 12pt;
+	left: 35px;
+	position: relative;
+	content: "\f02b";
+	background: none;
+	top: 2px;
 	margin-top: 0;
 	z-index: 2;
 	font-family: "FontAwesome";

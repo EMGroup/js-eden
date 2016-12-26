@@ -215,7 +215,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	 * Common input window view constructor.
 	 */
 	this.createCommon = function (name, mtitle, code, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="agent-tabs"></div><div class="scriptsubcontent"><div class="inputhider"><div class="control-bar noselect"><button class="script-run"><span class="explorer-control-icon">&#xf04b;</span>Run</button><span class="scratchsearch"><input type="text" class="scratchsearch" placeholder="Populate..."></input></span></div><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent">\
+<div class="agent-tabs"></div>\
+<div class="scriptsubcontent">\
+	<div class="inputhider">\
+		<div class="control-bar noselect">\
+		</div>\
+		<textarea autofocus tabindex="1" class="hidden-textarea"></textarea>\
+		<div class="inputCodeArea">\
+			<div class="eden_suggestions"></div>\
+			<div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div>\
+		</div>\
+	</div>\
+</div>\
+<div class="info-bar"></div>\
+<div class="outputbox"></div>\
+</div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
@@ -227,6 +242,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var outputbox = $dialogContents.find('.outputbox').get(0);
 		var suggestions = $dialogContents.find('.eden_suggestions');
 		var $tabs = $dialogContents.find('.agent-tabs');
+		var $controls = $dialogContents.find('.control-bar');
 		var tabs = $tabs.get(0);
 		suggestions.hide();
 		$(infobox).hide();
@@ -289,6 +305,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			} else {
 				rebuildTabs();
 			}
+			updateControls();
 		}
 
 		function tabsChanged(sym, value) {
@@ -310,8 +327,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						if (oldfrags.length > i) oldfrags[i].unlock();
 					}
 				}
-
-				console.log("FRAGS:",tab_frags);
 
 				curChanged(curSym, curSym.value());
 			}
@@ -447,30 +462,23 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
-		function updateHistoryButtons() {
-			/*var nextbut = $buttonbar.find(".next-input");
-			var fastbut = $buttonbar.find(".fastforward-input");
-			var rewibut = $buttonbar.find(".rewind-input");
-			var prevbut = $buttonbar.find(".previous-input");
+		function updateControls() {
+			var html = '<button class="script-button script-run"><span class="explorer-control-icon">&#xf04b;</span>Run</button>';
 
-			if (readonly || !scriptagent.canRedo()) {
-				nextbut.removeClass("control-enabled");
-				fastbut.removeClass("control-enabled");
-			} else {
-				nextbut.addClass("control-enabled");
-				fastbut.addClass("control-enabled");
+			var frag = tab_frags[curtab];
+
+			if (frag && frag.scratch && !frag.edited) {
+				html += '<span class="scratchsearch"><input type="text" class="scratchsearch" placeholder="Populate..."></input></span>';
+			} else if (frag && frag.scratch) {
+				//html += '<button class="script-button script-name"><span class="explorer-control-icon">&#xf02b;</span>Name</button>';
+				html += '<span class="editname"><input type="text" class="editname" placeholder="Enter a name..."></input></span>';
+				
 			}
 
-			if (readonly || !scriptagent.canUndo()) {
-				prevbut.removeClass("control-enabled");
-				rewibut.removeClass("control-enabled");
-			} else {
-				prevbut.addClass("control-enabled");
-				rewibut.addClass("control-enabled");
-			}*/
+			$controls.html(html);		
 		}
 
-		updateHistoryButtons();
+		//updateHistoryButtons();
 
 
 		
@@ -1843,18 +1851,48 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function onScratchSearch(e) {
 			var q = e.target.value;
 			Eden.Selectors.query(q,"source", undefined, false, function(res) {
-				console.log(res);
 				intextarea.value = res.join("\n");
-				refreshentire = true;
-				rebuild();
+				tab_frags[curtab].setSourceInitial(intextarea.value);
+				scriptast = tab_frags[curtab].ast;
+				highlightContent(scriptast, -1, 0);
+				//intextarea.focus();
+				//checkScroll();
+
+				//setTitle(tab_frags[curtab].title);
+
+				gutter.setBaseAST(scriptast);
+
+				readonly = false;
+				// The readonly class changes colour scheme
+				changeClass(outdiv, "readonly", false);
+				outdiv.contentEditable = true;
 			});
 		}
 
+		function onNameChange(e) {
+			//setTitle(e.target.value);
+			tab_frags[curtab].name = e.target.value;
+			rebuildTabs();
+		}
+
+		function onNameFinish(e) {
+			console.log("FINISH NAME",e.target.value);
+			tab_frags[curtab].makeReal(e.target.value);
+			
+			var tabs = tabsSym.value();
+			tabs[curtab] = e.target.value;
+			tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
+		}
+
+
+		$controls
+		.on('keyup', 'input.editname', onNameChange)
+		.on('change', 'input.editname', onNameFinish)
+		.on('keyup', 'input.scratchsearch', onScratchSearch);
 
 
 		// Set the event handlers
 		$dialogContents
-		.on('keyup', 'input.scratchsearch', onScratchSearch)
 		.on('input', '.hidden-textarea', onInputChanged)
 		.on('keydown', '.hidden-textarea', onTextKeyDown)
 		.on('keyup', '.hidden-textarea', onTextKeyUp)
