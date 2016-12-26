@@ -43,6 +43,7 @@ function Folder(name, parent, root) {
 	this.base = undefined;
 
 	this.errors = [];
+	this.lock = 1;
 
 	/**
 	 * @type {Folder}

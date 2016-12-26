@@ -310,7 +310,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 				// Show the script browser
 				if (value == -1) {
-					console.log("SHOW SCRIPT BROWSER");
+					scriptast = undefined;
+					gutter.clear();
+					//console.log("SHOW SCRIPT BROWSER");
 					//outdiv.style.display = "none";
 					curtab = -1;
 					changeClass(outdiv, "browser", true);
@@ -482,7 +484,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				var name = scripts[i].split(".");
 				name = name[name.length-1];
 				var icon;
-				if (scripts[i] == "."+eden.project.name) {
+				if (scripts[i] == eden.project.name) {
 					icon = "&#xf187;";
 				} else if (name == "ACTIVE") {
 					icon = "&#xf0e7;";
@@ -1948,16 +1950,26 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
 		}
 
+		function onBrowseClick(e) {
+			var path = e.currentTarget.getAttribute("data-path");
+			var tabs = tabsSym.value();
+			tabs.push(path);
+			tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
+			curSym.assign(tabs.length-1, eden.root.scope, Symbol.localJSAgent);
+		}
+
 
 		$controls
 		.on('keyup', 'input.editname', onNameChange)
 		.on('change', 'input.editname', onNameFinish)
+		.on('click', '.script-run', onRun)
 		.on('keyup', 'input.scratchsearch', onScratchSearch);
 
 
 		// Set the event handlers
 		$dialogContents
 		.on('click', '.agent-tab-more', onBrowse)
+		.on('click', '.browse-entry', onBrowseClick)
 		.on('input', '.hidden-textarea', onInputChanged)
 		.on('keydown', '.hidden-textarea', onTextKeyDown)
 		.on('keyup', '.hidden-textarea', onTextKeyUp)
@@ -1978,7 +1990,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		//.on('click', '.share', onShareAgent)
 		.on('click', '.menu-input', onMenu)
 		.on('click', '.search-mode', onInspect)
-		.on('click', '.script-run', onRun)
 		.on('click', '.agent-tab', onTabClick)
 		.on('click', '.agent-tableft', onTabLeft)
 		.on('click', '.agent-tabright', onTabRight)
