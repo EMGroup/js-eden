@@ -1,16 +1,25 @@
 Eden.Selectors = {
 	cache: {}
+	//imported: new Eden.AST.Virtual("imported")
 };
 
 Eden.Selectors.findLocalBase = function(path, ctx, filters) {
 	var scripts = [];
 	var paths = path.split(",");
 
+	console.log("PATHS",paths);
+	console.log("CONTEXT",ctx);
+
 	for (var i=0; i<paths.length; i++) {
 		var path = paths[i].trim();
 
-		if (path == "" || path == "*" || path == eden.project.name) {
+		if (path == "" || path == "*") {
 			scripts.push(eden.project.ast.script);
+			//scripts.push(Eden.Selectors.imported);
+			for (var x in Eden.Selectors.cache) {
+				scripts.push(Eden.Selectors.cache[x]);
+			}
+			scripts.push.apply(scripts,ctx.statements);
 		} else {
 			var script = ctx.getActionByName(path);
 			if (script) {
@@ -231,6 +240,8 @@ Eden.Selectors.processNode = function(statements, s) {
 		var command = ns.substring(0,endix);
 		var param = undefined;
 
+		// TODO, allow nested brackets.
+
 		if (endix < ns.length && ns.charAt(endix) == "(") {
 			var endix2 = ns.indexOf(")");
 			param = ns.substring(endix+1,endix2);
@@ -296,7 +307,21 @@ Eden.Selectors.processNode = function(statements, s) {
 			case "nth"		:	statements = [statements[parseInt(param)]];
 								break;
 
-			case "value"	: break;
+			case "value"	:	break;
+
+			case "remote"	:	statements = statements.filter(function(stat) {
+									var p = stat;
+									while(p.parent) p = p.parent;
+									return p.base.origin.remote == true;
+								}); break;
+
+			case "not"		:	var positive = Eden.Selectors.processNode(statements, param);
+								statements = statements.filter(function(stat) {
+									for (var i=0; i<positive.length; i++) {
+										if (stat === positive[i]) return false;
+									}
+									return true;
+								}); break;
 
 			default: statements = [];
 			}
@@ -362,9 +387,9 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 		if (cb) cb(res);
 		return res;
 	}
-	if (ctx === undefined) ctx = eden.project.ast;
+	if (ctx === undefined) ctx = eden.project.ast.script;
 
-	var pathix = s.search(/[\.\:\#\@\>]/);
+	var pathix = s.search(/[\s\.\:\#\@\>]/);
 	if (pathix == -1) pathix = s.length;
 	var path = s.substring(0,pathix).trim();
 	var script;

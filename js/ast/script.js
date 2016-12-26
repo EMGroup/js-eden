@@ -79,6 +79,12 @@ Eden.AST.Script.prototype.getLine = function() {
 	return this.line;
 }
 
+Eden.AST.Script.prototype.isRemote = function() {
+	var p = this;
+	while (p.parent) p = p.parent;
+	return p.base.origin.remote;
+}
+
 Eden.AST.Script.prototype.setLocals = function(locals) {
 	this.locals = locals;
 	if (locals) {

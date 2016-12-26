@@ -76,12 +76,35 @@ div.agent-tabs {
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 30px;
-	/*background-color: #cecece;*/
+	height: 35px;
+	background-color: rgba(41,69,75,0.9);
 	box-sizing: border-box;
 	/*border-bottom: 1px solid #719ECE;*/
 	overflow: hidden;
 	/*padding-left: 20px;*/
+	display: flex;
+}
+
+div.agent-tab-more {
+	height: 35px;
+	line-height: 35px;
+	background: none;
+	color: #bbb;
+	margin-left: 15px;
+	flex-shrink: 0;
+	text-shadow: 0 3px 3px black;
+	cursor: pointer;
+}
+
+div.agent-tab-more:hover {
+	color: white;
+}
+
+span.tab-icon2 {
+	font-family: "FontAwesome";
+	font-size: 16pt;
+	margin-right: 10px;
+	font-weight: normal;
 }
 
 span.tab-icon {
@@ -106,28 +129,23 @@ span.tab-icon.noagent {
 }
 
 div.agent-tab-container {
-	position: absolute;
 	display: flex;
 	/*flex-wrap: wrap;*/
-	left: 30px;
-	right: 30px;
-	top: 0;
 	height: 30px;
 	padding: 0;
-	margin: 0;
+	margin-top: 5px;
 	overflow: hidden;
 }
 
 div.agent-tableft {
-	position: absolute;
-	left: 10px;
-	top: 0px;
 	width: 20px;
-	line-height: 30px;
-	height: 30px;
+	line-height: 35px;
+	height: 35px;
 	cursor: pointer;
 	color: white;
 	text-shadow: 0 0 4px black;
+	margin-left: 5px;
+	flex-shrink: 0;
 }
 
 div.agent-tableft:hover {
@@ -142,16 +160,15 @@ div.agent-tableft:after {
 }
 
 div.agent-tabright {
-	position: absolute;
-	right: 10px;
-	top: 0px;
 	width: 20px;
-	line-height: 30px;
-	height: 30px;
+	line-height: 35px;
+	height: 35px;
 	cursor: pointer;
 	text-align: right;
 	color: white;
 	text-shadow: 0 0 4px black;
+	margin-right: 10px;
+	flex-shrink: 0;
 }
 
 div.agent-tabright:hover {
@@ -172,8 +189,8 @@ div.agent-newtab {
 	line-height: 30px;
 	height: 30px;
 	cursor: pointer;
-	color: #719ECE;
-	text-shadow: 0 0 4px black;
+	color: #ddd;
+	text-shadow: 0 3px 3px black;
 }
 
 div.agent-newtab:after {
@@ -202,7 +219,7 @@ div.agent-tab {
 	/*float: left;*/
 	flex-shrink: 0;
 	/*width: 150px;*/
-	padding-left: 25px;
+	padding-left: 15px;
 	padding-right: 15px;
 	height: 100%;
 	margin-left: 10px;
@@ -447,6 +464,7 @@ button.script-button {
 	height: 24px;
 	cursor: pointer;
 	color: white;
+	text-shadow: 0 3px 3px black;
 }
 
 button.script-button:hover {
@@ -546,6 +564,40 @@ div.readonly {
 	background-color: #f5f5f5;
 }
 
+div.browser {
+	display: flex;
+	padding: 10px;
+	flex-wrap: wrap;
+	align-content: flex-start;
+}
+
+div.browse-entry {
+	flex-shrink: 0;
+	width: 100px;
+	height: 90px;
+	background: #e5e5e5;
+	overflow: hidden;
+	margin: 5px;
+	text-align: center;
+	font-size: 10pt;
+	font-family: initial;
+	cursor: pointer;
+	color: black;
+	z-index: 2;
+}
+
+div.browse-entry:hover {
+	background: #29454B;
+	color: white;
+}
+
+div.browse-icon {
+	font-family: "FontAwesome";
+	font-size: 30pt;
+	line-height: 60px;
+	width: 100%;
+}
+
 div.inspect {
 	-webkit-filter: hue-rotate(120deg);
 	filter: hue-rotate(120deg);
@@ -561,14 +613,14 @@ div.input-dialog {
 	background: none;
 	border-width: 1px;
 	border-color: #777;
-	border-style: none;
+	border-style: solid;
 	padding: 0;
 	border-bottom-left-radius: 6px;
 	border-bottom-right-radius: 6px;
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
-	/*box-shadow: 0 0 15px #4a6887;*/
-	overflow: visible;
+	box-shadow: 0 0 15px #4a6887;
+	/*overflow: visible;*/
 }
 
 div.input-dialog .ui-dialog-content {
@@ -576,13 +628,12 @@ div.input-dialog .ui-dialog-content {
 }
 
 div.scriptsubcontent {
-	top: 30px;
+	top: 35px;
 	left: 0;
 	right: 0;
 	bottom: 0;
 	position: absolute;
-	box-shadow: 0 0 15px #4a6887;
-	border-radius: 6px;
+	/*box-shadow: 0 0 15px #4a6887;*/
 	overflow: hidden;
 }
 
@@ -594,7 +645,7 @@ div.inputhider {
 	top: 0;
 	bottom: 0;
 	/*background: #e5e5e5;*/
-	border-radius: 6px;
+	/*border-radius: 6px;*/
 	background: rgba(229,229,229,0.8);
 }
 

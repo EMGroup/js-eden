@@ -86,6 +86,7 @@ Eden.AST = function(code, imports, origin, noparse) {
 	if (!noparse) {
 		this.script = this.pSCRIPT();
 		this.script.base = this;
+		this.script.name = origin.name;
 		this.script.setSource(0,code.length, code);
 		this.script.doxyComment = this.mainDoxyComment;
 	}

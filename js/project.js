@@ -13,7 +13,8 @@ Eden.Project = function(id, name, source) {
 		// Fabricate a fake doxy comment for the script using meta data.
 		var doxystring = "/** "+ name + "\n * @title " + this.title + "\n * @author " + this.author + "\n */";
 		var doxy = new Eden.AST.DoxyComment(doxystring);
-		this.ast.script.doxyComment = doxy;	
+		this.ast.script.doxyComment = doxy;
+		this.ast.script.name = this.name;
 	}
 
 	eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, this);

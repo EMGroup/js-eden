@@ -174,7 +174,7 @@ div.eden-gutter-item.guarded {
 
 div.eden-gutter-item.error {
 	font-family: "FontAwesome";
-	color: #ffaaaa;
+	color: #ff6666;
 	font-size: 16pt;
 	margin-top: 0;
 	line-height: 16px;
