@@ -591,6 +591,13 @@
 					classes += "eden-string";
 				}
 			} else if (this.mode == 77 || this.mode == 78) {
+				if (this.mode == 77) {
+					linestack.push(line);
+					var nline = document.createElement("span");
+					nline.className = "eden-pathblock";
+					line.appendChild(nline);
+					line = nline;
+				}
 				if (token == "{") {
 					classes += "eden-operator";
 					if (this.mode == 77) {
@@ -600,14 +607,20 @@
 						this.mode = 5;
 					}
 				} else if (token == ";") {
+					if (this.mode == 78) line = linestack.pop();
 					classes += "eden-operator";
 					this.mode = 0;
 				} else if (token == "::" || token == "with") {
+					if (this.mode == 78) line = linestack.pop();
 					classes += "eden-keyword";
 					this.mode = 0;
 				} else {
 					this.mode = 78;
-					classes += "eden-selector";
+					if (token == "OBSERVABLE" && Language.selectors[tokentext]) {
+						classes += "eden-selector2";
+					} else {
+						classes += "eden-selector";
+					}
 				}
 			}
 

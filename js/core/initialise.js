@@ -46,6 +46,7 @@ function touchHandler(event) {
 var doingNavigateAway = false;
 var confirmUnload = function (event) {
 	if (!doingNavigateAway) {
+		eden.project.localSave();
 		var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
 		event.returnValue = prompt;
 		return prompt;

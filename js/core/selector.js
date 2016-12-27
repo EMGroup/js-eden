@@ -188,6 +188,8 @@ Eden.Selectors.processResults = function(statements, o) {
 									break;
 				case "innersource"	:	if (stat.type == "script") {
 											val = stat.getInnerSource();
+										} else {
+											val = stat.getSource();
 										} break;
 				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
 										stat.base.mainDoxyComment.stripped();

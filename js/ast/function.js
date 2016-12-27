@@ -19,7 +19,7 @@ Eden.AST.Function.prototype.setBody = function(body) {
 
 Eden.AST.Function.prototype.generate = function(ctx) {
 	var body = this.body.generate(ctx);
-	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"execute\"}, []);\n";
+	var res = "context.lookup(\""+this.name+"\").define("+body+", this, []);\n";
 	return res;
 }
 
@@ -33,8 +33,7 @@ Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 
 	var body = this.body.generate(ctx);
 	var sym = eden.root.lookup(this.name);
-	sym.eden_definition = base.getSource(this);	
-	sym.define(eval(body), agent,[]);
+	sym.define(eval(body), this,[]);
 }
 
 Eden.AST.Function.prototype.error = fnEdenASTerror;

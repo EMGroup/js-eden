@@ -158,6 +158,7 @@ Eden.Fragment.prototype.setSource = function(src) {
 	this.source = src;
 	this.edited = true;
 
+	this.ast.destroy();
 	// Build a new AST
 	this.ast = new Eden.AST(src, undefined, this);
 

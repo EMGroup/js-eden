@@ -25,7 +25,7 @@ Eden.AST.Action.prototype.setBody = function(body) {
 
 Eden.AST.Action.prototype.generate = function(ctx) {
 	var body = this.body.generate(ctx);
-	var res = "context.lookup(\""+this.name+"\").define("+body+", {name: \"execute\"})";
+	var res = "context.lookup(\""+this.name+"\").define("+body+", this)";
 	if (this.triggers.length > 0) {
 		res += ".observe("+JSON.stringify(this.triggers)+");\n";
 	}
@@ -42,11 +42,10 @@ Eden.AST.Action.prototype.execute = function(ctx, base, scope, agent) {
 
 	var body = this.body.generate(ctx);
 	var sym = eden.root.lookup(this.name);
-	sym.eden_definition = base.getSource(this);
 	if (this.triggers.length > 0) {
-		sym.define(eval(body), agent, []).observe(this.triggers);
+		sym.define(eval(body), this, []).observe(this.triggers);
 	} else {
-		sym.define(eval(body), agent, []);
+		sym.define(eval(body), this, []);
 	}
 }
 

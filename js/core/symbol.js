@@ -21,9 +21,7 @@ function Symbol(context, name) {
 	this.cache = (context) ? context.scope.add(name) : new ScopeCache( true, undefined, undefined, false);
 
 	this.definition = undefined;
-	this.eden_definition = undefined;
 	this.def_scope = undefined;
-	//this.evalResolved = true;
 	this.extend = undefined;
 	this.needsGlobalNotify = 0;
 	this.has_evaled = false;
@@ -52,7 +50,7 @@ function Symbol(context, name) {
 	this.observees = {};
 	this.jsObservers = {};
 
-	this.last_modified_by = {name: "*None"};
+	this.origin = undefined;
 
 	// true when the symbol ready to be garbage collected from its folder when execution of the
 	// current script finishes (if it is not subsequently referenced again).  This occurs when
@@ -150,12 +148,12 @@ Symbol.prototype.multiValue = function (newscope) {
 
 Symbol.prototype.evaluateIfDependenciesExist = function () {
 	var name;
-	for (name in this.dependencies) {
+	//for (name in this.dependencies) {
 		// only evaluate if all dependencies have been defined by some agent
-		if (!this.dependencies[name].last_modified_by) {
-			return;
-		}
-	}
+	//	if (!this.dependencies[name].last_modified_by) {
+	//		return;
+	//	}
+	//}
 	this.evaluate(this.context.scope, this.context.scope.lookup(this.name));
 };
 
@@ -314,13 +312,12 @@ Symbol.prototype.clearDependencies = function () {
 	this.dynamicDependencyRefCount = {};
 };
 
-Symbol.prototype._setLastModifiedBy = function (modifying_agent) {
-	//if (modifying_agent === global) {
-	//	this.last_modified_by = Symbol.getInputAgentName();
-	//} else {
-		this.last_modified_by = modifying_agent ? modifying_agent : Symbol.jsAgent;
-	//}
-};
+
+Symbol.prototype.getSource = function() {
+	if (this.origin && this.origin.getSource) return this.origin.getSource();
+	return this.name + " = " + Eden.edenCodeForValue(this.value()) + ";";
+}
+
 
 /**
  * Set a definition for the Symbol, which will be used to calculate it's value.
@@ -328,10 +325,10 @@ Symbol.prototype._setLastModifiedBy = function (modifying_agent) {
  * @param {function(Folder)} definition
  * @param {Symbol} modifying_agent Agent modifying this Symbol.
  */
-Symbol.prototype.define = function (definition, modifying_agent, subscriptions, source) {
+Symbol.prototype.define = function (definition, origin, subscriptions, source) {
 	this.garbage = false;
-	this._setLastModifiedBy(modifying_agent);
 	this.definition = definition;
+	this.origin = origin;
 	this.needsGlobalNotify = Symbol.REDEFINED;
 
 	// symbol no longer observes or depends on anything
@@ -358,7 +355,7 @@ Symbol.prototype.define = function (definition, modifying_agent, subscriptions, 
 		this.context.expireSymbol(this);
 	}
 
-	if (eden.peer && source) eden.peer.define(this.last_modified_by, this.name, this.eden_definition, source, subscriptions);
+	if (eden.peer && source) eden.peer.define(ast, this.name, source, subscriptions);
 
 	return this;
 };
@@ -389,10 +386,10 @@ Symbol.prototype.stopObserving = function (symbol_name) {
 	this.observees[symbol_name] = undefined;
 };
 
-Symbol.prototype.append = function(value, scope, agent) {
+Symbol.prototype.append = function(value, scope, origin) {
 	var val = this.value(scope);
 	val.push(value);
-	this.assign(val, scope, agent);
+	this.assign(val, scope, origin);
 }
 
 /**
@@ -406,16 +403,11 @@ Symbol.prototype.append = function(value, scope, agent) {
  * @param {Symbol} modifying_agent
  * @param {boolean} pushToNetwork
  */
-Symbol.prototype.assign = function (value, scope, modifying_agent) {
-	// This is a HACK to fix missing scopes
-	if (!(scope instanceof Scope)) {
-		modifying_agent = scope;
-		scope = root.scope;
-	}
+Symbol.prototype.assign = function (value, scope, origin) {
 	this.garbage = false;
 	if (this.cache.value !== value) value = copy(value);
 	
-	if (this.name === "/autocalc") {
+	if (this.name === "autocalc") {
 		/* JS-EDEN has a separate Boolean type so users may expect to be able to assign true and
 		 * false even though autocalc uses 1 and 0 for compatibility with tkeden. */
 		if (value === true) {
@@ -425,10 +417,9 @@ Symbol.prototype.assign = function (value, scope, modifying_agent) {
 		}
 		this.context && this.context.autocalc(value === 1);
 	}
-	this.eden_definition = undefined;
+
 	this.clearEvalIDs();
-	this.evalResolved = true;
-	this._setLastModifiedBy(modifying_agent);
+	this.origin = origin;
 	this.definition = undefined;
 	this.needsGlobalNotify = Symbol.ASSIGNED;
 	this.has_evaled = true;
@@ -456,7 +447,7 @@ Symbol.prototype.assign = function (value, scope, modifying_agent) {
 	}
 
 	// Attempt send over p2p network
-	if (eden.peer) eden.peer.assign(this.last_modified_by, this.name, value);
+	if (eden.peer) eden.peer.assign(origin, this.name, value);
 
 	return this;
 };
@@ -472,12 +463,11 @@ Symbol.prototype.assign = function (value, scope, modifying_agent) {
  * @param {Symbol} modifying_agent
  * @param {boolean} pushToNetwork
  */
-Symbol.prototype.assigned = function (modifying_agent) {
+Symbol.prototype.assigned = function (origin) {
 	this.garbage = false;
-	this.eden_definition = undefined;
 	this.clearEvalIDs();
 	this.evalResolved = true;
-	this._setLastModifiedBy(modifying_agent);
+	this.origin = origin;
 	this.definition = undefined;
 
 	// symbol no longer observes or depends on anything
@@ -487,17 +477,6 @@ Symbol.prototype.assigned = function (modifying_agent) {
 	return this;
 };
 
-/**Makes a JavaScript function appear in the Function List view, rather than instead appearing
- * as a function typed observable, as it otherwise would using assign.
- * @param {function} f The function to assign.
- * @param {Symbol} agent The modifying agent.
- */
-Symbol.prototype.assignFunction = function (f, agent) {
-	this.assign(f, this.context.scope, agent);
-	this.eden_definition = "func " + this.name;
-	this.definition = function (context, scope) { return f; }
-}
-
 /**
  * Change the current value of this symbol and notify
  *
@@ -505,10 +484,10 @@ Symbol.prototype.assignFunction = function (f, agent) {
  * @param {Symbol} modifying_agent
  * @param {...*} mutatorArgs args to be passed to the mutator function.
  */
-Symbol.prototype.mutate = function (scope, mutator, modifying_agent, mutatorArgs) {
+Symbol.prototype.mutate = function (scope, mutator, origin, mutatorArgs) {
 	this.garbage = false;
 	var me = this;
-	this._setLastModifiedBy(modifying_agent);
+	this.origin = origin
 
 	// need to make sure the cached value exists before mutation
 	// which is allowed to refer to the cached value.
@@ -555,11 +534,11 @@ Symbol.prototype.getEdenCode = function () {
 Symbol.prototype.trigger = function () {
 	var name;
 	// only trigger when all observed symbols have been defined by some agent
-	for (name in this.observees) {
-		if (!this.observees[name].last_modified_by) {
-			return;
-		}
-	}
+	//for (name in this.observees) {
+	//	if (!this.observees[name].last_modified_by) {
+	//		return;
+	//	}
+	//}
 	// if one action fails, it shouldn't prevent all the other
 	// scheduled actions from firing
 	try {
@@ -730,7 +709,7 @@ Symbol.prototype.addSubscriber = function (name, symbol) {
  */
 Symbol.prototype.removeSubscriber = function (name) {
 	delete this.subscribers[name];
-	if (this.last_modified_by === undefined && this.canSafelyBeForgotten()) {
+	if (this.origin === undefined && this.canSafelyBeForgotten()) {
 		this.forget();
 	}
 };
@@ -746,7 +725,7 @@ Symbol.prototype.canSafelyBeForgotten = function () {
 }
 
 Symbol.prototype.forget = function () {
-	this.eden_definition = undefined;
+	this.origin = undefined;
 	this.clearEvalIDs();
 	this.evalResolved = true;
 	this.definition = undefined;
@@ -806,7 +785,7 @@ Symbol.prototype.addJSObserver = function (name, listener) {
  */
 Symbol.prototype.removeObserver = function (name) {
 	delete this.observers[name];
-	if (this.last_modified_by === undefined && this.canSafelyBeForgotten()) {
+	if (this.origin === undefined && this.canSafelyBeForgotten()) {
 		this.forget();
 	}
 };
@@ -838,7 +817,7 @@ Symbol.prototype.addExtension = function(idstr, ext, source, modifying_agent, de
 	}
 }
 
-Symbol.prototype.listAssign = function(value, scope, modifying_agent, pushToNetwork, indices) {
+Symbol.prototype.listAssign = function(value, scope, origin, pushToNetwork, indices) {
 	if (this.definition) {
 		throw new Error(Eden.RuntimeError.ASSIGNTODEFINED);
 		return;
@@ -860,12 +839,12 @@ Symbol.prototype.listAssign = function(value, scope, modifying_agent, pushToNetw
 		throw new Error(Eden.RuntimeError.ASSIGNDIMENSION);
 	}
 
-	this._setLastModifiedBy(modifying_agent);
+	this.origin = origin;
 	this.needsGlobalNotify = Symbol.ASSIGNED;
 	if (this.context) {
 		this.context.expireSymbol(this);
 	}
 
-	if (eden.peer) eden.peer.listAssign(this.last_modified_by, this.name, value, indices);
+	if (eden.peer) eden.peer.listAssign(origin, this.name, value, indices);
 	return this;
 }

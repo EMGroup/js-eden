@@ -116,12 +116,9 @@ Folder.prototype.getInnerSource = function() {
 	var res = "";
 	for (var x in this.symbols) {
 		var sym = this.symbols[x];
-		if (sym.last_modified_by.name.charAt(0) != "*" || sym.last_modified_by.name == "*Default") continue;
-		if (sym.definition) {
-			res += sym.eden_definition;
-		} else {
-			res += x + " = " + Eden.edenCodeForValue(sym.value()) + ";\n";
-		}
+		if (sym.origin && sym.origin.parent && sym.origin.parent.statements !== undefined) continue;
+		if (!sym.origin || sym.origin.name == "*Default") continue;
+		res += sym.getSource() + "\n";
 	}
 	return res;
 }

@@ -2034,14 +2034,15 @@ func concat {
 	return result;
 }
 
+
+func decodeHTML {
 ${{
 	/* Replaces HTML character entities in a string with the equivalent real characters with the
 	 * following exceptions: &amp; &lt; &gt; &quot; &apos;
 	 */
-	root.lookup("decodeHTML").assignFunction( (function() {
 	  var element = document.createElement('div');
+		var str = arguments[0];
 
-	  function decodeHTML (str) {
 		if (typeof(str) == "string") {
 		  //Strip html tags
 		  str = str.replace(/&(amp|#38|lt|#60|gt|#62|quot|#34|apos|#39);/g, "&amp;$1;");
@@ -2053,11 +2054,8 @@ ${{
 		}
 
 		return str;
-	  }
-
-	  return decodeHTML;
-	})(), {name: "*Default"} );
 }}$;
+}
 
 
 /**
@@ -3557,7 +3555,7 @@ ${{
 		if (Array.isArray(clocks)) {
 			var incrementClock = function (symbol) {
 				if (!pausedSym.cache.value) {
-					symbol.assign(symbol.cache.value + 1, root.scope, edenclocks);
+					symbol.assign(symbol.cache.value + 1, root.scope, Symbol.localJSAgent);
 					if (debugSym.cache.value.edenclocks) {
 						console.log("edenclocks: clock " + symbol.name);
 					}
@@ -3572,12 +3570,12 @@ ${{
 				}
 			};
 			var startClock = function (interval, target) {
-				if (target.eden_definition !== undefined && target.definition !== undefined && /^proc\s/.test(target.eden_definition)) {
+				if (target.definition !== undefined && /^proc\s/.test(target.eden_definition)) {
 					return window.setInterval(callClockProc, interval, target);
 				} else {
 					var currentValue = target.value();
 					if (currentValue === undefined) {
-						target.assign(0, root.scope, edenclocks);
+						target.assign(0, root.scope, Symbol.localJSAgent);
 						return window.setInterval(incrementClock, interval, target);
 					} else if (typeof(currentValue) == "number") {
 						return window.setInterval(incrementClock, interval, target);					

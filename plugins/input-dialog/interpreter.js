@@ -1555,15 +1555,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (element.className == "" && element.parentNode.nodeName == "SPAN") {
 					element = element.parentNode;
 				}
-				if (element.className == "eden-path") {
+				if (element.className == "eden-selector" || element.className == "eden-selector2") {
 					//console.log();
 					disableGotoMode();
-					var path = element.parentNode.textContent.split("@");
-					if (path.length == 1) {
-						openTab(path[0]);
-					} else {
-						openTab(path[0], path[1]);
-					}
+					var path = element.parentNode.textContent;
+					console.log("PATH",path);
+					var tabs = tabsSym.value();
+					tabs.push(path);
+					tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
 				} else if (element.className == "eden-observable") {
 					var obs = element.getAttribute("data-observable");
 					//console.log("GOTO: " + obs);
@@ -1926,7 +1925,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function onScratchSearch(e) {
 			var q = e.target.value;
-			Eden.Selectors.query(q,"source", undefined, false, function(res) {
+			Eden.Selectors.query(q,"innersource", undefined, false, function(res) {
 				intextarea.value = res.join("\n");
 				tab_frags[curtab].setSourceInitial(intextarea.value);
 				scriptast = tab_frags[curtab].ast;

@@ -171,9 +171,9 @@ Button.prototype.draw = function (context) {
 		var inputJQ = $(inputHtml);
 		var clickSym = root.lookup(name + "_click");
 		if (clickSym.value() === undefined) {
-			var agent = root.lookup("Button");
-			clickSym.assign(false, root.scope, agent);
-			root.lookup(name + "_clicked").assign(false, root.scope, agent);
+			//var agent = root.lookup("Button");
+			clickSym.assign(false, root.scope, Symbol.hciAgent);
+			root.lookup(name + "_clicked").assign(false, root.scope, Symbol.hciAgent);
 		}
 
 		inputJQ

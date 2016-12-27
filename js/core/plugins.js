@@ -76,7 +76,7 @@
 
 
 		var me = this;
-		var agent = {name: "*Default"};
+		var agent = Symbol.defaultAgent;
 
 		var currentType = this.activeDialogs[name];
 		var visibilitySym = view(name, "visibility");
@@ -222,7 +222,7 @@
 		var typeSym = view(name, 'type');
 		if (typeSym.value() != type) {
 			typeSym.removeJSObserver("changeType");
-			typeSym.assign(type, root.scope, creatingAgent);
+			typeSym.assign(type, root.scope, Symbol.localJSAgent);
 			typeSym.addJSObserver("changeType", function (sym, newType) {
 				if (newType !== undefined && root.lookup("_views_list").value().indexOf(name) !== -1) {
 					me.createView(name, newType);

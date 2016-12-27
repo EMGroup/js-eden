@@ -92,7 +92,7 @@ Eden.AST.Definition.prototype.generate = function(ctx,scope) {
 		for (var d in this.dependencies) {
 			deps.push(d);
 		}
-		result = result + ", this, "+JSON.stringify(deps)+");\n";
+		result = result + ", Symbol.localJSAgent, "+JSON.stringify(deps)+");\n";
 		return result;
 	}
 };
@@ -132,12 +132,12 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			for (var d in this.dependencies) {
 				deps.push(d);
 			}
-			sym.eden_definition = this.getSource();
+			//sym.eden_definition = this.getSource();
 			//if (agent === undefined) {
 			//	console.trace("UNDEF AGENT: " + source);
 			//}
 			console.log("DEF",rhs);
-			sym.define(eval(rhs), agent, deps, rhs);
+			sym.define(eval(rhs), this, deps, rhs);
 		}
 	} catch(e) {
 		var err;

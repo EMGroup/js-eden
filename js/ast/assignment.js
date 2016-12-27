@@ -52,14 +52,14 @@ Eden.AST.Assignment.prototype.generate = function(ctx,scope) {
 	} else if (this.lvalue.hasListIndices()) {
 		result = scope+".listAssign("+result+",";
 		result += this.expression.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
-		result += ", this, false, ";
+		result += ", Symbol.localJSAgent, false, ";
 		result += this.lvalue.generateCompList(ctx, scope);
 		result += ");\n";
 		return result;
 	} else {
 		result = scope+".assign("+result+",";
 		result += this.expression.generate(ctx, scope,{bound: false, usevar: ctx.type == "scriptexpr"});
-		result += ", this);\n"
+		result += ", Symbol.localJSAgent);\n"
 		return result;
 	}
 };
@@ -126,10 +126,10 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 			if (this.lvalue.hasListIndices()) {
 				this.value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
 				var complist = this.lvalue.executeCompList(ctx, scope);
-				sym.listAssign(this.value, scope, agent, false, complist);
+				sym.listAssign(this.value, scope, this, false, complist);
 			} else {
 				this.value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
-				sym.assign(this.value,(this.lvalue.islocal) ? undefined : scope, agent);
+				sym.assign(this.value,(this.lvalue.islocal) ? undefined : scope, this);
 			}
 		//}
 	} catch(e) {

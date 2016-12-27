@@ -110,6 +110,7 @@ Eden.Project.prototype.start = function() {
 			// Find the active action and replace
 			for (var i=0; i<me.ast.script.statements.length; i++) {
 				if (me.ast.script.statements[i] === me.ast.scripts["ACTIVE"]) {
+					me.ast.script.statements[i].statements = undefined;
 					me.ast.script.statements[i] = eden.root;
 					break;
 				}
@@ -159,8 +160,25 @@ Eden.Project.prototype.save = function(pub, callback) {
 	});
 }
 
+Eden.Project.restore = function() {
+	if (window.localStorage) {
+		var src = window.localStorage.getItem("last_project");
+		var title = window.localStorage.getItem("title");
+		if (src && src != "") {
+			eden.project = new Eden.Project(undefined, title, src);
+			eden.project.start();
+		}
+	}
+}
+
 Eden.Project.prototype.restore = function() {
 	// Get local patches and do apply them...
+}
+
+Eden.Project.prototype.localSave = function() {
+	if (window.localStorage) {
+		window.localStorage.setItem("last_project", this.generate());
+	}
 }
 
 Eden.Project.prototype.patch = function(oldast, newast) {

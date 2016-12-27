@@ -50,7 +50,11 @@ span.eden-number {
 }
 
 span.eden-selector {
-	color: #75507b;
+	color: blue;
+}
+
+span.eden-selector2 {
+	color: blue;
 	font-weight: bold;
 }
 

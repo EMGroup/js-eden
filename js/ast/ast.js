@@ -103,6 +103,16 @@ Eden.AST.debug_begin_cb = undefined;
 Eden.AST.debug_end_cb = undefined;
 
 
+Eden.AST.prototype.destroy = function() {
+	function clear(stat) {
+		for (var i=0; i<stat.statements.length; i++) {
+			if (stat.statements[i].type == "script") clear(stat.statements[i]);
+		}
+		stat.statements = undefined;
+	}
+	clear(this.script);
+}
+
 
 /**
  * Recursive search of all imports for the required action code.

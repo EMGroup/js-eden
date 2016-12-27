@@ -834,12 +834,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 		var gridVisibleSym = root.lookup("_view_" + canvasName + "_grid_visible");
 		if (gridVisibleSym.value() === undefined) {
-			gridVisibleSym.assign(false, agent);
+			gridVisibleSym.assign(false, root.scope, agent);
 		}
 		gridVisibleSym.addJSObserver("refreshView", redraw);
 		var gridSpacingSym = root.lookup("_view_" + canvasName + "_grid_spacing");
 		if (gridSpacingSym.value() === undefined) {
-			gridSpacingSym.assign(20, agent);
+			gridSpacingSym.assign(20, root.scope, agent);
 		}
 		gridSpacingSym.addJSObserver("refreshView", redraw);
 
