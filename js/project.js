@@ -28,6 +28,7 @@ Eden.Project.init = function() {
 			if (eden.project === undefined) return;
 			eden.project.title = value;
 			eden.project.name = value.replace(/[^a-zA-Z0-9]/g, "");
+			eden.project.ast.script.name = eden.project.name;
 			// Fabricate a fake doxy comment for the script using meta data.
 			var doxystring = "/** "+ eden.project.name + "\n * @title " + eden.project.title + "\n * @author " + eden.project.author + "\n */";
 			var doxy = new Eden.AST.DoxyComment(doxystring);

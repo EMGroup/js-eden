@@ -209,6 +209,8 @@ span.close {
 	color: #888;
 	margin-left: 12px;
 	cursor: pointer;
+	font-size: 12pt;
+	font-weight: normal;
 }
 
 span.close:hover {
@@ -686,7 +688,7 @@ div.input-dialog .ui-dialog-titlebar {
 	padding: 0;
 	line-height: 30px;
 	padding-left: 20px;
-	display: none;
+	display: none !important;
 	overflow: visible;
 
 }

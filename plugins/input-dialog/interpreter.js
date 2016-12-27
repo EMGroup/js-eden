@@ -266,6 +266,31 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var origin = { name: name };
 
+		var dragstart = 0;
+		var dragvalue = 0;
+		var draglast = 0;
+		var dragline = -1;
+		var dragint = false;
+		var rebuildtimer;
+		var amtyping = false;
+		var rebuildinterval = 10;
+		var currentlineno = 1;
+		var currentcharno = 0;
+		var highlighter = new EdenUI.Highlight(outdiv);
+		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
+		var refreshentire = false;
+		var edited = false;
+		var dirty = false;
+		var tabscrollix = 0;
+		var showhidden = false;
+		var inspectmode = false;
+		var gotomode = false;
+		var maxtabs = 3;
+		var tabpositions = {};
+
+		var scriptast;
+		var browseDialog = undefined;
+
 		function curChanged(sym, value) {
 			if (typeof value == "number" && value >= 0 && value < tab_frags.length) {
 				curtab = value;
@@ -395,9 +420,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		});
 
 
-
-		var gutter = new EdenScriptGutter($codearea.get(0), infobox);
-
 		//var $buttonbar = $('<div class="control-bar noselect"><div class="buttonsDivLeft"><!--button class="control-button share control-enabled">&#xf1e0;</button--><!--button class="control-button run-force control-enabled" title="Run (force)">&#xf04b;</button--></div><div class="buttonsDiv"><button class="control-button search-mode control-enabled" title="'+Language.ui.input_window.inspect+'">&#xf002;</button><button class="control-button rewind-input" title="'+Language.ui.input_window.rewind+'">&#xf122;</button><button class="control-button previous-input" title="'+Language.ui.input_window.undo+'">&#xf112;</button><button class="control-button next-input" title="'+Language.ui.input_window.redo+'">&#xf064;</button><button class="control-button fa-flip-horizontal fastforward-input" title="'+Language.ui.input_window.fast_forward+'">&#xf122;</button><button class="control-button control-enabled menu-input">&#xf142;</button></div>');
 		//$buttonbar.appendTo($dialogContents);
 		//var buttonbar = $buttonbar.get(0);
@@ -451,30 +473,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}, scriptagent); hideMenu(); });
 			createMenuItem("&#xf0d0;", Language.ui.input_window.insert_temp, function(e) { });
 		}
-
-		var dragstart = 0;
-		var dragvalue = 0;
-		var draglast = 0;
-		var dragline = -1;
-		var dragint = false;
-		var rebuildtimer;
-		var amtyping = false;
-		var rebuildinterval = 10;
-		var currentlineno = 1;
-		var currentcharno = 0;
-		var highlighter = new EdenUI.Highlight(outdiv);
-		var refreshentire = false;
-		var edited = false;
-		var dirty = false;
-		var tabscrollix = 0;
-		var showhidden = false;
-		var inspectmode = false;
-		var gotomode = false;
-		var maxtabs = 3;
-		var tabpositions = {};
-
-		var scriptast;
-		var browseDialog = undefined;
 
 
 		function browseScripts(path) {
@@ -1619,7 +1617,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			//if (scriptast) scriptast.execute(tab_frags[curtab]);
 			if (curtab >= 0 && tab_frags[curtab]) {
 				if (tab_frags[curtab].originast) {
-					tab_frags[curtab].originast.execute(tab_frags[curtab]);
+					console.log("ONRUN",tab_frags[curtab].originast);
+					tab_frags[curtab].ast.executeStatement(tab_frags[curtab].originast, 0, tab_frags[curtab]);
 				} else {
 					tab_frags[curtab].ast.execute(tab_frags[curtab]);
 				}
@@ -1707,11 +1706,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function onTabClick(e) {
 			var name = e.currentTarget.getAttribute("data-index");
-			console.log(name);
-			//agent.state[obs_agent] = name;
 			curSym.assign(parseInt(name), eden.root.scope, Symbol.hciAgent);
 			intextarea.focus();
-			//updateHistoryButtons();
+		}
+
+		function onTabClose(e) {
+			var name = parseInt(e.currentTarget.parentNode.getAttribute("data-index"));
+			if (name >= 0 && name < tab_frags.length) {
+				var tabs = tabsSym.value();
+				tabs.splice(name, 1);
+				tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
+				var curt = curSym.value();
+				if (curt >= tabs.length) {
+					curSym.assign(curt-1, eden.root.scope, Symbol.localJSAgent);
+				}
+			}
+			e.stopPropagation();
 		}
 
 
@@ -1968,6 +1978,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		// Set the event handlers
 		$dialogContents
+		.on('click', '.close', onTabClose)
 		.on('click', '.agent-tab-more', onBrowse)
 		.on('click', '.browse-entry', onBrowseClick)
 		.on('input', '.hidden-textarea', onInputChanged)

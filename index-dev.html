@@ -625,6 +625,7 @@ See LICENSE.txt
 					var file = fileinput.files[0];
 					var filename = file.name;
 					filename = filename.substring(0,filename.lastIndexOf("."));
+					filename = filename.replace(/\([0-9]+\)/,"");
 					console.log("FILE",file);
 					var reader = new FileReader();
 					reader.onload = function(e) {
