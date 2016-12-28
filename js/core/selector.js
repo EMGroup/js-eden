@@ -122,6 +122,7 @@ Eden.Selectors.testType = function(expr) {
 
 Eden.Selectors.getChildren = function(statements, recurse) {
 	var nstats = [];
+	if (statements === undefined) return nstats;
 	for (var i=0; i<statements.length; i++) {
 		if (statements[i].type == "script") {
 			nstats.push.apply(nstats,statements[i].statements);
@@ -201,7 +202,7 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "name"		:	
 				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
 										val = stat.lvalue.name;
-									} else if (stat.name) {
+									} else if (stat.name && stat.type != "do") {
 										val = stat.name;
 									} else if (stat.parent === undefined && stat.base && stat.base.origin) {
 										val = stat.base.origin.name;
@@ -289,7 +290,8 @@ Eden.Selectors.processNode = function(statements, s) {
 			});
 		} else {
 			switch(command) {
-			case "name"		:	var regex = edenUI.regExpFromStr(param);
+			case "name"		:	if (!param) break;
+								var regex = edenUI.regExpFromStr(param);
 								statements = statements.filter(function(stat) {
 									return (stat.lvalue && regex.test(stat.lvalue.name)) || (stat.name && regex.test(stat.name));
 								}); break;

@@ -10,7 +10,7 @@
 	/*Prevent jQuery from cancelling attempts to reposition a dialog so that it isn't fully within
 	 * the boundaries of the browser window.
 	 */
-	$.extend($.ui.dialog.prototype.options.position, { collision: 'none' });
+	//$.extend($.ui.dialog.prototype.options.position, { collision: 'none' });
 	
 	/**
 	 * Helper to return the Symbol for a view property.
@@ -20,7 +20,7 @@
 	 * @return {Symbol}
 	 */
 	function view(viewName, propName) {
-		return root.lookup("_view_"+viewName+"_"+propName);
+		return root.lookup("view_"+viewName+"_"+propName);
 	}
 
 	/**
@@ -123,7 +123,7 @@
 		var diag = dialog(name);
 		diag.dialog({
 			closeOnEscape: false,
-			draggable: true,
+			//draggable: true,
 			position: {using: function() {}},
 			beforeClose: function () {
 				if (viewData.closing) {
@@ -135,8 +135,12 @@
 			focus: function () {
 				//Disabled pending fix.
 				//me.minimizeObscuredViews(name);
+				//diag.dialog("moveToTop");
+				//console.log("HAS FOCUS");
 			}
 		});
+
+		//diag.parent().on("click", function() { diag.dialog("moveToTop"); });
 
 		// Add associated observables...
 		function viewobs(obs) { return "_view_"+name+"_"+obs; };
@@ -195,12 +199,7 @@
 				me.brieflyHighlightView(event.target.id.slice(0,-7));
 				//The following lines are needed because of bugs in dialogExtend, which might be fixed in the latest version.
 				diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, desktopTop, Number.MAX_VALUE, Number.MAX_VALUE]);
-				/*dialogWindow.draggable("option", {
-					grid: [me.gridSizeX, me.gridSizeY]
-				});
-				dialogWindow.resizable("option", {
-					grid: [me.gridSizeX, me.gridSizeY]
-				});*/
+				
 			}
 		});
 		this.activeDialogs[name] = type;
@@ -224,21 +223,21 @@
 			typeSym.removeJSObserver("changeType");
 			typeSym.assign(type, root.scope, Symbol.localJSAgent);
 			typeSym.addJSObserver("changeType", function (sym, newType) {
-				if (newType !== undefined && root.lookup("_views_list").value().indexOf(name) !== -1) {
+				if (newType !== undefined && root.lookup("views_list").value().indexOf(name) !== -1) {
 					me.createView(name, newType);
 				}
 			});
 		}
-		var viewListSym = root.lookup("_views_list");
+		var viewListSym = root.lookup("views_list");
 		var viewList = viewListSym.value();
 		if (Array.isArray(viewList)) {
 			if (viewList.indexOf(name) === -1) {
 				viewList = viewList.slice();
 				viewList.push(name);
-				viewListSym.assign(viewList, root.scope, creatingAgent);
+				viewListSym.assign(viewList, root.scope, Symbol.localJSAgent);
 			}
 		} else {
-			viewListSym.assign([name], root.scope, creatingAgent);
+			viewListSym.assign([name], root.scope, Symbol.localJSAgent);
 		}
 
 		function updateSize(sym, value) {
@@ -253,24 +252,24 @@
  
 		widthSym = view(name, 'width');
 		widthSym.addJSObserver("plugins", updateSize);
-		if (!widthSym.eden_definition && widthSym.value() === undefined) {
+		if (!widthSym.definition && widthSym.value() === undefined) {
 			widthSym.assign(diag.dialog("option", "width") - this.scrollBarSize, root.scope, agent);
 		}
 		var heightSym = view(name, 'height');
 		heightSym.addJSObserver("plugins", updateSize);
-		if (!heightSym.eden_definition && heightSym.value() === undefined) {
+		if (!heightSym.definition && heightSym.value() === undefined) {
 			heightSym.assign(diag.dialog("option", "height") - ((lockval) ? 0 : this.titleBarHeight), root.scope, agent);
 		}
 		updateSize();
 		var topLeft = diag.closest('.ui-dialog').position();
 		var xSym = view(name, 'x');
 		xSym.addJSObserver("plugins", updatePosition);
-		if (!xSym.eden_definition && xSym.value() === undefined) {
+		if (!xSym.definition && xSym.value() === undefined) {
 			xSym.assign(topLeft.left, root.scope, agent);
 		}
 		var ySym = view(name, 'y');
 		ySym.addJSObserver("plugins", updatePosition);
-		if (!ySym.eden_definition && ySym.value() === undefined) {
+		if (!ySym.definition && ySym.value() === undefined) {
 			ySym.assign(topLeft.top, root.scope, agent);
 		}
 		updatePosition();
@@ -490,11 +489,11 @@
 			root.endAutocalcOff();
 		});
 		diag.on("dialogdragstart", function() {
-			if (view(name, 'x').eden_definition || view(name, 'y').eden_definition) return false;
+			if (view(name, 'x').definition || view(name, 'y').definition) return false;
 		});
 		diag.on("dialogresizestart", function() {
 			// TODO This doesn't seem to work!!!
-			if (view(name, 'width').eden_definition || view(name, 'height').eden_definition) return false;
+			if (view(name, 'width').definition || view(name, 'height').definition) return false;
 		});
 
 
@@ -586,7 +585,7 @@
 		delete this.viewInstances[name];
 
 		if (forgetObservables) {
-			var viewListSym = root.lookup("_views_list");
+			var viewListSym = root.lookup("views_list");
 			var viewList = viewListSym.value();
 			if (Array.isArray(viewList)) {
 				var index = viewList.indexOf(name);
@@ -732,7 +731,7 @@
 		}
 		var diagElem = diag.get(0);
 		var tolerance = 0;
-		var topLeft = diagWindow.offset();
+		var topLeft = diagWindow.position();
 		var left = topLeft.left;
 		var top = topLeft.top;
 		var width = diag.dialog("option", "width") + 2 * EdenUI.prototype.dialogBorderWidth;
@@ -749,7 +748,7 @@
 			if (compareWindow.hasClass("ui-front") && !pinned) {
 				continue;
 			}
-			var compareTopLeft = compareWindow.offset();
+			var compareTopLeft = compareWindow.position();
 			var compareLeft = compareTopLeft.left;
 			var compareTop = compareTopLeft.top;
 			var compareWidth = compareDialog.dialog("option", "width") + 2 * EdenUI.prototype.dialogBorderWidth;
@@ -791,11 +790,12 @@
 		//xSym.cached_value = realX;
 		//ySym.cached_value = realY;
 		//if (this.plugins.MenuBar) {
-			realY = realY  + this.menuBarHeight;
+			//realY = realY  + this.menuBarHeight;
 		//}
-		//console.log("MOVE VIEW", realX, realY);
 
-		diag.parent().offset({left: realX, top: realY});
+		var p = diag.parent().get(0);
+		p.style.left = ""+realX+"px";
+		p.style.top = ""+realY+"px"; //.offset({left: realX, top: realY});
 	};
 
 	/**
@@ -866,8 +866,8 @@
 
 		//diag.dialog("option", "width", adjustedWidth);
 		//diag.dialog("option", "height", adjustedHeight);
-		if (widthSym.last_modified_by !== Symbol.hciAgent) diag.dialog("option", "width", newWidth);
-		if (heightSym.last_modified_by !== Symbol.hciAgent) diag.dialog("option", "height", newHeight);
+		if (widthSym.origin !== Symbol.hciAgent) diag.dialog("option", "width", newWidth);
+		if (heightSym.origin !== Symbol.hciAgent) diag.dialog("option", "height", newHeight);
 		//No idea why the following line is needed but it makes things work smoother when the window is positioned more than the value of the CSS height of the body element down the page.
 		//diag.parent().offset({top: top - document.body.scrollTop});
 

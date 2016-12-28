@@ -193,18 +193,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 	$(document.body).delegate(null, 'drop', function(e) {
 		if (e.originalEvent.dataTransfer === undefined) return;
-		var value = e.originalEvent.dataTransfer.getData("agent");
+		var value = e.originalEvent.dataTransfer.getData("selector");
 		if (!value || value == "") {
 			console.log(e.originalEvent.dataTransfer.files);
 			e.preventDefault();
 			return;
 		}
 
-		var valsplit = value.split("/");
-		var viewname = valsplit.join("");
-		eden.root.lookup("_view_"+viewname+"_tabs").assign([value], eden.root.scope);
+		var valsplit = value.sp;
+		var viewname = value.replace(/[^a-zA-Z0-9]+/g,"");
+		eden.root.lookup("view_"+viewname+"_tabs").assign([value], eden.root.scope);
 		edenUI.createView(viewname, "ScriptInput");
-		eden.root.lookup("_view_"+viewname+"_agent").assign(value, eden.root.scope);
+		eden.root.lookup("view_"+viewname+"_current").assign(0, eden.root.scope);
 	}).delegate(null, 'dragover', function(e) {
 		e.preventDefault();
 	});
@@ -1769,8 +1769,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		function onTabDragStart(e) {
-			var name = e.target.getAttribute("data-name");
-			e.originalEvent.dataTransfer.setData("agent", name);
+			var index = parseInt(e.target.getAttribute("data-index"));
+			var selector = tab_frags[index].selector;
+			e.originalEvent.dataTransfer.setData("selector", selector);
 
 			dragSX = e.originalEvent.offsetX;
 			dragSY = e.originalEvent.offsetY;
@@ -1832,7 +1833,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function onTabDrop(e) {
 			e.stopPropagation();
 			e.preventDefault();
-			var value = e.originalEvent.dataTransfer.getData("agent");
+			var value = e.originalEvent.dataTransfer.getData("selector");
 			
 			console.log("DROP");
 			console.log(e);
@@ -1865,35 +1866,35 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				return;
 			}
 
-			var tabs = agent.state[obs_tabs];
+			var tabs = tabsSym.value();
 			if (tabs.indexOf(value) == -1) {
 				tabs.push(value);
-				agent.state[obs_tabs] = tabs;
+				tabsSym.assign(tabs,eden.root.scope,Symbol.hciAgent);
 			}
-			agent.state[obs_agent] = value;
 		}
 
 		function onTabDragEnd(e) {
-			var value = e.target.getAttribute("data-name");
+			var index = parseInt(e.target.getAttribute("data-index"));
+			var selector = tab_frags[index].selector;
 			if (e.originalEvent.dataTransfer.dropEffect != 'none') {
-				console.log("DRAGEND: " + value);
+				console.log("DRAGEND: " + selector);
 				console.log(e);
-				var tabs = agent.state[obs_tabs];
-				var ix = tabs.indexOf(value);
+				var tabs = tabsSym.value();
+				var ix = tabs.indexOf(selector);
 				if (ix >= 0) {
 					tabs.splice(ix,1);
 					ix--;
 					if (ix < 0) ix = 0;
 					if (ix < tabs.length) {
-						agent.state[obs_agent] = tabs[ix];
+						//agent.state[obs_agent] = tabs[ix];
 					}
-					agent.state[obs_tabs] = tabs;
+					tabsSym.assign(tabs,eden.root.scope,Symbol.hciAgent);
 				}
 				if(tabs.length == 0) {
-					agent.state[obs_agent] = undefined;
+					//agent.state[obs_agent] = undefined;
 				}
 			} else {
-				agent.state[obs_agent] = value;
+				//agent.state[obs_agent] = value;
 			}
 		}
 
@@ -2039,13 +2040,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			destroy: function() {
 				console.log("CLOSE SCRIPT");
 				clearInterval(gutterinterval);
-				Eden.Agent.unlisten(agent);
-				if (scriptagent) {
-					scriptagent.setOwned(false);
+				//Eden.Agent.unlisten(agent);
+				for (var i=0; i<tab_frags.length; i++) {
+					tab_frags[i].unlock();
+					tab_frags[i].ast.destroy();
 				}
-				scriptagent = undefined;
-				Eden.Agent.remove(agent);
-				agent = undefined;
+				scriptast = undefined;
+				//Eden.Agent.remove(agent);
+				//agent = undefined;
 			},
 			resize: function(e,ui) {
 				if (ui && ui.size) {
@@ -2073,6 +2075,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			idealheight = EdenUI.plugins.ScriptInput.getRequiredHeight(linecount + 1);
 		}
 
+		/**
+		 * Helper to return the Symbol for a view property.
+		 *
+		 * @param {string} viewName
+		 * @param {string} propName
+		 * @return {Symbol}
+		 */
+		function view(viewName, propName) {
+			return root.lookup("view_"+viewName+"_"+propName);
+		}
+
+
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(viewdata.contents)
 			.dialog({
@@ -2088,7 +2102,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				draggable: false
 			});
 		$dialog.parent().draggable({
-			handle: ".handle"
+			handle: ".handle",
+			cancel: '.agent-tab-notcurrent',
+			stop: function(event, ui) {
+				var root = eden.root;
+				root.beginAutocalcOff();
+				view(simpleName, 'x').assign(ui.position.left, eden.root.scope, Symbol.hciAgent);
+				view(simpleName, 'y').assign(ui.position.top, eden.root.scope, Symbol.hciAgent);
+				root.endAutocalcOff();
+			},
+			start: function(event, ui) {
+				if (view(simpleName, 'x').eden_definition || view(simpleName, 'y').definition) return false;
+			}
 		});
 
 		viewdata.confirmClose = false;

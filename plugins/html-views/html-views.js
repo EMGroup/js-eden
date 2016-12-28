@@ -18,7 +18,7 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 		//Remove -dialog name suffix.
 		var viewName = name.slice(0, -7);
 
-		function viewobs(name) { return "_view_"+viewName+"_"+name; };
+		function viewobs(name) { return "view_"+viewName+"_"+name; };
 
 		var observables = [
 			viewobs("background_colour"),
@@ -44,10 +44,10 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 			}
 		});
 
-		var contentSym = root.lookup("_view_" + viewName + "_content");
+		var contentSym = root.lookup("view_" + viewName + "_content");
 		var updateView = function (sym, value) {
 			if (value === undefined) {
-				code_entry.html('<div class="htmlviews-undefined">Give _view_' + viewName +'_content a value to display HTML formatted text here.</div>');
+				code_entry.html('<div class="htmlviews-undefined">Give view_' + viewName +'_content a value to display HTML formatted text here.</div>');
 			} else {
 				code_entry.html(value);
 			}
@@ -55,7 +55,7 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 		updateView(contentSym, contentSym.value());
 		contentSym.addJSObserver("repaintView", updateView);
 
-		var bgSym = root.lookup("_view_"+viewName+"_background_colour");
+		var bgSym = root.lookup("view_"+viewName+"_background_colour");
 		function updateBG(sym, value) {
 			diag.get(0).parentNode.style.background = value;
 		}

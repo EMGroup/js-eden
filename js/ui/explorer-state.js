@@ -158,7 +158,7 @@ EdenUI.ExplorerState = function(element) {
 		this.searchbox.val(searchval);
 	}
 	searchSym.addJSObserver("explorer", function(sym, val) {
-		if (val !== undefined && sym.last_modified_by.name != "*JavaScript") {
+		if (val !== undefined && sym.origin.name != "*JavaScript") {
 			me.searchbox.val(val);
 		}
 	});

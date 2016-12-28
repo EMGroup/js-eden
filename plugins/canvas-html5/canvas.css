@@ -30,6 +30,7 @@ div.canvas-dialog .ui-dialog-titlebar {
 	background: -o-linear-gradient(#fafafa, #cccccc); 
 	background: -moz-linear-gradient(#fafafa, #cccccc); 
 	background: linear-gradient(#fafafa, #cccccc); */
+	font-size: 10pt;
 }
 
 .canvashtml-canvas {

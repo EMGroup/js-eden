@@ -476,11 +476,11 @@ proc arrangeWindows {
 	auto name, i, sumSym;
 
 	if (windowOrder == @) {
-		windowOrder = _views_list;
+		windowOrder = views_list;
 	} else  {
-		for (i =  1; i <= _views_list#; i++) {
-			if (positionInList(_views_list[i], windowOrder) == 0) {
-				windowOrder = windowOrder // [_views_list[i]];
+		for (i =  1; i <= views_list#; i++) {
+			if (positionInList(views_list[i], windowOrder) == 0) {
+				windowOrder = windowOrder // [views_list[i]];
 			}
 		}
 	}
@@ -490,16 +490,16 @@ proc arrangeWindows {
 	for (i = 1; i <= windowOrder#; i++) {
 		name = windowOrder[i];
 		/*
-		if (`"_view_"//name//"_position"` != @) {
+		if (`"view_"//name//"_position"` != @) {
 			continue;
 		}
-		`"_view_"//name//"_x"` = curr_x;
-		`"_view_"//name//"_y"` = 0;
-		curr_x += `"_view_"//name//"_width"` + 27;
+		`"view_"//name//"_x"` = curr_x;
+		`"view_"//name//"_y"` = 0;
+		curr_x += `"view_"//name//"_width"` + 27;
 		*/
-		execute("_view_" // name // "_x = " // sumSym // ";");
-		execute("_view_" // name // "_y = 0;");
-		execute(sumSym // " += _view_" // name // "_width + 27;");
+		execute("view_" // name // "_x = " // sumSym // ";");
+		execute("view_" // name // "_y = 0;");
+		execute(sumSym // " += view_" // name // "_width + 27;");
 	}
 	forget(sumSym);
 }
@@ -1051,14 +1051,14 @@ proc createView {
 }
 
 ${{
-	root.lookup("_views_list").addJSObserver("createAndDestroy", function (sym, viewNameList) {
+	root.lookup("views_list").addJSObserver("createAndDestroy", function (sym, viewNameList) {
 		var maxViewNumber = 0;
 		var viewNames = {};
 		var viewName, typeSym, viewType;
 		// Create any new views whose names have been inserted into the list.
 		function addTypeObserver(symbol, name) {
 			symbol.addJSObserver("changeType", function (sym, newType) {
-				if (newType !== undefined && root.lookup("_views_list").value().indexOf(name) !== -1) {
+				if (newType !== undefined && root.lookup("views_list").value().indexOf(name) !== -1) {
 					edenUI.createView(name, newType);
 				}
 			});		
@@ -1067,7 +1067,7 @@ ${{
 		if (viewNameList) {
 			for (var i = 0; i < viewNameList.length; i++) {
 				viewName = viewNameList[i];
-				typeSym = root.lookup("_view_" + viewName + "_type");
+				typeSym = root.lookup("view_" + viewName + "_type");
 				viewType = typeSym.value();
 
 				if (viewType === undefined) {
@@ -1096,9 +1096,9 @@ ${{
 			}
 		}
 		// Keep track of what to call the next view that is created using the menu bar.
-		var numViewsSym = root.lookup("_views_number_created");
+		var numViewsSym = root.lookup("views_number_created");
 		if (numViewsSym.value() < maxViewNumber) {
-			numViewsSym.assign(maxViewNumber, root.scope, root.lookup("createView"));
+			numViewsSym.assign(maxViewNumber, root.scope, Symbol.hciAgent);
 		}
 	});
 }}$;
@@ -1109,7 +1109,7 @@ ${{
  */
 proc showView {
 	para name;
-	`"_view_" // name // "_visibility"` = "visible";
+	`"view_" // name // "_visibility"` = "visible";
 	${{
 		edenUI.showView(name); //Explicitly invoke this to make sure the view gets moved to the top.
 		edenUI.brieflyHighlightView(name);
@@ -1118,7 +1118,7 @@ proc showView {
 
 proc hideView {
 	para name;
-	`"_view_" // name // "_visibility"` = "hidden";
+	`"view_" // name // "_visibility"` = "hidden";
 }
 
 proc highlightView {
@@ -1140,8 +1140,8 @@ proc moveView {
 	para name, x, y;
 	autocalc = 0;
 	##together {
-		`"_view_" // name // "_x"` = x;
-		`"_view_" // name // "_y"` = y;
+		`"view_" // name // "_x"` = x;
+		`"view_" // name // "_y"` = y;
 	##}
 	autocalc = 1;
 }
@@ -1150,8 +1150,8 @@ proc resizeView {
 	para name, width, height;
 	autocalc = 0;
 	##together {
-		`"_view_" // name // "_width"` = width;
-		`"_view_" // name // "_height"` = height;
+		`"view_" // name // "_width"` = width;
+		`"view_" // name // "_height"` = height;
 	##}
 	autocalc = 1;
 }
@@ -1162,17 +1162,17 @@ proc resizeView {
  * _views_frame_width gives the first x position where another view can be
  * placed without overlapping with xxx.
  */
-_views_frame_width = ${{ edenUI.dialogFrameWidth }}$;
-_views_frame_height = ${{ edenUI.dialogFrameHeight }}$;
+views_frame_width = ${{ edenUI.dialogFrameWidth }}$;
+views_frame_height = ${{ edenUI.dialogFrameHeight }}$;
 /** The size of the grid squares that windows snap to. #grid @oracle */
-_views_unit_x = ${{ edenUI.gridSizeX }}$;
+views_unit_x = ${{ edenUI.gridSizeX }}$;
 /** The size of the grid squares that windows snap to. #grid @oracle */
-_views_unit_y = ${{ edenUI.gridSizeY }}$;
+views_unit_y = ${{ edenUI.gridSizeY }}$;
 
 /** The maximum width a view can be if it fits within the browser window without scrolling.
  *  @oracle
  */
-screenWidth = ${{ window.innerWidth }}$ - _views_frame_width;
+screenWidth = ${{ window.innerWidth }}$ - views_frame_width;
 /** The maximum height a view can be if it fits within the browser window without scrolling.
  *  @oracle
  */
@@ -1239,13 +1239,13 @@ ${{
 			searchLang = undefined;
 		}
 
-		var existingViewType = root.lookup("_view_" + viewName + "_type").value();
+		var existingViewType = root.lookup("view_" + viewName + "_type").value();
 		if (existingViewType != type + "List") {
-			root.lookup("_view_" + viewName + "_title").assign(type + " List (" + viewName + ")", root.scope, this);
+			root.lookup("view_" + viewName + "_title").assign(type + " List (" + viewName + ")", root.scope, this);
 		}
 		edenUI.createView(viewName, type + "List");
-		root.lookup("_view_" + viewName + "_search_language").assign(searchLang, root.scope, this);
-		root.lookup("_view_" + viewName + "_search_string").assign(searchStr, root.scope, this);
+		root.lookup("view_" + viewName + "_search_language").assign(searchLang, root.scope, this);
+		root.lookup("view_" + viewName + "_search_string").assign(searchStr, root.scope, this);
 	}
 }}$;
 

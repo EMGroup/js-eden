@@ -111,6 +111,10 @@ Eden.AST.prototype.destroy = function() {
 		stat.statements = undefined;
 	}
 	clear(this.script);
+	// Free memory.
+	this.stream = undefined;
+	this.lines = undefined;
+	this.scripts = undefined;
 }
 
 

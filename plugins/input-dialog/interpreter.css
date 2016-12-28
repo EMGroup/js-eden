@@ -622,7 +622,7 @@ div.input-dialog {
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
 	box-shadow: 0 0 15px #4a6887;
-	/*overflow: visible;*/
+	overflow: hidden;
 }
 
 div.input-dialog .ui-dialog-content {

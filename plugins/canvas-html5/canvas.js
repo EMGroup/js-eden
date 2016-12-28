@@ -166,7 +166,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var previousElements = canvasNameToElements[viewName];
 					var nextElements = {};
 
-					var pictureObsName = "_view_" + viewName + "_content";
+					var pictureObsName = "view_" + viewName + "_content";
 					var pictureSym = root.lookup(pictureObsName);
 					var picture = pictureSym.value();
 					var context = canvas.getContext('2d');
@@ -176,7 +176,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						return;
 					}
 				  
-					var backgroundColour = root.lookup("_view_" + viewName + "_background_colour").value();
+					var backgroundColour = root.lookup("view_" + viewName + "_background_colour").value();
 					if (backgroundColour === undefined) {
 						backgroundColour = "white";
 					}
@@ -190,11 +190,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						previousElements[hash].togarbage = true;
 					}
 					if (Array.isArray(picture)) {
-						var scale = root.lookup("_view_" + viewName + "_scale").value();
+						var scale = root.lookup("view_" + viewName + "_scale").value();
 						if (typeof(scale) != "number") {
 							scale = 1;
 						}
-						var zoom = root.lookup("_view_" + viewName + "_zoom").value();
+						var zoom = root.lookup("view_" + viewName + "_zoom").value();
 						if (typeof(zoom) != "number") {
 							zoom = 1;
 						}
@@ -212,7 +212,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 							absScale = scale;
 							invertedYAxis = false;
 						}
-						var origin = root.lookup("_view_" + viewName + "_offset").value();
+						var origin = root.lookup("view_" + viewName + "_offset").value();
 						if (origin instanceof Point) {
 							if (invertedYAxis) {
 								var originY = canvas.height / combinedScale - origin.y;
@@ -324,9 +324,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 							} //end of redraw loop (current list).
 						} // end of redraw loop (all nested lists).
 
-						if (root.lookup("_view_" + viewName + "_grid_visible").value() == true) {
+						if (root.lookup("view_" + viewName + "_grid_visible").value() == true) {
 							//Draw grid lines.
-							var gridSpacing = root.lookup("_view_" + viewName + "_grid_spacing").value();
+							var gridSpacing = root.lookup("view_" + viewName + "_grid_spacing").value();
 							var minX = -origin.x;
 							var maxX = canvas.width / combinedScale - origin.x;
 							var minY, maxY;
@@ -545,11 +545,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	};
 
 	this.findDrawableHit = function (viewName, x, y, fromBottom, testAll) {
-		var picture = root.lookup("_view_" + viewName + "_content").value();
+		var picture = root.lookup("view_" + viewName + "_content").value();
 		var canvas = canvases[viewName];
 		if (canvas) {
 			var context = canvas.getContext("2d");
-			var scale = root.lookup("_view_" + viewName + "_scale").value();
+			var scale = root.lookup("view_" + viewName + "_scale").value();
 			return this.findDrawableHitInList(picture, context, scale, x, y, fromBottom, testAll);
 		}
 	}
@@ -598,10 +598,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	}
 
 	this.findAllDrawablesHit = function (viewName, x, y, testAll) {
-		var picture = root.lookup("_view_" + viewName + "_content").value();
+		var picture = root.lookup("view_" + viewName + "_content").value();
 		var canvas = canvases[viewName];
 		var context = canvas.getContext("2d");
-		var scale = root.lookup("_view_" + viewName + "_scale").value();
+		var scale = root.lookup("view_" + viewName + "_scale").value();
 		return this.findAllDrawablesHitInList(picture, context, scale, x, y, testAll);
 	}
 	
@@ -673,7 +673,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}
 
 		// Add associated observables to canvas
-		function viewobs(obs) { return "_view_"+name+"_"+obs; };
+		function viewobs(obs) { return "view_"+name+"_"+obs; };
 
 		var observables = [
 			viewobs("content"),
@@ -702,23 +702,23 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		];
 		canvas.setAttribute("data-observables",observables.join(","));
 
-		var contentSym = root.lookup("_view_" + canvasName + "_content");
+		var contentSym = root.lookup("view_" + canvasName + "_content");
 		contentSym.addJSObserver("repaintView", redraw);
 
-		var backgroundColourSym = root.lookup("_view_" + canvasName + "_background_colour");
+		var backgroundColourSym = root.lookup("view_" + canvasName + "_background_colour");
 		if (backgroundColourSym.value() === undefined) {
 		  backgroundColourSym.assign("white", root.scope, agent);
 		}
 		backgroundColourSym.addJSObserver("refreshView", redraw);
 
 		//Events triggered by changes to the various sizing observables.
-		var scaleSym = root.lookup("_view_" + canvasName + "_scale");
-		var zoomSym = root.lookup("_view_" + canvasName + "_zoom");
-		var offsetSym = root.lookup("_view_" + canvasName + "_offset");
-		var widthSym = root.lookup("_view_" + canvasName + "_canvas_right");
-		var heightSym = root.lookup("_view_" + canvasName + "_canvas_bottom");
-		var viewWidthSym = root.lookup("_view_" + canvasName + "_width");
-		var viewHeightSym = root.lookup("_view_" + canvasName + "_height");
+		var scaleSym = root.lookup("view_" + canvasName + "_scale");
+		var zoomSym = root.lookup("view_" + canvasName + "_zoom");
+		var offsetSym = root.lookup("view_" + canvasName + "_offset");
+		var widthSym = root.lookup("view_" + canvasName + "_canvas_right");
+		var heightSym = root.lookup("view_" + canvasName + "_canvas_bottom");
+		var viewWidthSym = root.lookup("view_" + canvasName + "_width");
+		var viewHeightSym = root.lookup("view_" + canvasName + "_height");
 		var isZooming = false;
 		function resizeCanvas () {
 			var scale = scaleSym.value();
@@ -832,12 +832,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			initialHeight = initialHeight * scale + offsetY;
 		}
 
-		var gridVisibleSym = root.lookup("_view_" + canvasName + "_grid_visible");
+		var gridVisibleSym = root.lookup("view_" + canvasName + "_grid_visible");
 		if (gridVisibleSym.value() === undefined) {
 			gridVisibleSym.assign(false, root.scope, agent);
 		}
 		gridVisibleSym.addJSObserver("refreshView", redraw);
-		var gridSpacingSym = root.lookup("_view_" + canvasName + "_grid_spacing");
+		var gridSpacingSym = root.lookup("view_" + canvasName + "_grid_spacing");
 		if (gridSpacingSym.value() === undefined) {
 			gridSpacingSym.assign(20, root.scope, agent);
 		}
@@ -1119,8 +1119,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				previousY = previousPosition.y;
 			}
 			
-			var scale = root.lookup("_view_" + canvasName + "_scale").value();
-			var zoom = root.lookup("_view_" + canvasName + "_zoom").value();
+			var scale = root.lookup("view_" + canvasName + "_scale").value();
+			var zoom = root.lookup("view_" + canvasName + "_zoom").value();
 			var combinedScale = scale * zoom;
 
 			if (mouseInfo.capturing) {
@@ -1132,7 +1132,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				x = (e.pageX - Math.round(windowPos.left)) / combinedScale;
 				y = (e.pageY - Math.round(windowPos.top)) / combinedScale;
 
-				var offset = root.lookup("_view_" + canvasName + "_offset").value();
+				var offset = root.lookup("view_" + canvasName + "_offset").value();
 				if (offset instanceof Point) {
 					x = x - offset.x;
 					y = y - offset.y;
@@ -1197,7 +1197,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var handled = false;
 			if (e.altKey && !e.shiftKey && !e.ctrlKey) {
 				//Zooming using Alt+, Alt- and Alt0
-				var zoomSym = root.lookup("_view_" + canvasName + "_zoom");
+				var zoomSym = root.lookup("view_" + canvasName + "_zoom");
 				var zoom = zoomSym.value();
 				if (keyCode == 61 || keyCode == 187) {
 					//Alt + =
@@ -1234,7 +1234,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 	this.createEmbedded = function (name, mtitle, pictureobs) {
 		var canvasName = name;
-		eden.execute2("_view_" + canvasName + "_content is " + pictureobs + ";");
+		eden.execute2("view_" + canvasName + "_content is " + pictureobs + ";");
 		var canvasdata = me.createCommon(name, mtitle);
 		var initialWidth = canvasdata.initialWidth;
 		var initialHeight = canvasdata.initialHeight;
