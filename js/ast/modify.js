@@ -108,11 +108,11 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 		if (this.kind == "++") {
 			var newval = sym.value(scope)+1;
 			//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
-			sym.assign(newval, scope, agent);
+			sym.assign(newval, scope, this);
 		} else if (this.kind == "--") {
 			var newval = sym.value(scope)-1;
 			//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
-			sym.assign(newval, scope, agent);
+			sym.assign(newval, scope, this);
 		} else {
 			var rhs = "(function(context,scope) { return ";
 			rhs += this.expression.generate(ctx, "scope",{bound: false});
@@ -137,7 +137,7 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 			}
 
 			//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
-			sym.assign(newval, scope, agent);
+			sym.assign(newval, scope, this);
 		}
 	//}
 }

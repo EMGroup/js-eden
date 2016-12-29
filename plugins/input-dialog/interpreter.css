@@ -169,6 +169,7 @@ div.agent-tabright {
 	text-shadow: 0 0 4px black;
 	margin-right: 10px;
 	flex-shrink: 0;
+	margin-left: auto;
 }
 
 div.agent-tabright:hover {
@@ -215,6 +216,28 @@ span.close {
 
 span.close:hover {
 	color: #222;
+}
+
+div.script-input-windowcontrols {
+	height: 35px;
+	line-height: 35px;
+	background: none;
+	color: #bbb;
+	margin-left: auto;
+	flex-shrink: 0;
+	text-shadow: 0 3px 3px black;
+	cursor: pointer;
+}
+
+span.windowcontrol {
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	margin-right: 10px;
+	font-weight: normal;
+}
+
+span.windowcontrol:hover {
+	color: white;
 }
 
 div.agent-tab {
@@ -828,5 +851,15 @@ span.options-menu-icon {
 	font-size: 11pt;
 	margin-left: 18px;
 	width: 16px;
+}
+
+span.diff-insert {
+	box-sizing: border-box;
+	border: 1px solid green;
+}
+
+span.diff-remove {
+	box-sizing: border-box;
+	border: 1px solid red;
 }
 

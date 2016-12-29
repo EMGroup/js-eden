@@ -570,12 +570,12 @@
 			//Call clean-up handler.
 			this.viewInstances[name].destroy();
 		}
-		root.forgetAll("^_View_" + name + "_", true, false, true);
+		root.forgetAll("^View_" + name + "_", true, false, true);
 		if (forgetObservables) {
-			root.forgetAll("^_view_" + name + "_", true, false, true);
+			root.forgetAll("^view_" + name + "_", true, false, true);
 		} else {
 			// We at least need to remove javascript observers!
-			root.lookup("_view_"+name+"_title").removeJSObserver("updateTitleBar");
+			root.lookup("view_"+name+"_title").removeJSObserver("updateTitleBar");
 		}
 		var theDialog = dialog(name);
 		theDialog.dialog('destroy');
@@ -594,9 +594,11 @@
 					if (index == 0) {
 						newViewList = viewList.slice(1);
 					} else {
-						newViewList = viewList.slice(0, index).concat(viewList.slice(index + 1));
+						//newViewList = viewList.slice(0, index).concat(viewList.slice(index + 1));
+						viewList.splice(index, 1);
+						newViewList = viewList;
 					}
-					viewListSym.assign(newViewList, root.scope);
+					viewListSym.assign(newViewList, root.scope, Symbol.hciAgent);
 				}
 			}
 		}

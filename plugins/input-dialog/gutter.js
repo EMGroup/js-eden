@@ -34,6 +34,8 @@ function EdenScriptGutter(parent, infob) {
 	this.lines = [];
 	this.agents = {};
 
+	this.edits = undefined;
+
 	var dragselect = false;
 	var dragselectcount = 0;
 	var holdtimeout;
@@ -249,6 +251,7 @@ EdenScriptGutter.prototype.setBaseAST = function(base) {
 	}
 	this.ast = base;
 	this.lines = [];
+	this.edits = undefined;
 }
 
 
@@ -292,8 +295,36 @@ EdenScriptGutter.prototype.selectLine = function(lineno) {
 }
 
 
+EdenScriptGutter.prototype.setDiffs = function(diff) {
+	this.edits = diff;
+
+	while (this.gutter.firstChild) {
+		this.gutter.removeChild(this.gutter.firstChild);
+	}
+	for (var i=0; i<this.ast.lines.length; i++) {
+		var ele = document.createElement("div");
+		var classname = "eden-gutter-item";
+		if (diff[i]) classname += " inserted";
+		ele.className = classname;
+		ele.setAttribute("data-line", ""+i);
+		this.gutter.appendChild(ele);
+
+		if (diff[i] && diff[i].remove.length > 0) {
+			ele = document.createElement("div");
+			classname = "eden-gutter-item removed";
+			ele.className = classname;
+			ele.setAttribute("data-line", ""+i);
+			ele.innerHTML = diff[i].rline;
+			this.gutter.appendChild(ele);
+		}
+		if (this.lines[i] === undefined) this.lines[i] = {selected: false, live: false};
+	}
+}
+
+
 EdenScriptGutter.prototype.generate = function(ast, lineno) {
 	this.ast = ast;
+	if (this.edits) return;
 	/*var linediff = ast.lines.length - this.gutter.childNodes.length;
 
 	if (linediff < 0) {

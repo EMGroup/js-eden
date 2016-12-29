@@ -1,14 +1,15 @@
 /**
  * @title Start Your Model
  */
-action start {
+action start {/* Enter some script here */
 }
 
 do lib:unexecuted;
 do ACTIVE;
 do start;
 
-action ACTIVE {_views_list = ["myscript"];
-_view_myscript_type = "ScriptInput";
-view_myscript_tabs = ["start"];}
+action ACTIVE {views_list = ["myscript"];
+view_myscript_type = "ScriptInput";
+view_myscript_tabs = ["start"];
+view_myscript_current = 0;}
 

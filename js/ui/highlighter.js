@@ -865,7 +865,11 @@
 		if (single) {
 			return dummy.childNodes[0].innerHTML;
 		} else {
-			return dummy.innerHTML;
+			var res = "";
+			for (var i=0; i<dummy.childNodes.length; i++) {
+				res += dummy.childNodes[i].innerHTML;
+			}
+			return res;
 		}
 	}
 }(typeof window !== 'undefined' ? window : global));

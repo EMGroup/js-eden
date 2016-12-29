@@ -50,7 +50,7 @@ Eden.AST.Append.prototype.execute = function(ctx, base, scope, agent) {
 	var val2 = sym.value(scope);
 	val2.push(val);
 	//console.log("VALUE: ", sym.value(scope));
-	sym.assign(val2, scope, agent);
+	sym.assign(val2, scope, this);
 }
 
 Eden.AST.Append.prototype.setSource = Eden.AST.BaseStatement.setSource;

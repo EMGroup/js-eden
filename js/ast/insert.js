@@ -47,7 +47,7 @@ Eden.AST.Insert.prototype.execute = function(ctx, base, scope) {
 	if (val instanceof BoundValue) val = val.value;
 	eden.root.lookup(this.destination.name).mutate(scope, function(s) {
 		s.value().splice(ix-1, 0, val);
-	}, undefined);
+	}, this);
 }
 
 Eden.AST.Insert.prototype.setSource = Eden.AST.BaseStatement.setSource;

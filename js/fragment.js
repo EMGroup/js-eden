@@ -11,6 +11,10 @@ Eden.Fragment = function(selector) {
 	this.title = selector;
 	this.scratch = false;
 	this.edited = false;
+	this.autosavetimer = undefined;
+	this.history = [];
+	this.snapshot = "";
+	this.index = -1;
 
 	//console.error("FRAGMENT");
 
@@ -128,6 +132,8 @@ Eden.Fragment.prototype.reset = function() {
 			me.scratch = true;
 		}
 		me.lock();
+
+		me.snapshot = me.source;
 	});
 }
 
@@ -150,11 +156,180 @@ Eden.Fragment.prototype.makeReal = function(name) {
 
 Eden.Fragment.prototype.setSourceInitial = function(src) {
 	this.source = src;
+	this.snapshot = src;
 	this.ast = new Eden.AST(src, undefined, this);
+}
+
+Eden.Fragment.AUTOSAVE_INTERVAL = 1000;
+
+Eden.Fragment.prototype.undo = function() {
+	if (this.index < 0) return;
+	if (this.history.length == 0) return;
+
+	var hist = this.history[this.index];
+	this.index--;
+
+	var snap;
+
+	if (this.index >= 0 && this.history[this.index].snapshot) {
+		snap = this.history[this.index].snapshot;
+	} else {
+		var undodmp = new diff_match_patch();
+		var p = undodmp.patch_fromText(hist.undo);
+		var r = undodmp.patch_apply(p, this.snapshot);
+		snap = r[0];
+	}
+
+	this.snapshot = snap;
+	this.setSource(snap);
+}
+
+
+
+Eden.Fragment.prototype.canUndo = function() {
+	return this.history.length > 0 && this.index >= 0;
+}
+
+Eden.Fragment.prototype.canRedo = function() {
+	return this.index < this.history.length-1;
+}
+
+
+
+Eden.Fragment.prototype.redo = function() {
+	if (this.index >= this.history.length-1) return;
+
+	this.index++;
+	var hist = this.history[this.index];
+	var snap;
+
+	if (hist.snapshot) {
+		snap = hist.snapshot;
+	} else {
+		var redodmp = new diff_match_patch();
+		var p = redodmp.patch_fromText(hist.redo);
+		var r = redodmp.patch_apply(p, this.snapshot);
+		snap = r[0];
+	}
+
+	this.snapshot = snap;
+	this.setSource(snap);
+}
+
+Eden.Fragment.prototype.addHistory = function(redo,undo) {
+	this.history.push({time: Date.now() / 1000 | 0, redo: redo, undo: undo});
+	this.index = this.history.length - 1;
+}
+
+Eden.Fragment.prototype.autoSave = function() {
+	if (this.ast === undefined || this.ast.script.errors.length > 0) {
+		return;
+	}
+	var savedmp = new diff_match_patch();
+
+	// Calculate redo diff
+	var d = savedmp.diff_main(this.snapshot, this.ast.stream.code, false);
+	var p = savedmp.patch_make(this.snapshot, this.ast.stream.code, d);
+	var redo = savedmp.patch_toText(p);
+	//console.log(redo);
+
+	// Calculate undo diff
+	d = savedmp.diff_main(this.ast.stream.code, this.snapshot, false);
+	p = savedmp.patch_make(this.ast.stream.code, this.snapshot, d);
+	var undo = savedmp.patch_toText(p);
+	//console.log(undo);
+
+	if (undo == "") return;
+
+	// Save history and set last snapshot
+	this.addHistory(redo,undo);
+	this.snapshot = this.ast.stream.code;
+
+	this.autosavetimer = undefined;
+
+	//eden.root.lookup(this.obsname+"_autosave").assign(true, eden.root.scope, Symbol.localJSAgent);
+	Eden.Fragment.emit("autosave", [this]);
+}
+
+Eden.Fragment.prototype.diff = function() {
+	if (this.origin && this.origin.ast && this.originast.end > 0) {
+		var oldsrc = this.origin.ast.stream.code.substring(this.originast.start, this.originast.end);
+		var prefixlen = this.originast.prefix.length;
+		var postfixlen = this.originast.postfix.length;
+		oldsrc = oldsrc.substring(prefixlen, oldsrc.length - postfixlen);
+
+		var dmp = new diff_match_patch();
+		var d = dmp.diff_main(oldsrc, this.source);
+		dmp.diff_cleanupSemantic(d);
+		//var diffhtml = dmp.diff_prettyHtml(d);
+		console.log(d);
+
+		var edits = {};
+
+		var res = "";
+		var oline = 0;
+		var nline = 0;
+		var nchars = 0;
+		var ochars = 0;
+
+		for (var i=0; i<d.length; i++) {
+			var linechars = d[i][1].match(/\n/g);
+
+			if (d[i][0] == 0) {
+				if (linechars !== null) {
+					oline += linechars.length;
+					nline += linechars.length;
+				}
+				ochars += d[i][1].length;
+				nchars += d[i][1].length;
+				continue;
+			} else if (d[i][0] == 1) {
+				if (linechars !== null) nline += linechars.length;
+				if (edits[nline] === undefined) edits[nline] = {insert: [], remove: []};
+				edits[nline].insert.push({start: nchars, length: d[i][1].length});
+				nchars += d[i][1].length;
+			} else if (d[i][0] == -1) {
+				if (linechars !== null) oline += linechars.length;
+				if (edits[oline] === undefined) edits[oline] = {insert: [], remove: []};
+				edits[oline].remove.push({start: ochars, length: d[i][1].length});
+				ochars += d[i][1].length;
+			}
+		}
+
+		var olines = oldsrc.split("\n");
+		var nlines = this.source.split("\n");
+		var olineoff = [0];
+		for (var i=0; i<olines.length-1; i++) {
+			olineoff.push(olines[i].length+olineoff[i]+1);
+		}
+		var nlineoff = [0];
+		for (var i=0; i<nlines.length-1; i++) {
+			nlineoff.push(nlines[i].length+nlineoff[i]+1);
+		}
+
+		for (var x in edits) {
+			if (edits[x].insert.length > 0) {
+				for (var i=0; i<edits[x].insert.length; i++) {
+					edits[x].insert[i].start -= nlineoff[x];
+				}
+				edits[x].iline = nlines[x];
+			}
+			if (edits[x].remove.length > 0) {
+				for (var i=0; i<edits[x].remove.length; i++) {
+					edits[x].remove[i].start -= olineoff[x];
+				}
+				edits[x].rline = olines[x];
+			}
+		}
+
+		console.log(edits);
+		return edits;
+	}
 }
 
 Eden.Fragment.prototype.setSource = function(src) {
 	//var oldast = this.ast;
+	var me = this;
 	this.source = src;
 	this.edited = true;
 
@@ -163,6 +338,9 @@ Eden.Fragment.prototype.setSource = function(src) {
 	this.ast = new Eden.AST(src, undefined, this);
 
 	if (this.ast.script.errors.length == 0) {
+		clearTimeout(this.autosavetimer);
+		this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Fragment.AUTOSAVE_INTERVAL);
+
 		if (this.originast) {
 			// Patch the origin...
 			var parent = this.originast.parent;

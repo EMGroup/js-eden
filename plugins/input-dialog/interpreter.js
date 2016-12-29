@@ -202,9 +202,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var valsplit = value.sp;
 		var viewname = value.replace(/[^a-zA-Z0-9]+/g,"");
-		eden.root.lookup("view_"+viewname+"_tabs").assign([value], eden.root.scope);
+		eden.root.lookup("view_"+viewname+"_tabs").assign([value], eden.root.scope, Symbol.hciAgent);
 		edenUI.createView(viewname, "ScriptInput");
-		eden.root.lookup("view_"+viewname+"_current").assign(0, eden.root.scope);
+		eden.root.lookup("view_"+viewname+"_current").assign(0, eden.root.scope, Symbol.hciAgent);
 	}).delegate(null, 'dragover', function(e) {
 		e.preventDefault();
 	});
@@ -507,6 +507,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function updateControls() {
 			if (curtab >= 0) {
 				var html = '<button class="script-button script-run"><span class="explorer-control-icon">&#xf04b;</span>Run</button>';
+				html += '<button class="script-button script-changes"><span class="explorer-control-icon">&#xf044;</span>Changes</button>';
 
 				var frag = tab_frags[curtab];
 
@@ -640,6 +641,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				right.className = "agent-tabright noselect";
 				tabs.appendChild(right);
 			}
+
+			// Add dialog close
+			var close = document.createElement("div");
+			close.className = "script-input-windowcontrols";
+			close.innerHTML = "<span class='windowcontrol'>&#xf00d;</span>";
+			tabs.appendChild(close);
 		}
 		
 
@@ -1969,10 +1976,27 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 
+		function onShowChanges(e) {
+			var edits = tab_frags[curtab].diff();
+			
+			// For each remove line, insert a blank line into the highlighter.
+			for (var x in edits) {
+				if (edits[x].remove.length > 0) {
+					var ele = outdiv.childNodes[x];
+					ele.style.height = "40px";
+					
+				}
+			}
+
+			gutter.setDiffs(edits);
+		}
+
+
 		$controls
 		.on('keyup', 'input.editname', onNameChange)
 		.on('change', 'input.editname', onNameFinish)
 		.on('click', '.script-run', onRun)
+		.on('click', '.script-changes', onShowChanges)
 		.on('keyup', 'input.scratchsearch', onScratchSearch);
 
 
@@ -2085,6 +2109,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function view(viewName, propName) {
 			return root.lookup("view_"+viewName+"_"+propName);
 		}
+
+		viewdata.contents.on("click", ".windowcontrol", function() {
+			edenUI.destroyView(simpleName, true);
+		});
 
 
 		$dialog = $('<div id="'+name+'"></div>')

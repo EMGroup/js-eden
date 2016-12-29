@@ -168,6 +168,56 @@ div.eden-gutter-item.executed {
   }
 }
 
+div.eden-gutter-item.inserted {
+	background: #cceecc;
+}
+
+div.eden-gutter-item.inserted:before {
+	/*opacity: 0.1;*/
+	background-color: #ddffdd;
+	position: absolute;
+	width: 5000px;
+	height: 20px;
+	margin-top: -4px;
+	margin-left: 24px;
+	content: " ";
+	position: fixed;
+}
+
+div.eden-gutter-item.inserted:after {
+	color: black;
+	/*text-shadow: 0px 0px 5px #222;*/
+	/*font-family: "FontAwesome";*/
+	font-size: 14pt;
+	font-weight: bold;
+	content: "+";
+	position: absolute;
+	left: 8px;
+	margin-top: -3px;
+	line-height: 24px;
+}
+
+div.eden-gutter-item.removed {
+	background: #eecccc;
+	width: 5000px;
+	font: 14px/20px Roboto Mono,monospace;
+	padding-left: 43px;
+	padding-top: 0;
+}
+
+div.eden-gutter-item.removed:after {
+	color: black;
+	/*text-shadow: 0px 0px 5px #222;*/
+	/*font-family: "FontAwesome";*/
+	font-size: 14pt;
+	font-weight: bold;
+	content: "-";
+	position: absolute;
+	left: 8px;
+	margin-top: -3px;
+	line-height: 24px;
+}
+
 div.eden-gutter-item.guarded {
 	border-right: 3px solid #ffee00;
 }

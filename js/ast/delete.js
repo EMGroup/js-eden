@@ -32,7 +32,7 @@ Eden.AST.Delete.prototype.execute = function(ctx, base, scope) {
 	if (ix instanceof BoundValue) ix = ix.value;
 	eden.root.lookup(this.destination.name).mutate(scope, function(s) {
 		s.value().splice(ix-1, 1);
-	}, undefined);
+	}, this);
 }
 
 Eden.AST.Delete.prototype.setSource = Eden.AST.BaseStatement.setSource;

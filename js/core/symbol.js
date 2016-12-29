@@ -314,7 +314,7 @@ Symbol.prototype.clearDependencies = function () {
 
 
 Symbol.prototype.getSource = function() {
-	if (this.origin && this.origin.getSource) return this.origin.getSource();
+	if (this.origin && (this.origin.type == "definition" || this.origin.type == "assignment" || this.origin.type == "modify")) return this.origin.getSource();
 	return this.name + " = " + Eden.edenCodeForValue(this.value()) + ";";
 }
 

@@ -124,6 +124,35 @@ Eden.Project.prototype.start = function() {
 	});
 }
 
+Eden.Project.prototype.diff = function() {
+	var dmp = new diff_match_patch();
+	var newsrc = this.generate();
+	var d = dmp.diff_main(this.ast.stream.code, newsrc);
+	dmp.diff_cleanupSemantic(d);
+	var diffhtml = dmp.diff_prettyHtml(d);
+
+	var res = "";
+	var line = 0;
+	for (var i=0; i<d.length; i++) {
+		var linechars = d[i][1].match(/[\n]+/g);
+
+		if (d[i][0] == 0) {
+			if (linechars !== null) line += linechars.length;
+			continue;
+		} else if (d[i][0] == 1) {
+			var html = EdenUI.Highlight.html(d[i][1]);
+			res += 'line:'+(line+1)+' + <span style="background: #ddffdd;">'+html+'</span>';
+			if (linechars !== null) line += linechars.length;
+		} else if (d[i][1] == 2) {
+			var html = EdenUI.Highlight.html(d[i][1]);
+			res += 'line:'+(line+1)+' - <span style="background: #ffdddd;">'+html+'</span>';
+			if (linechars !== null) line -= linechars.length;
+		}
+	}
+
+	return res;
+}
+
 Eden.Project.prototype.save = function(pub, callback) {
 	var me = this;
 	// Generate and upload to pm.
