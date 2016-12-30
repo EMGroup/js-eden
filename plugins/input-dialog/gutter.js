@@ -297,26 +297,34 @@ EdenScriptGutter.prototype.selectLine = function(lineno) {
 
 EdenScriptGutter.prototype.setDiffs = function(diff) {
 	this.edits = diff;
+	var lineshift = 0;
 
 	while (this.gutter.firstChild) {
 		this.gutter.removeChild(this.gutter.firstChild);
 	}
 	for (var i=0; i<this.ast.lines.length; i++) {
+		//if (!diff[i+lineshift] || diff[i+lineshift].remove.length == 0 || diff[i+lineshift].remove[0].start != 0) {
 		var ele = document.createElement("div");
 		var classname = "eden-gutter-item";
-		if (diff[i]) classname += " inserted";
+		if (diff[i] && (diff[i].insert.length > 0 || (diff[i].remove.length > 0 && diff[i].remove[0].start != 0))) classname += " inserted";
 		ele.className = classname;
 		ele.setAttribute("data-line", ""+i);
 		this.gutter.appendChild(ele);
+		//}
 
-		if (diff[i] && diff[i].remove.length > 0) {
-			ele = document.createElement("div");
-			classname = "eden-gutter-item removed";
+		var j = 0;
+		while (diff[i+j+lineshift] && diff[i+j+lineshift].remove.length > 0) {
+			didremove = true;
+			var ele = document.createElement("div");
+			var classname = "eden-gutter-item removed";
 			ele.className = classname;
-			ele.setAttribute("data-line", ""+i);
-			ele.innerHTML = diff[i].rline;
+			ele.innerHTML = EdenUI.Highlight.html(diff[i+j+lineshift].rline);
 			this.gutter.appendChild(ele);
+			j++;
+			if (diff[i+j+lineshift] && !diff[i+j+lineshift].consecutive) break;
 		}
+		if (j > 0) lineshift += j-1;
+		//if (diff[i] && diff[i].insert.length > 0) lineshift -= diff[i].insert.length+1;
 		if (this.lines[i] === undefined) this.lines[i] = {selected: false, live: false};
 	}
 }

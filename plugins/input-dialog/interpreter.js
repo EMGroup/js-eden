@@ -1978,14 +1978,23 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function onShowChanges(e) {
 			var edits = tab_frags[curtab].diff();
+			var lineshift = 0;
 			
 			// For each remove line, insert a blank line into the highlighter.
 			for (var x in edits) {
-				if (edits[x].remove.length > 0) {
-					var ele = outdiv.childNodes[x];
-					ele.style.height = "40px";
-					
+				var ix = parseInt(x);
+				//if (edits[ix+lineshift] && edits[ix+lineshift].consecutive) continue;
+				var j = 0;
+				var height = 20;
+				while (edits[ix+j+lineshift] && edits[ix+j+lineshift].remove.length > 0) {
+					height += 20;
+					j++;
+					if (edits[ix+j+lineshift] && !edits[ix+j+lineshift].consecutive) break;
 				}
+				if (j > 0) lineshift += j-1;
+			//	if (edits[x].insert.length > 0) lineshift -= edits[x].insert.length+1;
+				var ele = outdiv.childNodes[x];
+				ele.style.height = ""+height+"px";
 			}
 
 			gutter.setDiffs(edits);
