@@ -309,7 +309,7 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 	var waspartial = false;
 
 	for (var i=0; i<total; i++) {
-		if (diff.remove[oline]) {
+		if (diff.remove[oline] && diff.remove[oline].nline <= nline) {
 			var ele = document.createElement("div");
 			var classname = "eden-gutter-item removed";
 			ele.className = classname;
