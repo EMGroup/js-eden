@@ -203,6 +203,8 @@ div.eden-gutter-item.removed {
 	font: 14px/20px Roboto Mono,monospace;
 	padding-left: 43px;
 	padding-top: 0;
+	opacity: 0.7;
+	white-space: pre;
 }
 
 div.eden-gutter-item.removed:after {

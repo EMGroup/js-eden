@@ -302,30 +302,39 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 	while (this.gutter.firstChild) {
 		this.gutter.removeChild(this.gutter.firstChild);
 	}
-	for (var i=0; i<this.ast.lines.length; i++) {
-		//if (!diff[i+lineshift] || diff[i+lineshift].remove.length == 0 || diff[i+lineshift].remove[0].start != 0) {
-		var ele = document.createElement("div");
-		var classname = "eden-gutter-item";
-		if (diff[i] && (diff[i].insert.length > 0 || (diff[i].remove.length > 0 && diff[i].remove[0].start != 0))) classname += " inserted";
-		ele.className = classname;
-		ele.setAttribute("data-line", ""+i);
-		this.gutter.appendChild(ele);
-		//}
 
-		var j = 0;
-		while (diff[i+j+lineshift] && diff[i+j+lineshift].remove.length > 0) {
-			didremove = true;
+	var nline = 0;
+	var oline = 0;
+	var total = this.ast.lines.length + Object.keys(diff.remove).length;
+	var waspartial = false;
+
+	for (var i=0; i<total; i++) {
+		if (diff.remove[oline]) {
 			var ele = document.createElement("div");
 			var classname = "eden-gutter-item removed";
 			ele.className = classname;
-			ele.innerHTML = EdenUI.Highlight.html(diff[i+j+lineshift].rline);
+			ele.innerHTML = EdenUI.Highlight.html(diff.remove[oline].rline);
 			this.gutter.appendChild(ele);
-			j++;
-			if (diff[i+j+lineshift] && !diff[i+j+lineshift].consecutive) break;
+			if (diff.remove[oline].partial) {
+				oline++;
+				waspartial = true;
+			} else {
+				oline++;
+				continue;
+			}
 		}
-		if (j > 0) lineshift += j-1;
-		//if (diff[i] && diff[i].insert.length > 0) lineshift -= diff[i].insert.length+1;
-		if (this.lines[i] === undefined) this.lines[i] = {selected: false, live: false};
+
+		var ele = document.createElement("div");
+		var classname = "eden-gutter-item";
+		if (waspartial || diff.insert[nline]) classname += " inserted";
+		else oline++;
+		waspartial = false;
+		ele.className = classname;
+		ele.setAttribute("data-line", ""+nline);
+		this.gutter.appendChild(ele);
+		nline++;
+
+		if (this.lines[nline] === undefined) this.lines[nline] = {selected: false, live: false};
 	}
 }
 

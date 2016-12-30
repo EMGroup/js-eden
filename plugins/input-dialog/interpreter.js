@@ -1981,20 +1981,23 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var lineshift = 0;
 			
 			// For each remove line, insert a blank line into the highlighter.
-			for (var x in edits) {
-				var ix = parseInt(x);
-				//if (edits[ix+lineshift] && edits[ix+lineshift].consecutive) continue;
+			for (var x in edits.remove) {
+				if (edits.remove[x].consecutive) continue;
+				var oline = parseInt(x);
+
+				//if (edits[ix].insert.length > 0 && edits[ix].consecutive) lineshift--;
+				//if (edits[ix].consecutive && edits[ix].insert.length == 0) continue;
+				//lineshift += edits[ix].insert.length;
 				var j = 0;
 				var height = 20;
-				while (edits[ix+j+lineshift] && edits[ix+j+lineshift].remove.length > 0) {
+				do {
 					height += 20;
 					j++;
-					if (edits[ix+j+lineshift] && !edits[ix+j+lineshift].consecutive) break;
-				}
-				if (j > 0) lineshift += j-1;
+				} while (edits.remove[oline+j] && edits.remove[oline+j].consecutive);
 			//	if (edits[x].insert.length > 0) lineshift -= edits[x].insert.length+1;
-				var ele = outdiv.childNodes[x];
+				var ele = outdiv.childNodes[edits.remove[x].nline-1];
 				ele.style.height = ""+height+"px";
+				//if (j > 0) lineshift += j-1;
 			}
 
 			gutter.setDiffs(edits);

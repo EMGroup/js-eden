@@ -7,7 +7,10 @@ DiffUtil.diff = function(oldsrc, newsrc) {
 	//var diffhtml = dmp.diff_prettyHtml(d);
 	console.log(d);
 
-	var edits = {};
+	var edits = {
+		remove: {},
+		insert: {}
+	};
 
 	var res = "";
 	var oline = 0;
@@ -30,9 +33,9 @@ DiffUtil.diff = function(oldsrc, newsrc) {
 			lines = d[i][1].split("\n");
 			for (var j=0; j<lines.length; j++) {
 				if (j == lines.length-1 && lines[j].length == 0) break;
-				if (edits[nline+j] === undefined) edits[nline+j] = {insert: [], remove: []};
-				edits[nline+j].insert.push({start: nchars, length: lines[j].length});
-				if (j > 0) edits[nline+j].consecutive = true;
+				if (edits.insert[nline+j] === undefined) edits.insert[nline+j] = {oline: oline, chars: []};
+				edits.insert[nline+j].chars.push({start: nchars, length: lines[j].length});
+				if (j > 0) edits.insert[nline+j].consecutive = true;
 				nchars += lines[j].length;
 				if (j < lines.length-1) nchars++;
 			}
@@ -42,9 +45,10 @@ DiffUtil.diff = function(oldsrc, newsrc) {
 			lines = d[i][1].split("\n");
 			for (var j=0; j<lines.length; j++) {
 				if (j == lines.length-1 && lines[j].length == 0) break;
-				if (edits[oline+j] === undefined) edits[oline+j] = {insert: [], remove: []};
-				edits[oline+j].remove.push({start: ochars, length: lines[j].length});
-				if (j > 0) edits[oline+j].consecutive = true;
+				if (edits.remove[oline+j] === undefined) edits.remove[oline+j] = {nline: nline, chars: []};
+				edits.remove[oline+j].chars.push({start: ochars, length: lines[j].length});
+				edits.remove[oline+j].partial = linechars === null;
+				if (j > 0) edits.remove[oline+j].consecutive = true;
 				ochars += lines[j].length;
 				if (j < lines.length-1) ochars++;
 			}
@@ -64,18 +68,20 @@ DiffUtil.diff = function(oldsrc, newsrc) {
 		nlineoff.push(nlines[i].length+nlineoff[i]+1);
 	}
 
-	for (var x in edits) {
-		if (edits[x].insert.length > 0) {
-			for (var i=0; i<edits[x].insert.length; i++) {
-				edits[x].insert[i].start -= nlineoff[x];
+	for (var x in edits.insert) {
+		if (edits.insert[x].chars.length > 0) {
+			for (var i=0; i<edits.insert[x].chars.length; i++) {
+				edits.insert[x].chars[i].start -= nlineoff[x];
 			}
-			edits[x].iline = nlines[x];
+			edits.insert[x].iline = nlines[x];
 		}
-		if (edits[x].remove.length > 0) {
-			for (var i=0; i<edits[x].remove.length; i++) {
-				edits[x].remove[i].start -= olineoff[x];
+	}
+	for (var x in edits.remove) {
+		if (edits.remove[x].chars.length > 0) {
+			for (var i=0; i<edits.remove[x].chars.length; i++) {
+				edits.remove[x].chars[i].start -= olineoff[x];
 			}
-			edits[x].rline = olines[x];
+			edits.remove[x].rline = olines[x];
 		}
 	}
 
