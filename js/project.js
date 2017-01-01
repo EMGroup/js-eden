@@ -111,6 +111,14 @@ Eden.Project.prototype.start = function() {
 			for (var i=0; i<me.ast.script.statements.length; i++) {
 				if (me.ast.script.statements[i] === me.ast.scripts["ACTIVE"]) {
 					me.ast.script.statements[i].statements = undefined;
+
+					// Patch original state into the virtual AST
+					// Used for things like diff that need to know original state
+					eden.root.start = me.ast.script.statements[i].start;
+					eden.root.end = me.ast.script.statements[i].end;
+					eden.root.prefix = me.ast.script.statements[i].prefix;
+					eden.root.postfix = me.ast.script.statements[i].postfix;
+
 					me.ast.script.statements[i] = eden.root;
 					break;
 				}

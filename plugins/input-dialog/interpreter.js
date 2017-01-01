@@ -224,7 +224,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		<textarea autofocus tabindex="1" class="hidden-textarea"></textarea>\
 		<div class="inputCodeArea">\
 			<div class="eden_suggestions"></div>\
-			<div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div>\
+			<div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div><\
 		</div>\
 	</div>\
 </div>\
@@ -273,7 +273,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var dragint = false;
 		var rebuildtimer;
 		var amtyping = false;
-		var rebuildinterval = 10;
+		var rebuildinterval = 200;
 		var currentlineno = 1;
 		var currentcharno = 0;
 		var highlighter = new EdenUI.Highlight(outdiv);
@@ -389,7 +389,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		Eden.Fragment.listenTo("changed", this, function(frag) {
 			if (frag === tab_frags[curtab]) {
-				curChanged(curSym, curSym.value());
+				//curChanged(curSym, curSym.value());
+				rebuildTabs();
 			}
 		});
 
@@ -408,13 +409,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		Eden.Fragment.listenTo("errored", this, function(frag) {
 			//if (frag === tab_frags[curtab]) {
-				rebuildTabs();
+				//rebuildTabs();
+				delayRebuild();
 			//}
 		});
 
 		Eden.Fragment.listenTo("status", this, function(frag) {
 			if (frag === tab_frags[curtab]) {
-				rebuildTabs();
+				//rebuildTabs();
+				delayRebuild();
 				setTitle(tab_frags[curtab].title);
 			}
 		});
@@ -826,7 +829,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * is required when there are changes across multiple lines (or there
 		 * could be such changes), for example when pasting.
 		 */
-		function updateEntireHighlight(rerun) {
+		function updateEntireHighlight(rerun, options) {
 			if (scriptast === undefined) return;
 			//scriptagent.setSource(intextarea.value, false, -1);
 			//highlighter.ast = scriptagent.ast;
@@ -842,7 +845,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				runScript(0);
 			}
 
-			highlightContent(scriptast, -1, pos);
+			highlightContent(scriptast, -1, pos, options);
 		}
 
 
@@ -933,10 +936,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		/**
 		 * Update scroll position if cursor is near to an edge.
+		 * TODO Fix for new scroll elements
 		 */
 		function checkScroll() {
+			return;
 			// Get the cursor
-			var el = $(outdiv).find(".fake-caret").get(0);
+			var el = $(outdiv.childNodes[currentlineno-1]).find(".fake-caret").get(0);
 			if (el === undefined) return;
 			var area = $codearea.get(0);
 
@@ -971,9 +976,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		 * Call the highlighter to generate the new highlight output, and then
 		 * post process this to allow for extra warnings and number dragging.
 		 */
-		function highlightContent(ast, lineno, position) {
+		function highlightContent(ast, lineno, position, options) {
 			//var oldscrolltop = inputhider.scrollTop;
-			highlighter.highlight(ast, lineno, position);
+			highlighter.highlight(ast, lineno, position, options);
 			gutter.generate(ast,lineno);
 			//inputhider.scrollTop = oldscrolltop;
 			//console.log("SCROLLTOP",oldscrolltop);
@@ -983,7 +988,62 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (document.activeElement !== intextarea) {
 				$(outdiv).find(".fake-caret").addClass("fake-blur-caret");
 			}
+		}
 
+
+
+		/**
+		 * Return the current line. Also, set currentlineno.
+		 */
+		function getLineNumber(textarea) {
+			var lines = textarea.value.substr(0, textarea.selectionStart).split("\n");
+			currentlineno = lines.length;
+			currentcharno = lines[lines.length-1].length;
+			return currentlineno;
+		}
+
+
+
+		/**
+		 * Move the caret of the contenteditable div showing the highlighted
+		 * script to be the same location as the fake caret in the highlight
+		 * itself. This enables shift selection using the browsers internal
+		 * mechanism.
+		 */
+		function setCaretToFakeCaret() {
+			var el = $(outdiv).find(".fake-caret").get(0);
+			var range = document.createRange();
+			var sel = window.getSelection();
+			if (el.nextSibling) el = el.nextSibling;
+			range.setStart(el, 0);
+			range.collapse(true);
+			sel.removeAllRanges();
+			sel.addRange(range);
+			// Finally, delete the fake caret
+			$(outdiv).remove(".fake-caret");
+		}
+
+
+
+		/* Is this needed???? */
+		function selectAll() {
+			var range = document.createRange();
+			range.selectNodeContents(outdiv);
+			var sel = window.getSelection();
+			sel.removeAllRanges();
+			sel.addRange(range);
+		}
+
+		/**
+		 * Script contents have changed, so re-parse, re-highlight and
+		 * if live, re-execute. Used in a short interval timeout from the
+		 * raw input/keyup events.
+		 */
+		function doRebuild() {
+			// Rebuild tabs
+			rebuildTabs();
+
+			// Rebuild number dragging
 			/* Number dragging code, but only if live */
 			if (!readonly) {
 				$(outdiv).find('.eden-number').draggable({
@@ -1061,70 +1121,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
-		/**
-		 * Return the current line. Also, set currentlineno.
-		 */
-		function getLineNumber(textarea) {
-			var lines = textarea.value.substr(0, textarea.selectionStart).split("\n");
-			currentlineno = lines.length;
-			currentcharno = lines[lines.length-1].length;
-			return currentlineno;
-		}
-
-
-
-		/**
-		 * Move the caret of the contenteditable div showing the highlighted
-		 * script to be the same location as the fake caret in the highlight
-		 * itself. This enables shift selection using the browsers internal
-		 * mechanism.
-		 */
-		function setCaretToFakeCaret() {
-			var el = $(outdiv).find(".fake-caret").get(0);
-			var range = document.createRange();
-			var sel = window.getSelection();
-			if (el.nextSibling) el = el.nextSibling;
-			range.setStart(el, 0);
-			range.collapse(true);
-			sel.removeAllRanges();
-			sel.addRange(range);
-			// Finally, delete the fake caret
-			$(outdiv).remove(".fake-caret");
-		}
-
-
-
-		/* Is this needed???? */
-		function selectAll() {
-			var range = document.createRange();
-			range.selectNodeContents(outdiv);
-			var sel = window.getSelection();
-			sel.removeAllRanges();
-			sel.addRange(range);
-		}
-
-		/**
-		 * Script contents have changed, so re-parse, re-highlight and
-		 * if live, re-execute. Used in a short interval timeout from the
-		 * raw input/keyup events.
-		 */
-		function doRebuild() {
-			// Regenerate the AST and highlight the code.
-			if (refreshentire) {
-				updateEntireHighlight();
-				refreshentire = false;
-			} else { // if (dirty) {
-				updateLineHighlight();
-			/*} else {
-				updateLineCachedHighlight();*/
-			}
-			// Adjust scroll position if required
-			checkScroll();
-			dirty = false;
-		}
-
-
-
 		function runScript(line) {
 			// If we should run the statement (there are no errors)
 			if (gutter.lines[line-1] && gutter.lines[line-1].live && !scriptast.hasErrors()) {
@@ -1146,23 +1142,40 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 
+		function delayRebuild() {
+			// Using a timer to make rebuild async. Allows input and keyup to
+			// trigger a single rebuild which overcomes Chrome input event bug.
+			clearTimeout(rebuildtimer);
+			rebuildtimer = setTimeout(doRebuild, rebuildinterval);
+		}
+
+
+
 		/**
 		 * Set the rebuild timeout. Note: rebuildinterval MUST be less that the
 		 * keyboard repeat rate or you will not see a change when holding keys
 		 * down.
 		 */
 		function rebuild() {
-			edited = true;
+			if (gutter.edits) {
+				makeDiff();
+			} else {
+				edited = true;
+				// Regenerate the AST and highlight the code.
+				if (refreshentire) {
+					updateEntireHighlight();
+					refreshentire = false;
+				} else { // if (dirty) {
+					updateLineHighlight();
+				/*} else {
+					updateLineCachedHighlight();*/
+				}
+				// Adjust scroll position if required
+				checkScroll();
+				dirty = false;
 
-			// Check saved status
-			//if (scriptagent && scriptagent.isSaved()) {
-			//	setSubTitle("");
-			//}
-
-			// Using a timer to make rebuild async. Allows input and keyup to
-			// trigger a single rebuild which overcomes Chrome input event bug.
-			clearTimeout(rebuildtimer);
-			rebuildtimer = setTimeout(doRebuild, rebuildinterval);
+				delayRebuild();
+			}
 		}
 
 
@@ -1359,7 +1372,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						outdiv.focus();
 						selectAll();
 					} else if (e.keyCode === 17 || e.keyCode == 91 || e.keyCode == 92) {
-						console.log(e.keyCode);
+						//console.log(e.keyCode);
 						enableGotoMode();
 					}
 				}
@@ -1975,11 +1988,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			curSym.assign(tabs.length-1, eden.root.scope, Symbol.localJSAgent);
 		}
 
-
-		function onShowChanges(e) {
+		function makeDiff() {
+			var spacing = {};
 			var edits = tab_frags[curtab].diff();
 			var lineshift = 0;
-			
+		
 			// For each remove line, insert a blank line into the highlighter.
 			for (var x in edits.remove) {
 				if (edits.remove[x].consecutive) continue;
@@ -1995,12 +2008,31 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					j++;
 				} while (edits.remove[oline+j] && edits.remove[oline+j].consecutive);
 			//	if (edits[x].insert.length > 0) lineshift -= edits[x].insert.length+1;
-				var ele = outdiv.childNodes[edits.remove[x].nline-1];
-				ele.style.height = ""+height+"px";
+				/*var ele = outdiv.childNodes[edits.remove[x].nline-1+lineshift];
+				if (ele === undefined) {
+					ele = document.createElement("div");
+					ele.className = "eden-line";
+					outdiv.insertBefore(ele, outdiv.firstChild);
+					height -= 20;
+					lineshift = 1;
+				}*/
+				//ele.style.height = ""+height+"px";
+				spacing[edits.remove[x].nline+lineshift] = height;
 				//if (j > 0) lineshift += j-1;
 			}
 
 			gutter.setDiffs(edits);
+			updateEntireHighlight(false, {spacing: spacing});
+		}
+
+
+		function onShowChanges(e) {
+			if (gutter.edits) {
+				gutter.setDiffs(undefined);
+				updateEntireHighlight();
+			} else {
+				makeDiff();
+			}
 		}
 
 

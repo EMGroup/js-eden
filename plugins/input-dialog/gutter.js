@@ -29,6 +29,7 @@ function EdenScriptGutter(parent, infob) {
 	this.$gutter = $('<div class="eden-gutter"></div>');
 	this.gutter = this.$gutter.get(0);
 	parent.insertBefore(this.gutter, parent.firstChild);
+	//parent.appendChild(this.gutter);
 
 	this.ast = undefined;
 	this.lines = [];
@@ -132,6 +133,7 @@ function EdenScriptGutter(parent, infob) {
 
 	this.$gutter
 	.on('mousedown', '.eden-gutter-item', function(e) {
+		if (this.edits) return;
 		if (me.ast.hasErrors()) return;
 
 		var line = parseInt(e.target.getAttribute("data-line"));
@@ -182,6 +184,7 @@ function EdenScriptGutter(parent, infob) {
 		holdtimeout = setTimeout(onHold, 1000);
 	})
 	.on('click', '.eden-gutter-item', function(e) {
+		if (this.edits) return;
 		var line = parseInt(e.target.getAttribute("data-line"));
 
 		// If there is a statement
@@ -200,6 +203,7 @@ function EdenScriptGutter(parent, infob) {
 		}
 	})
 	.on('mouseup', '.eden-gutter-item', function(e) {
+		if (this.edits) return;
 		if (!me.ast.hasErrors() && !shiftdown) {
 			var line = parseInt(e.target.getAttribute("data-line"));
 			if (!((me.ast.lines[line] && me.ast.lines[line].errors.length > 0) || me.lines[line].live || alreadylive)) {
@@ -252,6 +256,7 @@ EdenScriptGutter.prototype.setBaseAST = function(base) {
 	this.ast = base;
 	this.lines = [];
 	this.edits = undefined;
+	console.trace("GUTTER RESET");
 }
 
 
@@ -303,6 +308,8 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 		this.gutter.removeChild(this.gutter.firstChild);
 	}
 
+	if (diff === undefined) return;
+
 	var nline = 0;
 	var oline = 0;
 	var total = this.ast.lines.length + Object.keys(diff.remove).length;
@@ -313,7 +320,8 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 			var ele = document.createElement("div");
 			var classname = "eden-gutter-item removed";
 			ele.className = classname;
-			ele.innerHTML = EdenUI.Highlight.html(diff.remove[oline].rline);
+			//ele.innerHTML = EdenUI.Highlight.html(diff.remove[oline].rline);
+			ele.textContent = diff.remove[oline].rline;
 			this.gutter.appendChild(ele);
 			if (diff.remove[oline].partial) {
 				oline++;

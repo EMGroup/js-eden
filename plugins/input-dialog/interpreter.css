@@ -19,6 +19,22 @@
 	-webkit-transform: translate3d(0,0,0);
 }
 
+div.inputhider::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+ 
+div.inputhider::-webkit-scrollbar-thumb {
+  background: #666;
+  /**border-radius: 20px;*/
+}
+
+div.inputhider::-webkit-scrollbar-track {
+  background: #ddd;
+  /**border-radius: 20px;*/
+/*	margin-left: 28px;*/
+}
+
 
 .fa-flip-horizontal {
   filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1);
@@ -563,7 +579,7 @@ div.outputcontent {
 	min-height: calc(100% - 28px);
 	resize: none;
 	margin-left: 28px;
-	border: 1px solid #719ECE;
+	/*border: 1px solid #719ECE;*/
 	box-sizing: border-box;
 	padding-left: 15px;
 	padding-top: 15px;
@@ -577,16 +593,16 @@ div.outputcontent {
 	/*overflow: auto;*/
 	/*background: #f5f5f5;*/
 	/*background: white;*/
-	background: rgba(255,255,255,0.95);
-	box-shadow: 0 0 8px #aaa;
+	/*background: rgba(255,255,255,0.95);
+	box-shadow: 0 0 8px #aaa;*/
 	margin-right: 28px;
 	margin-bottom: 28px;
 }
 
 div.readonly {
-	-webkit-filter: grayscale(70%);
-	filter: grayscale(30%);
-	background-color: #f5f5f5;
+	/*-webkit-filter: grayscale(70%);
+	filter: grayscale(30%);*/
+	background-color: #ddd;
 }
 
 div.browser {
@@ -671,23 +687,8 @@ div.inputhider {
 	bottom: 0;
 	/*background: #e5e5e5;*/
 	/*border-radius: 6px;*/
-	background: rgba(229,229,229,0.8);
-}
-
-div.inputhider::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
- 
-div.inputhider::-webkit-scrollbar-thumb {
-  background: #666;
-  /**border-radius: 20px;*/
-}
-
-div.inputhider::-webkit-scrollbar-track {
-  background: #ddd;
-  /**border-radius: 20px;*/
-/*	margin-left: 28px;*/
+	/*background: rgba(229,229,229,0.8);*/
+	background: white;
 }
 
 div.input-dialog .ui-dialog-titlebar {

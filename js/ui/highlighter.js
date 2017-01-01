@@ -690,7 +690,7 @@
 	 * an abstract syntax tree of the code, the line to highlight (or -1 for
 	 * all) and the current cursor position.
 	 */
-	EdenUI.Highlight.prototype.highlight = function(ast, hline, position) {
+	EdenUI.Highlight.prototype.highlight = function(ast, hline, position, options) {
 		this.ast = ast;
 		this.line = 1;
 
@@ -724,12 +724,15 @@
 		var token = "INVALID";
 		var prevtoken = "INVALID";
 
+		var curtop = (options && options.spacing && options.spacing[0]) ? options.spacing[0] : 20;
+
 		// Highlight all if -1
 		if (hline == -1 ) {
 			detach(this, this.outelement, false, function() {
 
 			// Clear!
-			this.outelement.innerHTML = "";
+			//this.outelement.innerHTML = "";
+			while (this.outelement.lastChild) this.outelement.removeChild(this.outelement.lastChild);
 			this.mode_at_line = {};
 
 			while (stream.valid()) {
@@ -740,8 +743,10 @@
 
 					var lineelement = document.createElement('div');
 					lineelement.className = "eden-line";
+					lineelement.style.top = "" + curtop + "px";
 					lineelement.setAttribute("data-line",this.line-1);
 					//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
+					curtop += (options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20;
 					this.line++;
 					if (line !== undefined) {
 						lineelement.appendChild(line);
@@ -766,6 +771,7 @@
 			if (line !== undefined) {
 				var lineelement = document.createElement('div');
 				lineelement.className = "eden-line";
+				lineelement.style.top = "" + curtop + "px";
 				lineelement.setAttribute("data-line",this.line-1);
 				//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
 				lineelement.appendChild(line);
@@ -774,6 +780,7 @@
 				var lineelement = document.createElement('div');
 				if (position >= stream.position) {
 					lineelement.className = "eden-line";
+					lineelement.style.top = "" + curtop + "px";
 					lineelement.setAttribute("data-line",this.line-1);
 					var caret = document.createElement('span');
 					caret.className = "fake-caret";
@@ -786,6 +793,8 @@
 
 			});  // End detach
 		} else {
+			detach(this, this.outelement, false, function() {
+
 			// Skip until the lines we are looking for
 			while (stream.valid() && (this.line < (hline-1))) {
 				var ch = stream.peek();
@@ -801,7 +810,7 @@
 				var node = this.outelement.childNodes[hline-i];
 				if (node !== undefined) {
 					//Remove existing content
-					while (node.firstChild) node.removeChild(node.firstChild);
+					while (node.lastChild) node.removeChild(node.lastChild);
 
 					linestart = stream.position;
 					line = this.highlightLine(ast, position);
@@ -820,7 +829,7 @@
 				var node = this.outelement.childNodes[this.line-1];
 				if (node !== undefined) {
 					//Remove existing content
-					while (node.firstChild) node.removeChild(node.firstChild);
+					while (node.lastChild) node.removeChild(node.lastChild);
 
 					linestart = stream.position;
 					line = this.highlightLine(ast, position);
@@ -854,6 +863,8 @@
 					}
 				}
 			}*/
+
+			});
 		}
 	};
 

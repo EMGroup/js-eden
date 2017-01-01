@@ -29,6 +29,11 @@ edenCopy = copy;
 function Folder(name, parent, root) {
 	this.type = "script";
 	this.executed = 1;
+	this.start = 0;
+	this.end = 0;
+	this.prefix = "";
+	this.postfix = "";
+
 	/**
 	 * @type {string}
 	 * @private

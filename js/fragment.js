@@ -225,7 +225,22 @@ Eden.Fragment.prototype.autoSave = function() {
 	if (this.ast === undefined || this.ast.script.errors.length > 0) {
 		return;
 	}
-	var savedmp = new diff_match_patch();
+
+	if (this.originast) {
+		// Patch the origin...
+		var parent = this.originast.parent;
+		this.originast.patchScript(this.ast);
+
+		// Notify all parent fragments of patch
+		while (parent) {
+			Eden.Fragment.emit("patch", [this, parent]);
+			parent = parent.parent;
+		}
+	}
+
+	Eden.Fragment.emit("changed", [this]);
+
+	/*var savedmp = new diff_match_patch();
 
 	// Calculate redo diff
 	var d = savedmp.diff_main(this.snapshot, this.ast.stream.code, false);
@@ -247,8 +262,8 @@ Eden.Fragment.prototype.autoSave = function() {
 
 	this.autosavetimer = undefined;
 
-	//eden.root.lookup(this.obsname+"_autosave").assign(true, eden.root.scope, Symbol.localJSAgent);
-	Eden.Fragment.emit("autosave", [this]);
+	//eden.root.lookup(this.obsname+"_autosave").assign(true, eden.root.scope, Symbol.localJSAgent);*/
+	//Eden.Fragment.emit("autosave", [this]);
 }
 
 Eden.Fragment.prototype.diff = function() {
@@ -259,6 +274,8 @@ Eden.Fragment.prototype.diff = function() {
 		oldsrc = oldsrc.substring(prefixlen, oldsrc.length - postfixlen);
 
 		return DiffUtil.diff(oldsrc, this.source);
+	} else {
+		//console.log("FRAGMENT",this);
 	}
 }
 
@@ -275,20 +292,6 @@ Eden.Fragment.prototype.setSource = function(src) {
 	if (this.ast.script.errors.length == 0) {
 		clearTimeout(this.autosavetimer);
 		this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Fragment.AUTOSAVE_INTERVAL);
-
-		if (this.originast) {
-			// Patch the origin...
-			var parent = this.originast.parent;
-			this.originast.patchScript(this.ast);
-
-			// Notify all parent fragments of patch
-			while (parent) {
-				Eden.Fragment.emit("patch", [this, parent]);
-				parent = parent.parent;
-			}
-		}
-
-		Eden.Fragment.emit("changed", [this]);
 	} else {
 		// Oops, errors.
 		Eden.Fragment.emit("errored", [this]);
