@@ -23,6 +23,7 @@ div.eden-gutter-item {
     -ms-user-select: none;
     user-select: none;
 	cursor: pointer;
+	position: relative;
 }
 
 div.eden-gutter-item.hover {

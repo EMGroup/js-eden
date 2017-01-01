@@ -224,13 +224,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		<textarea autofocus tabindex="1" class="hidden-textarea"></textarea>\
 		<div class="inputCodeArea">\
 			<div class="eden_suggestions"></div>\
-			<div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div><\
+			<div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div>\
 		</div>\
 	</div>\
 </div>\
 <div class="info-bar"></div>\
 <div class="outputbox"></div>\
-</div></div>')
+</div></div>');
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
@@ -317,14 +317,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					readonly = true;
 					setSubTitle("[readonly]");
 					// The readonly class changes colour scheme
-					changeClass(outdiv, "readonly", true);
+					changeClass(inputhider, "readonly", true);
 					outdiv.contentEditable = false;
 					//outdiv.style.display = "inline-block";
 				} else {
 					readonly = false;
 					setSubTitle("");
 					// The readonly class changes colour scheme
-					changeClass(outdiv, "readonly", false);
+					changeClass(inputhider, "readonly", false);
 					outdiv.contentEditable = true;
 					//outdiv.style.display = "inline-block";
 				}
@@ -341,6 +341,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					//outdiv.style.display = "none";
 					curtab = -1;
 					changeClass(outdiv, "browser", true);
+					changeClass(inputhider, "readonly", false);
 					outdiv.contentEditable = false;
 					readonly = true;
 					browseScripts("");
@@ -1960,7 +1961,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 				readonly = false;
 				// The readonly class changes colour scheme
-				changeClass(outdiv, "readonly", false);
+				changeClass(inputhider, "readonly", false);
 				outdiv.contentEditable = true;
 			});
 		}

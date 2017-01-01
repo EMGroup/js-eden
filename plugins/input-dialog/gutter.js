@@ -48,6 +48,8 @@ function EdenScriptGutter(parent, infob) {
 
 	this.curline = -1;
 
+	this.textwidth = getTextWidth("M","14px/20px Roboto Mono,monospace");
+
 	/**
 	 * Displays the error/warning box.
 	 */
@@ -280,6 +282,8 @@ EdenScriptGutter.prototype.executeSelected = function() {
 
 
 EdenScriptGutter.prototype.selectLine = function(lineno) {
+	if (this.edits) return;
+
 	if (this.curline >= 0) {
 		var sellines = this.ast.getBlockLines(this.curline);
 		changeClass(this.gutter.childNodes[sellines[0]],"first",false);
@@ -323,6 +327,20 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 			//ele.innerHTML = EdenUI.Highlight.html(diff.remove[oline].rline);
 			ele.textContent = diff.remove[oline].rline;
 			this.gutter.appendChild(ele);
+
+			// Highlight exact remove point
+			var entries = diff.remove[oline].chars;
+			for (var j=0; j<entries.length; j++) {
+				var hlight = document.createElement("div");
+				hlight.style.position = "absolute";
+				hlight.style.background = "rgba(255,0,0,0.3)";
+				hlight.style.height = "20px";
+				hlight.style.width = ""+(entries[j].length*this.textwidth)+"px";
+				hlight.style.top = "0px";
+				hlight.style.left = ""+(entries[j].start*this.textwidth + 43)+"px";
+				ele.appendChild(hlight);
+			}
+
 			if (diff.remove[oline].partial) {
 				oline++;
 				waspartial = true;
@@ -334,7 +352,24 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 
 		var ele = document.createElement("div");
 		var classname = "eden-gutter-item";
-		if (waspartial || diff.insert[nline]) classname += " inserted";
+		if (waspartial || diff.insert[nline]) {
+			classname += " inserted";
+
+			if (diff.insert[nline]) {			
+				// Highlight exact remove point
+				var entries = diff.insert[nline].chars;
+				for (var j=0; j<entries.length; j++) {
+					var hlight = document.createElement("div");
+					hlight.style.position = "absolute";
+					hlight.style.background = "rgba(0,255,0,0.3)";
+					hlight.style.height = "20px";
+					hlight.style.width = ""+(entries[j].length*this.textwidth)+"px";
+					hlight.style.top = "0px";
+					hlight.style.left = ""+(entries[j].start*this.textwidth + 43)+"px";
+					ele.appendChild(hlight);
+				}
+			}
+		}
 		else oline++;
 		waspartial = false;
 		ele.className = classname;

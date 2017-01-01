@@ -599,12 +599,6 @@ div.outputcontent {
 	margin-bottom: 28px;
 }
 
-div.readonly {
-	/*-webkit-filter: grayscale(70%);
-	filter: grayscale(30%);*/
-	background-color: #ddd;
-}
-
 div.browser {
 	display: flex;
 	padding: 10px;
@@ -689,6 +683,12 @@ div.inputhider {
 	/*border-radius: 6px;*/
 	/*background: rgba(229,229,229,0.8);*/
 	background: white;
+}
+
+div.readonly {
+	/*-webkit-filter: grayscale(70%);
+	filter: grayscale(30%);*/
+	background-color: #ddd;
 }
 
 div.input-dialog .ui-dialog-titlebar {
