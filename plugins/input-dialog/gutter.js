@@ -24,16 +24,65 @@ function changeClass(ele, c, add) {
 	}
 }
 
+//returns path string d for <path d="This string">
+//a curly brace between x1,y1 and x2,y2, w pixels wide 
+//and q factor, .5 is normal, higher q = more expressive bracket 
+function makeCurlyBrace(x1,y1,x2,y2,w,q)
+{
+	//Calculate unit vector
+	var dx = x1-x2;
+	var dy = y1-y2;
+	var len = Math.sqrt(dx*dx + dy*dy);
+	dx = dx / len;
+	dy = dy / len;
+
+	//Calculate Control Points of path,
+	var qx1 = x1 + q*w*dy;
+	var qy1 = y1 - q*w*dx;
+	var qx2 = (x1 - .25*len*dx) + (1-q)*w*dy;
+	var qy2 = (y1 - .25*len*dy) - (1-q)*w*dx;
+	var tx1 = (x1 -  .5*len*dx) + w*dy;
+	var ty1 = (y1 -  .5*len*dy) - w*dx;
+	var qx3 = x2 + q*w*dy;
+	var qy3 = y2 - q*w*dx;
+	var qx4 = (x1 - .75*len*dx) + (1-q)*w*dy;
+	var qy4 = (y1 - .75*len*dy) - (1-q)*w*dx;
+
+return ( "M " +  x1 + " " +  y1 +
+ 		" Q " + qx1 + " " + qy1 + " " + qx2 + " " + qy2 + 
+  		" T " + tx1 + " " + ty1 +
+  		" M " +  x2 + " " +  y2 +
+  		" Q " + qx3 + " " + qy3 + " " + qx4 + " " + qy4 + 
+  		" T " + tx1 + " " + ty1 );
+}
+
 function EdenScriptGutter(parent, infob) {
 	var me = this;
 	this.$gutter = $('<div class="eden-gutter"></div>');
+
+	var xmlns = "http://www.w3.org/2000/svg";
+    var boxWidth = 300;
+    var boxHeight = 300;
+
+    this.brace = document.createElementNS(xmlns, "svg");
+    //this.brace.setAttribute("src", "images/pathbrace.svg");
+	this.brace.style.position = "absolute";
+	this.brace.style.display = "none";
+	this.brace.setAttribute("width", "22");
+	this.brace.style.left = "0px";
+	this.bracepath = document.createElementNS(xmlns, "path");
+	this.bracepath.setAttribute("style","stroke: #29454B; fill: none; stroke-width: 3px");
+	this.brace.appendChild(this.bracepath);
+
 	this.gutter = this.$gutter.get(0);
 	parent.insertBefore(this.gutter, parent.firstChild);
+	parent.insertBefore(this.brace, parent.firstChild);
 	//parent.appendChild(this.gutter);
 
 	this.ast = undefined;
 	this.lines = [];
 	this.agents = {};
+	this.hovering = false;
 
 	this.edits = undefined;
 
@@ -83,6 +132,7 @@ function EdenScriptGutter(parent, infob) {
 		if (shiftdown && dragselect) {
 			if (me.ast.lines[line]) {
 				var lines = me.ast.getBlockLines(line);
+				if (lines[0] < lines[1]) me.showBrace(lines[0],lines[1]);
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					me.lines[i].selected = !alreadyselected;
 					changeClass(me.gutter.childNodes[i], "select", !alreadyselected);
@@ -94,16 +144,22 @@ function EdenScriptGutter(parent, infob) {
 			}
 		} else {
 			if (me.ast.lines[line]) {
+				/*var lines = me.ast.getBlockLines(line);
+				var avgline = Math.floor((lines[1] - lines[0]) / 2) + lines[0];
+
 				if (me.lines[line].live) {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
 				} else if (me.ast.lines[line].executed == 0) {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-play'>&#xf04b;</span";
-					if (!shiftdown) changeClass(me.gutter.childNodes[line], "play", true);
+					if (!shiftdown) changeClass(me.gutter.childNodes[avgline], "play", true);
 				}
-				var lines = me.ast.getBlockLines(line);
+
+				if (lines[0] < lines[1]) me.showBrace(lines[0],lines[1]);
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					changeClass(me.gutter.childNodes[i], "hover", true);
-				}
+				}*/
+				me.selectLine(line+1);
+				me.hovering = true;
 			}
 		}
 	}
@@ -118,12 +174,14 @@ function EdenScriptGutter(parent, infob) {
 		}
 
 		if (dragselect) shiftdown = true;
+		me.hovering = false;
 		clearTimeout(holdtimeout);
 		holdtimeout = undefined;
 		//if (!dragselect) {
 			if (me.ast.lines[line]) {
 				//me.gutter.childNodes[line].innerHTML = "";
 				var lines = me.ast.getBlockLines(line);
+				me.hideBrace();
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					changeClass(me.gutter.childNodes[i], "hover", false);
 					changeClass(me.gutter.childNodes[i], "play", false);
@@ -244,6 +302,7 @@ EdenScriptGutter.prototype.clear = function() {
 	this.ast = undefined;
 	this.lines = [];
 	this.curline = -1;
+	this.hideBrace();
 	while (this.gutter.firstChild) {
 		this.gutter.removeChild(this.gutter.firstChild);
 	}
@@ -258,6 +317,7 @@ EdenScriptGutter.prototype.setBaseAST = function(base) {
 	this.ast = base;
 	this.lines = [];
 	this.edits = undefined;
+	this.hideBrace();
 	console.trace("GUTTER RESET");
 }
 
@@ -281,25 +341,54 @@ EdenScriptGutter.prototype.executeSelected = function() {
 }
 
 
+EdenScriptGutter.prototype.showBrace = function(start, end) {
+	this.brace.style.display = "block";
+	this.brace.style.top = "" + (start * 20 + 20) + "px";
+	var height = ((end - start + 1) * 20);
+	this.brace.setAttribute("height", "" + height);
+	this.bracepath.setAttribute("d", makeCurlyBrace(20,4,20,height-4,20,0.5));
+}
+
+EdenScriptGutter.prototype.hideBrace = function() {
+	this.brace.style.display = "none";
+}
+
+
 EdenScriptGutter.prototype.selectLine = function(lineno) {
 	if (this.edits) return;
 
 	if (this.curline >= 0) {
+		//var sellines = this.ast.getBlockLines(this.curline);
+		//changeClass(this.gutter.childNodes[sellines[0]],"first",false);
+		//changeClass(this.gutter.childNodes[sellines[1]],"last",false);
+		//for (var i=sellines[0]; i<=sellines[1]; i++) {
+		//	changeClass(this.gutter.childNodes[i],"current",false);
+		//	changeClass(this.gutter.childNodes[i],"play",false);
+		//}
+
+		//changeClass(this.gutter.childNodes[this.curline],"current",false);
 		var sellines = this.ast.getBlockLines(this.curline);
-		changeClass(this.gutter.childNodes[sellines[0]],"first",false);
-		changeClass(this.gutter.childNodes[sellines[1]],"last",false);
-		for (var i=sellines[0]; i<=sellines[1]; i++) {
-			changeClass(this.gutter.childNodes[i],"current",false);
-			changeClass(this.gutter.childNodes[i],"play",false);
-		}
+		var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
+		changeClass(this.gutter.childNodes[avgline],"play",false);
 	}
 	this.curline = lineno-1;
 	var sellines = this.ast.getBlockLines(lineno-1);
-	changeClass(this.gutter.childNodes[sellines[0]],"first",true);
-	changeClass(this.gutter.childNodes[sellines[1]],"last",true);
-	for (var i=sellines[0]; i<=sellines[1]; i++) {
-		changeClass(this.gutter.childNodes[i],"current",true);
-		if (i == this.curline && this.ast.lines[i] && this.ast.lines[i].executed == 0) changeClass(this.gutter.childNodes[i],"play",true);
+	if (this.ast.lines[lineno-1] && this.ast.lines[lineno-1].executed == 0) {
+		var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
+		changeClass(this.gutter.childNodes[avgline], "play", "true");
+		//changeClass(this.gutter.childNodes[lineno-1], "current", "true");
+	}
+	if (sellines[0] < sellines[1]) {
+		this.showBrace(sellines[0], sellines[1]);
+
+		/*changeClass(this.gutter.childNodes[sellines[0]],"first",true);
+		changeClass(this.gutter.childNodes[sellines[1]],"last",true);
+		for (var i=sellines[0]; i<=sellines[1]; i++) {
+			changeClass(this.gutter.childNodes[i],"current",true);
+			if (i == this.curline && this.ast.lines[i] && this.ast.lines[i].executed == 0) changeClass(this.gutter.childNodes[i],"play",true);
+		}*/
+	} else {
+		this.hideBrace();
 	}
 }
 
@@ -426,6 +515,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 		var content = "";
 		var doreplace = false;
 		var doupdate = globaldoupdate;
+		var errorline = undefined;
 		/*if (i == lineno-1) {
 			className += " eden-gutter-current";
 		}*/
@@ -437,6 +527,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 				if (stat.errors[0].line == i+1) {
 					className += " error";
 					content = "&#xf06a";
+					errorline = i;
 				} else if (stat.errors[0].type == "runtime") {
 					className += " error";
 					content = "&#xf06a";
@@ -496,5 +587,13 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 		}
 	}
 
-	//this.selectLine(lineno);
+	if (this.ast.script.errors.length > 0) {
+		this.hideBrace();
+		/*var errlines = this.ast.getBlockLines(errorline);
+		if (errlines[0] < errlines[1]) {
+			this.showBrace(errlines[0], errlines[1]);
+		}*/
+	} else {
+		if (!this.hovering) this.selectLine(lineno);
+	}
 }

@@ -280,6 +280,8 @@ Eden.Fragment.prototype.diff = function() {
 }
 
 Eden.Fragment.prototype.setSource = function(src) {
+	if (this.locked) return;
+
 	//var oldast = this.ast;
 	var me = this;
 	this.source = src;

@@ -164,7 +164,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var rebuildtimer;
 		var amtyping = false;
-		var rebuildinterval = 200;
+		//var rebuildinterval = 200;
 		var tabscrollix = 0;
 		var showhidden = false;
 		var maxtabs = 3;
@@ -231,6 +231,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (frag === tab_frags[curtab]) {
 				//curChanged(curSym, curSym.value());
 				rebuildTabs();
+				updateControls();
 			}
 		});
 
@@ -295,8 +296,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function updateControls() {
 			if (curtab >= 0) {
-				var html = '<button class="script-button script-run"><span class="explorer-control-icon">&#xf04b;</span>Run</button>';
-				html += '<button class="script-button script-changes"><span class="explorer-control-icon">&#xf044;</span>Changes</button>';
+				var html = '<button class="script-button script-run" title="Run the entire script"><span class="explorer-control-icon">&#xf04b;</span>Run</button>';
 
 				var frag = tab_frags[curtab];
 
@@ -306,6 +306,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					//html += '<button class="script-button script-name"><span class="explorer-control-icon">&#xf02b;</span>Name</button>';
 					html += '<span class="editname"><input type="text" class="editname" placeholder="Enter a name..."></input></span>';
 				
+				} else if (frag) {
+					html += '<button class="script-button script-changes" title="Show recent changes"><span class="explorer-control-icon">&#xf044;</span>Edits</button>';
+					html += '<button class="script-button script-details" title="Display or edit script properties"><span class="explorer-control-icon">&#xf013;</span>Details</button>';
 				}
 
 				$controls.html(html);
@@ -517,7 +520,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function onTabClick(e) {
 			var name = e.currentTarget.getAttribute("data-index");
 			curSym.assign(parseInt(name), eden.root.scope, Symbol.hciAgent);
-			intextarea.focus();
+			scriptarea.intextarea.focus();
 		}
 
 		function onTabClose(e) {

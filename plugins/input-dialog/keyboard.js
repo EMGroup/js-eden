@@ -14,7 +14,7 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 	 */
 	function onTextKeyDown(e) {
 		var key = genKey(e);
-		console.log(e);
+		//console.log(e);
 
 		switch(key) {
 		case "Tab"			:	e.preventDefault();

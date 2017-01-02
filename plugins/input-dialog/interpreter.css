@@ -298,7 +298,7 @@ div.agent-tab-notcurrent:hover {
 div.agent-tab-current {
 	background-color: white;
 	box-sizing: border-box;
-	border-bottom: 3px solid #719ECE;
+	/*border-bottom: 3px solid #719ECE;*/
 	border-left: 1px solid #aaa;
 	border-right: 1px solid #aaa;
 	border-top: 1px solid #aaa;
@@ -449,7 +449,7 @@ div.control-bar {
 	position: absolute;
 	left: 28px;
 	right: 0;
-	top: 0;
+	top: 5px;
 	height: 30px;
 	/*background: #f5f5f5;*/
 	border-top-left-radius: 6px;
@@ -582,7 +582,7 @@ div.outputcontent {
 	/*border: 1px solid #719ECE;*/
 	box-sizing: border-box;
 	padding-left: 15px;
-	padding-top: 15px;
+	padding-top: 20px;
 	padding-right: 1px;
 	/*padding: 4px;*/
 	/*margin: 5px;*/

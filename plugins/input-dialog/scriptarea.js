@@ -34,6 +34,8 @@ EdenUI.ScriptArea = function() {
 
 	var keyboard = new EdenUI.ScriptArea.Keyboard(this);
 	var mouse = new EdenUI.ScriptArea.Mouse(this);
+
+	this.rebuildinterval = 400;
 }
 
 EdenUI.ScriptArea.prototype.setFragment = function(frag) {
@@ -226,6 +228,9 @@ EdenUI.ScriptArea.prototype.highlightContent = function(lineno, position, option
 		// TODO Make this efficient by keeping record of fake-caret.
 		$(this.outdiv).find(".fake-caret").addClass("fake-blur-caret");
 	}
+
+	// Make sure number dragging always works.
+	this.delayRebuild();
 }
 
 EdenUI.ScriptArea.prototype.moveCaret = function() {
@@ -246,8 +251,12 @@ EdenUI.ScriptArea.prototype.selectAll = function() {
 	}
 
 EdenUI.ScriptArea.prototype.makeNumbersDrag = function() {
+	var me = this;
+
 	/* Number dragging code, but only if live */
 	if (!this.readonly) {
+		console.log("MAKE NUMBERS DRAG");
+
 		$(this.outdiv).find('.eden-number').draggable({
 			helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
 			axis: 'x',
@@ -431,6 +440,8 @@ EdenUI.ScriptArea.prototype.delayRebuild = function() {
 EdenUI.ScriptArea.prototype.rebuild = function() {
 	var me = this;
 	if (this.gutter.edits) {
+		this.updateSource(this.intextarea.value, -1);
+		this.gutter.ast = this.fragment.ast;
 		this.makeDiff();
 	} else {
 		this.edited = true;
@@ -446,8 +457,6 @@ EdenUI.ScriptArea.prototype.rebuild = function() {
 		// Adjust scroll position if required
 		this.checkScroll();
 		this.dirty = false;
-
-		this.delayRebuild();
 	}
 }
 

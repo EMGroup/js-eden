@@ -787,6 +787,7 @@
 					lineelement.appendChild(caret);
 				} else {
 					lineelement.className = "eden-line";
+					lineelement.style.top = "" + curtop + "px";
 				}
 				this.outelement.appendChild(lineelement);
 			}
