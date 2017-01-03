@@ -144,17 +144,23 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		inputhider.appendChild(scriptarea.contents);
 
 		var scrolltopline = 0;
+		var scrolltime = undefined;
 		inputhider.addEventListener("scroll", function(e) {
-			var stop = inputhider.scrollTop;
-			stop = Math.floor((stop - 50) / 20);
-			if (stop < 0) stop = 0;
+			if (scrolltime !== undefined) clearTimeout(scrolltime);
 
-			if (Math.abs(stop - scrolltopline) >= 100) {
-				console.log("FORCE RE HIGHLIGHT", stop);
-				scriptarea.highlighter.setScrollTop(stop);
-				scrolltopline = stop;
-				scriptarea.updateCachedHighlight();
-			}
+			scrolltime = setTimeout(function() {
+				scrolltime = undefined;
+				var stop = inputhider.scrollTop;
+				stop = Math.floor((stop - 50) / 20);
+				if (stop < 0) stop = 0;
+
+				if (Math.abs(stop - scrolltopline) >= 50) {
+					console.log("FORCE RE HIGHLIGHT", stop);
+					scriptarea.highlighter.setScrollTop(stop);
+					scrolltopline = stop;
+					scriptarea.updateCachedHighlight();
+				}
+			}, 100);
 		});
 
 		var curtab = -1;
@@ -187,8 +193,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function curChanged(sym, value) {
 			if (typeof value == "number" && value >= 0 && value < tab_frags.length) {
-				curtab = value;
-				scriptarea.setFragment(tab_frags[curtab]);
+				if (curtab != value) {
+					curtab = value;
+					scriptarea.setFragment(tab_frags[curtab]);
+				}
 				rebuildTabs();
 			} else {
 				rebuildTabs();
@@ -793,7 +801,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function onShowChanges(e) {
 			if (scriptarea.gutter.edits) {
 				scriptarea.gutter.setDiffs(undefined);
-				scriptarea.updateEntireHighlight();
+				scriptarea.cachedhlopt = undefined;
+				scriptarea.updateCachedHighlight();
 			} else {
 				scriptarea.makeDiff();
 			}

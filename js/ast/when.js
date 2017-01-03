@@ -9,7 +9,6 @@ Eden.AST.When = function() {
 	this.compiled = undefined;
 	this.scope = undefined;
 	this.compScope = undefined;
-	this.base = undefined;
 	this.local = false;
 	this.dirty = false;
 	this.statement = undefined;
@@ -20,9 +19,9 @@ Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
 	var trigs = base.triggers[d];
 	if (trigs) {
 		for (var i=0; i<trigs.length; i++) if (trigs[i].statement === this) return;
-		base.triggers[d].push({statement: this, scope: scope});
+		base.triggers[d].push({base: base, statement: this, scope: scope});
 	} else {
-		trigs = [{statement: this, scope: scope}];
+		trigs = [{base: base, statement: this, scope: scope}];
 		base.triggers[d] = trigs;
 	}
 }
@@ -66,7 +65,9 @@ Eden.AST.When.prototype.subscribeDynamic = function(position, dependency, scope)
 		var trigs = [this];
 		this.base.triggers[dependency] = trigs;
 	}*/
-	this.addTrigger(this.base, dependency, scope);
+	var p = this;
+	while (p.parent) p = p.parent;
+	this.addTrigger(p.base, dependency, scope);
 	return eden.root.lookup(dependency);
 }
 
@@ -89,7 +90,6 @@ Eden.AST.When.prototype.generate = function() {
 }
 
 Eden.AST.When.prototype.compile = function(base) {
-	this.base = base;
 	var cond = "(function(context,scope) { try { return ";
 	cond += this.expression.generate(this, "scope",{bound: false});
 	cond += "; } catch(e) {} })";
@@ -125,7 +125,7 @@ Eden.AST.When.prototype.compile = function(base) {
 
 Eden.AST.When.prototype.trigger = function(base, scope) {
 	//console.trace("TRIGGER", this.name, scope);
-	if (base === undefined) base = this.base;
+	if (base === undefined) console.error("No trigger base for when",this);
 	if (this.active == false) {
 		this.active = true;
 		var res = this.executeReal(this, base, (scope) ? scope : eden.root.scope);

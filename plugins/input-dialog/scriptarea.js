@@ -24,6 +24,7 @@ EdenUI.ScriptArea = function() {
 	this.currentcharno = -1;
 	this.highlighter = new EdenUI.Highlight(this.outdiv);
 	this.gutter = new EdenScriptGutter(this.codearea, this.infobox);
+	this.cachedhlopt = undefined;
 
 	// Init the scroll optimisation.
 	this.highlighter.setScrollTop(0);
@@ -42,6 +43,10 @@ EdenUI.ScriptArea = function() {
 }
 
 EdenUI.ScriptArea.prototype.setFragment = function(frag) {
+	if (this.fragment && this.fragment !== frag) {
+		this.fragment.unlock();
+		this.currentlineno = -1;
+	}
 	this.fragment = frag;
 
 	if (frag === undefined) {
@@ -55,6 +60,9 @@ EdenUI.ScriptArea.prototype.setFragment = function(frag) {
 		this.readonly = true;
 		return;
 	}
+
+	// Make sure it is up-to-date
+	frag.reset();
 
 	// Reset textarea and outdiv etc.
 	changeClass(this.outdiv, "browser", false);
@@ -157,6 +165,7 @@ EdenUI.ScriptArea.prototype.updateLineCachedHighlight = function() {
  */
 EdenUI.ScriptArea.prototype.updateEntireHighlight = function(rerun, options) {
 	if (this.fragment === undefined) return;
+	this.cachedhlopt = options;
 
 	this.updateSource(this.intextarea.value, -1);
 
@@ -177,7 +186,7 @@ EdenUI.ScriptArea.prototype.updateCachedHighlight = function(options) {
 	if (document.activeElement === this.intextarea) {
 		pos = this.intextarea.selectionEnd;
 	}
-	this.highlightContent(-1, pos, options);
+	this.highlightContent(-1, pos, (options) ? options : this.cachedhlopt);
 }
 
 /**
@@ -188,12 +197,13 @@ EdenUI.ScriptArea.prototype.findElementLineNumber = function(element) {
 	var el = element;
 	while (el.parentNode !== this.outdiv) el = el.parentNode;
 
-	// TODO Use data attribute??
+	var line = parseInt(el.getAttribute("data-line"));
+	return line;
 
-	for (var i=0; i<this.outdiv.childNodes.length; i++) {
+	/*for (var i=0; i<this.outdiv.childNodes.length; i++) {
 		if (this.outdiv.childNodes[i] === el) return i;
 	}
-	return -1;
+	return -1;*/
 }
 
 /**
@@ -421,7 +431,8 @@ EdenUI.ScriptArea.prototype.makeDiff = function() {
 	}
 
 	this.gutter.setDiffs(edits);
-	this.updateEntireHighlight(false, {spacing: spacing});
+	this.cachedhlopt = {spacing: spacing};
+	this.updateCachedHighlight();
 }
 
 /**

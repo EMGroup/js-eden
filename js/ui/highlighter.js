@@ -742,20 +742,7 @@
 			while (this.outelement.lastChild) this.outelement.removeChild(this.outelement.lastChild);
 			this.mode_at_line = {};
 
-			if (this.scrolltop >= 0) {
-				while (stream.valid() && this.line < this.scrolltop-105) {
-					var ix = stream.code.indexOf("\n",stream.position);
-					if (ix == -1) {
-						break;
-					} else {
-						curtop += (options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20;
-						this.line++;
-						stream.position = ix+1;
-					}
-				}
-			}
-
-			while (stream.valid() && this.line <= this.scrolltop+135) {
+			while (stream.valid()) {
 				var ch= stream.peek();
 				var lineclass = "";
 				if (ch == 10) {
@@ -784,13 +771,21 @@
 					continue;
 				}
 
-				//if (this.scrolltop >= 0 && (this.line < this.scrolltop-105 || this.line > this.scrolltop+105)) {
+				if (this.scrolltop >= 0 && (this.line < this.scrolltop-105 || this.line > this.scrolltop+105)) {
 					// Extract unhighlighted line
-				//	line = document.createTextNode(stream.readLine());
-				//	if (stream.valid()) stream.position--;
-				//} else {
+					var eolix = stream.code.indexOf("\n",stream.position);
+					var ltext;
+					if (eolix == -1) {
+						ltext = stream.code.substring(stream.position);
+						stream.position = stream.code.length;
+					} else {
+						ltext = stream.code.substring(stream.position, eolix);
+						stream.position = eolix;
+					}
+					line = document.createTextNode(ltext);
+				} else {
 					line = this.highlightLine(ast, position);
-				//}
+				}
 			}
 
 			lineerror = (linestart <= errstart) && (stream.position >= errend);

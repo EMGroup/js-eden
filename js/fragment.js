@@ -18,7 +18,7 @@ Eden.Fragment = function(selector) {
 
 	//console.error("FRAGMENT");
 
-	this.reset();
+	//this.reset();
 	var me = this;
 
 	Eden.Fragment.listenTo("aststatus", this, function(ast) {
@@ -93,8 +93,10 @@ Eden.Fragment.prototype.reset = function() {
 			me.originast = me.results[0];
 		} else if (me.results && me.results.length > 1) {
 			me.source = "";
+			me.originast = undefined;
 		} else {
 			me.source = "";
+			me.originast = undefined;
 		}
 
 		if (me.originast) {
@@ -130,6 +132,8 @@ Eden.Fragment.prototype.reset = function() {
 			me.name = "*Scratch*";
 			me.title = me.name;
 			me.scratch = true;
+
+			Eden.Fragment.emit("changed", [me]);
 		}
 		me.lock();
 

@@ -5,7 +5,7 @@ Eden.Project = function(id, name, source) {
 	this.tags = name.toLowerCase().split(" ");
 	this.src = source;
 	this.ast = new Eden.AST(source, undefined, this);
-	this.ast.script.lock = 1;
+	//this.ast.script.lock = 1;
 	this.id = id;
 	this.triggers = {};
 
@@ -50,7 +50,7 @@ Eden.Project.init = function() {
 			if (whens) {
 				//clearExecutedState();
 				for (var i=0; i<whens.length; i++) {
-					whens[i].statement.trigger(undefined, whens[i].scope);
+					whens[i].statement.trigger(eden.project.ast, whens[i].scope);
 				}
 				//gutter.generate(this.ast,-1);
 				//me.clearExecutedState();
@@ -231,7 +231,7 @@ Eden.Project.prototype.addAction = function(name) {
 	var script = new Eden.AST.Script();
 	script.name = name;
 	script.prefix = "action "+name+"{\n";
-	script.postfix = "\n}";
+	script.postfix = "\n}\n\n";
 	script.parent = this.ast.script;
 	this.ast.script.append(script);
 	this.ast.scripts[name] = script;
