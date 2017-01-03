@@ -25,12 +25,15 @@ EdenUI.ScriptArea = function() {
 	this.highlighter = new EdenUI.Highlight(this.outdiv);
 	this.gutter = new EdenScriptGutter(this.codearea, this.infobox);
 
+	// Init the scroll optimisation.
+	this.highlighter.setScrollTop(0);
+
 	var me = this;
 	var gutterinterval = setInterval(function() {
 		if (me.fragment === undefined) return;
 		me.gutter.generate(me.fragment.ast, me.currentlineno);
 		//scriptast.clearExecutedState();
-	}, 200);
+	}, 300);
 
 	var keyboard = new EdenUI.ScriptArea.Keyboard(this);
 	var mouse = new EdenUI.ScriptArea.Mouse(this);
@@ -166,6 +169,14 @@ EdenUI.ScriptArea.prototype.updateEntireHighlight = function(rerun, options) {
 		runScript(0);
 	}
 
+	this.highlightContent(-1, pos, options);
+}
+
+EdenUI.ScriptArea.prototype.updateCachedHighlight = function(options) {
+	var pos = -1;
+	if (document.activeElement === this.intextarea) {
+		pos = this.intextarea.selectionEnd;
+	}
 	this.highlightContent(-1, pos, options);
 }
 

@@ -69,9 +69,9 @@ function EdenScriptGutter(parent, infob) {
 	this.brace.style.position = "absolute";
 	this.brace.style.display = "none";
 	this.brace.setAttribute("width", "22");
-	this.brace.style.left = "0px";
+	this.brace.style.left = "10px";
 	this.bracepath = document.createElementNS(xmlns, "path");
-	this.bracepath.setAttribute("style","stroke: #29454B; fill: none; stroke-width: 3px");
+	this.bracepath.setAttribute("style","stroke: #444; fill: none; stroke-width: 3px");
 	this.brace.appendChild(this.bracepath);
 
 	this.gutter = this.$gutter.get(0);
@@ -158,7 +158,7 @@ function EdenScriptGutter(parent, infob) {
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					changeClass(me.gutter.childNodes[i], "hover", true);
 				}*/
-				me.selectLine(line+1);
+				me.selectLine(line+1, true);
 				me.hovering = true;
 			}
 		}
@@ -250,7 +250,7 @@ function EdenScriptGutter(parent, infob) {
 		// If there is a statement
 		if (me.ast.lines[line]) {
 			// And if it has errors
-			if (me.ast.lines[line].errors.length > 0) {
+			/*if (me.ast.lines[line].errors.length > 0) {
 				var err = me.ast.lines[line].errors[0];
 
 				// If the error is on this line then display it
@@ -259,7 +259,7 @@ function EdenScriptGutter(parent, infob) {
 					console.error(err.prettyPrint());
 					showInfoBox(e.target.offsetLeft+20, e.target.offsetTop-me.gutter.parentNode.scrollTop+25+taboffset, "error", err.messageText());
 				}
-			}
+			}*/
 		}
 	})
 	.on('mouseup', '.eden-gutter-item', function(e) {
@@ -346,7 +346,7 @@ EdenScriptGutter.prototype.showBrace = function(start, end) {
 	this.brace.style.top = "" + (start * 20 + 20) + "px";
 	var height = ((end - start + 1) * 20);
 	this.brace.setAttribute("height", "" + height);
-	this.bracepath.setAttribute("d", makeCurlyBrace(20,4,20,height-4,20,0.5));
+	this.bracepath.setAttribute("d", makeCurlyBrace(20,4,20,height-4,20,0.6));
 }
 
 EdenScriptGutter.prototype.hideBrace = function() {
@@ -354,8 +354,9 @@ EdenScriptGutter.prototype.hideBrace = function() {
 }
 
 
-EdenScriptGutter.prototype.selectLine = function(lineno) {
+EdenScriptGutter.prototype.selectLine = function(lineno, notcurrent) {
 	if (this.edits) return;
+	if (this.ast.script.errors.length > 0) return;
 
 	if (this.curline >= 0) {
 		//var sellines = this.ast.getBlockLines(this.curline);
@@ -366,17 +367,17 @@ EdenScriptGutter.prototype.selectLine = function(lineno) {
 		//	changeClass(this.gutter.childNodes[i],"play",false);
 		//}
 
-		//changeClass(this.gutter.childNodes[this.curline],"current",false);
 		var sellines = this.ast.getBlockLines(this.curline);
 		var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
 		changeClass(this.gutter.childNodes[avgline],"play",false);
+		changeClass(this.gutter.childNodes[avgline],"current",false);
 	}
 	this.curline = lineno-1;
 	var sellines = this.ast.getBlockLines(lineno-1);
 	if (this.ast.lines[lineno-1] && this.ast.lines[lineno-1].executed == 0) {
 		var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
 		changeClass(this.gutter.childNodes[avgline], "play", "true");
-		//changeClass(this.gutter.childNodes[lineno-1], "current", "true");
+		if (!notcurrent) changeClass(this.gutter.childNodes[avgline], "current", "true");
 	}
 	if (sellines[0] < sellines[1]) {
 		this.showBrace(sellines[0], sellines[1]);
@@ -402,6 +403,8 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 	}
 
 	if (diff === undefined) return;
+
+	this.hideBrace();
 
 	var nline = 0;
 	var oline = 0;
@@ -443,6 +446,7 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 		var classname = "eden-gutter-item";
 		if (waspartial || diff.insert[nline]) {
 			classname += " inserted";
+			var waszero = false;
 
 			if (diff.insert[nline]) {			
 				// Highlight exact remove point
@@ -453,11 +457,14 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 					hlight.style.background = "rgba(0,255,0,0.3)";
 					hlight.style.height = "20px";
 					hlight.style.width = ""+(entries[j].length*this.textwidth)+"px";
+					waszero = waszero || (entries[j].length == 0 && !diff.insert[nline].partial);
 					hlight.style.top = "0px";
 					hlight.style.left = ""+(entries[j].start*this.textwidth + 43)+"px";
 					ele.appendChild(hlight);
 				}
 			}
+
+			if (((diff.insert[nline] && diff.insert[nline].partial)) && !waspartial) oline++;
 		}
 		else oline++;
 		waspartial = false;
@@ -516,6 +523,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 		var doreplace = false;
 		var doupdate = globaldoupdate;
 		var errorline = undefined;
+		var title = undefined;
 		/*if (i == lineno-1) {
 			className += " eden-gutter-current";
 		}*/
@@ -523,14 +531,16 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			var stat = ast.lines[i];
 
 			if (stat.errors.length > 0) {
-				className += " errorblock";
+				//className += " errorblock";
 				if (stat.errors[0].line == i+1) {
 					className += " error";
 					content = "&#xf06a";
+					title = stat.errors[0].messageText();
 					errorline = i;
 				} else if (stat.errors[0].type == "runtime") {
 					className += " error";
 					content = "&#xf06a";
+					title = stat.errors[0].messageText();
 				}
 				doupdate = true;
 			} else {
@@ -584,6 +594,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			if (this.gutter.childNodes[i].className.indexOf("current") >= 0) className += " current";
 			this.gutter.childNodes[i].innerHTML = content;
 			this.gutter.childNodes[i].className = className;
+			if (title) this.gutter.childNodes[i].title = title;
 		}
 	}
 

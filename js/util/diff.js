@@ -36,6 +36,7 @@ DiffUtil.diff = function(oldsrc, newsrc) {
 				if (edits.insert[nline+j] === undefined) edits.insert[nline+j] = {oline: oline, chars: []};
 				edits.insert[nline+j].chars.push({start: nchars, length: lines[j].length});
 				if (j > 0) edits.insert[nline+j].consecutive = true;
+				edits.insert[nline+j].partial = linechars === null;
 				nchars += lines[j].length;
 				if (j < lines.length-1) nchars++;
 			}

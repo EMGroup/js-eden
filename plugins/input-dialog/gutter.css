@@ -44,20 +44,7 @@ div.eden-gutter-item.hover:before {
 }
 
 div.eden-gutter-item.current {
-	background-color: rgba(255,255,255,0.8);
-	/*border-top: 1px solid #ddd;
-	border-bottom: 1px solid #ddd;*/
-	border-top-left-radius: 5px;
-	border-bottom-left-radius: 5px;
-	border-left: 1px solid #bbb;
-}
-
-div.eden-gutter-item.current.first {
-	border-top: 1px solid #bbb;
-}
-
-div.eden-gutter-item.current.last {
-	border-bottom: 1px solid #bbb;
+	opacity: 0.6;
 }
 
 /*div.eden-gutter-item.current:before {
@@ -103,10 +90,9 @@ div.eden-gutter-item.play:after {
 	font-size: 20pt;
 	content: "\f04b";
 	position: absolute;
-	left: 15px;
+	left: 14px;
 	margin-top: -5px;
 	line-height: 24px;
-	opacity: 0.9;
 }
 
 
@@ -232,6 +218,7 @@ div.eden-gutter-item.error {
 	font-size: 16pt;
 	margin-top: 0;
 	line-height: 16px;
+	padding-left: 12px;
 }
 
 div.eden-gutter-item.warning {

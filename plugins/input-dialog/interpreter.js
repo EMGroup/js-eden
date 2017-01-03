@@ -143,6 +143,20 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var scriptarea = new EdenUI.ScriptArea();
 		inputhider.appendChild(scriptarea.contents);
 
+		var scrolltopline = 0;
+		inputhider.addEventListener("scroll", function(e) {
+			var stop = inputhider.scrollTop;
+			stop = Math.floor((stop - 50) / 20);
+			if (stop < 0) stop = 0;
+
+			if (Math.abs(stop - scrolltopline) >= 100) {
+				console.log("FORCE RE HIGHLIGHT", stop);
+				scriptarea.highlighter.setScrollTop(stop);
+				scrolltopline = stop;
+				scriptarea.updateCachedHighlight();
+			}
+		});
+
 		var curtab = -1;
 		var tab_queries = [];
 		var tab_frags = [];

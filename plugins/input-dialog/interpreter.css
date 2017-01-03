@@ -619,6 +619,7 @@ div.browse-entry {
 	cursor: pointer;
 	color: black;
 	z-index: 2;
+	border-radius: 10px;
 }
 
 div.browse-entry:hover {
