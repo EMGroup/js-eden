@@ -5,7 +5,7 @@ Eden.Selectors = {
 
 Eden.Selectors.findLocalBase = function(path, ctx, filters) {
 	var scripts = [];
-	var paths = path.split(",");
+	var paths = path.split(","); // This shouldn't be allowed???
 
 	for (var i=0; i<paths.length; i++) {
 		var path = paths[i].trim();
@@ -19,8 +19,8 @@ Eden.Selectors.findLocalBase = function(path, ctx, filters) {
 			scripts.push.apply(scripts,ctx.statements);
 		} else {
 			var script;
-			if (path == eden.project.name) script = eden.project.ast.script;
-			else script = ctx.getActionByName(path);
+			if (eden.project && path == eden.project.name) script = eden.project.ast.script;
+			else if (ctx) script = ctx.getActionByName(path);
 			if (script) {
 				scripts.push(script);
 				continue;
@@ -33,8 +33,7 @@ Eden.Selectors.findLocalBase = function(path, ctx, filters) {
 				continue;
 			}
 
-			// Now check for : and # queries amongst existing cached projects
-			// before giving up entirely.
+			// If path contains a /, try looking for url...
 		}
 	}
 
@@ -421,7 +420,7 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 		if (cb) cb(res);
 		return res;
 	}
-	if (ctx === undefined) ctx = eden.project.ast.script;
+	if (ctx === undefined && eden.project) ctx = eden.project.ast.script;
 
 	var pathix = s.search(/[\s\.\:\#\@\>]/);
 	if (pathix == -1) pathix = s.length;
@@ -440,7 +439,7 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 	if (cb && ((statements.length == 0 && single) || !single)) {
 
 		// Look for local projects
-		if (Eden.Project.local[path]) {
+		if (Eden.Project.local && Eden.Project.local[path]) {
 			$.get(Eden.Project.local[path].file, function(data) {
 				var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 				Eden.Selectors.cache[path] = res[0];
@@ -449,6 +448,23 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 				res = Eden.Selectors.processResults(statements, o);
 				cb(res);
 			}, "text");
+		// Or check for URL
+		} else if (path.indexOf("/") != -1) {
+			$.ajax({
+				url: path+".js-e",
+				dataType: "text",
+				success: function(data) {
+					var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
+					Eden.Selectors.cache[path] = res[0];
+					statements = res;
+					statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
+					res = Eden.Selectors.processResults(statements, o);
+					cb(res);
+				},
+				error: function() {
+					cb([]);
+				}
+			});
 		} else {
 			//Then need to do a remote search
 			Eden.DB.searchSelector(s, (o === undefined) ? "source" : o, function(stats) {
@@ -478,4 +494,25 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 	if (cb) cb(statements);
 	return statements;
 }
+
+
+Eden.Selectors.execute = function(selector, cb) {
+	Eden.Selectors.query(selector, undefined, undefined, false, function(stats) {
+		function doStat(i) {
+			var p = stats[i];
+			while (p.parent) p = p.parent;
+			p.base.executeStatement(stats[i], -1, Symbol.localJSAgent, function() {
+				i++;
+				if (i < stats.length) doStat(i);
+				else if (cb) cb();
+			});
+		}
+		if (stats && stats.length > 0) {
+			doStat(0);
+		} else {
+			if (cb) cb();
+		}
+	});
+}
+
 

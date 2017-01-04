@@ -6,14 +6,9 @@ Eden.AST.prototype.pREQUIRE = function() {
 	var req = new Eden.AST.Require();
 	var express = this.pEXPRESSION();
 	req.setExpression(express);
+	this.warnings.push(new Eden.SyntaxWarning(this, req, Eden.SyntaxWarning.DEPRECATED, "require."));
 	return req;
 }
-
-
-
-
-
-
 
 
 
@@ -30,41 +25,14 @@ Eden.AST.prototype.pREQUIRE = function() {
 Eden.AST.prototype.pIMPORT = function() {
 	var imp = new Eden.AST.Import();
 
-	var path = this.pAGENTPATH();
-	if (path == "_ERROR_") {
+	this.warnings.push(new Eden.SyntaxWarning(this, imp, Eden.SyntaxWarning.DEPRECATED, "import. Use 'do' instead."));
+
+	var path = this.pCODESELECTOR();
+	if (path.errors.length > 0) {
 		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTPATH));
 		return imp;
 	}
-
-	// Check for a version tag
-	if (this.token == "@") {
-		this.next();
-		if (this.token == "OBSERVABLE" || this.token == "NUMBER") {
-			imp.setTag(this.data.value);
-		} else {
-			imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTTAG));
-			return imp;
-		}
-		this.next();
-	}
-
-	if (this.token != ";" && this.token != "OBSERVABLE" && this.token != "local") {
-		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
-		return imp;
-	}
-
-	while (this.token == "OBSERVABLE" || this.token == "local") {
-		if (Language.importoptions[this.data.value]) {
-			if (imp.addOption(this.data.value) == false) {
-				imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTCOMB));
-				return imp;
-			}
-		} else {
-			imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTOPTION));
-			return imp;
-		}
-		this.next();
-	}
+	imp.setPath(path);
 
 	if (this.token != ";") {
 		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
@@ -72,7 +40,6 @@ Eden.AST.prototype.pIMPORT = function() {
 	}
 	this.next();
 
-	imp.setPath(path);
 	return imp;
 }
 

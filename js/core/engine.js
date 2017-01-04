@@ -44,7 +44,12 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 				yield 0;
 			}
 		} else if (statements[i].type == "import") {
-			yield statements[i];
+			if (statements[i].statements === undefined) {
+				statements[i].selector = (statements[i].path) ? statements[i].path.execute(ctx, base, scope, agent) + ">" : undefined;
+				yield statements[i];
+				statements.splice.apply(statements, [i, 1].concat(statements[i].statements));
+				i--;
+			}
 		} else if (statements[i].type == "do") {
 			statements[i].executed = 1;
 			statements[i].selector = (statements[i].name) ? statements[i].name.execute(ctx, base, scope, agent) : undefined;
@@ -133,25 +138,23 @@ function runEdenAction(source, action, cb) {
 			// Need to do an import and block until done.
 			} else if (delay.value.type == "import") {
 				delay.value.executed = 1;
-				if (eden.peer) eden.peer.imports(source, delay.value.path, delay.value.tag, delay.value.options);
+				//if (eden.peer) eden.peer.imports(source, delay.value.path, delay.value.tag, delay.value.options);
 
-				Eden.Agent.importAgent(delay.value.path, delay.value.tag, delay.value.options, function(ag) {
-					if (ag) {
-						var already = false;
-						// Check to see if already imported to local scope...
-						for (var i=0; i<me.imports.length; i++) {
-							if (me.imports[i] === ag) {
-								already = true;
-								break;
-							}
-						}
-						// If not, import it.
-						if (!already) me.imports.push(ag);
+				console.log("IMPORT",delay.value.selector);
+
+				Eden.Selectors.query(delay.value.selector, undefined, delay.value.parent, true, function(stats) {
+					if (stats === undefined) {
+						var err = new Eden.RuntimeError(me, Eden.RuntimeError.UNKNOWN, delay.value, "Selector '"+delay.value.selector+"' has no results");
+						err.line = delay.value.line;
+						delay.value.errors.push(err);
+						delay.value.statements = [];
+					} else {
+						delay.value.statements = stats;
 					}
-
 					// Continue execution.
 					runEdenAction.call(me,source, action, cb);
 				});
+
 			// Call another action and block until done
 			} else if (delay.value.type == "do") {
 				var stats;

@@ -144,7 +144,7 @@ function EdenScriptGutter(parent, infob) {
 			}
 		} else {
 			if (me.ast.lines[line]) {
-				/*var lines = me.ast.getBlockLines(line);
+				var lines = me.ast.getBlockLines(line);
 				var avgline = Math.floor((lines[1] - lines[0]) / 2) + lines[0];
 
 				if (me.lines[line].live) {
@@ -154,7 +154,7 @@ function EdenScriptGutter(parent, infob) {
 					if (!shiftdown) changeClass(me.gutter.childNodes[avgline], "play", true);
 				}
 
-				if (lines[0] < lines[1]) me.showBrace(lines[0],lines[1]);
+				/*if (lines[0] < lines[1]) me.showBrace(lines[0],lines[1]);
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					changeClass(me.gutter.childNodes[i], "hover", true);
 				}*/
@@ -346,7 +346,7 @@ EdenScriptGutter.prototype.showBrace = function(start, end) {
 	this.brace.style.top = "" + (start * 20 + 20) + "px";
 	var height = ((end - start + 1) * 20);
 	this.brace.setAttribute("height", "" + height);
-	this.bracepath.setAttribute("d", makeCurlyBrace(20,4,20,height-4,20,0.6));
+	this.bracepath.setAttribute("d", makeCurlyBrace(20,4,20,height-4,20,0.52));
 }
 
 EdenScriptGutter.prototype.hideBrace = function() {
@@ -369,27 +369,23 @@ EdenScriptGutter.prototype.selectLine = function(lineno, notcurrent) {
 
 		var sellines = this.ast.getBlockLines(this.curline);
 		var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
-		changeClass(this.gutter.childNodes[avgline],"play",false);
-		changeClass(this.gutter.childNodes[avgline],"current",false);
+		if (!notcurrent) {
+			changeClass(this.gutter.childNodes[avgline],"play",false);
+			changeClass(this.gutter.childNodes[avgline],"current",false);
+		}
 	}
 	this.curline = lineno-1;
 	var sellines = this.ast.getBlockLines(lineno-1);
-	if (this.ast.lines[lineno-1] && this.ast.lines[lineno-1].executed == 0) {
-		var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
-		changeClass(this.gutter.childNodes[avgline], "play", "true");
-		if (!notcurrent) changeClass(this.gutter.childNodes[avgline], "current", "true");
-	}
+
 	if (sellines[0] < sellines[1]) {
 		this.showBrace(sellines[0], sellines[1]);
-
-		/*changeClass(this.gutter.childNodes[sellines[0]],"first",true);
-		changeClass(this.gutter.childNodes[sellines[1]],"last",true);
-		for (var i=sellines[0]; i<=sellines[1]; i++) {
-			changeClass(this.gutter.childNodes[i],"current",true);
-			if (i == this.curline && this.ast.lines[i] && this.ast.lines[i].executed == 0) changeClass(this.gutter.childNodes[i],"play",true);
-		}*/
 	} else {
 		this.hideBrace();
+		if (this.ast.lines[lineno-1] && this.ast.lines[lineno-1].executed == 0) {
+			var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
+			changeClass(this.gutter.childNodes[avgline], "play", "true");
+			if (!notcurrent) changeClass(this.gutter.childNodes[avgline], "current", "true");
+		}
 	}
 }
 

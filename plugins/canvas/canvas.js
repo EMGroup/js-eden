@@ -1545,7 +1545,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if (success) success();
 	});*/
 
-	Eden.Agent.importAgent("plugins/canvas", "default", ["enabled"], function() {
+	/*Eden.Agent.importAgent("plugins/canvas", "default", ["enabled"], function() {
+		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
+		if (success) success();
+	});*/
+
+	Eden.Selectors.execute("plugins/canvas/canvas", function() {
 		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
 		if (success) success();
 	});

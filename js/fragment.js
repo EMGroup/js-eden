@@ -295,6 +295,8 @@ Eden.Fragment.prototype.setSource = function(src) {
 	// Build a new AST
 	this.ast = new Eden.AST(src, undefined, this);
 
+	// TODO Transfer execution/when status...
+
 	if (this.ast.script.errors.length == 0) {
 		clearTimeout(this.autosavetimer);
 		this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Fragment.AUTOSAVE_INTERVAL);

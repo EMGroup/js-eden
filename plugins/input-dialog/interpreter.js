@@ -756,21 +756,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function onScratchSearch(e) {
 			var q = e.target.value;
 			Eden.Selectors.query(q,"innersource", undefined, false, function(res) {
-				intextarea.value = res.join("\n");
-				tab_frags[curtab].setSourceInitial(intextarea.value);
-				scriptast = tab_frags[curtab].ast;
-				highlightContent(scriptast, -1, 0);
+				scriptarea.intextarea.value = res.join("\n");
+				tab_frags[curtab].setSourceInitial(scriptarea.intextarea.value);
+				//scriptast = tab_frags[curtab].ast;
+				//highlightContent(scriptast, -1, 0);
 				//intextarea.focus();
 				//checkScroll();
 
-				//setTitle(tab_frags[curtab].title);
-
-				gutter.setBaseAST(scriptast);
-
-				readonly = false;
-				// The readonly class changes colour scheme
-				changeClass(inputhider, "readonly", false);
-				outdiv.contentEditable = true;
+				scriptarea.highlighter.ast = scriptarea.fragment.ast;
+				scriptarea.updateCachedHighlight();
 			});
 		}
 

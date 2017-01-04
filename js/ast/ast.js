@@ -70,6 +70,8 @@ Eden.AST = function(code, imports, origin, noparse) {
 	this.imports = (imports) ? imports : [];
 	this.origin = origin;		// The agent owner of this script
 	this.prevprevpos = 0;
+	this.errors = [];
+	this.warnings = [];
 
 	if (!origin) console.error("NO ORIGIN", code);
 
@@ -89,6 +91,7 @@ Eden.AST = function(code, imports, origin, noparse) {
 		this.script.name = origin.name;
 		this.script.setSource(0,code.length, code);
 		this.script.doxyComment = this.mainDoxyComment;
+		this.errors = this.script.errors;
 	}
 }
 
