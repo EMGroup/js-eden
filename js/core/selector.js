@@ -63,9 +63,21 @@ Eden.Selectors.buildScriptTree = function(scripts) {
 }
 
 Eden.Selectors.getID = function(stat) {
+	if (eden.project && eden.project.ast.script === stat) {
+		return stat.name;
+	} else {
+		return this._getID(stat);
+	}
+}
+
+Eden.Selectors._getID = function(stat) {
 	var res;
 	if (stat.type == "script" && stat.name) {
-		res = "."+stat.name;
+		if (stat.parent || stat.base.origin !== eden.project) {
+			res = "."+stat.name;
+		} else {
+			res = "";
+		}
 	} else if (stat.parent) {
 		var children = Eden.Selectors.getChildren([stat.parent], false);
 		for (var i=0; i<children.length; i++) {
@@ -79,9 +91,9 @@ Eden.Selectors.getID = function(stat) {
 	}
 
 	if (stat.parent) {
-		res = Eden.Selectors.getID(stat.parent)+res;
+		res = Eden.Selectors._getID(stat.parent)+res;
 	} else {
-		if (res.charAt(0) == ".") res = res.substring(1);
+		//if (res.charAt(0) == ".") res = res.substring(1);
 	}
 
 	return res;

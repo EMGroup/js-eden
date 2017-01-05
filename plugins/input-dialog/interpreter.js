@@ -216,20 +216,33 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				//for (var i=0; i<tab_frags.length; i++) {
 				//	tab_frags[i].unlock();
 				//}
-				tab_queries = value;
+				var oldqs = tab_queries;
+				tab_queries = edenCopy(value);
 				var oldfrags = tab_frags;
+
+				var removed = oldfrags.filter(function(e) {
+					return value.indexOf(e.selector) == -1;
+				});
+
+				for (var i=0; i<removed.length; i++) {
+					removed[i].unlock();
+					console.log("REMOVE FRAG",removed[i].selector);
+				}
 
 				//console.log("OLDFRAGS",oldfrags);
 
 				tab_frags = [];
 				for (var i=0; i<value.length; i++) {
-					if (oldfrags.length > i && oldfrags[i].selector == value[i]) {
-						tab_frags.push(oldfrags[i]);
+					var oldix = oldqs.indexOf(value[i]);
+					console.log("OLDIX",oldix);
+					if (oldix >= 0) {
+						tab_frags.push(oldfrags[oldix]);
 					} else {
 						tab_frags.push(new Eden.Fragment(value[i]));
-						if (oldfrags.length > i) oldfrags[i].unlock();
 					}
 				}
+
+				console.log("FRAGS",oldqs,value);
 
 				curChanged(curSym, curSym.value());
 			}
@@ -799,9 +812,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function onBrowseClick(e) {
 			var path = e.currentTarget.getAttribute("data-path");
 			var tabs = tabsSym.value();
-			tabs.push(path);
-			tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
-			curSym.assign(tabs.length-1, eden.root.scope, Symbol.localJSAgent);
+			var ix = tabs.indexOf(path);
+			if (ix == -1) {
+				tabs.push(path);
+				tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
+				curSym.assign(tabs.length-1, eden.root.scope, Symbol.localJSAgent);
+			} else {
+				curSym.assign(ix, eden.root.scope, Symbol.localJSAgent);
+			}
 		}
 
 
