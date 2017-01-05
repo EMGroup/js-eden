@@ -55,6 +55,9 @@ var Language = {
 
 	keywords: {
 		"func": "func",
+		"function": "function",
+		"oracle": "oracle",
+		"handle": "handle",
 		"proc": "proc",
 		"auto": "auto",
 		"para": "para",
@@ -75,7 +78,7 @@ var Language = {
 		"return": "return",
 		"when": "when",
 		"wait": "wait",
-		"include": "include",
+		//"include": "include",
 		"import": "import",
 		"insert": "insert",
 		"append": "append",

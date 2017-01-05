@@ -4,8 +4,8 @@
 	tab-size: 4;
 	/*margin: 5px;*/
 	position: absolute;
-	top: 35px;
-	bottom: 30px;
+	top: 0px;
+	bottom: 0;
 	left: 0;
 	right: 0;
 	border-color: #719ECE;
@@ -13,8 +13,8 @@
 	color: #2b4957;/*#233b46;*/
 	/*padding-top: 8px;
 	padding-left: 5px;*/
-	background-color: #f5f5f5;
-	overflow: auto;
+	background-color: #e5e5e5;
+	/*overflow: auto;*/
 	-webkit-font-smoothing: antialiased;
 	-webkit-transform: translate3d(0,0,0);
 }
@@ -76,7 +76,7 @@ div.agent-tabs {
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 35px;
+	height: 30px;
 	background-color: #cecece;
 	box-sizing: border-box;
 	border-bottom: 1px solid #719ECE;
@@ -86,7 +86,7 @@ div.agent-tabs {
 
 span.tab-icon {
 	font-family: "FontAwesome";
-	font-size: 10pt;
+	font-size: 12pt;
 	margin-right: 10px;
 	font-weight: normal;
 }
@@ -108,11 +108,11 @@ span.tab-icon.noagent {
 div.agent-tab-container {
 	position: absolute;
 	display: flex;
-	flex-wrap: wrap;
+	/*flex-wrap: wrap;*/
 	left: 30px;
 	right: 30px;
 	top: 0;
-	height: 35px;
+	height: 30px;
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
@@ -123,8 +123,8 @@ div.agent-tableft {
 	left: 10px;
 	top: 0px;
 	width: 20px;
-	line-height: 35px;
-	height: 35px;
+	line-height: 30px;
+	height: 30px;
 	cursor: pointer;
 }
 
@@ -144,8 +144,8 @@ div.agent-tabright {
 	right: 10px;
 	top: 0px;
 	width: 20px;
-	line-height: 35px;
-	height: 35px;
+	line-height: 30px;
+	height: 30px;
 	cursor: pointer;
 	text-align: right;
 }
@@ -165,14 +165,14 @@ div.agent-newtab {
 	margin-left: 20px;
 	margin-right: 10px;
 	width: 20px;
-	line-height: 35px;
-	height: 35px;
+	line-height: 30px;
+	height: 30px;
 	cursor: pointer;
 	color: #666;
 }
 
 div.agent-newtab:after {
-	content: "\f234";
+	content: "\f067";
 	font-family: "FontAwesome";
 	font-size: 14pt;
 	font-weight: normal;
@@ -184,10 +184,10 @@ div.agent-newtab:hover {
 
 div.agent-tab {
 	/*float: left;*/
-	flex-grow: 1;
+	flex-shrink: 0;
 	/*width: 150px;*/
-	padding-left: 15px;
-	padding-right: 15px;
+	padding-left: 25px;
+	padding-right: 25px;
 	height: 100%;
 	margin-left: 10px;
 	font-family: Verdana,Arial,sans-serif;
@@ -197,13 +197,17 @@ div.agent-tab {
 	opacity: 0.70;
 	text-align: center;
 	font-weight: bold;
-	line-height: 35px;
+	line-height: 30px;
 	border-left: 1px solid transparent;
 	border-right: 1px solid transparent;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
 	-webkit-font-smoothing: antialiased;
 	font-smoothing: antialiased;
 	cursor: pointer;
 	overflow: hidden;
+	display: flex;
+	line-height: 30px;
 }
 
 div.agent-tab-notcurrent:hover {
@@ -216,13 +220,14 @@ div.agent-tab-notcurrent:hover {
 }
 
 div.agent-tab-current {
-	background-color: #dbdbdb;
+	background-color: white;
 	box-sizing: border-box;
 	border-bottom: 3px solid #719ECE;
 	border-left: 1px solid #aaa;
 	border-right: 1px solid #aaa;
 	color: #222;
 	opacity: 1.0;
+	z-index: 10;
 }
 
 div.agent-tab-current:hover {
@@ -241,10 +246,10 @@ div.agent-tab-current:hover {
 	font-style: normal;
 }
 
-/*@keyframes blinking {
+@keyframes blinking {
 	from, to { background-color: black }
 	50% { background-color: transparent }
-}*/
+}
 
 span.fake-caret {
 	position: absolute;
@@ -254,10 +259,12 @@ span.fake-caret {
 	background: #777;
 	margin: 0;
 	padding: 0;
-	/*animation-name: blinking;
+	animation-name: blinking;
 	animation-duration: 1s;
 	animation-iteration-count: infinite;
-	transform: translateZ(0);*/
+	animation-timing-function: step-end;
+	/*transform: translateZ(0);
+	animation: 1s blink step-end infinite;*/
 }
 
 span.fake-blur-caret {
@@ -397,7 +404,7 @@ div.control-bar {
 }
 
 textarea.hidden-textarea {
-	position: absolute;
+	position: fixed;
 	white-space: pre;
 	word-wrap: normal;
 	overflow: auto;
@@ -411,15 +418,15 @@ textarea.hidden-textarea {
 div.outputcontent {
 	display: inline-block;
 	/* width: 100%;*/
-	min-width: calc(100% - 22px);
-	min-height: calc(100% - 1px);
+	min-width: calc(100% - 28px);
+	min-height: calc(100% - 3px);
 	resize: none;
-	margin-left: 22px;
+	margin-left: 28px;
 	border-left-width: 1px;
 	border-left-style: solid;
-	border-left-color: #e5e5e5;
+	border-left-color: #719ECE;
 	box-sizing: border-box;
-	padding-left: 8px;
+	padding-left: 15px;
 	padding-top: 15px;
 	padding-right: 1px;
 	/*padding: 4px;*/
@@ -431,6 +438,7 @@ div.outputcontent {
 	/*overflow: auto;*/
 	/*background: #f5f5f5;*/
 	background: white;
+	box-shadow: 0 0 8px #aaa;
 }
 
 div.readonly {
@@ -469,17 +477,19 @@ div.input-dialog .ui-dialog-content {
 }
 
 div.inputhider {
-	overflow: hidden;
+	overflow: auto;
 	position: absolute;
 	left: 0;
 	right: 0;
-	top: 0;
-	bottom: 0;
+	top: 30px;
+	bottom: 30px;
+	background: #e5e5e5;
+	box-shadow: 0 0 8px #888;
 }
 
 div.input-dialog .ui-dialog-titlebar {
-	height: 30px;
-	text-align: center;
+	/*height: 30px;
+	text-align: center;*/
 	border-top-width: 0;
 	border-left-width: 0;
 	border-right-width: 0;
@@ -489,34 +499,39 @@ div.input-dialog .ui-dialog-titlebar {
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
 	box-shadow: 0 0 10px #4a6887;
-	background: -webkit-linear-gradient(#fafafa, #cccccc);
+	/*background: -webkit-linear-gradient(#fafafa, #cccccc);
 	background: -o-linear-gradient(#fafafa, #cccccc);
 	background: -moz-linear-gradient(#fafafa, #cccccc); 
-	background: linear-gradient(#fafafa, #cccccc);
+	background: linear-gradient(#fafafa, #cccccc);*/
 	z-index: 6;
 	/*background: #416d77;*/
+	padding: 0;
+	line-height: 30px;
+	padding-left: 20px;
 
 }
 
 div.input-dialog .ui-dialog-title {
-	float: none;
+	/*float: left;*/
 	-webkit-font-smoothing: antialiased;
 	font-smoothing: antialiased;
-	margin-left: auto;
+	/*margin-left: auto;
 	margin-right: auto;
 	margin-top: 5px;
-	display: table;
+	display: table;*/
 	/*color: white;*/
+	width: initial;
+	margin-right: 10px;
 }
 
 div.input-dialog .ui-dialog-subtitle {
-	float: none;
+	float: left;
 	-webkit-font-smoothing: antialiased;
 	font-smoothing: antialiased;
-	margin-left: auto;
+	/*margin-left: auto;
 	margin-right: auto;
 	margin-top: 0;
-	display: table;
+	display: table;*/
 	font-weight: normal;
 	color: #777;
 }

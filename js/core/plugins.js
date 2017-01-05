@@ -163,13 +163,13 @@
 			maximizable: true,
 			beforeMinimize: function (event) {
 				$(event.target).parent().removeClass("window-activated");
-				var hide = edenUI.getOptionValue("optHideOnMinimize");
-				if (hide == "true") {
+				//var hide = edenUI.getOptionValue("optHideOnMinimize");
+				//if (hide == "true") {
 					me.hideView(name);
 					return false;
-				} else {
-					return true;
-				}
+				//} else {
+				//	return true;
+				//}
 			},
 			minimize: function () {
 				var dialogMin = dialog(name).data('dialog-extend-minimize-controls');

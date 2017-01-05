@@ -46,6 +46,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 		} else if (statements[i].type == "import") {
 			yield statements[i];
 		} else if (statements[i].type == "do") {
+			statements[i].executed = 1;
 			statements[i].selector = (statements[i].name) ? statements[i].name.execute(ctx, base, scope, agent) : undefined;
 			statements[i].params = statements[i].getParameters(undefined, base, scope);
 			statements[i].nscope = (statements[i].scope) ? statements[i].getScope(ctx)(eden.root,scope) : scope;
@@ -155,7 +156,7 @@ function runEdenAction(source, action, cb) {
 				// Note that getActionByName can return entire agents!
 				var stats = (delay.value.name) ? Eden.Query.querySelector(delay.value.selector, undefined, me) : delay.value.script.statements;
 				//var script = (delay.value.name) ? me.getActionByName(delay.value.name) : delay.value.script;
-				console.log("STATS",stats, delay.value.selector);
+				//console.log("STATS",stats, delay.value.selector);
 				if (stats && stats.length > 0) {
 					//var stats = script.statements;
 					// Params are deprecated.
@@ -212,6 +213,9 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 	if (Eden.AST.debug && (Eden.AST.debugstep || ( agent && agent.doDebug && agent.doDebug()))) {
 		if (Eden.AST.debug_begin_cb) Eden.AST.debug_begin_cb({base: this, agent: agent});
 	}
+
+	// Reset the dummy context;
+	Eden.AST.DummyContext.locals = undefined;
 
 	try {
 		var gen = this.executeGenerator([statement], Eden.AST.DummyContext ,this, eden.root.scope, agent);

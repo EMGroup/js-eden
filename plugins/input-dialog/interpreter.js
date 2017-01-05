@@ -215,11 +215,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	 * Common input window view constructor.
 	 */
 	this.createCommon = function (name, mtitle, code, embedded) {
-		var $dialogContents = $('<div class="inputdialogcontent"><div class="inputhider"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="agent-tabs"></div><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
+		var $dialogContents = $('<div class="inputdialogcontent"><div class="agent-tabs"></div><div class="inputhider"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="inputCodeArea"><div class="eden_suggestions"></div><div spellcheck="false" tabindex="2" contenteditable class="outputcontent"></div></div></div><div class="info-bar"></div><div class="outputbox"></div></div></div>')
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
 		var $codearea = $dialogContents.find('.inputCodeArea');
 		var codearea = $codearea.get(0);
+		var inputhider = $dialogContents.find('.inputhider').get(0);
 		var intextarea = $dialogContents.find('.hidden-textarea').get(0);
 		var outdiv = $dialogContents.find('.outputcontent').get(0);
 		var infobox = $dialogContents.find('.info-bar').get(0);
@@ -339,10 +340,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			return Eden.Agent.agents[name] && Eden.Agent.agents[name].executed;
 		}, stopTab);
 		tabcm.addSeparator();
-		tabcm.addItem("&#xf24d;",Language.ui.input_window.clone, false);
+		//tabcm.addItem("&#xf24d;",Language.ui.input_window.clone, false);
 		tabcm.addItem("&#xf021;",Language.ui.input_window.reload, true, reloadAgent);
-		tabcm.addItem("&#xf093;",Language.ui.input_window.upload, true, uploadAgent);
-		tabcm.addItem("&#xf1e0;",Language.ui.input_window.share, true, shareAgentTab);
+		tabcm.addItem("&#xf093;",Language.ui.input_window.upload, function() { return Eden.DB.isLoggedIn(); }, uploadAgent);
+		tabcm.addItem("&#xf1e0;",Language.ui.input_window.share, function() { return Eden.DB.isLoggedIn(); }, shareAgentTab);
 		tabcm.addItem("&#xf21b;",Language.ui.input_window.hide,true, hideTab);
 
 
@@ -524,9 +525,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				iconclass = "tab-icon noagent";
 			}
 
+			var icon = (name == "view/script/input") ? "&#xf0c3;" : "&#xf1ae;";
+
 
 			tab.className = classname;
-			tab.innerHTML = "<span class='"+iconclass+"'>&#xf007;</span>"+tabname;
+			tab.innerHTML = "<span class='"+iconclass+"'>"+icon+"</span>"+tabname;
 			tab.draggable = true;
 			tab.setAttribute("data-name", name);
 			/*if (tabs.childNodes.length < tabscrollix) {
@@ -829,9 +832,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function toggleTabs(sym, value) {
 			if (value) {
-				codearea.style.top = "35px";
+				inputhider.style.top = "30px";
 			} else {
-				codearea.style.top = "0";
+				inputhider.style.top = "0";
 			}
 		}
 
@@ -840,10 +843,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function toggleButtons(sym, value) {
 			if (value) {
 				buttonbar.style.display = "inherit";
-				codearea.style.bottom = "30px";
+				inputhider.style.bottom = "30px";
 			} else {
 				buttonbar.style.display = "none";
-				codearea.style.bottom = "0";
+				inputhider.style.bottom = "0";
 			}
 		}
 
@@ -851,7 +854,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function zoom(sym, value) {
 			if (value === undefined || value == 0) {
-				$dialogContents.find(".outputcontent, .eden-gutter").css("transform", "");
+				$dialogContents.find(".inputCodeArea").css("transform", "");
 			} else {
 				var scalefactor;
 				var translatefactor;
@@ -865,8 +868,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					translatefactor = (((scalefactor-1) / 2) * 100).toFixed(2);
 					offsetfactor = 20 * (scalefactor - 1);
 				}
-				$dialogContents.find(".outputcontent").css("transform", "translate("+translatefactor+"%,"+translatefactor+"%) translate("+offsetfactor+"px) scale("+scalefactor+","+scalefactor+")");
-				$dialogContents.find(".eden-gutter").css("transform", "translate("+translatefactor+"%,"+translatefactor+"%) scale("+scalefactor+","+scalefactor+")");
+				$dialogContents.find(".inputCodeArea").css("transform", "translate("+translatefactor+"%,"+translatefactor+"%) scale("+scalefactor+","+scalefactor+")");
+				//$dialogContents.find(".eden-gutter").css("transform", "translate("+translatefactor+"%,"+translatefactor+"%) scale("+scalefactor+","+scalefactor+")");
 			}
 		}
 
@@ -1068,7 +1071,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 			if (scriptagent === undefined) return;
 			gutter.generate(scriptagent.ast, -1);
 			scriptagent.clearExecutedState();
-		}, 50);
+		}, 200);
 
 
 		buildMenu();
@@ -1421,8 +1424,11 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		 * post process this to allow for extra warnings and number dragging.
 		 */
 		function highlightContent(ast, lineno, position) {
+			//var oldscrolltop = inputhider.scrollTop;
 			highlighter.highlight(ast, lineno, position);
 			gutter.generate(ast,lineno);
+			//inputhider.scrollTop = oldscrolltop;
+			//console.log("SCROLLTOP",oldscrolltop);
 
 			// Process the scripts main doxy comment for changes.
 			if (ast.mainDoxyComment) { // && (lineno == -1 || (lineno >= 1 && lineno <= ast.mainDoxyComment.endline))) {
@@ -1803,7 +1809,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 					} else if (e.keyCode == 13 || (e.keyCode == 8 && intextarea.value.charCodeAt(intextarea.selectionStart-1) == 10)) {
 						// Adding or removing lines requires a full re-highlight at present
 						refreshentire = true;
-						console.log("ADD/REMOVE LINE REFRESH");
+						//console.log("ADD/REMOVE LINE REFRESH");
 					}
 
 				} else if (e.ctrlKey || e.metaKey) {
@@ -1880,6 +1886,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 									e.keyCode == 35)) {	// End key
 
 					updateLineCachedHighlight();
+					gutter.selectLine(currentlineno);
 
 					// Force a scroll for home and end AFTER key press...
 					if (e.keyCode == 36 || e.keyCode == 35) {
@@ -1979,6 +1986,32 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 
 
 
+		function onOutputMouseDown(e) {
+			setTimeout(function() {
+				// To prevent false cursor movement when dragging numbers...
+				if (document.activeElement === outdiv) {
+					var end = getCaretCharacterOffsetWithin(outdiv);
+					var start = getStartCaretCharacterOffsetWithin(outdiv);
+					//if (start != end) {
+						// Fix to overcome current line highlight bug on mouse select.
+					//	refreshentire = true;
+					//} else {
+						// Move caret to clicked location
+					//	intextarea.focus();
+						intextarea.selectionEnd = end;
+						intextarea.selectionStart = end;
+						var curline = getLineNumber(intextarea);
+						gutter.selectLine(curline);
+					//	if (highlighter.ast) {		
+					//		highlighter.highlight(highlighter.ast, curline, end);
+					//		updateLineCachedHighlight();
+					//	}
+						//checkScroll();
+					//}
+				}
+			},0);
+		}
+
 		/**
 		 * Clicking on the highlighted script needs to move the cursor position.
 		 * Unless a selection is being made, in which case keep the focus on
@@ -2057,16 +2090,19 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 						refreshentire = true;
 					} else {
 						// Move caret to clicked location
-						var curline = currentlineno;
 						intextarea.focus();
 						intextarea.selectionEnd = end;
 						intextarea.selectionStart = end;
+						var curline = currentlineno;
+						//gutter.selectLine(curline);
 						if (highlighter.ast) {		
-							highlighter.highlight(highlighter.ast, curline, end);
+							//highlighter.highlight(highlighter.ast, curline, end);
 							updateLineCachedHighlight();
 						}
 						//checkScroll();
 					}
+				} else {
+
 				}
 			}
 		}
@@ -2369,6 +2405,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 		.on('blur', '.hidden-textarea', onTextBlur)
 		.on('focus', '.hidden-textarea', onTextFocus)
 		.on('mouseup', '.outputcontent', onOutputMouseUp)
+		.on('mousedown', '.outputcontent', onOutputMouseDown)
 		//.on('mouseenter','.eden-line', onEnterLine)
 		//.on('mouseleave','.eden-line', onLeaveLine)
 		.on('click', '.previous-input', onPrevious)
@@ -2465,7 +2502,7 @@ _view_"+name+"_zoom = "+Eden.edenCodeForValue(agent.state[obs_zoom])+";\n\
 				resizeStop: viewdata.resize
 			});
 
-		viewdata.confirmClose = !("MenuBar" in edenUI.plugins);
+		viewdata.confirmClose = false;
 
 		return viewdata;
 	};

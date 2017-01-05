@@ -9,8 +9,14 @@ EdenUI.SearchBox = function(element) {
 		if (obs && obs != "") {
 			me.updateSymbolDetails($(e.currentTarget), obs);
 		} else if (script && script != "") {
-			Eden.Agent.importAgent(script, "default", ["noexec"], function() {
-				edenUI.gotoCode(script, -1);
+			Eden.Agent.importAgent(script, "default", ["noexec"], function(ag) {
+				// Now inspect doxy controls of script.
+				if (ag.ast.mainDoxyComment && ag.ast.mainDoxyComment.getControls()["@run"]) {
+					console.log("DOXY CONTROLS RUN");
+					ag.execute();
+				} else {
+					edenUI.gotoCode(script, -1);
+				}
 			});
 		}
 	});

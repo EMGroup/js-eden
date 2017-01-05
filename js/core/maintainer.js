@@ -74,7 +74,7 @@
 	 * Store  a set of overrides and a separate cache of alternative values
 	 * for all symbols depending upon those overrides.
 	 */
-	function Scope(context, parent, overrides, range, cause) {
+	function Scope(context, parent, overrides, range, cause, nobuild) {
 		this.parent = parent;
 		this.context = context;
 		this.cache = undefined;
@@ -82,8 +82,9 @@
 		this.cause = cause;
 		this.causecount = 0;
 		this.range = range;
+		this.isolate = false;
 
-		this.rebuild();
+		if (!nobuild) this.rebuild();
 	}
 
 	/**
@@ -92,7 +93,7 @@
 	 */
 	Scope.prototype.hasCause = function(cause) {
 		var scope = this;
-		var causename = "/"+cause;
+		var causename = cause;
 		while (scope) {
 			if (scope.cause.name == causename) return true;
 			scope = scope.parent;
@@ -103,7 +104,7 @@
 	Scope.prototype.baseCause = function() {
 		var scope = this;
 		while(scope.parent && scope.parent.parent) scope = scope.parent;
-		return scope.cause.name.slice(1);
+		return scope.cause.name;
 	}
 
 	Scope.prototype.allCauses = function() {
@@ -132,9 +133,9 @@
 	}
 
 	Scope.prototype.primaryCause = function() {
-		if (this.cause && this.cause.name == "/null") {
+		if (this.cause && this.cause.name == "null") {
 			if (this.parent && this.parent.cause) {
-				return this.parent.cause.name.slice(1);
+				return this.parent.cause.name;
 			}
 		}
 		return "null";
@@ -152,11 +153,12 @@
 
 	Scope.prototype.rebuild = function() {
 		if (this.cache !== undefined) return;
+		//console.log("REBUILD");
 		this.cache = {};
 
-		this.add("/cause");
-		this.add("/has");
-		this.add("/from");
+		this.add("cause");
+		this.add("has");
+		this.add("from");
 
 		/* Process the overrides */
 		for (var i = 0; i < this.overrides.length; i++) {
@@ -191,6 +193,8 @@
 	}
 
 	Scope.prototype.clone = function() {
+		// TODO, be more selective on use of clone, currently disabled.
+		return this;
 		var nover = [];
 
 		// Copy the overrides
@@ -201,13 +205,23 @@
 		}
 
 		// Make a new exact copy of this scope
-		var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause);
+		var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause, true);
+
+		// Copy the cache
+		var ncache = {};
+		for (var x in this.cache) {
+			//if (this.cache[x].up_to_date) {
+				ncache[x] = new ScopeCache(false, this.cache[x].value, nscope, this.cache[x].override);
+			//}
+		}
+		nscope.cache = ncache;
+		nscope.refresh();
 
 		return nscope;
 	}
 
 	Scope.prototype.lookup = function(name) {
-		if (this.cache === undefined) this.rebuild();
+		//if (this.cache === undefined) return;
 
 		var symcache = this.cache[name];
 		if (symcache) {
@@ -215,15 +229,74 @@
 		} else {
 			if (this.parent) {
 				var inherit = this.parent.lookup(name);
-				this.cache[name] = new ScopeCache(inherit.override, inherit.value, inherit.scope, inherit.override);
-				return this.cache[name];
+				//this.cache[name] = new ScopeCache(inherit.override, inherit.value, inherit.scope, inherit.override);
 				//return this.cache[name];
+				return inherit;
 			} else {
 				//console.log("Symbol without cache: " + name);
 				this.cache[name] = new ScopeCache(true, undefined, undefined, false);
 				return this.cache[name];
 			}
 		}
+	}
+
+	Scope.prototype.value = function(name) {
+		var symcache = this.cache[name];
+		if (symcache) {
+			if (symcache.up_to_date) return symcache.value;
+			return this.context.lookup(name).value(this);
+		}
+		return this.context.lookup(name).value(this.parent);
+	}
+
+	Scope.prototype.assign = function(name, value, agent) {
+		if (this.isolate) {
+			if (this.cache[name] === undefined) this.cache[name] = new ScopeCache(true, value, this, true);
+			else {
+				this.cache[name].up_to_date = true;
+				this.cache[name].override = true;
+				this.cache[name].value = value;
+				this.cache[name].scope = this;
+			}
+		} else {
+			this.context.lookup(name).assign(value, this, agent);
+		}
+	}
+
+	Scope.prototype.mutate = function(name, func, agent) {
+		this.context.lookup(name).mutate(this, func, agent);
+	}
+
+	Scope.prototype.listAssign = function(name, value, agent, ptn, indices) {
+		this.context.lookup(name).listAssign(value, this, agent, false, indices);
+	}
+
+	Scope.prototype.define = function(name, def, deps, agent) {
+		this.context.lookup(name).define(def, deps, agent);
+	}
+
+	Scope.prototype.boundValue = function(name) {
+		return this.context.lookup(name).boundValue(this);
+	}
+
+	Scope.prototype.scope = function(name) {
+		var symcache = this.cache[name];
+		if (symcache) {
+			if (symcache.up_to_date) return symcache.scope;
+		}
+		return this.context.lookup(name).boundValue(this).scope;
+	}
+
+	Scope.prototype.lookup2 = function(name) {
+		//if (this.cache === undefined) return;
+		if (this.isolate == false) return this.lookup(name);
+
+		var symcache = this.cache[name];
+		if (symcache === undefined) {
+			symcache = new ScopeCache(true, undefined, undefined, false);
+			this.cache[name] = symcache;
+		}
+		return symcache;
 	}
 
 	Scope.prototype.add = function(name) {
@@ -233,18 +306,17 @@
 	}
 
 	Scope.prototype.addOverride = function(override) {
-		this.updateOverride(override);
-		//if (this.context) {
-		//	var sym = this.context.lookup(override.name);
+		if (!this.updateOverride(override) && this.context) {
+			var sym = this.context.lookup(override.name);
 			//console.log(sym);
-		//	for (var d in sym.subscribers) {
-		//		this.updateSubscriber(d);
-		//	}
-		//}
+			for (var d in sym.subscribers) {
+				this.updateSubscriber(d);
+			}
+		}
 	}
 
 	Scope.prototype.updateOverride = function(override) {
-		var name = "/"+override.name;
+		var name = override.name;
 		var currentval;
 		var currentscope;
 
@@ -260,11 +332,13 @@
 
 		if (this.cache[name] === undefined) {
 			this.cache[name] = new ScopeCache( true, currentval, this, true);
+			return false;
 		} else {
 			this.cache[name].value = currentval;
 			this.cache[name].scope = this;
 			this.cache[name].up_to_date = true;
 			this.cache[name].override = true;
+			return true;
 		}
 	}
 
@@ -272,15 +346,15 @@
 		//console.log("Adding scope subscriber...: " + name);
 		if (this.cache[name] === undefined) {
 			this.cache[name] = new ScopeCache( false, undefined, this);
+			var sym = this.context.lookup(name);
+			for (var d in sym.subscribers) {
+				this.updateSubscriber(d);
+			}
 		} else {
 			this.cache[name].up_to_date = false;
 			this.cache[name].value = undefined;
 			this.cache[name].scope = this;
 		}
-		//var sym = this.context.lookup(name.substr(1));
-		//for (var d in sym.subscribers) {
-		//	this.updateSubscriber(d);
-		//}
 	}
 
 	Scope.prototype.first = function() {
@@ -298,9 +372,22 @@
 		return false;
 	}
 
+	Scope.prototype.reset = function() {
+		for (var o in this.cache) {
+			//if (this.cache[o].up_to_date)
+				this.cache[o].up_to_date = this.cache[o].override;
+			//else
+			//	delete this.cache[o];
+		}
+		this.refresh();
+	}
+
 	Scope.prototype.next = function() {
 		for (var o in this.cache) {
-			this.cache[o].up_to_date = this.cache[o].override;
+			//if (this.cache[o].up_to_date)
+				this.cache[o].up_to_date = this.cache[o].override;
+			//else
+			//	delete this.cache[o];
 		}
 		for (var i = this.overrides.length-1; i >= 0; i--) {
 			var over = this.overrides[i];
@@ -325,7 +412,7 @@
 					over.index = 1;
 					over.current = (isbound) ? over.start.value[0] : over.start[0];
 					//this.updateOverride(over);
-					this.refresh();
+					//this.refresh();
 					//this.cache = undefined; // FORCE REBUILD
 				}
 			} else {
@@ -347,7 +434,7 @@
 				} else {
 					over.current = over.start;
 					//this.updateOverride(over);
-					this.refresh();
+					//this.refresh();
 					//this.cache = undefined; // FORCE REBUILD
 				}
 			}
@@ -360,50 +447,6 @@
 		this.caches = [];
 	}
 
-	/*Scope.prototype.toString = function() {
-		var result = "{";
-		for (var a in this.cache) {
-			if (typeof this.cache[a].value != "object") {
-				result += a.slice(1) + ": " + this.context.lookup(a).value(this) + ",";
-			}
-		}
-		result += "}";
-		return result;
-	}*/
-
-	/*Scope.prototype.assign = function(name, value, modifying_agent, pushToNetwork) {
-		var data = this.lookup2("/" + name);
-
-		value = copy(value);
-
-		if (name === "autocalc") {
-			
-			if (value === true) {
-				value = 1;
-			} else if (value === false) {
-				value = 0;
-			}
-			data.context && data.context.autocalc(value === 1);
-		}
-
-		var sym = undefined;
-		if (data.context) {
-			sym = data.context.lookup(name);
-
-			if (pushToNetwork) {
-				eden.emit("beforeAssign", [sym, value, modifying_agent]);
-			}
-
-			sym.assigned(modifying_agent);
-		}
-
-		data.cache.value = value;
-		data.cache.up_to_date = true;
-
-		if (data.context) {
-			data.context.expireSymbol(sym);
-		}
-	}*/
 
 	/**
 	 * A maintainer of definitions
@@ -495,7 +538,7 @@
 	 */
 	Folder.prototype.lookup = function (name) {
 		if (this.symbols[name] === undefined) {
-			this.symbols[name] = new Symbol(this, this.name + name);
+			this.symbols[name] = new Symbol(this, name);
 			this.notifyGlobals(this.symbols[name], 1);
 		}
 		return this.symbols[name];
@@ -505,7 +548,7 @@
 		if (this.currentObservables.length == 0) {
 			return undefined;
 		} else {
-			return this.currentObservables[this.currentObservables.length - 1].name.slice(1);
+			return this.currentObservables[this.currentObservables.length - 1].name;
 		}
 	}
 
@@ -529,7 +572,7 @@
 	Folder.prototype.collectGarbage = function () {
 		for (var name in this.potentialGarbage) {
 			if (this.potentialGarbage[name].garbage) {
-				delete this.symbols[name.slice(1)];
+				delete this.symbols[name];
 			}
 		}
 		this.potentialGarbage = {};
@@ -655,7 +698,7 @@
 		var symbolNamesToForce = {};
 		for (var i = 0; i < this.needsExpire.length; i++) {
 			var sym = this.needsExpire[i];
-			sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger);
+			sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger, sym.needsGlobalNotify == Symbol.REDEFINED);
 			//sym.needsGlobalNotify = 2;
 		}
 		var expired = this.needsExpire;
@@ -667,7 +710,7 @@
 		var symbolsToForce = [];
 		for (var i = 0; i < symbolNamesArray.length; i++) {
 			// force re-eval
-			var sym = this.symbols[symbolNamesArray[i].slice(this.name.length)];
+			var sym = this.symbols[symbolNamesArray[i]];
 			sym.evaluateIfDependenciesExist();
 			sym.needsGlobalNotify = Symbol.EXPIRED;
 			symbolsToForce.push(sym);
@@ -785,7 +828,7 @@
 			for (var i = 0; i < obsToDelete.length; i++) {
 				var name;
 				if (obsToDelete[i] instanceof Symbol) {
-					name = obsToDelete[i].name.slice(1);
+					name = obsToDelete[i].name;
 					symbol = obsToDelete[i];
 				} else if (typeof(obsToDelete[i]) == "string") {
 					name = obsToDelete[i];
@@ -808,10 +851,10 @@
 				} else {
 					var referencedBy = [];
 					for (var dependency in symbol.subscribers) {
-						referencedBy.push(dependency.slice(1));
+						referencedBy.push(dependency);
 					}
 					for (var triggeredProc in symbol.observers) {
-						referencedBy.push(triggeredProc.slice(1));
+						referencedBy.push(triggeredProc);
 					}
 					references[name] = referencedBy;
 				}
@@ -842,10 +885,10 @@
 						symbol = root.symbols[name];
 						var referencedBy = [];
 						for (var dependency in symbol.subscribers) {
-							referencedBy.push(dependency.slice(1));
+							referencedBy.push(dependency);
 						}
 						for (var triggeredProc in symbol.observers) {
-							referencedBy.push(triggeredProc.slice(1));
+							referencedBy.push(triggeredProc);
 						}
 						references[name] = referencedBy;
 					//}
@@ -986,9 +1029,11 @@
 
 		this.definition = undefined;
 		this.eden_definition = undefined;
-		this.evalResolved = true;
+		this.def_scope = undefined;
+		//this.evalResolved = true;
 		this.extend = undefined;
 		this.needsGlobalNotify = 0;
+		this.has_evaled = false;
 
 		// need to keep track of who we subscribe to so
 		// that we can unsubscribe from them when our definition changes
@@ -1049,6 +1094,7 @@
 	 * generated in.
 	 */
 	Symbol.prototype.boundValue = function(scope, indices) {
+		//console.log("BOUNDVALUE",this.name);
 		var value = this.value(scope);
 		var cache = scope.lookup(this.name);
 
@@ -1130,6 +1176,7 @@
 		}
 		try {
 			cache.up_to_date = true;
+			this.has_evaled = true;
 			//NOTE: Don't do copy here, be clever about it.
 			//cache.value = copy(this.definition(this.context, scope));
 			cache.value = this.definition.call(this,this.context, scope, cache);
@@ -1141,7 +1188,7 @@
 				}
 			}
 
-			if (!this.evalResolved) {
+			/*if (!this.evalResolved) {
 				var replacedDef = this.eden_definition;
 				//Replace eval() in EDEN definition with the actual value.
 				var re = /\beval\(/;
@@ -1169,14 +1216,15 @@
 				}
 				this.eden_definition = replacedDef;
 				this.evalResolved = true;
-			}
+			}*/
 		} catch (e) {
 			if (e instanceof Eden.RuntimeError) {
 				Eden.Agent.emit("error", [this,e]);
 			}
 			//this.logError(e);
+			//console.error(e);
 			cache.value = undefined;
-			cache.up_to_date = false;
+			cache.up_to_date = true;
 		}
 		if (this.context) {
 			this.context.endEvaluation(this);
@@ -1253,7 +1301,7 @@
 			}
 		}
 		this.dynamicDependencyTable[position] = dependency;
-		return this.context.lookup(dependency);
+		return dependency; //this.context.lookup(dependency);
 	}
 
 	
@@ -1390,17 +1438,18 @@
 		this._setLastModifiedBy(modifying_agent);
 		this.definition = undefined;
 		this.needsGlobalNotify = Symbol.ASSIGNED;
+		this.has_evaled = true;
 
 		this.extend = undefined;
 
 		//if (this.context) {
-		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup(this.name);
+		var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup2(this.name);
 		// TODO Loop to base scope if not override
-		while (scope.parent && !cache.override) {
-			scope = scope.parent;
-			cache.value = value;
-			cache = scope.lookup(this.name);
-		}
+		//while (scope.parent && !cache.override) {
+		//	scope = scope.parent;
+		//	cache.value = value;
+		//	cache = scope.lookup(this.name);
+		//}
 
 		cache.value = value;
 		cache.up_to_date = true;
@@ -1452,7 +1501,7 @@
 	 */
 	Symbol.prototype.assignFunction = function (f, agent) {
 		this.assign(f, this.context.scope, agent);
-		this.eden_definition = "func " + this.name.slice(1);
+		this.eden_definition = "func " + this.name;
 		this.definition = function (context, scope) { return f; }
 	}
 
@@ -1507,7 +1556,7 @@
 	 *	i.e. &name
 	 */
 	Symbol.prototype.getEdenCode = function () {
-		return "&" + this.name.slice(1);
+		return "&" + this.name;
 	}
 	
 	Symbol.prototype.trigger = function () {
@@ -1550,7 +1599,7 @@
 	Symbol.prototype.fireJSObservers = function () {
 		for (var jsObserverName in this.jsObservers) {
 			try {
-				this.jsObservers[jsObserverName](this, this.cache.value);
+				this.jsObservers[jsObserverName](this, this.value());
 			} catch (error) {
 				//this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
 				var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.JSOBSERVER, undefined, "JavaScript observer '"+jsObserverName+"' failed: "+error);
@@ -1562,9 +1611,9 @@
 				} else {
 					debug = false;
 				}
-				if (debug) {
-					debugger;
-				}
+				//if (debug) {
+				//	debugger;
+				//}
 				//throw error;
 			}
 		}
@@ -1576,27 +1625,44 @@
 	 * this change
 	 * @param {Object.<string,Symbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
 	 */
-	Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire) {
-		if (this.cache.up_to_date) {
+	Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire, fullexpire) {
+		if (this.has_evaled) {
+
 			for (var observer_name in this.observers) {
 				actions_to_fire[observer_name] = this.observers[observer_name];
 			}
-		}
 
-		if (this.definition) {
-			this.cache.up_to_date = false;
-			symbols_to_force[this.name] = insertionIndex.value;
-			insertionIndex.value++;
-		}
 
-		this.needsGlobalNotify = Symbol.EXPIRED;
+			if (this.definition) {
+				// TODO, Also mark all active scopes for this symbol as out-of-date.
+				this.cache.up_to_date = false;
+				this.has_evaled = false;
+				symbols_to_force[this.name] = insertionIndex.value;
+				insertionIndex.value++;
 
-		// recursively mark out of date and collect
-		for (var subscriber_name in this.subscribers) {
-			var subscriber = this.subscribers[subscriber_name];
-			if (subscriber) {
-				subscriber.expire(symbols_to_force, insertionIndex, actions_to_fire);
+				// Need to rebuild the scope dependency path
+				if (fullexpire) {
+					//console.log("FULL EXPIRE",this.name);
+					this.def_scope = undefined;
+				} else {
+					//console.log("NORMAL EXPIRE",this.name);
+				}
+				//else if (this.def_scope) {
+				//	for (var i=0; i<this.def_scope.length; i++) this.def_scope[i].reset();
+				//}
 			}
+
+			this.needsGlobalNotify = Symbol.EXPIRED;
+
+			// recursively mark out of date and collect
+			for (var subscriber_name in this.subscribers) {
+				var subscriber = this.subscribers[subscriber_name];
+				if (subscriber) {
+					subscriber.expire(symbols_to_force, insertionIndex, actions_to_fire,fullexpire);
+				}
+			}
+		} else {
+			//console.log("NO EXPIRE", this.name);
 		}
 	};
 
@@ -1624,7 +1690,7 @@
 	Symbol.prototype.getDependencies = function() {
 		var res = [];
 		for (var d in this.dependencies) {
-			res.push(d.slice(1));
+			res.push(d);
 		}
 		console.log("Dependencies");
 		return res;
@@ -1634,10 +1700,10 @@
 		if (path === undefined) {
 			path = [];
 		}
-		path.push(this.name.slice(1));
+		path.push(this.name);
 
 		if (this.dependencies[name]) {
-			var details = path.join(" -> ") + " -> " + name.slice(1) + " -> " + path[0];
+			var details = path.join(" -> ") + " -> " + name + " -> " + path[0];
 			throw new Error("Cyclic dependency detected: " + details);
 		}
 
@@ -1734,6 +1800,10 @@
 			throw new Error("Failed adding JavaScript observer " + listener);
 		}
 		this.jsObservers[name] = listener;
+		if (this.cache.up_to_date == false) {
+			//listener(this,this.value());
+			this.value();
+		}
 	}
 	
 	/**

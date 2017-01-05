@@ -26,11 +26,11 @@ EdenUI.Explorer = function() {
 	eden.root.addGlobal(function(sym, kind) {
 		//if (!me.capture) return;
 		//if (Object.keys(sym.dependencies).length > 0) return;
-		var name = sym.name.slice(1);
+		var name = sym.name;
 
 		if (me.capture && (kind != Symbol.EXPIRED || me.watchobs[name] === undefined) && (me.filter === undefined || me.filter[name])) {
 			if (me.watchobs[name] === undefined) {
-				me.watchobs[sym.name.slice(1)] = 1;
+				me.watchobs[sym.name] = 1;
 			} else {
 				me.watchobs[name].lastupdate = 1;
 			}
@@ -139,10 +139,10 @@ EdenUI.Explorer = function() {
 			}
 
 			for (var x in sym.dependencies) {
-				if (!existing[x.slice(1)]) {
+				if (!existing[x]) {
 					//node.append(me.makeEntry(x.slice(1), {}, false));
 					var sym2 = sym.dependencies[x];
-					var name = x.slice(1);
+					var name = x;
 					var ele = $('<div class="explore-entry'+((false) ? " active":"")+'" data-obs="'+name+'"><div class="explore-entry-inner"><span><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> </span><div class="symvalue"></div></div></div>');
 					var valele = ele.find(".symvalue").get(0);				
 					me.updateEntry(sym2, valele);	
@@ -166,6 +166,8 @@ EdenUI.Explorer = function() {
 		me.enabled = val;
 		if (!val) {
 			me.element.hide();
+			me.capture = false;
+			me.clear();
 		} else if (eden.root.lookup("jseden_explorer_visible").value()) {
 			me.element.show();
 		}
@@ -177,8 +179,13 @@ EdenUI.Explorer = function() {
 		this.element.hide();
 	}
 	visSym.addJSObserver("explorer", function(sym, val) {
+		console.log("VISIBLE");
 		if (val && me.enabled) me.element.show();
-		else me.element.hide();
+		else {
+			me.element.hide();
+			me.capture = false;
+			me.clear();
+		}
 	});
 
 	var searchSym = eden.root.lookup("jseden_explorer_search");
@@ -295,7 +302,7 @@ EdenUI.Explorer.prototype.makeAgentEntry = function(agent) {
 		return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">action</span> <span class="eden-path">'+aname+'</span></div>');
 	} else if (lmn.charAt(0) == "/") {
 		if (agent.eden_definition && agent.eden_definition.startsWith("proc")) {
-			return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">proc</span> <span class="eden-path">'+lmn.slice(1)+'</span></div>');
+			return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf183;</span><span class="eden-keyword">proc</span> <span class="eden-path">'+lmn+'</span></div>');
 		}
 	} else if (lmn.charAt(0) != "*") {
 		return $('<div class="explore-entry"><span class="explore-entry-icon">&#xf15c;</span><span class="eden-path">'+lmn+'</span></div>');

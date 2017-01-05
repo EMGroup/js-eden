@@ -301,7 +301,7 @@ Eden.Query.searchDepends = function(q) {
 	var res = [];
 	for (var x in eden.root.symbols) {
 		for (var y in eden.root.symbols[x].dependencies) {
-			if (q.test(y.slice(1))) res.push(x);
+			if (q.test(y)) res.push(x);
 		}
 	}
 	return res;
@@ -353,7 +353,7 @@ Eden.Query.treeBottomUp = function() {
 			if (!sym) continue;
 			var dest = base[x];
 			for (var y in sym.subscribers) {
-				dest[y.slice(1)] = {};
+				dest[y] = {};
 			}
 			processSymbol(dest);
 		}
@@ -389,7 +389,7 @@ Eden.Query.treeTopDown = function(base) {
 			if (!sym) continue;
 			var dest = base[x];
 			for (var y in sym.dependencies) {
-				dest[y.slice(1)] = {};
+				dest[y] = {};
 			}
 			processSymbol(dest);
 		}
@@ -426,7 +426,7 @@ Eden.Query.objectHierarchy = function() {
 			if (!sym || !testSymbol(sym)) continue;
 			var dest = base[x];
 			for (var y in sym.dependencies) {
-				dest[y.slice(1)] = {};
+				dest[y] = {};
 			}
 			processSymbol(dest);
 		}
@@ -451,7 +451,7 @@ Eden.Query.dependencyTree = function(base) {
 
 	function processBase(sym) {
 		//console.log(sym.name);
-		var name = sym.name.slice(1);
+		var name = sym.name;
 		if (Object.keys(sym.subscribers).length == 0) {
 			if (nbase[name] === undefined) nbase[name] = {};
 			return nbase[name];
@@ -499,9 +499,11 @@ Eden.Query.queryScripts = function(path, ctx) {
 	var scripts = [];
 
 	var paths = path.split(",");
+	//console.log(paths);
 
 	for (var i=0; i<paths.length; i++) {
 		var path = paths[i].trim();
+
 		if (path == "/" || path == "*") {
 			var src = Eden.Generator.symbolScript();
 			var ast = new Eden.AST(src, undefined, Symbol.jsAgent);
@@ -519,7 +521,7 @@ Eden.Query.queryScripts = function(path, ctx) {
 				}
 			} else {
 				// Find local action first
-				var script;
+				var script = undefined;
 				if (ctx) {
 					script = ctx.getActionByName(path);
 				}
@@ -540,7 +542,7 @@ Eden.Query.queryScripts = function(path, ctx) {
 }
 
 Eden.Query.querySelector = function(s, o, ctx, cb) {
-	//console.log("SELECTOR",s);
+	console.log("SELECTOR",s);
 
 	var pathix = s.search(/[\.\:\#\>]/);
 	if (pathix == -1) pathix = s.length;
@@ -744,6 +746,12 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 				processNode(s.substring(7).trim());
 			} else if (s.startsWith(":last")) {
 			} else if (s.startsWith(":nth(")) {
+				var endix = s.indexOf(")");
+				if (endix == -1) { statements = []; return; }
+				var index = s.substring(5,endix);
+				statements = statements[index];
+				if (statements === undefined) statements = [];
+				processNode(s.substring(endix+1).trim());
 			} else if (s.startsWith(":value(")) {
 			} else {
 				statements = [];
@@ -765,6 +773,18 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 			}
 			statements = nstats;
 			processNode(s.substring(tag.length).trim());
+		} else if (s.charAt(0) == ".") {
+			var nstats = [];
+			var tag = s.match(/.[a-zA-Z0-9_]+/);
+			if (tag === null) return [];
+			tag = tag[0].substring(1);
+			for (var i=0; i<statements.length; i++) {
+				if (statements[i].base && statements[i].base.scripts[tag]) {
+					nstats.push(statements[i].base.scripts[tag]);
+				}
+			}
+			statements = nstats;
+			processNode(s.substring(tag.length+1).trim());
 		} else if (s.charAt(0).match(/[a-z]+/)) {
 			var endix = s.search(/[^a-z]+/);
 			if (endix == -1) endix = s.length;
@@ -808,6 +828,15 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 									var base = p.base;
 									val = base.getSource(stat);
 									break;
+				case "innersource"	:	if (stat.type == "script") {
+											val = stat.getInnerSource();
+										} break;
+				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
+										stat.base.mainDoxyComment.stripped();
+										var controls = stat.base.mainDoxyComment.getControls();
+										if (controls && controls["@title"]) val = controls["@title"][0];
+									}
+									break;
 				case "path"		:
 				case "name"		:	
 				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
@@ -839,7 +868,7 @@ Eden.Query.querySelector = function(s, o, ctx, cb) {
 			}
 			if (kinds.length > 1 && ires.length > 0) {
 				res.push(ires);
-			} else if (kinds.length == 1 && ires.length > 0) {
+			} else if (kinds.length == 1 && ires.length > 0 && ires[0] !== undefined) {
 				res.push(ires[0]);
 			}
 		}
