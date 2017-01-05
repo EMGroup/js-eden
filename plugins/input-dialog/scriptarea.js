@@ -31,7 +31,7 @@ EdenUI.ScriptArea = function() {
 	this.highlighter.setScrollTop(0);
 
 	var me = this;
-	var gutterinterval = setInterval(function() {
+	this.gutterinterval = setInterval(function() {
 		if (me.fragment === undefined) return;
 		me.gutter.generate(me.fragment.ast, me.currentlineno);
 		//scriptast.clearExecutedState();

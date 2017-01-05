@@ -235,9 +235,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
-		curSym.addJSObserver("scriptview", curChanged);
+		curSym.addJSObserver("scriptview_"+name, curChanged);
 		//curChanged(curSym, curSym.value());
-		tabsSym.addJSObserver("scriptview", tabsChanged);
+		tabsSym.addJSObserver("scriptview_"+name, tabsChanged);
 		tabsChanged(tabsSym, tabsSym.value());
 
 		if (tabsSym.value() === undefined && tabsSym.definition === undefined) {
@@ -249,7 +249,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 
-		Eden.Fragment.listenTo("changed", this, function(frag) {
+		Eden.Fragment.listenTo("changed", scriptarea, function(frag) {
 			if (frag === tab_frags[curtab]) {
 				//curChanged(curSym, curSym.value());
 				rebuildTabs();
@@ -257,27 +257,27 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		});
 
-		Eden.Fragment.listenTo("locked", this, function(frag) {
+		Eden.Fragment.listenTo("locked", scriptarea, function(frag) {
 			if (frag === tab_frags[curtab]) {
 				console.log("LOCKED",frag);
 				curChanged(curSym, curSym.value());
 			}
 		});
 
-		Eden.Fragment.listenTo("unlocked", this, function(frag) {
+		Eden.Fragment.listenTo("unlocked", scriptarea, function(frag) {
 			if (frag === tab_frags[curtab]) {
 				curChanged(curSym, curSym.value());
 			}
 		});
 
-		Eden.Fragment.listenTo("errored", this, function(frag) {
+		Eden.Fragment.listenTo("errored", scriptarea, function(frag) {
 			//if (frag === tab_frags[curtab]) {
 				//rebuildTabs();
 				//delayRebuild();
 			//}
 		});
 
-		Eden.Fragment.listenTo("status", this, function(frag) {
+		Eden.Fragment.listenTo("status", scriptarea, function(frag) {
 			if (frag === tab_frags[curtab]) {
 				//rebuildTabs();
 				//delayRebuild();
@@ -872,13 +872,18 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			},
 			destroy: function() {
 				console.log("CLOSE SCRIPT");
-				clearInterval(gutterinterval);
+				clearInterval(scriptarea.gutterinterval);
 				//Eden.Agent.unlisten(agent);
 				for (var i=0; i<tab_frags.length; i++) {
 					tab_frags[i].unlock();
-					tab_frags[i].ast.destroy();
+					if (tab_frags[i].ast) tab_frags[i].ast.destroy();
 				}
 				scriptast = undefined;
+				tab_frags = undefined;
+				Eden.Fragment.unListen(scriptarea);
+				scriptarea = undefined;
+				curSym.removeJSObserver("scriptview_"+name);
+				tabsSym.removeJSObserver("scriptview_"+name);
 				//Eden.Agent.remove(agent);
 				//agent = undefined;
 			},
@@ -920,7 +925,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 
 		viewdata.contents.on("click", ".windowcontrol", function() {
-			edenUI.destroyView(simpleName, true);
+			edenUI.hideView(simpleName, true);
 		});
 
 

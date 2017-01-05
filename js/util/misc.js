@@ -27,6 +27,18 @@ function getTextWidth(text, font) {
     return metrics.width;
 }
 
+function unListen(target) {
+	for (var x in this.listeners) {
+		var l = this.listeners[x];
+		for (var i=0; i<l.length; i++) {
+			if (l[i].target === target) {
+				l.splice(i,1);
+				break;
+			}
+		}
+	}
+}
+
 function listenTo(eventName, target, callback) {
 	if (!this.listeners[eventName]) {
 		this.listeners[eventName] = [];

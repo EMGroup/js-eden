@@ -150,7 +150,7 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		err.line = this.line;
 
 		this.errors.push(err);
-		if (agentobj) Eden.Agent.emit("error", [agentobj,err]);
+		if (agentobj) eden.emit("error", [agentobj,err]);
 		else console.log(err.prettyPrint());
 	}
 };

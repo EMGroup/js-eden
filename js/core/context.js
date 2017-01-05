@@ -111,8 +111,10 @@ function Folder(name, parent, root) {
 	Object.defineProperty(this, "statements", {
 		enumerable: true,
 		get: function() {
-			// Generate AST Nodes for each symbol.
-			return [];
+			var me = this;
+			return Object.keys(this.symbols).map(function(e) {
+				return me.symbols[e];
+			});
 		}
 	});
 }

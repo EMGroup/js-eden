@@ -58,6 +58,29 @@ function Symbol(context, name) {
 	this.garbage = false;
 }
 
+
+/* Virtual AST Attributes */
+Object.defineProperty(Symbol.prototype, "type", {
+	get: function() { return (this.origin && this.origin.type) ? this.origin.type:"assignment"; }
+});
+
+Object.defineProperty(Symbol.prototype, "lvalue", {
+	get: function() { return (this.origin) ? this.origin.lvalue : undefined; }
+});
+
+Object.defineProperty(Symbol.prototype, "expression", {
+	get: function() { return (this.origin) ? this.origin.expression : undefined; }
+});
+
+Symbol.prototype.getASTOrigin = function() {
+	if (this.origin) {
+		var p = this.origin;
+		while (p.parent) p = p.parent;
+		if (p.base) return p.base.origin;
+	}
+}
+
+
 InternalAgent = function(name, local) {
 	this.name = name;
 	this.local = local;

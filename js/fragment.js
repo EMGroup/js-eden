@@ -60,6 +60,7 @@ Eden.Fragment = function(selector) {
 
 Eden.Fragment.listenTo = listenTo;
 Eden.Fragment.emit = emit;
+Eden.Fragment.unListen = unListen;
 Eden.Fragment.listeners = {};
 //Eden.Fragment.cache = {};
 
