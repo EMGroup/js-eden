@@ -38,7 +38,8 @@ EdenUI.Notifications = function(element, jewel) {
 		me.notification("error", $('<div class="notification-content">P2P: '+err+'</div>'));
 	});
 
-	Eden.Fragment.listenTo("error", undefined, function(agent,err) {
+
+	function errhandler(agent,err) {
 		if (err) {
 			var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
 			var htmlmsg = "<a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?(err.line+1):"") + "</a> " + err.messageText();
@@ -76,7 +77,10 @@ EdenUI.Notifications = function(element, jewel) {
 				me.notification("error", formattedError);
 			}
 		}
-	});
+	}
+
+	Eden.Fragment.listenTo("error", undefined, errhandler);
+	eden.listenTo("error", undefined, errhandler);
 
 	Eden.Fragment.listenTo("warning", undefined, function(agent,err) {
 		if (err) {

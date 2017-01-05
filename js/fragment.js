@@ -111,10 +111,13 @@ Eden.Fragment.prototype.reset = function() {
 
 			var dcom = me.originast.doxyComment;
 			if (dcom) {
+				me.doxy = dcom;
 				var ctrls = dcom.getControls();
 				if (ctrls["@title"]) {
 					me.title = ctrls["@title"][0];
 				}
+			} else {
+				me.doxy = undefined;
 			}
 
 			Eden.Fragment.emit("changed", [me]);

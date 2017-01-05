@@ -288,14 +288,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 
 		function browseScripts(path) {
-			var scripts = Eden.Selectors.query(path + "* script:has-name:not(:remote)","id");
+			if (path == "") path = "*";
+			var scripts = Eden.Selectors.query(path + " script:has-name:not(:remote)","id");
 			scriptarea.outdiv.innerHTML = "";
 			for (var i=0; i<scripts.length; i++) {
 				var name = scripts[i].split(".");
 				name = name[name.length-1];
 				var icon;
 				if (scripts[i] == eden.project.name) {
-					icon = "&#xf187;";
+					icon = "&#xf0f6;";
 				} else if (name == "ACTIVE") {
 					icon = "&#xf0e7;";
 				} else {
@@ -305,12 +306,24 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				scriptarea.outdiv.appendChild(ele.get(0));
 			}
 
-			scripts = Eden.Selectors.query(path + "* script:has-name:remote","id");
+			var folder = {};
+
+			scripts = Eden.Selectors.query(path + " script:has-name:remote","id");
 			for (var i=0; i<scripts.length; i++) {
-				var name = scripts[i].split(".");
-				name = name[name.length-1];
-				var ele = $('<div class="browse-entry" data-path="'+scripts[i]+'"><div class="browse-icon">&#xf08e;</div>'+name+'</div>');
-				scriptarea.outdiv.appendChild(ele.get(0));
+				if (scripts[i].indexOf("/") != -1) {
+					var name = scripts[i].split("/");
+					name = name[0];
+					if (folder[name] === undefined) {
+						folder[name] = true;
+						var ele = $('<div class="browse-entry" data-path="'+name+'/"><div class="browse-icon">&#xf07b;</div>'+name+'</div>');
+						scriptarea.outdiv.appendChild(ele.get(0));
+					}
+				} else {
+					var name = scripts[i].split(".");
+					name = name[name.length-1];
+					var ele = $('<div class="browse-entry" data-path="'+scripts[i]+'"><div class="browse-icon">&#xf08e;</div>'+name+'</div>');
+					scriptarea.outdiv.appendChild(ele.get(0));
+				}
 			}
 		}
 
@@ -802,12 +815,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+		function onShowDetails(e) {
+			scriptarea.details.toggle();
+		}
+
 
 		$controls
 		.on('keyup', 'input.editname', onNameChange)
 		.on('change', 'input.editname', onNameFinish)
 		.on('click', '.script-run', onRun)
 		.on('click', '.script-changes', onShowChanges)
+		.on('click', '.script-details', onShowDetails)
 		.on('keyup', 'input.scratchsearch', onScratchSearch);
 
 

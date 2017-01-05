@@ -10,15 +10,27 @@ Eden.Project = function(id, name, source) {
 	this.triggers = {};
 
 	if (this.ast && this.ast.script.errors.length == 0) {
-		// Fabricate a fake doxy comment for the script using meta data.
-		var doxystring = "/** "+ name + "\n * @title " + this.title + "\n * @author " + this.author + "\n */";
-		var doxy = new Eden.AST.DoxyComment(doxystring);
-		this.ast.script.doxyComment = doxy;
+		this.updateDoxy();
 		this.ast.script.name = this.name;
 	}
 
 	eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, this);
 	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, this);
+}
+
+Eden.Project.prototype.updateDoxy = function() {
+	// Fabricate a fake doxy comment for the script using meta data.
+	var doxystring = this.name;
+	if (this.title) doxystring += "\n * @title " + this.title;
+	if (this.author) doxystring += "\n * @author " + this.author;
+	if (this.tags && this.tags.length > 0) {
+		doxystring += "\n *";
+		for (var i=0; i<this.tags.length; i++) {
+			doxystring += " #"+this.tags[i];
+		}
+	}
+	var doxy = new Eden.AST.DoxyComment(doxystring);
+	this.ast.script.doxyComment = doxy;
 }
 
 Eden.Project.init = function() {
@@ -30,9 +42,7 @@ Eden.Project.init = function() {
 			eden.project.name = value.replace(/[^a-zA-Z0-9]/g, "");
 			eden.project.ast.script.name = eden.project.name;
 			// Fabricate a fake doxy comment for the script using meta data.
-			var doxystring = "/** "+ eden.project.name + "\n * @title " + eden.project.title + "\n * @author " + eden.project.author + "\n */";
-			var doxy = new Eden.AST.DoxyComment(doxystring);
-			eden.project.ast.script.doxyComment = doxy;
+			eden.project.updateDoxy();
 			// TODO Notify relevant fragments...
 			Eden.Fragment.emit("aststatus", [eden.project.ast.script]);
 		}

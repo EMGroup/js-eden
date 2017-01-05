@@ -190,7 +190,7 @@ function runEdenAction(source, action, cb) {
 						var err = new Eden.RuntimeError(me, Eden.RuntimeError.ACTIONNAME, delay.value, "Selector '"+delay.value.selector+"' has no results");
 						err.line = delay.value.line;
 						delay.value.errors.push(err);
-						Eden.Agent.emit("warning", [source,err]);
+						eden.emit("warning", [source,err]);
 						runEdenAction.call(me,source, action, cb);
 					}
 				}
@@ -260,7 +260,7 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 
 		err.line = this.line;
 
-		if (agent) Eden.Agent.emit("error", [agent,err]);
+		if (agent) eden.emit("error", [agent,err]);
 		else console.log(err.prettyPrint());
 		//throw e;
 	}
@@ -304,7 +304,7 @@ Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx
 
 		err.line = this.line;
 
-		if (agent) Eden.Agent.emit("error", [agent,err]);
+		if (agent) eden.emit("error", [agent,err]);
 		else console.log(err.prettyPrint());
 		//throw e;
 	}

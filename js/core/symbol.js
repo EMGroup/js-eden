@@ -210,7 +210,7 @@ Symbol.prototype.evaluate = function (scope, cache) {
 		}*/
 	} catch (e) {
 		if (e instanceof Eden.RuntimeError) {
-			Eden.Agent.emit("error", [this,e]);
+			eden.emit("error", [this,e]);
 		}
 		//this.logError(e);
 		//console.error(e);
@@ -546,7 +546,7 @@ Symbol.prototype.trigger = function () {
 	} catch (error) {
 		//this.logError("Failed while triggering: " + error);
 		var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.PROCAGENT, undefined, "Triggered proc failed: "+error);
-		Eden.Agent.emit("error", [this,err]);
+		eden.emit("error", [this,err]);
 	}
 };
 
@@ -575,7 +575,7 @@ Symbol.prototype.fireJSObservers = function () {
 		} catch (error) {
 			//this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
 			var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.JSOBSERVER, undefined, "JavaScript observer '"+jsObserverName+"' failed: "+error);
-			Eden.Agent.emit("error", [this,err]);
+			eden.emit("error", [this,err]);
 			var debug;
 			if (this.context) {
 				var debugOptions = this.cache.value;

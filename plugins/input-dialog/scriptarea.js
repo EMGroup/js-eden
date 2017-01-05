@@ -24,6 +24,7 @@ EdenUI.ScriptArea = function() {
 	this.currentcharno = -1;
 	this.highlighter = new EdenUI.Highlight(this.outdiv);
 	this.gutter = new EdenScriptGutter(this.codearea, this.infobox);
+	this.details = new EdenUI.ScriptArea.Details(this);
 	this.cachedhlopt = undefined;
 
 	// Init the scroll optimisation.
@@ -47,6 +48,7 @@ EdenUI.ScriptArea.prototype.setFragment = function(frag) {
 		this.fragment.unlock();
 		this.currentlineno = -1;
 	}
+	this.details.hide();
 	this.fragment = frag;
 
 	if (frag === undefined) {
@@ -239,6 +241,8 @@ EdenUI.ScriptArea.prototype.focusText = function() {
 EdenUI.ScriptArea.prototype.highlightContent = function(lineno, position, options) {
 	var ast = this.fragment.ast;
 	var me = this;
+
+	if (!ast) return;
 
 	this.highlighter.highlight(ast, lineno, position, options);
 	//gutter.generate(ast,lineno);
