@@ -81,7 +81,7 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 								sa.gutter.selectLine(sa.currentlineno);
 								sa.checkScroll();
 								break;
-		default : sa.rebuild();
+		//default : sa.rebuild();
 		}
 	}
 
@@ -134,7 +134,7 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 	 */
 	function onInputChanged(e) {
 		sa.dirty = true;
-	//	sa.rebuild();
+		sa.rebuild();
 	}
 
 

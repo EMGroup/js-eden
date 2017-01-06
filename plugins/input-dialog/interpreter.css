@@ -480,7 +480,7 @@ div.control-bar {
 }
 
 textarea.hidden-textarea2 {
-	position: fixed;
+	position: relative;
 	white-space: pre;
 	word-wrap: normal;
 	overflow: auto;
@@ -606,6 +606,7 @@ div.browser {
 	padding: 10px;
 	flex-wrap: wrap;
 	align-content: flex-start;
+	flex-direction: row;
 }
 
 div.browse-entry {

@@ -761,7 +761,7 @@
 					} else {
 						this.mode_at_line[this.line-1] = this.mode;
 					}
-					var blank = document.createTextNode((ch == 13)? "\r\n" : "\n");
+					var blank = document.createTextNode((ch == 13)? "\n" : "\n");
 					lineelement.appendChild(blank);
 
 					this.outelement.appendChild(lineelement);
@@ -845,7 +845,7 @@
 					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
 					node.appendChild(line);
 					var ch = stream.peek();
-					var blank = document.createTextNode((ch == 13) ? "\r\n" : "\n");
+					var blank = document.createTextNode((ch == 13) ? "\n" : "\n");
 					node.appendChild(blank);
 					stream.skip();
 					if (ch == 13) stream.skip();
@@ -866,7 +866,7 @@
 					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
 					node.appendChild(line);
 					var ch = stream.peek();
-					var blank = document.createTextNode((ch == 13) ? "\r\n" : "\n");
+					var blank = document.createTextNode((ch == 13) ? "\n" : "\n");
 					node.appendChild(blank);
 					stream.skip();
 					if (ch == 13) stream.skip();

@@ -635,7 +635,7 @@ See LICENSE.txt
 					var reader = new FileReader();
 					reader.onload = function(e) {
 						//Eden.loadFromString(e.target.result);
-						eden.project = new Eden.Project(undefined, filename, e.target.result);
+						eden.project = new Eden.Project(undefined, filename, e.target.result.replace(/\r/g,""));
 						eden.project.start();
 						importfile.css("display","none");
 					};

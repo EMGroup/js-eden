@@ -239,6 +239,8 @@ EdenUI.ScriptArea.prototype.focusText = function() {
  * post process this to allow for extra warnings and number dragging.
  */
 EdenUI.ScriptArea.prototype.highlightContent = function(lineno, position, options) {
+	if (!this.fragment) return;
+
 	var ast = this.fragment.ast;
 	var me = this;
 
@@ -499,7 +501,7 @@ EdenUI.ScriptArea.prototype.disableGotoMode = function() {
 		this.outdiv.contentEditable = true;
 		changeClass(this.outdiv, "goto", false);
 		this.gotomode = false;
-		this.updateEntireHighlight();
+		this.updateCachedHighlight();
 		this.intextarea.focus();
 	}
 }

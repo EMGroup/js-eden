@@ -143,7 +143,7 @@
 		//diag.parent().on("click", function() { diag.dialog("moveToTop"); });
 
 		// Add associated observables...
-		function viewobs(obs) { return "_view_"+name+"_"+obs; };
+		function viewobs(obs) { return "view_"+name+"_"+obs; };
 
 		var observables = [
 			viewobs("type"),
