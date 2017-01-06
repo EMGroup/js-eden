@@ -68,6 +68,8 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 	function onTextKeyUp(e) {
 		var key = genKey(e);
 
+		if (!e.ctrlKey) sa.disableGotoMode();
+
 		switch(key) {
 		case "Ctrl-Control"	:	sa.disableGotoMode(); break;
 		case "ArrowLeft"	:
@@ -79,7 +81,7 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 								sa.gutter.selectLine(sa.currentlineno);
 								sa.checkScroll();
 								break;
-		default : //sa.rebuild();
+		default : sa.rebuild();
 		}
 	}
 
@@ -90,7 +92,7 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 	 * text is selected that needs replacing.
 	 */
 	function onOutputKeyDown(e) {
-		if (!(e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 35 || e.keyCode == 36))) {
+		if (!e.ctrlKey && !(e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 35 || e.keyCode == 36))) {
 			sa.focusText();
 		}
 	}
@@ -132,7 +134,7 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 	 */
 	function onInputChanged(e) {
 		sa.dirty = true;
-		sa.rebuild();
+	//	sa.rebuild();
 	}
 
 

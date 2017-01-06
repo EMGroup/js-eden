@@ -2,10 +2,11 @@ div.eden-gutter {
 	position: absolute;
 	left: 0;
 	top: 0;
-	right: 0;
+	/*right: 0;*/
 	padding-top: 20px;
 	margin: 0;
-	height: calc(100% - 15px);
+	/*height: calc(100% - 15px);*/
+	height: 0;
 	overflow: visible;
 }
 

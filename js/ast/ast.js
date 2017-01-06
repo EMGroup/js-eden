@@ -57,7 +57,7 @@ function fnEdenASTleft(left) {
  * @param code String containing the script.
  */
 Eden.AST = function(code, imports, origin, noparse) {
-	this.stream = new EdenStream(code);
+	this.stream = (code !== undefined) ? new EdenStream(code) : undefined;
 	this.data = new EdenSyntaxData();
 	this.token = "INVALID";
 	this.previous = "INVALID";
@@ -72,6 +72,7 @@ Eden.AST = function(code, imports, origin, noparse) {
 	this.prevprevpos = 0;
 	this.errors = [];
 	this.warnings = [];
+	this.whens = [];
 
 	if (!origin) console.error("NO ORIGIN", code);
 
@@ -79,13 +80,12 @@ Eden.AST = function(code, imports, origin, noparse) {
 	this.mainDoxyComment = undefined;
 	this.parentDoxy = undefined;
 
-	this.stream.data = this.data;
-
-	// Get First Token;
-	this.next();
+	if(this.stream) this.stream.data = this.data;
 
 	// Start parse with SCRIPT production
 	if (!noparse) {
+		// Get First Token;
+		this.next();
 		this.script = this.pSCRIPT();
 		this.script.base = this;
 		this.script.name = origin.name;
@@ -106,6 +106,29 @@ Eden.AST.debug_begin_cb = undefined;
 Eden.AST.debug_end_cb = undefined;
 
 
+Eden.AST.fromNode = function(node, origin) {
+	var ast = new Eden.AST(node.getInnerSource(), undefined, origin, true);
+	ast.script = node;
+	ast.whens = Eden.Selectors.queryWithin([node], ">>when");
+	ast.errors = node.errors;
+
+	// Make sure lines are generated correctly for gutter
+	var baseline = node.line;
+	for (var i=0; i<node.statements.length; i++) {
+		if (node.statements[i].line !== undefined) {
+			var start = node.statements[i].line-baseline;
+			var end = node.statements[i].endline-baseline;
+
+			ast.lines[start] = node.statements[i];
+			for (var j=start+1; j<=end; j++) {
+				ast.lines[j] = node.statements[i];
+			}
+		}
+	}
+	return ast;
+}
+
+
 Eden.AST.prototype.destroy = function() {
 	function clear(stat) {
 		for (var i=0; i<stat.statements.length; i++) {
@@ -118,6 +141,11 @@ Eden.AST.prototype.destroy = function() {
 	this.stream = undefined;
 	this.lines = undefined;
 	this.scripts = undefined;
+
+	// Remove then whens
+	for (var i=0; i<this.whens.length; i++) {
+		if (this.whens[i].enabled) eden.project.removeAgent(this.whens[i]);
+	}
 }
 
 

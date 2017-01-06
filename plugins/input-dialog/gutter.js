@@ -318,7 +318,6 @@ EdenScriptGutter.prototype.setBaseAST = function(base) {
 	this.lines = [];
 	this.edits = undefined;
 	this.hideBrace();
-	console.trace("GUTTER RESET");
 }
 
 

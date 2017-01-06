@@ -234,15 +234,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				tab_frags = [];
 				for (var i=0; i<value.length; i++) {
 					var oldix = oldqs.indexOf(value[i]);
-					console.log("OLDIX",oldix);
 					if (oldix >= 0) {
 						tab_frags.push(oldfrags[oldix]);
 					} else {
 						tab_frags.push(new Eden.Fragment(value[i]));
 					}
 				}
-
-				console.log("FRAGS",oldqs,value);
 
 				curChanged(curSym, curSym.value());
 			}

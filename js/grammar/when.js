@@ -57,6 +57,8 @@ Eden.AST.prototype.pWHEN = function() {
 
 	// Compile the expression and log dependencies
 	when.compile(this);
+	// Register in index.
+	this.whens.push(when);
 
 	this.parent = parent;
 	return when;

@@ -4,7 +4,7 @@ EdenUI.ScriptArea = function() {
 	this.intextarea = document.createElement("textarea"); //$dialogContents.find('.hidden-textarea').get(0);
 	this.intextarea.autofocus = true;
 	this.intextarea.tabIndex = 1;
-	this.intextarea.className = "hidden-textarea";
+	this.intextarea.className = "hidden-textarea2";
 	this.contents.appendChild(this.intextarea);
 
 	this.codearea = document.createElement("div"); // $codearea.get(0);

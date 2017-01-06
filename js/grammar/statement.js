@@ -304,6 +304,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 
 	this.lines[curline] = stat;
 	stat.line = curline;
+	stat.endline = endline-1;
 
 	// Update statements start and end so original source can be extracted.
 	if (end == -1) {

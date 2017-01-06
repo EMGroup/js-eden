@@ -90,7 +90,7 @@ Eden.Fragment.prototype.reset = function() {
 		me.results = res;
 
 		if (me.results && me.results.length == 1 && me.results[0].type == "script") {
-			console.log(res);
+			//console.log(res);
 			me.originast = me.results[0];
 		} else if (me.results && me.results.length > 1) {
 			me.source = "";
@@ -102,8 +102,10 @@ Eden.Fragment.prototype.reset = function() {
 
 		if (me.originast) {
 			me.name = (me.originast.name) ? me.originast.name : me.selector;
-			me.source = me.originast.getInnerSource();
-			me.ast = new Eden.AST(me.source, undefined, me);
+			//me.source = me.originast.getInnerSource();
+			//me.ast = new Eden.AST(me.source, undefined, me);
+			me.ast = Eden.AST.fromNode(me.originast,me);
+			me.source = me.ast.stream.code;
 			var p = me.originast;
 			while (p && p.parent) p = p.parent;
 			me.origin = p.base.origin;
@@ -168,7 +170,7 @@ Eden.Fragment.prototype.setSourceInitial = function(src) {
 	this.ast = new Eden.AST(src, undefined, this);
 }
 
-Eden.Fragment.AUTOSAVE_INTERVAL = 1000;
+Eden.Fragment.AUTOSAVE_INTERVAL = 500;
 
 Eden.Fragment.prototype.undo = function() {
 	if (this.index < 0) return;

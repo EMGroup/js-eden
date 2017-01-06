@@ -391,7 +391,7 @@
 
 			// Skip but preserve white space
 			var ch= stream.peek();
-			if (ch == 10) {
+			if (ch == 10 || ch == 13) {
 				if (wsline != "") {
 					var textnode = document.createTextNode(wsline);
 					line.appendChild(textnode);
@@ -731,7 +731,7 @@
 		var token = "INVALID";
 		var prevtoken = "INVALID";
 
-		var curtop = (options && options.spacing && options.spacing[0]) ? options.spacing[0] : 20;
+		//var curtop = (options && options.spacing && options.spacing[0]) ? options.spacing[0] : 20;
 
 		// Highlight all if -1
 		if (hline == -1 ) {
@@ -745,22 +745,23 @@
 			while (stream.valid()) {
 				var ch= stream.peek();
 				var lineclass = "";
-				if (ch == 10) {
+				if (ch == 10 || ch == 13) {
 					lineerror = (linestart <= errstart) && (stream.position >= errend);
 
 					var lineelement = document.createElement('div');
 					lineelement.className = "eden-line";
-					lineelement.style.top = "" + curtop + "px";
+					if (options && options.spacing && options.spacing[this.line]) lineelement.height = "" + options.spacing[this.line] + "px";
+					//lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
 					lineelement.setAttribute("data-line",this.line-1);
 					//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
-					curtop += (options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20;
+					//curtop += (options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20;
 					this.line++;
 					if (line !== undefined) {
 						lineelement.appendChild(line);
 					} else {
 						this.mode_at_line[this.line-1] = this.mode;
 					}
-					var blank = document.createTextNode("\n");
+					var blank = document.createTextNode((ch == 13)? "\r\n" : "\n");
 					lineelement.appendChild(blank);
 
 					this.outelement.appendChild(lineelement);
@@ -768,6 +769,7 @@
 					linestart = stream.position+1;
 					line = undefined;
 					stream.skip();
+					if (ch == 13) stream.skip();
 					continue;
 				}
 
@@ -793,7 +795,8 @@
 			if (line !== undefined) {
 				var lineelement = document.createElement('div');
 				lineelement.className = "eden-line";
-				lineelement.style.top = "" + curtop + "px";
+				//lineelement.style.top = "" + curtop + "px";
+				lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
 				lineelement.setAttribute("data-line",this.line-1);
 				//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
 				lineelement.appendChild(line);
@@ -802,14 +805,14 @@
 				var lineelement = document.createElement('div');
 				if (position >= stream.position) {
 					lineelement.className = "eden-line";
-					lineelement.style.top = "" + curtop + "px";
+					lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
 					lineelement.setAttribute("data-line",this.line-1);
 					var caret = document.createElement('span');
 					caret.className = "fake-caret";
 					lineelement.appendChild(caret);
 				} else {
 					lineelement.className = "eden-line";
-					lineelement.style.top = "" + curtop + "px";
+					//lineelement.style.top = "" + curtop + "px";
 				}
 				this.outelement.appendChild(lineelement);
 			}
@@ -821,10 +824,11 @@
 			// Skip until the lines we are looking for
 			while (stream.valid() && (this.line < (hline-1))) {
 				var ch = stream.peek();
-				if (ch == 10) {
+				if (ch == 10 || ch == 13) {
 					this.line++;
 				}
 				stream.skip();
+				if (ch == 13) stream.skip();
 			}
 
 			// Highlight 3 lines, 1 before and after what we want
@@ -840,9 +844,11 @@
 					lineerror = (linestart <= errstart) && (stream.position >= errend);
 					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
 					node.appendChild(line);
-					var blank = document.createTextNode("\n");
+					var ch = stream.peek();
+					var blank = document.createTextNode((ch == 13) ? "\r\n" : "\n");
 					node.appendChild(blank);
 					stream.skip();
+					if (ch == 13) stream.skip();
 				}
 			}
 
@@ -859,9 +865,11 @@
 					lineerror = (linestart <= errstart) && (stream.position >= errend);
 					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
 					node.appendChild(line);
-					var blank = document.createTextNode("\n");
+					var ch = stream.peek();
+					var blank = document.createTextNode((ch == 13) ? "\r\n" : "\n");
 					node.appendChild(blank);
 					stream.skip();
+					if (ch == 13) stream.skip();
 				}
 			}
 
