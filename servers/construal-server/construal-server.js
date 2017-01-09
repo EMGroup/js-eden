@@ -299,7 +299,7 @@ app.get('/project/get', function(req,res){
 					if(req.query.from){
 						sendDiff(req.query.from,source,req.query.projectID,res);
 					}else{
-						res.json({saveID: req.query.to, projectID: projectID,source:source});
+						res.json({saveID: req.query.to, projectID: req.query.projectID,source:source});
 					}
 				});
 			});
@@ -313,7 +313,7 @@ app.get('/project/get', function(req,res){
 						if(req.query.from){
 							sendDiff(req.query.from,source,req.query.projectID,saveID,res);
 						}else{
-							res.json({saveID: row.saveID, projectID: projectID,source: source});
+							res.json({saveID: row.saveID, projectID: req.query.projectID,source: source});
 						}
 					});
 				});
