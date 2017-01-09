@@ -284,7 +284,7 @@ function getFullVersion(version, projectID, callback){
 * If a 'from' is defined, the object won't contain a source property, but will contain a patch property
 **/
 
-app.get('/project/get',ensureAuthenticated, function(req,res){
+app.get('/project/get', function(req,res){
 	//ProjectID must be defined
 	//Request should have 'from' and 'to', which gives the diff between the two versions
 	//If both undefined, get full snapshot of latest version (with no diffs)
