@@ -423,10 +423,10 @@ app.get('/project/search', function(req, res){
 	
 	var conditionStr = "";
 	if(criteria.length > 0){
-		conditionStr = " WHERE " + criteria.join("AND");
+		conditionStr = " " + criteria.join("AND");
 	}
 
-	var listProjectStmt = db.prepare("SELECT * FROM projects" + conditionStr + " LIMIT @limit OFFSET @offset");
+	var listProjectStmt = db.prepare("SELECT projectID, title, minimisedTitle, image, owner, name as ownername, publicVersion, parentProject, projectMetaData FROM projects,oauthusers WHERE owner = userid AND " + conditionStr + " LIMIT @limit OFFSET @offset");
 
 	listProjectStmt.all(criteriaVals,function(err,rows){
 		getTagsForProjects(res,rows);
