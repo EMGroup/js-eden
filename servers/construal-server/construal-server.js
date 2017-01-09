@@ -80,24 +80,131 @@ function logErrors(err,req,res,next){
 	res.json({"error": "Error"});
 }
 
+/*
+ * Title: Project Add
+ * URL: /project/add
+ * Method: POST
+ * Data Params:
+ * {
+ * 	projectid: [integer],
+ *  title: [string],
+ *  minimisedTitle: [string],
+ *  image: [base64 string],
+ *  metadata: [json string],
+ *  source: [string] source to be saved,
+ *  tags: [string] separated by space
+ * }
+ * 
+ * Success response: JSON object containing saveID and projectID
+ * If no source provided, the title, minimisedTitle,image,metadata will 
+ * be updated and will result in a JSON object with status "updated" and the projectID
+ * 
+ */
 app.post('/project/add', ensureAuthenticated, function(req, res){
 	
 	if(typeof req.user == "undefined")
 		return res.json({error: "1", description: "Unauthenticated"});
-	if(req.body.source == undefined){
-		return res.json({error: "4", description: "No source provided"});
-	}
 	projectID = req.body.projectID;
 	db.run("BEGIN TRANSACTION");
 	if(projectID === undefined || projectID == null){
+		log("Creating new project");
 		createProject(req, res, function(req, res, lastID){
+			log("New project id is " + lastID);
 			addProjectVersion(req, res, lastID);
 		});
 	}else{
-		addProjectVersion(req, res, projectID);
+		checkOwner(req,res,function(){
+			updateProject(req, res, function(err){
+				if(req.body.source == undefined){
+					db.run("END");
+					res.json({status:"updated", projectID: projectID});
+				}else{
+					addProjectVersion(req, res, projectID);	
+				}
+			});
+		});
 	}
 	
 });
+
+function log(str){
+	console.log(new Date().toISOString() + ": " + str);
+}
+
+function checkOwner(req,res,callback){
+	var checkStmt = db.prepare("SELECT owner FROM projects WHERE projectID = @projectID");
+	var qValues = {};
+	qValues["@projectID"] = req.body.projectID;
+	checkStmt.all(qValues,function(err,rows){
+		if(rows.length == 0){
+			res.json({error:"5", description: "No existing project"});
+		}else{
+			if(rows[0].owner == req.user.id){
+				callback();
+			}else{
+				res.json({error:"6", description: "User does not own this project"});
+			}
+		}
+	});
+}
+
+function updateProject(req,res,callback){
+	var updatesNeeded = [];
+	var updateValues = {};
+	var updateArr = [];
+	var updateStrs = [];
+	if(req.body.title){
+		updatesNeeded.push("title = @title");
+		updateValues["@title"] = req.body.title;
+	}
+	if(req.body.minimisedTitle){
+		updatesNeeded.push("minimisedTitle = @minimisedTitle");
+		updateValues["@minimisedTitle"] = req.body.minimisedTitle;
+	}
+	if(req.body.image){
+		updatesNeeded.push("image = @image");
+		updateValues["@image"] = req.body.image;
+	}
+	if(req.body.metadata){
+		updatesNeeded.push("projectMetadata = @metadata");
+		updateValues["@metadata"] = req.body.metadata;
+	}
+	if(updatesNeeded.length == 0 && !req.body.tags){
+		callback();
+		return;
+	}
+	updateValues["@projectID"] = req.body.projectID;
+	var updateStr = "UPDATE projects SET " + updatesNeeded.join(", ") + " WHERE projectID = @projectID";
+	
+	if(req.body.tags){
+		var tagList = req.body.tags.split(" ");
+		var tagObject = {};
+		tagObject["@projectID"] = req.body.projectID;
+		console.log("Deleting existing tags");
+		var deleteStr = "DELETE FROM tags WHERE projectID = @projectID";
+		log("About to delete " + deleteStr);
+		console.log(tagObject);
+		db.run(deleteStr,tagObject,function(){
+			var insPairs = [];
+			for(i = 0; i < tagList.length; i++){
+				insPairs.push("(@projectID, @tag" + i + ")");
+				tagObject["@tag" + i] = tagList[i];
+			}
+			insertStr = "INSERT INTO tags VALUES " + insPairs.join(",");
+			log("inserting tags " + insertStr);
+			db.run(insertStr,tagObject,function(){
+				log("Updating project " + updateStr);
+				db.run(updateStr,updateValues,callback);
+			});
+
+		});
+	}else{
+		log("Updating project " + updateStr);
+		db.run(updateStr,updateValues,callback);
+		
+	}
+
+}
 
 function createProject(req, res, callback){
 	var insertProjectStmt = db.prepare("INSERT INTO projects values (NULL,?,?,?,?,?,?,?)");
@@ -113,7 +220,7 @@ function addProjectVersion(req, res, projectID){
 	var pTextBackward = null;
 	if(req.body.from){
 		db.serialize(function(){
-		getFullVersion(req.body.from,function(baseSrc){
+		getFullVersion(req.body.from, projectID, function(baseSrc){
 			var dmp = new window.diff_match_patch();
 			var d = dmp.diff_main(baseSrc,req.body.source,false);
 			var p = dmp.patch_make(baseSrc,req.body.source,d);
@@ -123,6 +230,7 @@ function addProjectVersion(req, res, projectID){
 			pTextBackward = dmp.patch_toText(p);
 			addVersionStmt.run(projectID, null, pTextForward, pTextBackward, req.body.from,function(){
 				db.run("END");
+				log("Created version " + this.lastID + " of project " + projectID);
 				var jsonres = {"saveID": this.lastID, "projectID": projectID};
 				res.json(jsonres);
 			});
@@ -139,13 +247,13 @@ function addProjectVersion(req, res, projectID){
 
 }
 
-function getFullVersion(version, callback){
-	var versionStmt = db.prepare("SELECT fullsource, forwardPatch,parentDiff FROM projectversions WHERE saveID = ?");
-	versionStmt.each(version,function(err,row){
+function getFullVersion(version, projectID, callback){
+	var versionStmt = db.prepare("SELECT fullsource, forwardPatch,parentDiff FROM projectversions WHERE saveID = ? AND projectID = ?");
+	versionStmt.each(version,projectID, function(err,row){
 		if(row.fullsource == null){
 			//Go and get the source from the parentDiff
 //			collateBasesAndPatches(row.parentDiff);
-			getFullVersion(row.parentDiff, function(parentSource){
+			getFullVersion(row.parentDiff, projectID, function(parentSource){
 				var dmp = new window.diff_match_patch();
 				var p = dmp.patch_fromText(row.forwardPatch);
 				var r = dmp.patch_apply(p,parentSource);
@@ -157,17 +265,24 @@ function getFullVersion(version, callback){
 	});
 }
 
-function collateBasesAndPatches(){
-	
-}
-
-function applyPatch(base,patch,callback){
-
-}
-
-function updateProjectMetadata(req){
-	
-}
+/**
+* Title: Project Get
+* URL: /project/get
+* Method: GET
+* Data Params:
+* {
+*  projectid: integer,
+*  to: [integer],
+*  from: [integer],
+* }
+* 
+* Request should have 'from' and 'to', which gives the diff between the two versions
+* If both undefined, get full snapshot of latest version (with no diffs)
+* If from undefined, get full snapshot of 'to' version (no diffs)
+* If to undefined but from is defined, get diff from 'from' to latest version.
+* Returns JSON object with saveID, projectID and source properties.
+* If a 'from' is defined, the object won't contain a source property, but will contain a patch property
+**/
 
 app.get('/project/get',ensureAuthenticated, function(req,res){
 	//ProjectID must be defined
@@ -177,93 +292,185 @@ app.get('/project/get',ensureAuthenticated, function(req,res){
 	//If 'to' undefined but from is defined, get diff from 'from' to latest version.
 	
 	if(req.query.projectID){
-		var getProjectStmt = db.prepare("SELECT projectid,saveID,date,source FROM projectversions where ");
-	}
-	if(req.query.to){
-		console.log("Get results for to=" + req.query.to);
-		db.serialize(function(){
-			getFullVersion(req.query.to,function(source){
-				res.json(source);
+		if(req.query.to){
+			db.serialize(function(){
+				getFullVersion(req.query.to,req.query.projectID, function(source){
+					var retData = {source: source};
+					if(req.query.from){
+						sendDiff(req.query.from,source,req.query.projectID,res);
+					}else{
+						res.json({saveID: req.query.to, projectID: projectID,source:source});
+					}
+				});
 			});
-		});
+		}else{
+			var getProjectStmt = db.prepare("select saveID,date FROM (SELECT max(saveID) as " +
+					"maxsaveID from projectversions group by projectID) as maxv, " +
+					"projectversions where maxsaveID = projectversions.saveID and projectID = ?;");
+			getProjectStmt.each(req.query.projectID,function(err,row){
+				db.serialize(function(){
+					getFullVersion(row.saveID,req.query.projectID,function(source){
+						if(req.query.from){
+							sendDiff(req.query.from,source,req.query.projectID,saveID,res);
+						}else{
+							res.json({saveID: saveID, projectID: projectID,source: source});
+						}
+					});
+				});
+			});
+		}
 	}
 });
 
-/*app.post('/project/search',ensureAuthenticated,);*/
-
-app.post('/project/versions',ensureAuthenticated, function(req, res){
-	if(req.body.projectID !== undefined){
-		var listProjectIDStmt = db.prepare("select projectid, saveID, date, parentDiff from projectversions where projectid = ?;");
-		listProjectIDStmt.all(req.body.projectID,function(err,rows){
-			res.json(rows);
+function sendDiff(fromID,toSource,projectID,toID,res){
+	db.serialize(function(){
+		getFullVersion(fromID,projectID,function(source){
+			var dmp = new window.diff_match_patch();
+			var d = dmp.diff_main(source,toSource,false);
+			var p = dmp.patch_make(source,toSource,d);
+			var patchText = dmp.patch_toText(p);
+			res.json({from: fromID, projectID: projectID, to: toID, patch: patchText});
 		});
-	}
-	if(req.body.userID !== undefined){
-		var listProjectStmt = db.prepare("select projects.projectid, saveID, date, parentDiff from projectversions,projects where projects.projectid = projectversions.projectid AND owner = ?;");
-		listProjectStmt.all(req.body.userID,function(err,rows){
-			res.json(rows);
-		});
-	}
-	
-
-});
-
-function doInsert(vstmt, agentID, source, tag, parent, id, permission, title, group, res){
-	vstmt.run(agentID, source, tag, parent, id, permission, title, group,function(a){
-		var saveID = this.lastID;
-		res.json({agent: agentID, saveID: saveID});
 	});
 }
 
-app.get('/agent/get', function(req, res){
-	var argArray = [];
-	
-	var version = null;
-	var tag = null;
-	if(typeof(req.query.tag) != "undefined"){
-		tag = req.query.tag;
-	}
-	if(typeof(req.query.version != "undefined")){
-		tag = null;
-	}	
-	
+/**
+*
+* List of all projects in the system
+* GET params:
+* {
+* limit: [integer]
+* offset: [offset]
+* }
+*
+*/
 
-	var query = "SELECT path, saveID, source, tag, parentSaveID, date, name, versions.title FROM versions, agents, oauthusers WHERE ";
-	var validQuery = false;
+app.get('/project/list', function(req, res){
+	var paramObj = {};
+	paramObj["@limit"] = 10;
+	if(req.query.limit && (req.query.limit < 50))
+		paramObj["@limit"] = req.query.limit;
+	paramObj["@offset"] = 0;
+	if(req.query.offset)
+		paramObj["@offset"] = req.query.offset;
 
+	var listProjectStmt = db.prepare("SELECT * FROM projects LIMIT @limit offset @offset");
 
-	
-	if(typeof(req.query.path) != "undefined"){
-		query = query + "path = ?";
-		argArray.push(req.query.path)	;
-		validQuery = true;
-	}
-	if(typeof(req.query.version) != "undefined"){
-		if(validQuery)
-			query = query + " AND";
-		query = query + " saveID = ?";
-		argArray.push(req.query.version);
-		validQuery = true;
-	}
-	if(tag){
-		query = query + " AND tag = ?";
-		argArray.push(req.query.tag);
-	}
-	if(!validQuery)
-		return res.json({error: "3", description: "Request requires either a path or a version" });
-	
-	query = query + " AND owner = oauthusers.id AND agents.id = agentID AND (owner = ? OR permission = 1) ORDER BY date desc LIMIT 1";
-	var stmt = db.prepare(query);
-
-	var tmpUser = -1;
-	if(typeof req.user != "undefined")
-		tmpUser = req.user.id;
-
-	argArray.push(tmpUser);
-	
-	stmt.get(argArray, function(err,row){
-		res.json(row);
+	listProjectStmt.all(paramObj,function(err,rows){
+		getTagsForProjects(res,rows);
 	});
+});
+
+function getTagsForProjects(res,projectRows){
+	var inListArr = [];
+	var inListOb = {};
+	
+	for(var i = 0; i < projectRows.length; i++){
+		inListArr.push("@project" + i);
+		inListOb["@project" + i] = projectRows[i].projectID;
+	}
+
+	var tagQuery = "SELECT * FROM tags WHERE projectID IN (";
+	tagStmt = db.prepare(tagQuery + inListArr.join(",") + ")");
+
+	tagStmt.all(inListOb,function(err2,rows){
+
+		var tagsOb = {};
+		for(var i = 0; i < rows.length; i++){
+			if(!tagsOb[rows[i].projectID]){
+				tagsOb[rows[i].projectID] = [];
+			}
+			tagsOb[rows[i].projectID].push(rows[i].tag);
+		}
+		
+		for(var i = 0; i < projectRows.length; i++){
+			projectRows[i].tags = tagsOb[projectRows[i].projectID];
+		}
+		res.json(projectRows);
+	});	
+}
+
+/**
+* Title: Project Get
+* URL: /project/get
+* Method: GET
+* * Data Params:
+* {
+*  projectid: [integer],
+*  dateBefore: [date],
+*  dateAfter: [date],
+*  minimisedTitle: [string like pattern]
+*  title: [string like pattern]
+*  query: [string]
+*  }
+*  
+*  Returns JSON
+**/
+
+app.get('/project/search', function(req, res){
+	criteria = [];
+	criteriaVals = {};
+	if(req.query.projectID){
+		criteria.push("projectID = @projectID");
+		criteriaVals["@projectID"] = req.query.projectID;
+	}
+	if(req.query.dateBefore){
+		criteria.push("date < @dateBefore");
+		criteriaVals["@dateBefore"] = req.query.dateBefore;
+	}
+	if(req.query.dateAfter){
+		criteria.push("date < @dateAfter");
+		criteriaVals["@dateAfter"] = req.query.dateAfter;
+	}
+	if(req.query.minimisedTitle){
+		criteria.push("minimisedTitle LIKE @minimisedTitle");
+		criteriaVals["@minimisedTitle"] = req.query.minimisedTitle;
+	}
+	if(req.query.title){
+		criteria.push("title LIKE @title");
+		criteriaVals["@title"] = req.query.title;
+	}
+	if(req.query.query){
+		if(req.query.query.startsWith(":title(")){
+			var endOfB = req.query.query.indexOf(")");
+			criteria.push("title LIKE @title");
+			criteriaVals["@title"] = "%" + req.query.query.substring(7,endOfB) + "%";
+		}
+	}
+		
+	var listProjectStmt = db.prepare("SELECT * FROM projects WHERE " + criteria.join("AND"));
+	listProjectStmt.all(req.query.name,criteriaVals,function(err,rows){
+		getTagsForProjects(res,rows);
+	});
+});
+
+/**
+ * 
+ * GET version info for either projectID or userID
+ * 
+ * URL: /project/versions
+ * 
+ * Data param{
+ * 	projectID: [integer],
+ *  userID: [integer]
+ * }
+ * 
+ * Note - the user ID does not have to be the logged in user!
+ * 
+ */
+
+app.get('/project/versions', function(req, res){
+	if(req.query.projectID !== undefined){
+		var listProjectIDStmt = db.prepare("select projectid, saveID, date, parentDiff from projectversions where projectid = ?;");
+		listProjectIDStmt.all(req.query.projectID,function(err,rows){
+			res.json(rows);
+		});
+	}else if(req.query.userID !== undefined){
+		var listProjectStmt = db.prepare("select projects.projectid, saveID, date, parentDiff from projectversions,projects where projects.projectid = projectversions.projectid AND owner = ?;");
+		listProjectStmt.all(req.user.id,function(err,rows){
+			res.json(rows);
+		});
+	}
 });
 
 app.get('/user/details', function(req, res){
