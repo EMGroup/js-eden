@@ -400,6 +400,7 @@ Eden.AST.prototype.next = function() {
 			// Return code as value and generate JAVASCRIPT token
 			this.data.value = this.stream.code.substring(start, this.stream.position-3);
 			this.token = "JAVASCRIPT";
+			this.stream.prevposition = start-3;
 		} else {
 			break;
 		}

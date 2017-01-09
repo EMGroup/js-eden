@@ -459,7 +459,7 @@ Eden.AST.prototype.pSTATEXPR = function() {
 						var js = this.data.value;
 						this.next();
 						stat = new Eden.AST.Literal("JAVASCRIPT", js);
-						endline = this.stream.line;
+						//endline = this.stream.line;
 						break;
 	case "`"		  :
 	case "*"		  :

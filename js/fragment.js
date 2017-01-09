@@ -86,7 +86,7 @@ Eden.Fragment.prototype.destroy = function() {
 Eden.Fragment.prototype.reset = function() {
 	var me = this;
 
-	Eden.Selectors.query(this.selector, undefined, undefined, true, function(res) {
+	Eden.Selectors.query(this.selector, undefined, undefined, 1, function(res) {
 		me.results = res;
 
 		if (me.results && me.results.length == 1 && me.results[0].type == "script") {

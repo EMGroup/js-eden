@@ -40,6 +40,28 @@ Eden.Selectors.findLocalBase = function(path, ctx, filters) {
 	return scripts;
 }
 
+Eden.Selectors.makeRoot = function(ctx) {
+	var scripts = [];
+
+	if (ctx && ctx.statements) {
+		for (var i=0; i<ctx.statements.length; i++) {
+			if (ctx.statements[i].type != "dummy") scripts.push(ctx.statements[i]);
+		}
+	}
+
+	if (eden.project) {
+		scripts.push(eden.project.ast.script);
+		for (var i=0; i<eden.project.ast.script.statements.length; i++) {
+			if (eden.project.ast.script.statements[i].type != "dummy") scripts.push(eden.project.ast.script.statements[i]);
+		}
+	}
+
+	for (var x in Eden.Selectors.cache) {
+		scripts.push(Eden.Selectors.cache[x]);
+	}
+	return scripts;
+}
+
 Eden.Selectors.getScriptBase = function(stat) {
 	var p = stat;
 	while(p.parent) { p = p.parent; }
@@ -261,6 +283,11 @@ Eden.Selectors.outerBracket = function(str) {
 	return -1;
 }
 
+Eden.Selectors.makeRegex = function(str) {
+	str = "^"+str.replace(/([\\+^$.|(){[])/g, "\\$1").replace(/([*?])/g, ".$1") + "$";
+	return new RegExp(str);
+}
+
 Eden.Selectors.processNode = function(statements, s) {
 	//console.log("NODE",s);
 	if (!s || s == "") return statements;
@@ -361,6 +388,7 @@ Eden.Selectors.processNode = function(statements, s) {
 			case "remote"	:	statements = statements.filter(function(stat) {
 									var p = stat;
 									while(p.parent) p = p.parent;
+									if (!p.base) console.log("MISSING BASE",p);
 									return p.base.origin.remote == true;
 								}); break;
 
@@ -409,18 +437,30 @@ Eden.Selectors.processNode = function(statements, s) {
 		};
 		statements = nstats;
 		return Eden.Selectors.processNode(statements, s.substring(tag.length+1).trim());
-	} else if (s.charAt(0).match(/[a-zA-Z]+/)) {
-		var endix = s.search(/[^a-zA-Z0-9_]+/);
+	} else if (s.charAt(0).match(/[a-zA-Z*?]+/)) {
+		var endix = s.search(/[^a-zA-Z0-9_*?]+/);
 		if (endix == -1) endix = s.length;
 		var name = s.substring(0,endix);
+		console.log("MATCH NAME [" + name + "]");
+		var isreg = name.indexOf("*") != -1;
 		var nstats = [];
-		for (var i=0; i<statements.length; i++) {
-			if ((statements[i].lvalue && statements[i].lvalue.name == name) || (statements[i].name && statements[i].name == name)) {
-				nstats.push(statements[i]);
+
+		if (isreg) {
+			var reg = Eden.Selectors.makeRegex(name);
+			for (var i=0; i<statements.length; i++) {
+				if ((statements[i].lvalue && reg.test(statements[i].lvalue.name)) || (statements[i].name && reg.test(statements[i].name))) {
+					nstats.push(statements[i]);
+				}
+			}
+		} else {
+			for (var i=0; i<statements.length; i++) {
+				if ((statements[i].lvalue && statements[i].lvalue.name == name) || (statements[i].name && statements[i].name == name)) {
+					nstats.push(statements[i]);
+				}
 			}
 		}
 		statements = nstats;
-		return Eden.Selectors.processNode(statements, s.substring(endix));
+		return Eden.Selectors.processNode(statements, s.substring(endix).trim());
 	}
 	return [];
 }
@@ -431,29 +471,32 @@ Eden.Selectors.queryWithin = function(within, s, o) {
 	return res;
 }
 
-Eden.Selectors.query = function(s, o, ctx, single, cb) {
+Eden.Selectors.query = function(s, o, ctx, num, cb) {
+	if (typeof num == "boolean") console.trace("Bool");
 	if (s == "") {
 		var res = [];
 		if (cb) cb(res);
 		return res;
 	}
-	if (ctx === undefined && eden.project) ctx = eden.project.ast.script;
+	//if (ctx === undefined && eden.project) ctx = eden.project.ast.script;
 
-	var pathix = s.search(/[\s\.\:\#\@\>]/);
-	if (pathix == -1) pathix = s.length;
-	var path = s.substring(0,pathix).trim();
 	var script;
-	var pathixf = s.search(/[\>]/);
-	if (pathixf == -1) pathixf = s.length;
+	//var pathixf = s.search(/[\>]/);
+	//if (pathixf == -1) pathixf = s.length;
 
-	var statements = Eden.Selectors.findLocalBase(path, ctx, s.substring(pathix,pathixf).trim());
+	//var statements = Eden.Selectors.findLocalBase(path, ctx, s.substring(pathix,pathixf).trim());
+	var statements = Eden.Selectors.makeRoot(ctx);
 	if (statements === undefined) statements = [];
-	statements = Eden.Selectors.queryWithin(statements, s.substring(pathix).trim(), undefined);
+	statements = Eden.Selectors.queryWithin(statements, s, undefined); //.substring(pathix).trim()
 	if (statements === undefined) statements = [];
 
-	statements = Eden.Selectors.processResults(statements, o);
+	statements = Eden.Selectors.processResults(statements, o, num);
 
-	if (cb && ((statements.length == 0 && single) || !single)) {
+	if (cb && ((statements.length == 0 && num > 0) || !num)) {
+
+		var pathix = s.search(/[\s\.\:\#\@\>]/);
+		if (pathix == -1) pathix = s.length;
+		var path = s.substring(0,pathix).trim();
 
 		// Look for local projects
 		if (Eden.Project.local && Eden.Project.local[path]) {
@@ -461,7 +504,7 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 				var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 				Eden.Selectors.cache[path] = res[0];
 				statements = res;
-				statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
+				statements = Eden.Selectors.processNode(statements, s);
 				res = Eden.Selectors.processResults(statements, o);
 				cb(res);
 			}, "text");
@@ -487,7 +530,7 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 			Eden.DB.searchSelector(s, (o === undefined) ? "source" : o, function(stats) {
 				if (o === undefined && stats.length > 0) {
 					// Need to generate an AST for each result, or first only if single
-					if (single) {
+					if (num == 1) {
 						statements.push((new Eden.AST(stats[0], undefined, {name: path, remote: true})).script);
 						Eden.Selectors.cache[path] = statements[0];
 						//cb(res);
@@ -514,7 +557,7 @@ Eden.Selectors.query = function(s, o, ctx, single, cb) {
 
 
 Eden.Selectors.execute = function(selector, cb) {
-	Eden.Selectors.query(selector, undefined, undefined, false, function(stats) {
+	Eden.Selectors.query(selector, undefined, undefined, 1000, function(stats) {
 		function doStat(i) {
 			var p = stats[i];
 			while (p.parent) p = p.parent;

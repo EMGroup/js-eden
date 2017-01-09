@@ -142,7 +142,7 @@ function runEdenAction(source, action, cb) {
 
 				console.log("IMPORT",delay.value.selector);
 
-				Eden.Selectors.query(delay.value.selector, undefined, delay.value.parent, true, function(stats) {
+				Eden.Selectors.query(delay.value.selector, undefined, delay.value.parent, 1, function(stats) {
 					if (stats === undefined) {
 						var err = new Eden.RuntimeError(me, Eden.RuntimeError.UNKNOWN, delay.value, "Selector '"+delay.value.selector+"' has no results");
 						err.line = delay.value.line;
@@ -198,7 +198,7 @@ function runEdenAction(source, action, cb) {
 				// Note that getActionByName can return entire agents!
 				if (delay.value.name) {
 					// Get contextual root...
-					Eden.Selectors.query(delay.value.selector, undefined, delay.value.parent, true, docb);
+					Eden.Selectors.query(delay.value.selector, undefined, delay.value.parent, 1, docb);
 				} else {
 					stats = delay.value.script.statements;
 					docb(stats);

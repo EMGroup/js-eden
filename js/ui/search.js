@@ -202,7 +202,7 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 		// Scripts by hashtag and observable.
 		// Peer users
 		// Project manager
-		Eden.Selectors.query(q, undefined, undefined, false, function(res) {
+		Eden.Selectors.query(q, undefined, undefined, 100, function(res) {
 			me.element.html("");
 			var resouter = $('<div class="menubar-search-outer"></div>');
 			/*var categories = $('<div class="menubar-search-cat"><div class="menubar-search-category symbols active">&#xf06e;</div><div class="menubar-search-category agents">&#xf007;</div><div class="menubar-search-category views">&#xf2d0;</div></div>');*/
