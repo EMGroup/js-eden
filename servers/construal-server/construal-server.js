@@ -104,15 +104,19 @@ app.post('/project/add', ensureAuthenticated, function(req, res){
 	
 	if(typeof req.user == "undefined")
 		return res.json({error: 1, description: "Unauthenticated"});
-	projectID = req.body.projectID;
-	db.run("BEGIN TRANSACTION");
-	if(projectID == undefined || projectID == null){
+	var projectID = req.body.projectID;
+	
+	if(projectID == undefined || projectID == null || projectID == ""){
+		db.run("BEGIN TRANSACTION");
 		log("Creating new project");
 		createProject(req, res, function(req, res, lastID){
 			log("New project id is " + lastID);
 			addProjectVersion(req, res, lastID);
 		});
+	}else if(isNaN(projectID)){
+		res.json({error: 9, description: "Invalid projectID format"});
 	}else{
+		db.run("BEGIN TRANSACTION");
 		checkOwner(req,res,function(){
 			updateProject(req, res, function(err){
 				if(req.body.source == undefined){
@@ -137,11 +141,13 @@ function checkOwner(req,res,callback){
 	qValues["@projectID"] = req.body.projectID;
 	checkStmt.all(qValues,function(err,rows){
 		if(rows.length == 0){
+			db.run("ROLLBACK");
 			res.json({error:5, description: "No existing project"});
 		}else{
 			if(rows[0].owner == req.user.id){
 				callback();
 			}else{
+				db.run("ROLLBACK");
 				res.json({error:6, description: "User does not own this project"});
 			}
 		}
@@ -209,7 +215,14 @@ function createProject(req, res, callback){
 	
 	insertProjectStmt.run(req.body.title,req.body.minimisedTitle,req.body.image,req.user.id,null,
 			req.body.parentProject,req.body.metadata,
-			function(){callback(req, res, this.lastID);});
+			function(err){
+		if(err){
+			db.run("ROLLBACK");
+			res.json({error: -1, description: "SQL Error", err:err})
+		}
+
+		callback(req, res, this.lastID);
+		});
 }
 
 function addProjectVersion(req, res, projectID){
