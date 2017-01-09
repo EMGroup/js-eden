@@ -69,47 +69,20 @@ Eden.Project.init = function() {
 	});
 }
 
-Eden.Project.fromOldPath = function(path, tag, cb) {
-	Eden.Agent.importAgent(path, tag, ["noexec"], function(ag) {
-		var src = ag.getSource();
-		eden.project = new Eden.Project(ag.meta.saveID, path, src);
-		eden.project.start();
-		if (cb) cb(eden.project);
-	});
-}
-
-Eden.Project.newFromExisting = function(name, cb) {
-	if (Eden.Project.local[name]) {
-		$.get(Eden.Project.local[name].file, function(data) {
-			eden.project = new Eden.Project(undefined, name, data);
-			eden.project.start();
-			if (cb) cb(eden.project);
-		}, "text");
-	} else {
-		Eden.Agent.importAgent(name, undefined, ["noexec"], function(ag) {
-			var src = ag.getSource();
-			eden.project = new Eden.Project(undefined, name, src);
-			if (cb) cb(eden.project);
-		});
-	}
-}
-
 Eden.Project.search = function(q, cb) {
 
 }
 
-Eden.Project.list = function(count, cb) {
-
-}
-
-Eden.Project.load = function(name, cb) {
-	Eden.DB.getSourceRaw("nick/projects/p"+name, "v1", function(src) {
-		if (src) {
-			eden.project = new Eden.Project(undefined, name, src);
+Eden.Project.load = function(pid, vid, cb) {
+	Eden.DB.load(pid, vid, function(data) {
+		if (data) {
+			eden.project = new Eden.Project(pid, data.name, data.source);
 			eden.project.start();
 		}
 		if (cb) cb(eden.project);
 	});
+
+	if (cb) cb();
 }
 
 Eden.Project.prototype.start = function() {
@@ -172,39 +145,7 @@ Eden.Project.prototype.diff = function() {
 }
 
 Eden.Project.prototype.save = function(pub, callback) {
-	var me = this;
-	// Generate and upload to pm.
-	$.ajax({
-		url: Eden.DB.remoteURL+"/agent/add",
-		type: "post",
-		crossDomain: true,
-		xhrFields:{
-			withCredentials: true
-		},
-		data:{	path: "nick/projects/p"+this.name,
-				parentSaveID: undefined,
-				title: this.title,
-				source: this.generate(),
-				tag: "v1",
-				permission: (pub) ? "public" : undefined
-		},
-		success: function(data){
-			if (data == null || data.error) {
-				console.error(data);
-				eden.error((data) ? data.description : "No response from server");
-				if (callback) callback(false);
-			} else {
-				me.id = data.saveID;
-				if (callback) callback(true);
-			}
-		},
-		error: function(a){
-			//console.error(a);
-			//eden.error(a);
-			Eden.DB.disconnect(true);
-			if (callback) callback(false);
-		}
-	});
+	Eden.DB.save(this, pub, callback);
 }
 
 Eden.Project.restore = function() {

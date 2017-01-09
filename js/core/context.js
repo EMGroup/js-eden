@@ -121,7 +121,7 @@ function Folder(name, parent, root) {
 }
 
 Folder.prototype.getNumberOfLines = function() {
-	return this.numlines;
+	return this.numlines + 1;
 }
 
 Folder.prototype.hasErrors = function() {
@@ -156,7 +156,7 @@ Folder.prototype.getInnerSource = function() {
 			var o = sym.origin.getOrigin();
 			if (o && !o.remote) {
 				res += sym.getSource() + "\n";
-				this.numlines++;
+				this.numlines += sym.origin.numlines + 1;
 			}
 		}
 	}
@@ -166,7 +166,7 @@ Folder.prototype.getInnerSource = function() {
 Folder.prototype.getSource = function() {
 	var res = "action ACTIVE {\n";
 	res += this.getInnerSource();
-	res += "\n}";
+	res += "}";
 	return res;
 }
 

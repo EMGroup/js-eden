@@ -154,9 +154,12 @@ Eden.Fragment.prototype.getSource = function() {
 
 Eden.Fragment.prototype.makeReal = function(name) {
 	if (!this.scratch) return;
-	this.selector = name;
+	this.name = name;
+	this.title = name;
+	this.selector = "."+name;
 	this.originast = eden.project.addAction(name);
 	this.scratch = false;
+	this.remote = false;
 	this.setSource(this.source);
 	var p = this.originast;
 	while (p && p.parent) p = p.parent;

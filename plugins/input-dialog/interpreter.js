@@ -802,7 +802,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			tab_frags[curtab].makeReal(e.target.value);
 			
 			var tabs = tabsSym.value();
-			tabs[curtab] = e.target.value;
+			tabs[curtab] = tab_frags[curtab].selector;
 			tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
 		}
 
