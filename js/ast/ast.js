@@ -111,21 +111,6 @@ Eden.AST.fromNode = function(node, origin) {
 	ast.script = node;
 	ast.whens = Eden.Selectors.queryWithin([node], ">>when");
 	ast.errors = node.errors;
-
-	// Make sure lines are generated correctly for gutter
-	var baseline = node.line;
-	for (var i=0; i<node.statements.length; i++) {
-		if (node.statements[i].line !== undefined) {
-			var start = node.statements[i].line-baseline;
-			var end = node.statements[i].endline-baseline;
-
-			ast.lines[start] = node.statements[i];
-			for (var j=start+1; j<=end; j++) {
-				ast.lines[j] = node.statements[i];
-			}
-		}
-	}
-	console.log("LINES",ast.lines);
 	return ast;
 }
 
@@ -143,7 +128,7 @@ Eden.AST.prototype.destroy = function() {
 	this.lines = undefined;
 	this.scripts = undefined;
 
-	// Remove then whens
+	// Remove the whens
 	for (var i=0; i<this.whens.length; i++) {
 		if (this.whens[i].enabled) eden.project.removeAgent(this.whens[i]);
 	}

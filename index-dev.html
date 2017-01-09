@@ -661,7 +661,9 @@ See LICENSE.txt
 
 				//Eden.load(path,tag,function() {
 
-				Eden.Project.load(pid);
+				Eden.Project.load(pid, undefined, function() {
+					$(".loadmodal").hide();
+				});
 
 				//});
 			});
