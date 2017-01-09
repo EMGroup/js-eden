@@ -864,7 +864,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var viewdata = {
 			contents: $dialogContents,
 			update: function(data) {
-				if (agent.state[obs_agent] === undefined) {
+				if (curSym.value() === undefined) {
 					var agname = "view/script/"+name;
 					Eden.Agent.importAgent(agname, "default", ["noexec", "create"], function(ag) {
 						agent.state[obs_agent] = agname;

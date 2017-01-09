@@ -146,7 +146,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 		}
 		this.errors.push(err);
 		err.line = this.line;
-		Eden.Agent.emit("error", [agent,this.errors[this.errors.length-1]]);
+		eden.emit("error", [agent,this.errors[this.errors.length-1]]);
 	}	
 }
 
