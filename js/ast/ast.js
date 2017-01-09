@@ -109,7 +109,7 @@ Eden.AST.debug_end_cb = undefined;
 Eden.AST.fromNode = function(node, origin) {
 	var ast = new Eden.AST(node.getInnerSource(), undefined, origin, true);
 	ast.script = node;
-	ast.whens = Eden.Selectors.queryWithin([node], ">>when");
+	ast.whens = Eden.Selectors.queryWithin([node], ">>:kind(when)");
 	ast.errors = node.errors;
 	return ast;
 }

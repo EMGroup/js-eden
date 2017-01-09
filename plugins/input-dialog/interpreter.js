@@ -299,7 +299,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function browseScripts(path) {
 			if (path == "") path = "*";
-			var scripts = Eden.Selectors.query(path + " script:has-name:not(:remote)","id");
+			var scripts = Eden.Selectors.query(path + " :kind(script):has-name:not(:remote)","id");
 			scriptarea.outdiv.innerHTML = "";
 			for (var i=0; i<scripts.length; i++) {
 				var name = scripts[i].split(".");
@@ -318,7 +318,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			var folder = {};
 
-			scripts = Eden.Selectors.query(path + " script:has-name:remote","id");
+			scripts = Eden.Selectors.query(path + " :kind(script):has-name:remote","id");
 			for (var i=0; i<scripts.length; i++) {
 				if (scripts[i].indexOf("/") != -1) {
 					var name = scripts[i].split("/");

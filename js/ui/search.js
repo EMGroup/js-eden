@@ -215,6 +215,8 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 			var MAXRES = 8;
 			var count = 0;
 
+			console.log(res);
+
 			for (i=0; i<res.length; i++) {
 				if (count >= MAXRES) break;
 				count++;

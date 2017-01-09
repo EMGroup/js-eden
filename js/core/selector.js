@@ -307,6 +307,11 @@ Eden.Selectors.processNode = function(statements, s) {
 									return (stat.lvalue && regex.test(stat.lvalue.name)) || (stat.name && regex.test(stat.name));
 								}); break;
 
+			case "kind"		:	if (!param) break;
+								statements = statements.filter(function(stat) {
+									return stat.type == param;
+								}); break;
+
 			case "type"		:	statements = statements.filter(function(stat) {
 									return (stat.expression && Eden.Selectors.testType(stat.expression) == param) ||
 											(stat.expression && stat.expression.type == "scope" && stat.expression.range && param == "list");
@@ -404,13 +409,13 @@ Eden.Selectors.processNode = function(statements, s) {
 		};
 		statements = nstats;
 		return Eden.Selectors.processNode(statements, s.substring(tag.length+1).trim());
-	} else if (s.charAt(0).match(/[a-z]+/)) {
-		var endix = s.search(/[^a-z]+/);
+	} else if (s.charAt(0).match(/[a-zA-Z]+/)) {
+		var endix = s.search(/[^a-zA-Z0-9_]+/);
 		if (endix == -1) endix = s.length;
 		var name = s.substring(0,endix);
 		var nstats = [];
 		for (var i=0; i<statements.length; i++) {
-			if (statements[i].type == name) {
+			if ((statements[i].lvalue && statements[i].lvalue.name == name) || (statements[i].name && statements[i].name == name)) {
 				nstats.push(statements[i]);
 			}
 		}
