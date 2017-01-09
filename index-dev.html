@@ -652,16 +652,16 @@ See LICENSE.txt
 				updateSearch(q);
 			})
 			.on("click",".project",function(e) {
-				var path = e.currentTarget.getAttribute("data-path");
-				var tag = parseInt(e.currentTarget.getAttribute("data-tag"));
-				console.log("Load project: " + path + "@"+tag);
+				var pid = e.currentTarget.getAttribute("data-pid");
+				//var tag = parseInt(e.currentTarget.getAttribute("data-tag"));
+				console.log("Load project: " + pid); // + "@"+tag);
 				lopts.css("display","none");
 				$(".loadmodal").show();
-				$(".loadmessage").html("Loading " + Eden.DB.meta[path].title + "...");
+				$(".loadmessage").html("Loading " + "" + "...");
 
 				//Eden.load(path,tag,function() {
 
-				Eden.Project.fromOldPath(path, tag);
+				Eden.Project.load(pid);
 
 				//});
 			});
@@ -707,26 +707,26 @@ See LICENSE.txt
 						break;
 					}
 
-					var meta = Eden.DB.meta[projects[i]];
-					var t = meta.date.split(/[- :]/);
+					var meta = projects[i];
+					//var t = meta.date.split(/[- :]/);
 					var title = meta.title;
-					var thumb = meta.thumb;
-					var tags = meta.tags;
+					var thumb = meta.image;
+					//var tags = meta.tags;
 
-					if (meta.hidden) continue;
+					//if (meta.hidden) continue;
 
 					var subtitle;
 					if (pub) {
 						subtitle = meta.author;
 					} else {
-						subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
+						//subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
 					}
 
 					//Eden.DB.getMeta(path+"/"+x,function(path,meta) {
-					if (thumb) {
-						output.append($('<div class="cadence-plisting-entry project noselect" data-path="'+(projects[i])+'" data-tag="'+meta.publicID+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+					if (thumb !== null) {
+						output.append($('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
 					} else {
-						output.append($('<div class="cadence-plisting-entry project noselect" data-path="'+(projects[i])+'" data-tag="'+meta.publicID+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+						output.append($('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
 						//console.log(Eden.DB.meta[path+"/"+x]);
 					}
 					//});
@@ -744,9 +744,9 @@ See LICENSE.txt
 					console.log("SEARCH",data);
 
 
-					/*displayProjects2(plist, pub, ordered);
+					displayProjects2(plist, pub, data);
 
-					for (var i=0; i<ordered.length; i++) {
+					/*for (var i=0; i<ordered.length; i++) {
 						var meta = Eden.DB.meta[ordered[i]];
 						var tags = meta.tags;
 						//console.log(tags);

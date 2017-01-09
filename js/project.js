@@ -87,13 +87,26 @@ Eden.Project.search = function(q, cb) {
 }
 
 Eden.Project.load = function(pid, vid, cb) {
-	Eden.DB.load(pid, vid, function(data) {
-		if (data) {
-			eden.project = new Eden.Project(pid, data.name, data.source);
-			console.log("LOAD PROJECT",data);
-			eden.project.start();
+	Eden.DB.getMeta(pid, function(metaA) {
+		if (metaA.length == 0) {
+			if (cb) cb();
+			return;
 		}
-		if (cb) cb(eden.project);
+
+		var meta = metaA[0];
+		console.log("META",meta);
+
+		Eden.DB.load(pid, vid, function(data) {
+			if (data) {
+				eden.project = new Eden.Project(pid, meta.minimisedTitle, data.source);
+				console.log("LOAD PROJECT",data);
+				eden.project.vid = data.saveID;
+				eden.project.title = meta.title;
+				// TODO More meta
+				eden.project.start();
+			}
+			if (cb) cb(eden.project);
+		});
 	});
 
 	if (cb) cb();

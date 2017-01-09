@@ -208,7 +208,7 @@ Eden.DB.save = function(project, ispublic, callback) {
 			data:{	projectid: project.id,
 					title: project.title,
 					source: project.generate(),
-					tags: project.tags,
+					tags: project.tags.join(" "),
 					minimisedTitle: project.name,
 					from: project.vid
 			},
@@ -292,6 +292,37 @@ Eden.DB.search = function(q, callback) {
 	var path = this.remoteURL+"/project/";
 	if (q == "") path += "list";
 	else path += "search?query="+q;
+
+	$.ajax({
+		url: path,
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			if (data && data.error) {
+				console.error(data);
+				eden.error((data) ? data.description : "No response from server");
+				callback(undefined);
+				return;
+			} else if (data) {
+				callback(data);
+				return;
+			} else {
+				callback(undefined);
+			}
+		},
+		error: function(a){
+			//console.error(a);
+			Eden.DB.disconnect(true);
+		}
+	});
+}
+
+Eden.DB.getMeta = function(id, callback) {
+	var path = this.remoteURL+"/project/";
+	path += "search?projectID="+id;
 
 	$.ajax({
 		url: path,

@@ -438,8 +438,9 @@ app.get('/project/search', function(req, res){
 		}
 	}
 		
-	var listProjectStmt = db.prepare("SELECT * FROM projects WHERE " + criteria.join("AND"));
-	listProjectStmt.all(req.query.name,criteriaVals,function(err,rows){
+	var qStr = "SELECT * FROM projects WHERE " + criteria.join("AND");
+	var listProjectStmt = db.prepare(qStr);
+	listProjectStmt.all(criteriaVals,function(err,rows){
 		getTagsForProjects(res,rows);
 	});
 });
