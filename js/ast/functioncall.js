@@ -56,7 +56,7 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 		var err = new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e);
 		this.errors.push(err);
 		err.line = this.line;
-		Eden.Agent.emit("error", [agent,err]);
+		eden.emit("error", [agent,err]);
 		//throw e;
 	}
 }

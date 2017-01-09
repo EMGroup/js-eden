@@ -7,6 +7,11 @@ Eden.AST.prototype.pREQUIRE = function() {
 	var express = this.pEXPRESSION();
 	req.setExpression(express);
 	this.warnings.push(new Eden.SyntaxWarning(this, req, Eden.SyntaxWarning.DEPRECATED, "require."));
+	if (this.token != ";") {
+		req.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+		return req;
+	}
+	this.next();
 	return req;
 }
 
