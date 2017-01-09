@@ -333,35 +333,6 @@ function sendDiff(fromID,toSource,projectID,toID,res){
 	});
 }
 
-function getTagsForProjects(res,projectRows){
-	var paramOb = {};
-
-	var tagQuery = db.prepare("SELECT projectID,tag,@i as i FROM tags WHERE projectID = @projectID");
-	var completedProjects = 0;
-	
-	for(var i = 0; i < projectRows.length; i++){
-		paramOb["@projectID"] = projectRows[i].projectID;
-		paramOb["@i"] = i;
-
-		tagQuery.all(paramOb,function(err,rows){
-			if(err != null){
-				res.json({error: "-1", status: err})
-			}
-			if(rows.length > 0){
-				var pID = rows[0].projectID;
-				projectRows[rows[0].i].tags = [];
-			}
-			for(var j = 0; j < rows.length; j++){
-				projectRows[rows[j].i].tags.push(rows[j].tag);				
-			}
-			completedProjects++;
-			if(completedProjects == projectRows.length){
-				res.json(projectRows);
-			}
-		});
-	}
-}
-
 /**
 * Title: Project Search
 * URL: /project/search
@@ -383,6 +354,7 @@ function getTagsForProjects(res,projectRows){
 
 app.get('/project/search', function(req, res){
 	criteria = [];
+	tagCriteria = [];
 	criteriaVals = {};
 	
 	var paramObj = {};
@@ -420,16 +392,50 @@ app.get('/project/search', function(req, res){
 			criteriaVals["@title"] = "%" + req.query.query.substring(7,endOfB) + "%";
 		}
 	}
+	if(req.query.tag){
+		if(Array.isArray(req.query.tag)){
+			for(var i = 0; i < req.query.tag.length; i++){
+				tagCriteria.push("tags LIKE @tag" + i);
+				criteriaVals["@tag" + i] = "% " + req.query.tag[i] + " %";
+			}
+		}else{
+			tagCriteria.push("tags LIKE @tag");
+			criteriaVals["@tag"] = "% " + req.query.tag + " %";
+		}
+	}
 	
 	var conditionStr = "";
 	if(criteria.length > 0){
-		conditionStr = " " + criteria.join("AND");
+		conditionStr = " AND " + criteria.join(" AND ");
 	}
-
-	var listProjectStmt = db.prepare("SELECT projectID, title, minimisedTitle, image, owner, name as ownername, publicVersion, parentProject, projectMetaData FROM projects,oauthusers WHERE owner = userid AND " + conditionStr + " LIMIT @limit OFFSET @offset");
+	
+	var tagConditionStr = "";
+	if(tagCriteria.length > 0){
+		tagConditionStr = " WHERE " + tagCriteria.join(" AND ");
+	}
+	
+	var listQueryStr = 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags ' 
+		+ 'FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, publicVersion, parentProject, projectMetaData, '
+		+ '(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers left outer join tags on projects.projectID = tags.projectID WHERE owner = userid ' 
+		+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' LIMIT @limit OFFSET @offset';
+	
+	var listProjectStmt = db.prepare(listQueryStr);
 
 	listProjectStmt.all(criteriaVals,function(err,rows){
-		getTagsForProjects(res,rows);
+		if(err)
+			res.json({error: -1, description: "SQL Error", err: err})
+		for(var i = 0; i < rows.length; i++){
+			if(rows[i].tags){
+				var tmpTags = rows[i].tags.split(" ");
+				for(var j = tmpTags.length - 1; j >= 0; j--){
+					if(tmpTags[j] == "")
+						tmpTags.splice(j,1);
+				}
+				
+				rows[i].tags = tmpTags;
+			}
+		}
+		res.json(rows);
 	});
 });
 
