@@ -20,9 +20,6 @@ Eden.AST.Definition.prototype.left = function(lvalue) {
 	}
 };
 
-Eden.AST.Definition.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Definition.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	var dobound = (this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";
 	var result = "function(context, scope, cache) {\n";
@@ -153,5 +150,5 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	}	
 }
 
-Eden.AST.Definition.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Definition);
 

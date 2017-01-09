@@ -35,7 +35,5 @@ Eden.AST.Delete.prototype.execute = function(ctx, base, scope) {
 	}, this);
 }
 
-Eden.AST.Delete.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Delete.prototype.getSource = Eden.AST.BaseStatement.getSource;
-Eden.AST.Delete.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Delete);
 

@@ -21,7 +21,5 @@ Eden.AST.Require.prototype.execute = function(ctx, base, scope) {
 	edenUI.loadPlugin(this.expression.execute(ctx, base, scope));
 }
 
-Eden.AST.Require.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Require.prototype.getSource = Eden.AST.BaseStatement.getSource;
-Eden.AST.Require.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Require);
 

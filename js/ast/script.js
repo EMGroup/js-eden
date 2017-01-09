@@ -8,6 +8,8 @@ Eden.AST.Script = function() {
 	this.postfix = "";
 };
 
+Eden.AST.registerScript(Eden.AST.Script);
+
 /**
  * Recursive search of all imports for the required action code.
  */

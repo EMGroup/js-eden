@@ -83,6 +83,7 @@ var Language = {
 		"auto": "auto",
 		"para": "para",
 		"action": "action",
+		"procedure": "procedure",
 		"local": "local",
 		"if": "if",
 		"is": "is",

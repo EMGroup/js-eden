@@ -7,9 +7,6 @@ Eden.AST.Switch = function() {
 	this.compiled = undefined;
 };
 
-Eden.AST.Switch.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Switch.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Switch.prototype.setExpression = function(expression) {
 	this.expression = expression;
 	if (expression) this.errors.push.apply(this.errors, expression.errors);
@@ -51,5 +48,5 @@ Eden.AST.Switch.prototype.execute = function(ctx, base, scope, agent) {
 	Eden.Agent.emit("error", [agent,err]);
 };
 
-Eden.AST.Switch.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Switch);
 

@@ -49,6 +49,7 @@ function Folder(name, parent, root) {
 
 	this.errors = [];
 	this.lock = 1;
+	this.numlines = 0;
 
 	/**
 	 * @type {Folder}
@@ -119,13 +120,19 @@ function Folder(name, parent, root) {
 	});
 }
 
+Folder.prototype.getNumberOfLines = function() {
+	return this.numlines;
+}
+
 Folder.prototype.getInnerSource = function() {
 	var res = "";
+	this.numlines = 0;
 	for (var x in this.symbols) {
 		var sym = this.symbols[x];
 		if (sym.origin && sym.origin.parent && sym.origin.parent.statements !== undefined) continue;
 		if (!sym.origin || sym.origin.name == "*Default") continue;
 		res += sym.getSource() + "\n";
+		this.numlines++;
 	}
 	return res;
 }

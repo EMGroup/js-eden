@@ -164,13 +164,13 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	this.lastDoxyComment = this.parentDoxy;
 
 	switch (this.token) {
-	case "proc"		:	this.next(); stat = this.pACTION(); end = this.stream.position; endline = this.stream.line; this.next(); break;
-	case "func"		:	this.next(); stat = this.pFUNCTION(); end = this.stream.position; endline = this.stream.line; this.next(); break;
-	case "when"		:	this.next(); stat = this.pWHEN(); end = this.stream.prevposition; endline = this.stream.prevline; break;
-	case "action"	:	this.next(); stat = this.pNAMEDSCRIPT(); end = this.stream.position; endline = this.stream.line; this.next(); break;
+	case "proc"		:	this.next(); stat = this.pACTION(); break;
+	case "func"		:	this.next(); stat = this.pFUNCTION(); break;
+	case "when"		:	this.next(); stat = this.pWHEN(); break;
+	case "action"	:	this.next(); stat = this.pNAMEDSCRIPT(); break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;
-	case "do"		:	this.next(); stat = this.pDO(); end = this.stream.prevposition; endline = this.stream.prevline; break;
+	case "do"		:	this.next(); stat = this.pDO(); break;
 	case "wait"		:	this.next(); stat = this.pWAIT(); break;
 	case "switch"	:	this.next(); stat = this.pSWITCH(); break;
 	case "case"		:	this.next(); stat = this.pCASE(); break;
@@ -251,24 +251,22 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						var script = this.pSCRIPT();
 						if (this.token != "}") {
 							script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
-							endline = this.stream.line;
 							stat = script;
 							break;
 						}
-						endline = this.stream.line;
 						this.next();
 						stat = script; break;
 	case "JAVASCRIPT" : curline = this.data.line-1;
 						var js = this.data.value;
 						this.next();
 						stat = new Eden.AST.Literal("JAVASCRIPT", js);
-						endline = this.stream.line;
+						//endline = this.stream.line;
 						break;
 	case "`"		  :
 	case "*"		  :
 	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
 						if (lvalue.errors.length > 0) {
-							stat = new Eden.AST.DummyStatement;
+							stat = new Eden.AST.DummyStatement();
 							stat.lvalue = lvalue;
 							stat.errors = lvalue.errors;
 							break;
@@ -279,16 +277,13 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						if (formula.errors.length > 0) {
 							stat = formula;
 							// To correctly report multi-line def errors.
-							endline = this.stream.line;
+							//endline = this.stream.line;
 							break;
 						}
 		
 						if (this.token != ";") {
 							formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 						} else {
-							// End source here to avoid bringing comments in
-							end = this.stream.position;
-							endline = this.stream.line;
 							this.next();
 						}
 
@@ -298,26 +293,33 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						stat = formula; break;
 	default : return undefined;
 	}
+
+	// End source here to avoid bringing comments in
+	end = this.lastposition;
+	endline = this.lastline;
 	
 	stat.parent = this.parent;
 	stat.doxyComment = doxy;
 
-	this.lines[curline] = stat;
-	stat.line = curline;
-	stat.endline = endline-1;
+	//if (endline == -1) endline = this.stream.prevline;
+
+	//this.lines[curline] = stat;
+	//stat.line = curline;
+	//stat.endline = endline-1;
+	stat.numlines = endline - curline - 1;
 
 	// Update statements start and end so original source can be extracted.
-	if (end == -1) {
-		stat.setSource(start, this.stream.prevposition, this.stream.code.substring(start,this.stream.prevposition));
-	} else {
+	//if (end == -1) {
+	//	stat.setSource(start, this.stream.prevposition, this.stream.code.substring(start,this.stream.prevposition));
+	//} else {
 		stat.setSource(start, end,this.stream.code.substring(start,end));
-	}
+	//}
 
 	//var endline = this.stream.line;
-	for (var i=curline+1; i<endline; i++) {
+	/*for (var i=curline+1; i<endline; i++) {
 		if (this.lines[i] === undefined || stat.errors.length > 0) 
 			this.lines[i] = stat;
-	}
+	}*/
 	return stat;
 };
 

@@ -8,9 +8,6 @@ Eden.AST.Action = function() {
 	this.name = "";
 };
 
-Eden.AST.Action.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Action.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Action.prototype.kind = function(k) {
 	this.kindofaction = k;
 };
@@ -49,5 +46,5 @@ Eden.AST.Action.prototype.execute = function(ctx, base, scope, agent) {
 	}
 }
 
-Eden.AST.Action.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Action);
 

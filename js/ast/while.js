@@ -7,11 +7,6 @@ Eden.AST.While = function() {
 	this.compiled = undefined;
 };
 
-Eden.AST.While.prototype.error = fnEdenASTerror;
-
-Eden.AST.While.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.While.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.While.prototype.setCondition = function(condition) {
 	this.condition = condition;
 	this.errors.push.apply(this.errors, condition.errors);
@@ -50,4 +45,6 @@ Eden.AST.While.prototype.execute = function(ctx, base, scope, agent) {
 		return [this.statement, this];
 	}
 }
+
+Eden.AST.registerStatement(Eden.AST.While);
 

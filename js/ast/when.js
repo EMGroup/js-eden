@@ -15,6 +15,8 @@ Eden.AST.When = function() {
 	this.enabled = false;
 };
 
+Eden.AST.registerContext(Eden.AST.When);
+
 Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
 	var trigs = base.triggers[d];
 	if (trigs) {

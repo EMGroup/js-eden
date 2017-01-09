@@ -22,9 +22,6 @@ Eden.AST.Case.prototype.setLiteral = function(datatype, literal) {
 	this.literal = literal;
 }
 
-Eden.AST.Case.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Case.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Case.prototype.generate = function(ctx, scope) {
 	if (typeof this.literal == "string") {
 		return "case \"" + this.literal + "\": "; 
@@ -40,5 +37,5 @@ Eden.AST.Case.prototype.execute = function(ctx,base,scope,agent) {
 	Eden.Agent.emit("error", [agent,err]);
 }
 
-Eden.AST.Case.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Case);
 

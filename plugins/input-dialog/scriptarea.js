@@ -33,7 +33,7 @@ EdenUI.ScriptArea = function() {
 	var me = this;
 	this.gutterinterval = setInterval(function() {
 		if (me.fragment === undefined) return;
-		me.gutter.generate(me.fragment.ast, me.currentlineno);
+		me.gutter.generate(me.fragment.ast.script, me.currentlineno);
 		//scriptast.clearExecutedState();
 	}, 300);
 
@@ -80,7 +80,7 @@ EdenUI.ScriptArea.prototype.setFragment = function(frag) {
 		this.intextarea.focus();
 		this.checkScroll();
 
-		this.gutter.setBaseAST(frag.ast);
+		this.gutter.setBaseAST(frag.ast.script);
 	}
 
 	if (frag.locked) {

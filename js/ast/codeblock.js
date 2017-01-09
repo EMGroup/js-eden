@@ -7,8 +7,6 @@ Eden.AST.CodeBlock = function() {
 	this.parent = undefined;
 };
 
-Eden.AST.CodeBlock.prototype.error = fnEdenASTerror;
-
 Eden.AST.CodeBlock.prototype.setLocals = function(locals) {
 	this.locals = locals;
 	this.errors.push.apply(this.errors, locals.errors);
@@ -51,4 +49,6 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 	res += this.script.generate(this, "scope") + "}); })";
 	return res;
 }
+
+Eden.AST.registerStatement(Eden.AST.CodeBlock);
 

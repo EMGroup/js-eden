@@ -83,6 +83,7 @@ function EdenScriptGutter(parent, infob) {
 	this.lines = [];
 	this.agents = {};
 	this.hovering = false;
+	this.ctx = undefined;
 
 	this.edits = undefined;
 
@@ -130,8 +131,9 @@ function EdenScriptGutter(parent, infob) {
 
 	function startHover(line, shiftdown) {
 		if (shiftdown && dragselect) {
-			if (me.ast.lines[line]) {
-				var lines = me.ast.getBlockLines(line);
+			var stat = me.ast.getStatementByLine(line);
+			if (stat) {
+				var lines = stat.getRange();
 				if (lines[0] < lines[1]) me.showBrace(lines[0],lines[1]);
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					me.lines[i].selected = !alreadyselected;
@@ -143,13 +145,14 @@ function EdenScriptGutter(parent, infob) {
 				//dragselectcount++;
 			}
 		} else {
-			if (me.ast.lines[line]) {
-				var lines = me.ast.getBlockLines(line);
+			var stat = me.ast.getStatementByLine(line);
+			if (stat) {
+				var lines = stat.getRange();
 				var avgline = Math.floor((lines[1] - lines[0]) / 2) + lines[0];
 
 				if (me.lines[line].live) {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
-				} else if (me.ast.lines[line].executed == 0) {
+				} else if (stat.executed == 0) {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-play'>&#xf04b;</span";
 					if (!shiftdown) changeClass(me.gutter.childNodes[avgline], "play", true);
 				}
@@ -178,9 +181,10 @@ function EdenScriptGutter(parent, infob) {
 		clearTimeout(holdtimeout);
 		holdtimeout = undefined;
 		//if (!dragselect) {
-			if (me.ast.lines[line]) {
+		var stat = me.ast.getStatementByLine(line);
+			if (stat) {
 				//me.gutter.childNodes[line].innerHTML = "";
-				var lines = me.ast.getBlockLines(line);
+				var lines = stat.getRange();
 				me.hideBrace();
 				for (var i=lines[0]; i<=lines[1]; i++) {
 					changeClass(me.gutter.childNodes[i], "hover", false);
@@ -206,8 +210,9 @@ function EdenScriptGutter(parent, infob) {
 		//if (e.shiftKey) return;
 
 		// There is a statement on this line.
-		if (me.ast.lines[line]) {
-			var lines = me.ast.getBlockLines(line);
+		var stat = me.ast.getStatementByLine(line);
+		if (stat) {
+			var lines = stat.getRange();
 
 			// If live already and no shift key
 			if (me.lines[line].live && !shiftdown) {
@@ -270,8 +275,9 @@ function EdenScriptGutter(parent, infob) {
 				//changeClass(e.target, "select", false);
 				me.executeSelected();
 				if (!alreadyselected) {
-					if (me.ast.lines[downline]) {
-						var lines = me.ast.getBlockLines(downline);
+					var stat = me.ast.getStatementByLine(downline);
+					if (stat) {
+						var lines = stat.getRange();
 						for (var i=lines[0]; i<=lines[1]; i++) {
 							me.lines[i].selected = false;
 							changeClass(me.gutter.childNodes[i], "select", false);
@@ -332,7 +338,7 @@ EdenScriptGutter.prototype.executeSelected = function() {
 
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i].selected) {
-			var sellines = this.ast.getBlockLines(i);
+			var sellines = this.ast.getStatementByLine(i).getRange();
 			this.ast.executeLine(i, agent);
 			i = sellines[1];
 		}
@@ -355,7 +361,7 @@ EdenScriptGutter.prototype.hideBrace = function() {
 
 EdenScriptGutter.prototype.selectLine = function(lineno, notcurrent) {
 	if (this.edits) return;
-	if (this.ast.script.errors.length > 0) return;
+	if (this.ast.errors.length > 0) return;
 
 	if (this.curline >= 0) {
 		//var sellines = this.ast.getBlockLines(this.curline);
@@ -366,24 +372,31 @@ EdenScriptGutter.prototype.selectLine = function(lineno, notcurrent) {
 		//	changeClass(this.gutter.childNodes[i],"play",false);
 		//}
 
-		var sellines = this.ast.getBlockLines(this.curline);
-		var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
-		if (!notcurrent) {
-			changeClass(this.gutter.childNodes[avgline],"play",false);
-			changeClass(this.gutter.childNodes[avgline],"current",false);
+		var stat = this.ast.getStatementByLine(this.curline);
+		if (stat) {
+			var sellines = stat.getRange();
+			var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
+			if (!notcurrent) {
+				changeClass(this.gutter.childNodes[avgline],"play",false);
+				changeClass(this.gutter.childNodes[avgline],"current",false);
+			}
 		}
 	}
 	this.curline = lineno-1;
-	var sellines = this.ast.getBlockLines(lineno-1);
+	var stat = this.ast.getStatementByLine(lineno-1);
+	if (stat) {
+		if (!stat.getRange) console.error("NO GETRANGE",stat);
+		var sellines = stat.getRange();
 
-	if (sellines[0] < sellines[1]) {
-		this.showBrace(sellines[0], sellines[1]);
-	} else {
-		this.hideBrace();
-		if (this.ast.lines[lineno-1] && this.ast.lines[lineno-1].executed == 0) {
-			var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
-			changeClass(this.gutter.childNodes[avgline], "play", "true");
-			if (!notcurrent) changeClass(this.gutter.childNodes[avgline], "current", "true");
+		if (sellines[0] < sellines[1]) {
+			this.showBrace(sellines[0], sellines[1]);
+		} else {
+			this.hideBrace();
+			if (stat && stat.executed == 0) {
+				var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
+				changeClass(this.gutter.childNodes[avgline], "play", "true");
+				if (!notcurrent) changeClass(this.gutter.childNodes[avgline], "current", "true");
+			}
 		}
 	}
 }
@@ -494,13 +507,14 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 	}*/
 
 	var globaldoupdate = false;
+	var numlines = ast.getNumberOfLines()+1;
 
 	// Reset all lines if number of lines changes
-	if (ast.lines.length != this.gutter.childNodes.length) {
+	if (numlines != this.gutter.childNodes.length) {
 		while (this.gutter.firstChild) {
 			this.gutter.removeChild(this.gutter.firstChild);
 		}
-		for (var i=0; i<ast.lines.length; i++) {
+		for (var i=0; i<numlines; i++) {
 			var ele = document.createElement("div");
 			ele.className = "eden-gutter-item";
 			ele.setAttribute("data-line", ""+i);
@@ -511,7 +525,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 		globaldoupdate = true;
 	}
 
-	for (var i=0; i<ast.lines.length; i++) {
+	for (var i=0; i<numlines; i++) {
 		//this.gutter.appendChild(document.createElement("div"));
 		var className = "eden-gutter-item";
 		var content = "";
@@ -522,8 +536,8 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 		/*if (i == lineno-1) {
 			className += " eden-gutter-current";
 		}*/
-		if (ast.lines[i]) {
-			var stat = ast.lines[i];
+		var stat = ast.getStatementByLine(i);
+		if (stat) {
 
 			if (stat.errors.length > 0) {
 				//className += " errorblock";
@@ -593,7 +607,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 		}
 	}
 
-	if (this.ast.script.errors.length > 0) {
+	if (this.ast.errors.length > 0) {
 		this.hideBrace();
 		/*var errlines = this.ast.getBlockLines(errorline);
 		if (errlines[0] < errlines[1]) {

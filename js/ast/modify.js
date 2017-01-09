@@ -18,9 +18,6 @@ Eden.AST.Modify = function(kind, expression) {
 	return undefined;
 }*/
 
-Eden.AST.Modify.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Modify.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Modify.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
 	if (lvalue.errors.length > 0) {
@@ -142,5 +139,5 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 	//}
 }
 
-Eden.AST.Modify.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Modify);
 

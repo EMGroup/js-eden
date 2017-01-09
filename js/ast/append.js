@@ -53,7 +53,5 @@ Eden.AST.Append.prototype.execute = function(ctx, base, scope, agent) {
 	sym.assign(val2, scope, this);
 }
 
-Eden.AST.Append.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Append.prototype.getSource = Eden.AST.BaseStatement.getSource;
-Eden.AST.Append.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Append);
 
