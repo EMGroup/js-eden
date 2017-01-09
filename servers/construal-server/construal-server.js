@@ -271,7 +271,7 @@ function getFullVersion(version, projectID, callback){
 * Method: GET
 * Data Params:
 * {
-*  projectid: integer,
+*  projectID: integer,
 *  to: [integer],
 *  from: [integer],
 * }
@@ -313,7 +313,7 @@ app.get('/project/get',ensureAuthenticated, function(req,res){
 						if(req.query.from){
 							sendDiff(req.query.from,source,req.query.projectID,saveID,res);
 						}else{
-							res.json({saveID: saveID, projectID: projectID,source: source});
+							res.json({saveID: row.saveID, projectID: projectID,source: source});
 						}
 					});
 				});
