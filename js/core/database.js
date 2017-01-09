@@ -14,8 +14,8 @@ Eden.DB = {
 	userid: undefined,
 	// Note: reverse order, last is popped off to try first
 	repositories: [
-		"http://jseden.dcs.warwick.ac.uk/projectmanager",
-		"http://localhost:18880"
+		//"http://jseden.dcs.warwick.ac.uk/construal-server",
+		"http://localhost:18882"
 	],
 	repoindex: 0,
 	retrycount: 0,
@@ -199,26 +199,28 @@ Eden.DB.getLoginName = function(callback) {
 Eden.DB.save = function(project, ispublic, callback) {
 	if (Eden.DB.isConnected()) {
 		$.ajax({
-			url: this.remoteURL+"/agent/add",
+			url: this.remoteURL+"/project/add",
 			type: "post",
 			crossDomain: true,
 			xhrFields:{
 				withCredentials: true
 			},
-			data:{	path: path,
-					parentSaveID: (meta.saveID == -1) ? undefined : meta.saveID,
-					title: meta.title,
-					source: source,
-					tag: tagname,
-					permission: (ispublic) ? "public" : undefined
+			data:{	projectid: project.id,
+					title: project.title,
+					source: project.generate(),
+					tags: project.tags,
+					minimisedTitle: project.name,
+					from: project.vid
 			},
 			success: function(data){
-				if (data == null || data.error) {
+				if (data === null || data.error) {
 					console.error(data);
 					eden.error((data) ? data.description : "No response from server");
 					if (callback) callback(false);
 				} else {
-					meta.updateVersion(data.saveID, data.tag, meta.title, meta.name, meta.date);
+					//meta.updateVersion(data.saveID, data.tag, meta.title, meta.name, meta.date);
+					project.id = data.projectID;
+					project.vid = data.saveID;
 					if (callback) callback(true);
 				}
 			},
@@ -262,7 +264,7 @@ Eden.DB.getVersions = function(path, callback) {
 Eden.DB.load = function(pid, vid, callback) {
 	if (Eden.DB.isConnected()) {
 		$.ajax({
-			url: Eden.DB.remoteURL+"/agent/get?pid="+pid+"&vid="+vid,
+			url: Eden.DB.remoteURL+"/project/get?projectID="+pid+ ((vid) ? "&to="+vid : ""),
 			type: "get",
 			crossDomain: true,
 			xhrFields:{
@@ -287,8 +289,12 @@ Eden.DB.load = function(pid, vid, callback) {
 }
 
 Eden.DB.search = function(q, callback) {
+	var path = this.remoteURL+"/project/";
+	if (q == "") path += "list";
+	else path += "search?query="+q;
+
 	$.ajax({
-		url: this.remoteURL+"/agent/search?path=%"+q+"%&mode=fullpathsearch",
+		url: path,
 		type: "get",
 		crossDomain: true,
 		xhrFields:{
@@ -301,13 +307,7 @@ Eden.DB.search = function(q, callback) {
 				callback(undefined);
 				return;
 			} else if (data) {
-				var results = [];
-				Eden.DB.processManifestList(data, true);
-				for (var i=0; i<data.length; i++) {
-					results.push(data[i].path);
-				}
-
-				callback(results);
+				callback(data);
 				return;
 			} else {
 				callback(undefined);

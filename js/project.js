@@ -7,6 +7,7 @@ Eden.Project = function(id, name, source) {
 	this.ast = new Eden.AST(source, undefined, this);
 	//this.ast.script.lock = 1;
 	this.id = id;
+	this.vid = undefined;
 	this.triggers = {};
 
 	if (this.ast && this.ast.script.errors.length == 0) {
@@ -69,6 +70,18 @@ Eden.Project.init = function() {
 	});
 }
 
+Eden.Project.newFromExisting = function(name, cb) {
+	if (Eden.Project.local[name]) {
+		$.get(Eden.Project.local[name].file, function(data) {
+			eden.project = new Eden.Project(undefined, name, data);
+			eden.project.start();
+			if (cb) cb(eden.project);
+		}, "text");
+	} else {
+		
+	}
+}
+
 Eden.Project.search = function(q, cb) {
 
 }
@@ -77,6 +90,7 @@ Eden.Project.load = function(pid, vid, cb) {
 	Eden.DB.load(pid, vid, function(data) {
 		if (data) {
 			eden.project = new Eden.Project(pid, data.name, data.source);
+			console.log("LOAD PROJECT",data);
 			eden.project.start();
 		}
 		if (cb) cb(eden.project);

@@ -740,22 +740,11 @@ See LICENSE.txt
 
 				//console.log("Load projects: " + path);
 
-				Eden.DB.getDirectory(path, function(data) {
-					var ordered = [];
-
-					for (var x in data) {
-						ordered.push(path+"/"+x);
-					}
-
-					// Sort by most recent
-					ordered.sort(function(a,b) {
-						var da = Eden.DB.meta[a].date;
-						var db = Eden.DB.meta[b].date;
-						return db.localeCompare(da);
-					});
+				Eden.DB.search("", function(data) {
+					console.log("SEARCH",data);
 
 
-					displayProjects2(plist, pub, ordered);
+					/*displayProjects2(plist, pub, ordered);
 
 					for (var i=0; i<ordered.length; i++) {
 						var meta = Eden.DB.meta[ordered[i]];
@@ -769,8 +758,8 @@ See LICENSE.txt
 						}
 					}
 
-					projects = ordered;
-					if (cb) cb(ordered);
+					projects = ordered;*/
+					if (cb) cb([]);
 				});
 			}
 
