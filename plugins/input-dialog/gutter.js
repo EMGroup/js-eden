@@ -251,9 +251,10 @@ function EdenScriptGutter(parent, infob) {
 	.on('click', '.eden-gutter-item', function(e) {
 		if (this.edits) return;
 		var line = parseInt(e.target.getAttribute("data-line"));
+		var stat = me.ast.getStatementByLine(line);
 
 		// If there is a statement
-		if (me.ast.lines[line]) {
+		if (stat) {
 			// And if it has errors
 			/*if (me.ast.lines[line].errors.length > 0) {
 				var err = me.ast.lines[line].errors[0];
@@ -271,7 +272,8 @@ function EdenScriptGutter(parent, infob) {
 		if (this.edits) return;
 		if (!me.ast.hasErrors() && !shiftdown) {
 			var line = parseInt(e.target.getAttribute("data-line"));
-			if (!((me.ast.lines[line] && me.ast.lines[line].errors.length > 0) || me.lines[line].live || alreadylive)) {
+			var stat = me.ast.getStatementByLine(line);
+			if (!((stat && stat.hasErrors()) || me.lines[line].live || alreadylive)) {
 				//changeClass(e.target, "select", false);
 				me.executeSelected();
 				if (!alreadyselected) {
@@ -338,8 +340,10 @@ EdenScriptGutter.prototype.executeSelected = function() {
 
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i].selected) {
+			var stat = this.ast.getStatementByLine(i);
 			var sellines = this.ast.getStatementByLine(i).getRange();
-			this.ast.executeLine(i, agent);
+			//this.ast.executeLine(i, agent);
+			eden.project.ast.executeStatement(stat, i, eden.project);
 			i = sellines[1];
 		}
 	}

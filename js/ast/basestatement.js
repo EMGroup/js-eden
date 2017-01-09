@@ -42,3 +42,9 @@ Eden.AST.BaseStatement.getSource = function() {
 	return this.source;
 }
 
+Eden.AST.BaseStatement.getOrigin = function() {
+	var p = this;
+	while (p.parent) p = p.parent;
+	return p.base.origin;
+}
+

@@ -87,6 +87,11 @@ InternalAgent = function(name, local) {
 	this.internal = true;
 }
 
+InternalAgent.prototype.getOrigin = function() {
+	if (this.name != "*Default") return eden.project;
+	else return undefined;
+}
+
 // Input device agents are always local only.
 Symbol.hciAgent = new InternalAgent("*Input Device", true);
 // A JavaScript agent is not local only.

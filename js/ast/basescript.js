@@ -12,6 +12,7 @@ Eden.AST.BaseScript.getStatementByLine = function(line, base) {
 	if (base && this.parent) ln = this.parent.getRelativeLine(this, base);
 
 	if (ln > line) return undefined;
+	if (this.statements === undefined) return;
 
 	for (var i=0; i<this.statements.length; i++) {
 		var nl = this.statements[i].getNumberOfLines();

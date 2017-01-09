@@ -124,15 +124,41 @@ Folder.prototype.getNumberOfLines = function() {
 	return this.numlines;
 }
 
+Folder.prototype.hasErrors = function() {
+	return false;
+}
+
+Folder.prototype.getOrigin = function() {
+	return eden.project;
+}
+
+Folder.prototype.getStatementByLine = function(line) {
+	return undefined;
+}
+
+Folder.prototype.getStartLine = function(relative) {
+	return (this.parent) ? this.parent.getRelativeLine(this, relative) : -1;
+}
+
+Folder.prototype.getRange = function(relative) {
+	var sl = this.getStartLine(relative);
+	return [sl,sl+this.getNumberOfLines()];
+}
+
 Folder.prototype.getInnerSource = function() {
 	var res = "";
 	this.numlines = 0;
 	for (var x in this.symbols) {
 		var sym = this.symbols[x];
-		if (sym.origin && sym.origin.parent && sym.origin.parent.statements !== undefined) continue;
-		if (!sym.origin || sym.origin.name == "*Default") continue;
-		res += sym.getSource() + "\n";
-		this.numlines++;
+		//if (sym.origin && sym.origin.parent && sym.origin.parent.statements !== undefined) continue;
+		//if (!sym.origin || sym.origin.name == "*Default") continue;
+		if (sym.origin && sym.origin.getOrigin) {
+			var o = sym.origin.getOrigin();
+			if (o && !o.remote) {
+				res += sym.getSource() + "\n";
+				this.numlines++;
+			}
+		}
 	}
 	return res;
 }

@@ -238,6 +238,7 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 
 
 Eden.AST.registerStatement = function(stat) {
+	stat.prototype.getOrigin = Eden.AST.BaseStatement.getOrigin;
 	stat.prototype.hasErrors = Eden.AST.BaseStatement.hasErrors;
 	stat.prototype.setSource = Eden.AST.BaseStatement.setSource;
 	stat.prototype.getSource = Eden.AST.BaseStatement.getSource;
