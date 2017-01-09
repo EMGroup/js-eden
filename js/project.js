@@ -230,5 +230,16 @@ Eden.Project.prototype.registerAgent = function(when) {
 
 Eden.Project.prototype.removeAgent = function(when) {
 	console.log("REMOVE WHEN", when);
+	for (var x in when.dependencies) {
+		var t = this.triggers[x];
+		if (t) {
+			for (var i=0;i<t.length; i++) {
+				if (t[i].statement === when) {
+					t.splice(i,1);
+					break;
+				}
+			}
+		}
+	}
 }
 
