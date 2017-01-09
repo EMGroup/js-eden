@@ -4331,3 +4331,21 @@ action declarevar {
 
 }
 
+action include {
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+func include_css {
+${{
+	$("<link/>", {
+	   rel: "stylesheet",
+	   type: "text/css",
+	   href: arguments[0]
+	}).appendTo("head");
+}}$;
+};
+}
+
+
