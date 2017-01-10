@@ -4,8 +4,8 @@ EdenUI.SearchBox = function(element) {
 	this.element = element;
 
 	element.on("click", ".menubar-search-result", function(e) {
-		var obs = e.currentTarget.getAttribute("data-obs");
-		var script = e.currentTarget.getAttribute("data-script");
+		var obs = e.currentTarget.getAttribute("data-id");
+
 		if (obs && obs != "") {
 			me.updateSymbolDetails($(e.currentTarget), obs);
 		} else if (script && script != "") {
@@ -20,20 +20,34 @@ EdenUI.SearchBox = function(element) {
 };
 
 EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
+	var ast = Eden.Selectors.query(name, undefined, undefined, 1);
+
 	var docele = element.find(".doxy-search-details");
-	if (docele && docele.length > 0 && eden.dictionary[name]) {
-		var stripped = eden.dictionary[name].pretty();
+	if (docele.length == 0) {
+		docele = $('<div class="doxy-search-details"></div>');
+		element.appendChild(docele.get(0));
+	} else {
+		docele = docele.get(0);
+	}
+
+	var html = "";
+
+	if (ast.doxyComment) {
+		var stripped = ast.doxyComment.pretty();
 		if (stripped && stripped.length > 0) {
-			docele.html(stripped);
+			html += stripped;
 		}
 	}
+
+	docele.innerHTML = html;
 }
 
 EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 	var symstr;
-	var iconstr;
+	var iconstr = "";
 
 	if (stat.type == "script") {
+		iconstr = '<span class="search-scriptres">&#xf15c;</span>';
 		if (stat.name) {
 			symstr = "action " + stat.name;
 		} else {
@@ -59,7 +73,7 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 		}
 	}
 
-	var ele = $('<div class="menubar-search-result">'+EdenUI.Highlight.html(symstr)+docstr+'</div>');
+	var ele = $('<div class="menubar-search-result" data-id="'+Eden.Selectors.getID(stat)+'">'+iconstr+EdenUI.Highlight.html(symstr)+docstr+'</div>');
 	return ele;
 }
 

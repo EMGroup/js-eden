@@ -168,7 +168,7 @@ Eden.Fragment.prototype.makeReal = function(name) {
 	if (!this.scratch) return;
 	this.name = name;
 	this.title = name;
-	this.selector = "."+name;
+	this.selector = name;
 	this.originast = eden.project.addAction(name);
 	this.scratch = false;
 	this.remote = false;
