@@ -205,12 +205,13 @@ Eden.DB.save = function(project, ispublic, callback) {
 			xhrFields:{
 				withCredentials: true
 			},
-			data:{	projectid: project.id,
+			data:{	projectID: project.id,
 					title: project.title,
 					source: project.generate(),
 					tags: project.tags.join(" "),
 					minimisedTitle: project.name,
-					from: project.vid
+					from: project.vid,
+					image: project.thumb
 			},
 			success: function(data){
 				if (data === null || data.error) {
@@ -316,6 +317,7 @@ Eden.DB.search = function(q, callback) {
 		error: function(a){
 			//console.error(a);
 			Eden.DB.disconnect(true);
+			callback(undefined);
 		}
 	});
 }

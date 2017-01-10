@@ -2,6 +2,7 @@ Eden.Project = function(id, name, source) {
 	this.title = name;
 	this.name = name.replace(/[^a-zA-Z0-9]/g, "");
 	this.author = undefined;
+	this.authorid = -1;
 	this.tags = name.toLowerCase().split(" ");
 	this.src = source;
 	this.ast = new Eden.AST(source, undefined, this);
@@ -9,6 +10,7 @@ Eden.Project = function(id, name, source) {
 	this.id = id;
 	this.vid = undefined;
 	this.triggers = {};
+	this.thumb = undefined;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
 		this.updateDoxy();
@@ -102,6 +104,10 @@ Eden.Project.load = function(pid, vid, cb) {
 				console.log("LOAD PROJECT",data);
 				eden.project.vid = data.saveID;
 				eden.project.title = meta.title;
+				eden.project.author = meta.ownername;
+				eden.project.authorid = meta.owner;
+				eden.project.thumb = meta.image;
+				eden.project.tags = meta.tags;
 				// TODO More meta
 				eden.project.start();
 			}

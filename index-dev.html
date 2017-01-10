@@ -719,7 +719,7 @@ See LICENSE.txt
 
 					var subtitle;
 					if (pub) {
-						subtitle = meta.author;
+						subtitle = meta.ownername;
 					} else {
 						//subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
 					}
@@ -736,8 +736,8 @@ See LICENSE.txt
 			}
 
 			function displayProjects(pub, cb) {
-				var user = (pub)?"public" : ((Eden.DB.username) ? Eden.DB.username.replace(/[^a-zA-Z]/g, "") : "public");
-				var path = "jseden1/"+user;
+				//var user = (pub)?"public" : ((Eden.DB.username) ? Eden.DB.username.replace(/[^a-zA-Z]/g, "") : "public");
+				//var path = "jseden1/"+user;
 				var plist = (pub) ? lopts.find("#jseden-public-projects") : lopts.find("#jseden-private-projects");
 
 				//console.log("Load projects: " + path);
@@ -776,14 +776,14 @@ See LICENSE.txt
 				} else {
 					displayProjects(true, function() {
 						if (Eden.DB.isLoggedIn()) {
-							var plist = lopts.find("#jseden-private-projects").get(0);
+							/*var plist = lopts.find("#jseden-private-projects").get(0);
 							var node = plist.firstChild;
 							while (node) {
 								var next = node.nextSibling;
 								plist.removeChild(node);
 								node = next;
-							}
-							displayProjects();
+							}*/
+							//displayProjects();
 						}
 					});
 				}

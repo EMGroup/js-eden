@@ -310,8 +310,6 @@ Eden.Selectors.processNode = function(statements, s) {
 		var command = ns.substring(0,endix);
 		var param = undefined;
 
-		// TODO, allow nested brackets.
-
 		if (endix < ns.length && ns.charAt(endix) == "(") {
 			var endix2 = Eden.Selectors.outerBracket(ns); //ns.indexOf(")");
 			param = ns.substring(endix+1,endix2);
@@ -376,6 +374,14 @@ Eden.Selectors.processNode = function(statements, s) {
 
 			case "value"	:	break;
 
+			case "title"	:	break;
+
+			case "author"	:	break;
+
+			case "version"	:	break;
+
+			case "date"		:	break;
+
 			case "remote"	:	statements = statements.filter(function(stat) {
 									var p = stat;
 									while(p.parent) p = p.parent;
@@ -393,6 +399,33 @@ Eden.Selectors.processNode = function(statements, s) {
 
 			default: statements = [];
 			}
+		}
+
+		return Eden.Selectors.processNode(statements, ns);
+	// Sort operator
+	} else if (s.charAt(0) == "^") {
+		var ns = s.substring(1);
+		var endix = ns.search(/[^a-zA-Z0-9\-]/);
+		if (endix == -1) endix = ns.length;
+		var command = ns.substring(0,endix);
+		var param = undefined;
+
+		if (endix < ns.length && ns.charAt(endix) == "(") {
+			var endix2 = Eden.Selectors.outerBracket(ns); //ns.indexOf(")");
+			param = ns.substring(endix+1,endix2);
+			ns = ns.substring(endix2+1).trim();
+		} else {
+			ns = ns.substring(endix);
+		}
+
+		switch(command) {
+		case "date"		:	
+
+		case "executed"	:
+
+		case "active"	:
+
+		case "touched"	:
 		}
 
 		return Eden.Selectors.processNode(statements, ns);
