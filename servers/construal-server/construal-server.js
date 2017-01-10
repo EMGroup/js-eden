@@ -86,7 +86,7 @@ function logErrors(err,req,res,next){
  * Method: POST
  * Data Params:
  * {
- * 	projectid: [integer],
+ * 	projectID: [integer],
  *  title: [string],
  *  minimisedTitle: [string],
  *  image: [base64 string],
@@ -183,24 +183,23 @@ function updateProject(req,res,callback){
 	var updateStr = "UPDATE projects SET " + updatesNeeded.join(", ") + " WHERE projectID = @projectID";
 	
 	if(req.body.tags){
-		var tagList = req.body.tags.split(" ");
-		var tagObject = {};
-		tagObject["@projectID"] = req.body.projectID;
 		var deleteStr = "DELETE FROM tags WHERE projectID = @projectID";
 		log("About to delete " + deleteStr);
-		db.run(deleteStr,tagObject,function(){
-			var insPairs = [];
-			for(i = 0; i < tagList.length; i++){
-				insPairs.push("(@projectID, @tag" + i + ")");
-				tagObject["@tag" + i] = tagList[i];
-			}
-			insertStr = "INSERT INTO tags VALUES " + insPairs.join(",");
-			log("inserting tags " + insertStr);
-			db.run(insertStr,tagObject,function(){
-				log("Updating project " + updateStr);
-				db.run(updateStr,updateValues,callback);
-			});
-
+		var tagObject = {};
+		tagObject["@projectID"] = req.body.projectID;
+		db.run(deleteStr,tagObject,function(err){
+			if(err){
+				db.run("ROLLBACK");
+				res.json({error: -1, description: "SQL Error", err:err})
+			}else
+				updateTags(req,function(err){
+					if(err){
+						db.run("ROLLBACK");
+						res.json({error: -1, description: "SQL Error", err:err})
+					}
+					log("Updating project " + updateStr);
+					db.run(updateStr,updateValues,callback);
+				});
 		});
 	}else{
 		log("Updating project " + updateStr);
@@ -208,6 +207,31 @@ function updateProject(req,res,callback){
 		
 	}
 
+}
+
+function updateTags(req,callback){
+	var tagList;
+	if(Array.isArray(req.body.tags))
+		tagList = req.body.tags;
+	else
+		tagList = [req.body.tags];
+	
+	console.log(tagList);
+	
+	var tagObject = {};
+	tagObject["@projectID"] = req.body.projectID;
+	
+	var insPairs = [];
+	
+	for(i = 0; i < tagList.length; i++){
+		insPairs.push("(@projectID, @tag" + i + ")");
+		tagObject["@tag" + i] = tagList[i];
+	}
+	
+	insertStr = "INSERT INTO tags VALUES " + insPairs.join(",");
+	
+	log("inserting tags " + insertStr);
+	db.run(insertStr,tagObject,callback);
 }
 
 function createProject(req, res, callback){
@@ -219,9 +243,15 @@ function createProject(req, res, callback){
 		if(err){
 			db.run("ROLLBACK");
 			res.json({error: -1, description: "SQL Error", err:err})
-		}
+		}else
+			updateTags(req,function(err){
+				if(err){
+					db.run("ROLLBACK");
+					res.json({error: -1, description: "SQL Error", err:err})
+				}else
+					callback(req, res, this.lastID);
+			});
 
-		callback(req, res, this.lastID);
 		});
 }
 
@@ -435,8 +465,10 @@ app.get('/project/search', function(req, res){
 	var listProjectStmt = db.prepare(listQueryStr);
 
 	listProjectStmt.all(criteriaVals,function(err,rows){
-		if(err)
+		if(err){
 			res.json({error: -1, description: "SQL Error", err: err})
+			return;
+		}
 		for(var i = 0; i < rows.length; i++){
 			if(rows[i].tags){
 				var tmpTags = rows[i].tags.split(" ");
