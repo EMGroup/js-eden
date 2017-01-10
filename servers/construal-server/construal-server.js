@@ -103,16 +103,20 @@ function logErrors(err,req,res,next){
 app.post('/project/add', ensureAuthenticated, function(req, res){
 	
 	if(typeof req.user == "undefined")
-		return res.json({error: "1", description: "Unauthenticated"});
-	projectID = req.body.projectID;
-	db.run("BEGIN TRANSACTION");
-	if(projectID === undefined || projectID == null){
+		return res.json({error: 1, description: "Unauthenticated"});
+	var projectID = req.body.projectID;
+	
+	if(projectID == undefined || projectID == null || projectID == ""){
+		db.run("BEGIN TRANSACTION");
 		log("Creating new project");
 		createProject(req, res, function(req, res, lastID){
 			log("New project id is " + lastID);
 			addProjectVersion(req, res, lastID);
 		});
+	}else if(isNaN(projectID)){
+		res.json({error: 9, description: "Invalid projectID format"});
 	}else{
+		db.run("BEGIN TRANSACTION");
 		checkOwner(req,res,function(){
 			updateProject(req, res, function(err){
 				if(req.body.source == undefined){
@@ -137,12 +141,14 @@ function checkOwner(req,res,callback){
 	qValues["@projectID"] = req.body.projectID;
 	checkStmt.all(qValues,function(err,rows){
 		if(rows.length == 0){
-			res.json({error:"5", description: "No existing project"});
+			db.run("ROLLBACK");
+			res.json({error:5, description: "No existing project"});
 		}else{
 			if(rows[0].owner == req.user.id){
 				callback();
 			}else{
-				res.json({error:"6", description: "User does not own this project"});
+				db.run("ROLLBACK");
+				res.json({error:6, description: "User does not own this project"});
 			}
 		}
 	});
@@ -180,10 +186,8 @@ function updateProject(req,res,callback){
 		var tagList = req.body.tags.split(" ");
 		var tagObject = {};
 		tagObject["@projectID"] = req.body.projectID;
-		console.log("Deleting existing tags");
 		var deleteStr = "DELETE FROM tags WHERE projectID = @projectID";
 		log("About to delete " + deleteStr);
-		console.log(tagObject);
 		db.run(deleteStr,tagObject,function(){
 			var insPairs = [];
 			for(i = 0; i < tagList.length; i++){
@@ -211,7 +215,14 @@ function createProject(req, res, callback){
 	
 	insertProjectStmt.run(req.body.title,req.body.minimisedTitle,req.body.image,req.user.id,null,
 			req.body.parentProject,req.body.metadata,
-			function(){callback(req, res, this.lastID);});
+			function(err){
+		if(err){
+			db.run("ROLLBACK");
+			res.json({error: -1, description: "SQL Error", err:err})
+		}
+
+		callback(req, res, this.lastID);
+		});
 }
 
 function addProjectVersion(req, res, projectID){
@@ -243,8 +254,6 @@ function addProjectVersion(req, res, projectID){
 			res.json(jsonres);
 		});
 	}
-	
-
 }
 
 function getFullVersion(version, projectID, callback){
@@ -307,7 +316,8 @@ app.get('/project/get', function(req,res){
 			var getProjectStmt = db.prepare("select saveID,date FROM (SELECT max(saveID) as " +
 					"maxsaveID from projectversions group by projectID) as maxv, " +
 					"projectversions where maxsaveID = projectversions.saveID and projectID = ?;");
-			getProjectStmt.each(req.query.projectID,function(err,row){
+			getProjectStmt.all(req.query.projectID,function(err,rows){
+				var row = rows[0];
 				db.serialize(function(){
 					getFullVersion(row.saveID,req.query.projectID,function(source){
 						if(req.query.from){
@@ -319,6 +329,8 @@ app.get('/project/get', function(req,res){
 				});
 			});
 		}
+	}else{
+		res.json({error: 7, description: "projectID must be defined" });
 	}
 });
 
@@ -335,73 +347,19 @@ function sendDiff(fromID,toSource,projectID,toID,res){
 }
 
 /**
-*
-* List of all projects in the system
-* GET params:
-* {
-* limit: [integer]
-* offset: [offset]
-* }
-*
-*/
-
-app.get('/project/list', function(req, res){
-	var paramObj = {};
-	paramObj["@limit"] = 10;
-	if(req.query.limit && (req.query.limit < 50))
-		paramObj["@limit"] = req.query.limit;
-	paramObj["@offset"] = 0;
-	if(req.query.offset)
-		paramObj["@offset"] = req.query.offset;
-
-	var listProjectStmt = db.prepare("SELECT * FROM projects LIMIT @limit offset @offset");
-
-	listProjectStmt.all(paramObj,function(err,rows){
-		getTagsForProjects(res,rows);
-	});
-});
-
-function getTagsForProjects(res,projectRows){
-	var inListArr = [];
-	var inListOb = {};
-	
-	for(var i = 0; i < projectRows.length; i++){
-		inListArr.push("@project" + i);
-		inListOb["@project" + i] = projectRows[i].projectID;
-	}
-
-	var tagQuery = "SELECT * FROM tags WHERE projectID IN (";
-	tagStmt = db.prepare(tagQuery + inListArr.join(",") + ")");
-
-	tagStmt.all(inListOb,function(err2,rows){
-
-		var tagsOb = {};
-		for(var i = 0; i < rows.length; i++){
-			if(!tagsOb[rows[i].projectID]){
-				tagsOb[rows[i].projectID] = [];
-			}
-			tagsOb[rows[i].projectID].push(rows[i].tag);
-		}
-		
-		for(var i = 0; i < projectRows.length; i++){
-			projectRows[i].tags = tagsOb[projectRows[i].projectID];
-		}
-		res.json(projectRows);
-	});	
-}
-
-/**
-* Title: Project Get
-* URL: /project/get
+* Title: Project Search
+* URL: /project/search
 * Method: GET
 * * Data Params:
 * {
 *  projectid: [integer],
 *  dateBefore: [date],
 *  dateAfter: [date],
-*  minimisedTitle: [string like pattern]
-*  title: [string like pattern]
-*  query: [string]
+*  minimisedTitle: [string like pattern],
+*  title: [string like pattern],
+*  query: [string],
+*  limit: [integer],
+*  offset: [offset],
 *  }
 *  
 *  Returns JSON
@@ -409,7 +367,17 @@ function getTagsForProjects(res,projectRows){
 
 app.get('/project/search', function(req, res){
 	criteria = [];
+	tagCriteria = [];
 	criteriaVals = {};
+	
+	var paramObj = {};
+	criteriaVals["@limit"] = 10;
+	if(req.query.limit && (req.query.limit < 50))
+		criteriaVals["@limit"] = req.query.limit;
+	criteriaVals["@offset"] = 0;
+	if(req.query.offset)
+		criteriaVals["@offset"] = req.query.offset;
+
 	if(req.query.projectID){
 		criteria.push("projectID = @projectID");
 		criteriaVals["@projectID"] = req.query.projectID;
@@ -437,13 +405,54 @@ app.get('/project/search', function(req, res){
 			criteriaVals["@title"] = "%" + req.query.query.substring(7,endOfB) + "%";
 		}
 	}
-		
-	var qStr = "SELECT * FROM projects WHERE " + criteria.join("AND");
-	var listProjectStmt = db.prepare(qStr);
+
+	if(req.query.tag){
+		if(Array.isArray(req.query.tag)){
+			for(var i = 0; i < req.query.tag.length; i++){
+				tagCriteria.push("tags LIKE @tag" + i);
+				criteriaVals["@tag" + i] = "% " + req.query.tag[i] + " %";
+			}
+		}else{
+			tagCriteria.push("tags LIKE @tag");
+			criteriaVals["@tag"] = "% " + req.query.tag + " %";
+		}
+	}
+	
+	var conditionStr = "";
+	if(criteria.length > 0){
+		conditionStr = " AND " + criteria.join(" AND ");
+	}
+	
+	var tagConditionStr = "";
+	if(tagCriteria.length > 0){
+		tagConditionStr = " WHERE " + tagCriteria.join(" AND ");
+	}
+	
+	var listQueryStr = 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags ' 
+		+ 'FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, publicVersion, parentProject, projectMetaData, '
+		+ '(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers left outer join tags on projects.projectID = tags.projectID WHERE owner = userid ' 
+		+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' LIMIT @limit OFFSET @offset';
+	
+	var listProjectStmt = db.prepare(listQueryStr);
+
 	listProjectStmt.all(criteriaVals,function(err,rows){
-		getTagsForProjects(res,rows);
+		if(err)
+			res.json({error: -1, description: "SQL Error", err: err})
+		for(var i = 0; i < rows.length; i++){
+			if(rows[i].tags){
+				var tmpTags = rows[i].tags.split(" ");
+				for(var j = tmpTags.length - 1; j >= 0; j--){
+					if(tmpTags[j] == "")
+						tmpTags.splice(j,1);
+				}
+				
+				rows[i].tags = tmpTags;
+			}
+		}
+		res.json(rows);
 	});
 });
+
 
 /**
  * 
