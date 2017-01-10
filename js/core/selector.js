@@ -95,7 +95,9 @@ Eden.Selectors.getID = function(stat) {
 Eden.Selectors._getID = function(stat) {
 	var res;
 	if (stat.type == "script" && stat.name) {
-		if (stat.parent || stat.base.origin !== eden.project) {
+		if (stat.parent && stat.parent.base && stat.parent.base.origin === eden.project) {
+			res = stat.name;
+		} else if (stat.parent || stat.base.origin !== eden.project) {
 			res = "."+stat.name;
 		} else {
 			res = "";

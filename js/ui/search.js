@@ -29,96 +29,27 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	}
 }
 
-EdenUI.SearchBox.prototype.makeSymbolResult = function(sym) {
-	//var sym = eden.root.lookup(name);
-	var symstr;
-
-	if (sym.definition) {
-		var type = sym.type;
-		if (sym.type == "function") {
-			symstr = "func " + sym.name;
-		} else if (sym.type == "action") {
-			symstr = "proc " + sym.name;
-		} else {
-			var src = sym.getSource();
-			if (src.length > 55) {
-				symstr = src.substr(0,55) + "...";
-			} else {
-				symstr = src;
-			}
-		}
-	} else {
-		var valstr = Eden.edenCodeForValue(sym.value());
-		if (valstr.length + sym.name.length + 3 > 55) {
-			symstr = sym.name + " = " + valstr.substr(0,55 - sym.name.length - 3)+"...";
-		} else {
-			symstr = sym.name + " = " + valstr + ";";
-		}
-	}
-
-	var ctrlstr = '<div class="menubar-search-rescontrols"><span class="edit-result">&#xf044;</span><span>&#xf06e;</span></div>';
-
-	var docstr = "";
-	if (eden.dictionary[name]) {
-		var stripped = eden.dictionary[name].brief();
-		if (stripped && stripped.length > 0) {
-			docstr = '<div class="doxy-search-details"><p>'+stripped+'</p></div>';
-		}
-	}
-
-	var ele = $('<div class="menubar-search-result" data-obs="'+name+'">'+EdenUI.Highlight.html(symstr)+ctrlstr+docstr+'</div>');
-	return ele;
-}
-
-EdenUI.SearchBox.prototype.makeAgentResult = function(when) {
-	var symstr;
-
-	if (when.base) {
-		symstr = when.getSource().split("{")[0];
-	} else {
-		return;
-	}
-	if (symstr.length > 55) {
-		symstr = symstr.substr(0,55) + "...";
-	}
-
-	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
-
-	var docstr = "";
-	if (when.doxyComment) {
-		var stripped = when.doxyComment.brief();
-		if (stripped && stripped.length > 0) {
-			docstr = '<div class="doxy-search-details"><p>'+stripped+'</p></div>';
-		}
-	}
-
-	var ele = $('<div class="menubar-search-result" data-agent="'+when.name+'">'+EdenUI.Highlight.html(symstr)+ctrlstr+docstr+'</div>');
-	return ele;
-}
-
 EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 	var symstr;
+	var iconstr;
 
-	//console.log("MAKE STATEMENT",stat);
+	if (stat.type == "script") {
+		if (stat.name) {
+			symstr = "action " + stat.name;
+		} else {
+			symstr = stat.getInnerSource();
+		}
+	} else if (stat.type == "when") {
 
-	var base = stat.base;
-	if (base === undefined) {
-		// Attempt to find base.
-		var p = stat.parent;
-		while (p.parent) p = p.parent;
-		base = p.base;
-	}
-
-	if (base) {
-		symstr = stat.getSource().split("\n")[0];
 	} else {
-		symstr = stat.type;
+		symstr = stat.getSource().split("\n")[0];
 	}
+
 	if (symstr.length > 55) {
 		symstr = symstr.substr(0,55) + "...";
 	}
 
-	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
+	//var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
 
 	var docstr = "";
 	if (stat.doxyComment) {
@@ -128,33 +59,11 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 		}
 	}
 
-	var ele = $('<div class="menubar-search-result">'+EdenUI.Highlight.html(symstr)+ctrlstr+docstr+'</div>');
+	var ele = $('<div class="menubar-search-result">'+EdenUI.Highlight.html(symstr)+docstr+'</div>');
 	return ele;
 }
 
-EdenUI.SearchBox.prototype.makeSourceResult = function(stat) {
-	var symstr;
 
-	//console.log("MAKE STATEMENT",stat);
-
-	symstr = stat;
-	if (symstr.length > 55) {
-		symstr = symstr.substr(0,55) + "...";
-	}
-
-	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
-
-	var docstr = "";
-	/*if (stat.doxyComment) {
-		var stripped = stat.doxyComment.brief();
-		if (stripped && stripped.length > 0) {
-			docstr = '<div class="doxy-search-details"><p>'+stripped+'</p></div>';
-		}
-	}*/
-
-	var ele = $('<div class="menubar-search-result">'+EdenUI.Highlight.html(symstr)+ctrlstr+docstr+'</div>');
-	return ele;
-}
 
 EdenUI.SearchBox.prototype.makeScriptResult = function(script) {
 	/*var symstr;
@@ -222,11 +131,11 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 				count++;
 				var ele;
 
-				if (res[i] instanceof Symbol) {
-					ele = me.makeSymbolResult(res[i]);
-				} else {
+				//if (res[i] instanceof Symbol) {
+				//	ele = me.makeSymbolResult(res[i]);
+				//} else {
 					ele = me.makeStatementResult(res[i]);
-				}
+				//}
 
 				symresults.append(ele);
 			}
