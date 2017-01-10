@@ -379,7 +379,7 @@ app.get('/project/search', function(req, res){
 		criteriaVals["@offset"] = req.query.offset;
 
 	if(req.query.projectID){
-		criteria.push("projectID = @projectID");
+		criteria.push("projects.projectID = @projectID");
 		criteriaVals["@projectID"] = req.query.projectID;
 	}
 	if(req.query.dateBefore){
