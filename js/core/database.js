@@ -290,7 +290,7 @@ Eden.DB.load = function(pid, vid, callback) {
 
 Eden.DB.search = function(q, callback) {
 	var path = this.remoteURL+"/project/";
-	if (q == "") path += "list";
+	if (q == "") path += "search";
 	else path += "search?query="+q;
 
 	$.ajax({
