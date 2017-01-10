@@ -563,7 +563,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation)
 			}
 			singleClickPerformed = false;
 			var editorViewName = "edit_" + me.name;
-			Eden.Selectors.goto(".ACTIVE > "+symbol.name);
+			Eden.Selectors.goto("> :not(ACTIVE) >> "+symbol.name);
 			//edenUI.createView(editorViewName, "ScriptInput", undefined).update([symbol]);
 			//edenUI.eden.root.lookup("view_" + editorViewName + "_title").assign("Script for " + me.name, edenUI.eden.root.scope, Symbol.hciAgent);
 			/*var val;
