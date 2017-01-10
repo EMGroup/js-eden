@@ -45,6 +45,16 @@ Eden.AST.When.prototype.setSource = function(start, end, src) {
 		this.prefix = src.substring(0,end);
 		this.postfix = "";
 	}
+
+	var hash = 0;
+	var ch;
+	var len = src.length;
+	for (var i=0; i<len; i++) {
+		ch = src.charCodeAt(i);
+		hash = ((hash << 5) - hash) + ch;
+		hash = hash & hash;
+	}
+	this.hash = hash;
 }
 
 Eden.AST.When.prototype.getLine = function() { return this.line; }

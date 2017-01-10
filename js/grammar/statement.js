@@ -297,7 +297,6 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	// End source here to avoid bringing comments in
 	end = this.lastposition;
 	endline = this.lastline;
-	
 	stat.parent = this.parent;
 	stat.doxyComment = doxy;
 

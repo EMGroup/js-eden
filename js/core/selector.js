@@ -484,6 +484,8 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 	//var pathixf = s.search(/[\>]/);
 	//if (pathixf == -1) pathixf = s.length;
 
+	// TODO Optimise first step.
+
 	//var statements = Eden.Selectors.findLocalBase(path, ctx, s.substring(pathix,pathixf).trim());
 	var statements = Eden.Selectors.makeRoot(ctx);
 	if (statements === undefined) statements = [];

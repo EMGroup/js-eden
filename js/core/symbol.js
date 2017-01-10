@@ -72,6 +72,10 @@ Object.defineProperty(Symbol.prototype, "expression", {
 	get: function() { return (this.origin) ? this.origin.expression : undefined; }
 });
 
+Object.defineProperty(Symbol.prototype, "doxyComment", {
+	get: function() { return (this.origin) ? this.origin.doxyComment : undefined; }
+});
+
 Symbol.prototype.getASTOrigin = function() {
 	if (this.origin) {
 		var p = this.origin;
