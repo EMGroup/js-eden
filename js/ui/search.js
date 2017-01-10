@@ -7,7 +7,7 @@ EdenUI.SearchBox = function(element) {
 		var obs = e.currentTarget.getAttribute("data-id");
 
 		if (obs && obs != "") {
-			me.updateSymbolDetails($(e.currentTarget), obs);
+			me.updateSymbolDetails(e.currentTarget, obs);
 		} else if (script && script != "") {
 			
 		}
@@ -20,17 +20,32 @@ EdenUI.SearchBox = function(element) {
 };
 
 EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
+	console.log("Update details", name);
 	var ast = Eden.Selectors.query(name, undefined, undefined, 1);
+	if (ast.length == 0) {
+		console.log("No result");
+		return;
+	}
+	ast = ast[0];
 
-	var docele = element.find(".doxy-search-details");
-	if (docele.length == 0) {
+	var docele = $(element).find(".doxy-search-details");
+	if (docele === null || docele.length == 0) {
 		docele = $('<div class="doxy-search-details"></div>');
 		element.appendChild(docele.get(0));
-	} else {
-		docele = docele.get(0);
 	}
+	docele = docele.get(0);
 
-	var html = "";
+	var html = '<p><button class="script-button">Goto</button><button class="script-button">Watch</button></p>';
+
+	if (ast instanceof Symbol) {
+		html += "<p>";
+		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(ast.value());
+		html += "</p>";
+	} else if (ast.lvalue && eden.root.symbols[ast.lvalue.name] && eden.root.symbols[ast.lvalue.name].origin === ast) {
+		html += "<p>";
+		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(eden.root.symbols[ast.lvalue.name].value());
+		html += "</p>";
+	}
 
 	if (ast.doxyComment) {
 		var stripped = ast.doxyComment.pretty();

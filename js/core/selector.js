@@ -96,19 +96,22 @@ Eden.Selectors._getID = function(stat) {
 	var res;
 	if (stat.type == "script" && stat.name) {
 		if (stat.parent && stat.parent.base && stat.parent.base.origin === eden.project) {
-			res = stat.name;
-		} else if (stat.parent || stat.base.origin !== eden.project) {
+			return stat.name;
+		} else if (stat.parent) {// || stat.base.origin !== eden.project) {
 			res = "."+stat.name;
 		} else {
-			res = "";
+			res = stat.name;
 		}
 	} else if (stat.parent) {
 		var children = Eden.Selectors.getChildren([stat.parent], false);
 		for (var i=0; i<children.length; i++) {
 			if (children[i] === stat) {
-				res = ":"+i;
+				res = ">:"+(i+1);
 				break;
 			}
+		}
+		if (!res) {
+			return "ACTIVE>"+stat.lvalue.name;
 		}
 	} else {
 		res = stat.base.origin.name;

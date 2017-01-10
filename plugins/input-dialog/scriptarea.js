@@ -33,7 +33,7 @@ EdenUI.ScriptArea = function() {
 
 	var me = this;
 	this.gutterinterval = setInterval(function() {
-		if (me.fragment === undefined) return;
+		if (me.fragment === undefined || me.fragment.ast === undefined) return;
 		me.gutter.generate(me.fragment.ast.script, me.currentlineno);
 		//scriptast.clearExecutedState();
 	}, 300);
