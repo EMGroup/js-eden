@@ -56,6 +56,17 @@ Eden.Fragment = function(selector) {
 			Eden.Fragment.emit("unlocked", [me]);
 		}
 	});
+
+	Eden.Fragment.listenTo("goto", this, function(ast, child) {
+		if (this.originast === ast) {
+			//console.log("Found goto",me);
+			console.log("Goto line", child.getStartLine(ast));
+			var line = child.getStartLine(ast);
+			Eden.Fragment.emit("gotoline", [me, line]);
+			return true;
+		}
+		return false;
+	});
 }
 
 Eden.Fragment.listenTo = listenTo;
@@ -80,7 +91,8 @@ Eden.Fragment.listeners = {};
 }*/
 
 Eden.Fragment.prototype.destroy = function() {
-	
+	Eden.Fragment.unListen(this);
+	this.unlock();
 }
 
 Eden.Fragment.prototype.reset = function() {

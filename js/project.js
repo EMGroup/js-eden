@@ -128,6 +128,7 @@ Eden.Project.prototype.start = function() {
 					eden.root.end = me.ast.script.statements[i].end;
 					eden.root.prefix = me.ast.script.statements[i].prefix;
 					eden.root.postfix = me.ast.script.statements[i].postfix;
+					eden.root.parent = eden.project.ast.script;
 
 					me.ast.script.statements[i] = eden.root;
 					break;

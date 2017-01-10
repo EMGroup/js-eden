@@ -27,7 +27,9 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 		case "Home"			:
 		case "End"			:	sa.moveCaret(); break;
 
-		case "Ctrl-a"					:	sa.selectAll(); break;
+		case "Ctrl-a"					:	sa.selectAll();
+											e.preventDefault();
+											break;
 
 		case "Ctrl-Shift-ArrowLeft"		:
 		case "Ctrl-Shift-ArrowRight"	:

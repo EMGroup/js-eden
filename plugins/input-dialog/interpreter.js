@@ -225,7 +225,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				});
 
 				for (var i=0; i<removed.length; i++) {
-					removed[i].unlock();
+					removed[i].destroy();
 					console.log("REMOVE FRAG",removed[i].selector);
 				}
 
@@ -292,6 +292,21 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				//rebuildTabs();
 				//delayRebuild();
 				//setTitle(tab_frags[curtab].title);
+			}
+		});
+
+		Eden.Fragment.listenTo("gotoline", scriptarea, function(frag, line) {
+			for (var i=0; i<tab_frags.length; i++) {
+				if (frag === tab_frags[i]) {
+					console.log("I have the goto frag");
+					if (curtab != i) curSym.assign(i, eden.root.scope, Symbol.localJSAgent);
+					scriptarea.gotoLine(line);
+					// Scroll to correct place
+					var scrollto = 50 + (line-5) * 20;
+					if (scrollto < 0) scrollto = 0;
+					inputhider.scrollTop = scrollto;
+					break;
+				}
 			}
 		});
 

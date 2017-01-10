@@ -22,6 +22,7 @@ EdenUI.ScriptArea = function() {
 	this.readonly = false;
 	this.currentlineno = -1;
 	this.currentcharno = -1;
+	this.gotomode = false;
 	this.highlighter = new EdenUI.Highlight(this.outdiv);
 	this.gutter = new EdenScriptGutter(this.codearea, this.infobox);
 	this.details = new EdenUI.ScriptArea.Details(this);
@@ -368,6 +369,21 @@ EdenUI.ScriptArea.prototype.getLineNumber = function() {
 	return this.currentlineno;
 }
 
+EdenUI.ScriptArea.prototype.gotoLine = function(line) {
+	var lines = this.intextarea.value.split("\n");
+	lines.length = line+1;
+	var end = lines.join("\n").length;
+
+	// Move caret to clicked location
+	this.intextarea.focus();
+	this.intextarea.selectionEnd = end;
+	this.intextarea.selectionStart = end;
+	//gutter.selectLine(curline);
+	//if (this.fragment) {		
+		this.updateLineCachedHighlight();
+	//}
+}
+
 /**
  * Update scroll position if cursor is near to an edge.
  * TODO Fix for new scroll elements
@@ -501,8 +517,8 @@ EdenUI.ScriptArea.prototype.disableGotoMode = function() {
 		this.outdiv.contentEditable = true;
 		changeClass(this.outdiv, "goto", false);
 		this.gotomode = false;
-		this.updateCachedHighlight();
-		this.intextarea.focus();
+		//this.updateCachedHighlight();
+		//this.intextarea.focus();
 	}
 }
 

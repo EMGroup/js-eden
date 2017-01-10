@@ -346,23 +346,14 @@ Eden.Selectors.processNode = function(statements, s) {
 
 			case "depends"	:	//var regex = edenUI.regExpFromStr(param);
 								statements = statements.filter(function(stat) {
-									return stat.type == "definition" && stat.dependencies[param];
+									return (stat.type == "definition" || stat.type == "when") && stat.dependencies[param];
 								}); break
 
 			case "active"	:	statements = statements.filter(function(stat) {
-									if (stat.type == "definition") {
+									if (stat.type == "definition" || stat.type == "assignment") {
 										var sym = eden.root.symbols[stat.lvalue.name];
 
-										if (sym && sym.eden_definition) {
-											var p = stat;
-											while (p.parent) p = p.parent;
-											var base = p.base;
-											var src = base.getSource(stat);
-
-											if (sym.eden_definition == src) {
-												return true;
-											}
-										}
+										return sym && sym.origin === stat;
 									}
 									return false;
 								}); break;
@@ -575,6 +566,57 @@ Eden.Selectors.execute = function(selector, cb) {
 			if (cb) cb();
 		}
 	});
+}
+
+
+/**
+ * Find an existing script view that contains the AST code for that
+ * matches a specified selector. Move to that tab and highlight. Otherwise
+ * create a new script view with the relevant script in it. A selector that
+ * has multiple results has undefined behaviour, but the first result
+ * should be the one used.
+ */
+Eden.Selectors.goto = function(selector) {
+	var res = Eden.Selectors.query(selector, undefined, undefined, 1);
+
+	if (res.length == 0) return false;
+
+	// Generate a list of all parent nodes.
+	var nodes = [res[0]];
+	var p = res[0];
+	while (p.parent) {
+		nodes.push(p.parent);
+		p = p.parent;
+	}
+
+	var success = false;
+	// For each node generate an emit request to find it
+	for (var i=0; i<nodes.length; i++) {
+		if (Eden.Fragment.emit("goto", [nodes[i], res[0]])) {
+			success = true;
+			break;
+		}
+	}
+
+	if (!success) {
+		console.log("No Goto Match, create view",selector,res[0]);
+		// Find existing script view...
+		for (var x in edenUI.activeDialogs) {
+			if (edenUI.activeDialogs[x] == "ScriptInput") {
+				var tabs = eden.root.lookup("view_"+x+"_tabs").value();
+				var id = (res[0].type == "script") ? selector : Eden.Selectors.getID(res[0].parent);
+				tabs.push(id);
+				eden.root.lookup("view_"+x+"_tabs").assign(tabs, eden.root.scope, Symbol.localJSAgent);
+				success = Eden.Fragment.emit("goto", [nodes[i], res[0]]);
+				break;
+			}
+		}
+
+		if (!success) {
+			// Need to create a script view...
+		}
+	}
+	return success;
 }
 
 
