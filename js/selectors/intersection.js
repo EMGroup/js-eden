@@ -19,13 +19,18 @@ Eden.Selectors.IntersectionNode.prototype.prepend = function(node) {
 	return this;
 }
 
-Eden.Selectors.IntersectionNode.prototype.filter = function(statements) {
-	if (!statements) return this.construct();
+Eden.Selectors.IntersectionNode.prototype.filter = function(statements, context) {
+	//if (!statements) return this.construct();
 
 	for (var i=0; i<this.children.length; i++) {
-		statements = this.children[i].filter(statements);
+		statements = this.children[i].filter(statements, context);
 	}
 
-	return statements;
+	return (statements) ? statements : [];
+}
+
+Eden.Selectors.IntersectionNode.prototype.construct = function() {
+	// Determine best order of properties
+	// Possibly compile a query function if the query is complex?
 }
 

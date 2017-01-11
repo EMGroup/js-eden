@@ -98,7 +98,7 @@ Eden.Selectors._getID = function(stat) {
 		if (stat.parent && stat.parent.base && stat.parent.base.origin === eden.project) {
 			return stat.name;
 		} else if (stat.parent) {// || stat.base.origin !== eden.project) {
-			res = "."+stat.name;
+			res = ">"+stat.name;
 		} else {
 			res = stat.name;
 		}
@@ -111,10 +111,14 @@ Eden.Selectors._getID = function(stat) {
 			}
 		}
 		if (!res) {
-			return "ACTIVE>"+stat.lvalue.name;
+			return "ACTIVE>"+ ((stat.lvalue) ? stat.lvalue.name : stat.name);
 		}
-	} else {
+	} else if (stat.base) {
 		res = stat.base.origin.name;
+	} else if (stat instanceof Symbol) {
+		res = "ACTIVE>"+stat.name;
+	} else {
+		res = "";
 	}
 
 	if (stat.parent) {
@@ -306,6 +310,8 @@ Eden.Selectors.DotNode = function(label) {
 Eden.Selectors.parse = function(s) {
 	var node;
 
+	console.log("PARSE \""+s+"\"");
+
 	//console.log("NODE",s);
 	if (!s || s == "") return;
 
@@ -335,7 +341,7 @@ Eden.Selectors.parse = function(s) {
 			param = ns.substring(endix+1,endix2);
 			ns = ns.substring(endix2+1).trim();
 		} else {
-			ns = ns.substring(endix);
+			ns = ns.substring(endix).trim();
 		}
 
 		if (s.charAt(1).match(/[0-9]+/)) {
@@ -364,7 +370,7 @@ Eden.Selectors.parse = function(s) {
 
 		node = new Eden.Selectors.SortNode();
 		node.addSort(command);
-		s = ns;
+		s = ns.trim();
 	} else if (s.charAt(0) == "#") {
 		var nstats = [];
 		var tag = s.match(/#[a-zA-Z0-9_]+/);
@@ -384,10 +390,11 @@ Eden.Selectors.parse = function(s) {
 		var name = s.substring(0,endix);
 		node = new Eden.Selectors.NameNode(name);
 		s = s.substring(endix).trim();
-	}
+	} else s = "";
 
 
 	var nextnode = Eden.Selectors.parse(s);
+	if (!node) return;
 	return node.append(nextnode);
 }
 
@@ -614,9 +621,14 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 	// TODO Optimise first step.
 
 	//var statements = Eden.Selectors.findLocalBase(path, ctx, s.substring(pathix,pathixf).trim());
-	var statements = Eden.Selectors.makeRoot(ctx);
-	if (statements === undefined) statements = [];
-	statements = Eden.Selectors.queryWithin(statements, s, undefined); //.substring(pathix).trim()
+	//var statements = Eden.Selectors.makeRoot(ctx);
+	//if (statements === undefined) statements = [];
+
+	var statements;
+	var sast = Eden.Selectors.parse(s);
+	statements = sast.filter(statements,ctx);
+
+	//statements = Eden.Selectors.queryWithin(statements, s, undefined); //.substring(pathix).trim()
 	if (statements === undefined) statements = [];
 
 	statements = Eden.Selectors.processResults(statements, o, num);

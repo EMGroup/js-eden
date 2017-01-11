@@ -3,12 +3,12 @@ Eden.Selectors.UnionNode = function() {
 	this.children = [undefined];
 }
 
-Eden.Selectors.UnionNode.prototype.filter = function(statements) {
-	if (!statements) return this.construct();
+Eden.Selectors.UnionNode.prototype.filter = function(statements, context) {
+	//if (!statements) return this.construct();
 
 	var map = {};
 	for (var i=0; i<this.children.length; i++) {
-		var stats = this.children[i].filter(statements);
+		var stats = this.children[i].filter(statements, context);
 		for (var j=0; j<stats.length; j++) {
 			map[stats[j].hash] = stats[j];
 		}

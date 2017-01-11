@@ -18,3 +18,30 @@ Eden.Selectors.DirectChildNode.prototype.prepend = function(node) {
 	return this;
 }
 
+Eden.Selectors.DirectChildNode.prototype.filter = function(statements, context) {
+	if (!statements && this.left === undefined) {
+		if (this.right) return this.right.filter(statements,context).filter(function(stat) {
+			return stat.parent !== undefined;
+		});
+		else return [];
+	}
+
+	var lstats;
+	if (this.left === undefined) {
+		lstats = statements.filter(function(stat) {
+			return stat.parent !== undefined;
+		});		
+	} else {
+		lstats = this.left.filter(statements,context);
+	}
+
+	var stats = Eden.Selectors.getChildren(lstats, false);
+	if (this.right) return this.right.filter(stats,context);
+	else return stats;
+}
+
+Eden.Selectors.DirectChildNode.prototype.construct = function() {
+	console.log("Construct direct children");
+	return [];
+}
+

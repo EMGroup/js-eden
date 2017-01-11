@@ -41,9 +41,9 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	}
 	docele = docele.get(0);
 
-	var html = '<p><button class="script-button script-goto">Goto</button><button class="script-button">Watch</button></p>';
+	var html = '<p><button class="script-button script-goto">Goto</button><button class="script-button">Watch</button><button class="script-button">More</button></p>';
 
-	if (ast instanceof Symbol) {
+	if (ast instanceof Symbol && ast.type != "function") {
 		html += "<p>";
 		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(ast.value());
 		html += "</p>";

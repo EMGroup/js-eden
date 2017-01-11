@@ -38,7 +38,9 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 	if (!statements) return this.construct();
 	var me = this;
 	var param = this.param;
-	var command = this.command;
+	var command = this.name;
+
+	console.log("Property",command,param,statements);
 
 	if (typeof this.name == "number") {
 		return statements.filter(function(stat) {
@@ -119,9 +121,11 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 		default: return [];
 		}
 	}
+	return [];
 }
 
 Eden.Selectors.PropertyNode.prototype.construct = function() {
-
+	console.log("Property construct");
+	return [];
 }
 

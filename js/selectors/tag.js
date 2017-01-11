@@ -12,7 +12,8 @@ Eden.Selectors.TagNode.prototype.filter = function(statements) {
 }
 
 Eden.Selectors.TagNode.prototype.construct = function() {
-
+	console.log("Tag construct",this.tag);
+	return [];
 }
 
 Eden.Selectors.TagNode.prototype.append = Eden.Selectors.PropertyNode.prototype.append;

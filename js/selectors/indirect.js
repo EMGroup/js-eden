@@ -4,6 +4,10 @@ Eden.Selectors.IndirectChildNode = function(props) {
 	this.right = undefined;
 }
 
+Eden.Selectors.IndirectChildNode.prototype.filter = function(statements) {
+	return Eden.Selectors.getChildren(statements, true);
+}
+
 Eden.Selectors.IndirectChildNode.prototype.append = Eden.Selectors.DirectChildNode.prototype.append;
 Eden.Selectors.IndirectChildNode.prototype.prepend = Eden.Selectors.DirectChildNode.prototype.prepend;
 
