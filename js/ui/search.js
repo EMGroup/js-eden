@@ -17,6 +17,12 @@ EdenUI.SearchBox = function(element) {
 		//console.log(e);
 		//edenUI.gotoCode("/"+e.target.parentNode.parentNode.getAttribute("data-obs"),-1);
 	});
+
+	element.on('click', '.script-goto', function(e) {
+		var id = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-id");
+		me.element.hide();
+		Eden.Selectors.goto(id);
+	});
 };
 
 EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
@@ -35,7 +41,7 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	}
 	docele = docele.get(0);
 
-	var html = '<p><button class="script-button">Goto</button><button class="script-button">Watch</button></p>';
+	var html = '<p><button class="script-button script-goto">Goto</button><button class="script-button">Watch</button></p>';
 
 	if (ast instanceof Symbol) {
 		html += "<p>";

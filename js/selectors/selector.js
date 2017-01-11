@@ -293,6 +293,104 @@ Eden.Selectors.makeRegex = function(str) {
 	return new RegExp(str);
 }
 
+Eden.Selectors.SortNode = function() {
+	this.type = "sort";
+	this.query = undefined;
+}
+
+Eden.Selectors.DotNode = function(label) {
+	this.type = "dot";
+	this.label = label;
+}
+
+Eden.Selectors.parse = function(s) {
+	var node;
+
+	//console.log("NODE",s);
+	if (!s || s == "") return;
+
+	// Go into childrne
+	if (s.charAt(0) == ">") {
+		// Go to all children recursively
+		if (s.charAt(1) == ">") {
+			node = new Eden.Selectors.IndirectChildNode();
+			s = s.substring(2).trim();
+		// Only go to direct children
+		} else {
+			node = new Eden.Selectors.DirectChildNode();
+			s = s.substring(1).trim();
+		}
+	} else if (s.charAt(0) == ",") {
+		node = new Eden.Selectors.UnionNode();
+		s = s.substring(1).trim();
+	} else if (s.charAt(0) == ":") {
+		var ns = s.substring(1);
+		var endix = ns.search(/[^a-zA-Z0-9\-]/);
+		if (endix == -1) endix = ns.length;
+		var command = ns.substring(0,endix);
+		var param = undefined;
+
+		if (endix < ns.length && ns.charAt(endix) == "(") {
+			var endix2 = Eden.Selectors.outerBracket(ns); //ns.indexOf(")");
+			param = ns.substring(endix+1,endix2);
+			ns = ns.substring(endix2+1).trim();
+		} else {
+			ns = ns.substring(endix);
+		}
+
+		if (s.charAt(1).match(/[0-9]+/)) {
+			var snum = parseInt(command);
+			node = new Eden.Selectors.PropertyNode(snum);
+		} else {
+			node = new Eden.Selectors.PropertyNode(command, param);
+		}
+
+		s = ns;
+	// Sort operator
+	} else if (s.charAt(0) == "^") {
+		var ns = s.substring(1);
+		var endix = ns.search(/[^a-zA-Z0-9\-]/);
+		if (endix == -1) endix = ns.length;
+		var command = ns.substring(0,endix);
+		var param = undefined;
+
+		if (endix < ns.length && ns.charAt(endix) == "(") {
+			var endix2 = Eden.Selectors.outerBracket(ns); //ns.indexOf(")");
+			param = ns.substring(endix+1,endix2);
+			ns = ns.substring(endix2+1).trim();
+		} else {
+			ns = ns.substring(endix);
+		}
+
+		node = new Eden.Selectors.SortNode();
+		node.addSort(command);
+		s = ns;
+	} else if (s.charAt(0) == "#") {
+		var nstats = [];
+		var tag = s.match(/#[a-zA-Z0-9_]+/);
+		if (tag === null) return;
+		tag = tag[0];
+		node = new Eden.Selectors.TagNode(tag);
+		s = s.substring(tag.length).trim();
+	} else if (s.charAt(0) == ".") {
+		var tag = s.match(/.[a-zA-Z0-9_]+/);
+		if (tag === null) return;
+		tag = tag[0].substring(1);
+		node = new Eden.Selectors.DotNode(tag);
+		s = s.substring(tag.length+1).trim();
+	} else if (s.charAt(0).match(/[a-zA-Z*?]+/)) {
+		var endix = s.search(/[^a-zA-Z0-9_*?]+/);
+		if (endix == -1) endix = s.length;
+		var name = s.substring(0,endix);
+		node = new Eden.Selectors.NameNode(name);
+		s = s.substring(endix).trim();
+	}
+
+
+	var nextnode = Eden.Selectors.parse(s);
+	return node.append(nextnode);
+}
+
 Eden.Selectors.processNode = function(statements, s) {
 	//console.log("NODE",s);
 	if (!s || s == "") return statements;
