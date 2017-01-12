@@ -87,6 +87,7 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 	} else if (stat.type == "when") {
 		symstr = stat.prefix.trim();
 	} else {
+		if (!stat.getSource()) console.error("NO SOURCE",stat);
 		symstr = stat.getSource().split("\n")[0];
 	}
 

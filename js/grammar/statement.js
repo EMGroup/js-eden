@@ -294,32 +294,15 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	default : return undefined;
 	}
 
-	// End source here to avoid bringing comments in
+	// Add statement properties
 	end = this.lastposition;
 	endline = this.lastline;
 	stat.parent = this.parent;
 	stat.doxyComment = doxy;
 	stat.stamp = this.stamp;
-
-	//if (endline == -1) endline = this.stream.prevline;
-
-	//this.lines[curline] = stat;
-	//stat.line = curline;
-	//stat.endline = endline-1;
 	stat.numlines = endline - curline - 1;
+	stat.setSource(start, end,this.stream.code.substring(start,end));
 
-	// Update statements start and end so original source can be extracted.
-	//if (end == -1) {
-	//	stat.setSource(start, this.stream.prevposition, this.stream.code.substring(start,this.stream.prevposition));
-	//} else {
-		stat.setSource(start, end,this.stream.code.substring(start,end));
-	//}
-
-	//var endline = this.stream.line;
-	/*for (var i=curline+1; i<endline; i++) {
-		if (this.lines[i] === undefined || stat.errors.length > 0) 
-			this.lines[i] = stat;
-	}*/
 	return stat;
 };
 

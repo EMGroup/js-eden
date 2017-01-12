@@ -85,11 +85,12 @@ Eden.Selectors.buildScriptTree = function(scripts) {
 }
 
 Eden.Selectors.getID = function(stat) {
-	if (eden.project && eden.project.ast.script === stat) {
+	return ".id("+stat.id+")";
+	/*if (eden.project && eden.project.ast.script === stat) {
 		return stat.name;
 	} else {
 		return this._getID(stat);
-	}
+	}*/
 }
 
 Eden.Selectors._getID = function(stat) {
@@ -264,6 +265,14 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "id"		:
 				case "unique"	: val = Eden.Selectors.getID(stat); break;
 				case "script"	: val = Eden.Selectors.getScriptBase(stat); break;
+				case "remote"	:	var p = stat;
+									while(p.parent) p = p.parent;
+									if (!p.base || !p.base.origin) {
+										val = false;
+										break;
+									}
+									val = p.base.origin.remote;
+									break;
 				}
 
 				ires.push(val);
@@ -602,6 +611,18 @@ Eden.Selectors.processNode = function(statements, s) {
 	return [];
 }
 
+Eden.Selectors.unique = function(stats) {
+	var map = {};
+	for (var i=0; i<stats.length; i++) {
+		map[stats[i].id] = stats[i];
+	}
+	var res = [];
+	for (var x in map) {
+		res.push(map[x]);
+	}
+	return res;
+}
+
 Eden.Selectors.queryWithin = function(within, s, o) {
 	var statements = Eden.Selectors.processNode(within, s);
 	var res = (o) ? Eden.Selectors.processResults(statements, o) : statements;
@@ -628,8 +649,8 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 	//if (statements === undefined) statements = [];
 
 	var statements;
-	var sast = Eden.Selectors.parse(s);
-	statements = sast.filter(statements,ctx);
+	var sast = Eden.Selectors.parse(s.trim());
+	statements = Eden.Selectors.unique(sast.filter(statements,ctx));
 
 	//statements = Eden.Selectors.queryWithin(statements, s, undefined); //.substring(pathix).trim()
 	if (statements === undefined) statements = [];
@@ -647,6 +668,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 			$.get(Eden.Project.local[path].file, function(data) {
 				var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 				Eden.Selectors.cache[path] = res[0];
+				Eden.Index.update(res[0]);
 				statements = res;
 				statements = Eden.Selectors.processNode(statements, s);
 				res = Eden.Selectors.processResults(statements, o);
@@ -677,6 +699,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 					if (num == 1) {
 						statements.push((new Eden.AST(stats[0], undefined, {name: path, remote: true})).script);
 						Eden.Selectors.cache[path] = statements[0];
+						Eden.Index.update(statements[0]);
 						//cb(res);
 						//return;
 					} else {

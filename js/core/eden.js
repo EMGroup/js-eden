@@ -629,7 +629,7 @@
 	 * @param {string?} prefix Prefix used for relative includes.
 	 * @param {function(*)} success
 	 */
-	Eden.prototype.execute = function (code, origin, prefix, agent, success) {
+	/*Eden.prototype.execute = function (code, origin, prefix, agent, success) {
 		if (arguments.length == 1) {
 			success = noop;
 			origin = 'unknown';
@@ -644,7 +644,7 @@
 		}
 
 		this.polyglot.execute(code, origin, prefix, agent, success);
-	};
+	};*/
 
 	/**
 	 * @param {string} includePath
@@ -666,7 +666,7 @@
 		var agobj = agent;
 
 		if (agent === undefined || typeof agent == "string") {
-			agobj = {name: 'execute', getSource: function() { return code; }, getLine: function() { return 0; }};
+			agobj = {name: '*execute'};
 			if (agent) agobj.name = agent;
 		}
 
@@ -681,6 +681,7 @@
 			success && success(false);
 		}
 	};
+	Eden.prototype.execute = Eden.prototype.execute2;
 
 
 	/** Deprecated */

@@ -103,10 +103,10 @@ Eden.Selectors.PropertyNode.prototype.prepend = function(node) {
 Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 	if (!statements) statements = this.construct();
 	var me = this;
-	var param = this.param;
+	var param = this.value;
 	var command = this.name;
 
-	console.log("Property",command,param,statements);
+	//console.log("Property",command,param,statements);
 
 	if (typeof this.name == "number") {
 		
@@ -122,7 +122,9 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 								return (stat.lvalue && regex.test(stat.lvalue.name)) || (stat.name && regex.test(stat.name));
 							});
 
-		case ".id"		:	return statements;
+		case ".id"		:	return statements.filter(function(stat) {
+								return stat.id == param;
+							});
 
 		case ".type"	:	if (!param) break;
 							return statements.filter(function(stat) {
@@ -155,7 +157,7 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 								if (stat.type == "definition" || stat.type == "assignment") {
 									var sym = eden.root.symbols[stat.lvalue.name];
 
-									return sym && sym.origin === stat;
+									return sym && (sym.origin === stat || (sym.origin && sym.origin.id == stat.id));
 								}
 								return false;
 							});
@@ -188,7 +190,7 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 		case ":value"	:	return statements;
 
 		// Additional selector unions to check
-		case ":matches"	:	return Eden.Selectors.parse(param).filter(statements);
+		case ":matches"	:	return Eden.Selectors.parse(this.param).filter(statements);
 
 		case ".title"	:	return statements;
 
@@ -222,7 +224,7 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 								return p.base.origin.remote == true;
 							});
 
-		case ":not"		:	var positive = Eden.Selectors.parse(param).filter(statements);
+		case ":not"		:	var positive = Eden.Selectors.parse(this.param).filter(statements);
 							return statements.filter(function(stat) {
 								for (var i=0; i<positive.length; i++) {
 									if (stat === positive[i]) return false;
@@ -237,9 +239,22 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 }
 
 Eden.Selectors.PropertyNode.prototype.construct = function() {
-	console.log("Property construct");
-	// TODO some properties can have an optimised construction
-	var namenode = new Eden.Selectors.NameNode("*");
-	return namenode.construct();
+	switch (this.name) {
+	case ".type"		:	return Eden.Index.getByType(this.value);
+	case ".id"			:	return Eden.Index.getByID(this.value);
+	case ".name"		:	if (this.param === undefined) {
+								return Eden.Index.getAllWithName();
+							} else if (this.isreg) {
+								return Eden.Index.getByNameRegex(this.value);
+							} else {
+								return Eden.Index.getByName(this.value);
+							}
+	// TODO this doesn't capture executes.
+	case ":root"		:	return [eden.project.ast.script].concat(Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; }));
+	case ":remote"		:	return Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; });
+	case ":project"		:	return [eden.project.ast.script];
+	}
+
+	return Eden.Index.getAll();
 }
 

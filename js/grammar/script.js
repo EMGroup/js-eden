@@ -71,6 +71,8 @@ Eden.AST.prototype.pSCRIPT = function() {
 			//console.log("WS: ", this.stream.code.substring(statement.end, this.stream.prevposition));
 
 			ast.append(statement);
+			// Maintain index
+			Eden.Index.update(statement);
 			if (statement.errors.length > 0) {
 				break;
 				// Skip until colon

@@ -50,6 +50,8 @@ Eden.AST.BaseStatement.setSource = function(start, end, src) {
 
 	if (this.name && this.type != "do") {
 		this.id = this.name +"@"+ hash;
+	} else if (this.lvalue) {
+		this.id = this.lvalue.name + "@" + hash;
 	} else {
 		this.id = this.type +"@"+ hash;
 	}

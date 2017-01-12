@@ -54,7 +54,12 @@ Eden.AST.When.prototype.setSource = function(start, end, src) {
 		hash = ((hash << 5) - hash) + ch;
 		hash = hash & hash;
 	}
-	this.hash = hash;
+
+	if (this.name) {
+		this.id = this.name +"@"+ hash;	
+	} else {
+		this.id = this.type +"@"+ hash;
+	}
 }
 
 Eden.AST.When.prototype.getLine = function() { return this.line; }

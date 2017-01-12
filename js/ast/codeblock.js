@@ -1,10 +1,9 @@
 Eden.AST.CodeBlock = function() {
 	this.type = "codeblock";
-	this.errors = [];
+	Eden.AST.BaseContext.apply(this);
 	this.params = undefined;
 	this.locals = undefined;
 	this.script = undefined;
-	this.parent = undefined;
 };
 
 Eden.AST.CodeBlock.prototype.setLocals = function(locals) {
@@ -50,5 +49,5 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 	return res;
 }
 
-Eden.AST.registerStatement(Eden.AST.CodeBlock);
+Eden.AST.registerContext(Eden.AST.CodeBlock);
 

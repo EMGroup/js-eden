@@ -24,7 +24,7 @@ Eden.Selectors.NameNode.prototype.construct = function(context) {
 	var stats = [];
 
 	if (this.isreg) {
-		var reg = Eden.Selectors.makeRegex(this.name);
+		/*var reg = Eden.Selectors.makeRegex(this.name);
 		if (context && context.statements) {
 			for (var i=0; i<context.statements.length; i++) {
 				var stat = context.statements[i];
@@ -45,9 +45,12 @@ Eden.Selectors.NameNode.prototype.construct = function(context) {
 
 		for (var x in eden.root.symbols) {
 			if (reg.test(x)) stats.push(eden.root.symbols[x]);
-		}
+		}*/
+
+		var reg = Eden.Selectors.makeRegex(this.name);
+		return Eden.Index.getByNameRegex(reg);
 	} else {
-		if (context && context.statements) {
+		/*if (context && context.statements) {
 			for (var i=0; i<context.statements.length; i++) {
 				var stat = context.statements[i];
 				if ((stat.lvalue && stat.lvalue.name == this.name) || (stat.name && stat.name == this.name)) stats.push(stat);
@@ -65,7 +68,9 @@ Eden.Selectors.NameNode.prototype.construct = function(context) {
 			if (Eden.Selectors.cache[x].name == this.name) stats.push(Eden.Selectors.cache[x]);
 		}
 
-		if (eden.root.symbols[this.name]) stats.push(eden.root.symbols[this.name]);
+		if (eden.root.symbols[this.name]) stats.push(eden.root.symbols[this.name]);*/
+
+		return Eden.Index.getByName(this.name);
 	}
 
 	console.log("Construct name",stats);
