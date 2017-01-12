@@ -8,7 +8,7 @@ Eden.AST.LValue = function() {
 	this.islocal = false;
 };
 
-Eden.AST.LValue.prototype.error = fnEdenASTerror;
+Eden.AST.LValue.prototype.error = Eden.AST.fnEdenASTerror;
 
 
 Eden.AST.LValue.prototype.setExtras = function(extras) {
@@ -171,5 +171,5 @@ Eden.AST.LValueComponent.prototype.generate = function(ctx, scope) {
 	}
 }
 
-Eden.AST.LValueComponent.prototype.error = fnEdenASTerror;
+Eden.AST.LValueComponent.prototype.error = Eden.AST.fnEdenASTerror;
 

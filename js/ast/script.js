@@ -99,7 +99,7 @@ Eden.AST.Script.prototype.getParameterByNumber = function(index) {
 	return undefined;
 }
 
-Eden.AST.Script.prototype.error = fnEdenASTerror;
+Eden.AST.Script.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.Script.prototype.setName = function(base, name) {
 	this.name = name;

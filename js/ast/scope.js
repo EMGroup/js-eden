@@ -12,7 +12,7 @@ Eden.AST.Scope = function() {
 	this.expression = undefined; // = new Eden.AST.Primary();
 }
 
-Eden.AST.Scope.prototype.error = fnEdenASTerror;
+Eden.AST.Scope.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.Scope.prototype.prepend = function(extra) {
 	this.primary.prepend(extra);

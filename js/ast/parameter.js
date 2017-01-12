@@ -9,7 +9,7 @@ Eden.AST.Parameter = function(index) {
 	console.error("DEPRECATED PARAMETER");
 }
 
-Eden.AST.Parameter.prototype.error = fnEdenASTerror;
+Eden.AST.Parameter.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.Parameter.prototype.generate = function(ctx, scope, options) {
 	var res;

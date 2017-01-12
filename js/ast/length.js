@@ -4,9 +4,9 @@ Eden.AST.Length = function() {
 	this.l = undefined;
 }
 
-Eden.AST.Length.prototype.left = fnEdenASTleft;
+Eden.AST.Length.prototype.left = Eden.AST.fnEdenASTleft;
 
-Eden.AST.Length.prototype.error = fnEdenASTerror;
+Eden.AST.Length.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.Length.prototype.generate = function(ctx, scope, options) {
 	var left = this.l.generate(ctx, scope, {bound: false, usevar: options.usevar});

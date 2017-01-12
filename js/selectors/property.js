@@ -39,6 +39,39 @@ Eden.Selectors.PropertyNode = function(name, param) {
 	}
 }
 
+Eden.Selectors.PropertyNode.attributes = {
+	"name":		{local: false,	indexed: true,	rank: 1},
+	"type":		{local: false,	indexed: false,	rank: 3},
+	"datatype":	{local: false,	indexed: false, rank: 30},
+	"id":		{local: false,	indexed: true,	rank: 2},
+	"lines":	{local: false,	indexed: false,	rank: 3},
+	"op":		{local: false,	indexed: false,	rank: 30}, 
+	"operator":	{local: false,	indexed: false,	rank: 30},
+	"depends":	{local: false,	indexed: false, rank: 4},
+	"time":		{local: true,	indexed: false, rank: 3},
+	"date":		{local: false,	indexed: false,	rank: 3},
+	"title":	{local: false,	indexed: false, rank: 10},
+	"author":	{local: false,	indexed: false, rank: 10},
+	"version":	{local: false,	indexed: false, rank: 20}
+};
+
+Eden.Selectors.PropertyNode.pseudo = {
+	"line":			{local: false,	indexed: false,	rank: 50},
+	"determines":	{local:true,	indexed: true,	rank: 10},
+	"first":		{local: false,	indexed: true,	rank: 5},
+	"last":			{local: false,	indexed: true,	rank: 5},
+	"unexecuted":	{local: true,	indexed: false, rank: 3},
+	"executed":		{local: true,	indexed: false, rank: 3},
+	"root":			{local: false,	indexed: true,	rank: 3},
+	"project":		{local: true,	indexed: true,	rank: 3},
+	"nth":			{local: false,	indexed: true,	rank: 5},
+	"value":		{local: true,	indexed: false,	rank: 50},
+	"matches":		{local: false,	indexed: false,	rank: 100},
+	"age":			{local: false,	indexed: false,	rank: 6},
+	"remote":		{local: true,	indexed: true,	rank: 20},
+	"not":			{local: false,	indexed: false,	rank: 100}
+};
+
 Eden.Selectors.PropertyNode.prototype.append = function(node) {
 	if (!node) return this;
 	switch(node.type) {

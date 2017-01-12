@@ -36,19 +36,6 @@
  * @see translator2.js for the parser that generates the tree from these nodes.
  */
 
-
-/* Generic functions to be reused */
-function fnEdenASTerror(err) {
-	this.errors.unshift(err);
-};
-
-function fnEdenASTleft(left) {
-	this.l = left;
-	if (left.errors.length > 0) {
-		this.errors.push.apply(this.errors, left.errors);
-	}
-};
-
 /**
  * Abstract Syntax Tree generator for JS-Eden code.
  * Each production in the grammar has a function in this class. It makes use
@@ -96,6 +83,18 @@ Eden.AST = function(code, imports, origin, noparse) {
 		this.errors = this.script.errors;
 	}
 }
+
+/* Generic functions to be reused */
+Eden.AST.fnEdenASTerror = function(err) {
+	this.errors.unshift(err);
+};
+
+Eden.AST.fnEdenASTleft = function(left) {
+	this.l = left;
+	if (left.errors.length > 0) {
+		this.errors.push.apply(this.errors, left.errors);
+	}
+};
 
 // Debug controls
 Eden.AST.debug = false;
@@ -233,7 +232,7 @@ Eden.AST.registerStatement = function(stat) {
 	stat.prototype.getStartLine = Eden.AST.BaseStatement.getStartLine;
 	stat.prototype.getEndLine = Eden.AST.BaseStatement.getEndLine;
 	stat.prototype.getRange = Eden.AST.BaseStatement.getRange;
-	stat.prototype.error = fnEdenASTerror;
+	stat.prototype.error = Eden.AST.fnEdenASTerror;
 }
 
 Eden.AST.registerScript = function(stat) {

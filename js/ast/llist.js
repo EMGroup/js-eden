@@ -9,6 +9,6 @@ Eden.AST.LList.prototype.append = function(lvalue) {
 	this.errors.push.apply(this.errors, lvalue.errors);
 };
 
-Eden.AST.LList.prototype.error = fnEdenASTerror;
+Eden.AST.LList.prototype.error = Eden.AST.fnEdenASTerror;
 
 
