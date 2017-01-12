@@ -8,7 +8,8 @@ Eden.AST.BaseStatement = function() {
 	this.doxyComment = undefined;
 	this.lock = 0;
 	this.source = undefined;
-	this.hash = 0;
+	this.id = 0;
+	this.stamp = 0;
 }
 
 Eden.AST.BaseStatement.hasErrors = function() {
@@ -46,7 +47,12 @@ Eden.AST.BaseStatement.setSource = function(start, end, src) {
 		hash = ((hash << 5) - hash) + ch;
 		hash = hash & hash;
 	}
-	this.hash = hash;
+
+	if (this.name && this.type != "do") {
+		this.id = this.name +"@"+ hash;
+	} else {
+		this.id = this.type +"@"+ hash;
+	}
 }
 
 Eden.AST.BaseStatement.getSource = function() {

@@ -7,6 +7,29 @@
 
 function noop() {}
 
+function generateTimeStamp(str) {
+	var relativeTimeRe = /(\d*)(minutes|minute|min|hours|hour|days|day|weeks|week|months|month|mon|years|year|Quarters|Quarter|seconds|second|sec|s|m|h|d|M|y|Y|Q|ms|w)/g;
+
+	var comp;
+	var stamp = 0;
+	while ((comp = relativeTimeRe.exec(str)) !== null) {
+		console.log("Reltime:",comp);
+		switch(comp[2]) {
+		case "second":
+		case "seconds":
+		case "s"	:	stamp += parseInt(comp[1]) * 1000; break;
+		case "minute":
+		case "minutes":
+		case "m"	:	stamp += parseInt(comp[1]) * 60000; break;
+		case "hour":
+		case "hours":
+		case "h"	:	stamp += parseInt(comp[1]) * 3600000; break;
+		}
+	}
+
+	return stamp;
+}
+
 function hashCode(str){
     var hash = 0;
     if (str.length == 0) return hash;

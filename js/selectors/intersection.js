@@ -6,8 +6,7 @@ Eden.Selectors.IntersectionNode = function(a,b) {
 Eden.Selectors.IntersectionNode.prototype.append = function(node) {
 	if (!node) return this;
 	switch(node.type) {
-	case "direct"	:
-	case "indirect"	:	node.prepend(this); return node;
+	case "navigate"	:	node.prepend(this); return node;
 	}
 
 	this.children.push(node);

@@ -45,15 +45,25 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 
 	if (ast instanceof Symbol && ast.type != "function") {
 		html += "<p>";
+		html += "<b>Path:</b> " + name + "<br>";
 		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(ast.value());
 		html += "</p>";
 	} else if (ast.lvalue && eden.root.symbols[ast.lvalue.name] && eden.root.symbols[ast.lvalue.name].origin === ast) {
 		html += "<p>";
+		html += "<b>Path:</b> " + name + "<br>";
 		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(eden.root.symbols[ast.lvalue.name].value());
+		html += "</p>";
+	} else {
+		html += "<p>";
+		html += "<b>Path:</b> " + name;
 		html += "</p>";
 	}
 
 	if (ast.doxyComment) {
+		var tags = ast.doxyComment.getHashTags();
+		if (tags && tags.length > 0) {
+			html += "<p><b>Tags:</b> " + tags.join(" ") + "</p>";
+		}
 		var stripped = ast.doxyComment.pretty();
 		if (stripped && stripped.length > 0) {
 			html += stripped;
@@ -75,7 +85,7 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 			symstr = stat.getInnerSource();
 		}
 	} else if (stat.type == "when") {
-
+		symstr = stat.prefix.trim();
 	} else {
 		symstr = stat.getSource().split("\n")[0];
 	}

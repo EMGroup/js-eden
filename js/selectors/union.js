@@ -10,9 +10,11 @@ Eden.Selectors.UnionNode.prototype.filter = function(statements, context) {
 	for (var i=0; i<this.children.length; i++) {
 		var stats = this.children[i].filter(statements, context);
 		for (var j=0; j<stats.length; j++) {
-			map[stats[j].hash] = stats[j];
+			map[stats[j].id] = stats[j];
 		}
 	}
+
+	console.log(map);
 
 	return Object.keys(map).map(function(e) { return map[e]; });
 }

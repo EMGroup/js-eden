@@ -82,6 +82,8 @@ Eden.AST = function(code, imports, origin, noparse) {
 
 	if(this.stream) this.stream.data = this.data;
 
+	this.stamp = Date.now();
+
 	// Start parse with SCRIPT production
 	if (!noparse) {
 		// Get First Token;

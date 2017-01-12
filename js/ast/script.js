@@ -118,6 +118,21 @@ Eden.AST.Script.prototype.setSource = function(start, end, src) {
 		this.prefix = src.substring(0, this.statements[0].start-start);
 		this.postfix = src.substring(this.statements[this.statements.length-1].end-start);
 	}
+
+	var hash = 0;
+	var ch;
+	var len = src.length;
+	for (var i=0; i<len; i++) {
+		ch = src.charCodeAt(i);
+		hash = ((hash << 5) - hash) + ch;
+		hash = hash & hash;
+	}
+
+	if (this.name) {
+		this.id = this.name +"@"+ hash;
+	} else {
+		this.id = this.type +"@"+ hash;
+	}
 }
 
 Eden.AST.Script.prototype.append = function (ast) {

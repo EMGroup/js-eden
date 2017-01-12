@@ -299,6 +299,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	endline = this.lastline;
 	stat.parent = this.parent;
 	stat.doxyComment = doxy;
+	stat.stamp = this.stamp;
 
 	//if (endline == -1) endline = this.stream.prevline;
 

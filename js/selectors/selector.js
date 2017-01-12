@@ -289,7 +289,7 @@ Eden.Selectors.outerBracket = function(str) {
 			if (open == 0) return i;
 		}
 	}
-	return -1;
+	return str.length;
 }
 
 Eden.Selectors.makeRegex = function(str) {
@@ -319,29 +319,40 @@ Eden.Selectors.parse = function(s) {
 	if (s.charAt(0) == ">") {
 		// Go to all children recursively
 		if (s.charAt(1) == ">") {
-			node = new Eden.Selectors.IndirectChildNode();
+			node = new Eden.Selectors.NavigateNode(">", true);
 			s = s.substring(2).trim();
 		// Only go to direct children
 		} else {
-			node = new Eden.Selectors.DirectChildNode();
+			node = new Eden.Selectors.NavigateNode(">", false);
+			s = s.substring(1).trim();
+		}
+	} else if (s.charAt(0) == "<") {
+		// Go to all children recursively
+		if (s.charAt(1) == "<") {
+			node = new Eden.Selectors.NavigateNode("<", true);
+			s = s.substring(2).trim();
+		// Only go to direct children
+		} else {
+			node = new Eden.Selectors.NavigateNode("<", false);
 			s = s.substring(1).trim();
 		}
 	} else if (s.charAt(0) == ",") {
 		node = new Eden.Selectors.UnionNode();
 		s = s.substring(1).trim();
-	} else if (s.charAt(0) == ":") {
+	} else if (s.charAt(0) == ":" || s.charAt(0) == ".") {
 		var ns = s.substring(1);
 		var endix = ns.search(/[^a-zA-Z0-9\-]/);
-		if (endix == -1) endix = ns.length;
-		var command = ns.substring(0,endix);
+		if (endix == -1) endix = s.length;
+		else endix++;
+		var command = s.substring(0,endix);
 		var param = undefined;
 
-		if (endix < ns.length && ns.charAt(endix) == "(") {
-			var endix2 = Eden.Selectors.outerBracket(ns); //ns.indexOf(")");
-			param = ns.substring(endix+1,endix2);
-			ns = ns.substring(endix2+1).trim();
+		if (endix < s.length && s.charAt(endix) == "(") {
+			var endix2 = Eden.Selectors.outerBracket(s); //ns.indexOf(")");
+			param = s.substring(endix+1,endix2);
+			s = s.substring(endix2+1).trim();
 		} else {
-			ns = ns.substring(endix).trim();
+			s = s.substring(endix).trim();
 		}
 
 		if (s.charAt(1).match(/[0-9]+/)) {
@@ -350,8 +361,6 @@ Eden.Selectors.parse = function(s) {
 		} else {
 			node = new Eden.Selectors.PropertyNode(command, param);
 		}
-
-		s = ns;
 	// Sort operator
 	} else if (s.charAt(0) == "^") {
 		var ns = s.substring(1);
@@ -378,12 +387,6 @@ Eden.Selectors.parse = function(s) {
 		tag = tag[0];
 		node = new Eden.Selectors.TagNode(tag);
 		s = s.substring(tag.length).trim();
-	} else if (s.charAt(0) == ".") {
-		var tag = s.match(/.[a-zA-Z0-9_]+/);
-		if (tag === null) return;
-		tag = tag[0].substring(1);
-		node = new Eden.Selectors.DotNode(tag);
-		s = s.substring(tag.length+1).trim();
 	} else if (s.charAt(0).match(/[a-zA-Z*?]+/)) {
 		var endix = s.search(/[^a-zA-Z0-9_*?]+/);
 		if (endix == -1) endix = s.length;

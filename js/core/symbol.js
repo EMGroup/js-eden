@@ -80,6 +80,18 @@ Object.defineProperty(Symbol.prototype, "parent", {
 	get: function() { return (this.origin) ? this.origin.parent : undefined; }
 });
 
+Object.defineProperty(Symbol.prototype, "stamp", {
+	get: function() { return (this.origin) ? this.origin.stamp : undefined; }
+});
+
+Object.defineProperty(Symbol.prototype, "id", {
+	get: function() { return (this.origin) ? this.origin.id : undefined; }
+});
+
+Object.defineProperty(Symbol.prototype, "executed", {
+	get: function() { return 1; }
+});
+
 Symbol.prototype.getStartLine = function(relative) {
 	return (this.origin) ? this.origin.getStartLine(relative) : -1;
 }
@@ -356,6 +368,7 @@ Symbol.prototype.clearDependencies = function () {
 
 
 Symbol.prototype.getSource = function() {
+	if (this.origin && !this.origin.internal && !this.origin.getSource) console.log("NO GETSOURCE",this);
 	if (this.origin && !this.origin.internal) return this.origin.getSource();
 	return this.name + " = " + Eden.edenCodeForValue(this.value()) + ";";
 }

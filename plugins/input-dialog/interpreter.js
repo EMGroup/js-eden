@@ -314,10 +314,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function browseScripts(path) {
 			if (path == "") path = "*";
-			var scripts = Eden.Selectors.query(path + " :kind(script):has-name:not(:remote)","id");
+			var scripts = Eden.Selectors.query(path + " .type(script).name:not(:remote)","id");
 			scriptarea.outdiv.innerHTML = "";
 			for (var i=0; i<scripts.length; i++) {
-				var name = scripts[i].split(".");
+				var name = scripts[i].split(">");
 				name = name[name.length-1];
 				var icon;
 				if (scripts[i] == eden.project.name) {
@@ -333,7 +333,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 			var folder = {};
 
-			scripts = Eden.Selectors.query(path + " :kind(script):has-name:remote","id");
+			scripts = Eden.Selectors.query(path + " .type(script).name:remote","id");
 			for (var i=0; i<scripts.length; i++) {
 				if (scripts[i].indexOf("/") != -1) {
 					var name = scripts[i].split("/");
@@ -344,7 +344,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						scriptarea.outdiv.appendChild(ele.get(0));
 					}
 				} else {
-					var name = scripts[i].split(".");
+					var name = scripts[i].split(">");
 					name = name[name.length-1];
 					var ele = $('<div class="browse-entry" data-path="'+scripts[i]+'"><div class="browse-icon">&#xf08e;</div>'+name+'</div>');
 					scriptarea.outdiv.appendChild(ele.get(0));

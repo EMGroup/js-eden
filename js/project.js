@@ -17,8 +17,8 @@ Eden.Project = function(id, name, source) {
 		this.ast.script.name = this.name;
 	}
 
-	eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, this);
-	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, this);
+	eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);
+	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, Symbol.localJSAgent);
 }
 
 Eden.Project.prototype.updateDoxy = function() {
