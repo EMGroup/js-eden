@@ -229,14 +229,18 @@ Eden.AST.createStatement = function(src) {
 	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
 	//console.log(ast);
 	ast.next();
-	return ast.pSTATEMENT();
+	var stat = ast.pSTATEMENT();
+	stat.base = eden.project.ast;
+	return stat;
 }
 
 Eden.AST.createScript = function(src) {
 	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
 	//console.log(ast);
 	ast.next();
-	return ast.pSCRIPT();
+	var script = ast.pSCRIPT();
+	script.base = eden.project.ast;
+	return script;
 }
 
 
