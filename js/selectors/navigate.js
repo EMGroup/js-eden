@@ -4,11 +4,12 @@ Eden.Selectors.NavigateNode = function(direction, deep) {
 	this.right = undefined;
 	this.direction = direction;
 	this.deep = deep;
+	this.local = false;
 }
 
 Eden.Selectors.NavigateNode.prototype.append = function(node) {
 	if (!node) return this;
-
+	if (node.local) this.local = true;
 	if (node.type == "union") {
 		node.prepend(this);
 		return node;
@@ -21,6 +22,7 @@ Eden.Selectors.NavigateNode.prototype.append = function(node) {
 
 Eden.Selectors.NavigateNode.prototype.prepend = function(node) {
 	if (!node) return this;
+	if (node.local) this.local = true;
 	if (this.left) this.left = this.left.prepend(node);
 	else this.left = node;
 	return this;

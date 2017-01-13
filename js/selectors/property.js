@@ -6,6 +6,8 @@ Eden.Selectors.PropertyNode = function(name, param) {
 	this.value = param;
 	this.range = false;
 	this.isreg = (param) ? param.indexOf("*") != -1 : false;
+	this.meta = (name.charAt(0) == ".") ? Eden.Selectors.PropertyNode.attributes[name.substring(1)] : Eden.Selectors.PropertyNode.pseudo[name.substring(1)];
+	this.local = (this.meta) ? this.meta.local : false;
 
 	if (param) {
 		var ch = param.charAt(0);
@@ -69,7 +71,8 @@ Eden.Selectors.PropertyNode.pseudo = {
 	"matches":		{local: false,	indexed: false,	rank: 100},
 	"age":			{local: false,	indexed: false,	rank: 6},
 	"remote":		{local: true,	indexed: true,	rank: 20},
-	"not":			{local: false,	indexed: false,	rank: 100}
+	"not":			{local: false,	indexed: false,	rank: 100},
+	"active":		{local: true,	indexed: false, rank: 10}
 };
 
 Eden.Selectors.PropertyNode.prototype.append = function(node) {

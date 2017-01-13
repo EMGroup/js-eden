@@ -142,9 +142,8 @@ function initASTDB(){
 		for(var i = 0; i < rows.length; i++){
 			console.log("Parsing row " + i, rows[i]);
 			getFullVersion(rows[i].saveID, rows[i].projectID, rows[i], function(data) {
-				var tmpAst = new Eden.AST(data.source,undefined,{name: data.meta.minimisedTitle});
+				var tmpAst = new Eden.AST(data.source,undefined,{name: data.meta.minimisedTitle, title: data.meta.title});
 				Eden.Index.update(tmpAst.script);
-				console.log("PROJECTID", tmpAst.script.id);
 				allKnownProjects[tmpAst.script.id] = tmpAst.script;
 			});
 		}
@@ -218,7 +217,7 @@ app.get('/code/search', function(req, res){
 		if (sast.local) {
 			res.json([]);
 		} else {
-			var nodelist = sast.filter();
+			var nodelist = Eden.Selectors.unique(sast.filter());
 			var srcList = Eden.Selectors.processResults(nodelist, req.query.outtype);
 			res.json(srcList);
 		}

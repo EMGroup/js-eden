@@ -1,10 +1,14 @@
 Eden.Selectors.IntersectionNode = function(a,b) {
 	this.type = "intersection";
 	this.children = [a,b];
+	this.local = false;
 }
 
 Eden.Selectors.IntersectionNode.prototype.append = function(node) {
 	if (!node) return this;
+
+	if (node.local) this.local = true;
+	
 	switch(node.type) {
 	case "navigate"	:	node.prepend(this); return node;
 	}
@@ -14,6 +18,8 @@ Eden.Selectors.IntersectionNode.prototype.append = function(node) {
 }
 
 Eden.Selectors.IntersectionNode.prototype.prepend = function(node) {
+	if (!node) return this;
+	if (node.local) this.local = true;
 	this.children.splice(0,0,node);
 	return this;
 }

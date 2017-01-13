@@ -1,6 +1,7 @@
 Eden.Selectors.UnionNode = function() {
 	this.type = "union";
 	this.children = [undefined];
+	this.local = false;
 }
 
 Eden.Selectors.UnionNode.prototype.filter = function(statements, context) {
@@ -25,6 +26,7 @@ Eden.Selectors.UnionNode.prototype.construct = function() {
 
 Eden.Selectors.UnionNode.prototype.prepend = function(node) {
 	if (!node) return this;
+	if (node.local) this.local = true;
 	if (this.children[0] === undefined) {
 		this.children[0] = node;
 		return this;
@@ -38,6 +40,7 @@ Eden.Selectors.UnionNode.prototype.prepend = function(node) {
 
 Eden.Selectors.UnionNode.prototype.append = function(node) {
 	if (!node) return this;
+	if (node.local) this.local = true;
 	//switch(node.type) {
 	//case "navigate"	:	node.prepend(this); return node;
 	//}
