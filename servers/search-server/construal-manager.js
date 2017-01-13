@@ -106,6 +106,7 @@ window = {};
 var diffmatchpatch = require("../../js/lib/diff_match_patch.js"); 
 var sqlite3 = require("sqlite3").verbose();
 var errors = require(config.JSEDENPATH + "js/core/errors.js");
+var warnings = require(config.JSEDENPATH + "js/core/warnings.js");
 var db = new sqlite3.Database(config.DBPATH);
 var allKnownProjects = {};
 
