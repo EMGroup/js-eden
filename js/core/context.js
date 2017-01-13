@@ -46,7 +46,7 @@ function Folder(name, parent, root) {
 	 * @private
 	 */
 	//this.parent = undefined;
-	this.base = undefined;
+	this.base = {origin: undefined};
 
 	this.errors = [];
 	this.lock = 1;
