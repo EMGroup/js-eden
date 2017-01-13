@@ -89,7 +89,7 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 		eden.root.lookup("plugins_html_loaded").assign(true, eden.root.scope, Symbol.localJSAgent);
 		if (success) success();
 	});*/
-	Eden.Selectors.execute("plugins/html/html", function() {
+	Eden.Selectors.execute("plugins > html > html", function() {
 		eden.root.lookup("plugins_html_loaded").assign(true, eden.root.scope, Symbol.localJSAgent);
 		if (success) success();
 	});

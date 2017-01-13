@@ -623,7 +623,7 @@ EdenUI.plugins.Page = function(edenUI, success) {
 	//Load the Eden wrapper functions (new syntax).
 	//edenUI.eden.include2("plugins/page/page.js-e", success);
 	//Eden.Agent.importAgent("plugins/page", "default", ["enabled"], function() {
-	Eden.Selectors.execute("plugins/page/page", function() {
+	Eden.Selectors.execute("plugins > page > page", function() {
 		eden.root.lookup("plugins_page_loaded").assign(true, eden.root.scope);
 		if (success) success();
 	});

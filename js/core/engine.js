@@ -45,7 +45,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			}
 		} else if (statements[i].type == "import") {
 			if (statements[i].statements === undefined) {
-				statements[i].selector = (statements[i].path) ? statements[i].path.execute(ctx, base, scope, agent) + ">" : undefined;
+				statements[i].selector = (statements[i].path) ? statements[i].path.execute(ctx, base, scope, agent) : undefined;
 				yield statements[i];
 				statements.splice.apply(statements, [i, 1].concat(statements[i].statements));
 				i--;
