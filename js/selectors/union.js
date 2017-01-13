@@ -34,5 +34,15 @@ Eden.Selectors.UnionNode.prototype.prepend = function(node) {
 	}
 }
 
-Eden.Selectors.UnionNode.prototype.append = Eden.Selectors.IntersectionNode.prototype.append;
+//Eden.Selectors.UnionNode.prototype.append = Eden.Selectors.IntersectionNode.prototype.append;
+
+Eden.Selectors.UnionNode.prototype.append = function(node) {
+	if (!node) return this;
+	//switch(node.type) {
+	//case "navigate"	:	node.prepend(this); return node;
+	//}
+
+	this.children.push(node);
+	return this;
+}
 

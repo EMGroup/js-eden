@@ -13,6 +13,7 @@ EdenSyntaxData = lex.EdenSyntaxData;
 var lang = require(config.JSEDENPATH + "js/language/lang.js");
 Language = lang.Language;
 var en = require(config.JSEDENPATH + "js/language/en.js");
+require(config.JSEDENPATH + "js/index.js");  
 require(config.JSEDENPATH + "js/selectors/selector.js");  
 require(config.JSEDENPATH + "js/selectors/property.js");  
 require(config.JSEDENPATH + "js/selectors/name.js");  
@@ -111,58 +112,22 @@ eden.root.symbols = {};
 
 //var doxy = require(config.JSEDENPATH + "js/doxycomments.js");
 
-var vstmt = db.prepare("select path,source FROM (SELECT max(saveID) as maxsaveID from versions where permission = 1 group by agentID) as maxv, versions,agents where maxsaveID = versions.saveID and agents.id = agentID;");
+var vstmt = db.prepare("select minimisedTitle,title,fullsource FROM (SELECT max(saveID) as maxsaveID from projectversions group by projectID) as maxv, projectversions,projects where maxsaveID = projectversions.saveID and projects.projectID = projectversions.projectID;");
 
 initASTDB();
 
 function initASTDB(){
 	vstmt.all(function(err,rows){
 		for(var i = 0; i < rows.length; i++){
-			var tmpAst = new Eden.AST(rows[i].source,undefined,{});
-			console.log("Parsing row " + i);
-			allKnownAgents[rows[i].path] = tmpAst;
+			if (rows[i].fullsource === null) continue;
+			console.log("Parsing row " + i, rows[i]);
+			var tmpAst = new Eden.AST(rows[i].fullsource,undefined,{});
+			allKnownAgents[rows[i].minimisedTitle] = tmpAst;
 		}
+
+		console.log(JSON.stringify(Eden.Index.name_index));
 	});
 }
-
-Eden.Selectors.PropertyNode.prototype.construct = function() {
-	// TODO some properties can have an optimised construction
-	var namenode = new Eden.Selectors.NameNode("*");
-	return namenode.construct();
-}
-
-Eden.Selectors.NameNode.prototype.construct = function(context) {
-	var stats = [];
-
-	if (this.isreg) {
-		var reg = Eden.Selectors.makeRegex(this.name);
-		if (context && context.statements) {
-			for (var i=0; i<context.statements.length; i++) {
-				var stat = context.statements[i];
-				if ((stat.lvalue && reg.test(stat.lvalue.name)) || (stat.name && reg.test(stat.name))) stats.push(stat);
-			}
-		}
-
-		for (var x in allKnownAgents) {
-			if (reg.test(x)) stats.push(allKnownAgents[x].script);
-		}
-	} else {
-		if (context && context.statements) {
-			for (var i=0; i<context.statements.length; i++) {
-				var stat = context.statements[i];
-				if ((stat.lvalue && stat.lvalue.name == this.name) || (stat.name && stat.name == this.name)) stats.push(stat);
-			}
-		}
-
-		if (allKnownAgents[this.name]) stats.push(allKnownAgents[this.name].script);
-	}
-
-	console.log("Construct name",stats);
-
-	return stats;
-}
-
-
 
 var insertAgentStmt;
 // API Access link for creating client ID and secret:

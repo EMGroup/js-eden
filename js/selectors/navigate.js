@@ -8,9 +8,15 @@ Eden.Selectors.NavigateNode = function(direction, deep) {
 
 Eden.Selectors.NavigateNode.prototype.append = function(node) {
 	if (!node) return this;
-	if (this.right) this.right.append(node);
-	else this.right = node;
-	return this;
+
+	if (node.type == "union") {
+		node.prepend(this);
+		return node;
+	} else {
+		if (this.right) this.right.append(node);
+		else this.right = node;
+		return this;
+	}
 }
 
 Eden.Selectors.NavigateNode.prototype.prepend = function(node) {
