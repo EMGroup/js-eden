@@ -43,7 +43,7 @@
  * report the errors found. To use, pass the script to the constructor.
  * @param code String containing the script.
  */
-Eden.AST = function(code, imports, origin, noparse) {
+Eden.AST = function(code, imports, origin, options) {
 	this.stream = (code !== undefined) ? new EdenStream(code) : undefined;
 	this.data = new EdenSyntaxData();
 	this.token = "INVALID";
@@ -60,6 +60,7 @@ Eden.AST = function(code, imports, origin, noparse) {
 	this.errors = [];
 	this.warnings = [];
 	this.whens = [];
+	this.options = options;
 
 	if (!origin) console.error("NO ORIGIN", code);
 
@@ -72,7 +73,7 @@ Eden.AST = function(code, imports, origin, noparse) {
 	this.stamp = Date.now();
 
 	// Start parse with SCRIPT production
-	if (!noparse) {
+	if (!options || !options.noparse) {
 		// Get First Token;
 		this.next();
 		this.script = this.pSCRIPT();
@@ -110,7 +111,7 @@ Eden.AST.debug_end_cb = undefined;
 Eden.AST.fromNode = function(node, origin) {
 	var ast = new Eden.AST(node.getInnerSource(), undefined, origin, true);
 	ast.script = node;
-	ast.whens = Eden.Selectors.queryWithin([node], ">>:kind(when)");
+	ast.whens = Eden.Selectors.queryWithin([node], ">>.type(when)");
 	ast.errors = node.errors;
 	return ast;
 }
@@ -225,10 +226,17 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 
 
 Eden.AST.createStatement = function(src) {
-	var ast = new Eden.AST(src, undefined, {}, true);
+	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
 	//console.log(ast);
 	ast.next();
 	return ast.pSTATEMENT();
+}
+
+Eden.AST.createScript = function(src) {
+	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
+	//console.log(ast);
+	ast.next();
+	return ast.pSCRIPT();
 }
 
 

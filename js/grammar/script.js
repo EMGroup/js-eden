@@ -80,7 +80,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 			}
 
 			// Maintain index
-			Eden.Index.update(statement);
+			if (!this.options || !this.options.noindex) Eden.Index.update(statement);
 
 			var ws = this.stream.code.substring(statement.end, this.stream.prevposition);
 			if (ws.length > 0) {

@@ -234,6 +234,8 @@ Eden.Selectors.processResults = function(statements, o) {
 									}
 									val = p.base.origin.remote;
 									break;
+
+				case "root"		:	val = stat.parent === undefined; break;
 				}
 
 				ires.push(val);
@@ -371,207 +373,6 @@ Eden.Selectors.parse = function(s) {
 	return node.append(nextnode);
 }
 
-Eden.Selectors.processNode = function(statements, s) {
-	//console.log("NODE",s);
-	if (!s || s == "") return statements;
-
-	// Go into childrne
-	if (s.charAt(0) == ">") {
-		// Go to all children recursively
-		if (s.charAt(1) == ">") {
-			statements = Eden.Selectors.getChildren(statements, true);
-			return Eden.Selectors.processNode(statements, s.substring(2).trim());
-		// Only go to direct children
-		} else {
-			statements = Eden.Selectors.getChildren(statements, false);
-			return Eden.Selectors.processNode(statements, s.substring(1).trim());
-		}
-	} else if (s.charAt(0) == ":") {
-		var ns = s.substring(1);
-		var endix = ns.search(/[^a-zA-Z0-9\-]/);
-		if (endix == -1) endix = ns.length;
-		var command = ns.substring(0,endix);
-		var param = undefined;
-
-		if (endix < ns.length && ns.charAt(endix) == "(") {
-			var endix2 = Eden.Selectors.outerBracket(ns); //ns.indexOf(")");
-			param = ns.substring(endix+1,endix2);
-			ns = ns.substring(endix2+1).trim();
-		} else {
-			ns = ns.substring(endix);
-		}
-
-		if (s.charAt(1).match(/[0-9]+/)) {
-			var snum = parseInt(command);
-
-			statements = statements.filter(function(stat) {
-				return Eden.Selectors.getChildren([stat.parent], false)[snum-1] === stat;
-			});
-		} else {
-			switch(command) {
-			case "name"		:	if (!param) break;
-								var regex = edenUI.regExpFromStr(param);
-								statements = statements.filter(function(stat) {
-									return (stat.lvalue && regex.test(stat.lvalue.name)) || (stat.name && regex.test(stat.name));
-								}); break;
-
-			case "kind"		:	if (!param) break;
-								statements = statements.filter(function(stat) {
-									return stat.type == param;
-								}); break;
-
-			case "type"		:	statements = statements.filter(function(stat) {
-									return (stat.expression && Eden.Selectors.testType(stat.expression) == param) ||
-											(stat.expression && stat.expression.type == "scope" && stat.expression.range && param == "list");
-								}); break;
-
-			case "depends"	:	//var regex = edenUI.regExpFromStr(param);
-								statements = statements.filter(function(stat) {
-									return (stat.type == "definition" || stat.type == "when") && stat.dependencies[param];
-								}); break
-
-			case "active"	:	statements = statements.filter(function(stat) {
-									if (stat.type == "definition" || stat.type == "assignment") {
-										var sym = eden.root.symbols[stat.lvalue.name];
-
-										return sym && sym.origin === stat;
-									}
-									return false;
-								}); break;
-
-			case "last"		:	break;
-
-			case "unexecuted"	:	statements = statements.filter(function(stat) {
-										return stat.executed == 0;
-									}); break;
-			case "executed"	:	statements = statements.filter(function(stat) {
-									return stat.executed == 1;
-								}); break;
-
-			case "has-name"	:	statements = statements.filter(function(stat) {
-									return stat.name !== undefined;
-								}); break;
-
-			case "nth"		:	statements = [statements[parseInt(param)]];
-								break;
-
-			case "value"	:	break;
-
-			case "title"	:	break;
-
-			case "author"	:	break;
-
-			case "version"	:	break;
-
-			case "date"		:	break;
-
-			case "remote"	:	statements = statements.filter(function(stat) {
-									var p = stat;
-									while(p.parent) p = p.parent;
-									if (!p.base) console.log("MISSING BASE",p);
-									return p.base.origin.remote == true;
-								}); break;
-
-			case "not"		:	var positive = Eden.Selectors.processNode(statements, param);
-								statements = statements.filter(function(stat) {
-									for (var i=0; i<positive.length; i++) {
-										if (stat === positive[i]) return false;
-									}
-									return true;
-								}); break;
-
-			default: statements = [];
-			}
-		}
-
-		return Eden.Selectors.processNode(statements, ns);
-	// Sort operator
-	} else if (s.charAt(0) == "^") {
-		var ns = s.substring(1);
-		var endix = ns.search(/[^a-zA-Z0-9\-]/);
-		if (endix == -1) endix = ns.length;
-		var command = ns.substring(0,endix);
-		var param = undefined;
-
-		if (endix < ns.length && ns.charAt(endix) == "(") {
-			var endix2 = Eden.Selectors.outerBracket(ns); //ns.indexOf(")");
-			param = ns.substring(endix+1,endix2);
-			ns = ns.substring(endix2+1).trim();
-		} else {
-			ns = ns.substring(endix);
-		}
-
-		switch(command) {
-		case "date"		:	
-
-		case "executed"	:
-
-		case "active"	:
-
-		case "touched"	:
-		}
-
-		return Eden.Selectors.processNode(statements, ns);
-	} else if (s.charAt(0) == "#") {
-		var nstats = [];
-		var tag = s.match(/#[a-zA-Z0-9_]+/);
-		//var endix = s.search(/[^a-z]+/);
-		//if (endix == -1) endix = s.length;
-		//var tag = s.substring(0,endix);
-		if (tag === null) return [];
-		tag = tag[0];
-		console.log("hashtag",tag);
-		for (var i=0; i<statements.length; i++) {
-			if (statements[i].doxyComment && statements[i].doxyComment.hasTag(tag)) {
-				nstats.push(statements[i]);
-			}
-		}
-		statements = nstats;
-		return Eden.Selectors.processNode(statements, s.substring(tag.length).trim());
-	} else if (s.charAt(0) == ".") {
-		var tag = s.match(/.[a-zA-Z0-9_]+/);
-		if (tag === null) return [];
-		tag = tag[0].substring(1);
-		var nstats = [];
-		for (var i=0; i<statements.length; i++) {
-			var stat = statements[i];
-			if (stat.type == "script") {
-				for (j=0; j<stat.statements.length; j++) {
-					if (stat.statements[j].type == "script" && stat.statements[j].name == tag)
-						nstats.push(stat.statements[j]);
-				}
-			}
-		};
-		statements = nstats;
-		return Eden.Selectors.processNode(statements, s.substring(tag.length+1).trim());
-	} else if (s.charAt(0).match(/[a-zA-Z*?]+/)) {
-		var endix = s.search(/[^a-zA-Z0-9_*?]+/);
-		if (endix == -1) endix = s.length;
-		var name = s.substring(0,endix);
-		console.log("MATCH NAME [" + name + "]");
-		var isreg = name.indexOf("*") != -1;
-		var nstats = [];
-
-		if (isreg) {
-			var reg = Eden.Selectors.makeRegex(name);
-			for (var i=0; i<statements.length; i++) {
-				if ((statements[i].lvalue && reg.test(statements[i].lvalue.name)) || (statements[i].name && reg.test(statements[i].name))) {
-					nstats.push(statements[i]);
-				}
-			}
-		} else {
-			for (var i=0; i<statements.length; i++) {
-				if ((statements[i].lvalue && statements[i].lvalue.name == name) || (statements[i].name && statements[i].name == name)) {
-					nstats.push(statements[i]);
-				}
-			}
-		}
-		statements = nstats;
-		return Eden.Selectors.processNode(statements, s.substring(endix).trim());
-	}
-	return [];
-}
-
 Eden.Selectors.unique = function(stats) {
 	var map = {};
 	for (var i=0; i<stats.length; i++) {
@@ -585,7 +386,8 @@ Eden.Selectors.unique = function(stats) {
 }
 
 Eden.Selectors.queryWithin = function(within, s, o) {
-	var statements = Eden.Selectors.processNode(within, s);
+	var sast = Eden.Selectors.parse(s);
+	var statements = Eden.Selectors.unique(sast.filter(within));
 	var res = (o) ? Eden.Selectors.processResults(statements, o) : statements;
 	return res;
 }
@@ -673,23 +475,22 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 			});
 		} else {
 			//Then need to do a remote search
-			Eden.DB.searchSelector(s, (o === undefined) ? "source" : o, function(stats) {
+			Eden.DB.searchSelector(s, (o === undefined) ? ["root","source"] : o, function(stats) {
 				if (o === undefined && stats.length > 0) {
-					// Need to generate an AST for each result, or first only if single
-					if (num == 1) {
-						statements.push((new Eden.AST(stats[0], undefined, {name: path, remote: true})).script);
-						Eden.Selectors.cache[path] = statements[0];
-						Eden.Index.update(statements[0]);
-						//cb(res);
-						//return;
-					} else {
-						// Loop and do all...
-						for (var i=0; i<=num; i++) {
-							statements.push((new Eden.AST(stats[0], undefined, {name: path, remote: true})).script);
-							Eden.Selectors.cache[path] = statements[0];
-							Eden.Index.update(statements[0]);
-						} 
-					}
+					// Need to generate an AST for each result
+					// Loop and do all...
+					for (var i=0; i<stats.length; i++) {
+						if (i > num) break;
+						var script;
+						if (stats[i][0]) {
+							script = Eden.AST.createScript(stats[i][1]); //(new Eden.AST(stats[i][1], undefined, {name: path, remote: true}, {noparse: false, noindex: true})).script;
+						} else {
+							script = Eden.AST.createStatement(stats[i][1]);
+						}
+						statements.push(script);
+						//Eden.Selectors.cache[path] = script;
+						//Eden.Index.update(script);
+					} 
 				} else {
 					statements.push.apply(statements,stats);
 				}
@@ -700,11 +501,11 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 		}
 
 		return;
+	} else {
+		//var res = Eden.Selectors.processResults(statements, o);
+		if (cb) cb(statements);
+		return statements;
 	}
-
-	//var res = Eden.Selectors.processResults(statements, o);
-	if (cb) cb(statements);
-	return statements;
 }
 
 
