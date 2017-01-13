@@ -162,9 +162,9 @@ EdenUI.Sharebox = function(element) {
 			//console.log("ALL UPLOADED");
 			eden.project.thumb = me.thumbdata;
 			eden.project.tags = tagstr;
-			eden.project.save(function(status) {
+			eden.project.save(false, function(status) {
 				if (status) {
-					var url = "?load="+eden.project.name+"&id="+eden.project.id;
+					var url = "?load="+eden.project.id+"&vid="+eden.project.vid;
 					me.sharebox.find(".projecturl").html(window.location.href+url);
 					//function selectElementContents(el) {
 					var range = document.createRange();
