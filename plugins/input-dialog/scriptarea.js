@@ -130,7 +130,10 @@ EdenUI.ScriptArea.prototype.updateLineHighlight = function() {
 EdenUI.ScriptArea.prototype.runScript = function(line) {
 	// If we should run the statement (there are no errors)
 	if (this.gutter.lines[line-1] && this.gutter.lines[line-1].live && !this.fragment.ast.hasErrors()) {
-		this.fragment.ast.executeLine(line-1);
+		//this.fragment.ast.executeLine(line-1);
+		var stat = this.fragment.ast.script.getStatementByLine(line-1);
+		//console.log("LIVE LINE",stat);
+		this.fragment.ast.executeStatement(stat, line, this.fragment);
 	}
 }
 
@@ -319,9 +322,7 @@ EdenUI.ScriptArea.prototype.makeNumbersDrag = function() {
 
 					// Execute if no errors!
 					// TODO This should happen on fragment change event
-					//if (gutter.lines[dragline] && gutter.lines[dragline].live && !scriptast.hasErrors()) {
-					//	scriptast.executeLine(dragline);
-					//}
+					me.runScript(me.dragline);
 
 					me.highlightContent(me.dragline, -1);
 				}
