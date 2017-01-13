@@ -618,7 +618,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 
 	statements = Eden.Selectors.processResults(statements, o, num);
 
-	if (cb && ((statements.length == 0 && num > 0) || !num)) {
+	if (sast.local == false && cb && ((statements.length == 0 && num > 0) || !num)) {
 
 		var pathix = s.search(/[\s\.\:\#\@\>]/);
 		if (pathix == -1) pathix = s.length;
@@ -631,20 +631,39 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 				Eden.Selectors.cache[path] = res[0];
 				Eden.Index.update(res[0]);
 				statements = res;
-				statements = Eden.Selectors.processNode(statements, s);
+				statements = Eden.Selectors.unique(sast.filter(statements));
 				res = Eden.Selectors.processResults(statements, o);
 				cb(res);
 			}, "text");
 		// Or check for URL
-		} else if (path.indexOf("/") != -1) {
+		} else if (path.startsWith("plugins")) {
+			var urlparts = s.split(">");
+			var url = "";
+			for (var i=0; i<urlparts.length; i++) {
+				urlparts[i] = urlparts[i].trim();
+				url += urlparts[i];
+				if (i < urlparts.length-1) {
+					//if (i > 0) {
+					//	lastnode.statements.p
+					//}
+					url += "/";
+				}
+			}
+			console.log("LOAD URL",url);
+			/*if (Eden.Selectors.cache["plugins"] === undefined) {
+				Eden.Selectors.cache["plugins"] = Eden.AST.createStatement("action plugins {}");
+				Eden.Selectors.cache["plugins"].base = {origin: {remote: true}};
+				Eden.Index.update(Eden.Selectors.cache["plugins"]);
+			}*/
 			$.ajax({
-				url: path+".js-e",
+				url: url+".js-e",
 				dataType: "text",
 				success: function(data) {
-					var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
-					Eden.Selectors.cache[path] = res[0];
+					var res = [(new Eden.AST(data, undefined, {name: urlparts[urlparts.length-1], remote: true})).script];
+					Eden.Selectors.cache[s] = res[0];
+					//Eden.Index.update(res[0]);
 					statements = res;
-					statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
+					//statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
 					res = Eden.Selectors.processResults(statements, o);
 					cb(res);
 				},

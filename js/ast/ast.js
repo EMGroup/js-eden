@@ -224,6 +224,14 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 }
 
 
+Eden.AST.createStatement = function(src) {
+	var ast = new Eden.AST(src, undefined, {}, true);
+	//console.log(ast);
+	ast.next();
+	return ast.pSTATEMENT();
+}
+
+
 Eden.AST.registerStatement = function(stat) {
 	stat.prototype.getOrigin = Eden.AST.BaseStatement.getOrigin;
 	stat.prototype.hasErrors = Eden.AST.BaseStatement.hasErrors;

@@ -13,6 +13,7 @@ EdenSyntaxData = lex.EdenSyntaxData;
 var lang = require(config.JSEDENPATH + "js/language/lang.js");
 Language = lang.Language;
 var en = require(config.JSEDENPATH + "js/language/en.js");
+//require(config.JSEDENPATH + "js/util/misc.js");
 require(config.JSEDENPATH + "js/index.js");  
 require(config.JSEDENPATH + "js/selectors/selector.js");  
 require(config.JSEDENPATH + "js/selectors/property.js");  
@@ -120,6 +121,29 @@ var vstmt = db.prepare("select projects.projectID,projectversions.saveID,title,m
 		" and owner = oauthusers.userid group by projects.projectID;");
 
 initASTDB();
+
+generateTimeStamp = function(str) {
+	var relativeTimeRe = /(\d*)(minutes|minute|min|hours|hour|days|day|weeks|week|months|month|mon|years|year|Quarters|Quarter|seconds|second|sec|s|m|h|d|M|y|Y|Q|ms|w)/g;
+
+	var comp;
+	var stamp = 0;
+	while ((comp = relativeTimeRe.exec(str)) !== null) {
+		console.log("Reltime:",comp);
+		switch(comp[2]) {
+		case "second":
+		case "seconds":
+		case "s"	:	stamp += parseInt(comp[1]) * 1000; break;
+		case "minute":
+		case "minutes":
+		case "m"	:	stamp += parseInt(comp[1]) * 60000; break;
+		case "hour":
+		case "hours":
+		case "h"	:	stamp += parseInt(comp[1]) * 3600000; break;
+		}
+	}
+
+	return stamp;
+}
 
 function getFullVersion(version, projectID, meta, callback){
 	var versionStmt = db.prepare("SELECT fullsource, forwardPatch,parentDiff,date FROM projectversions WHERE saveID = ? AND projectID = ?");

@@ -2,6 +2,7 @@ Eden.Selectors.NameNode = function(name) {
 	this.type = "name";
 	this.name = name;
 	this.isreg = name.indexOf("*") != -1;
+	this.local = false;
 }
 
 Eden.Selectors.NameNode.prototype.filter = function(statements, context) {

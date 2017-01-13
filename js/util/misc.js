@@ -24,6 +24,8 @@ function generateTimeStamp(str) {
 		case "hour":
 		case "hours":
 		case "h"	:	stamp += parseInt(comp[1]) * 3600000; break;
+		case "days":
+		case "d":		stamp += parseInt(comp[1]) * 3600000 * 24; break;
 		}
 	}
 
