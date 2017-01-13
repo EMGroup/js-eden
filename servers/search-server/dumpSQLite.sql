@@ -36,7 +36,7 @@ CREATE TABLE tags (
 
 CREATE VIEW view_latestVersion AS
 select saveID,date,projectid FROM (SELECT max(saveID) as maxsaveID from projectversions 
-group by projectID) as maxv, projectversions where maxsaveID = projectversions.saveID
+group by projectID) as maxv, projectversions where maxsaveID = projectversions.saveID;
 
 CREATE VIEW view_listedVersion AS
 select saveID,date,projects.projectid FROM projectversions,projects where saveID = publicVersion;
