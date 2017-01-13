@@ -6,7 +6,7 @@ Eden.AST.ScriptExpr = function() {
 	this.dependencies = {};
 };
 
-Eden.AST.ScriptExpr.prototype.error = fnEdenASTerror;
+Eden.AST.ScriptExpr.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.ScriptExpr.prototype.append = function (ast) {
 	this.statements.push(ast);

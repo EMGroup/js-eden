@@ -3,11 +3,6 @@ Eden.AST.Default = function() {
 	Eden.AST.BaseStatement.apply(this);
 };
 
-Eden.AST.Default.prototype.error = fnEdenASTerror;
-
-Eden.AST.Default.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Default.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Default.prototype.generate = function(ctx, scope) {
 	return "default: ";
 }
@@ -18,4 +13,6 @@ Eden.AST.Default.prototype.execute = function(ctx,base,scope,agent) {
 	this.errors.push(err);
 	Eden.Agent.emit("error", [agent,err]);
 }
+
+Eden.AST.registerStatement(Eden.AST.Declarations);
 

@@ -24,5 +24,5 @@ Eden.AST.Subscribers.prototype.setList = function(list) {
 	this.list = list;
 }
 
-Eden.AST.Subscribers.prototype.error = fnEdenASTerror;
+Eden.AST.Subscribers.prototype.error = Eden.AST.fnEdenASTerror;
 

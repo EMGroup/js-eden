@@ -12,10 +12,6 @@ Eden.AST.Do = function() {
 	this.selector = undefined;
 };
 
-Eden.AST.Do.prototype.error = fnEdenASTerror;
-Eden.AST.Do.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Do.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Do.prototype.addParameter = function(express) {
 	this.parameters.push(express);
 	if (express && express.errors.length > 0) {
@@ -108,4 +104,6 @@ Eden.AST.Do.prototype.execute = function(ctx,base,scope, agent) {
 		Eden.Agent.emit("error", [agent,err]);
 	}
 }
+
+Eden.AST.registerStatement(Eden.AST.Do);
 

@@ -18,10 +18,6 @@ Eden.AST.Declarations = function() {
 	this.kind = "local";
 };
 
-Eden.AST.Declarations.prototype.error = fnEdenASTerror;
-Eden.AST.Declarations.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Declarations.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
 	if (ctx) {
 		// Shouldn't be needed!
@@ -55,4 +51,6 @@ Eden.AST.Declarations.prototype.generate = function(ctx,scope,options) {
 		return res;
 	}
 }
+
+Eden.AST.registerStatement(Eden.AST.Declarations);
 

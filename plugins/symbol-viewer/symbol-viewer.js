@@ -563,8 +563,9 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation)
 			}
 			singleClickPerformed = false;
 			var editorViewName = "edit_" + me.name;
-			edenUI.createView(editorViewName, "ScriptInput", undefined).update([symbol]);
-			edenUI.eden.root.lookup("view_" + editorViewName + "_title").assign("Script for " + me.name, edenUI.eden.root.scope, Symbol.hciAgent);
+			Eden.Selectors.goto("> :not(ACTIVE) >> "+symbol.name);
+			//edenUI.createView(editorViewName, "ScriptInput", undefined).update([symbol]);
+			//edenUI.eden.root.lookup("view_" + editorViewName + "_title").assign("Script for " + me.name, edenUI.eden.root.scope, Symbol.hciAgent);
 			/*var val;
 			if (typeof symbol.value() === 'function' && symbol.eden_definition !== undefined) {
 				val = symbol.eden_definition;

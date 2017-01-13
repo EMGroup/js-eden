@@ -22,5 +22,5 @@ Eden.AST.Index.prototype.generate = function(ctx, scope, options) {
 	return "[rt.index("+ix+")]";
 }
 
-Eden.AST.Index.prototype.error = fnEdenASTerror;
+Eden.AST.Index.prototype.error = Eden.AST.fnEdenASTerror;
 

@@ -29,6 +29,7 @@ Eden.AST.prototype.pDO = function() {
 			return w;
 		}
 		this.next();
+
 		w.setScript(script);
 		this.parent = parent;
 

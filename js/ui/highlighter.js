@@ -819,7 +819,7 @@
 
 			});  // End detach
 		} else {
-			detach(this, this.outelement, false, function() {
+			//detach(this, this.outelement, false, function() {
 
 			// Skip until the lines we are looking for
 			while (stream.valid() && (this.line < (hline-1))) {
@@ -895,7 +895,7 @@
 				}
 			}*/
 
-			});
+			//});
 		}
 	};
 

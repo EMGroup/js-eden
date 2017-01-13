@@ -480,7 +480,7 @@ div.control-bar {
 }
 
 textarea.hidden-textarea2 {
-	position: relative;
+	position: fixed;
 	white-space: pre;
 	word-wrap: normal;
 	overflow: auto;
@@ -489,7 +489,7 @@ textarea.hidden-textarea2 {
 	width: 80%;*/
 	height: 50px;
 	tab-size: 4;
-	top: 100px;
+	margin-left: -5000px;
 }
 
 button.script-button {
@@ -574,8 +574,9 @@ input.scratchfilter:hover {
 }
 
 div.outputcontent {
-	display: flex;
-	flex-direction: column;
+	position: relative;
+	/*display: flex;
+	flex-direction: column;*/
 	/* width: 100%;*/
 	min-width: calc(100% - 56px);
 	min-height: calc(100% - 28px);

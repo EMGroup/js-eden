@@ -1,0 +1,29 @@
+.jspe-slide {
+	position: absolute;
+	left: 0px;
+	top: 35px;
+	width: 100%;
+	height: calc(100% - 35px);
+	box-sizing: border-box;
+	padding: 0px 25px;
+	overflow: auto;
+}
+
+.jspe-slide p {
+	text-align: justify;
+}
+
+.jspe-title-slide {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;	
+	text-align: center;	
+}
+
+.jspe-bullet-slide li {
+	margin-bottom: 0.8em;
+}
+
+.jspe-bullet-slide li li {
+	margin-bottom: auto;
+}

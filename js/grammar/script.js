@@ -32,7 +32,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
 		return script;
 	} else {
-		//this.next();
+		this.next();
 	}
 
 	this.scripts[name] = script;
@@ -58,7 +58,10 @@ Eden.AST.prototype.pSCRIPT = function() {
 	//ast.setLocals(this.pLOCALS());
 
 	var dummy = new Eden.AST.DummyStatement();
-	dummy.setSource(this.prevprevpos, this.stream.prevposition, this.stream.code.substring(this.prevprevpos, this.stream.prevposition));
+	dummy.setSource(this.lastposition, this.stream.prevposition, this.stream.code.substring(this.lastposition, this.stream.prevposition));
+	dummy.numlines = dummy.source.match(/\n/g);
+	if (dummy.numlines === null) dummy.numlines = 0;
+	else dummy.numlines = dummy.numlines.length;
 	ast.append(dummy);
 
 	while (this.token != "EOF") {
@@ -68,18 +71,23 @@ Eden.AST.prototype.pSCRIPT = function() {
 			//console.log("WS: ", this.stream.code.substring(statement.end, this.stream.prevposition));
 
 			ast.append(statement);
+			// Maintain index
+			Eden.Index.update(statement);
 			if (statement.errors.length > 0) {
 				break;
 				// Skip until colon
 				/*while (this.token != ";" && this.token != "EOF") {
 					this.next();
 				}*/
-			}
+			} 
 
 			var ws = this.stream.code.substring(statement.end, this.stream.prevposition);
 			if (ws.length > 0) {
 				var dummy = new Eden.AST.DummyStatement();
 				dummy.setSource(statement.end, this.stream.prevposition, ws);
+				dummy.numlines = dummy.source.match(/\n/g);
+				if (dummy.numlines === null) dummy.numlines = 0;
+				else dummy.numlines = dummy.numlines.length;
 				ast.append(dummy);
 			}
 		} else {
@@ -89,6 +97,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 			if (this.token == ";") {
 				this.next();
 			} else {
+				//this.next();
 				break;
 			}
 		}

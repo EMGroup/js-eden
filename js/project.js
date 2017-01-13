@@ -2,20 +2,24 @@ Eden.Project = function(id, name, source) {
 	this.title = name;
 	this.name = name.replace(/[^a-zA-Z0-9]/g, "");
 	this.author = undefined;
+	this.authorid = -1;
 	this.tags = name.toLowerCase().split(" ");
 	this.src = source;
 	this.ast = new Eden.AST(source, undefined, this);
 	//this.ast.script.lock = 1;
 	this.id = id;
+	this.vid = undefined;
 	this.triggers = {};
+	this.thumb = undefined;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
 		this.updateDoxy();
 		this.ast.script.name = this.name;
+		Eden.Index.update(this.ast.script);
 	}
 
-	eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, this);
-	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, this);
+	eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);
+	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, Symbol.localJSAgent);
 }
 
 Eden.Project.prototype.updateDoxy = function() {
@@ -69,15 +73,6 @@ Eden.Project.init = function() {
 	});
 }
 
-Eden.Project.fromOldPath = function(path, tag, cb) {
-	Eden.Agent.importAgent(path, tag, ["noexec"], function(ag) {
-		var src = ag.getSource();
-		eden.project = new Eden.Project(ag.meta.saveID, path, src);
-		eden.project.start();
-		if (cb) cb(eden.project);
-	});
-}
-
 Eden.Project.newFromExisting = function(name, cb) {
 	if (Eden.Project.local[name]) {
 		$.get(Eden.Project.local[name].file, function(data) {
@@ -86,11 +81,7 @@ Eden.Project.newFromExisting = function(name, cb) {
 			if (cb) cb(eden.project);
 		}, "text");
 	} else {
-		Eden.Agent.importAgent(name, undefined, ["noexec"], function(ag) {
-			var src = ag.getSource();
-			eden.project = new Eden.Project(undefined, name, src);
-			if (cb) cb(eden.project);
-		});
+		
 	}
 }
 
@@ -98,18 +89,34 @@ Eden.Project.search = function(q, cb) {
 
 }
 
-Eden.Project.list = function(count, cb) {
-
-}
-
-Eden.Project.load = function(name, cb) {
-	Eden.DB.getSourceRaw("nick/projects/p"+name, "v1", function(src) {
-		if (src) {
-			eden.project = new Eden.Project(undefined, name, src);
-			eden.project.start();
+Eden.Project.load = function(pid, vid, cb) {
+	Eden.DB.getMeta(pid, function(metaA) {
+		if (metaA.length == 0) {
+			if (cb) cb();
+			return;
 		}
-		if (cb) cb(eden.project);
+
+		var meta = metaA[0];
+		console.log("META",meta);
+
+		Eden.DB.load(pid, vid, function(data) {
+			if (data) {
+				eden.project = new Eden.Project(pid, meta.minimisedTitle, data.source);
+				console.log("LOAD PROJECT",data);
+				eden.project.vid = data.saveID;
+				eden.project.title = meta.title;
+				eden.project.author = meta.ownername;
+				eden.project.authorid = meta.owner;
+				eden.project.thumb = meta.image;
+				eden.project.tags = meta.tags;
+				// TODO More meta
+				eden.project.start();
+			}
+			if (cb) cb(eden.project);
+		});
 	});
+
+	if (cb) cb();
 }
 
 Eden.Project.prototype.start = function() {
@@ -120,6 +127,7 @@ Eden.Project.prototype.start = function() {
 			// Find the active action and replace
 			for (var i=0; i<me.ast.script.statements.length; i++) {
 				if (me.ast.script.statements[i] === me.ast.scripts["ACTIVE"]) {
+					Eden.Index.remove(me.ast.script.statements[i]);
 					me.ast.script.statements[i].statements = undefined;
 
 					// Patch original state into the virtual AST
@@ -128,7 +136,8 @@ Eden.Project.prototype.start = function() {
 					eden.root.end = me.ast.script.statements[i].end;
 					eden.root.prefix = me.ast.script.statements[i].prefix;
 					eden.root.postfix = me.ast.script.statements[i].postfix;
-
+					eden.root.parent = eden.project.ast.script;
+					Eden.Index.update(eden.root);
 					me.ast.script.statements[i] = eden.root;
 					break;
 				}
@@ -172,39 +181,7 @@ Eden.Project.prototype.diff = function() {
 }
 
 Eden.Project.prototype.save = function(pub, callback) {
-	var me = this;
-	// Generate and upload to pm.
-	$.ajax({
-		url: Eden.DB.remoteURL+"/agent/add",
-		type: "post",
-		crossDomain: true,
-		xhrFields:{
-			withCredentials: true
-		},
-		data:{	path: "nick/projects/p"+this.name,
-				parentSaveID: undefined,
-				title: this.title,
-				source: this.generate(),
-				tag: "v1",
-				permission: (pub) ? "public" : undefined
-		},
-		success: function(data){
-			if (data == null || data.error) {
-				console.error(data);
-				eden.error((data) ? data.description : "No response from server");
-				if (callback) callback(false);
-			} else {
-				me.id = data.saveID;
-				if (callback) callback(true);
-			}
-		},
-		error: function(a){
-			//console.error(a);
-			//eden.error(a);
-			Eden.DB.disconnect(true);
-			if (callback) callback(false);
-		}
-	});
+	Eden.DB.save(this, pub, callback);
 }
 
 Eden.Project.restore = function() {
@@ -262,5 +239,16 @@ Eden.Project.prototype.registerAgent = function(when) {
 
 Eden.Project.prototype.removeAgent = function(when) {
 	console.log("REMOVE WHEN", when);
+	for (var x in when.dependencies) {
+		var t = this.triggers[x];
+		if (t) {
+			for (var i=0;i<t.length; i++) {
+				if (t[i].statement === when) {
+					t.splice(i,1);
+					break;
+				}
+			}
+		}
+	}
 }
 

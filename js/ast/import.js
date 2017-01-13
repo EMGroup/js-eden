@@ -35,8 +35,5 @@ Eden.AST.Import.prototype.setPath = function(path) {
 	});
 }*/
 
-Eden.AST.Import.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Import.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
-Eden.AST.Import.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Import);
 

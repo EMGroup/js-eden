@@ -5,8 +5,8 @@ Eden.AST.BinaryOp = function(op) {
 	this.l = undefined;
 	this.r = undefined;
 }
-Eden.AST.BinaryOp.prototype.left = fnEdenASTleft;
-Eden.AST.BinaryOp.prototype.error = fnEdenASTerror;
+Eden.AST.BinaryOp.prototype.left = Eden.AST.fnEdenASTleft;
+Eden.AST.BinaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	this.r = right;

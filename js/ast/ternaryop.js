@@ -6,7 +6,7 @@ Eden.AST.TernaryOp = function(op) {
 	this.second = undefined;
 	this.condition = undefined;
 }
-Eden.AST.TernaryOp.prototype.error = fnEdenASTerror;
+Eden.AST.TernaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.TernaryOp.prototype.setFirst = function(first) {
 	this.first = first;

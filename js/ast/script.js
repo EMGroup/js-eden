@@ -8,6 +8,8 @@ Eden.AST.Script = function() {
 	this.postfix = "";
 };
 
+Eden.AST.registerScript(Eden.AST.Script);
+
 /**
  * Recursive search of all imports for the required action code.
  */
@@ -97,7 +99,7 @@ Eden.AST.Script.prototype.getParameterByNumber = function(index) {
 	return undefined;
 }
 
-Eden.AST.Script.prototype.error = fnEdenASTerror;
+Eden.AST.Script.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.Script.prototype.setName = function(base, name) {
 	this.name = name;
@@ -115,6 +117,21 @@ Eden.AST.Script.prototype.setSource = function(start, end, src) {
 	} else {
 		this.prefix = src.substring(0, this.statements[0].start-start);
 		this.postfix = src.substring(this.statements[this.statements.length-1].end-start);
+	}
+
+	var hash = 0;
+	var ch;
+	var len = src.length;
+	for (var i=0; i<len; i++) {
+		ch = src.charCodeAt(i);
+		hash = ((hash << 5) - hash) + ch;
+		hash = hash & hash;
+	}
+
+	if (this.name) {
+		this.id = this.name +"@"+ hash;
+	} else {
+		this.id = this.type +"@"+ hash;
 	}
 }
 

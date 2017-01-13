@@ -57,7 +57,7 @@ Eden.AST.prototype.pFUNCBODY = function() {
 		this.parent = parent;
 		return codebody;
 	} else {
-		//this.next();
+		this.next();
 	}
 
 	this.parent = parent;

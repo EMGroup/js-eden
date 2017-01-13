@@ -72,6 +72,30 @@ Object.defineProperty(Symbol.prototype, "expression", {
 	get: function() { return (this.origin) ? this.origin.expression : undefined; }
 });
 
+Object.defineProperty(Symbol.prototype, "doxyComment", {
+	get: function() { return (this.origin) ? this.origin.doxyComment : undefined; }
+});
+
+Object.defineProperty(Symbol.prototype, "parent", {
+	get: function() { return eden.root; }
+});
+
+Object.defineProperty(Symbol.prototype, "stamp", {
+	get: function() { return (this.origin) ? this.origin.stamp : undefined; }
+});
+
+Object.defineProperty(Symbol.prototype, "id", {
+	get: function() { return (this.origin) ? this.origin.id : undefined; }
+});
+
+Object.defineProperty(Symbol.prototype, "executed", {
+	get: function() { return 1; }
+});
+
+Symbol.prototype.getStartLine = function(relative) {
+	return (this.origin) ? this.origin.getStartLine(relative) : -1;
+}
+
 Symbol.prototype.getASTOrigin = function() {
 	if (this.origin) {
 		var p = this.origin;
@@ -86,6 +110,13 @@ InternalAgent = function(name, local) {
 	this.local = local;
 	this.internal = true;
 }
+
+InternalAgent.prototype.getOrigin = function() {
+	if (this.name != "*Default") return eden.project;
+	else return undefined;
+}
+
+InternalAgent.prototype.numlines = 0;
 
 // Input device agents are always local only.
 Symbol.hciAgent = new InternalAgent("*Input Device", true);
@@ -337,7 +368,8 @@ Symbol.prototype.clearDependencies = function () {
 
 
 Symbol.prototype.getSource = function() {
-	if (this.origin && (this.origin.type == "definition" || this.origin.type == "assignment" || this.origin.type == "modify")) return this.origin.getSource();
+	if (this.origin && !this.origin.internal && !this.origin.getSource) console.log("NO GETSOURCE",this);
+	if (this.origin && !this.origin.internal) return this.origin.getSource();
 	return this.name + " = " + Eden.edenCodeForValue(this.value()) + ";";
 }
 
@@ -621,7 +653,7 @@ Symbol.prototype.fireJSObservers = function () {
  * @param {Object.<string,Symbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
  */
 Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire, fullexpire) {
-	if (this.has_evaled) {
+	if (this.has_evaled || fullexpire) {
 
 		for (var observer_name in this.observers) {
 			actions_to_fire[observer_name] = this.observers[observer_name];

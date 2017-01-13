@@ -33,6 +33,7 @@ function Folder(name, parent, root) {
 	this.end = 0;
 	this.prefix = "";
 	this.postfix = "";
+	this.id = "ACTIVE";
 
 	/**
 	 * @type {string}
@@ -44,11 +45,12 @@ function Folder(name, parent, root) {
 	 * @type {Folder}
 	 * @private
 	 */
-	this.parent = undefined;
+	//this.parent = undefined;
 	this.base = undefined;
 
 	this.errors = [];
 	this.lock = 1;
+	this.numlines = 0;
 
 	/**
 	 * @type {Folder}
@@ -117,15 +119,54 @@ function Folder(name, parent, root) {
 			});
 		}
 	});
+
+	Object.defineProperty(this, "parent", {
+		enumerable: true,
+		get: function() {
+			return eden.project.ast.script;
+		}
+	});
+}
+
+Folder.prototype.getNumberOfLines = function() {
+	return this.numlines + 1;
+}
+
+Folder.prototype.hasErrors = function() {
+	return false;
+}
+
+Folder.prototype.getOrigin = function() {
+	return eden.project;
+}
+
+Folder.prototype.getStatementByLine = function(line) {
+	return undefined;
+}
+
+Folder.prototype.getStartLine = function(relative) {
+	return (this.parent) ? this.parent.getRelativeLine(this, relative) : -1;
+}
+
+Folder.prototype.getRange = function(relative) {
+	var sl = this.getStartLine(relative);
+	return [sl,sl+this.getNumberOfLines()];
 }
 
 Folder.prototype.getInnerSource = function() {
 	var res = "";
+	this.numlines = 0;
 	for (var x in this.symbols) {
 		var sym = this.symbols[x];
-		if (sym.origin && sym.origin.parent && sym.origin.parent.statements !== undefined) continue;
-		if (!sym.origin || sym.origin.name == "*Default") continue;
-		res += sym.getSource() + "\n";
+		//if (sym.origin && sym.origin.parent && sym.origin.parent.statements !== undefined) continue;
+		//if (!sym.origin || sym.origin.name == "*Default") continue;
+		if (sym.origin && sym.origin.getOrigin) {
+			var o = sym.origin.getOrigin();
+			if (o && !o.remote) {
+				res += sym.getSource() + "\n";
+				this.numlines += sym.origin.numlines + 1;
+			}
+		}
 	}
 	return res;
 }
@@ -133,7 +174,7 @@ Folder.prototype.getInnerSource = function() {
 Folder.prototype.getSource = function() {
 	var res = "action ACTIVE {\n";
 	res += this.getInnerSource();
-	res += "\n}";
+	res += "}";
 	return res;
 }
 

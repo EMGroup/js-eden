@@ -31,9 +31,6 @@ Eden.AST.Assignment = function(expression) {
 	return undefined;
 }*/
 
-Eden.AST.Assignment.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Assignment.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Assignment.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
 	if (lvalue.errors.length > 0) {
@@ -155,6 +152,6 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	}
 };
 
-Eden.AST.Assignment.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Assignment);
 
 

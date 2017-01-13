@@ -36,19 +36,6 @@
  * @see translator2.js for the parser that generates the tree from these nodes.
  */
 
-
-/* Generic functions to be reused */
-function fnEdenASTerror(err) {
-	this.errors.unshift(err);
-};
-
-function fnEdenASTleft(left) {
-	this.l = left;
-	if (left.errors.length > 0) {
-		this.errors.push.apply(this.errors, left.errors);
-	}
-};
-
 /**
  * Abstract Syntax Tree generator for JS-Eden code.
  * Each production in the grammar has a function in this class. It makes use
@@ -62,14 +49,14 @@ Eden.AST = function(code, imports, origin, noparse) {
 	this.token = "INVALID";
 	this.previous = "INVALID";
 	this.src = "input";
-	this.lines = [];
 	this.parent = undefined;
 	this.scripts = {};			// Actions table
-	this.triggers = {};			// Guarded actions
+	//this.triggers = {};			// Guarded actions
 	this.definitions = {};		// Definitions mapping
-	this.imports = (imports) ? imports : [];
+	//this.imports = (imports) ? imports : [];
 	this.origin = origin;		// The agent owner of this script
-	this.prevprevpos = 0;
+	this.lastposition = 0;
+	this.lastline = 0;
 	this.errors = [];
 	this.warnings = [];
 	this.whens = [];
@@ -81,6 +68,8 @@ Eden.AST = function(code, imports, origin, noparse) {
 	this.parentDoxy = undefined;
 
 	if(this.stream) this.stream.data = this.data;
+
+	this.stamp = Date.now();
 
 	// Start parse with SCRIPT production
 	if (!noparse) {
@@ -94,6 +83,18 @@ Eden.AST = function(code, imports, origin, noparse) {
 		this.errors = this.script.errors;
 	}
 }
+
+/* Generic functions to be reused */
+Eden.AST.fnEdenASTerror = function(err) {
+	this.errors.unshift(err);
+};
+
+Eden.AST.fnEdenASTleft = function(left) {
+	this.l = left;
+	if (left.errors.length > 0) {
+		this.errors.push.apply(this.errors, left.errors);
+	}
+};
 
 // Debug controls
 Eden.AST.debug = false;
@@ -109,22 +110,8 @@ Eden.AST.debug_end_cb = undefined;
 Eden.AST.fromNode = function(node, origin) {
 	var ast = new Eden.AST(node.getInnerSource(), undefined, origin, true);
 	ast.script = node;
-	ast.whens = Eden.Selectors.queryWithin([node], ">>when");
+	ast.whens = Eden.Selectors.queryWithin([node], ">>:kind(when)");
 	ast.errors = node.errors;
-
-	// Make sure lines are generated correctly for gutter
-	var baseline = node.line;
-	for (var i=0; i<node.statements.length; i++) {
-		if (node.statements[i].line !== undefined) {
-			var start = node.statements[i].line-baseline;
-			var end = node.statements[i].endline-baseline;
-
-			ast.lines[start] = node.statements[i];
-			for (var j=start+1; j<=end; j++) {
-				ast.lines[j] = node.statements[i];
-			}
-		}
-	}
 	return ast;
 }
 
@@ -135,6 +122,7 @@ Eden.AST.prototype.destroy = function() {
 			if (stat.statements[i].type == "script") clear(stat.statements[i]);
 		}
 		stat.statements = undefined;
+		stat.parent = undefined;
 	}
 	clear(this.script);
 	// Free memory.
@@ -142,7 +130,7 @@ Eden.AST.prototype.destroy = function() {
 	this.lines = undefined;
 	this.scripts = undefined;
 
-	// Remove then whens
+	// Remove the whens
 	for (var i=0; i<this.whens.length; i++) {
 		if (this.whens[i].enabled) eden.project.removeAgent(this.whens[i]);
 	}
@@ -236,14 +224,39 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 }
 
 
+Eden.AST.registerStatement = function(stat) {
+	stat.prototype.getOrigin = Eden.AST.BaseStatement.getOrigin;
+	stat.prototype.hasErrors = Eden.AST.BaseStatement.hasErrors;
+	stat.prototype.setSource = Eden.AST.BaseStatement.setSource;
+	stat.prototype.getSource = Eden.AST.BaseStatement.getSource;
+	stat.prototype.getNumberOfLines = Eden.AST.BaseStatement.getNumberOfLines;
+	stat.prototype.getStartLine = Eden.AST.BaseStatement.getStartLine;
+	stat.prototype.getEndLine = Eden.AST.BaseStatement.getEndLine;
+	stat.prototype.getRange = Eden.AST.BaseStatement.getRange;
+	stat.prototype.error = Eden.AST.fnEdenASTerror;
+}
+
+Eden.AST.registerScript = function(stat) {
+	Eden.AST.registerStatement(stat);
+	stat.prototype.getStatementByLine = Eden.AST.BaseScript.getStatementByLine;
+	stat.prototype.getRelativeLine = Eden.AST.BaseScript.getRelativeLine;
+	stat.prototype.getNumberOfLines = Eden.AST.BaseScript.getNumberOfLines;
+}
+
+Eden.AST.registerContext = function(stat) {
+	Eden.AST.registerStatement(stat);
+}
+
+
 
 /**
  * Find the base/parent statement of a given statement. Used to make sure
  * statements inside functions etc are not executed directly and out of context.
  */
-Eden.AST.prototype.getBase = function(statement) {
+Eden.AST.prototype.getBase = function(statement, ctx) {
+	if (ctx === undefined) console.error("Undefined context in getBase");
 	var base = statement;
-	while (base && base.parent && base.parent.base === undefined) base = base.parent;
+	while (base && base.parent && base.parent !== ctx) base = base.parent;
 	return base; 
 }
 
@@ -253,15 +266,16 @@ Eden.AST.prototype.getBase = function(statement) {
  * Return the start and end line of the statement block located at a particular
  * line. Returns an array of two items, startline and endline.
  */
-Eden.AST.prototype.getBlockLines = function(lineno) {
+Eden.AST.prototype.getBlockLines = function(lineno, ctx) {
 	var line = lineno;
 	var me = this;
 
-	var startstatement = this.getBase(this.lines[line]);
-	while (line > 0 && this.lines[line-1] && this.getBase(this.lines[line-1]) == startstatement) line--;
+	var startstatement = this.getBase(this.lines[line],ctx);
+	while (line > 0 && this.lines[line-1] && this.getBase(this.lines[line-1],ctx) == startstatement) line--;
 	var startline = line;
 
-	while (line < this.lines.length-1 && this.lines[line+1] && (this.lines[line+1] === startstatement || this.lines[line+1].parent.base === undefined)) line++;
+	while (line < this.lines.length-1 && this.lines[line+1] && (this.lines[line+1] === startstatement
+			|| this.lines[line+1].parent !== ctx)) line++;
 	var endline = line;
 
 	return [startline,endline];
@@ -327,7 +341,8 @@ Eden.AST.prototype.prettyPrint = function() {
  */
 Eden.AST.prototype.next = function() {
 	this.previous = this.token;
-	this.prevprevpos = this.stream.position;
+	this.lastposition = this.stream.position;
+	this.lastline = this.stream.line;
 	this.token = this.stream.readToken();
 
 	//Cache prev line so it isn't affected by comments
@@ -387,6 +402,7 @@ Eden.AST.prototype.next = function() {
 			// Return code as value and generate JAVASCRIPT token
 			this.data.value = this.stream.code.substring(start, this.stream.position-3);
 			this.token = "JAVASCRIPT";
+			this.stream.prevposition = start-3;
 		} else {
 			break;
 		}

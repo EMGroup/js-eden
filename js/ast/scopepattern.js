@@ -9,7 +9,7 @@ Eden.AST.ScopePattern = function() {
 	this.errors = [];
 }
 
-Eden.AST.ScopePattern.prototype.error = fnEdenASTerror;
+Eden.AST.ScopePattern.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.ScopePattern.prototype.setObservable = function(obs) {
 	this.observable = obs;

@@ -14,11 +14,6 @@ Eden.AST.Break = function() {
 	Eden.AST.BaseStatement.apply(this);
 };
 
-Eden.AST.Break.prototype.error = fnEdenASTerror;
-
-Eden.AST.Break.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Break.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Break.prototype.generate = function(ctx, scope) {
 	return "break; ";
 }
@@ -29,4 +24,6 @@ Eden.AST.Break.prototype.execute = function(ctx,base,scope,agent) {
 	this.errors.push(err);
 	Eden.Agent.emit("error", [agent,err]);
 }
+
+Eden.AST.registerStatement(Eden.AST.Break);
 

@@ -15,6 +15,8 @@ Eden.AST.When = function() {
 	this.enabled = false;
 };
 
+Eden.AST.registerContext(Eden.AST.When);
+
 Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
 	var trigs = base.triggers[d];
 	if (trigs) {
@@ -42,6 +44,21 @@ Eden.AST.When.prototype.setSource = function(start, end, src) {
 	} else {
 		this.prefix = src.substring(0,end);
 		this.postfix = "";
+	}
+
+	var hash = 0;
+	var ch;
+	var len = src.length;
+	for (var i=0; i<len; i++) {
+		ch = src.charCodeAt(i);
+		hash = ((hash << 5) - hash) + ch;
+		hash = hash & hash;
+	}
+
+	if (this.name) {
+		this.id = this.name +"@"+ hash;	
+	} else {
+		this.id = this.type +"@"+ hash;
 	}
 }
 
@@ -222,5 +239,5 @@ Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
 	if (agent && !agent.loading) base.executeStatements(this.executeReal(ctx,base,scope,agent), -1, this, undefined, this);
 }
 
-Eden.AST.When.prototype.error = fnEdenASTerror;
+Eden.AST.When.prototype.error = Eden.AST.fnEdenASTerror;
 

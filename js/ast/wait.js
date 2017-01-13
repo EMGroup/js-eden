@@ -6,11 +6,6 @@ Eden.AST.Wait = function() {
 	this.compiled_delay = undefined;
 };
 
-Eden.AST.Wait.prototype.error = fnEdenASTerror;
-
-Eden.AST.Wait.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Wait.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Wait.prototype.setDelay = function(delay) {
 	this.delay = delay;
 	if (delay && delay.errors.length > 0) {
@@ -30,4 +25,6 @@ Eden.AST.Wait.prototype.compile = function(ctx) {
 Eden.AST.Wait.prototype.generate = function(ctx, scope) {
 	return "yield "+this.delay+";";
 }
+
+Eden.AST.registerStatement(Eden.AST.Wait);
 

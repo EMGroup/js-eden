@@ -6,9 +6,6 @@ Eden.AST.Function = function() {
 	this.name = "";
 };
 
-Eden.AST.Function.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Function.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Function.prototype.setBody = function(body) {
 	this.body = body;
 	if (body) {
@@ -36,5 +33,5 @@ Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 	sym.define(eval(body), this,[]);
 }
 
-Eden.AST.Function.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Function);
 

@@ -166,5 +166,5 @@ Eden.AST.Primary.prototype.execute = function(ctx, base, scope) {
 	return eval(rhs)(eden.root,scope);
 }
 
-Eden.AST.Primary.prototype.error = fnEdenASTerror;
+Eden.AST.Primary.prototype.error = Eden.AST.fnEdenASTerror;
 

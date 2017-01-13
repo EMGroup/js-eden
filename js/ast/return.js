@@ -5,11 +5,6 @@ Eden.AST.Return = function() {
 	this.result = undefined;
 };
 
-Eden.AST.Return.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Return.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
-Eden.AST.Return.prototype.error = fnEdenASTerror;
-
 Eden.AST.Return.prototype.setResult = function(result) {
 	this.result = result;
 	this.errors.push.apply(this.errors, result.errors);
@@ -32,4 +27,6 @@ Eden.AST.Return.prototype.execute = function(ctx,base,scope,agent) {
 	this.errors.push(err);
 	Eden.Agent.emit("error", [agent,err]);
 }
+
+Eden.AST.registerStatement(Eden.AST.Return);
 

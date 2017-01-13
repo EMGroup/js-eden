@@ -7,7 +7,7 @@ Eden.AST.UnaryOp = function(op, right) {
 	this.errors = right.errors;
 	this.r = right;
 }
-Eden.AST.UnaryOp.prototype.error = fnEdenASTerror;
+Eden.AST.UnaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 	var r = this.r.generate(ctx, scope, {bound: false, usevar: options.usevar});

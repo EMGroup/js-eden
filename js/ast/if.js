@@ -7,9 +7,6 @@ Eden.AST.If = function() {
 	this.elsestatement = undefined;
 };
 
-Eden.AST.If.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.If.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.If.prototype.setCondition = function(condition) {
 	this.condition = condition;
 	this.errors.push.apply(this.errors, condition.errors);
@@ -62,5 +59,5 @@ Eden.AST.If.prototype.execute = function(ctx, base, scope, agent) {
 	}
 }
 
-Eden.AST.If.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.If);
 

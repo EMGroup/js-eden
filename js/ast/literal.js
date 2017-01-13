@@ -9,10 +9,6 @@ Eden.AST.Literal = function(type, literal) {
 	this.datatype = type;
 	this.value = literal;
 }
-Eden.AST.Literal.prototype.error = fnEdenASTerror;
-
-Eden.AST.Literal.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Literal.prototype.getSource = Eden.AST.BaseStatement.getSource;
 
 Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 	var res;
@@ -58,4 +54,6 @@ Eden.AST.Literal.prototype.execute = function(ctx, base, scope) {
 	case "JAVASCRIPT"	: return eval(this.value);
 	}
 }
+
+Eden.AST.registerStatement(Eden.AST.Literal);
 

@@ -6,9 +6,6 @@ Eden.AST.FunctionCall = function() {
 	this.params = undefined;
 };
 
-Eden.AST.FunctionCall.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.FunctionCall.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.FunctionCall.prototype.setParams = function(params) {
 	this.params = params;
 	for (var i = 0; i < params.length; i++) {
@@ -59,9 +56,10 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 		var err = new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e);
 		this.errors.push(err);
 		err.line = this.line;
-		Eden.Agent.emit("error", [agent,err]);
+		eden.emit("error", [agent,err]);
 		//throw e;
 	}
 }
 
-Eden.AST.FunctionCall.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.FunctionCall);
+

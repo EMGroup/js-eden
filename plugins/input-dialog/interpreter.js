@@ -147,6 +147,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var scrolltime = undefined;
 		inputhider.addEventListener("scroll", function(e) {
 			if (scrolltime !== undefined) clearTimeout(scrolltime);
+			if (document.activeElement === scriptarea.outdiv) return;
 
 			scrolltime = setTimeout(function() {
 				scrolltime = undefined;
@@ -225,7 +226,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				});
 
 				for (var i=0; i<removed.length; i++) {
-					removed[i].unlock();
+					removed[i].destroy();
 					console.log("REMOVE FRAG",removed[i].selector);
 				}
 
@@ -295,30 +296,52 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		});
 
+		Eden.Fragment.listenTo("gotoline", scriptarea, function(frag, line) {
+			for (var i=0; i<tab_frags.length; i++) {
+				if (frag === tab_frags[i]) {
+					console.log("I have the goto frag");
+					if (curtab != i) curSym.assign(i, eden.root.scope, Symbol.localJSAgent);
+					scriptarea.gotoLine(line);
+					// Scroll to correct place
+					var scrollto = 50 + (line-5) * 20;
+					if (scrollto < 0) scrollto = 0;
+					inputhider.scrollTop = scrollto;
+					break;
+				}
+			}
+		});
 
+		//Initialise query
+		if (eden.root.lookup("view_"+name+"_query").definition === undefined) {
+			eden.execute("view_"+name+"_query is jseden_script_query;");
+		}
 
 		function browseScripts(path) {
 			if (path == "") path = "*";
-			var scripts = Eden.Selectors.query(path + " script:has-name:not(:remote)","id");
+			var selector = eden.root.lookup("view_"+name+"_query").value();
+			if (selector === undefined) selector = ".type(script).name";
+			var scripts = Eden.Selectors.query(selector, "id,name,remote"); //path + " .type(script).name:not(:remote)","id");
 			scriptarea.outdiv.innerHTML = "";
 			for (var i=0; i<scripts.length; i++) {
-				var name = scripts[i].split(".");
-				name = name[name.length-1];
+				var nname = scripts[i][1]
+				//nname = nname[nname.length-1];
 				var icon;
-				if (scripts[i] == eden.project.name) {
+				if (nname == eden.project.name) {
 					icon = "&#xf0f6;";
-				} else if (name == "ACTIVE") {
+				} else if (nname == "ACTIVE") {
 					icon = "&#xf0e7;";
+				} else if (scripts[i][2]) {
+					icon = "&#xf08e;";
 				} else {
 					icon = "&#xf1ae;";
 				}
-				var ele = $('<div class="browse-entry" data-path="'+scripts[i]+'"><div class="browse-icon">'+icon+'</div>'+name+'</div>');
+				var ele = $('<div class="browse-entry" data-path="'+scripts[i][0]+'"><div class="browse-icon">'+icon+'</div>'+nname+'</div>');
 				scriptarea.outdiv.appendChild(ele.get(0));
 			}
 
 			var folder = {};
 
-			scripts = Eden.Selectors.query(path + " script:has-name:remote","id");
+			/*scripts = Eden.Selectors.query(path + " .type(script).name:remote","id");
 			for (var i=0; i<scripts.length; i++) {
 				if (scripts[i].indexOf("/") != -1) {
 					var name = scripts[i].split("/");
@@ -329,12 +352,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						scriptarea.outdiv.appendChild(ele.get(0));
 					}
 				} else {
-					var name = scripts[i].split(".");
+					var name = scripts[i].split(">");
 					name = name[name.length-1];
 					var ele = $('<div class="browse-entry" data-path="'+scripts[i]+'"><div class="browse-icon">&#xf08e;</div>'+name+'</div>');
 					scriptarea.outdiv.appendChild(ele.get(0));
 				}
-			}
+			}*/
 		}
 
 
@@ -802,7 +825,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			tab_frags[curtab].makeReal(e.target.value);
 			
 			var tabs = tabsSym.value();
-			tabs[curtab] = e.target.value;
+			tabs[curtab] = tab_frags[curtab].selector;
 			tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
 		}
 
@@ -864,7 +887,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var viewdata = {
 			contents: $dialogContents,
 			update: function(data) {
-				if (agent.state[obs_agent] === undefined) {
+				if (curSym.value() === undefined) {
 					var agname = "view/script/"+name;
 					Eden.Agent.importAgent(agname, "default", ["noexec", "create"], function(ag) {
 						agent.state[obs_agent] = agname;

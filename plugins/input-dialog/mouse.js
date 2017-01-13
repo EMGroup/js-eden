@@ -35,13 +35,14 @@ EdenUI.ScriptArea.Mouse = function(sa) {
 				sa.disableGotoMode();
 				var path = element.parentNode.textContent;
 				console.log("PATH",path);
+				Eden.Selectors.goto(path);
 				// TODO Use global goto.
 				/*var tabs = tabsSym.value();
 				tabs.push(path);
 				tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);*/
 			} else if (element.className == "eden-observable") {
 				var obs = element.getAttribute("data-observable");
-				edenUI.gotoCode("/"+obs);
+				Eden.Selectors.goto(obs+":active");
 			}
 			e.preventDefault();
 		} else {

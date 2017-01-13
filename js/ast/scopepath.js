@@ -46,5 +46,5 @@ Eden.AST.ScopePath.prototype.generate = function(ctx, scope, options) {
 	return this.primary.generate(ctx, path, options);
 }
 
-Eden.AST.ScopePath.prototype.error = fnEdenASTerror;
+Eden.AST.ScopePath.prototype.error = Eden.AST.fnEdenASTerror;
 

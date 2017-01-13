@@ -1,13 +1,10 @@
 Eden.AST.CodeBlock = function() {
 	this.type = "codeblock";
-	this.errors = [];
+	Eden.AST.BaseContext.apply(this);
 	this.params = undefined;
 	this.locals = undefined;
 	this.script = undefined;
-	this.parent = undefined;
 };
-
-Eden.AST.CodeBlock.prototype.error = fnEdenASTerror;
 
 Eden.AST.CodeBlock.prototype.setLocals = function(locals) {
 	this.locals = locals;
@@ -51,4 +48,6 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 	res += this.script.generate(this, "scope") + "}); })";
 	return res;
 }
+
+Eden.AST.registerContext(Eden.AST.CodeBlock);
 

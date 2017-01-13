@@ -50,8 +50,5 @@ Eden.AST.Insert.prototype.execute = function(ctx, base, scope) {
 	}, this);
 }
 
-Eden.AST.Insert.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Insert.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
-Eden.AST.Insert.prototype.error = fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Insert);
 

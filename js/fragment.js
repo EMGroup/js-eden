@@ -56,6 +56,17 @@ Eden.Fragment = function(selector) {
 			Eden.Fragment.emit("unlocked", [me]);
 		}
 	});
+
+	Eden.Fragment.listenTo("goto", this, function(ast, child) {
+		if (this.originast === ast) {
+			//console.log("Found goto",me);
+			console.log("Goto line", child.getStartLine(ast));
+			var line = child.getStartLine(ast);
+			Eden.Fragment.emit("gotoline", [me, line]);
+			return true;
+		}
+		return false;
+	});
 }
 
 Eden.Fragment.listenTo = listenTo;
@@ -80,13 +91,14 @@ Eden.Fragment.listeners = {};
 }*/
 
 Eden.Fragment.prototype.destroy = function() {
-	
+	Eden.Fragment.unListen(this);
+	this.unlock();
 }
 
 Eden.Fragment.prototype.reset = function() {
 	var me = this;
 
-	Eden.Selectors.query(this.selector, undefined, undefined, true, function(res) {
+	Eden.Selectors.query(this.selector, undefined, undefined, 1, function(res) {
 		me.results = res;
 
 		if (me.results && me.results.length == 1 && me.results[0].type == "script") {
@@ -154,9 +166,12 @@ Eden.Fragment.prototype.getSource = function() {
 
 Eden.Fragment.prototype.makeReal = function(name) {
 	if (!this.scratch) return;
+	this.name = name;
+	this.title = name;
 	this.selector = name;
 	this.originast = eden.project.addAction(name);
 	this.scratch = false;
+	this.remote = false;
 	this.setSource(this.source);
 	var p = this.originast;
 	while (p && p.parent) p = p.parent;

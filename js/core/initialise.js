@@ -74,7 +74,7 @@ function Construit(options,callback) {
 	var lang = URLUtil.getParameterByName("lang");
 	var imports = URLUtil.getArrayParameterByName("import");
 	var restore = URLUtil.getParameterByName("restore");
-	var tag = URLUtil.getParameterByName("tag");
+	var vid = URLUtil.getParameterByName("vid");
 	var master = URLUtil.getParameterByName("master");
 	var myid = URLUtil.getParameterByName("id");
 
@@ -279,8 +279,8 @@ function Construit(options,callback) {
 								//Eden.Agent.importAgent("lib","default", [], function() {
 									doImport(0);
 								//});
-							} else if (load != "" && tag != "") {
-								Eden.load(load,parseInt(tag),function(){ doneLoading(true); });
+							} else if (load != "") {
+								Eden.Project.load(parseInt(load),(vid === null || vid == "") ? undefined : parseInt(vid),function(){ doneLoading(true); });
 							} else if (restore != "") {
 								doneLoading(Eden.restore());
 							} else {

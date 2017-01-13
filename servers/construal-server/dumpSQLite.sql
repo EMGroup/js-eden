@@ -33,6 +33,15 @@ CREATE TABLE tags (
 	"tag" TEXT,
 	foreign key(projectID) REFERENCES projects(projectID)
 );
+
+CREATE VIEW view_latestVersion AS
+select saveID,date,projectid FROM (SELECT max(saveID) as maxsaveID from projectversions 
+group by projectID) as maxv, projectversions where maxsaveID = projectversions.saveID
+
+CREATE VIEW view_listedVersion AS
+select saveID,date,projects.projectid FROM projectversions,projects where saveID = publicVersion;
+
+
 CREATE UNIQUE INDEX "userid" on oauthusers (userid ASC);
 CREATE UNIQUE INDEX "oauthstring" on oauthusers (oauthstring ASC);
 CREATE UNIQUE INDEX "saveID" on projectversions (saveID ASC);

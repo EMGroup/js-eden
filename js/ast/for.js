@@ -13,10 +13,6 @@ Eden.AST.For = function() {
 	this.dirty = false;
 };
 
-Eden.AST.For.prototype.error = fnEdenASTerror;
-Eden.AST.For.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.For.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.For.prototype.setStart = function(start) {
 	this.sstart = start;
 	if (start) {
@@ -159,4 +155,6 @@ Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 		this.started = false;
 	}
 }
+
+Eden.AST.registerStatement(Eden.AST.For);
 

@@ -194,21 +194,26 @@ EdenUI.Sharebox = function(element) {
 			me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
 		}
 		//Eden.Agent.publishAll(function() {
-			Eden.DB.save(title, function(status) {
-				if (status.path) {
-					var url = "?load="+status.path+"&tag="+status.saveID;
-					me.sharebox.find(".projecturl").html(window.location.href+url);
-					//function selectElementContents(el) {
-					var range = document.createRange();
-					range.selectNodeContents(me.sharebox.find(".projecturl").get(0));
-					var sel = window.getSelection();
-					sel.removeAllRanges();
-					sel.addRange(range);
-					//}
-				} else {
-					me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
-				}
-			}, {publish: true, thumb: me.thumbdata, tags: tagstr, hidden: tagstr.indexOf("hidden") >= 0, official: tagstr.indexOf("official") >= 0});
+
+		eden.project.thumb = me.thumbdata;
+		eden.project.tags = tagstr;
+
+		eden.project.save(true, function(status) {
+			console.log("SAVED");
+			if (status) {
+				var url = "?load="+eden.project.id+"&vid="+eden.project.vid;
+				me.sharebox.find(".projecturl").html(window.location.href+url);
+				//function selectElementContents(el) {
+				var range = document.createRange();
+				range.selectNodeContents(me.sharebox.find(".projecturl").get(0));
+				var sel = window.getSelection();
+				sel.removeAllRanges();
+				sel.addRange(range);
+				//}
+			} else {
+				me.sharebox.find(".projecturl").html('<b>Save failed</b>, not logged in.');
+			}
+		});
 		//});
 	});
 }

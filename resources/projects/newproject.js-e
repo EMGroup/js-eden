@@ -5,11 +5,11 @@ action start {/* Enter some script here */
 }
 
 do lib:unexecuted;
-do ACTIVE;
-do start;
+do :project > ACTIVE;
+do :project > start;
 
 action ACTIVE {views_list = ["myscript"];
 view_myscript_type = "ScriptInput";
-view_myscript_tabs = ["start"];
+view_myscript_tabs = [":project > start"];
 view_myscript_current = 0;}
 

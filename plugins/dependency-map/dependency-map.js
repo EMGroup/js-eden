@@ -64,7 +64,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 		for(var i in root.symbols){
 		
 			var nodeSym = root.symbols[i];
-			var nodename = nodeSym.name.slice(1);
+			var nodename = nodeSym.name;
 			
 			if(re.test(nodename)) {
 				//Get the nodes which are now in the graph
@@ -80,7 +80,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 				//Inward nodes
 				var depArray = nodeSym.dependencies;
 				for (var ii in depArray) {
-					var nodename2 = depArray[ii].name.slice(1);
+					var nodename2 = depArray[ii].name;
 
 					if((graph.newNodes).indexOf(nodename2)==-1){
 						graph.newNodes.push(nodename2);
@@ -90,7 +90,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 
 				depArray = nodeSym.dynamicDependencies;
 				for (var ii in depArray) {
-					var nodename2 = depArray[ii].name.slice(1);
+					var nodename2 = depArray[ii].name;
 
 					if((graph.newNodes).indexOf(nodename2)==-1){
 						graph.newNodes.push(nodename2);
@@ -100,7 +100,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 
 				depArray = nodeSym.observees;
 				for (var ii in depArray) {
-					var nodename2 = depArray[ii].name.slice(1);
+					var nodename2 = depArray[ii].name;
 
 					if((graph.newNodes).indexOf(nodename2)==-1){
 						graph.newNodes.push(nodename2);
@@ -113,7 +113,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 				var subArray = nodeSym.subscribers;
 				for (var ii in subArray) {
 					var subscriber = subArray[ii];
-					var nodename2 = subscriber.name.slice(1);
+					var nodename2 = subscriber.name;
 					
 					if((graph.newNodes).indexOf(nodename2)==-1){
 						graph.newNodes.push(nodename2);
@@ -123,7 +123,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 				}
 				subArray = nodeSym.observers;
 				for (var ii in subArray) {
-					var nodename2 = subArray[ii].name.slice(1);
+					var nodename2 = subArray[ii].name;
 					
 					if((graph.newNodes).indexOf(nodename2)==-1){
 						graph.newNodes.push(nodename2);
