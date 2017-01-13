@@ -3,6 +3,10 @@
 ##
 ## See LICENSE.txt
 
+action plugins {
+action canvas {
+action canvas {
+
 ##Initialize observables
 mouseButton = "";
 mouseButtons = "";
@@ -476,3 +480,9 @@ import plugins > canvas > tablelayout;
 import plugins > canvas > textbox;
 import plugins > canvas > translation;
 import plugins > canvas > video;
+
+}
+}
+}
+
+do plugins > canvas > canvas;

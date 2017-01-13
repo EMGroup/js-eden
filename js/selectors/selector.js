@@ -636,7 +636,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 				cb(res);
 			}, "text");
 		// Or check for URL
-		} else if (path.startsWith("plugins") != -1) {
+		} else if (path.startsWith("plugins")) {
 			var urlparts = s.split(">");
 			var url = "";
 			for (var i=0; i<urlparts.length; i++) {
@@ -650,18 +650,18 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 				}
 			}
 			console.log("LOAD URL",url);
-			if (Eden.Selectors.cache["plugins"] === undefined) {
+			/*if (Eden.Selectors.cache["plugins"] === undefined) {
 				Eden.Selectors.cache["plugins"] = Eden.AST.createStatement("action plugins {}");
 				Eden.Selectors.cache["plugins"].base = {origin: {remote: true}};
 				Eden.Index.update(Eden.Selectors.cache["plugins"]);
-			}
+			}*/
 			$.ajax({
 				url: url+".js-e",
 				dataType: "text",
 				success: function(data) {
 					var res = [(new Eden.AST(data, undefined, {name: urlparts[urlparts.length-1], remote: true})).script];
 					Eden.Selectors.cache[s] = res[0];
-					Eden.Index.update(res[0]);
+					//Eden.Index.update(res[0]);
 					statements = res;
 					//statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
 					res = Eden.Selectors.processResults(statements, o);
