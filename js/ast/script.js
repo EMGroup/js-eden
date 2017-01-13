@@ -48,6 +48,7 @@ Eden.AST.Script.prototype.patchScript = function(ast) {
 		for (var i=0; i<ast.script.statements.length; i++) {
 			if (ast.script.statements[i].type == "script" && ast.script.statements[i].name == "ACTIVE") {
 				ast.script.statements[i] = eden.root;
+				Eden.Index.remove(ast.scripts["ACTIVE"]);
 				ast.scripts["ACTIVE"] = eden.root;
 			} else {
 				ast.script.statements[i].parent = this;
