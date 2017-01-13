@@ -98,11 +98,13 @@ require(config.JSEDENPATH + "js/grammar/switch.js");
 require(config.JSEDENPATH + "js/grammar/terms.js");  
 require(config.JSEDENPATH + "js/grammar/wait.js");  
 require(config.JSEDENPATH + "js/grammar/when.js");  
-require(config.JSEDENPATH + "js/grammar/while.js");  
+require(config.JSEDENPATH + "js/grammar/while.js"); 
+window = {};
+var diffmatchpatch = require("../../js/lib/diff_match_patch.js"); 
 var sqlite3 = require("sqlite3").verbose();
 var errors = require(config.JSEDENPATH + "js/core/errors.js");
 var db = new sqlite3.Database(config.DBPATH);
-var allKnownAgents = {};
+var allKnownProjects = {};
 
 edenUI = {};
 eden = {};
@@ -112,21 +114,63 @@ eden.root.symbols = {};
 
 //var doxy = require(config.JSEDENPATH + "js/doxycomments.js");
 
-var vstmt = db.prepare("select minimisedTitle,title,fullsource FROM (SELECT max(saveID) as maxsaveID from projectversions group by projectID) as maxv, projectversions,projects where maxsaveID = projectversions.saveID and projects.projectID = projectversions.projectID;");
+var vstmt = db.prepare("select projects.projectID,projectversions.saveID,title,minimisedTitle FROM (SELECT max(saveID) as maxsaveID from projectversions group by projectID) as maxv, projectversions,projects where maxsaveID = projectversions.saveID and projects.projectID = projectversions.projectID;");
 
 initASTDB();
+
+function getFullVersion(version, projectID, meta, callback){
+	var versionStmt = db.prepare("SELECT fullsource, forwardPatch,parentDiff,date FROM projectversions WHERE saveID = ? AND projectID = ?");
+	versionStmt.each(version,projectID, function(err,row){
+		if(row.fullsource == null){
+			//Go and get the source from the parentDiff
+//			collateBasesAndPatches(row.parentDiff);
+			getFullVersion(row.parentDiff, projectID, meta, function(ret){
+				var parentSource = ret.source;
+				var dmp = new window.diff_match_patch();
+				var p = dmp.patch_fromText(row.forwardPatch);
+				var r = dmp.patch_apply(p,parentSource);
+				callback({source: r[0], date: row.date, meta: meta});
+			});
+		}else{
+			callback({source: row.fullsource, date: row.date, meta: meta});
+		}
+	});
+}
 
 function initASTDB(){
 	vstmt.all(function(err,rows){
 		for(var i = 0; i < rows.length; i++){
-			if (rows[i].fullsource === null) continue;
 			console.log("Parsing row " + i, rows[i]);
-			var tmpAst = new Eden.AST(rows[i].fullsource,undefined,{});
-			allKnownAgents[rows[i].minimisedTitle] = tmpAst;
+			getFullVersion(rows[i].saveID, rows[i].projectID, rows[i], function(data) {
+				var tmpAst = new Eden.AST(data.source,undefined,{name: data.meta.minimisedTitle});
+				Eden.Index.update(tmpAst.script);
+				console.log("PROJECTID", tmpAst.script.id);
+				allKnownProjects[tmpAst.script.id] = tmpAst.script;
+			});
 		}
 
 		console.log(JSON.stringify(Eden.Index.name_index));
 	});
+}
+
+Eden.Selectors.PropertyNode.prototype.construct = function() {
+	switch (this.name) {
+	case ".type"		:	return Eden.Index.getByType(this.value);
+	case ".id"			:	return Eden.Index.getByID(this.value);
+	case ".name"		:	if (this.param === undefined) {
+								return Eden.Index.getAllWithName();
+							} else if (this.isreg) {
+								return Eden.Index.getByNameRegex(this.value);
+							} else {
+								return Eden.Index.getByName(this.value);
+							}
+	// TODO this doesn't capture executes.
+	case ":remote"		:
+	case ":root"		:	return Object.keys(allKnownProjects).map(function(e) { return allKnownProjects[e]; });
+	case ":project"		:	return [];
+	}
+
+	return Eden.Index.getAll();
 }
 
 var insertAgentStmt;
