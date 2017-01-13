@@ -684,6 +684,11 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 						//return;
 					} else {
 						// Loop and do all...
+						for (var i=0; i<=num; i++) {
+							statements.push((new Eden.AST(stats[0], undefined, {name: path, remote: true})).script);
+							Eden.Selectors.cache[path] = statements[0];
+							Eden.Index.update(statements[0]);
+						} 
 					}
 				} else {
 					statements.push.apply(statements,stats);

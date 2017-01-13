@@ -71,15 +71,16 @@ Eden.AST.prototype.pSCRIPT = function() {
 			//console.log("WS: ", this.stream.code.substring(statement.end, this.stream.prevposition));
 
 			ast.append(statement);
-			// Maintain index
-			Eden.Index.update(statement);
 			if (statement.errors.length > 0) {
 				break;
 				// Skip until colon
 				/*while (this.token != ";" && this.token != "EOF") {
 					this.next();
 				}*/
-			} 
+			}
+
+			// Maintain index
+			Eden.Index.update(statement);
 
 			var ws = this.stream.code.substring(statement.end, this.stream.prevposition);
 			if (ws.length > 0) {

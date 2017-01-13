@@ -14,7 +14,7 @@ Eden.DB = {
 	userid: undefined,
 	// Note: reverse order, last is popped off to try first
 	repositories: [
-		//"http://jseden.dcs.warwick.ac.uk/construal-server",
+		"http://jseden.dcs.warwick.ac.uk/construalmanager",
 		"http://localhost:18882"
 	],
 	repoindex: 0,
@@ -355,7 +355,7 @@ Eden.DB.getMeta = function(id, callback) {
 
 Eden.DB.searchSelector = function(q, kind, callback) {
 	$.ajax({
-		url: this.searchServer+"/searchserver/code/search?selector="+q.replace("#","%23")+"&outtype="+kind,
+		url: this.remoteURL+"/code/search?selector="+q.replace("#","%23")+"&outtype="+kind,
 		type: "get",
 		crossDomain: true,
 		xhrFields:{
