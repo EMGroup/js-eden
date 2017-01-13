@@ -114,7 +114,10 @@ eden.root.symbols = {};
 
 //var doxy = require(config.JSEDENPATH + "js/doxycomments.js");
 
-var vstmt = db.prepare("select projects.projectID,projectversions.saveID,title,minimisedTitle FROM (SELECT max(saveID) as maxsaveID from projectversions group by projectID) as maxv, projectversions,projects where maxsaveID = projectversions.saveID and projects.projectID = projectversions.projectID;");
+var vstmt = db.prepare("select projects.projectID,projectversions.saveID,title,minimisedTitle,ifnull(group_concat(tag, \" \"),\"\") as tags"+
+		", projectversions.date, name as authorname FROM (SELECT max(saveID) as maxsaveID from projectversions group by projectID) as maxv, projectversions,projects,oauthusers" +
+		" left join tags on projects.projectID = tags.projectID where maxsaveID = projectversions.saveID and projects.projectID = projectversions.projectID" +
+		" and owner = oauthusers.userid group by projects.projectID;");
 
 initASTDB();
 
@@ -140,9 +143,10 @@ function getFullVersion(version, projectID, meta, callback){
 function initASTDB(){
 	vstmt.all(function(err,rows){
 		for(var i = 0; i < rows.length; i++){
+			rows[i].stamp = new Date(rows[i].date).getTime();
 			console.log("Parsing row " + i, rows[i]);
 			getFullVersion(rows[i].saveID, rows[i].projectID, rows[i], function(data) {
-				var tmpAst = new Eden.AST(data.source,undefined,{name: data.meta.minimisedTitle, title: data.meta.title});
+				var tmpAst = new Eden.AST(data.source,undefined,{name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
 				Eden.Index.update(tmpAst.script);
 				allKnownProjects[tmpAst.script.id] = tmpAst.script;
 			});
