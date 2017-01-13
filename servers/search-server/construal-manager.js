@@ -452,7 +452,7 @@ function addProjectVersion(req, res, projectID){
 	if(req.body.from){
 		db.serialize(function(){
 		getFullVersion(req.body.from, projectID, [],function(ret){
-			var baseSrce = ret.source;
+			var baseSrc = ret.source;
 			var dmp = new window.diff_match_patch();
 			var d = dmp.diff_main(baseSrc,req.body.source,false);
 			var p = dmp.patch_make(baseSrc,req.body.source,d);
