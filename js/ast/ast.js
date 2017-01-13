@@ -122,6 +122,7 @@ Eden.AST.prototype.destroy = function() {
 			if (stat.statements[i].type == "script") clear(stat.statements[i]);
 		}
 		stat.statements = undefined;
+		stat.parent = undefined;
 	}
 	clear(this.script);
 	// Free memory.

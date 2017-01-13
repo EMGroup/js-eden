@@ -147,6 +147,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var scrolltime = undefined;
 		inputhider.addEventListener("scroll", function(e) {
 			if (scrolltime !== undefined) clearTimeout(scrolltime);
+			if (document.activeElement === scriptarea.outdiv) return;
 
 			scrolltime = setTimeout(function() {
 				scrolltime = undefined;

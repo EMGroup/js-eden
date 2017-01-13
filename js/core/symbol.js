@@ -77,7 +77,7 @@ Object.defineProperty(Symbol.prototype, "doxyComment", {
 });
 
 Object.defineProperty(Symbol.prototype, "parent", {
-	get: function() { return (this.origin) ? this.origin.parent : undefined; }
+	get: function() { return eden.root; }
 });
 
 Object.defineProperty(Symbol.prototype, "stamp", {

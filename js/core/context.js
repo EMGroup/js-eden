@@ -33,6 +33,7 @@ function Folder(name, parent, root) {
 	this.end = 0;
 	this.prefix = "";
 	this.postfix = "";
+	this.id = "ACTIVE";
 
 	/**
 	 * @type {string}
@@ -44,7 +45,7 @@ function Folder(name, parent, root) {
 	 * @type {Folder}
 	 * @private
 	 */
-	this.parent = undefined;
+	//this.parent = undefined;
 	this.base = undefined;
 
 	this.errors = [];
@@ -116,6 +117,13 @@ function Folder(name, parent, root) {
 			return Object.keys(this.symbols).map(function(e) {
 				return me.symbols[e];
 			});
+		}
+	});
+
+	Object.defineProperty(this, "parent", {
+		enumerable: true,
+		get: function() {
+			return eden.project.ast.script;
 		}
 	});
 }

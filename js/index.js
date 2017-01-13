@@ -43,6 +43,19 @@ Eden.Index.getByType = function(type) {
 	return [];
 }
 
+Eden.Index.remove = function(node) {
+	delete Eden.Index.id_index[node.id];
+	delete Eden.Index.type_index[node.type][node.id];
+
+	if ((node.name && node.type != "do") || node.lvalue) {
+		var name = (node.name) ? node.name : node.lvalue.name;
+		var ix = Eden.Index.name_index[name].indexOf(node.id);
+		if (ix >= 0) {
+			Eden.Index.name_index[name].splice(ix,1);
+		}
+	}
+}
+
 Eden.Index.update = function(node) {
 	Eden.Index.id_index[node.id] = node;
 	if (Eden.Index.type_index[node.type] === undefined) Eden.Index.type_index[node.type] = {};

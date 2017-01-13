@@ -127,6 +127,7 @@ Eden.Project.prototype.start = function() {
 			// Find the active action and replace
 			for (var i=0; i<me.ast.script.statements.length; i++) {
 				if (me.ast.script.statements[i] === me.ast.scripts["ACTIVE"]) {
+					Eden.Index.remove(me.ast.script.statements[i]);
 					me.ast.script.statements[i].statements = undefined;
 
 					// Patch original state into the virtual AST
@@ -136,7 +137,7 @@ Eden.Project.prototype.start = function() {
 					eden.root.prefix = me.ast.script.statements[i].prefix;
 					eden.root.postfix = me.ast.script.statements[i].postfix;
 					eden.root.parent = eden.project.ast.script;
-
+					Eden.Index.update(eden.root);
 					me.ast.script.statements[i] = eden.root;
 					break;
 				}
