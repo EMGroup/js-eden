@@ -92,6 +92,10 @@ Eden.AST.prototype.pFACTOR = function() {
 		var lit = new Eden.AST.Literal("NUMBER", this.data.value);
 		this.next();
 		return lit
+	// Query
+	} else if (this.token == "?") {
+		this.next();
+		return this.pQUERY();
 	// Unary negation operator
 	} else if (this.token == "-") {
 		this.next();

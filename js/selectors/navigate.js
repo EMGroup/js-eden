@@ -92,8 +92,8 @@ Eden.Selectors.NavigateNode.prototype.filter = function(statements, context) {
 				}
 			}
 
-			if (this.right) return this.right.filter(res,context);
-			else return res;
+			if (this.right) return Eden.Selectors.unique(this.right.filter(res,context));
+			else return Eden.Selectors.unique(res);
 		} else {
 			var res = [];
 			for (var i=0; i<lstats.length; i++) {
@@ -109,8 +109,8 @@ Eden.Selectors.NavigateNode.prototype.filter = function(statements, context) {
 				}
 			}
 
-			if (this.right) return this.right.filter(res,context);
-			else return res;
+			if (this.right) return Eden.Selectors.unique(this.right.filter(res,context));
+			else return Eden.Selectors.unique(res);
 		}
 	}
 }

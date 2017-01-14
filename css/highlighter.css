@@ -58,6 +58,11 @@ span.eden-selector2 {
 	font-weight: bold;
 }
 
+span.eden-selector3 {
+	color: #ad7fa8;
+	/*font-weight: bold;*/
+}
+
 span.eden-string {
 	color: #cc0000;
 }

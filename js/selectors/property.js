@@ -195,7 +195,19 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 		// Additional selector unions to check
 		case ":matches"	:	return Eden.Selectors.parse(this.param).filter(statements);
 
-		case ".title"	:	return statements;
+		case ".title"	:	if (this.isreg) {
+								return statements.filter(function(stat) {
+									if (!stat.doxyComment) return false;
+									var title = stat.doxyComment.getProperty("title");
+									return title && me.value.test(title);
+								});
+							} else {
+								return statements.filter(function(stat) {
+									if (!stat.doxyComment) return false;
+									var title = stat.doxyComment.getProperty("title");
+									return title && title == this.value;
+								});
+							}
 
 		case ".author"	:	return statements;
 

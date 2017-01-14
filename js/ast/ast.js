@@ -225,7 +225,7 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 }
 
 
-Eden.AST.createStatement = function(src) {
+Eden.AST.parseStatement = function(src) {
 	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
 	//console.log(ast);
 	ast.next();
@@ -234,7 +234,7 @@ Eden.AST.createStatement = function(src) {
 	return stat;
 }
 
-Eden.AST.createScript = function(src) {
+Eden.AST.parseScript = function(src) {
 	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
 	//console.log(ast);
 	ast.next();

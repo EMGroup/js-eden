@@ -168,6 +168,25 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 	return nstats;
 }
 
+Eden.Selectors.resultTypes = {
+	"brief": true,
+	"comment": true,
+	"source": true,
+	"innersource": true,
+	"title": true,
+	"path": true,
+	"name": true,
+	"symbol": true,
+	"line": true,
+	"depends": true,
+	"value": true,
+	"tags": true,
+	"rawcomment": true,
+	"id": true,
+	"remote": true,
+	"root": true
+};
+
 Eden.Selectors.processResults = function(statements, o) {
 	// Check what kind of result we are to return
 	if (o !== undefined) {
@@ -483,9 +502,9 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 						if (i > num) break;
 						var script;
 						if (stats[i][0]) {
-							script = Eden.AST.createScript(stats[i][1]); //(new Eden.AST(stats[i][1], undefined, {name: path, remote: true}, {noparse: false, noindex: true})).script;
+							script = Eden.AST.parseScript(stats[i][1]); //(new Eden.AST(stats[i][1], undefined, {name: path, remote: true}, {noparse: false, noindex: true})).script;
 						} else {
-							script = Eden.AST.createStatement(stats[i][1]);
+							script = Eden.AST.parseStatement(stats[i][1]);
 						}
 						statements.push(script);
 						//Eden.Selectors.cache[path] = script;

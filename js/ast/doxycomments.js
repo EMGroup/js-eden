@@ -49,6 +49,10 @@ Eden.AST.DoxyComment.prototype.getControls = function() {
 	return this.controls;
 }
 
+Eden.AST.DoxyComment.prototype.getProperty = function(name) {
+	return this.getControls()["@"+name];
+}
+
 Eden.AST.DoxyComment.prototype.stripped = function() {
 	var controls = {};
 	var tags = {};

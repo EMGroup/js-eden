@@ -30,24 +30,29 @@ Eden.AST.prototype.pAGENTPATH = function() {
 
 
 
-Eden.AST.prototype.pCODESELECTOR_P = function() {
+Eden.AST.prototype.pCODESELECTOR = function() {
 	var expr = undefined;
 
-	if (this.token == "OBSERVABLE" || this.token == "when" || this.token == "action") {
-		// TODO check value is valid node type...
+	if (this.token == "OBSERVABLE" || Language.keywords[this.token]) {
 		expr = new Eden.AST.Literal("STRING", this.data.value);
 		this.next();
-	} else if (this.token == ":") {
+	} else if (this.token == ":" || this.token == ".") {
+		var ispseudo = this.token == ":";
 		this.next();
 		if (this.token == "OBSERVABLE") {
-			// TODO Check its a valid option...
-			expr = new Eden.AST.Literal("STRING", ":" + this.data.value);
-			this.next();
+			if ((!ispseudo && Eden.Selectors.PropertyNode.attributes[this.data.value]) || (ispseudo && Eden.Selectors.PropertyNode.pseudo[this.data.value])) {
+				expr = new Eden.AST.Literal("STRING", ((ispseudo) ? ":" : ".") + this.data.value);
+				this.next();
+			} else {
+				expr = new Eden.AST.Literal("STRING","");
+				expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SELECTORATTRIB));
+				return expr;
+			}
 		} else if (this.token == "NUMBER") {
-			expr = new Eden.AST.Literal("STRING", ":"+this.data.value);
+			expr = new Eden.AST.Literal("STRING", ((ispseudo) ? ":" : ".")+this.data.value);
 			this.next();
 		} else if (this.token == "{") {
-			expr = new Eden.AST.Literal("STRING", ":");
+			expr = new Eden.AST.Literal("STRING", (ispseudo) ? ":" : ".");
 		} else {
 			expr = new Eden.AST.Literal("STRING","");
 			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SELECTORATTRIB));
@@ -80,21 +85,33 @@ Eden.AST.prototype.pCODESELECTOR_P = function() {
 	} else if (this.token == ">>") {
 		expr = new Eden.AST.Literal("STRING", " >> ");
 		this.next();
+	} else if (this.token == "<") {
+		expr = new Eden.AST.Literal("STRING", " < ");
+		this.next();
+	} else if (this.token == "<<") {
+		expr = new Eden.AST.Literal("STRING", " << ");
+		this.next();
 	} else if (this.token == "(") {
-		expr = new Eden.AST.Literal("STRING", "(");
+		var start = this.stream.position;
+		this.next();
+		while (this.stream.valid() && this.token != ")") this.next();
+		var end = this.stream.prevposition;
+		var str = "(" + this.stream.code.substring(start,end) + ")";
+		expr = new Eden.AST.Literal("STRING", str);
 		this.next();
 	} else if (this.token == ")") {
-		expr = new Eden.AST.Literal("STRING", ")");
-		this.next();
-	} else if (this.token == ".") {
-		expr = new Eden.AST.Literal("STRING", ".");
+		return;
+	} else if (this.token == "*") {
+		expr = new Eden.AST.Literal("STRING", "*");
 		this.next();
 	}
 
 	if (expr) {
-		var nexpr = this.pCODESELECTOR_P();
+		var nexpr = this.pCODESELECTOR();
 		if (nexpr === undefined) {
 			return expr;
+		} else if (nexpr.errors.length > 0) {
+			return nexpr;
 		} else if (expr.type == "literal" && nexpr.type == "literal") {
 			expr.value += nexpr.value;
 		} else {
@@ -110,7 +127,7 @@ Eden.AST.prototype.pCODESELECTOR_P = function() {
 
 
 
-Eden.AST.prototype.pCODESELECTOR = function() {
+/*Eden.AST.prototype.pCODESELECTOR = function() {
 	var path = this.pAGENTPATH();
 	if (path == "_ERROR_") path = "";
 	var expr = new Eden.AST.Literal("STRING", path);
@@ -151,5 +168,5 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 	}
 
 	return expr;
-}
+}*/
 

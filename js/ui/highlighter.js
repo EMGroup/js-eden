@@ -471,6 +471,8 @@
 					tokentext = "##" + comment;
 				} else if (token == "local" || token == "auto" || token == "para" || token == "handle" || token == "oracle") {
 					classes += "eden-storage";
+				} else if (token == "?") {
+					this.mode = 77;
 				} else if (type == "keyword") {
 					classes += "eden-keyword";
 					if (stream.data.value == "import") {
@@ -623,8 +625,10 @@
 					this.mode = 0;
 				} else {
 					this.mode = 78;
-					if (token == "OBSERVABLE" && Language.selectors[tokentext]) {
+					if (token == "OBSERVABLE" && (prevtoken == "." || prevtoken == ":") && (Eden.Selectors.PropertyNode.attributes[tokentext] || Eden.Selectors.PropertyNode.pseudo[tokentext])) {
 						classes += "eden-selector2";
+					} else if (token == "OBSERVABLE" && prevtoken == "[" && Eden.Selectors.resultTypes[tokentext]) {
+						classes += "eden-selector3";
 					} else {
 						classes += "eden-selector";
 					}

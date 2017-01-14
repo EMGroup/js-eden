@@ -41,17 +41,17 @@ Eden.AST.prototype.pDO = function() {
 
 		return w;
 	// Must have a name otherwise, or error
-	} else if (this.token != "OBSERVABLE" && this.token != "." && this.token != ">>" && this.token != ":") {
+	} else if (this.token != "OBSERVABLE" && this.token != "." && this.token != ">>" && this.token != ">" && this.token != "<" && this.token != "<<" && this.token != ":" && this.token != "*") {
 		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DONAME));
 		this.parent = parent;
 		return w;
 	} else {
 		var path = this.pCODESELECTOR();
-		if (path == "_ERROR_") {
-			w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DONAME));
+		w.setName(path);
+		if (w.errors.length > 0) {
+			this.parent = parent;
 			return w;
 		}
-		w.setName(path);
 		//this.next();
 	}
 
