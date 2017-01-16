@@ -72,7 +72,9 @@ Eden.Selectors.PropertyNode.pseudo = {
 	"age":			{local: false,	indexed: false,	rank: 6},
 	"remote":		{local: true,	indexed: true,	rank: 20},
 	"not":			{local: false,	indexed: false,	rank: 100},
-	"active":		{local: true,	indexed: false, rank: 10}
+	"active":		{local: true,	indexed: false, rank: 10},
+	"me":			{local: false,	indexed: false, rank: 20},
+	"listed":		{local: false,	indexed: false, rank: 20}
 };
 
 Eden.Selectors.PropertyNode.prototype.append = function(node) {

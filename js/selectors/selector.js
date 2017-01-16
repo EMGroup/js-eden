@@ -262,8 +262,8 @@ Eden.Selectors.processResults = function(statements, o) {
 										val = stat.doxyComment.content;
 									} break;
 				case "controls" :
-				case "id"		:
-				case "unique"	: val = Eden.Selectors.getID(stat); break;
+				case "id"		: val = stat.id; break;
+				case "path"		: val = Eden.Selectors.getID(stat); break;
 				case "script"	: val = Eden.Selectors.getScriptBase(stat); break;
 				case "remote"	:	var p = stat;
 									while(p.parent) p = p.parent;
