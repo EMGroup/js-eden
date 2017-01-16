@@ -649,6 +649,13 @@ app.get('/project/search', function(req, res){
 			criteriaVals["@title"] = "%" + req.query.query.substring(7,endOfB) + "%";
 		}
 	}
+	
+	var listedOnly = false;
+	listedOnly = (req.query.listedOnly && req.query.listedOnly == "true");
+	
+	var targetTable = "view_latestVersion";
+	if(listedOnly)
+		targetTable = "view_listedVersion";
 
 	if(req.query.tag){
 		if(Array.isArray(req.query.tag)){
@@ -673,7 +680,7 @@ app.get('/project/search', function(req, res){
 	}
 	
 	var listQueryStr = 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
-		+ ' publicVersion, parentProject, projectMetaData,	(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,view_latestVersion left outer join tags'
+		+ ' publicVersion, parentProject, projectMetaData,	(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
 		+ ' on projects.projectID = tags.projectID WHERE owner = userid AND view_latestVersion.projectID = projects.projectID '
 		+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
 	
