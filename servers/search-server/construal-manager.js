@@ -672,10 +672,10 @@ app.get('/project/search', function(req, res){
 		tagConditionStr = " WHERE " + tagCriteria.join(" AND ");
 	}
 	
-	var listQueryStr = 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags ' 
-		+ 'FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, publicVersion, parentProject, projectMetaData, '
-		+ '(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers left outer join tags on projects.projectID = tags.projectID WHERE owner = userid ' 
-		+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' LIMIT @limit OFFSET @offset';
+	var listQueryStr = 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
+		+ ' publicVersion, parentProject, projectMetaData,	(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,view_latestVersion left outer join tags'
+		+ ' on projects.projectID = tags.projectID WHERE owner = userid AND view_latestVersion.projectID = projects.projectID '
+		+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
 	
 	var listProjectStmt = db.prepare(listQueryStr);
 
@@ -722,7 +722,7 @@ app.get('/project/versions', function(req, res){
 			res.json(rows);
 		});
 	}else if(req.query.userID !== undefined){
-		var listProjectStmt = db.prepare("select projects.projectid, saveID, date, parentDiff from projectversions,projects where projects.projectid = projectversions.projectid AND owner = ?;");
+		var listProjectStmt = db.prepare("select projects.projectid, saveID, date, parentDiff from projectversions,projects where projects.projectid = projectversions.projectid AND owner = ? ORDER BY date;");
 		listProjectStmt.all(req.user.id,function(err,rows){
 			res.json(rows);
 		});
