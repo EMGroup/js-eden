@@ -27,7 +27,7 @@ EdenUI.SearchBox = function(element) {
 
 EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	console.log("Update details", name);
-	var ast = Eden.Selectors.query("@history " + name, undefined, undefined, 1);
+	Eden.Selectors.query("@history " + name, undefined, undefined, 1, function(ast){
 	if (ast.length == 0) {
 		console.log("No result");
 		return;
@@ -81,6 +81,7 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	}
 
 	docele.innerHTML = html;
+	});
 }
 
 EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {

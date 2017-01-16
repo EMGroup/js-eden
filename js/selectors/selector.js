@@ -553,7 +553,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 			});
 		} else {
 			//Then need to do a remote search
-			Eden.DB.searchSelector(s, (o === undefined) ? ["root","source","name"] : o, function(stats) {
+			Eden.DB.searchSelector(s, (o === undefined) ? ["root","source","name","id"] : o, function(stats) {
 				if (o === undefined && stats.length > 0) {
 					// Need to generate an AST for each result
 					// Loop and do all...
@@ -563,6 +563,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 						if (stats[i][0]) {
 							script = Eden.AST.parseScript(stats[i][1]); //(new Eden.AST(stats[i][1], undefined, {name: path, remote: true}, {noparse: false, noindex: true})).script;
 							script.name = stats[i][2];
+							script.id = stats[i][3];
 							
 						} else {
 							script = Eden.AST.parseStatement(stats[i][1]);
