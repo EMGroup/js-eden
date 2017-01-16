@@ -161,7 +161,7 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 									var sym = eden.root.symbols[stat.lvalue.name];
 
 									return sym && (sym.origin === stat || (sym.origin && sym.origin.id == stat.id));
-								}
+								} else if (stat.type == "when") return stat.enabled;
 								return false;
 							});
 
@@ -239,13 +239,15 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 								return p.base.origin.remote == true;
 							});
 
-		case ":not"		:	var positive = Eden.Selectors.parse(this.param).filter(statements);
+		case ":not"		:	if (this.param) {
+							var positive = Eden.Selectors.parse(this.param).filter(statements);
 							return statements.filter(function(stat) {
 								for (var i=0; i<positive.length; i++) {
 									if (stat === positive[i]) return false;
 								}
 								return true;
 							});
+							}
 
 		default: return [];
 		}

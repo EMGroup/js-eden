@@ -410,7 +410,7 @@ Symbol.prototype.define = function (definition, origin, subscriptions, source) {
 		this.context.expireSymbol(this);
 	}
 
-	if (eden.peer && source) eden.peer.define(ast, this.name, source, subscriptions);
+	if (eden.peer && source) eden.peer.define(origin, this.name, source, subscriptions);
 
 	return this;
 };

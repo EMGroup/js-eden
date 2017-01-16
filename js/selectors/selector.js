@@ -92,6 +92,14 @@ Eden.Selectors.getID = function(stat) {
 		else if (p.type == "script" && p.name) path.splice(0,0,p.name);
 		else path.splice(0,0,".id("+p.id+")");
 		p = p.parent;
+		if (p) {
+			if (p.type == "script" && p.parent && p.parent.type != "script") {
+				if (p.parent.type == "codeblock") p = p.parent.parent;
+				else p = p.parent;
+			} else if (p.type == "codeblock") {
+				p = p.parent;
+			}
+		}
 	}
 	return path.join(" > ");
 }
@@ -545,7 +553,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 			});
 		} else {
 			//Then need to do a remote search
-			Eden.DB.searchSelector(s, (o === undefined) ? ["root","source"] : o, function(stats) {
+			Eden.DB.searchSelector(s, (o === undefined) ? ["root","source","name"] : o, function(stats) {
 				if (o === undefined && stats.length > 0) {
 					// Need to generate an AST for each result
 					// Loop and do all...
@@ -554,6 +562,8 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 						var script;
 						if (stats[i][0]) {
 							script = Eden.AST.parseScript(stats[i][1]); //(new Eden.AST(stats[i][1], undefined, {name: path, remote: true}, {noparse: false, noindex: true})).script;
+							script.name = stats[i][2];
+							
 						} else {
 							script = Eden.AST.parseStatement(stats[i][1]);
 						}

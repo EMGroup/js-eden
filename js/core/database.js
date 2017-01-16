@@ -211,7 +211,8 @@ Eden.DB.save = function(project, ispublic, callback) {
 					tags: project.tags.join(" "),
 					minimisedTitle: project.name,
 					from: project.vid,
-					image: project.thumb
+					image: project.thumb,
+					listed: ispublic
 			},
 			success: function(data){
 				if (data === null || data.error) {

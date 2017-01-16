@@ -96,10 +96,16 @@ Eden.Fragment.prototype.destroy = function() {
 	this.unlock();
 }
 
-Eden.Fragment.prototype.reset = function() {
+Eden.Fragment.prototype.reset = function(cb) {
 	var me = this;
 
-	if (this.scratch) return;
+	if (this.scratch) {
+			me.lock();
+			me.snapshot = me.source;
+			Eden.Fragment.emit("changed", [me]);
+			if (cb) cb();
+			return;
+	}
 
 	Eden.Selectors.query(this.selector, undefined, undefined, 1, function(res) {
 		me.results = res;
@@ -164,6 +170,7 @@ Eden.Fragment.prototype.reset = function() {
 		me.lock();
 
 		me.snapshot = me.source;
+		if (cb) cb();
 	});
 }
 

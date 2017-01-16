@@ -65,39 +65,41 @@ EdenUI.ScriptArea.prototype.setFragment = function(frag) {
 	}
 
 	// Make sure it is up-to-date
-	frag.reset();
+	var me = this;
+	frag.reset(function() {
 
 	// Reset textarea and outdiv etc.
-	changeClass(this.outdiv, "browser", false);
+	changeClass(me.outdiv, "browser", false);
 				
 	// Find base of ast
 	//var p = tab_asts[curtab];
 	//while (p && p.parent) p = p.parent;
 	//var base = p.base;
 
-	this.intextarea.value = frag.getSource();
+	me.intextarea.value = frag.getSource();
 	if (frag.ast) {
-		this.highlightContent(-1, 0);
-		this.intextarea.focus();
-		this.checkScroll();
+		me.highlightContent(-1, 0);
+		me.intextarea.focus();
+		me.checkScroll();
 
-		this.gutter.setBaseAST(frag.ast.script);
+		me.gutter.setBaseAST(frag.ast.script);
 	}
 
 	if (frag.locked) {
-		this.readonly = true;
+		me.readonly = true;
 		// The readonly class changes colour scheme
 		//changeClass(inputhider, "readonly", true);
-		this.outdiv.contentEditable = false;
+		me.outdiv.contentEditable = false;
 		//outdiv.style.display = "inline-block";
 	} else {
-		this.readonly = false;
+		me.readonly = false;
 		//setSubTitle("");
 		// The readonly class changes colour scheme
 		//changeClass(inputhider, "readonly", false);
-		this.outdiv.contentEditable = true;
+		me.outdiv.contentEditable = true;
 		//outdiv.style.display = "inline-block";
 	}
+	});
 }
 
 EdenUI.ScriptArea.prototype.updateSource = function(src, line) {
