@@ -681,8 +681,17 @@ app.get('/project/search', function(req, res){
 	
 	var listQueryStr = 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
 		+ ' publicVersion, parentProject, projectMetaData,	(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
-		+ ' on projects.projectID = tags.projectID WHERE owner = userid AND view_latestVersion.projectID = projects.projectID '
-		+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
+		+ ' on projects.projectID = tags.projectID WHERE owner = userid AND view_latestVersion.projectID = projects.projectID ';
+	
+	if(!listedOnly){
+		if(req.user == null)
+			return res.json({});
+		else
+			listQueryStr = listQueryStr + ' AND owner = @owner';
+			criteriaVals["@owner"] = req.user.id;
+	}
+	
+	listQueryStr = listQueryStr	+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
 	
 	var listProjectStmt = db.prepare(listQueryStr);
 
