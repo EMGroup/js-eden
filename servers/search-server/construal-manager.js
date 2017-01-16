@@ -119,10 +119,12 @@ eden.root.symbols = {};
 
 //var doxy = require(config.JSEDENPATH + "js/doxycomments.js");
 
-var vstmt = db.prepare("select projects.projectID,projectversions.saveID,title,minimisedTitle,ifnull(group_concat(tag, \" \"),\"\") as tags"+
-		", projectversions.date, name as authorname FROM (SELECT max(saveID) as maxsaveID from projectversions group by projectID) as maxv, projectversions,projects,oauthusers" +
-		" left join tags on projects.projectID = tags.projectID where maxsaveID = projectversions.saveID and projects.projectID = projectversions.projectID" +
-		" and owner = oauthusers.userid group by projects.projectID;");
+var vstmtStr = "select projects.projectID,view_listedVersion.saveID,title,minimisedTitle,ifnull(group_concat(tag, \" \"),\"\") as tags, view_listedVersion.date," +
+		" name as authorname from view_listedVersion, projects, oauthusers left join tags on projects.projectID = tags.projectID where " +
+		"projects.projectID = view_listedVersion.projectID and owner = oauthusers.userid";
+
+var vstmt = db.prepare(vstmtStr + " group by projects.projectid");
+
 
 initASTDB();
 
@@ -170,17 +172,45 @@ function getFullVersion(version, projectID, meta, callback){
 
 function initASTDB(){
 	vstmt.all(function(err,rows){
+		if(err){
+			console.log("Error: " + err);
+		}
 		for(var i = 0; i < rows.length; i++){
 			rows[i].stamp = new Date(rows[i].date).getTime();
 			console.log("Parsing row " + i, rows[i]);
 			getFullVersion(rows[i].saveID, rows[i].projectID, rows[i], function(data) {
 				var tmpAst = new Eden.AST(data.source,undefined,{name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
-				Eden.Index.update(tmpAst.script);
-				allKnownProjects[tmpAst.script.id] = tmpAst.script;
+				allKnownProjects[rows[i].projectID] = tmpAst.script;
 			});
 		}
 
 		console.log(JSON.stringify(Eden.Index.name_index));
+	});
+}
+
+function reindexProject(projectID){
+	log("Reindexing projectID: " + projectID);
+	
+	var myVStmt = db.prepare(vstmtStr + " and projects.projectID = @projectID");
+	
+	var params = {};
+	params["@projectID"] = projectID;
+	
+	myVStmt.all(params,function(err,rows){
+		if(err){
+			log("Error: " + err);
+			return;
+		}else{
+			var row = rows[0];
+			getFullVersion(row.saveID, row.projectID,row,function(data){
+				var tmpAst = new Eden.AST(data.source,undefined,{name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
+				
+				if(allKnownProjects[row.projectID])
+					allKnownProjects[row.projectID].destroy();
+
+				allKnownProjects[row.projectID] = tmpAst.script;
+			});
+		}
 	});
 }
 
@@ -496,6 +526,7 @@ function runAddVersion(addVersionStmt, listed, params,res){
 					db.run("END");
 					log("Created version " + lastSaveID + " of project " + projectID);
 					res.json({"saveID": this.lastSaveID, "projectID": projectID});
+					reindexProject(projectID);
 				}
 			});
 		}else{
@@ -649,6 +680,13 @@ app.get('/project/search', function(req, res){
 			criteriaVals["@title"] = "%" + req.query.query.substring(7,endOfB) + "%";
 		}
 	}
+	
+	var listedOnly = false;
+	listedOnly = (req.query.listedOnly && req.query.listedOnly == "true");
+	
+	var targetTable = "view_latestVersion";
+	if(listedOnly)
+		targetTable = "view_listedVersion";
 
 	if(req.query.tag){
 		if(Array.isArray(req.query.tag)){
@@ -672,10 +710,19 @@ app.get('/project/search', function(req, res){
 		tagConditionStr = " WHERE " + tagCriteria.join(" AND ");
 	}
 	
-	var listQueryStr = 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags ' 
-		+ 'FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, publicVersion, parentProject, projectMetaData, '
-		+ '(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers left outer join tags on projects.projectID = tags.projectID WHERE owner = userid ' 
-		+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' LIMIT @limit OFFSET @offset';
+	var listQueryStr = 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
+		+ ' publicVersion, parentProject, projectMetaData,	(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
+		+ ' on projects.projectID = tags.projectID WHERE owner = userid AND view_latestVersion.projectID = projects.projectID ';
+	
+	if(!listedOnly){
+		if(req.user == null)
+			return res.json({});
+		else
+			listQueryStr = listQueryStr + ' AND owner = @owner';
+			criteriaVals["@owner"] = req.user.id;
+	}
+	
+	listQueryStr = listQueryStr	+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
 	
 	var listProjectStmt = db.prepare(listQueryStr);
 
@@ -722,7 +769,7 @@ app.get('/project/versions', function(req, res){
 			res.json(rows);
 		});
 	}else if(req.query.userID !== undefined){
-		var listProjectStmt = db.prepare("select projects.projectid, saveID, date, parentDiff from projectversions,projects where projects.projectid = projectversions.projectid AND owner = ?;");
+		var listProjectStmt = db.prepare("select projects.projectid, saveID, date, parentDiff from projectversions,projects where projects.projectid = projectversions.projectid AND owner = ? ORDER BY date;");
 		listProjectStmt.all(req.user.id,function(err,rows){
 			res.json(rows);
 		});
