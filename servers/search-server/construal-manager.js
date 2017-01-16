@@ -179,7 +179,7 @@ function initASTDB(){
 			rows[i].stamp = new Date(rows[i].date).getTime();
 			console.log("Parsing row " + i, rows[i]);
 			getFullVersion(rows[i].saveID, rows[i].projectID, rows[i], function(data) {
-				var tmpAst = new Eden.AST(data.source,undefined,{name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
+				var tmpAst = new Eden.AST(data.source,undefined,{id: rows[i].projectID, saveID: rows[i].saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
 				allKnownProjects[rows[i].projectID] = tmpAst.script;
 			});
 		}
@@ -203,7 +203,7 @@ function reindexProject(projectID){
 		}else{
 			var row = rows[0];
 			getFullVersion(row.saveID, row.projectID,row,function(data){
-				var tmpAst = new Eden.AST(data.source,undefined,{name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
+				var tmpAst = new Eden.AST(data.source,undefined,{id: rows[i].projectID, saveID: rows[i].saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
 				
 				if(allKnownProjects[row.projectID])
 					allKnownProjects[row.projectID].destroy();
