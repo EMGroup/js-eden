@@ -58,6 +58,7 @@ Eden.AST.Script.prototype.patchScript = function(ast) {
 		for (var i=0; i<ast.script.statements.length; i++) {
 			// Each parent must be updated to real parent
 			ast.script.statements[i].parent = this;
+			//Eden.Index.update(ast.script.statements[i]);
 		}
 	}
 
@@ -67,9 +68,9 @@ Eden.AST.Script.prototype.patchScript = function(ast) {
 
 	// Update script index...
 	// Is this needed now??
-	for (var x in ast.scripts) {
-		p.base.scripts[x] = ast.scripts[x];
-	}
+	//for (var x in ast.scripts) {
+	//	p.base.scripts[x] = ast.scripts[x];
+	//}
 }
 
 Eden.AST.Script.prototype.getLine = function() {
@@ -107,6 +108,21 @@ Eden.AST.Script.prototype.setName = function(base, name) {
 	this.shortName = name;
 }
 
+Eden.AST.Script.prototype.buildID = function() {
+	var hash = 0;
+	var ch;
+	var hashstr = this.getSource(); //this.prefix+this.postfix;
+	//if (this.parent) hashstr += this.parent.id;
+	var len = hashstr.length;
+	for (var i=0; i<len; i++) {
+		ch = hashstr.charCodeAt(i);
+		hash = ((hash << 5) - hash) + ch;
+		hash = hash & hash;
+	}
+
+	this.id = this.type +"@"+ hash;
+}
+
 Eden.AST.Script.prototype.setSource = function(start, end, src) {
 	this.start = start;
 	this.end = end;
@@ -118,45 +134,6 @@ Eden.AST.Script.prototype.setSource = function(start, end, src) {
 	} else {
 		this.prefix = src.substring(0, this.statements[0].start-start);
 		this.postfix = src.substring(this.statements[this.statements.length-1].end-start);
-	}
-
-	var hash = 0;
-	var ch;
-	var len = src.length;
-	for (var i=0; i<len; i++) {
-		ch = src.charCodeAt(i);
-		hash = ((hash << 5) - hash) + ch;
-		hash = hash & hash;
-	}
-
-	if (this.name) {
-		this.id = this.name +"@"+ hash;
-	} else {
-		this.id = this.type +"@"+ hash;
-	}
-}
-
-Eden.AST.Script.prototype.append = function (ast) {
-	this.statements.push(ast);
-	if (ast.errors.length > 0) {
-		this.errors.push.apply(this.errors, ast.errors);
-	}
-}
-
-Eden.AST.Script.prototype.insertBefore = function(before, ast) {
-	var ix;
-	for (ix = 0; ix<this.statements.length; ix++) {
-		if (this.statements[ix] === before) break;
-	}
-	if (ix < this.statements.length) {
-		this.statements.splice(ix, 0, ast);
-	} else {
-		// Should this error?
-		this.statements.push(ast);
-	}
-
-	if (ast.errors.length > 0) {
-		this.errors.push.apply(this.errors, ast.errors);
 	}
 }
 

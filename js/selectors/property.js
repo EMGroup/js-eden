@@ -254,22 +254,31 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 }
 
 Eden.Selectors.PropertyNode.prototype.construct = function() {
+	var stats;
+
 	switch (this.name) {
-	case ".type"		:	return Eden.Index.getByType(this.value);
-	case ".id"			:	return Eden.Index.getByID(this.value);
+	case ".type"		:	stats = Eden.Index.getByType(this.value); break;
+	case ".id"			:	stats = Eden.Index.getByID(this.value); break;
 	case ".name"		:	if (this.param === undefined) {
-								return Eden.Index.getAllWithName();
+								stats = Eden.Index.getAllWithName();
 							} else if (this.isreg) {
-								return Eden.Index.getByNameRegex(this.value);
+								stats = Eden.Index.getByNameRegex(this.value);
 							} else {
-								return Eden.Index.getByName(this.value);
-							}
+								stats = Eden.Index.getByName(this.value);
+							} break;
 	// TODO this doesn't capture executes.
-	case ":root"		:	return [eden.project.ast.script].concat(Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; }));
-	case ":remote"		:	return Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; });
-	case ":project"		:	return [eden.project.ast.script];
+	case ":root"		:	stats = [eden.project.ast.script].concat(Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; })); break;
+	case ":remote"		:	stats = Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; }); break;
+	case ":project"		:	stats = [eden.project.ast.script]; break;
+	default				:	stats = Eden.Index.getAll();
 	}
 
-	return Eden.Index.getAll();
+	if (!this.options || !this.options.history) {
+		return stats.filter(function(e) {
+			return e.executed >= 0;
+		});
+	}
+
+	return stats;
 }
 

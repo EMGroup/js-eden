@@ -5,6 +5,7 @@ Eden.Fragment = function(selector) {
 	this.origin = undefined;
 	this.source = undefined;
 	this.ast = undefined;
+	this.lastast = undefined;
 	this.locked = true;
 	this.remote = false;
 	this.results = [];
@@ -98,6 +99,8 @@ Eden.Fragment.prototype.destroy = function() {
 Eden.Fragment.prototype.reset = function() {
 	var me = this;
 
+	if (this.scratch) return;
+
 	Eden.Selectors.query(this.selector, undefined, undefined, 1, function(res) {
 		me.results = res;
 
@@ -105,7 +108,11 @@ Eden.Fragment.prototype.reset = function() {
 			//console.log(res);
 			me.originast = me.results[0];
 		} else if (me.results && me.results.length > 1) {
-			me.source = "";
+			var src = "";
+			for (var i=0; i<me.results.length; i++) {
+				src += me.results[i].getSource() + "\n";
+			}
+			me.source = src;
 			me.originast = undefined;
 		} else {
 			me.source = "";
@@ -146,7 +153,8 @@ Eden.Fragment.prototype.reset = function() {
 			// Scratch
 			me.locked = false;
 			me.remote = false;
-			me.ast = new Eden.AST(me.source, undefined, me);
+			me.ast = new Eden.AST(me.source, undefined, me, {noindex: true});
+			me.originast = me.ast.script;
 			me.name = "*Scratch*";
 			me.title = me.name;
 			me.scratch = true;
@@ -168,8 +176,8 @@ Eden.Fragment.prototype.makeReal = function(name) {
 	if (!this.scratch) return;
 	this.name = name;
 	this.title = name;
-	this.selector = name;
 	this.originast = eden.project.addAction(name);
+	this.selector = Eden.Selectors.getID(this.originast); //this.originast.id;
 	this.scratch = false;
 	this.remote = false;
 	this.setSource(this.source);
@@ -307,20 +315,69 @@ Eden.Fragment.prototype.diff = function() {
 Eden.Fragment.prototype.setSource = function(src) {
 	if (this.locked) return;
 
-	//var oldast = this.ast;
+	//if (this.ast.script.errors.length == 0) this.lastast = this.ast;
 	var me = this;
 	this.source = src;
 	this.edited = true;
 
-	this.ast.destroy();
 	// Build a new AST
-	this.ast = new Eden.AST(src, undefined, this);
+	this.ast = new Eden.AST(src, undefined, this, {noindex: true});
 
 	// TODO Transfer execution/when status...
+	//oldast.destroy();
 
 	if (this.ast.script.errors.length == 0) {
-		clearTimeout(this.autosavetimer);
-		this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Fragment.AUTOSAVE_INTERVAL);
+		//clearTimeout(this.autosavetimer);
+		//this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Fragment.AUTOSAVE_INTERVAL);
+
+		// Transfer state
+		var statindex = {};
+		for (var i=0; i<this.originast.statements.length; i++) {
+			statindex[this.originast.statements[i].id] = this.originast.statements[i];
+		}
+		for (var i=0; i<this.ast.script.statements.length; i++) {
+			var stat = this.ast.script.statements[i];
+			stat.buildID();
+			if (statindex[stat.id]) {
+				//this.ast.script.statements[i] = statindex[stat.id];
+				this.ast.script.replaceChild(i, statindex[stat.id]);
+				delete statindex[stat.id];
+			} else {
+				stat.addIndex();
+				//var stats = Eden.Selectors.queryWithin([stat], ">>");
+				//for (var j=0; j<stats.length; j++) Eden.Index.update(stats[j]);
+			}
+		}
+		for (var x in statindex) {
+			if (statindex[x].type == "when" && statindex[x].enabled) {
+				eden.project.removeAgent(statindex[x]);
+			}
+			if (this.originast.indexed && statindex[x].executed == 0) {
+				//console.log("Remove index for",statindex[x]);
+				statindex[x].removeIndex();
+				//var stats = Eden.Selectors.queryWithin([statindex[x]], ">>");
+				//for (var j=0; j<stats.length; j++) Eden.Index.remove(stats[j]);
+			} else {
+				statindex[x].destroy();
+			}
+		}
+
+		if (this.originast) {
+			// Patch the origin...
+			var parent = this.originast.parent;
+			this.originast.patchScript(this.ast);
+
+			// Notify all parent fragments of patch
+			while (parent) {
+				Eden.Fragment.emit("patch", [this, parent]);
+				parent = parent.parent;
+			}
+		}
+
+		Eden.Fragment.emit("changed", [this]);
+
+		//this.lastast.destroy();
+		//this.lastast = undefined;
 	} else {
 		// Oops, errors.
 		Eden.Fragment.emit("errored", [this]);

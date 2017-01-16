@@ -85,7 +85,15 @@ Eden.Selectors.buildScriptTree = function(scripts) {
 }
 
 Eden.Selectors.getID = function(stat) {
-	return ".id("+stat.id+")";
+	var p = stat;
+	var path = [];
+	while (p) {
+		if (eden.project && p === eden.project.ast.script) path.splice(0,0,":project");
+		else if (p.type == "script" && p.name) path.splice(0,0,p.name);
+		else path.splice(0,0,".id("+p.id+")");
+		p = p.parent;
+	}
+	return path.join(" > ");
 }
 
 Eden.Selectors.getPath = function(stat) {
@@ -235,9 +243,13 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "line"		:	if (stat.line !== undefined) {
 										val = stat.line;
 									} break; 
-				case "depends"	:
-				case "value"	:
-				case "tags"		: break;
+				case "depends"	: val = (stat.dependencies) ? Object.keys(stat.dependencies) : [];
+								  break;
+				case "value"	: val = (stat.expression) ? stat.expression.execute(eden.root, eden.project.ast, eden.root.scope) : undefined;
+								  break;
+				case "tags"		:	if (stat.doxyComment) {
+										val = stat.doxyComment.getHashTags();
+									} break;
 				case "rawcomment"	: if (stat.doxyComment) {
 										val = stat.doxyComment.content;
 									} break;
@@ -298,10 +310,26 @@ Eden.Selectors.DotNode = function(label) {
 	this.label = label;
 }
 
-Eden.Selectors.parse = function(s) {
+Eden.Selectors.parse = function(s, opts) {
+	var options = opts;
+
+	while (s.length > 0 && s.charAt(0) == "@") {
+		if (!options) options = {};
+		s = s.substring(1);
+		var endix = s.search(/[^a-z]+/);
+		if (endix == -1) endix = s.length;
+		var opt = s.substring(0,endix);
+		s = s.substring(endix).trim();
+		options[opt] = true;
+	}
+
+	return Eden.Selectors._parse(s,options);
+}
+
+Eden.Selectors._parse = function(s, options) {
 	var node;
 
-	console.log("PARSE \""+s+"\"");
+	//console.log("PARSE \""+s+"\"");
 
 	//console.log("NODE",s);
 	if (!s || s == "") return;
@@ -387,8 +415,9 @@ Eden.Selectors.parse = function(s) {
 	} else s = "";
 
 
-	var nextnode = Eden.Selectors.parse(s);
+	var nextnode = Eden.Selectors._parse(s, options);
 	if (!node) return;
+	node.options = options;
 	return node.append(nextnode);
 }
 
@@ -402,6 +431,12 @@ Eden.Selectors.unique = function(stats) {
 		res.push(map[x]);
 	}
 	return res;
+}
+
+Eden.Selectors.sort = function(stats) {
+	return stats.sort(function(a,b) {
+		return b.stamp - a.stamp;
+	});
 }
 
 Eden.Selectors.queryWithin = function(within, s, o) {
@@ -418,27 +453,41 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 		if (cb) cb(res);
 		return res;
 	}
-	//if (ctx === undefined && eden.project) ctx = eden.project.ast.script;
 
 	var script;
-	//var pathixf = s.search(/[\>]/);
-	//if (pathixf == -1) pathixf = s.length;
-
-	// TODO Optimise first step.
-
-	//var statements = Eden.Selectors.findLocalBase(path, ctx, s.substring(pathix,pathixf).trim());
-	//var statements = Eden.Selectors.makeRoot(ctx);
-	//if (statements === undefined) statements = [];
-
 	var statements;
-	var sast = Eden.Selectors.parse(s.trim());
-	statements = Eden.Selectors.unique(sast.filter(statements,ctx));
 
-	//statements = Eden.Selectors.queryWithin(statements, s, undefined); //.substring(pathix).trim()
+	// Generate a selector AST from the string.
+	var sast = Eden.Selectors.parse(s.trim());
+	if (sast === undefined) {
+		if (cb) cb([]);
+		return [];
+	}
+
+	// If a context is given, search in this first unless told otherwise
+	if (ctx && ctx.type == "script" && (!sast.options || !sast.option.indexed)) {
+		statements = sast.filter(ctx.statements);
+	}
+
+	// If there are still no results, do an indexed searched
+	if (!statements || statements.length == 0) {
+		statements = sast.filter();
+	}
 	if (statements === undefined) statements = [];
 
+	// Make sure results are unique by id
+	statements = Eden.Selectors.unique(statements);
+	
+	// Sort by timestamp unless told not to.
+	if (!sast.options || !sast.options.nosort) {
+		statements = Eden.Selectors.sort(statements);
+	}
+
+	// Convert AST node results into requested attributes...
 	statements = Eden.Selectors.processResults(statements, o, num);
 
+	// If there are still no results and the query is not a local only
+	// query, then look elsewhere. Only possible if a callback is given.
 	if (sast.local == false && cb && ((statements.length == 0 && num > 0) || !num)) {
 
 		var pathix = s.search(/[\s\.\:\#\@\>]/);
@@ -450,7 +499,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 			$.get(Eden.Project.local[path].file, function(data) {
 				var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 				Eden.Selectors.cache[path] = res[0];
-				Eden.Index.update(res[0]);
+				//Eden.Index.update(res[0]);
 				statements = res;
 				statements = Eden.Selectors.unique(sast.filter(statements));
 				res = Eden.Selectors.processResults(statements, o);

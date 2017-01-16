@@ -15,7 +15,7 @@ Eden.Project = function(id, name, source) {
 	if (this.ast && this.ast.script.errors.length == 0) {
 		this.updateDoxy();
 		this.ast.script.name = this.name;
-		Eden.Index.update(this.ast.script);
+		//Eden.Index.update(this.ast.script);
 	}
 
 	eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);
@@ -215,13 +215,10 @@ Eden.Project.prototype.snapshot = function() {
 }
 
 Eden.Project.prototype.addAction = function(name) {
-	var script = new Eden.AST.Script();
-	script.name = name;
-	script.prefix = "action "+name+"{\n";
-	script.postfix = "\n}\n\n";
-	script.parent = this.ast.script;
-	this.ast.script.append(script);
-	this.ast.scripts[name] = script;
+	var script = Eden.AST.parseStatement("action "+name+" {}");
+	this.ast.script.appendChild(script);
+	script.addIndex();
+	//this.ast.scripts[name] = script;
 	return script;
 }
 

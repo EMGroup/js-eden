@@ -103,6 +103,7 @@ EdenUI.ScriptArea.prototype.setFragment = function(frag) {
 EdenUI.ScriptArea.prototype.updateSource = function(src, line) {
 	this.fragment.setSource(src);
 	this.highlighter.ast = this.fragment.ast;
+	this.gutter.clear();
 }
 
 

@@ -666,6 +666,7 @@ Eden.RuntimeError.AGENTSOURCE = 13;
 Eden.RuntimeError.JSOBSERVER = 14;
 Eden.RuntimeError.PROCAGENT = 15;
 Eden.RuntimeError.ARGUMENTS = 16;
+Eden.RuntimeError.NOTCHILD = 17;
 
 Eden.RuntimeError.prototype.messageText = function() {
 	var msg = (this.statement && (this.statement.type == "functioncall" || this.statement.type == "definition" || this.statement.type == "assignment")) ? "'" + this.statement.lvalue.name + "': " : "";

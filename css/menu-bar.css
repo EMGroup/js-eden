@@ -768,6 +768,10 @@ div.menusearch {
 	color: #222;
 }
 
+.menubar-search-result.historic {
+	opacity: 0.5;
+}
+
 .menubar-search-outer {
 	display: flex;
 }

@@ -32,6 +32,12 @@ Eden.AST.prototype.pFACTOR = function() {
 		} else {
 			this.next();
 		}
+
+		if (this.token == "[") {
+			var indexed = this.pINDEXED();
+			indexed.setExpression(expression);
+			return indexed;
+		}
 		return expression;
 	// Action parameters (DEPRECATED!)
 	} else if (this.token == "$") {
@@ -95,7 +101,13 @@ Eden.AST.prototype.pFACTOR = function() {
 	// Query
 	} else if (this.token == "?") {
 		this.next();
-		return this.pQUERY();
+		var q = this.pQUERY();
+		if (this.token == "[") {
+			var indexed = this.pINDEXED();
+			indexed.setExpression(q);
+			return indexed;
+		}
+		return q;
 	// Unary negation operator
 	} else if (this.token == "-") {
 		this.next();

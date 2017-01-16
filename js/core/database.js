@@ -366,11 +366,12 @@ Eden.DB.searchSelector = function(q, kind, callback) {
 				callback(data);
 				return;
 			} else {
-				callback(undefined);
+				callback([]);
 			}
 		},
 		error: function(a){
-			console.error(a);
+			//console.error(a);
+			callback([]);
 			//Eden.DB.disconnect(true);
 		}
 	});

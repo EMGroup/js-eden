@@ -15,8 +15,6 @@ Eden.Selectors.UnionNode.prototype.filter = function(statements, context) {
 		}
 	}
 
-	console.log(map);
-
 	return Object.keys(map).map(function(e) { return map[e]; });
 }
 
