@@ -34,6 +34,7 @@ Eden.AST.BaseStatement.buildID = function() {
 }
 
 Eden.AST.BaseStatement.addIndex = function() {
+	if (this.type == "dummy") console.trace("ADDING DUMMY INDEX");
 	this.buildID();
 	if (this.statements) {
 		for (var i=0; i<this.statements.length; i++) {

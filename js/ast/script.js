@@ -108,21 +108,6 @@ Eden.AST.Script.prototype.setName = function(base, name) {
 	this.shortName = name;
 }
 
-Eden.AST.Script.prototype.buildID = function() {
-	var hash = 0;
-	var ch;
-	var hashstr = this.getSource(); //this.prefix+this.postfix;
-	//if (this.parent) hashstr += this.parent.id;
-	var len = hashstr.length;
-	for (var i=0; i<len; i++) {
-		ch = hashstr.charCodeAt(i);
-		hash = ((hash << 5) - hash) + ch;
-		hash = hash & hash;
-	}
-
-	this.id = this.type +"@"+ hash;
-}
-
 Eden.AST.Script.prototype.setSource = function(start, end, src) {
 	this.start = start;
 	this.end = end;

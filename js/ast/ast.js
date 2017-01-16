@@ -307,10 +307,11 @@ Eden.AST.registerScript = function(stat) {
 	stat.prototype.addIndex = Eden.AST.BaseScript.addIndex;
 	stat.prototype.removeIndex = Eden.AST.BaseScript.removeIndex;
 	stat.prototype.destroy = Eden.AST.BaseScript.destroy;
+	stat.prototype.buildID = Eden.AST.BaseScript.buildID;
 }
 
 Eden.AST.registerContext = function(stat) {
-	Eden.AST.registerStatement(stat);
+	Eden.AST.registerScript(stat);
 }
 
 

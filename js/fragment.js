@@ -333,32 +333,38 @@ Eden.Fragment.prototype.setSource = function(src) {
 		// Transfer state
 		var statindex = {};
 		for (var i=0; i<this.originast.statements.length; i++) {
-			statindex[this.originast.statements[i].id] = this.originast.statements[i];
+			var stat = this.originast.statements[i];
+			if (statindex[stat.id] === undefined) statindex[stat.id] = [];
+			statindex[stat.id].push(stat);
 		}
 		for (var i=0; i<this.ast.script.statements.length; i++) {
 			var stat = this.ast.script.statements[i];
 			stat.buildID();
-			if (statindex[stat.id]) {
+			if (statindex[stat.id] && statindex[stat.id].length > 0) {
 				//this.ast.script.statements[i] = statindex[stat.id];
-				this.ast.script.replaceChild(i, statindex[stat.id]);
-				delete statindex[stat.id];
+				this.ast.script.replaceChild(i, statindex[stat.id][0]);
+				statindex[stat.id].shift();
+				if (statindex[stat.id].length == 0) delete statindex[stat.id];
 			} else {
-				stat.addIndex();
+				if (stat.type != "dummy") stat.addIndex();
 				//var stats = Eden.Selectors.queryWithin([stat], ">>");
 				//for (var j=0; j<stats.length; j++) Eden.Index.update(stats[j]);
 			}
 		}
 		for (var x in statindex) {
-			if (statindex[x].type == "when" && statindex[x].enabled) {
-				eden.project.removeAgent(statindex[x]);
-			}
-			if (this.originast.indexed && statindex[x].executed == 0) {
-				//console.log("Remove index for",statindex[x]);
-				statindex[x].removeIndex();
-				//var stats = Eden.Selectors.queryWithin([statindex[x]], ">>");
-				//for (var j=0; j<stats.length; j++) Eden.Index.remove(stats[j]);
-			} else {
-				statindex[x].destroy();
+			var stats = statindex[x];
+			for (var i=0; i<stats.length; i++) {
+				if (stats[i].type == "when" && stats[i].enabled) {
+					eden.project.removeAgent(stats[i]);
+				}
+				if (this.originast.indexed && stats[i].executed == 0) {
+					//console.log("Remove index for",statindex[x]);
+					stats[i].removeIndex();
+					//var stats = Eden.Selectors.queryWithin([statindex[x]], ">>");
+					//for (var j=0; j<stats.length; j++) Eden.Index.remove(stats[j]);
+				} else {
+					stats[i].destroy();
+				}
 			}
 		}
 

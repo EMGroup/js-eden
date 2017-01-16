@@ -1,5 +1,5 @@
 Eden.AST.BaseContext = function() {
-	Eden.AST.BaseStatement.apply(this);
+	Eden.AST.BaseScript.apply(this);
 	this.scopes = [];
 	this.backtickCount = 0;
 	this.locals = undefined;

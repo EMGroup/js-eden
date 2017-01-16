@@ -15,7 +15,7 @@ Eden.AST.BaseScript.appendChild = function (ast) {
 
 	// TODO My own id becomes out-of-date at this point...
 	// Must use a lazy regeneration.
-	if (this.id != 0) console.log("INVALIDATE ID",this);
+	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
 
 	//if (ast.type != "dummy" && this.indexed && ast.addIndex === undefined) console.error("No index",ast);
 	//if (ast.type != "dummy" && this.indexed) ast.addIndex(); //Eden.Index.update(ast);
@@ -43,7 +43,7 @@ Eden.AST.BaseScript.insertBefore = function(before, ast) {
 		this.errors.push.apply(this.errors, ast.errors);
 	}
 
-	if (this.id != 0) console.log("INVALIDATE ID",this);
+	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
 }
 
 Eden.AST.BaseScript.removeChild = function(child) {
@@ -59,7 +59,7 @@ Eden.AST.BaseScript.removeChild = function(child) {
 	}
 
 	child.destroy();
-	if (this.id != 0) console.log("INVALIDATE ID",this);
+	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
 }
 
 Eden.AST.BaseScript.replaceChild = function(oldchild, newchild) {
@@ -83,7 +83,7 @@ Eden.AST.BaseScript.replaceChild = function(oldchild, newchild) {
 	this.statements[oix].destroy();
 	this.statements[oix] = newchild;
 	newchild.parent = this;
-	if (this.id != 0) console.log("INVALIDATE ID",this);
+	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
 }
 
 Eden.AST.BaseScript.destroy = function() {
@@ -116,6 +116,21 @@ Eden.AST.BaseScript.removeIndex = function() {
 	}
 	this.indexed = false;
 	Eden.Index.remove(this);
+}
+
+Eden.AST.BaseScript.buildID = function() {
+	var hash = 0;
+	var ch;
+	var hashstr = this.getSource(); //this.prefix+this.postfix;
+	//if (this.parent) hashstr += this.parent.id;
+	var len = hashstr.length;
+	for (var i=0; i<len; i++) {
+		ch = hashstr.charCodeAt(i);
+		hash = ((hash << 5) - hash) + ch;
+		hash = hash & hash;
+	}
+
+	this.id = this.type +"@"+ hash;
 }
 
 Eden.AST.BaseScript.getStatementByLine = function(line, base) {
