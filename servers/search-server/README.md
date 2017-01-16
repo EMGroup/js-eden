@@ -2,19 +2,18 @@ To use the construal-manager:
 
 1. cd into this directory and run 
 
-```
-$ npm install
-```
-
+    ```
+    $ npm install
+    ```
 2. Create a config.js file (based on config-template.js) - you'll need to generate keys/ids/secrets for each authentication service, you can find details on how to configure each authentication strategy at http://passportjs.org/
 
 3. Import the dump file into a working database by running
 
-```
-$ cat dumpSQLite.sql | sqlite3 construals.sqlite3
-```
+    ```
+    $ cat dumpSQLite.sql | sqlite3 construals.sqlite3
+    ```
 
 4. Run 
-```
-$ node construal-manager.js
-```
+    ```
+    $ node construal-manager.js
+    ```
