@@ -4,7 +4,7 @@ To use the construal-manager:
 
 ```
 $ npm install
-```.
+```
 
 2. Create a config.js file (based on config-template.js) - you'll need to generate keys/ids/secrets for each authentication service, you can find details on how to configure each authentication strategy at http://passportjs.org/
 
