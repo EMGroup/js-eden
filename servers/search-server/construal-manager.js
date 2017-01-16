@@ -119,7 +119,7 @@ eden.root.symbols = {};
 
 //var doxy = require(config.JSEDENPATH + "js/doxycomments.js");
 
-var vstmtStr = "select projects.projectID,view_listedVersion.saveID,title,minimisedTitle,ifnull(group_concat(tag, \" \"),\"\") as tags, view_listedVersion.date," +
+var vstmtStr = "select projects.projectID as projectID,view_listedVersion.saveID as saveID,title,minimisedTitle,ifnull(group_concat(tag, \" \"),\"\") as tags, view_listedVersion.date as date," +
 		" name as authorname from view_listedVersion, projects, oauthusers left join tags on projects.projectID = tags.projectID where " +
 		"projects.projectID = view_listedVersion.projectID and owner = oauthusers.userid";
 
@@ -179,8 +179,8 @@ function initASTDB(){
 			rows[i].stamp = new Date(rows[i].date).getTime();
 			console.log("Parsing row " + i, rows[i]);
 			getFullVersion(rows[i].saveID, rows[i].projectID, rows[i], function(data) {
-				var tmpAst = new Eden.AST(data.source,undefined,{id: rows[i].projectID, saveID: rows[i].saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
-				allKnownProjects[rows[i].projectID] = tmpAst.script;
+				var tmpAst = new Eden.AST(data.source,undefined,{id: data.meta.projectID, saveID: data.meta.saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
+				allKnownProjects[data.meta.projectID] = tmpAst.script;
 			});
 		}
 
