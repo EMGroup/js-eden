@@ -201,6 +201,10 @@ Eden.Selectors.processResults = function(statements, o) {
 								  break;
 				case "value"	: val = (stat.expression) ? stat.expression.execute(eden.root, eden.project.ast, eden.root.scope) : undefined;
 								  break;
+				case "active"	: 	val = (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin && eden.root.symbols[stat.lvalue.name].origin.id == stat.id);
+									break;
+				case "executed"	:	val = stat.executed > 0; break;
+				case "historic"	:	val = stat.executed == -1; break;
 				case "tags"		:	if (stat.doxyComment) {
 										val = stat.doxyComment.getHashTags();
 									} break;
@@ -210,7 +214,7 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "controls" :
 				case "id"		: val = stat.id; break;
 				case "path"		: val = Eden.Selectors.getID(stat); break;
-				case "script"	: val = Eden.Selectors.getScriptBase(stat); break;
+				//case "script"	: val = Eden.Selectors.getScriptBase(stat); break;
 				case "remote"	:	var p = stat;
 									while(p.parent) p = p.parent;
 									if (!p.base || !p.base.origin) {
@@ -226,9 +230,9 @@ Eden.Selectors.processResults = function(statements, o) {
 				ires.push(val);
 
 			}
-			if (kinds.length > 1 && ires.length > 0) {
+			if (kinds.length > 1) {
 				res.push(ires);
-			} else if (kinds.length == 1 && ires.length > 0 && ires[0] !== undefined) {
+			} else if (kinds.length == 1 && ires.length > 0) {
 				res.push(ires[0]);
 			}
 		}

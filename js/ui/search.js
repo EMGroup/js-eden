@@ -27,12 +27,21 @@ EdenUI.SearchBox = function(element) {
 
 EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	console.log("Update details", name);
-	Eden.Selectors.query("@history " + name, undefined, undefined, 1, function(ast){
+	Eden.Selectors.query("@history " + name, "id,path,source,type,value,active,tags,comment,historic", undefined, 1, function(ast){
 	if (ast.length == 0) {
 		console.log("No result");
 		return;
 	}
 	ast = ast[0];
+	var id = ast[0];
+	var path = ast[1];
+	var source = ast[2];
+	var type = ast[3];
+	var value = ast[4];
+	var active = ast[5];
+	var tags = ast[6];
+	var comment = ast[7];
+	var historic = ast[8];
 
 	var docele = $(element).find(".doxy-search-details");
 	if (docele === null || docele.length == 0) {
@@ -41,9 +50,8 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	}
 	docele = docele.get(0);
 	
-	if (ast.type == "assignment" || ast.type == "definition") {
-		if (!ast.getSource()) console.error("NO SOURCE",ast);
-		symstr = ast.getSource();
+	if (type == "assignment" || type == "definition") {
+		symstr = source;
 		if (element.firstChild.className == "") {
 			element.firstChild.innerHTML = EdenUI.Highlight.html(symstr);
 		} else {
@@ -51,30 +59,30 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 		}
 	}
 
-	var html = (ast.executed != -1) ? '<p><button class="script-button script-goto">Goto</button><button class="script-button">Watch</button><button class="script-button">More</button></p>' : '';
+	var html = (!historic) ? '<p><button class="script-button script-goto">Goto</button><button class="script-button">Watch</button><button class="script-button">More</button></p>' : '';
 
-	if (ast instanceof Symbol && ast.type != "function") {
+	/*if (ast instanceof Symbol && ast.type != "function") {
 		html += "<p>";
-		html += "<b>Path:</b> " + name + "<br>";
-		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(ast.value());
+		html += "<b>Path:</b> " + path + "<br>";
+		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(value);
 		html += "</p>";
-	} else if (ast.lvalue && eden.root.symbols[ast.lvalue.name] && eden.root.symbols[ast.lvalue.name].origin === ast) {
+	} else*/ if (active) {
 		html += "<p>";
-		html += "<b>Path:</b> " + name + "<br>";
-		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(eden.root.symbols[ast.lvalue.name].value());
+		html += "<b>Path:</b> " + path + "<br>";
+		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(value);
 		html += "</p>";
 	} else {
 		html += "<p>";
-		html += "<b>Path:</b> " + name;
+		html += "<b>Path:</b> " + path;
 		html += "</p>";
 	}
 
-	if (ast.doxyComment) {
-		var tags = ast.doxyComment.getHashTags();
+	if (comment) {
+		//var tags = ast.doxyComment.getHashTags();
 		if (tags && tags.length > 0) {
 			html += "<p><b>Tags:</b> " + tags.join(" ") + "</p>";
 		}
-		var stripped = ast.doxyComment.pretty();
+		var stripped = comment; //ast.doxyComment.pretty();
 		if (stripped && stripped.length > 0) {
 			html += stripped;
 		}
@@ -102,7 +110,7 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 		if (stat.enabled) iconstr = '<span class="search-scriptres">&#xf00c;</span>';
 		symstr = stat.prefix.trim();
 	} else {
-		if (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin === stat) {
+		if (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin && eden.root.symbols[stat.lvalue.name].origin.id == stat.id) {
 			iconstr = '<span class="search-scriptres">&#xf00c;</span>';
 		}
 		if (!stat.getSource()) console.error("NO SOURCE",stat);
