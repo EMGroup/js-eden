@@ -353,7 +353,7 @@ Eden.Fragment.prototype.setSource = function(src) {
 				statindex[stat.id].shift();
 				if (statindex[stat.id].length == 0) delete statindex[stat.id];
 			} else {
-				if (stat.type != "dummy") stat.addIndex();
+				if (stat.type != "dummy" && !this.scratch) stat.addIndex();
 				//var stats = Eden.Selectors.queryWithin([stat], ">>");
 				//for (var j=0; j<stats.length; j++) Eden.Index.update(stats[j]);
 			}

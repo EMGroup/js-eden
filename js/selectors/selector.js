@@ -3,65 +3,6 @@ Eden.Selectors = {
 	//imported: new Eden.AST.Virtual("imported")
 };
 
-Eden.Selectors.findLocalBase = function(path, ctx, filters) {
-	var scripts = [];
-	var paths = path.split(","); // This shouldn't be allowed???
-
-	for (var i=0; i<paths.length; i++) {
-		var path = paths[i].trim();
-
-		if (path == "" || path == "*") {
-			scripts.push(eden.project.ast.script);
-			//scripts.push(Eden.Selectors.imported);
-			for (var x in Eden.Selectors.cache) {
-				scripts.push(Eden.Selectors.cache[x]);
-			}
-			scripts.push.apply(scripts,ctx.statements);
-		} else {
-			var script;
-			if (eden.project && path == eden.project.name) script = eden.project.ast.script;
-			else if (ctx) script = ctx.getActionByName(path);
-			if (script) {
-				scripts.push(script);
-				continue;
-			}
-
-			// Check cached scripts
-			if (Eden.Selectors.cache[path]) {
-				scripts.push(Eden.Selectors.cache[path]);
-				//console.log("FOUND CACHE",path);
-				continue;
-			}
-
-			// If path contains a /, try looking for url...
-		}
-	}
-
-	return scripts;
-}
-
-Eden.Selectors.makeRoot = function(ctx) {
-	var scripts = [];
-
-	if (ctx && ctx.statements) {
-		for (var i=0; i<ctx.statements.length; i++) {
-			if (ctx.statements[i].type != "dummy") scripts.push(ctx.statements[i]);
-		}
-	}
-
-	if (eden.project) {
-		scripts.push(eden.project.ast.script);
-		for (var i=0; i<eden.project.ast.script.statements.length; i++) {
-			if (eden.project.ast.script.statements[i].type != "dummy") scripts.push(eden.project.ast.script.statements[i]);
-		}
-	}
-
-	for (var x in Eden.Selectors.cache) {
-		scripts.push(Eden.Selectors.cache[x]);
-	}
-	return scripts;
-}
-
 Eden.Selectors.getScriptBase = function(stat) {
 	var p = stat;
 	while(p.parent) { p = p.parent; }
@@ -89,8 +30,13 @@ Eden.Selectors.getID = function(stat) {
 	var path = [];
 	while (p) {
 		if (eden.project && p === eden.project.ast.script) path.splice(0,0,":project");
-		else if (p.type == "script" && p.name) path.splice(0,0,p.name);
-		else path.splice(0,0,".id("+p.id+")");
+		else if (p.type == "script" && p.name) {
+			if (p.parent === undefined) {
+				path.splice(0,0,p.name+".id("+p.id+")");
+			} else {
+				path.splice(0,0,p.name);
+			}
+		} else path.splice(0,0,".id("+p.id+")");
 		p = p.parent;
 		if (p) {
 			if (p.type == "script" && p.parent && p.parent.type != "script") {
@@ -237,7 +183,7 @@ Eden.Selectors.processResults = function(statements, o) {
 										if (controls && controls["@title"]) val = controls["@title"][0];
 									}
 									break;
-				case "path"		:
+				//case "path"		:
 				case "name"		:	
 				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
 										val = stat.lvalue.name;
@@ -567,6 +513,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 							
 						} else {
 							script = Eden.AST.parseStatement(stats[i][1]);
+							script.id = stats[i][3];
 						}
 						statements.push(script);
 						//Eden.Selectors.cache[path] = script;
