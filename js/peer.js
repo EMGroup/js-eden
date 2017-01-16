@@ -26,33 +26,34 @@ Eden.Peer = function(master, id) {
 		eden.root.lookup("jseden_p2p_errors").assign([], eden.root.scope, Symbol.defaultAgent);
 	}
 
-	Eden.Agent.importAgent("lib/p2p","default",[],function() {});
+	//Eden.Agent.importAgent("lib/p2p","default",[],function() {});
+	Eden.Selectors.execute("lib > p2p");
 
 	function processAssign(obj) {
 		var sym = eden.root.lookup(obj.symbol.slice(1));
-		var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, true);
-		var express = ast.pEXPRESSION();
-		sym.assign(express.execute({}, ast, eden.root.scope), eden.root.scope, Symbol.netAgent);
+		//var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, {noparse: true});
+		var express = Eden.AST.parseExpression(obj.value); //ast.pEXPRESSION();
+		sym.assign(express.execute({}, Symbol.netAgent, eden.root.scope), eden.root.scope, Symbol.netAgent);
 		me.broadcastExcept(obj.id, obj);
 	}
 
 	function processDefine(obj) {
 		var sym = eden.root.lookup(obj.symbol.slice(1));
-		sym.eden_definition = obj.source;
-		sym.define(eval(obj.code), Symbol.netAgent, obj.dependencies);
+		//sym.eden_definition = obj.source;
+		sym.define(eval(obj.code), Symbol.netAgent, obj.dependencies, obj.source);
 		me.broadcastExcept(obj.id, obj);
 	}
 
 	function processImport(obj) {
-		Eden.Agent.importAgent(obj.path, obj.tag, obj.options, function() {});
+		//Eden.Agent.importAgent(obj.path, obj.tag, obj.options, function() {});
 		me.broadcastExcept(obj.id, obj);
 	}
 
 	function processListAssign(obj) {
 		var sym = eden.root.lookup(obj.symbol.slice(1));
-		var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, true);
-		var express = ast.pEXPRESSION();
-		sym.listAssign(express.execute({}, ast, eden.root.scope), eden.root.scope, Symbol.netAgent, false, obj.components);
+		//var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, true);
+		var express = Eden.AST.parseExpression(obj.value); //ast.pEXPRESSION();
+		sym.listAssign(express.execute({}, Symbol.netAgent, eden.root.scope), eden.root.scope, Symbol.netAgent, false, obj.components);
 		me.broadcastExcept(obj.id, obj);
 	}
 
@@ -125,11 +126,11 @@ Eden.Peer = function(master, id) {
 	}
 
 	function processPatch(obj) {
-		Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
+		//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
 	}
 
 	function processOwnership(obj) {
-		Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.setOwned(obj.owned, "net"); });
+		//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.setOwned(obj.owned, "net"); });
 	}
 
 	function processDoxy(obj) {

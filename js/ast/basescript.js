@@ -5,6 +5,132 @@ Eden.AST.BaseScript = function() {
 	//this.patch = undefined;
 	this.parameters = undefined;
 	this.locals = undefined;
+	this.indexed = false;
+}
+
+Eden.AST.BaseScript.appendChild = function (ast) {
+	this.statements.push(ast);
+	ast.parent = this;
+	//ast.buildID();
+
+	// TODO My own id becomes out-of-date at this point...
+	// Must use a lazy regeneration.
+	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
+
+	//if (ast.type != "dummy" && this.indexed && ast.addIndex === undefined) console.error("No index",ast);
+	//if (ast.type != "dummy" && this.indexed) ast.addIndex(); //Eden.Index.update(ast);
+	if (ast.errors.length > 0) {
+		this.errors.push.apply(this.errors, ast.errors);
+	}
+}
+Eden.AST.BaseScript.append = Eden.AST.BaseScript.appendChild;
+
+Eden.AST.BaseScript.insertBefore = function(before, ast) {
+	var ix;
+	for (ix = 0; ix<this.statements.length; ix++) {
+		if (this.statements[ix] === before) break;
+	}
+	if (ix < this.statements.length) {
+		this.statements.splice(ix, 0, ast);
+	} else {
+		eden.emit("error", [new Eden.RuntimeError(undefined, Eden.RuntimeError.NOCHILD, this, "Statement is not a child when using insertBefore")]);
+		return;
+	}
+
+	ast.parent = this;	
+	if (ast.type != "dummy" && this.indexed) ast.addIndex();
+	if (ast.errors.length > 0) {
+		this.errors.push.apply(this.errors, ast.errors);
+	}
+
+	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
+}
+
+Eden.AST.BaseScript.removeChild = function(child) {
+	var ix;
+	for (ix = 0; ix < this.statements.length; ix++) {
+		if (this.statements[ix] === child) break;
+	}
+	if (ix < this.statements.length) {
+		this.statements.splice(ix,1);
+	} else {
+		eden.emit("error", [new Eden.RuntimeError(undefined, Eden.RuntimeError.NOCHILD, this, "Statement is not a child when using removeChild")]);
+		return;
+	}
+
+	child.destroy();
+	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
+}
+
+Eden.AST.BaseScript.replaceChild = function(oldchild, newchild) {
+	//console.log("REPLACE",this,oldchild,newchild);
+	var oix;
+	if (typeof oldchild == "number") {
+		oix = oldchild;
+	} else {
+		var ix;
+		for (ix = 0; ix<this.statements.length; ix++) {
+			if (this.statements[ix] === oldchild) break;
+		}
+		if (ix >= this.statements.length) {
+			eden.emit("error", [new Eden.RuntimeError(undefined, Eden.RuntimeError.NOCHILD, this, "Statement is not a child when using replaceChild")]);
+			return;
+		}
+		oix = ix;
+	}
+
+	
+	this.statements[oix].destroy();
+	this.statements[oix] = newchild;
+	newchild.parent = this;
+	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
+}
+
+Eden.AST.BaseScript.destroy = function() {
+	if (this.executed < 1) Eden.Index.remove(this);
+	for (var i=0; i<this.statements.length; i++) {
+		this.statements[i].destroy();
+	}
+	this.executed = -1;
+	// Note, means can't search historical scripts structurally.
+	this.statements = undefined;
+	this.base = undefined;
+	this.parent = undefined;
+}
+
+Eden.AST.BaseScript.addIndex = function() {
+	if (this.indexed) return;
+	this.buildID();
+	for (var i=0; i<this.statements.length; i++) {
+		if (this.statements[i].type != "dummy") this.statements[i].addIndex();
+	}
+	this.indexed = true;
+	Eden.Index.update(this);
+}
+
+Eden.AST.BaseScript.removeIndex = function() {
+	console.log("Remove Index", this);
+	if (!this.indexed) return;
+	for (var i=0; i<this.statements.length; i++) {
+		if (this.statements[i].type != "dummy") this.statements[i].removeIndex();
+	}
+	this.indexed = false;
+	Eden.Index.remove(this);
+}
+
+Eden.AST.BaseScript.buildID = function() {
+	var hash = 0;
+	var ch;
+	var hashstr = this.getSource(); //this.prefix+this.postfix;
+	//if (this.parent) hashstr += this.parent.id;
+	var len = hashstr.length;
+	for (var i=0; i<len; i++) {
+		ch = hashstr.charCodeAt(i);
+		hash = ((hash << 5) - hash) + ch;
+		hash = hash & hash;
+	}
+
+	this.id = this.type +"@"+ hash;
 }
 
 Eden.AST.BaseScript.getStatementByLine = function(line, base) {

@@ -13,9 +13,6 @@ Eden.AST.Subscribers.prototype.left = function(lvalue) {
 	}
 };
 
-Eden.AST.Subscribers.prototype.setSource = Eden.AST.BaseStatement.setSource;
-Eden.AST.Subscribers.prototype.getSource = Eden.AST.BaseStatement.getSource;
-
 Eden.AST.Subscribers.prototype.execute = function(ctx, base, scope) {
 	
 }
@@ -24,5 +21,5 @@ Eden.AST.Subscribers.prototype.setList = function(list) {
 	this.list = list;
 }
 
-Eden.AST.Subscribers.prototype.error = Eden.AST.fnEdenASTerror;
+Eden.AST.registerStatement(Eden.AST.Subscribers);
 

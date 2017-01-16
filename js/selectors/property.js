@@ -161,7 +161,7 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 									var sym = eden.root.symbols[stat.lvalue.name];
 
 									return sym && (sym.origin === stat || (sym.origin && sym.origin.id == stat.id));
-								}
+								} else if (stat.type == "when") return stat.enabled;
 								return false;
 							});
 
@@ -195,7 +195,19 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 		// Additional selector unions to check
 		case ":matches"	:	return Eden.Selectors.parse(this.param).filter(statements);
 
-		case ".title"	:	return statements;
+		case ".title"	:	if (this.isreg) {
+								return statements.filter(function(stat) {
+									if (!stat.doxyComment) return false;
+									var title = stat.doxyComment.getProperty("title");
+									return title && me.value.test(title);
+								});
+							} else {
+								return statements.filter(function(stat) {
+									if (!stat.doxyComment) return false;
+									var title = stat.doxyComment.getProperty("title");
+									return title && title == this.value;
+								});
+							}
 
 		case ".author"	:	return statements;
 
@@ -227,13 +239,15 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 								return p.base.origin.remote == true;
 							});
 
-		case ":not"		:	var positive = Eden.Selectors.parse(this.param).filter(statements);
+		case ":not"		:	if (this.param) {
+							var positive = Eden.Selectors.parse(this.param).filter(statements);
 							return statements.filter(function(stat) {
 								for (var i=0; i<positive.length; i++) {
 									if (stat === positive[i]) return false;
 								}
 								return true;
 							});
+							}
 
 		default: return [];
 		}
@@ -242,22 +256,31 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 }
 
 Eden.Selectors.PropertyNode.prototype.construct = function() {
+	var stats;
+
 	switch (this.name) {
-	case ".type"		:	return Eden.Index.getByType(this.value);
-	case ".id"			:	return Eden.Index.getByID(this.value);
+	case ".type"		:	stats = Eden.Index.getByType(this.value); break;
+	case ".id"			:	stats = Eden.Index.getByID(this.value); break;
 	case ".name"		:	if (this.param === undefined) {
-								return Eden.Index.getAllWithName();
+								stats = Eden.Index.getAllWithName();
 							} else if (this.isreg) {
-								return Eden.Index.getByNameRegex(this.value);
+								stats = Eden.Index.getByNameRegex(this.value);
 							} else {
-								return Eden.Index.getByName(this.value);
-							}
+								stats = Eden.Index.getByName(this.value);
+							} break;
 	// TODO this doesn't capture executes.
-	case ":root"		:	return [eden.project.ast.script].concat(Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; }));
-	case ":remote"		:	return Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; });
-	case ":project"		:	return [eden.project.ast.script];
+	case ":root"		:	stats = [eden.project.ast.script].concat(Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; })); break;
+	case ":remote"		:	stats = Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; }); break;
+	case ":project"		:	stats = [eden.project.ast.script]; break;
+	default				:	stats = Eden.Index.getAll();
 	}
 
-	return Eden.Index.getAll();
+	if (!this.options || !this.options.history) {
+		return stats.filter(function(e) {
+			return e.executed >= 0;
+		});
+	}
+
+	return stats;
 }
 

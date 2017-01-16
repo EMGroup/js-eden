@@ -27,7 +27,7 @@ EdenUI.SearchBox = function(element) {
 
 EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	console.log("Update details", name);
-	var ast = Eden.Selectors.query(name, undefined, undefined, 1);
+	var ast = Eden.Selectors.query("@history " + name, undefined, undefined, 1);
 	if (ast.length == 0) {
 		console.log("No result");
 		return;
@@ -40,8 +40,18 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 		element.appendChild(docele.get(0));
 	}
 	docele = docele.get(0);
+	
+	if (ast.type == "assignment" || ast.type == "definition") {
+		if (!ast.getSource()) console.error("NO SOURCE",ast);
+		symstr = ast.getSource();
+		if (element.firstChild.className == "") {
+			element.firstChild.innerHTML = EdenUI.Highlight.html(symstr);
+		} else {
+			element.childNodes[1].innerHTML = EdenUI.Highlight.html(symstr);
+		}
+	}
 
-	var html = '<p><button class="script-button script-goto">Goto</button><button class="script-button">Watch</button><button class="script-button">More</button></p>';
+	var html = (ast.executed != -1) ? '<p><button class="script-button script-goto">Goto</button><button class="script-button">Watch</button><button class="script-button">More</button></p>' : '';
 
 	if (ast instanceof Symbol && ast.type != "function") {
 		html += "<p>";
@@ -76,6 +86,9 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 	var symstr;
 	var iconstr = "";
+	var extraclass = "";
+
+	if (stat.executed == -1) extraclass = " historic";
 
 	if (stat.type == "script") {
 		iconstr = '<span class="search-scriptres">&#xf15c;</span>';
@@ -85,8 +98,12 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 			symstr = stat.getInnerSource();
 		}
 	} else if (stat.type == "when") {
+		if (stat.enabled) iconstr = '<span class="search-scriptres">&#xf00c;</span>';
 		symstr = stat.prefix.trim();
 	} else {
+		if (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin === stat) {
+			iconstr = '<span class="search-scriptres">&#xf00c;</span>';
+		}
 		if (!stat.getSource()) console.error("NO SOURCE",stat);
 		symstr = stat.getSource().split("\n")[0];
 	}
@@ -105,7 +122,7 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 		}
 	}
 
-	var ele = $('<div class="menubar-search-result" data-id="'+Eden.Selectors.getID(stat)+'">'+iconstr+EdenUI.Highlight.html(symstr)+docstr+'</div>');
+	var ele = $('<div class="menubar-search-result'+extraclass+'" data-id="'+Eden.Selectors.getID(stat)+'">'+iconstr+EdenUI.Highlight.html(symstr)+docstr+'</div>');
 	return ele;
 }
 

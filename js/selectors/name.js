@@ -5,8 +5,8 @@ Eden.Selectors.NameNode = function(name) {
 	this.local = false;
 }
 
-Eden.Selectors.NameNode.prototype.filter = function(statements, context) {
-	if (!statements) return this.construct(context);
+Eden.Selectors.NameNode.prototype.filter = function(statements) {
+	if (!statements) return this.construct();
 	var name = this.name;
 
 	if (this.isreg) {
@@ -21,61 +21,19 @@ Eden.Selectors.NameNode.prototype.filter = function(statements, context) {
 	}
 }
 
-Eden.Selectors.NameNode.prototype.construct = function(context) {
-	var stats = [];
-
+Eden.Selectors.NameNode.prototype.construct = function() {
 	if (this.isreg) {
-		/*var reg = Eden.Selectors.makeRegex(this.name);
-		if (context && context.statements) {
-			for (var i=0; i<context.statements.length; i++) {
-				var stat = context.statements[i];
-				if ((stat.lvalue && reg.test(stat.lvalue.name)) || (stat.name && reg.test(stat.name))) stats.push(stat);
-			}
-		}
-		if (eden.project) {
-			if (reg.test(eden.project.name)) stats.push(eden.project.ast.script);
-			for (var i=0; i<eden.project.ast.script.statements.length; i++) {
-				var stat = eden.project.ast.script.statements[i];
-				if ((stat.lvalue && reg.test(stat.lvalue.name)) || (stat.name && reg.test(stat.name))) stats.push(stat);
-			}
-		}
-
-		for (var x in Eden.Selectors.cache) {
-			if (reg.test(Eden.Selectors.cache[x].name)) stats.push(Eden.Selectors.cache[x]);
-		}
-
-		for (var x in eden.root.symbols) {
-			if (reg.test(x)) stats.push(eden.root.symbols[x]);
-		}*/
-
 		var reg = Eden.Selectors.makeRegex(this.name);
-		return Eden.Index.getByNameRegex(reg);
+		stats = Eden.Index.getByNameRegex(reg);
 	} else {
-		/*if (context && context.statements) {
-			for (var i=0; i<context.statements.length; i++) {
-				var stat = context.statements[i];
-				if ((stat.lvalue && stat.lvalue.name == this.name) || (stat.name && stat.name == this.name)) stats.push(stat);
-			}
-		}
-		if (eden.project) {
-			if (eden.project.name == this.name) stats.push(eden.project.ast.script);
-			for (var i=0; i<eden.project.ast.script.statements.length; i++) {
-				var stat = eden.project.ast.script.statements[i];
-				if ((stat.lvalue && stat.lvalue.name == this.name) || (stat.name && stat.name == this.name)) stats.push(stat);
-			}
-		}
-
-		for (var x in Eden.Selectors.cache) {
-			if (Eden.Selectors.cache[x].name == this.name) stats.push(Eden.Selectors.cache[x]);
-		}
-
-		if (eden.root.symbols[this.name]) stats.push(eden.root.symbols[this.name]);*/
-
-		return Eden.Index.getByName(this.name);
+		stats = Eden.Index.getByName(this.name);
 	}
 
-	console.log("Construct name",stats);
-
+	if (!this.options || !this.options.history) {
+		return stats.filter(function(e) {
+			return e.executed >= 0;
+		});
+	}
 	return stats;
 }
 

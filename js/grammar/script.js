@@ -53,6 +53,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 	ast.parent = this.parent;
 	var parent = this.parent;
 	this.parent = ast;
+	//ast.indexed = this.options === undefined || !this.options.noindex;
 	//var epos = this.stream.prevposition;
 
 	//ast.setLocals(this.pLOCALS());
@@ -62,7 +63,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 	dummy.numlines = dummy.source.match(/\n/g);
 	if (dummy.numlines === null) dummy.numlines = 0;
 	else dummy.numlines = dummy.numlines.length;
-	ast.append(dummy);
+	ast.append(dummy);	
 
 	while (this.token != "EOF") {
 		var statement = this.pSTATEMENT();
@@ -70,26 +71,22 @@ Eden.AST.prototype.pSCRIPT = function() {
 		if (statement !== undefined) {
 			//console.log("WS: ", this.stream.code.substring(statement.end, this.stream.prevposition));
 
-			ast.append(statement);
 			if (statement.errors.length > 0) {
+				ast.appendChild(statement);
 				break;
-				// Skip until colon
-				/*while (this.token != ";" && this.token != "EOF") {
-					this.next();
-				}*/
 			}
 
-			// Maintain index
-			if (!this.options || !this.options.noindex) Eden.Index.update(statement);
+			var end = statement.end;
+			ast.appendChild(statement);
 
-			var ws = this.stream.code.substring(statement.end, this.stream.prevposition);
+			var ws = this.stream.code.substring(end, this.stream.prevposition);
 			if (ws.length > 0) {
 				var dummy = new Eden.AST.DummyStatement();
-				dummy.setSource(statement.end, this.stream.prevposition, ws);
+				dummy.setSource(end, this.stream.prevposition, ws);
 				dummy.numlines = dummy.source.match(/\n/g);
 				if (dummy.numlines === null) dummy.numlines = 0;
 				else dummy.numlines = dummy.numlines.length;
-				ast.append(dummy);
+				ast.appendChild(dummy);
 			}
 		} else {
 			if (this.token != "}" && this.token != ";") {
@@ -104,6 +101,8 @@ Eden.AST.prototype.pSCRIPT = function() {
 		}
 	}
 
+	// To make sure it gets indexed later...
+	//if (ast.parent) ast.indexed = false;
 	this.parent = parent;
 	return ast;
 };

@@ -262,6 +262,15 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						stat = new Eden.AST.Literal("JAVASCRIPT", js);
 						//endline = this.stream.line;
 						break;
+	case "?"		  : this.next();
+						stat = this.pQUERY();
+						if (this.token != ";") {
+							stat.error(new Eden.SyntaxError(this,
+											Eden.SyntaxError.SEMICOLON));
+						} else {
+							this.next();
+						}
+						break;
 	case "`"		  :
 	case "*"		  :
 	case "OBSERVABLE" :	var lvalue = this.pLVALUE();

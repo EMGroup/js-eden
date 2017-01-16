@@ -34,21 +34,21 @@ Eden.Selectors.NavigateNode.prototype.filter = function(statements, context) {
 			if (this.right) return this.right.filter(statements,context).filter(function(stat) {
 				return stat.parent !== undefined;
 			});
-			else return [];
+			else return Eden.Index.getAll().filter(function(stat) {
+				return stat.parent !== undefined;
+			});;
 		}
 
 		var lstats;
 		if (this.left === undefined) {
-			lstats = statements.filter(function(stat) {
-				return stat.parent !== undefined;
-			});		
+			lstats = Eden.Selectors.getChildren(statements, this.deep);
 		} else {
-			lstats = this.left.filter(statements,context);
+			lstats = Eden.Selectors.getChildren(this.left.filter(statements,context), this.deep);
 		}
 
-		var stats = Eden.Selectors.getChildren(lstats, this.deep);
-		if (this.right) return this.right.filter(stats,context);
-		else return stats;
+		//var stats = Eden.Selectors.getChildren(lstats, this.deep);
+		if (this.right) return this.right.filter(lstats,context);
+		else return lstats;
 	} else if (this.direction == "<") {
 		if (!statements && this.left === undefined) {
 			if (this.right) return this.right.filter(statements,context).filter(function(stat) {
@@ -92,8 +92,8 @@ Eden.Selectors.NavigateNode.prototype.filter = function(statements, context) {
 				}
 			}
 
-			if (this.right) return this.right.filter(res,context);
-			else return res;
+			if (this.right) return Eden.Selectors.unique(this.right.filter(res,context));
+			else return Eden.Selectors.unique(res);
 		} else {
 			var res = [];
 			for (var i=0; i<lstats.length; i++) {
@@ -109,8 +109,8 @@ Eden.Selectors.NavigateNode.prototype.filter = function(statements, context) {
 				}
 			}
 
-			if (this.right) return this.right.filter(res,context);
-			else return res;
+			if (this.right) return Eden.Selectors.unique(this.right.filter(res,context));
+			else return Eden.Selectors.unique(res);
 		}
 	}
 }

@@ -191,6 +191,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var maxtabs = 3;
 		var tabpositions = {};
 		var browseDialog = undefined;
+		var scratchnum = 1;
 
 		function curChanged(sym, value) {
 			if (typeof value == "number" && value >= 0 && value < tab_frags.length) {
@@ -632,7 +633,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function onNewTab() {
 			var tabs = tabsSym.value();
-			tabs.push("");
+			tabs.push("scratch"+scratchnum);
+			scratchnum++;
 			tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
 			curSym.assign(tabs.length-1, eden.root.scope, Symbol.localJSAgent);
 		}

@@ -5,7 +5,11 @@ Eden.AST.If = function() {
 	this.condition = "";
 	this.statement = undefined;
 	this.elsestatement = undefined;
+
+	this.statements = [];
 };
+
+Eden.AST.registerStatement(Eden.AST.If);
 
 Eden.AST.If.prototype.setCondition = function(condition) {
 	this.condition = condition;
@@ -15,6 +19,7 @@ Eden.AST.If.prototype.setCondition = function(condition) {
 Eden.AST.If.prototype.setStatement = function(statement) {
 	this.statement = statement;
 	if (statement) {
+		this.statements.push(statement);
 		statement.parent = this;
 		this.errors.push.apply(this.errors, statement.errors);
 	}
@@ -23,6 +28,7 @@ Eden.AST.If.prototype.setStatement = function(statement) {
 Eden.AST.If.prototype.setElse = function(statement) {
 	this.elsestatement = statement;
 	if (statement) {
+		this.statements.push(statement);
 		statement.parent = this;
 		this.errors.push.apply(this.errors, statement.errors);
 	}
@@ -58,6 +64,4 @@ Eden.AST.If.prototype.execute = function(ctx, base, scope, agent) {
 		}
 	}
 }
-
-Eden.AST.registerStatement(Eden.AST.If);
 

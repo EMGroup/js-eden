@@ -27,6 +27,9 @@ Eden.AST.Do.prototype.setScript = function(script) {
 }
 
 Eden.AST.Do.prototype.setName = function(name) {
+	if (name && name.errors) {
+		this.errors.push.apply(this.errors, name.errors);
+	}
 	this.name = name;
 }
 

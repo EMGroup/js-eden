@@ -81,6 +81,8 @@ Eden.AST = function(code, imports, origin, options) {
 		this.script.name = origin.name;
 		this.script.setSource(0,code.length, code);
 		this.script.doxyComment = this.mainDoxyComment;
+		if (!this.options || !this.options.noindex) this.script.addIndex();
+		else this.script.buildID();
 		this.errors = this.script.errors;
 	}
 }
@@ -109,7 +111,7 @@ Eden.AST.debug_end_cb = undefined;
 
 
 Eden.AST.fromNode = function(node, origin) {
-	var ast = new Eden.AST(node.getInnerSource(), undefined, origin, true);
+	var ast = new Eden.AST(node.getInnerSource(), undefined, origin, {noindex: true, noparse: true});
 	ast.script = node;
 	ast.whens = Eden.Selectors.queryWithin([node], ">>.type(when)");
 	ast.errors = node.errors;
@@ -118,14 +120,28 @@ Eden.AST.fromNode = function(node, origin) {
 
 
 Eden.AST.prototype.destroy = function() {
-	function clear(stat) {
+	/*function clear(stat) {
 		for (var i=0; i<stat.statements.length; i++) {
 			if (stat.statements[i].type == "script") clear(stat.statements[i]);
+			stat.statements[i].garbage();
 		}
 		stat.statements = undefined;
 		//stat.parent = undefined;
 	}
-	clear(this.script);
+	clear(this.script);*/
+	//this.script.garbage();
+	var stats = Eden.Selectors.queryWithin([this.script], ">>");
+	//console.log("DESTROY STATS",stats);
+	for (var i=0; i<stats.length; i++) {
+		//stats[i].executed = -1;
+		//if (stats[i].executed == 0)
+		Eden.Index.remove(stats[i]);
+		//else stats[i].executed = -1;
+		//var idix = Eden.Index.getByID(stats[i].id);
+		/*if (stats[i].statements) stats[i].statements = undefined;
+		stats[i].parent = undefined;*/
+	}
+	this.script = undefined;
 	// Free memory.
 	this.stream = undefined;
 	this.lines = undefined;
@@ -225,22 +241,40 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 }
 
 
-Eden.AST.createStatement = function(src) {
+/**
+ * Construct an AST statement node from a string. It correctly sets up the node
+ * and you cannot just create the object directly. The parent of the statement
+ * remains unset and must be set manually (if needed).
+ */
+Eden.AST.parseStatement = function(src) {
 	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
-	//console.log(ast);
 	ast.next();
 	var stat = ast.pSTATEMENT();
-	stat.base = eden.project.ast;
+	stat.setSource(0,src.length, src);
+	stat.stamp = ast.stamp;
+	var numlines = src.match("\n");
+	if (numlines === null) stat.numlines = 0;
+	else stat.numlines = numlines.length;
 	return stat;
 }
 
-Eden.AST.createScript = function(src) {
+Eden.AST.parseScript = function(src) {
 	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
-	//console.log(ast);
 	ast.next();
 	var script = ast.pSCRIPT();
-	script.base = eden.project.ast;
+	script.setSource(0,src.length, src);
+	script.stamp = ast.stamp;
+	var numlines = src.match("\n");
+	if (numlines === null) script.numlines = 0;
+	else script.numlines = numlines.length;
 	return script;
+}
+
+Eden.AST.parseExpression = function(src) {
+	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
+	ast.next();
+	var expr = ast.pEXPRESSION();
+	return expr;
 }
 
 
@@ -254,6 +288,10 @@ Eden.AST.registerStatement = function(stat) {
 	stat.prototype.getEndLine = Eden.AST.BaseStatement.getEndLine;
 	stat.prototype.getRange = Eden.AST.BaseStatement.getRange;
 	stat.prototype.error = Eden.AST.fnEdenASTerror;
+	stat.prototype.addIndex = Eden.AST.BaseStatement.addIndex;
+	stat.prototype.removeIndex = Eden.AST.BaseStatement.removeIndex;
+	stat.prototype.destroy = Eden.AST.BaseStatement.destroy;
+	stat.prototype.buildID = Eden.AST.BaseStatement.buildID;
 }
 
 Eden.AST.registerScript = function(stat) {
@@ -261,10 +299,19 @@ Eden.AST.registerScript = function(stat) {
 	stat.prototype.getStatementByLine = Eden.AST.BaseScript.getStatementByLine;
 	stat.prototype.getRelativeLine = Eden.AST.BaseScript.getRelativeLine;
 	stat.prototype.getNumberOfLines = Eden.AST.BaseScript.getNumberOfLines;
+	stat.prototype.append = Eden.AST.BaseScript.append;
+	stat.prototype.appendChild = Eden.AST.BaseScript.appendChild;
+	stat.prototype.removeChild = Eden.AST.BaseScript.removeChild;
+	stat.prototype.insertBefore = Eden.AST.BaseScript.insertBefore;
+	stat.prototype.replaceChild = Eden.AST.BaseScript.replaceChild;
+	stat.prototype.addIndex = Eden.AST.BaseScript.addIndex;
+	stat.prototype.removeIndex = Eden.AST.BaseScript.removeIndex;
+	stat.prototype.destroy = Eden.AST.BaseScript.destroy;
+	stat.prototype.buildID = Eden.AST.BaseScript.buildID;
 }
 
 Eden.AST.registerContext = function(stat) {
-	Eden.AST.registerStatement(stat);
+	Eden.AST.registerScript(stat);
 }
 
 
