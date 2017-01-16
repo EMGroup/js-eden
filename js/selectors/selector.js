@@ -476,7 +476,9 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 	if (statements === undefined) statements = [];
 
 	// Make sure results are unique by id
-	statements = Eden.Selectors.unique(statements);
+	if (!sast.options || !sast.options.all) {
+		statements = Eden.Selectors.unique(statements);
+	}
 	
 	// Sort by timestamp unless told not to.
 	if (!sast.options || !sast.options.nosort) {

@@ -37,7 +37,7 @@ Eden.Index.getByName = function(name) {
 Eden.Index.getByNameRegex = function(regex) {
 	var res = [];
 	for (var n in Eden.Index.name_index) {
-		if (regex.test(n)) res.concat.apply(res, Eden.Index.name_index[n].map(function(e) { return Eden.Index.id_index[e]; }));
+		if (regex.test(n)) res = res.concat.apply(res, Eden.Index.name_index[n].map(function(e) { return Eden.Index.id_index[e]; }));
 	}
 	return res;
 }
@@ -58,15 +58,17 @@ Eden.Index.remove = function(node) {
 			ids.splice(i,1);
 		}
 	}
-	if (ids.length == 0) delete Eden.Index.id_index[node.id];
-	delete Eden.Index.type_index[node.type][node.id];
+	if (ids.length == 0) {
+		delete Eden.Index.id_index[node.id];
+		delete Eden.Index.type_index[node.type][node.id];
 
-	if ((node.name && node.type != "do") || node.lvalue) {
-		var name = (node.name) ? node.name : node.lvalue.name;
-		if (Eden.Index.name_index[name] === undefined) return;
-		var ix = Eden.Index.name_index[name].indexOf(node.id);
-		if (ix >= 0) {
-			Eden.Index.name_index[name].splice(ix,1);
+		if ((node.name && node.type != "do") || node.lvalue) {
+			var name = (node.name) ? node.name : node.lvalue.name;
+			if (Eden.Index.name_index[name] === undefined) return;
+			var ix = Eden.Index.name_index[name].indexOf(node.id);
+			if (ix >= 0) {
+				Eden.Index.name_index[name].splice(ix,1);
+			}
 		}
 	}
 }
@@ -74,14 +76,17 @@ Eden.Index.remove = function(node) {
 Eden.Index.update = function(node) {
 	if (Eden.Index.id_index[node.id] === undefined) Eden.Index.id_index[node.id] = [];
 	Eden.Index.id_index[node.id].push(node);
-	if (Eden.Index.type_index[node.type] === undefined) Eden.Index.type_index[node.type] = {};
-	Eden.Index.type_index[node.type][node.id] = true;
+	
+	if (Eden.Index.id_index[node.id].length == 1) {
+		if (Eden.Index.type_index[node.type] === undefined) Eden.Index.type_index[node.type] = {};
+		Eden.Index.type_index[node.type][node.id] = true;
 
-	// Update name index...
-	if ((node.name && node.type != "do") || node.lvalue) {
-		var name = (node.name) ? node.name : node.lvalue.name;
-		if (Eden.Index.name_index[name] === undefined) Eden.Index.name_index[name] = [];
-		if (Eden.Index.name_index[name].indexOf(node.id) == -1) Eden.Index.name_index[name].push(node.id);
+		// Update name index...
+		if ((node.name && node.type != "do") || node.lvalue) {
+			var name = (node.name) ? node.name : node.lvalue.name;
+			if (Eden.Index.name_index[name] === undefined) Eden.Index.name_index[name] = [];
+			if (Eden.Index.name_index[name].indexOf(node.id) == -1) Eden.Index.name_index[name].push(node.id);
+		}
 	}
 }
 
