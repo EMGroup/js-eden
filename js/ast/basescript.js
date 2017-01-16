@@ -100,7 +100,7 @@ Eden.AST.BaseScript.destroy = function() {
 
 Eden.AST.BaseScript.addIndex = function() {
 	if (this.indexed) return;
-	this.buildID();
+	if (this.id == 0) this.buildID();
 	for (var i=0; i<this.statements.length; i++) {
 		if (this.statements[i].type != "dummy") this.statements[i].addIndex();
 	}
