@@ -53,6 +53,14 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 			this.next();
 		} else if (this.token == "{") {
 			expr = new Eden.AST.Literal("STRING", (ispseudo) ? ":" : ".");
+		} else if (this.token == "(") {
+			var start = this.stream.position;
+			this.next();
+			while (this.stream.valid() && this.token != ")") this.next();
+			var end = this.stream.prevposition;
+			var str = ":(" + this.stream.code.substring(start,end) + ")";
+			expr = new Eden.AST.Literal("STRING", str);
+			this.next();
 		} else {
 			expr = new Eden.AST.Literal("STRING","");
 			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SELECTORATTRIB));
@@ -103,6 +111,9 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 		this.next();
 	} else if (this.token == "<") {
 		expr = new Eden.AST.Literal("STRING", " < ");
+		this.next();
+	} else if (this.token == ",") {
+		expr = new Eden.AST.Literal("STRING", ",");
 		this.next();
 	} else if (this.token == "<<") {
 		expr = new Eden.AST.Literal("STRING", " << ");

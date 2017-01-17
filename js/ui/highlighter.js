@@ -476,7 +476,7 @@
 				} else if (type == "keyword") {
 					classes += "eden-keyword";
 					if (stream.data.value == "import") {
-						this.mode = 7;
+						this.mode = 77;
 					} else if (stream.data.value == "do") {
 						this.mode = 77;
 					}
@@ -687,7 +687,7 @@
 		// Just in case of error
 		if (linestack.length > 0) {
 			line = linestack[0];
-			this.mode = 0;
+			this.mode = (this.mode == 78) ? 77 : 0;
 		}
 
 		this.mode_at_line[this.line] = this.mode;
