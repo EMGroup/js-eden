@@ -83,7 +83,7 @@ Eden.Selectors.PropertyNode.prototype.append = function(node) {
 	switch(node.type) {
 	case "property"		:
 	case "tag"			:
-	case "name"			:	return new Eden.Selectors.IntersectionNode(this,node);
+	case "name"			:	var int = new Eden.Selectors.IntersectionNode(this,node); int.options = this.options; return int;
 	case "union"		:
 	case "intersection"	:	node.prepend(this); return node;
 	case "navigate"		:	node.prepend(this); return node;
@@ -97,7 +97,7 @@ Eden.Selectors.PropertyNode.prototype.prepend = function(node) {
 	switch(node.type) {
 	case "property"		:
 	case "tag"			:
-	case "name"			:	return new Eden.Selectors.IntersectionNode(node,this);
+	case "name"			:	var int = new Eden.Selectors.IntersectionNode(node,this); int.options = this.options; return int;
 	case "union"		:
 	case "intersection"	:	node.append(this); return node;
 	case "navigate"		:	node.append(this); return node;

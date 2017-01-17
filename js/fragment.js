@@ -133,7 +133,7 @@ Eden.Fragment.prototype.reset = function(cb) {
 			me.source = me.ast.stream.code;
 			var p = me.originast;
 			while (p && p.parent) p = p.parent;
-			me.origin = p.base.origin;
+			me.origin = (p.base) ? p.base.origin : {remote: true};
 			me.remote = me.origin.remote;
 			me.locked = me.originast.lock > 0 || me.remote;
 

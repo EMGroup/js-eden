@@ -439,6 +439,8 @@ Eden.Selectors.query = function(s, o, options, cb) {
 		return [];
 	}
 
+	console.log(sast);
+
 	// If a context is given, search in this first unless told otherwise
 	if (ctx && ctx.type == "script" && (!sast.options || !sast.options.indexed)) {
 		statements = sast.filter(ctx.statements);
@@ -529,12 +531,12 @@ Eden.Selectors.query = function(s, o, options, cb) {
 						if (i > num) break;
 						var script;
 						if (stats[i][0]) {
-							script = Eden.AST.parseScript(stats[i][1]); //(new Eden.AST(stats[i][1], undefined, {name: path, remote: true}, {noparse: false, noindex: true})).script;
+							script = Eden.AST.parseScript(stats[i][1], {remote: true}); //(new Eden.AST(stats[i][1], undefined, {name: path, remote: true}, {noparse: false, noindex: true})).script;
 							script.name = stats[i][2];
 							script.id = stats[i][3];
 							
 						} else {
-							script = Eden.AST.parseStatement(stats[i][1]);
+							script = Eden.AST.parseStatement(stats[i][1], {remote: true});
 							script.id = stats[i][3];
 						}
 						statements.push(script);
@@ -548,6 +550,8 @@ Eden.Selectors.query = function(s, o, options, cb) {
 				//var res = Eden.Selectors.processResults(statements, o);
 				cb(statements);
 			});
+		} else {
+			cb([]);
 		}
 
 		return;

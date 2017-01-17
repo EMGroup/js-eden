@@ -247,10 +247,11 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
  * and you cannot just create the object directly. The parent of the statement
  * remains unset and must be set manually (if needed).
  */
-Eden.AST.parseStatement = function(src) {
-	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
+Eden.AST.parseStatement = function(src, origin) {
+	var ast = new Eden.AST(src, undefined, (origin) ? origin : {}, {noparse: true, noindex: true});
 	ast.next();
 	var stat = ast.pSTATEMENT();
+	stat.base = ast;
 	stat.setSource(0,src.length, src);
 	stat.stamp = ast.stamp;
 	var numlines = src.match("\n");
@@ -259,10 +260,11 @@ Eden.AST.parseStatement = function(src) {
 	return stat;
 }
 
-Eden.AST.parseScript = function(src) {
-	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
+Eden.AST.parseScript = function(src, origin) {
+	var ast = new Eden.AST(src, undefined, (origin) ? origin : {}, {noparse: true, noindex: true});
 	ast.next();
 	var script = ast.pSCRIPT();
+	script.base = ast;
 	script.setSource(0,src.length, src);
 	script.stamp = ast.stamp;
 	var numlines = src.match("\n");
