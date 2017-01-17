@@ -13,28 +13,10 @@ Eden.Project = function(id, name, source) {
 	this.thumb = undefined;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
-		this.updateDoxy();
-		this.ast.script.name = this.name;
-		//Eden.Index.update(this.ast.script);
 	}
 
 	eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);
 	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, Symbol.localJSAgent);
-}
-
-Eden.Project.prototype.updateDoxy = function() {
-	// Fabricate a fake doxy comment for the script using meta data.
-	var doxystring = this.name;
-	if (this.title) doxystring += "\n * @title " + this.title;
-	if (this.author) doxystring += "\n * @author " + this.author;
-	if (this.tags && this.tags.length > 0) {
-		doxystring += "\n *";
-		for (var i=0; i<this.tags.length; i++) {
-			doxystring += " #"+this.tags[i];
-		}
-	}
-	var doxy = new Eden.AST.DoxyComment(doxystring);
-	this.ast.script.doxyComment = doxy;
 }
 
 Eden.Project.init = function() {
@@ -110,6 +92,8 @@ Eden.Project.load = function(pid, vid, cb) {
 				eden.project.thumb = meta.image;
 				eden.project.tags = meta.tags;
 				// TODO More meta
+				// rebuild doxy comment
+				eden.project.ast.script.doxyComment = eden.project.ast.doxyFromOrigin();
 				eden.project.start();
 			}
 			if (cb) cb(eden.project);

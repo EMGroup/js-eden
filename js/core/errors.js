@@ -103,6 +103,7 @@ Eden.SyntaxError.SELECTORACTION = 76;
 Eden.SyntaxError.SELECTORATTRIB = 77;
 Eden.SyntaxError.SELECTORTAG = 78;
 Eden.SyntaxError.SELECTORBTICK = 79;
+Eden.SyntaxError.SELECTOROPTION = 80;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -531,6 +532,10 @@ Eden.SyntaxError.db = [
 		suggestion: {expected: [], next: []}
 	},
 /* EDEN_ERROR_SELECTORBTICK */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_SELECTOROPTION */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	}

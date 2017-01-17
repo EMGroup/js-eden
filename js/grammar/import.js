@@ -33,7 +33,7 @@ Eden.AST.prototype.pIMPORT = function() {
 	this.warnings.push(new Eden.SyntaxWarning(this, imp, Eden.SyntaxWarning.DEPRECATED, "import. Use 'do' instead."));
 
 	var path = this.pCODESELECTOR();
-	if (path.errors.length > 0) {
+	if (path === undefined || path.errors.length > 0) {
 		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTPATH));
 		return imp;
 	}

@@ -54,6 +54,7 @@ Eden.Selectors.PropertyNode.attributes = {
 	"date":		{local: false,	indexed: false,	rank: 3},
 	"title":	{local: false,	indexed: false, rank: 10},
 	"author":	{local: false,	indexed: false, rank: 10},
+	"v":		{local: false,	indexed: false, rank: 20},
 	"version":	{local: false,	indexed: false, rank: 20}
 };
 
@@ -72,7 +73,9 @@ Eden.Selectors.PropertyNode.pseudo = {
 	"age":			{local: false,	indexed: false,	rank: 6},
 	"remote":		{local: true,	indexed: true,	rank: 20},
 	"not":			{local: false,	indexed: false,	rank: 100},
-	"active":		{local: true,	indexed: false, rank: 10}
+	"active":		{local: true,	indexed: false, rank: 10},
+	"me":			{local: false,	indexed: false, rank: 20},
+	"listed":		{local: false,	indexed: false, rank: 20}
 };
 
 Eden.Selectors.PropertyNode.prototype.append = function(node) {
@@ -80,7 +83,7 @@ Eden.Selectors.PropertyNode.prototype.append = function(node) {
 	switch(node.type) {
 	case "property"		:
 	case "tag"			:
-	case "name"			:	return new Eden.Selectors.IntersectionNode(this,node);
+	case "name"			:	var int = new Eden.Selectors.IntersectionNode(this,node); int.options = this.options; return int;
 	case "union"		:
 	case "intersection"	:	node.prepend(this); return node;
 	case "navigate"		:	node.prepend(this); return node;
@@ -94,7 +97,7 @@ Eden.Selectors.PropertyNode.prototype.prepend = function(node) {
 	switch(node.type) {
 	case "property"		:
 	case "tag"			:
-	case "name"			:	return new Eden.Selectors.IntersectionNode(node,this);
+	case "name"			:	var int = new Eden.Selectors.IntersectionNode(node,this); int.options = this.options; return int;
 	case "union"		:
 	case "intersection"	:	node.append(this); return node;
 	case "navigate"		:	node.append(this); return node;
@@ -126,6 +129,7 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 							});
 
 		case ".id"		:	return statements.filter(function(stat) {
+								if (stat.id == 0) stat.buildID();
 								return stat.id == param;
 							});
 

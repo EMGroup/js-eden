@@ -3,65 +3,6 @@ Eden.Selectors = {
 	//imported: new Eden.AST.Virtual("imported")
 };
 
-Eden.Selectors.findLocalBase = function(path, ctx, filters) {
-	var scripts = [];
-	var paths = path.split(","); // This shouldn't be allowed???
-
-	for (var i=0; i<paths.length; i++) {
-		var path = paths[i].trim();
-
-		if (path == "" || path == "*") {
-			scripts.push(eden.project.ast.script);
-			//scripts.push(Eden.Selectors.imported);
-			for (var x in Eden.Selectors.cache) {
-				scripts.push(Eden.Selectors.cache[x]);
-			}
-			scripts.push.apply(scripts,ctx.statements);
-		} else {
-			var script;
-			if (eden.project && path == eden.project.name) script = eden.project.ast.script;
-			else if (ctx) script = ctx.getActionByName(path);
-			if (script) {
-				scripts.push(script);
-				continue;
-			}
-
-			// Check cached scripts
-			if (Eden.Selectors.cache[path]) {
-				scripts.push(Eden.Selectors.cache[path]);
-				//console.log("FOUND CACHE",path);
-				continue;
-			}
-
-			// If path contains a /, try looking for url...
-		}
-	}
-
-	return scripts;
-}
-
-Eden.Selectors.makeRoot = function(ctx) {
-	var scripts = [];
-
-	if (ctx && ctx.statements) {
-		for (var i=0; i<ctx.statements.length; i++) {
-			if (ctx.statements[i].type != "dummy") scripts.push(ctx.statements[i]);
-		}
-	}
-
-	if (eden.project) {
-		scripts.push(eden.project.ast.script);
-		for (var i=0; i<eden.project.ast.script.statements.length; i++) {
-			if (eden.project.ast.script.statements[i].type != "dummy") scripts.push(eden.project.ast.script.statements[i]);
-		}
-	}
-
-	for (var x in Eden.Selectors.cache) {
-		scripts.push(Eden.Selectors.cache[x]);
-	}
-	return scripts;
-}
-
 Eden.Selectors.getScriptBase = function(stat) {
 	var p = stat;
 	while(p.parent) { p = p.parent; }
@@ -89,8 +30,13 @@ Eden.Selectors.getID = function(stat) {
 	var path = [];
 	while (p) {
 		if (eden.project && p === eden.project.ast.script) path.splice(0,0,":project");
-		else if (p.type == "script" && p.name) path.splice(0,0,p.name);
-		else path.splice(0,0,".id("+p.id+")");
+		else if (p.type == "script" && p.name) {
+			if (p.parent === undefined) {
+				path.splice(0,0,p.name+".id("+p.id+")");
+			} else {
+				path.splice(0,0,p.name);
+			}
+		} else path.splice(0,0,".id("+p.id+")");
 		p = p.parent;
 		if (p) {
 			if (p.type == "script" && p.parent && p.parent.type != "script") {
@@ -184,6 +130,15 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 	return nstats;
 }
 
+Eden.Selectors.allowedOptions = {
+	"external": true,	// If no results, allow an external server search
+	"history": true,	// Include historic results
+	"all": true,		// Don't apply a "unique" to the results
+	"indexed": true,	// Ignore any context and use an indexed search
+	"index": true,		// Automatically index any external results (import)
+	"nosort": true		// Don't sort the results by time stamp.
+};
+
 Eden.Selectors.resultTypes = {
 	"brief": true,
 	"comment": true,
@@ -231,13 +186,15 @@ Eden.Selectors.processResults = function(statements, o) {
 										} else {
 											val = stat.getSource();
 										} break;
+				case "outersource"	:	val = stat.getOuterSource();
+										break;
 				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
 										stat.base.mainDoxyComment.stripped();
 										var controls = stat.base.mainDoxyComment.getControls();
 										if (controls && controls["@title"]) val = controls["@title"][0];
 									}
 									break;
-				case "path"		:
+				//case "path"		:
 				case "name"		:	
 				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
 										val = stat.lvalue.name;
@@ -255,6 +212,10 @@ Eden.Selectors.processResults = function(statements, o) {
 								  break;
 				case "value"	: val = (stat.expression) ? stat.expression.execute(eden.root, eden.project.ast, eden.root.scope) : undefined;
 								  break;
+				case "active"	: 	val = (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin && eden.root.symbols[stat.lvalue.name].origin.id == stat.id);
+									break;
+				case "executed"	:	val = stat.executed > 0; break;
+				case "historic"	:	val = stat.executed == -1; break;
 				case "tags"		:	if (stat.doxyComment) {
 										val = stat.doxyComment.getHashTags();
 									} break;
@@ -262,9 +223,9 @@ Eden.Selectors.processResults = function(statements, o) {
 										val = stat.doxyComment.content;
 									} break;
 				case "controls" :
-				case "id"		:
-				case "unique"	: val = Eden.Selectors.getID(stat); break;
-				case "script"	: val = Eden.Selectors.getScriptBase(stat); break;
+				case "id"		: val = stat.id; break;
+				case "path"		: val = Eden.Selectors.getID(stat); break;
+				//case "script"	: val = Eden.Selectors.getScriptBase(stat); break;
 				case "remote"	:	var p = stat;
 									while(p.parent) p = p.parent;
 									if (!p.base || !p.base.origin) {
@@ -280,9 +241,9 @@ Eden.Selectors.processResults = function(statements, o) {
 				ires.push(val);
 
 			}
-			if (kinds.length > 1 && ires.length > 0) {
+			if (kinds.length > 1) {
 				res.push(ires);
-			} else if (kinds.length == 1 && ires.length > 0 && ires[0] !== undefined) {
+			} else if (kinds.length == 1 && ires.length > 0) {
 				res.push(ires[0]);
 			}
 		}
@@ -454,7 +415,16 @@ Eden.Selectors.queryWithin = function(within, s, o) {
 	return res;
 }
 
-Eden.Selectors.query = function(s, o, ctx, num, cb) {
+Eden.Selectors.query = function(s, o, options, cb) {
+	var ctx;
+	var num;
+
+	if (options) {
+		ctx = options.context;
+		num = options.minimum;
+	}
+
+
 	if (typeof num == "boolean") console.trace("Bool");
 	if (s == "") {
 		var res = [];
@@ -466,14 +436,14 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 	var statements;
 
 	// Generate a selector AST from the string.
-	var sast = Eden.Selectors.parse(s.trim());
+	var sast = Eden.Selectors.parse(s.trim(), (options) ? options.options : undefined);
 	if (sast === undefined) {
 		if (cb) cb([]);
 		return [];
 	}
 
 	// If a context is given, search in this first unless told otherwise
-	if (ctx && ctx.type == "script" && (!sast.options || !sast.option.indexed)) {
+	if (ctx && ctx.type == "script" && (!sast.options || !sast.options.indexed)) {
 		statements = sast.filter(ctx.statements);
 	}
 
@@ -498,7 +468,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 
 	// If there are still no results and the query is not a local only
 	// query, then look elsewhere. Only possible if a callback is given.
-	if (sast.local == false && cb && ((statements.length == 0 && num > 0) || !num)) {
+	if (sast.local == false && cb && (!num || (statements.length < num))) {
 
 		var pathix = s.search(/[\s\.\:\#\@\>]/);
 		if (pathix == -1) pathix = s.length;
@@ -529,12 +499,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 					url += "/";
 				}
 			}
-			console.log("LOAD URL",url);
-			/*if (Eden.Selectors.cache["plugins"] === undefined) {
-				Eden.Selectors.cache["plugins"] = Eden.AST.createStatement("action plugins {}");
-				Eden.Selectors.cache["plugins"].base = {origin: {remote: true}};
-				Eden.Index.update(Eden.Selectors.cache["plugins"]);
-			}*/
+
 			$.ajax({
 				url: url+".js-e",
 				dataType: "text",
@@ -551,34 +516,49 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 					cb([]);
 				}
 			});
-		} else {
+		// Only search the server if an external query is requested
+		} else if (sast.options && sast.options.external) {
 			//Then need to do a remote search
-			Eden.DB.searchSelector(s, (o === undefined) ? ["root","source","name","id"] : o, function(stats) {
+			Eden.DB.searchSelector(s, (o === undefined) ? ["outersource","path"] : o, function(stats) {
 				if (o === undefined && stats.length > 0) {
 					// Need to generate an AST for each result
 					// Loop and do all...
 					for (var i=0; i<stats.length; i++) {
-						if (i > num) break;
+						//if (i > num) break;
 						var script;
-						if (stats[i][0]) {
-							script = Eden.AST.parseScript(stats[i][1]); //(new Eden.AST(stats[i][1], undefined, {name: path, remote: true}, {noparse: false, noindex: true})).script;
-							script.name = stats[i][2];
-							script.id = stats[i][3];
-							
+						//if (stats[i][0]) {
+						//	script = Eden.AST.parseScript(stats[i][1], {remote: true}); //(new Eden.AST(stats[i][1], undefined, {name: path, remote: true}, {noparse: false, noindex: true})).script;
+						//	script.name = stats[i][2];
+						//	script.id = stats[i][3];
+						//	
+						//} else {
+							console.log("Get Outersource", stats[i][0]);
+							script = Eden.AST.parseStatement(stats[i][0], {remote: true});
+							var origin = Eden.AST.originFromDoxy(script.doxyComment);
+							origin.remote = true;
+							script.base.origin = origin;
+							script.id = origin.id;
+							//script.id = stats[i][3];
+
+							// Find inner most statement...?
+							//console.log("PATH:",stats[i][1],script);
+							var innerscript = Eden.Selectors.queryWithin([script],stats[i][1])[0];
+						//}
+						if (innerscript) {
+							statements.push(innerscript);
+							// Automatically index the result
+							if (sast.options && sast.options.index) script.addIndex();
 						} else {
-							script = Eden.AST.parseStatement(stats[i][1]);
+
 						}
-						statements.push(script);
-						//Eden.Selectors.cache[path] = script;
-						//Eden.Index.update(script);
 					} 
 				} else {
 					statements.push.apply(statements,stats);
 				}
-				//statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
-				//var res = Eden.Selectors.processResults(statements, o);
 				cb(statements);
 			});
+		} else {
+			cb([]);
 		}
 
 		return;
@@ -591,7 +571,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 
 
 Eden.Selectors.execute = function(selector, cb) {
-	Eden.Selectors.query(selector, undefined, undefined, 1000, function(stats) {
+	Eden.Selectors.query(selector, undefined, {minimum: 1}, function(stats) {
 		function doStat(i) {
 			var p = stats[i];
 			while (p.parent) p = p.parent;
@@ -618,7 +598,7 @@ Eden.Selectors.execute = function(selector, cb) {
  * should be the one used.
  */
 Eden.Selectors.goto = function(selector) {
-	var res = Eden.Selectors.query(selector, undefined, undefined, 1);
+	var res = Eden.Selectors.query(selector, undefined, {minimum: 1});
 
 	if (res.length == 0) return false;
 

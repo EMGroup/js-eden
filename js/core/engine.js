@@ -47,8 +47,8 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			if (statements[i].statements === undefined) {
 				statements[i].selector = (statements[i].path) ? statements[i].path.execute(ctx, base, scope, agent) : undefined;
 				yield statements[i];
-				statements.splice.apply(statements, [i, 1].concat(statements[i].statements));
-				i--;
+				//statements.splice.apply(statements, [i, 1].concat(statements[i].statements));
+				//i--;
 			}
 		} else if (statements[i].type == "do") {
 			statements[i].executed = 1;
@@ -140,14 +140,14 @@ function runEdenAction(source, action, cb) {
 				delay.value.executed = 1;
 				//if (eden.peer) eden.peer.imports(source, delay.value.path, delay.value.tag, delay.value.options);
 
-				console.log("IMPORT",delay.value.selector);
+				//console.log("IMPORT",delay.value.selector);
 
-				Eden.Selectors.query(delay.value.selector, undefined, delay.value.parent, 1, function(stats) {
+				Eden.Selectors.query(delay.value.selector, undefined, {context: delay.value.parent, minimum: 1, options: {external: true, index: true}}, function(stats) {
 					if (stats === undefined) {
 						var err = new Eden.RuntimeError(me, Eden.RuntimeError.UNKNOWN, delay.value, "Selector '"+delay.value.selector+"' has no results");
 						err.line = delay.value.line;
 						delay.value.errors.push(err);
-						delay.value.statements = [];
+						//delay.value.statements = [];
 					} else {
 						delay.value.statements = stats;
 					}
@@ -198,7 +198,7 @@ function runEdenAction(source, action, cb) {
 				// Note that getActionByName can return entire agents!
 				if (delay.value.name) {
 					// Get contextual root...
-					Eden.Selectors.query(delay.value.selector, undefined, delay.value.parent, 1, docb);
+					Eden.Selectors.query(delay.value.selector, undefined, {context: delay.value.parent, minimum: 1}, docb);
 				} else {
 					stats = delay.value.script.statements;
 					docb(stats);
