@@ -54,6 +54,7 @@ Eden.Selectors.PropertyNode.attributes = {
 	"date":		{local: false,	indexed: false,	rank: 3},
 	"title":	{local: false,	indexed: false, rank: 10},
 	"author":	{local: false,	indexed: false, rank: 10},
+	"v":		{local: false,	indexed: false, rank: 20},
 	"version":	{local: false,	indexed: false, rank: 20}
 };
 

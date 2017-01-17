@@ -58,6 +58,22 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SELECTORATTRIB));
 			return expr;
 		}
+	} else if (this.token == "@") {
+		this.next();
+		if (this.token == "OBSERVABLE") {
+			if (Eden.Selectors.allowedOptions[this.data.value]) {
+				expr = new Eden.AST.Literal("STRING", "@" + this.data.value);
+				this.next();
+			} else {
+				expr = new Eden.AST.Literal("STRING","");
+				expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SELECTOROPTION));
+				return expr;
+			}
+		} else {
+			expr = new Eden.AST.Literal("STRING","");
+			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SELECTOROPTION));
+			return expr;
+		}
 	} else if (this.token == "#") {
 		this.next();
 		if (this.token == "OBSERVABLE") {

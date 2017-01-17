@@ -107,7 +107,7 @@ Eden.Fragment.prototype.reset = function(cb) {
 			return;
 	}
 
-	Eden.Selectors.query(this.selector, undefined, undefined, 1, function(res) {
+	Eden.Selectors.query(this.selector, undefined, {minimum: 1}, function(res) {
 		me.results = res;
 
 		if (me.results && me.results.length == 1 && me.results[0].type == "script") {

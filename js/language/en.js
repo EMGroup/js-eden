@@ -313,6 +313,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_SELECTORBTICK */ [
 	"Missing a closing } after embedded expression"
+],
+/* EDEN_ERROR_SELECTOROPTION */ [
+	"Invalid selector option"
 ]
 ];
 

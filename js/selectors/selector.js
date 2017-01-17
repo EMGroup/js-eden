@@ -130,6 +130,13 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 	return nstats;
 }
 
+Eden.Selectors.allowedOptions = {
+	"external": true,
+	"history": true,
+	"all": true,
+	"indexed": true
+};
+
 Eden.Selectors.resultTypes = {
 	"brief": true,
 	"comment": true,
@@ -404,7 +411,17 @@ Eden.Selectors.queryWithin = function(within, s, o) {
 	return res;
 }
 
-Eden.Selectors.query = function(s, o, ctx, num, cb) {
+Eden.Selectors.query = function(s, o, options, cb) {
+	console.log("QUERY",s);
+	var ctx;
+	var num;
+
+	if (options) {
+		ctx = options.context;
+		num = options.minimum;
+	}
+
+
 	if (typeof num == "boolean") console.trace("Bool");
 	if (s == "") {
 		var res = [];
@@ -416,14 +433,14 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 	var statements;
 
 	// Generate a selector AST from the string.
-	var sast = Eden.Selectors.parse(s.trim());
+	var sast = Eden.Selectors.parse(s.trim(), (options) ? options.options : undefined);
 	if (sast === undefined) {
 		if (cb) cb([]);
 		return [];
 	}
 
 	// If a context is given, search in this first unless told otherwise
-	if (ctx && ctx.type == "script" && (!sast.options || !sast.option.indexed)) {
+	if (ctx && ctx.type == "script" && (!sast.options || !sast.options.indexed)) {
 		statements = sast.filter(ctx.statements);
 	}
 
@@ -448,7 +465,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 
 	// If there are still no results and the query is not a local only
 	// query, then look elsewhere. Only possible if a callback is given.
-	if (sast.local == false && cb && ((statements.length == 0 && num > 0) || !num)) {
+	if (sast.local == false && cb && (!num || (statements.length < num))) {
 
 		var pathix = s.search(/[\s\.\:\#\@\>]/);
 		if (pathix == -1) pathix = s.length;
@@ -501,7 +518,8 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 					cb([]);
 				}
 			});
-		} else {
+		// Only search the server if an external query is requested
+		} else if (sast.options && sast.options.external) {
 			//Then need to do a remote search
 			Eden.DB.searchSelector(s, (o === undefined) ? ["root","source","name","id"] : o, function(stats) {
 				if (o === undefined && stats.length > 0) {
@@ -542,7 +560,7 @@ Eden.Selectors.query = function(s, o, ctx, num, cb) {
 
 
 Eden.Selectors.execute = function(selector, cb) {
-	Eden.Selectors.query(selector, undefined, undefined, 1000, function(stats) {
+	Eden.Selectors.query(selector, undefined, {minimum: 1}, function(stats) {
 		function doStat(i) {
 			var p = stats[i];
 			while (p.parent) p = p.parent;
@@ -569,7 +587,7 @@ Eden.Selectors.execute = function(selector, cb) {
  * should be the one used.
  */
 Eden.Selectors.goto = function(selector) {
-	var res = Eden.Selectors.query(selector, undefined, undefined, 1);
+	var res = Eden.Selectors.query(selector, undefined, {minimum: 1});
 
 	if (res.length == 0) return false;
 
