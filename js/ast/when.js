@@ -3,7 +3,7 @@ Eden.AST.When = function() {
 	Eden.AST.BaseContext.apply(this);
 
 	this.name = "*When";
-	this.id = undefined;
+	this.id = 0;
 	this.expression = undefined;
 	this.active = false;
 	this.compiled = undefined;
@@ -30,7 +30,11 @@ Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
 }
 
 Eden.AST.When.prototype.getSource = function() {
-	return this.prefix + this.statement.getSource() + this.postfix;
+	if (!this.statement) {
+		return this.prefix + this.postfix;
+	} else {
+		return this.prefix + this.statement.getSource() + this.postfix;
+	}
 }
 
 Eden.AST.When.prototype.setSource = function(start, end, src) {
