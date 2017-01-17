@@ -33,7 +33,9 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		for (var i=0; i<this.scopes.length; i++) {
 			result += "\t_scopes.push(" + this.scopes[i];
 			result += ");\n";
-			result += "if (this.def_scope) { _scopes["+i+"].cache = this.def_scope["+i+"].cache; _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
+			//result += "_scopes["+i+"].rebuild();\n";
+			// TODO Figure out how to do this optimisation without massive memory copies.
+			result += "if (this.def_scope) { _scopes["+i+"].mergeCache(this.def_scope["+i+"].cache); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
 		}
 
 		result += "this.def_scope = _scopes;\n";

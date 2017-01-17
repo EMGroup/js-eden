@@ -653,6 +653,7 @@ Symbol.prototype.fireJSObservers = function () {
  * @param {Object.<string,Symbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
  */
 Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire, fullexpire) {
+	//console.log("Expire",this.name,this.has_evaled,fullexpire);
 	if (this.has_evaled || fullexpire) {
 
 		for (var observer_name in this.observers) {

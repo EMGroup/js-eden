@@ -140,3 +140,26 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 	}
 }
 
+Eden.AST.Scope.prototype.execute = function(ctx, base, scope) {
+	var context = {scopes: []};
+	var gen = this.generate(context, "scope",{bound: false});
+	var rhs = "(function(context,scope) {\n";
+
+	if (context.scopes.length > 0) {
+		rhs += "\tvar _scopes = [];\n";
+		for (var i=0; i<context.scopes.length; i++) {
+			rhs += "\t_scopes.push(" + context.scopes[i];
+			rhs += ");\n";
+			rhs += "if (this.def_scope) { _scopes["+i+"].mergeCache(this.def_scope["+i+"].cache); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
+		}
+
+		rhs += "this.def_scope = _scopes;\n";
+	}
+
+	rhs += "return ";
+	rhs += gen;
+	rhs += ";})";
+	console.log(rhs);
+	return eval(rhs)(eden.root,scope);
+}
+

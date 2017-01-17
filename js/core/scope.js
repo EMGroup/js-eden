@@ -287,15 +287,15 @@ Scope.prototype.updateOverride = function(override) {
 	} else {
 		//console.log(override.current);
 		currentval = override.current;
-		currentscope = this.parent;
+		currentscope = this;
 	}
 
 	if (this.cache[name] === undefined) {
-		this.cache[name] = new ScopeCache( true, currentval, this, true);
+		this.cache[name] = new ScopeCache( true, currentval, currentscope, true);
 		return false;
 	} else {
 		this.cache[name].value = currentval;
-		this.cache[name].scope = this;
+		this.cache[name].scope = currentscope;
 		this.cache[name].up_to_date = true;
 		this.cache[name].override = true;
 		return true;
@@ -332,13 +332,31 @@ Scope.prototype.first = function() {
 	return false;
 }
 
+Scope.prototype.mergeCache = function(prevcache) {
+	//for (var i=0; i<this.overrides.length; i++) {
+	//	var over = this.overrides[i];
+		//console.log("MERGE CACHE",over.name,prevcache[over.name],this.cache[over.name]);
+	//	prevcache[over.name] = this.cache[over.name];
+	//}
+
+	this.cache = {};
+	for (var o in prevcache) {
+		//if (prevcache[o].up_to_date) // TODO Check this works in all cache, ie. backticks
+		this.cache[o] = new ScopeCache(false, undefined, this);
+	}
+
+	//this.cache = prevcache;
+}
+
 Scope.prototype.reset = function() {
-	for (var o in this.cache) {
+	//for (var o in this.cache) {
+		//this.cache[o] = new ScopeCache(false, undefined, this);
 		//if (this.cache[o].up_to_date)
-			this.cache[o].up_to_date = this.cache[o].override;
+			//this.cache[o].up_to_date = false; //this.cache[o].override;
+			//this.cache[o].scope = this;
 		//else
 		//	delete this.cache[o];
-	}
+	//}
 	this.refresh();
 }
 
