@@ -130,6 +130,7 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 	var iconstr = "";
 	var extraclass = "";
 	var extradata = "";
+	var dohl = true;
 
 	if (stat.executed == -1) extraclass = " historic";
 	var origin = stat.getOrigin();
@@ -142,7 +143,10 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 		} else {
 			iconstr = '<span class="search-scriptres">&#xf15c;</span>';
 		}
-		if (stat.name) {
+		if (stat.parent === undefined) {
+			symstr = "<span class=\"eden-keyword\">Project: </span><b>" + ((stat.base && stat.base.origin && stat.base.origin.title) ? stat.base.origin.title : stat.name) + "</b>";
+			dohl = false;
+		} else if (stat.name) {
 			symstr = "action " + stat.name;
 		} else {
 			symstr = stat.getInnerSource();
@@ -158,8 +162,11 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 		symstr = stat.getSource().split("\n")[0];
 	}
 
-	if (symstr.length > 55) {
-		symstr = symstr.substr(0,55) + "...";
+	if (dohl) {
+		if (symstr.length > 55) {
+			symstr = symstr.substr(0,55) + "...";
+		}
+		symstr = EdenUI.Highlight.html(symstr);
 	}
 
 	//var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
@@ -172,7 +179,7 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 		}
 	}
 
-	var ele = $('<div class="menubar-search-result'+extraclass+'" data-id="'+Eden.Selectors.getID(stat)+'"'+extradata+'>'+iconstr+EdenUI.Highlight.html(symstr)+docstr+'</div>');
+	var ele = $('<div class="menubar-search-result'+extraclass+'" data-id="'+Eden.Selectors.getID(stat)+'"'+extradata+'>'+iconstr+symstr+docstr+'</div>');
 	return ele;
 }
 
