@@ -647,7 +647,7 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 	}
 	if(t.type == "tag"){
 		tagCriteria.push("tags like @tag" + i);
-		criteriaVals["@tag" + i] = t.tag.replace("*","%");				
+		criteriaVals["@tag" + i] = "% " + t.tag.replace("*","%") + " %";				
 	}
 	if(t.type == "name"){
 		
