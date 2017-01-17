@@ -621,6 +621,39 @@ function sendDiff(fromID,toSource,projectID,toID,res){
 	});
 }
 
+function processSelectorNode(t, criteria, criteriaVals,i){
+	if(t.type == "property"){
+		switch(t.name){
+		case ".id":
+			criteria.push("projectID = @projectID" + i);
+			criteriaVals["@projectID" + i] = t.value;
+			break;
+		case ".title":
+			criteria.push("title LIKE @title" + i);
+			criteriaVals["@title" + i] = t.param.replace("*","%");
+			break;
+		case ":me":
+			listedOnly = false;
+			break;
+		case ".author":
+//			criteria.push("owner = @otherAuthor");
+//			criteriaVals["@otherAuthor"] = 
+			break;
+		case ".name":
+			criteria.push("minimisedTitle LIKE @minimisedTitle" + i);
+			criteriaVals["@minimisedTitle" + i] = t.param.replace("*","%");
+			break;
+		}
+	}
+	if(t.type == "tag"){
+		criteria.push("tags like @tag" + i);
+		criteriaVals["@tag" + i] = t.tag.replace("*","%");				
+	}
+	if(t.type == "name"){
+		
+	}
+		
+}
 /**
 * Title: Project Search
 * URL: /project/search
@@ -646,6 +679,7 @@ app.get('/project/search', function(req, res){
 	var criteriaVals = {};
 	
 	var paramObj = {};
+	var listedOnly = true;
 	criteriaVals["@limit"] = 10;
 	if(req.query.limit && (req.query.limit < 50))
 		criteriaVals["@limit"] = req.query.limit;
@@ -674,16 +708,21 @@ app.get('/project/search', function(req, res){
 		criteriaVals["@title"] = req.query.title;
 	}
 	if(req.query.query){
-		if(req.query.query.startsWith(":title(")){
-			var endOfB = req.query.query.indexOf(")");
-			criteria.push("title LIKE @title");
-			criteriaVals["@title"] = "%" + req.query.query.substring(7,endOfB) + "%";
+		
+		var selectorAST = Eden.Selectors.parse(req.query.query);
+		if(selectorAST.type == "intersection"){	
+			for(var i = 0; i < selectorAST.children.length; i++){
+				processSelectorNode(selectorAST.children[i],criteria,criteriaVals,i);
+			}
+		}else{
+			processSelectorNode(selectorAST,criteria,criteriaVals,i);
 		}
 	}
 	
-	var listedOnly = false;
-	listedOnly = (req.query.listedOnly && req.query.listedOnly == "true");
-	
+	if(req.query.listedOnly && req.query.listedOnly == "false"){
+		listedOnly = false;
+	}
+
 	var targetTable = "view_latestVersion";
 	if(listedOnly)
 		targetTable = "view_listedVersion";
@@ -712,7 +751,7 @@ app.get('/project/search', function(req, res){
 	
 	var listQueryStr = 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
 		+ ' publicVersion, parentProject, projectMetaData,	(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
-		+ ' on projects.projectID = tags.projectID WHERE owner = userid AND view_latestVersion.projectID = projects.projectID ';
+		+ ' on projects.projectID = tags.projectID WHERE owner = userid AND '+targetTable+'.projectID = projects.projectID ';
 	
 	if(!listedOnly){
 		if(req.user == null)
