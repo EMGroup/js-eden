@@ -79,6 +79,8 @@ Eden.AST = function(code, imports, origin, options) {
 		this.script = this.pSCRIPT();
 		this.script.base = this;
 		this.script.name = origin.name;
+		this.script.prefix = "action " +origin.name + "{";
+		this.script.postfix = "}";
 		if (origin.id) this.script.id = origin.id;
 		this.script.setSource(0,code.length, code);
 		//this.script.doxyComment = this.mainDoxyComment;
@@ -146,7 +148,7 @@ Eden.AST.originFromDoxy = function(doxy) {
 	if (ctrls["@title"]) norig.title = ctrls["@title"][0];
 	if (ctrls["@author"]) norig.author = ctrls["@author"][0];
 	if (ctrls["@id"]) norig.id = ctrls["@id"][0];
-	if (ctrls["@version"]) norig.vid = ctrls["@vid"][0];
+	if (ctrls["@version"]) norig.vid = ctrls["@version"][0];
 	return norig;
 }
 

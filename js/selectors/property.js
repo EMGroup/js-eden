@@ -129,6 +129,7 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 							});
 
 		case ".id"		:	return statements.filter(function(stat) {
+								if (stat.id == 0) stat.buildID();
 								return stat.id == param;
 							});
 

@@ -519,7 +519,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 		// Only search the server if an external query is requested
 		} else if (sast.options && sast.options.external) {
 			//Then need to do a remote search
-			Eden.DB.searchSelector(s, (o === undefined) ? ["outersource"] : o, function(stats) {
+			Eden.DB.searchSelector(s, (o === undefined) ? ["outersource","path"] : o, function(stats) {
 				if (o === undefined && stats.length > 0) {
 					// Need to generate an AST for each result
 					// Loop and do all...
@@ -532,17 +532,25 @@ Eden.Selectors.query = function(s, o, options, cb) {
 						//	script.id = stats[i][3];
 						//	
 						//} else {
-							console.log("Get Outersource", stats[i]);
+							//console.log("Get Outersource", stats[i][0]);
 							script = Eden.AST.parseStatement(stats[i][0], {remote: true});
-							var origin = script.base.originFromDoxy();
+							var origin = Eden.AST.originFromDoxy(script.doxyComment);
 							origin.remote = true;
 							script.base.origin = origin;
 							script.id = origin.id;
 							//script.id = stats[i][3];
+
+							// Find inner most statement...?
+							//console.log("PATH:",stats[i][1],script);
+							var innerscript = Eden.Selectors.queryWithin([script],stats[i][1])[0];
 						//}
-						statements.push(script);
-						// Automatically index the result
-						if (sast.options && sast.options.index) script.addIndex();
+						if (innerscript) {
+							statements.push(innerscript);
+							// Automatically index the result
+							if (sast.options && sast.options.index) script.addIndex();
+						} else {
+
+						}
 					} 
 				} else {
 					statements.push.apply(statements,stats);
