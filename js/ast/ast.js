@@ -81,7 +81,8 @@ Eden.AST = function(code, imports, origin, options) {
 		this.script.name = origin.name;
 		if (origin.id) this.script.id = origin.id;
 		this.script.setSource(0,code.length, code);
-		this.script.doxyComment = this.mainDoxyComment;
+		//this.script.doxyComment = this.mainDoxyComment;
+		this.script.doxyComment = this.doxyFromOrigin();
 		if (!this.options || !this.options.noindex) this.script.addIndex();
 		else if (this.script.id == 0) this.script.buildID();
 		this.errors = this.script.errors;
@@ -119,6 +120,35 @@ Eden.AST.fromNode = function(node, origin) {
 	return ast;
 }
 
+
+Eden.AST.prototype.doxyFromOrigin = function() {
+	// Fabricate a fake doxy comment for the script using meta data.
+	var doxystring = this.origin.name;
+	if (this.origin.title) doxystring += "\n * @title " + this.origin.title;
+	if (this.origin.author) doxystring += "\n * @author " + this.origin.author;
+	if (this.origin.id) doxystring += "\n * @id " + this.origin.id;
+	if (this.origin.saveID) doxystring += "\n * @version " + this.origin.vid;
+	if (this.origin.tags && this.origin.tags.length > 0) {
+		doxystring += "\n *";
+		for (var i=0; i<this.origin.tags.length; i++) {
+			doxystring += " #"+this.origin.tags[i];
+		}
+	}
+	var doxy = new Eden.AST.DoxyComment(doxystring);
+	return doxy;
+}
+
+Eden.AST.originFromDoxy = function(doxy) {
+	if (doxy === undefined) return;
+	var norig = {};
+
+	var ctrls = doxy.getControls();
+	if (ctrls["@title"]) norig.title = ctrls["@title"][0];
+	if (ctrls["@author"]) norig.author = ctrls["@author"][0];
+	if (ctrls["@id"]) norig.id = ctrls["@id"][0];
+	if (ctrls["@version"]) norig.vid = ctrls["@vid"][0];
+	return norig;
+}
 
 Eden.AST.prototype.destroy = function() {
 	/*function clear(stat) {
@@ -286,6 +316,7 @@ Eden.AST.registerStatement = function(stat) {
 	stat.prototype.hasErrors = Eden.AST.BaseStatement.hasErrors;
 	stat.prototype.setSource = Eden.AST.BaseStatement.setSource;
 	stat.prototype.getSource = Eden.AST.BaseStatement.getSource;
+	stat.prototype.getOuterSource = Eden.AST.BaseStatement.getOuterSource;
 	stat.prototype.getNumberOfLines = Eden.AST.BaseStatement.getNumberOfLines;
 	stat.prototype.getStartLine = Eden.AST.BaseStatement.getStartLine;
 	stat.prototype.getEndLine = Eden.AST.BaseStatement.getEndLine;

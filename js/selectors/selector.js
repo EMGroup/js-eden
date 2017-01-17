@@ -131,10 +131,12 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 }
 
 Eden.Selectors.allowedOptions = {
-	"external": true,
-	"history": true,
-	"all": true,
-	"indexed": true
+	"external": true,	// If no results, allow an external server search
+	"history": true,	// Include historic results
+	"all": true,		// Don't apply a "unique" to the results
+	"indexed": true,	// Ignore any context and use an indexed search
+	"index": true,		// Automatically index any external results (import)
+	"nosort": true		// Don't sort the results by time stamp.
 };
 
 Eden.Selectors.resultTypes = {
@@ -184,6 +186,8 @@ Eden.Selectors.processResults = function(statements, o) {
 										} else {
 											val = stat.getSource();
 										} break;
+				case "outersource"	:	val = stat.getOuterSource();
+										break;
 				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
 										stat.base.mainDoxyComment.stripped();
 										var controls = stat.base.mainDoxyComment.getControls();
@@ -412,7 +416,6 @@ Eden.Selectors.queryWithin = function(within, s, o) {
 }
 
 Eden.Selectors.query = function(s, o, options, cb) {
-	console.log("QUERY",s);
 	var ctx;
 	var num;
 
@@ -438,8 +441,6 @@ Eden.Selectors.query = function(s, o, options, cb) {
 		if (cb) cb([]);
 		return [];
 	}
-
-	console.log(sast);
 
 	// If a context is given, search in this first unless told otherwise
 	if (ctx && ctx.type == "script" && (!sast.options || !sast.options.indexed)) {
@@ -498,12 +499,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 					url += "/";
 				}
 			}
-			console.log("LOAD URL",url);
-			/*if (Eden.Selectors.cache["plugins"] === undefined) {
-				Eden.Selectors.cache["plugins"] = Eden.AST.createStatement("action plugins {}");
-				Eden.Selectors.cache["plugins"].base = {origin: {remote: true}};
-				Eden.Index.update(Eden.Selectors.cache["plugins"]);
-			}*/
+
 			$.ajax({
 				url: url+".js-e",
 				dataType: "text",
@@ -523,31 +519,34 @@ Eden.Selectors.query = function(s, o, options, cb) {
 		// Only search the server if an external query is requested
 		} else if (sast.options && sast.options.external) {
 			//Then need to do a remote search
-			Eden.DB.searchSelector(s, (o === undefined) ? ["root","source","name","id"] : o, function(stats) {
+			Eden.DB.searchSelector(s, (o === undefined) ? ["outersource"] : o, function(stats) {
 				if (o === undefined && stats.length > 0) {
 					// Need to generate an AST for each result
 					// Loop and do all...
 					for (var i=0; i<stats.length; i++) {
-						if (i > num) break;
+						//if (i > num) break;
 						var script;
-						if (stats[i][0]) {
-							script = Eden.AST.parseScript(stats[i][1], {remote: true}); //(new Eden.AST(stats[i][1], undefined, {name: path, remote: true}, {noparse: false, noindex: true})).script;
-							script.name = stats[i][2];
-							script.id = stats[i][3];
-							
-						} else {
-							script = Eden.AST.parseStatement(stats[i][1], {remote: true});
-							script.id = stats[i][3];
-						}
+						//if (stats[i][0]) {
+						//	script = Eden.AST.parseScript(stats[i][1], {remote: true}); //(new Eden.AST(stats[i][1], undefined, {name: path, remote: true}, {noparse: false, noindex: true})).script;
+						//	script.name = stats[i][2];
+						//	script.id = stats[i][3];
+						//	
+						//} else {
+							console.log("Get Outersource", stats[i]);
+							script = Eden.AST.parseStatement(stats[i][0], {remote: true});
+							var origin = script.base.originFromDoxy();
+							origin.remote = true;
+							script.base.origin = origin;
+							script.id = origin.id;
+							//script.id = stats[i][3];
+						//}
 						statements.push(script);
-						//Eden.Selectors.cache[path] = script;
-						//Eden.Index.update(script);
+						// Automatically index the result
+						if (sast.options && sast.options.index) script.addIndex();
 					} 
 				} else {
 					statements.push.apply(statements,stats);
 				}
-				//statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
-				//var res = Eden.Selectors.processResults(statements, o);
 				cb(statements);
 			});
 		} else {

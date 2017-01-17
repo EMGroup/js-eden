@@ -96,6 +96,28 @@ Eden.AST.BaseStatement.getSource = function() {
 	return this.source;
 }
 
+Eden.AST.BaseStatement.getOuterSource = function() {
+	var src = this.getSource();
+	var p = this.parent;
+	while (p) {
+		if (p.type == "script") {
+			if (p.name) {
+				src = "action "+p.name+" {\n"+src+"\n}";
+			} else {
+				src = "{\n"+src+"\n}";
+			}
+
+			if (p.doxyComment) {
+				src = "/** " + p.doxyComment.content + " */\n"+src;
+			}
+			p = p.parent;
+		} else {
+			p = undefined;
+		}
+	}
+	return src;
+}
+
 Eden.AST.BaseStatement.getOrigin = function() {
 	var p = this;
 	while (p.parent) p = p.parent;

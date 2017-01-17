@@ -140,9 +140,9 @@ function runEdenAction(source, action, cb) {
 				delay.value.executed = 1;
 				//if (eden.peer) eden.peer.imports(source, delay.value.path, delay.value.tag, delay.value.options);
 
-				console.log("IMPORT",delay.value.selector);
+				//console.log("IMPORT",delay.value.selector);
 
-				Eden.Selectors.query(delay.value.selector, undefined, {context: delay.value.parent, minimum: 1, options: {external: true}}, function(stats) {
+				Eden.Selectors.query(delay.value.selector, undefined, {context: delay.value.parent, minimum: 1, options: {external: true, index: true}}, function(stats) {
 					if (stats === undefined) {
 						var err = new Eden.RuntimeError(me, Eden.RuntimeError.UNKNOWN, delay.value, "Selector '"+delay.value.selector+"' has no results");
 						err.line = delay.value.line;
@@ -150,9 +150,6 @@ function runEdenAction(source, action, cb) {
 						//delay.value.statements = [];
 					} else {
 						delay.value.statements = stats;
-						for (var i=0; i<stats.length; i++) {
-							stats[i].addIndex();
-						}
 					}
 					// Continue execution.
 					runEdenAction.call(me,source, action, cb);
