@@ -28,7 +28,8 @@ Eden.Project.init = function() {
 			eden.project.name = value.replace(/[^a-zA-Z0-9]/g, "");
 			eden.project.ast.script.name = eden.project.name;
 			// Fabricate a fake doxy comment for the script using meta data.
-			eden.project.updateDoxy();
+			//eden.project.updateDoxy();
+			eden.project.ast.script.doxyComment = eden.project.ast.doxyFromOrigin();
 			// TODO Notify relevant fragments...
 			Eden.Fragment.emit("aststatus", [eden.project.ast.script]);
 		}
