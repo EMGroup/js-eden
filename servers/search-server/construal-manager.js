@@ -203,7 +203,7 @@ function reindexProject(projectID){
 		}else{
 			var row = rows[0];
 			getFullVersion(row.saveID, row.projectID,row,function(data){
-				var tmpAst = new Eden.AST(data.source,undefined,{id: rows[i].projectID, saveID: rows[i].saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
+				var tmpAst = new Eden.AST(data.source,undefined,{id: row.projectID, saveID: row.saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
 				
 				if(allKnownProjects[row.projectID])
 					allKnownProjects[row.projectID].destroy();
@@ -621,7 +621,7 @@ function sendDiff(fromID,toSource,projectID,toID,res){
 	});
 }
 
-function processSelectorNode(t, criteria, criteriaVals,i){
+function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 	if(t.type == "property"){
 		switch(t.name){
 		case ".id":
@@ -633,7 +633,7 @@ function processSelectorNode(t, criteria, criteriaVals,i){
 			criteriaVals["@title" + i] = t.param.replace("*","%");
 			break;
 		case ":me":
-			listedOnly = false;
+			criteriaVals["@listedOnly"] = false;
 			break;
 		case ".author":
 //			criteria.push("owner = @otherAuthor");
@@ -646,8 +646,8 @@ function processSelectorNode(t, criteria, criteriaVals,i){
 		}
 	}
 	if(t.type == "tag"){
-		criteria.push("tags like @tag" + i);
-		criteriaVals["@tag" + i] = t.tag.replace("*","%");				
+		tagCriteria.push("tags like @tag" + i);
+		criteriaVals["@tag" + i] = "% " + t.tag.replace("*","%").substring(1) + " %";				
 	}
 	if(t.type == "name"){
 		
@@ -712,10 +712,10 @@ app.get('/project/search', function(req, res){
 		var selectorAST = Eden.Selectors.parse(req.query.query);
 		if(selectorAST.type == "intersection"){	
 			for(var i = 0; i < selectorAST.children.length; i++){
-				processSelectorNode(selectorAST.children[i],criteria,criteriaVals,i);
+				processSelectorNode(selectorAST.children[i],criteria,criteriaVals, tagCriteria, i);
 			}
 		}else{
-			processSelectorNode(selectorAST,criteria,criteriaVals,i);
+			processSelectorNode(selectorAST,criteria,criteriaVals, tagCriteria, 0);
 		}
 	}
 	
@@ -723,6 +723,9 @@ app.get('/project/search', function(req, res){
 		listedOnly = false;
 	}
 
+	if(criteriaVals["@listedOnly"])
+		listedOnly = criteriaVals["@listedOnly"];
+	
 	var targetTable = "view_latestVersion";
 	if(listedOnly)
 		targetTable = "view_listedVersion";
