@@ -633,7 +633,7 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 			criteriaVals["@title" + i] = t.param.replace("*","%");
 			break;
 		case ":me":
-			listedOnly = false;
+			criteriaVals["@listedOnly"] = false;
 			break;
 		case ".author":
 //			criteria.push("owner = @otherAuthor");
@@ -647,7 +647,7 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 	}
 	if(t.type == "tag"){
 		tagCriteria.push("tags like @tag" + i);
-		criteriaVals["@tag" + i] = "% " + t.tag.replace("*","%") + " %";				
+		criteriaVals["@tag" + i] = "% " + t.tag.replace("*","%").substring(1) + " %";				
 	}
 	if(t.type == "name"){
 		
@@ -723,6 +723,9 @@ app.get('/project/search', function(req, res){
 		listedOnly = false;
 	}
 
+	if(criteriaVals["@listedOnly"])
+		listedOnly = criteriaVals["@listedOnly"];
+	
 	var targetTable = "view_latestVersion";
 	if(listedOnly)
 		targetTable = "view_listedVersion";
