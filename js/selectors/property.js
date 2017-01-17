@@ -198,7 +198,9 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 
 		// Additional selector unions to check
 		case ":"		:
-		case ":matches"	:	return Eden.Selectors.parse(this.param).filter(statements);
+		case ":matches"	:	var sast = Eden.Selectors.parse(this.param);
+							if (sast) return sast.filter(statements);
+							return [];
 
 		case ".title"	:	if (this.isreg) {
 								return statements.filter(function(stat) {

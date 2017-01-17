@@ -162,7 +162,7 @@ Folder.prototype.getInnerSource = function() {
 		//if (!sym.origin || sym.origin.name == "*Default") continue;
 		if (sym.origin && sym.origin.getOrigin) {
 			var o = sym.origin.getOrigin();
-			if (o && !o.remote) {
+			if (!o || (o && !o.remote)) {
 				res += sym.getSource() + "\n";
 				this.numlines += sym.origin.numlines + 1;
 			}

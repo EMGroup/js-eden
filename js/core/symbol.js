@@ -85,7 +85,7 @@ Object.defineProperty(Symbol.prototype, "stamp", {
 });
 
 Object.defineProperty(Symbol.prototype, "id", {
-	get: function() { return (this.origin) ? this.origin.id : undefined; }
+	get: function() { return (this.origin && this.origin.id) ? this.origin.id : this.name; }
 });
 
 Object.defineProperty(Symbol.prototype, "executed", {
@@ -102,6 +102,11 @@ Symbol.prototype.getASTOrigin = function() {
 		while (p.parent) p = p.parent;
 		if (p.base) return p.base.origin;
 	}
+}
+
+Symbol.prototype.getOrigin = function() {
+	if (this.origin) return this.origin.getOrigin();
+	return undefined;
 }
 
 
@@ -368,7 +373,7 @@ Symbol.prototype.clearDependencies = function () {
 
 
 Symbol.prototype.getSource = function() {
-	if (this.origin && !this.origin.internal && !this.origin.getSource) console.log("NO GETSOURCE",this);
+	//if (this.origin && !this.origin.internal && !this.origin.getSource) console.log("NO GETSOURCE",this);
 	if (this.origin && !this.origin.internal) return this.origin.getSource();
 	return this.name + " = " + Eden.edenCodeForValue(this.value()) + ";";
 }

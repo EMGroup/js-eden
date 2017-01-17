@@ -282,6 +282,8 @@ Eden.Selectors.DotNode = function(label) {
 Eden.Selectors.parse = function(s, opts) {
 	var options = opts;
 
+	if (!s || s == "") return;
+
 	while (s.length > 0 && s.charAt(0) == "@") {
 		if (!options) options = {};
 		s = s.substring(1);
