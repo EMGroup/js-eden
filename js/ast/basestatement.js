@@ -99,6 +99,10 @@ Eden.AST.BaseStatement.getSource = function() {
 Eden.AST.BaseStatement.getOuterSource = function() {
 	var src = this.getSource();
 
+	if (this.parent === undefined) {
+		src = "action " + this.name + "{" + src + "}";
+	}
+
 	if (this.doxyComment) {
 		src = "/** " + this.doxyComment.content + " */\n"+src;
 	}
