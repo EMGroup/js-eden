@@ -266,6 +266,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				//curChanged(curSym, curSym.value());
 				rebuildTabs();
 				updateControls();
+				//scriptarea.setFragment(tab_frags[curtab]);
+				scriptarea.refresh();
 			}
 		});
 
@@ -294,6 +296,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				//rebuildTabs();
 				//delayRebuild();
 				//setTitle(tab_frags[curtab].title);
+				rebuildTabs();
+				updateControls();
 			}
 		});
 

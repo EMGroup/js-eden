@@ -104,6 +104,11 @@ Eden.SyntaxError.SELECTORATTRIB = 77;
 Eden.SyntaxError.SELECTORTAG = 78;
 Eden.SyntaxError.SELECTORBTICK = 79;
 Eden.SyntaxError.SELECTOROPTION = 80;
+Eden.SyntaxError.QUERYOPEN = 81;
+Eden.SyntaxError.QUERYCLOSE = 82;
+Eden.SyntaxError.QUERYSELECTOPEN = 83;
+Eden.SyntaxError.QUERYSELECTCLOSE = 84;
+Eden.SyntaxError.QUERYSELECTCOMMA = 85;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -536,6 +541,26 @@ Eden.SyntaxError.db = [
 		suggestion: {expected: [], next: []}
 	},
 /* EDEN_ERROR_SELECTOROPTION */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_QUERYOPEN */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_QUERYCLOSE */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_QUERYSELECTOPEN */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_QUERYSELECTCLOSE */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_QUERYSELECTCOMMA */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	}

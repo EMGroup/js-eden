@@ -58,7 +58,7 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 			this.next();
 			while (this.stream.valid() && this.token != ")") this.next();
 			var end = this.stream.prevposition;
-			var str = ":(" + this.stream.code.substring(start,end) + ")";
+			var str = ":(" + this.stream.code.substring(start,end).replace(/[\r\n]*/g,"") + ")";
 			expr = new Eden.AST.Literal("STRING", str);
 			this.next();
 		} else {
@@ -123,7 +123,7 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 		this.next();
 		while (this.stream.valid() && this.token != ")") this.next();
 		var end = this.stream.prevposition;
-		var str = "(" + this.stream.code.substring(start,end) + ")";
+		var str = "(" + this.stream.code.substring(start,end).replace(/[\r\n]*/g,"") + ")";
 		expr = new Eden.AST.Literal("STRING", str);
 		this.next();
 	} else if (this.token == ")") {

@@ -155,7 +155,9 @@ Eden.Selectors.resultTypes = {
 	"rawcomment": true,
 	"id": true,
 	"remote": true,
-	"root": true
+	"root": true,
+	"enabled": true,
+	"executed": true
 };
 
 Eden.Selectors.processResults = function(statements, o) {
@@ -640,6 +642,63 @@ Eden.Selectors.goto = function(selector) {
 		}
 	}
 	return success;
+}
+
+
+Eden.Selectors.modify = function(selector, attributes, values) {
+	var res = Eden.Selectors.query(selector);
+
+	var attribs = (typeof attributes == "string") ? attributes.split(",") : attributes;
+	var vals = (Array.isArray(values)) ? values : [values];
+
+	if (vals.length < attribs.length) {
+		console.error("Not enough values");
+		return;
+	}
+
+	for (var i=0; i<res.length; i++) {
+		for (var j=0; j<attribs.length; j++) {
+			switch (attribs[j]) {
+			case "source"		:	var newnode = Eden.AST.parseStatement(vals[j]);
+									if (res[i].parent) {
+										res[i].parent.replaceChild(res[i], newnode);
+									} else {
+										console.error("Cannot replace outer source of root script");
+									}
+									break;
+			case "innersource"	:	if (res[i].type == "script") {
+										var newnode = Eden.AST.parseScript(vals[j]);
+										res[i].patchInner(newnode);
+										var parent = res[i];
+										// Notify all parent fragments of patch
+										while (parent) {
+											Eden.Fragment.emit("patch", [undefined, parent]);
+											parent = parent.parent;
+										}
+									} else {
+										console.error("Cannot replace innersource of non-script node");
+									}
+									break;
+
+			case "title":
+			case "comment":
+			case "rawcomment":
+			case "tags":
+			case "executed": break;
+			case "enabled"		:	if (res[i].type == "when") {
+										if (res[i].enabled && !vals[j]) {
+											eden.project.removeAgent(res[i]);
+											res[i].enabled = false;
+										} else if (!res[i].enabled && vals[j]) {
+											eden.project.registerAgent(res[i]);
+											res[i].enabled = true;
+										}
+									} break;
+			case "name": break;
+			default: console.error("Cannot modify property '"+attribs[j]+"'");
+			}
+		}
+	}
 }
 
 

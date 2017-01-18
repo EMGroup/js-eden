@@ -43,7 +43,7 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	var dataimported = element.getAttribute("data-imported");
 	var dataremote = element.getAttribute("data-remote");
 
-	Eden.Selectors.query("@history " + name, "id,path,source,type,value,active,tags,comment,historic", {minimum: 1, options: {external: true}}, function(ast){
+	Eden.Selectors.query("@history " + name, "id,path,source,type,value,active,tags,rawcomment,historic", {minimum: 1, options: {external: true}}, function(ast){
 	if (ast.length == 0) {
 		console.log("No result");
 		return;
@@ -59,6 +59,8 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	var tags = ast[6];
 	var comment = ast[7];
 	var historic = ast[8];
+
+	if (comment) comment = new Eden.AST.DoxyComment(comment);
 
 	var docele = $(element).find(".doxy-search-details");
 	if (docele === null || docele.length == 0) {
@@ -115,7 +117,7 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 		if (tags && tags.length > 0) {
 			html += "<p><b>Tags:</b> " + tags.join(" ") + "</p>";
 		}
-		var stripped = comment; //ast.doxyComment.pretty();
+		var stripped = comment.pretty(); //ast.doxyComment.pretty();
 		if (stripped && stripped.length > 0) {
 			html += stripped;
 		}

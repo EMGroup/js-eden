@@ -102,6 +102,17 @@ EdenUI.ScriptArea.prototype.setFragment = function(frag) {
 	});
 }
 
+EdenUI.ScriptArea.prototype.refresh = function() {
+	this.intextarea.value = this.fragment.getSource();
+	if (this.fragment.ast) {
+		this.highlightContent(-1, 0);
+		this.intextarea.focus();
+		this.checkScroll();
+
+		//this.gutter.setBaseAST(frag.ast.script);
+	}
+}
+
 EdenUI.ScriptArea.prototype.updateSource = function(src, line) {
 	this.fragment.setSource(src);
 	this.highlighter.ast = this.fragment.ast;

@@ -316,6 +316,21 @@ Language.errors = [
 ],
 /* EDEN_ERROR_SELECTOROPTION */ [
 	"Invalid selector option"
+],
+/* EDEN_ERROR_QUERYOPEN */ [
+	"A query must be enclosed in ()"
+],
+/* EDEN_ERROR_QUERYCLOSE */ [
+	"Missing a closing query bracket"
+],
+/* EDEN_ERROR_QUERYSELECTOPEN */ [
+	"A query must specify what to return using []"
+],
+/* EDEN_ERROR_QUERYSELECTCLOSE */ [
+	"Missing a closing ]"
+],
+/* EDEN_ERROR_QUERYSELECTCOMMA */ [
+	"Expected a comma separated list of attributes"
 ]
 ];
 

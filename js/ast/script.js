@@ -37,40 +37,82 @@ Eden.AST.Script.prototype.getInnerSource = function() {
 	return res;
 }
 
-Eden.AST.Script.prototype.patchScript = function(ast) {
+Eden.AST.Script.prototype.patchInner = function(ast) {
 	var p = this;
 	while (p.parent) {
 		p = p.parent;
 	}
 
+	// Transfer state
+	var statindex = {};
+	for (var i=0; i<this.statements.length; i++) {
+		var stat = this.statements[i];
+		if (statindex[stat.id] === undefined) statindex[stat.id] = [];
+		statindex[stat.id].push(stat);
+	}
+	for (var i=0; i<ast.statements.length; i++) {
+		var stat = ast.statements[i];
+		stat.buildID();
+		if (statindex[stat.id] && statindex[stat.id].length > 0) {
+			//this.ast.script.statements[i] = statindex[stat.id];
+			ast.replaceChild(i, statindex[stat.id][0]);
+			statindex[stat.id].shift();
+			if (statindex[stat.id].length == 0) delete statindex[stat.id];
+		} else {
+			if (stat.type != "dummy" && this.indexed) stat.addIndex();
+			//var stats = Eden.Selectors.queryWithin([stat], ">>");
+			//for (var j=0; j<stats.length; j++) Eden.Index.update(stats[j]);
+		}
+	}
+	for (var x in statindex) {
+		var stats = statindex[x];
+		for (var i=0; i<stats.length; i++) {
+			if (stats[i].type == "when" && stats[i].enabled) {
+				eden.project.removeAgent(stats[i]);
+			}
+			if (this.indexed && stats[i].executed == 0) {
+				//console.log("Remove index for",statindex[x]);
+				stats[i].removeIndex();
+				//var stats = Eden.Selectors.queryWithin([statindex[x]], ">>");
+				//for (var j=0; j<stats.length; j++) Eden.Index.remove(stats[j]);
+			} else {
+				stats[i].destroy();
+			}
+		}
+	}
+
 	if (this.parent === undefined) {
 		// May need to replace the ACTIVE virtual root
-		for (var i=0; i<ast.script.statements.length; i++) {
-			if (ast.script.statements[i].type == "script" && ast.script.statements[i].name == "ACTIVE") {
-				ast.script.statements[i] = eden.root;
-				Eden.Index.remove(ast.scripts["ACTIVE"]);
-				ast.scripts["ACTIVE"] = eden.root;
+		for (var i=0; i<ast.statements.length; i++) {
+			if (ast.statements[i].type == "script" && ast.statements[i].name == "ACTIVE") {
+				ast.statements[i] = eden.root;
+				Eden.Index.remove(ast.statements[i]);
+				//ast.scripts["ACTIVE"] = eden.root;
 			} else {
-				ast.script.statements[i].parent = this;
+				ast.statements[i].parent = this;
 			}
 		}
 	} else {
-		for (var i=0; i<ast.script.statements.length; i++) {
+		for (var i=0; i<ast.statements.length; i++) {
 			// Each parent must be updated to real parent
-			ast.script.statements[i].parent = this;
+			ast.statements[i].parent = this;
 			//Eden.Index.update(ast.script.statements[i]);
 		}
 	}
 
 	// Patch the statements
-	this.statements = ast.script.statements;
-	this.base = ast;
+	this.statements = ast.statements;
+	//this.base = ast;
 
 	// Update script index...
 	// Is this needed now??
 	//for (var x in ast.scripts) {
 	//	p.base.scripts[x] = ast.scripts[x];
 	//}
+}
+
+Eden.AST.Script.prototype.patchOuter = function(node) {
+	
 }
 
 Eden.AST.Script.prototype.getLine = function() {

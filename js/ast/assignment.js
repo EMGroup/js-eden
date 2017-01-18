@@ -20,7 +20,28 @@ Eden.AST.Assignment = function(expression) {
 	this.compiled = undefined;
 	this.dirty = false;
 	this.value = undefined;
+	this.compiled = undefined;
 };
+
+/*Eden.AST.Assignment.prototype.patchOuter = function(node) {
+	this.expression = node.expression;
+	this.executed = 0;
+	this.lvalue = node.lvalue;
+	this.value = undefined;
+	this.compiled = undefined;
+	this.errors = node.errors;
+	this.dirty = node.dirty;
+	this.source = node.source;
+};*/
+
+/*Eden.AST.Assignment.prototype.patchInner = function(node) {
+	this.expression = node;
+	this.executed = 0;
+	this.value = undefined;
+	this.compiled = undefined;
+	this.errors = node.errors;
+	var oldsrc = this.source.split("=");
+};*/
 
 /*Eden.AST.Assignment.prototype.getParameterByNumber = function(index) {
 	if (this.parent && this.parent.getParameterByNumber) {

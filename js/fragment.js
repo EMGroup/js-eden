@@ -38,7 +38,8 @@ Eden.Fragment = function(selector) {
 	Eden.Fragment.listenTo("patch", this, function(frag, ast) {
 		if (ast === me.originast) {
 			me.source = me.originast.getInnerSource();
-			me.ast = new Eden.AST(me.source, undefined, me);
+			//me.ast = new Eden.AST(me.source, undefined, me);
+			me.ast = Eden.AST.fromNode(me.originast,me);
 			Eden.Fragment.emit("changed", [me]);
 		}
 	});
@@ -337,48 +338,10 @@ Eden.Fragment.prototype.setSource = function(src) {
 		//clearTimeout(this.autosavetimer);
 		//this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Fragment.AUTOSAVE_INTERVAL);
 
-		// Transfer state
-		var statindex = {};
-		for (var i=0; i<this.originast.statements.length; i++) {
-			var stat = this.originast.statements[i];
-			if (statindex[stat.id] === undefined) statindex[stat.id] = [];
-			statindex[stat.id].push(stat);
-		}
-		for (var i=0; i<this.ast.script.statements.length; i++) {
-			var stat = this.ast.script.statements[i];
-			stat.buildID();
-			if (statindex[stat.id] && statindex[stat.id].length > 0) {
-				//this.ast.script.statements[i] = statindex[stat.id];
-				this.ast.script.replaceChild(i, statindex[stat.id][0]);
-				statindex[stat.id].shift();
-				if (statindex[stat.id].length == 0) delete statindex[stat.id];
-			} else {
-				if (stat.type != "dummy" && !this.scratch) stat.addIndex();
-				//var stats = Eden.Selectors.queryWithin([stat], ">>");
-				//for (var j=0; j<stats.length; j++) Eden.Index.update(stats[j]);
-			}
-		}
-		for (var x in statindex) {
-			var stats = statindex[x];
-			for (var i=0; i<stats.length; i++) {
-				if (stats[i].type == "when" && stats[i].enabled) {
-					eden.project.removeAgent(stats[i]);
-				}
-				if (this.originast.indexed && stats[i].executed == 0) {
-					//console.log("Remove index for",statindex[x]);
-					stats[i].removeIndex();
-					//var stats = Eden.Selectors.queryWithin([statindex[x]], ">>");
-					//for (var j=0; j<stats.length; j++) Eden.Index.remove(stats[j]);
-				} else {
-					stats[i].destroy();
-				}
-			}
-		}
-
 		if (this.originast) {
 			// Patch the origin...
 			var parent = this.originast.parent;
-			this.originast.patchScript(this.ast);
+			this.originast.patchInner(this.ast.script);
 
 			// Notify all parent fragments of patch
 			while (parent) {
@@ -387,7 +350,7 @@ Eden.Fragment.prototype.setSource = function(src) {
 			}
 		}
 
-		Eden.Fragment.emit("changed", [this]);
+		Eden.Fragment.emit("status", [this]);
 
 		//this.lastast.destroy();
 		//this.lastast = undefined;

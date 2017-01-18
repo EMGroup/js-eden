@@ -3,6 +3,20 @@ Eden.AST.prototype.pQUERY = function() {
 
 	var restype = [];
 
+	if (this.token != "(") {
+		stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYOPEN));
+		return stat;
+	}
+	this.next();
+
+	stat.setSelector(this.pCODESELECTOR());
+
+	if (this.token != ")") {
+		stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYCLOSE));
+		return stat;
+	}
+	this.next();
+
 	if (this.token == "[") {
 		this.next();
 		while (this.stream.valid() && this.token != "]") {
@@ -10,17 +24,26 @@ Eden.AST.prototype.pQUERY = function() {
 			this.next();
 			if (this.token == "]") break;
 			if (this.token != ",") {
-				stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN));
+				stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYSELECTCOMMA));
 				return stat;
 			}
 			this.next();
 		}
 
 		if (this.token != "]") {
-			stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN));
+			stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYSELECTCLOSE));
 			return stat;
 		}
 		this.next();
+	} else {
+		stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYSELECTOPEN));
+		return stat;
+	}
+
+	if (this.token == "=") {
+		this.next();
+		var expr = this.pEXPRESSION();
+		stat.setModify(expr);
 	}
 
 	if (restype.length == 0) {
@@ -29,19 +52,6 @@ Eden.AST.prototype.pQUERY = function() {
 
 	stat.setResultTypes(restype);
 
-	if (this.token != "(") {
-		stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IFCONDOPEN));
-		return stat;
-	}
-	this.next();
-
-	stat.setSelector(this.pCODESELECTOR());
-
-	if (this.token != ")") {
-		stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IFCONDCLOSE));
-		return stat;
-	}
-	this.next();
 	return stat;
 }
 

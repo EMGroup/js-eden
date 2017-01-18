@@ -83,6 +83,7 @@ Eden.AST.BaseScript.replaceChild = function(oldchild, newchild) {
 	this.statements[oix].destroy();
 	this.statements[oix] = newchild;
 	newchild.parent = this;
+	if (newchild.type != "dummy" && this.indexed) newchild.addIndex();
 	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
 }
 

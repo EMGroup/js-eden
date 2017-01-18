@@ -25,8 +25,10 @@ Eden.Project.init = function() {
 		if (sym.last_modified_by !== eden.project) {
 			if (eden.project === undefined) return;
 			eden.project.title = value;
-			eden.project.name = value.replace(/[^a-zA-Z0-9]/g, "");
-			eden.project.ast.script.name = eden.project.name;
+			if (this.id === undefined) {
+				eden.project.name = value.replace(/[^a-zA-Z0-9]/g, "");
+				eden.project.ast.script.name = eden.project.name;
+			}
 			// Fabricate a fake doxy comment for the script using meta data.
 			//eden.project.updateDoxy();
 			eden.project.ast.script.doxyComment = eden.project.ast.doxyFromOrigin();
