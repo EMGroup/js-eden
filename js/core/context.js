@@ -171,6 +171,8 @@ Folder.prototype.getInnerSource = function() {
 	return res;
 }
 
+Folder.prototype.destroy = function() {}
+
 Folder.prototype.getSource = function() {
 	var res = "action ACTIVE {\n";
 	res += this.getInnerSource();

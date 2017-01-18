@@ -28,12 +28,14 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 		var code_entry = $('<div id=\"' + name + '-content\" class=\"htmlviews-content\" data-observables="'+observables.join(",")+'"></div>');
 		code_entry.on("mousedown", "button", function(e) {
 			var name = e.currentTarget.name;
-			eden.root.lookup(name).assign(true, eden.root.scope, Symbol.hciAgent);
+			var value = e.currentTarget.getAttribute("data-value");
+			eden.root.lookup(name).assign((value === null) ? true : value, eden.root.scope, Symbol.hciAgent);
 			//eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
 		});
 		code_entry.on("mouseup", "button", function(e) {
 			var name = e.currentTarget.name;
-			eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
+			var value = e.currentTarget.getAttribute("data-value");
+			if (value === null) eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
 			//eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
 		});
 		code_entry.on("click", function(e) {
