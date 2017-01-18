@@ -50,6 +50,20 @@ Eden.Index.getByType = function(type) {
 	return res;
 }
 
+Eden.Index.getByTag = function(tag) {
+	var res = [];
+	if (Eden.Index.tag_index[tag]) return res.concat.apply(res, Eden.Index.tag_index[tag].map(function(e) { return Eden.Index.id_index[e]; }));
+	else return res;
+}
+
+Eden.Index.getByTagRegex = function(regex) {
+	var res = [];
+	for (var n in Eden.Index.tag_index) {
+		if (regex.test(n)) res = res.concat.apply(res, Eden.Index.tag_index[n].map(function(e) { return Eden.Index.id_index[e]; }));
+	}
+	return res;
+}
+
 Eden.Index.remove = function(node) {
 	var ids = Eden.Index.id_index[node.id];
 	if (!ids) return;
@@ -70,6 +84,17 @@ Eden.Index.remove = function(node) {
 				Eden.Index.name_index[name].splice(ix,1);
 			}
 		}
+
+		if (node.doxyComment) {
+			var tags = node.doxyComment.getHashTags();
+			for (var i=0; i<tags.length; i++) {
+				if (Eden.Index.tag_index[tags[i]] === undefined) continue;
+				var ix = Eden.Index.tag_index[tags[i]].indexOf(node.id);
+				if (ix >= 0) {
+					Eden.Index.tag_index[tags[i]].splice(ix,1);
+				}
+			}
+		}
 	}
 }
 
@@ -86,6 +111,15 @@ Eden.Index.update = function(node) {
 			var name = (node.name) ? node.name : node.lvalue.name;
 			if (Eden.Index.name_index[name] === undefined) Eden.Index.name_index[name] = [];
 			if (Eden.Index.name_index[name].indexOf(node.id) == -1) Eden.Index.name_index[name].push(node.id);
+		}
+
+		// Update tag index...
+		if (node.doxyComment) {
+			var tags = node.doxyComment.getHashTags();
+			for (var i=0; i<tags.length; i++) {
+				if (Eden.Index.tag_index[tags[i]] === undefined) Eden.Index.tag_index[tags[i]] = [];
+				if (Eden.Index.tag_index[tags[i]].indexOf(node.id) == -1) Eden.Index.tag_index[tags[i]].push(node.id);
+			}
 		}
 	}
 }

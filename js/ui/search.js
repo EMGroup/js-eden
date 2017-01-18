@@ -26,12 +26,11 @@ EdenUI.SearchBox = function(element) {
 
 	element.on('click', '.script-import', function(e) {
 		var id = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-id");
-		me.element.hide();
-		Eden.Selectors.query(id, undefined, {minimum: 1, options: {external: true}}, function(stats) {
-			if (stats && stats.length > 0) {
-				for (var i=0; i<stats.length; i++) {
-					stats[i].addIndex();
-				}
+		//me.element.hide();
+		Eden.Selectors.query(id, undefined, {minimum: 1, options: {external: true, index: true}}, function(stats) {
+			if (id && id != "") {
+				e.currentTarget.parentNode.parentNode.parentNode.setAttribute("data-imported","true");
+				me.updateSymbolDetails(e.currentTarget.parentNode.parentNode.parentNode, id);
 			}
 		});
 	});
@@ -78,15 +77,16 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 		}
 	}
 
-	var html;
+	var html = "";
 
 	if (!historic) {
 		if (dataremote == "true") {
+			html += "<p>";
 			if (dataimported != "true") {
-				html = '<p><button class="script-button script-import">Import</button></p>';
-			} else {
-				html = '<p><button class="script-button script-goto">Goto</button></p>';
-			}
+				html += '<button class="script-button script-import">Import</button>';
+			}// else {
+				html += '<button class="script-button script-goto">Goto</button></p>';
+			//}
 		} else {
 			if (type == "assignment" || type == "definition") {
 				html = '<p><button class="script-button script-goto">Goto</button><button class="script-button">Watch</button><button class="script-button">More</button></p>';

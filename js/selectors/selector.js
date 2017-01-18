@@ -374,7 +374,7 @@ Eden.Selectors._parse = function(s, options) {
 		s = ns.trim();
 	} else if (s.charAt(0) == "#") {
 		var nstats = [];
-		var tag = s.match(/#[a-zA-Z0-9_]+/);
+		var tag = s.match(/#[a-zA-Z0-9_*?]+/);
 		if (tag === null) return;
 		tag = tag[0];
 		node = new Eden.Selectors.TagNode(tag);
