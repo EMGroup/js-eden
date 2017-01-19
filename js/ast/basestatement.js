@@ -16,6 +16,7 @@ Eden.AST.BaseStatement.buildID = function() {
 	var hash = 0;
 	var ch;
 	var hashstr = this.source;
+	if (this.doxyComment) hashstr = this.doxyComment.content + hashstr;
 	//if (this.parent) hashstr += this.parent.id;
 	var len = hashstr.length;
 	for (var i=0; i<len; i++) {
