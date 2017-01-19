@@ -644,7 +644,9 @@ Eden.Selectors.goto = function(selector) {
 	return success;
 }
 
-
+/**
+ * Edit AST nodes that match a query.
+ */
 Eden.Selectors.modify = function(selector, attributes, values) {
 	var res = Eden.Selectors.query(selector);
 
@@ -659,9 +661,19 @@ Eden.Selectors.modify = function(selector, attributes, values) {
 	for (var i=0; i<res.length; i++) {
 		for (var j=0; j<attribs.length; j++) {
 			switch (attribs[j]) {
-			case "source"		:	var newnode = Eden.AST.parseStatement(vals[j]);
-									if (res[i].parent) {
-										res[i].parent.replaceChild(res[i], newnode);
+			case "source"		:	if (res[i].parent) {
+										var parent = res[i].parent;
+										if (typeof vals[j] == "string") {
+											var newnode = Eden.AST.parseStatement(vals[j]);
+											res[i].parent.replaceChild(res[i], newnode);
+										} else if (vals[j] === undefined) {
+											res[i].parent.removeChild(res[i]);
+										}
+										// Notify all parent fragments of patch
+										while (parent) {
+											Eden.Fragment.emit("patch", [undefined, parent]);
+											parent = parent.parent;
+										}
 									} else {
 										console.error("Cannot replace outer source of root script");
 									}
@@ -689,6 +701,7 @@ Eden.Selectors.modify = function(selector, attributes, values) {
 										if (res[i].enabled && !vals[j]) {
 											eden.project.removeAgent(res[i]);
 											res[i].enabled = false;
+											//res[i].executed = 0;
 										} else if (!res[i].enabled && vals[j]) {
 											eden.project.registerAgent(res[i]);
 											res[i].enabled = true;

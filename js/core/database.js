@@ -220,6 +220,7 @@ Eden.DB.save = function(project, ispublic, callback) {
 					eden.error((data) ? data.description : "No response from server");
 					if (callback) callback(false);
 				} else {
+					console.log("Saved", data);
 					//meta.updateVersion(data.saveID, data.tag, meta.title, meta.name, meta.date);
 					project.id = data.projectID;
 					project.vid = data.saveID;

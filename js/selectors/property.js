@@ -47,15 +47,16 @@ Eden.Selectors.PropertyNode.attributes = {
 	"datatype":	{local: false,	indexed: false, rank: 30},
 	"id":		{local: false,	indexed: true,	rank: 2},
 	"lines":	{local: false,	indexed: false,	rank: 3},
-	"op":		{local: false,	indexed: false,	rank: 30}, 
-	"operator":	{local: false,	indexed: false,	rank: 30},
+//	"op":		{local: false,	indexed: false,	rank: 30}, 
+//	"operator":	{local: false,	indexed: false,	rank: 30},
 	"depends":	{local: false,	indexed: false, rank: 4},
 	"time":		{local: true,	indexed: false, rank: 3},
 	"date":		{local: false,	indexed: false,	rank: 3},
 	"title":	{local: false,	indexed: false, rank: 10},
 	"author":	{local: false,	indexed: false, rank: 10},
 	"v":		{local: false,	indexed: false, rank: 20},
-	"version":	{local: false,	indexed: false, rank: 20}
+	"version":	{local: false,	indexed: false, rank: 20},
+	"source":	{local: true,	indexed: false, rank: 50}	// Local only because of performance
 };
 
 Eden.Selectors.PropertyNode.pseudo = {
@@ -212,13 +213,23 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 								return statements.filter(function(stat) {
 									if (!stat.doxyComment) return false;
 									var title = stat.doxyComment.getProperty("title");
-									return title && title == this.value;
+									return title && title == me.value;
 								});
 							}
 
 		case ".author"	:	return statements;
 
 		case ".version"	:	return statements;
+
+		case ".source"	:	if (this.isreg) {
+								return statements.filter(function(stat) {
+									return me.value.test(stat.getSource());
+								});
+							} else {
+								return statements.filter(function(stat) {
+									return stat.getSource() == me.value;
+								});
+							}
 
 		// How long ago from now
 		case ":age"		:	var ts = generateTimeStamp(this.value);

@@ -709,6 +709,8 @@ See LICENSE.txt
 			function displayProjects2(output, pub, projects, count) {
 				var maxres = (count) ? count : 6;
 
+				if (projects === undefined) return;
+
 				for (var i=0; i<projects.length; i++) {
 					if (i == maxres) {
 						output.append($('<div class="cadence-plisting-entry more noselect"><div class="cadence-plisting-icon more">&#xf103;</div></div>'));
@@ -752,7 +754,7 @@ See LICENSE.txt
 
 				//console.log("Load projects: " + path);
 
-				Eden.DB.search("", function(data) {
+				Eden.DB.search((pub) ? "" : ":me", function(data) {
 					console.log("SEARCH",data);
 
 

@@ -527,14 +527,14 @@ function runAddVersion(addVersionStmt, listed, params,res){
 				}else{
 					db.run("END");
 					log("Created version " + lastSaveID + " of project " + projectID);
-					res.json({"saveID": this.lastSaveID, "projectID": projectID});
+					res.json({"saveID": lastSaveID, "projectID": projectID});
 					reindexProject(projectID);
 				}
 			});
 		}else{
 			db.run("END");
 			log("Created version " + lastSaveID + " of project " + projectID);
-			res.json({"saveID": this.lastSaveID, "projectID": projectID});
+			res.json({"saveID": lastSaveID, "projectID": projectID});
 		}
 	});
 }

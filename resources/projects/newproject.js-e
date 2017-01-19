@@ -11,5 +11,6 @@ do :project > start;
 action ACTIVE {views_list = ["myscript"];
 view_myscript_type = "ScriptInput";
 view_myscript_tabs = [":project > start"];
-view_myscript_current = 0;}
+view_myscript_current = 0;
+jseden_project_title = "New Project";}
 

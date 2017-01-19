@@ -68,15 +68,16 @@ function Construit(options,callback) {
 	
 	var menuBar = URLUtil.getParameterByName("menus") != "false";
 	var pluginsStr = URLUtil.getParameterByName("plugins");
-	var views = URLUtil.getParameterByName("views");
+	//var views = URLUtil.getParameterByName("views");
 	var exec = URLUtil.getParameterByName("exec");
 	var load = URLUtil.getParameterByName("load");
 	var lang = URLUtil.getParameterByName("lang");
-	var imports = URLUtil.getArrayParameterByName("import");
+	//var imports = URLUtil.getArrayParameterByName("import");
 	var restore = URLUtil.getParameterByName("restore");
 	var vid = URLUtil.getParameterByName("vid");
 	var master = URLUtil.getParameterByName("master");
 	var myid = URLUtil.getParameterByName("id");
+	var query = URLUtil.getParameterByName("q");
 
 	// Add URL parameters to observables...
 	var urlparams = URLUtil.getParameters();
@@ -268,21 +269,17 @@ function Construit(options,callback) {
 						rt.config = config;
 
 						Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
-							if (imports.length > 0) {
-								function doImport(ix) {
-									Eden.Agent.importAgent(imports[ix], "default", [], function() {
-										ix++;
-										if (ix == imports.length) doneLoading(true);
-										else doImport(ix);
-									});
-								}
-								//Eden.Agent.importAgent("lib","default", [], function() {
-									doImport(0);
-								//});
-							} else if (load != "") {
+							if (load != "") {
 								Eden.Project.load(parseInt(load),(vid === null || vid == "") ? undefined : parseInt(vid),function(){ doneLoading(true); });
+							} else if (query != "") {
+								Eden.DB.search(query, function(res) {
+									if (res.length == 1) {
+										console.log(res[0]);
+									}
+								});
 							} else if (restore != "") {
-								doneLoading(Eden.restore());
+								Eden.project.restore();
+								doneLoading(true);
 							} else {
 								// Background load library...
 								//Eden.Agent.importAgent("lib","default", [], function() {});

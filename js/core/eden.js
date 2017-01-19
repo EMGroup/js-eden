@@ -600,7 +600,7 @@
 	 */
 	Eden.prototype.error = function (error, origin) {
 
-		Eden.Agent.emit("error", [Symbol.jsAgent, new Eden.RuntimeError(undefined, 0, undefined, error)]);
+		eden.emit("error", [Symbol.jsAgent, new Eden.RuntimeError(undefined, 0, undefined, error)]);
 		return;
 
 		/*if (origin != "error") {

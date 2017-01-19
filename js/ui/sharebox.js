@@ -165,6 +165,7 @@ EdenUI.Sharebox = function(element) {
 			eden.project.save(false, function(status) {
 				if (status) {
 					var url = "?load="+eden.project.id+"&vid="+eden.project.vid;
+					window.history.replaceState({id: eden.project.id, vid: eden.project.vid},"",url);
 					me.sharebox.find(".projecturl").html(window.location.href+url);
 					//function selectElementContents(el) {
 					var range = document.createRange();
@@ -202,6 +203,7 @@ EdenUI.Sharebox = function(element) {
 			console.log("SAVED");
 			if (status) {
 				var url = "?load="+eden.project.id+"&vid="+eden.project.vid;
+				window.history.replaceState({id: eden.project.id, vid: eden.project.vid},"",url);
 				me.sharebox.find(".projecturl").html(window.location.href+url);
 				//function selectElementContents(el) {
 				var range = document.createRange();
