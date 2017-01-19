@@ -275,6 +275,12 @@ function Construit(options,callback) {
 								Eden.DB.search(query, function(res) {
 									if (res.length == 1) {
 										console.log(res[0]);
+										Eden.Project.load(res[0].projectID, undefined, function() {
+											doneLoading(true);
+										});
+									} else {
+										if (res.length > 1) console.error("Ambiguous project query");
+										doneLoading(false);
 									}
 								});
 							} else if (restore != "") {

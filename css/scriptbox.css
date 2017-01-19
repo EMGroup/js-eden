@@ -40,11 +40,11 @@ div.scriptbox-outputbox {
 }
 
 div.scriptbox-value {
-	margin-top: 5px;
-	padding: 8px;
+	/*margin-top: 5px;*/
+	/*padding: 8px;*/
 	/*padding-left: 100px;*/
 	background: #f0fff0;
-	font: 14px/20px Roboto Mono,monospace;
+	font: 12px/20px Roboto Mono,monospace;
 	white-space: normal;
 }
 
@@ -159,6 +159,14 @@ div.scriptbox-statement {
 	padding-left: 10px;
 }
 
+div.scriptbox-historic {
+	display: flex;
+}
+
+div.scriptbox-value {
+	padding-left: 40px;
+}
+
 div.scriptbox-statement:before {
 	position: relative;
 	font-family: "FontAwesome";
@@ -170,6 +178,14 @@ div.scriptbox-statement.error:before {
 	color: red;
 }
 
+div.scriptbox-historic:before {
+	color: #888;
+	position: relative;
+	font-family: "FontAwesome";
+	content: "\f105";
+	font-size: 12pt;
+	padding-right: 10px;
+}
 
 div.scriptbox-statement.readonly {
 	/*-webkit-filter: grayscale(70%);
@@ -224,6 +240,11 @@ input.scriptbox-check {
 .hidden-textarea {
 	position: relative;
 	left: -30000px;
+	white-space: pre;
+	word-wrap: normal;
+	overflow: auto;
+	font: 14px/20px Roboto Mono,monospace;
+	tab-size: 4;
 }
 
 div.scriptbox-output > div.eden-line {

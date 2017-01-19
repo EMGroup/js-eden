@@ -6,7 +6,11 @@ Eden.Selectors.PropertyNode = function(name, param) {
 	this.value = param;
 	this.range = false;
 	this.isreg = (param) ? param.indexOf("*") != -1 : false;
-	this.meta = (name.charAt(0) == ".") ? Eden.Selectors.PropertyNode.attributes[name.substring(1)] : Eden.Selectors.PropertyNode.pseudo[name.substring(1)];
+	if (typeof name == "string") {
+		this.meta = (name.charAt(0) == ".") ? Eden.Selectors.PropertyNode.attributes[name.substring(1)] : Eden.Selectors.PropertyNode.pseudo[name.substring(1)];
+	} else {
+		this.meta = undefined;
+	}
 	this.local = (this.meta) ? this.meta.local : false;
 
 	if (param) {
@@ -38,6 +42,24 @@ Eden.Selectors.PropertyNode = function(name, param) {
 				this.value = parseInt(param);
 			}
 		}
+
+		// Preprocess types
+		if (this.name == ".type") {
+			switch(this.param) {
+			case "is": this.param = "definition"; break;
+			case "assign":
+			case "=": this.param = "assignment"; break;
+			case "call": this.param = "functioncall"; break;
+			case "proc": this.param = "action"; break;
+			case "action": this.param = "script"; break;
+			case "+=":
+			case "-=":
+			case "*=":
+			case "/=":
+			case "++":
+			case "--": this.param = "modify"; break;
+			}
+		}
 	}
 }
 
@@ -56,7 +78,8 @@ Eden.Selectors.PropertyNode.attributes = {
 	"author":	{local: false,	indexed: false, rank: 10},
 	"v":		{local: false,	indexed: false, rank: 20},
 	"version":	{local: false,	indexed: false, rank: 20},
-	"source":	{local: true,	indexed: false, rank: 50}	// Local only because of performance
+	"source":	{local: true,	indexed: false, rank: 50},	// Local only because of performance
+	"comment":	{local: true,	indexed: false, rank: 50}
 };
 
 Eden.Selectors.PropertyNode.pseudo = {
@@ -116,7 +139,8 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 	//console.log("Property",command,param,statements);
 
 	if (typeof this.name == "number") {
-		
+		if (statements && statements.length >= this.name) return [statements[this.name-1]];
+		else return [];
 	} else {
 		switch(command) {
 		case ".name"	:	if (!param) {
@@ -228,6 +252,16 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 							} else {
 								return statements.filter(function(stat) {
 									return stat.getSource() == me.value;
+								});
+							}
+
+		case ".comment"	:	if (this.isreg) {
+								return statements.filter(function(stat) {
+									return stat.doxyComment && me.value.test(stat.doxyComment.stripped());
+								});
+							} else {
+								return statements.filter(function(stat) {
+									return stat.doxyComment && stat.doxyComment.stripped() == me.value;
 								});
 							}
 

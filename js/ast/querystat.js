@@ -40,7 +40,8 @@ Eden.AST.Query.prototype.execute = function(ctx,base,scope, agent) {
 
 	if (this.modexpr === undefined) {
 		var res = Eden.Selectors.query(this.selector.execute(ctx,base,scope,agent), this.restypes);
-		console.log(res);
+		//console.log(res);
+		base.lastresult = res;
 	} else {
 		Eden.Selectors.modify(this.selector.execute(ctx,base,scope,agent), this.restypes, this.modexpr.execute(ctx,base,scope,agent));
 	}

@@ -599,7 +599,7 @@
 				} else {
 					classes += "eden-string";
 				}
-			} else if (this.mode == 77 || this.mode == 78) {
+			} else if (this.mode == 77 || this.mode == 78 || this.mode == 79) {
 				if (this.mode == 77) {
 					linestack.push(line);
 					var nline = document.createElement("span");
@@ -615,7 +615,13 @@
 						this.lastmode = this.mode;
 						this.mode = 5;
 					}
-				} else if (token == ";") {
+				} else if ((this.mode == 78 || this.mode == 77) && token == "[") {
+					classes += "eden-selector";
+					this.mode = 79;
+				} else if (this.mode == 79 && token == "]") {
+					classes += "eden-selector";
+					this.mode = 78;
+				} else if (token == ";" || token == "=") {
 					if (this.mode == 78) line = linestack.pop();
 					classes += "eden-operator";
 					this.mode = 0;
@@ -623,12 +629,14 @@
 					if (this.mode == 78) line = linestack.pop();
 					classes += "eden-keyword";
 					this.mode = 0;
+				} else if (this.mode == 79 && token == "OBSERVABLE" && Eden.Selectors.resultTypes[tokentext]) {
+					classes += "eden-selector3";
 				} else {
-					this.mode = 78;
+					if (this.mode == 77) this.mode = 78;
 					if (token == "OBSERVABLE" && (prevtoken == "." || prevtoken == ":") && (Eden.Selectors.PropertyNode.attributes[tokentext] || Eden.Selectors.PropertyNode.pseudo[tokentext])) {
 						classes += "eden-selector2";
-					} else if (token == "OBSERVABLE" && prevtoken == "[" && Eden.Selectors.resultTypes[tokentext]) {
-						classes += "eden-selector3";
+					//} else if (token == "OBSERVABLE" && prevtoken == "[" && Eden.Selectors.resultTypes[tokentext]) {
+					//	classes += "eden-selector3";
 					} else {
 						classes += "eden-selector";
 					}

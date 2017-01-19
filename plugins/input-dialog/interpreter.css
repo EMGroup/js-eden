@@ -638,6 +638,18 @@ div.browse-icon {
 	width: 100%;
 }
 
+div.browse-icon.executed {
+	color: #88aa88;
+}
+
+div.browse-icon.project {
+	color: #8888aa;
+}
+
+div.browse-icon.root {
+	color: gold;
+}
+
 div.inspect {
 	-webkit-filter: hue-rotate(120deg);
 	filter: hue-rotate(120deg);

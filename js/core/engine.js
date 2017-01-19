@@ -70,7 +70,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 				//whens[i].active = false;
 			}
 		} else {
-			if (typeof statements[i].execute != "function") console.error("NO EXECUTE", statements[i]);
+			//if (typeof statements[i].execute != "function") console.error("NO EXECUTE", statements[i]);
 			var res = statements[i].execute(ctx, base, scope, agent);
 			if (res && Array.isArray(res) && res.length > 0) {
 				// Allow for a scope shift.

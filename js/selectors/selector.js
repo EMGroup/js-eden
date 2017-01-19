@@ -196,6 +196,7 @@ Eden.Selectors.processResults = function(statements, o) {
 										if (controls && controls["@title"]) val = controls["@title"][0];
 									}
 									break;
+				case "type"		:	val = stat.type; break;
 				//case "path"		:
 				case "name"		:	
 				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
@@ -347,8 +348,8 @@ Eden.Selectors._parse = function(s, options) {
 			s = s.substring(endix).trim();
 		}
 
-		if (s.charAt(1).match(/[0-9]+/)) {
-			var snum = parseInt(command);
+		if (command.charAt(1).match(/[0-9]+/)) {
+			var snum = parseInt(command.substring(1));
 			node = new Eden.Selectors.PropertyNode(snum);
 		} else {
 			node = new Eden.Selectors.PropertyNode(command, param);

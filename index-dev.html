@@ -532,68 +532,8 @@ See LICENSE.txt
 		Eden.projecttags = {};
 		var cachedprojects;
 		var maxres = URLUtil.getParameterByName("max");
+		var searchstr = "";
 		maxres = (maxres && maxres != "") ? parseInt(maxres) : undefined;
-
-		function updateSearch(q) {
-			var pbrowser = $("#project-browser");
-
-			if (q != "") {
-				if (cachedprojects === undefined) {
-					cachedprojects = pbrowser.html();
-					$(".jseden-dialog-plisting").hide();
-				}
-				pbrowser.html('<div id="jseden-searched-projects" class="jseden-dialog-plisting"></div>');
-
-				// Generate project search result...
-				var results = [];
-				var qs = q.split(" ");
-				for (var i=0; i<qs.length; i++) {
-					var regex = edenUI.regExpFromStr(qs[i]);
-					for (var t in Eden.projecttags) {
-						if (regex.test(t)) {
-							results.push.apply(results, Eden.projecttags[t]);
-						}
-					}
-				}
-
-				// Count duplicates
-				var dupcount = {};
-				var unique = [];
-				for (var i=0; i<results.length; i++) {
-					if (dupcount[results[i]] === undefined) {
-						unique.push(results[i]);
-						dupcount[results[i]] = 0;
-					}
-					dupcount[results[i]]++;
-				}
-
-				// Sort by number of duplicates
-				//results = unique.sort(function(a,b) {
-				//	return dupcount[a] < dupcount[b];
-				//});
-
-				// Remove any that don't match each token
-				var fresults = [];
-				for (var i=0; i<results.length; i++) {
-					if (dupcount[results[i]] == qs.length) fresults.push(results[i]);
-				}
-
-				// Now sort by date
-				fresults.sort(function(a,b) {
-					var da = Eden.DB.meta[a].date;
-					var db = Eden.DB.meta[b].date;
-					return db.localeCompare(da);
-				});
-
-				var presults = pbrowser.find("#jseden-searched-projects");
-				displayProjects2(presults, true, fresults, (maxres) ? maxres : 9);
-
-			} else if (cachedprojects) {
-				pbrowser.html(cachedprojects);
-				cachedprojects = undefined;
-				$(".jseden-dialog-plisting").show();
-			}
-		}
 
 		$(".loadmodal").hide();
 		if (!loaded) {
@@ -611,6 +551,19 @@ See LICENSE.txt
 			/*if (!Eden.restore()) {
 				Eden.loadFromURL("library2/NewProject.js-e");
 			}*/
+
+			function updateSearch() {
+				var plist = lopts.find("#jseden-public-projects");
+
+				//console.log("Load projects: " + path);
+
+				Eden.DB.search(searchstr, function(data) {
+					console.log("SEARCH",searchstr,data);
+					var pliste = plist.get(0);
+					while (pliste.lastChild) pliste.removeChild(pliste.lastChild);
+					displayProjects2(plist, true, data);
+				});
+			}
 
 			lopts.css("display","block");
 			lopts.on("click","#restoreold",function() {
@@ -658,8 +611,8 @@ See LICENSE.txt
 				}
 			})
 			.on("keyup",".search", function(e) {
-				var q = e.currentTarget.value;
-				updateSearch(q);
+				searchstr = e.currentTarget.value;
+				updateSearch();
 			})
 			.on("click",".project",function(e) {
 				var pid = e.currentTarget.getAttribute("data-pid");
@@ -754,7 +707,7 @@ See LICENSE.txt
 
 				//console.log("Load projects: " + path);
 
-				Eden.DB.search((pub) ? "" : ":me", function(data) {
+				Eden.DB.search((pub) ? searchstr : ":me", function(data) {
 					console.log("SEARCH",data);
 
 
@@ -779,9 +732,9 @@ See LICENSE.txt
 
 			if (Eden.DB.isConnected()) {
 				if (q && q != "") {
-					updateSearch(q);
+					//updateSearch(q);
 					displayProjects(true, function() {
-						updateSearch(q);
+						//updateSearch(q);
 					});
 					lopts.find(".searchouter").remove();
 					lopts.find(".project-content").prepend($('<div class="jseden-project-cat">'+q+':</div>'));

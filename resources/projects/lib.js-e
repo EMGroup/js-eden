@@ -3501,7 +3501,7 @@ jseden_pm_user = jseden_pm_user;
 jseden_explorer_enabled = true;
 jseden_explorer_visible is jseden_maker;
 jseden_explorer_watch is querySelector(jseden_explorer_search,"symbol");
-jseden_script_query = ".type(script).name:not(:remote)";
+jseden_script_query = ".type(script).name:not(:remote,ACTIVE)";
 }
 
 do lib > core;
