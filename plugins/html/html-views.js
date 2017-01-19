@@ -29,7 +29,7 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 		code_entry.on("mousedown", "button", function(e) {
 			var name = e.currentTarget.name;
 			var value = e.currentTarget.getAttribute("data-value");
-			if (value.charAt(0).match(/[0-9]?/) !== null) value = parseInt(value);
+			if (value !== null && value.charAt(0).match(/[0-9]?/) !== null) value = parseInt(value);
 			eden.root.lookup(name).assign((value === null) ? true : value, eden.root.scope, Symbol.hciAgent);
 			//eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
 		});
