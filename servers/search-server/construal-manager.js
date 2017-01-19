@@ -627,7 +627,7 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 	if(t.type == "property"){
 		switch(t.name){
 		case ".id":
-			criteria.push("projectID = @projectID" + i);
+			criteria.push("projects.projectID = @projectID" + i);
 			criteriaVals["@projectID" + i] = t.value;
 			break;
 		case ".title":
@@ -725,8 +725,10 @@ app.get('/project/search', function(req, res){
 		listedOnly = false;
 	}
 
-	if(criteriaVals["@listedOnly"])
+	if(criteriaVals["@listedOnly"] !== undefined) {
 		listedOnly = criteriaVals["@listedOnly"];
+		delete criteriaVals["@listedOnly"];
+	}
 	
 	var targetTable = "view_latestVersion";
 	if(listedOnly)
@@ -759,11 +761,10 @@ app.get('/project/search', function(req, res){
 		+ ' on projects.projectID = tags.projectID WHERE owner = userid AND '+targetTable+'.projectID = projects.projectID ';
 	
 	if(!listedOnly){
-		if(req.user == null)
-			return res.json({});
-		else
-			listQueryStr = listQueryStr + ' AND owner = @owner';
-			criteriaVals["@owner"] = req.user.id;
+		if(req.user == null) return res.json([]);
+		//else
+		listQueryStr = listQueryStr + ' AND owner = @owner';
+		criteriaVals["@owner"] = req.user.id;
 	}
 	
 	listQueryStr = listQueryStr	+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
