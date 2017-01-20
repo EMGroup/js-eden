@@ -15,7 +15,20 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		this.next();
 	}
 
-	if (this.token != "{") {
+	if (this.token == "is") {
+		this.next();
+		var alias = new Eden.AST.Alias();
+		alias.setSelector(this.pCODESELECTOR());
+		alias.setName(name);
+
+		if (this.token != ";") {
+			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+			return alias;
+		}
+		this.next();
+
+		return alias;
+	} else if (this.token != "{") {
 		var script = new Eden.AST.Script();
 		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
 		return script;

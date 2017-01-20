@@ -527,9 +527,11 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 			if (stat.executed == 1) {
 				className += " executed";
 				doupdate = true;
+				this.lines[i].executed = true;
 			} else if (stat.executed == 2) {
 				className += " guarded";
 				doupdate = true;
+				this.lines[i].executed = true;
 			} else if (stat.executed == 3) {
 				className += " errorblock";
 				doupdate = true;
@@ -542,6 +544,10 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 		}
 
 		if (this.lines && this.lines[i]) {
+			if (this.lines[i].executed && stat.executed <= 0) {
+				doupdate = true;
+				this.lines[i].executed = false;
+			}
 			if (this.lines[i].selected) className += " select";
 			if (this.lines[i].live) {
 				className += " live";
@@ -608,7 +614,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			ele.className = "eden-gutter-item";
 			ele.setAttribute("data-line", ""+i);
 			this.gutter.appendChild(ele);
-			if (this.lines[i] === undefined) this.lines[i] = {selected: false, live: false};
+			if (this.lines[i] === undefined) this.lines[i] = {selected: false, live: false, executed: false};
 		}
 
 		globaldoupdate = true;
