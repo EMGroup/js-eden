@@ -100,6 +100,7 @@ Eden.AST.fnEdenASTleft = function(left) {
 	if (left.errors.length > 0) {
 		this.errors.push.apply(this.errors, left.errors);
 	}
+	if (left && left.warning) this.warning = left.warning;
 };
 
 // Debug controls

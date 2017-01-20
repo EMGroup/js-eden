@@ -29,6 +29,10 @@ Eden.AST.prototype.pAFTER = function() {
 	}
 
 	after.setStatement(statement);
+
+
+	after.warning = new Eden.SyntaxWarning(this, after, Eden.SyntaxWarning.DEPRECATED, "'after' should not be used, use 'wait' instead"); 
+
 	return after;
 }
 

@@ -4,6 +4,7 @@ Eden.AST.BinaryOp = function(op) {
 	this.errors = [];
 	this.l = undefined;
 	this.r = undefined;
+	this.warning = undefined;
 }
 Eden.AST.BinaryOp.prototype.left = Eden.AST.fnEdenASTleft;
 Eden.AST.BinaryOp.prototype.error = Eden.AST.fnEdenASTerror;
@@ -11,6 +12,7 @@ Eden.AST.BinaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	this.r = right;
 	this.errors.push.apply(this.errors, right.errors);
+	if (right && right.warning) this.warning = right.warning;
 }
 
 Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {

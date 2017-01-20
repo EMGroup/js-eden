@@ -13,6 +13,12 @@ Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
 	return undefined;
 }
 
+Eden.AST.Definition.prototype.setExpression = function(expr) {
+	if (expr && expr.warning) this.warning = expr.warning;
+	this.expression = expr;
+	this.errors = expr.errors;
+}
+
 Eden.AST.Definition.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
 	if (lvalue.errors.length > 0) {

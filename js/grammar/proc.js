@@ -7,6 +7,8 @@ Eden.AST.prototype.pACTION = function() {
 	var parent = this.parent;
 	this.parent = action;
 
+	action.warning = new Eden.SyntaxWarning(this, action, Eden.SyntaxWarning.DEPRECATED, "attempt to use 'when' instead of 'proc'");
+
 	if (this.token == "OBSERVABLE") {
 		action.name = this.data.value;
 		this.next();

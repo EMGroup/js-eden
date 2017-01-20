@@ -37,6 +37,7 @@ Eden.SyntaxWarning.prototype.messageText = function() {
 	case Eden.SyntaxWarning.NESTEDWHEN:	res = "\"when\"'s should not be nested"; break;
 	case Eden.SyntaxWarning.DEFINWHEN:	res = "\"when\"'s should not contain definitions"; break;
 	case Eden.SyntaxWarning.EXPRESSIONLIT:	res = "Keep literals in separate observables"; break;
+	case Eden.SyntaxWarning.USEOFWHILE:	res = "Try and use 'for', 'when' or 'with' to achieve looping"; break;
 	default: res = "Warning: ";
 	}
 
@@ -54,15 +55,17 @@ Eden.RuntimeWarning = function(node, warnno, extra) {
 
 Eden.RuntimeWarning.UNKNOWN = 0;
 Eden.RuntimeWarning.EMPTYDO = 1;
+Eden.RuntimeWarning.UNDEFINED = 2;
 
 Eden.RuntimeWarning.prototype.messageText = function() {
 	var res;
 	switch(this.warnno) {
 	case Eden.RuntimeWarning.EMPTYDO:	res = "Empty result for: "; break;
+	case Eden.RuntimeWarning.UNDEFINED:	res = "Expression is undefined: "; break;
 	default: res = "Warning: ";
 	}
 
-	res += this.extra;
+	if (this.extra !== undefined) res += this.extra;
 	return res;
 }
 

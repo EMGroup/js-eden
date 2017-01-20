@@ -116,7 +116,10 @@ EdenUI.ScriptArea.prototype.refresh = function() {
 EdenUI.ScriptArea.prototype.updateSource = function(src, line) {
 	this.fragment.setSource(src);
 	this.highlighter.ast = this.fragment.ast;
-	this.gutter.clear();
+	//this.gutter.clear();
+	//console.log("Update line",line);
+	//this.gutter.ast = this.fragment.ast.script;
+	//this.gutter.updateLine(line-1,false);
 }
 
 

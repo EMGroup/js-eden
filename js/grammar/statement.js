@@ -20,8 +20,9 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		var parent = this.parent;
 		this.parent = def;
 		var expr = this.pEXPRESSION();
-		def.expression = expr;
-		def.errors = expr.errors;
+		def.setExpression(expr);
+		//def.expression = expr;
+		//def.errors = expr.errors;
 		this.parent = parent;
 		return def; //new Eden.AST.Definition(this.pEXPRESSION(), this.parent);
 	} else if (this.token == "in") {

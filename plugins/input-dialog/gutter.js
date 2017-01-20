@@ -152,7 +152,7 @@ function EdenScriptGutter(parent, infob) {
 
 				if (me.lines[line].live) {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
-				} else if (stat.executed == 0) {
+				} else { //if (stat.executed == 0) {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-play'>&#xf04b;</span";
 					if (!shiftdown) changeClass(me.gutter.childNodes[avgline], "play", true);
 				}
@@ -396,7 +396,7 @@ EdenScriptGutter.prototype.selectLine = function(lineno, notcurrent) {
 			this.showBrace(sellines[0], sellines[1]);
 		} else {
 			this.hideBrace();
-			if (stat && stat.executed == 0) {
+			if (stat) { // && stat.executed == 0) {
 				var avgline = Math.floor((sellines[1] - sellines[0]) / 2) + sellines[0];
 				changeClass(this.gutter.childNodes[avgline], "play", "true");
 				if (!notcurrent) changeClass(this.gutter.childNodes[avgline], "current", "true");
@@ -489,6 +489,91 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 	}
 }
 
+EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
+	//this.gutter.appendChild(document.createElement("div"));
+	var className = "eden-gutter-item";
+	var ast = this.ast;
+	var content = "";
+	var doreplace = false;
+	var doupdate = globaldoupdate;
+	var errorline = undefined;
+	var title = undefined;
+	/*if (i == lineno-1) {
+		className += " eden-gutter-current";
+	}*/
+	var stat = ast.getStatementByLine(i);
+	if (stat) {
+
+		if (stat.errors.length > 0) {
+			//className += " errorblock";
+			if (stat.errors[0].line == i+1) {
+				className += " error";
+				content = "&#xf06a";
+				title = stat.errors[0].messageText();
+				errorline = i;
+			} else if (stat.errors[0].type == "runtime") {
+				className += " error";
+				content = "&#xf06a";
+				title = stat.errors[0].messageText();
+			}
+			doupdate = true;
+		} else {
+			if (stat.warning) {
+				className += " warning";
+				content = "&#xf071";
+				doupdate = true;
+				if (stat.warning) title = stat.warning.messageText();
+			}
+			if (stat.executed == 1) {
+				className += " executed";
+				doupdate = true;
+			} else if (stat.executed == 2) {
+				className += " guarded";
+				doupdate = true;
+			} else if (stat.executed == 3) {
+				className += " errorblock";
+				doupdate = true;
+			}
+
+			// Need to remove any old error messages
+			if (this.gutter.childNodes[i].className.indexOf("error") >= 0) {
+				doupdate = true;
+			}
+		}
+
+		if (this.lines && this.lines[i]) {
+			if (this.lines[i].selected) className += " select";
+			if (this.lines[i].live) {
+				className += " live";
+				//doreplace = false;
+			}
+		}
+	}
+
+	if (doreplace) {
+		if (content == "") {
+			var newnode = document.createElement("div");
+			newnode.className = className;
+			newnode.innerHTML = "";
+			newnode.setAttribute("data-line", ""+i);
+			//newnode.setAttribute("draggable", true);
+			//this.gutter.childNodes[i].className = className;
+			//this.gutter.childNodes[i].innerHTML = content;
+			this.gutter.replaceChild(newnode, this.gutter.childNodes[i]);
+		} else {
+			this.gutter.childNodes[i].className = className;
+			this.gutter.childNodes[i].innerHTML = content;
+		}
+	} else if (doupdate) {
+		if (this.gutter.childNodes[i].className.indexOf("hover") >= 0) className += " hover";
+		if (this.gutter.childNodes[i].className.indexOf("play") >= 0) className += " play";
+		if (this.gutter.childNodes[i].className.indexOf("current") >= 0) className += " current";
+		this.gutter.childNodes[i].innerHTML = content;
+		this.gutter.childNodes[i].className = className;
+		if (title) this.gutter.childNodes[i].title = title;
+	}
+}
+
 
 EdenScriptGutter.prototype.generate = function(ast, lineno) {
 	this.ast = ast;
@@ -530,86 +615,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 	}
 
 	for (var i=0; i<numlines; i++) {
-		//this.gutter.appendChild(document.createElement("div"));
-		var className = "eden-gutter-item";
-		var content = "";
-		var doreplace = false;
-		var doupdate = globaldoupdate;
-		var errorline = undefined;
-		var title = undefined;
-		/*if (i == lineno-1) {
-			className += " eden-gutter-current";
-		}*/
-		var stat = ast.getStatementByLine(i);
-		if (stat) {
-
-			if (stat.errors.length > 0) {
-				//className += " errorblock";
-				if (stat.errors[0].line == i+1) {
-					className += " error";
-					content = "&#xf06a";
-					title = stat.errors[0].messageText();
-					errorline = i;
-				} else if (stat.errors[0].type == "runtime") {
-					className += " error";
-					content = "&#xf06a";
-					title = stat.errors[0].messageText();
-				}
-				doupdate = true;
-			} else {
-				if ((stat.warning) || (stat.type == "assignment" && stat.value === undefined && stat.compiled)) {
-					className += " warning";
-					content = "&#xf071";
-					doupdate = true;
-					if (stat.warning) title = stat.warning.messageText();
-				}
-				if (stat.executed == 1) {
-					className += " executed";
-					doupdate = true;
-				} else if (stat.executed == 2) {
-					className += " guarded";
-					doupdate = true;
-				} else if (stat.executed == 3) {
-					className += " errorblock";
-					doupdate = true;
-				}
-
-				// Need to remove any old error messages
-				if (this.gutter.childNodes[i].className.indexOf("error") >= 0) {
-					doupdate = true;
-				}
-			}
-
-			if (this.lines && this.lines[i]) {
-				if (this.lines[i].selected) className += " select";
-				if (this.lines[i].live) {
-					className += " live";
-					//doreplace = false;
-				}
-			}
-		}
-
-		if (doreplace) {
-			if (content == "") {
-				var newnode = document.createElement("div");
-				newnode.className = className;
-				newnode.innerHTML = "";
-				newnode.setAttribute("data-line", ""+i);
-				//newnode.setAttribute("draggable", true);
-				//this.gutter.childNodes[i].className = className;
-				//this.gutter.childNodes[i].innerHTML = content;
-				this.gutter.replaceChild(newnode, this.gutter.childNodes[i]);
-			} else {
-				this.gutter.childNodes[i].className = className;
-				this.gutter.childNodes[i].innerHTML = content;
-			}
-		} else if (doupdate) {
-			if (this.gutter.childNodes[i].className.indexOf("hover") >= 0) className += " hover";
-			if (this.gutter.childNodes[i].className.indexOf("current") >= 0) className += " current";
-			this.gutter.childNodes[i].innerHTML = content;
-			this.gutter.childNodes[i].className = className;
-			if (title) this.gutter.childNodes[i].title = title;
-		}
+		this.updateLine(i, globaldoupdate);
 	}
 
 	if (this.ast.errors.length > 0) {

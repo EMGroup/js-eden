@@ -15,6 +15,7 @@ Eden.AST.Assignment = function(expression) {
 	Eden.AST.BaseContext.apply(this);
 
 	this.errors = (expression) ? expression.errors : [];
+	if (expression && expression.warning) this.warning = expression.warning;
 	this.expression = expression;
 	this.lvalue = undefined;
 	this.compiled = undefined;
@@ -141,13 +142,18 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		//	ctx.locals[this.lvalue.name] = this.value;
 		//} else {
 			var sym = this.lvalue.getSymbol(ctx,base,scope);
+			var value;
 			if (this.lvalue.hasListIndices()) {
-				this.value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
+				value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
 				var complist = this.lvalue.executeCompList(ctx, scope);
-				sym.listAssign(this.value, scope, this, false, complist);
+				sym.listAssign(value, scope, this, false, complist);
 			} else {
-				this.value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
-				sym.assign(this.value,(this.lvalue.islocal) ? undefined : scope, this);
+				value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
+				sym.assign(value,(this.lvalue.islocal) ? undefined : scope, this);
+			}
+
+			if (value === undefined) {
+				this.warning = new Eden.RuntimeWarning(this, Eden.RuntimeWarning.UNDEFINED, this.source.split("=")[1].trim());
 			}
 		//}
 	} catch(e) {

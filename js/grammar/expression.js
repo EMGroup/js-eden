@@ -21,6 +21,8 @@ Eden.AST.prototype.pEXPRESSION_PPPPPP = function() {
 		var tern = new Eden.AST.TernaryOp("?");
 		tern.setFirst(this.pEXPRESSION());
 
+		tern.warning = new Eden.SyntaxWarning(this, tern, Eden.SyntaxWarning.DEPRECATED, "use of ? for 'if'.");
+
 		if (tern.errors.length > 0) return tern;
 
 		if (this.token != ":") {

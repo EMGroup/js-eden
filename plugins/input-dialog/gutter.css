@@ -146,7 +146,7 @@ div.eden-gutter-item.errorblock {
 }
 
 div.eden-gutter-item.executed {
-	border-right: 3px solid #00ff00;
+	border-right: 5px solid #a2ff86;
 	/*animation: clearborder 0.4s linear;
 	animation-fill-mode: forwards;*/
 }
@@ -210,7 +210,7 @@ div.eden-gutter-item.removed:after {
 }
 
 div.eden-gutter-item.guarded {
-	border-right: 3px solid #ffee00;
+	border-right: 5px solid #fff67e;
 }
 
 div.eden-gutter-item.error {
@@ -225,5 +225,5 @@ div.eden-gutter-item.error {
 div.eden-gutter-item.warning {
 	font-family: "FontAwesome";
 	color: orange;
-	font-size: 10pt;
+	font-size: 12pt;
 }

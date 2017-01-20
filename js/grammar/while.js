@@ -7,6 +7,8 @@ Eden.AST.prototype.pWHILE = function() {
 	var parent = this.parent;
 	this.parent = w;
 
+	w.warning = new Eden.SyntaxWarning(this, w, Eden.SyntaxWarning.USEOFWHILE);
+
 	if (this.token != "(") {
 		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILEOPEN));
 		this.parent = parent;
