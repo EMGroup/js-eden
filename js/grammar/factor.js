@@ -130,6 +130,7 @@ Eden.AST.prototype.pFACTOR = function() {
 			lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.HEREDOCTOKEN));
 			return lit;
 		}
+		//this.stream.line++;
 
 		// Scan looking for endtoken
 		var res = "";

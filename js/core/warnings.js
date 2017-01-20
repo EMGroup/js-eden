@@ -43,3 +43,27 @@ Eden.SyntaxWarning.prototype.messageText = function() {
 	res += this.extra;
 	return res;
 }
+
+Eden.RuntimeWarning = function(node, warnno, extra) {
+	this.type = "runtime";
+	this.node = node;
+	this.warnno = warnno;
+	this.extra = extra;
+	this.line = -1;
+}
+
+Eden.RuntimeWarning.UNKNOWN = 0;
+Eden.RuntimeWarning.EMPTYDO = 1;
+
+Eden.RuntimeWarning.prototype.messageText = function() {
+	var res;
+	switch(this.warnno) {
+	case Eden.RuntimeWarning.EMPTYDO:	res = "Empty result for: "; break;
+	default: res = "Warning: ";
+	}
+
+	res += this.extra;
+	return res;
+}
+
+

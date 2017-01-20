@@ -557,10 +557,11 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 				}
 				doupdate = true;
 			} else {
-				if (stat.type == "assignment" && stat.value === undefined && stat.compiled) {
+				if ((stat.warning) || (stat.type == "assignment" && stat.value === undefined && stat.compiled)) {
 					className += " warning";
 					content = "&#xf071";
 					doupdate = true;
+					if (stat.warning) title = stat.warning.messageText();
 				}
 				if (stat.executed == 1) {
 					className += " executed";

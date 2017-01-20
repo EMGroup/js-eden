@@ -3,6 +3,7 @@ Eden.AST.BaseStatement = function() {
 	this.end = 0;
 	this.parent = undefined;
 	this.errors = [];
+	this.warning = undefined;
 	this.executed = 0;
 	this.numlines = -1;
 	this.doxyComment = undefined;

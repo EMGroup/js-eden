@@ -70,7 +70,7 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 		this.next();
 		if (this.token == "OBSERVABLE") {
 			if (Eden.Selectors.allowedOptions[this.data.value]) {
-				expr = new Eden.AST.Literal("STRING", "@" + this.data.value);
+				expr = new Eden.AST.Literal("STRING", "@" + this.data.value+" ");
 				this.next();
 			} else {
 				expr = new Eden.AST.Literal("STRING","");

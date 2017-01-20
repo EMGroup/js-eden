@@ -187,9 +187,10 @@ function runEdenAction(source, action, cb) {
 							}, {parameters: params}, nscope);
 						}
 					} else {
-						var err = new Eden.RuntimeError(me, Eden.RuntimeError.ACTIONNAME, delay.value, "Selector '"+delay.value.selector+"' has no results");
+						var err = new Eden.RuntimeWarning(delay.value, Eden.RuntimeWarning.EMPTYDO, delay.value.selector);
 						err.line = delay.value.line;
-						delay.value.errors.push(err);
+						//delay.value.errors.push(err);
+						delay.value.warning = err;
 						eden.emit("warning", [source,err]);
 						runEdenAction.call(me,source, action, cb);
 					}
