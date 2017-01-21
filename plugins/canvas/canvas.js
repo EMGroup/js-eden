@@ -311,11 +311,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 								}
 								var htmlEl = item.elements;
 								if (htmlEl) {
-									var htmlJQ = $(htmlEl);
-									htmlJQ.css("transform", cssTransform);
+									//var htmlJQ = $(htmlEl);
+									//htmlJQ.css("transform", cssTransform);
 									htmlEl.togarbage = false;
 									if (!existingEl) {
-										$(content).append(htmlJQ);
+										content.appendChild(htmlEl[0]);
 									}
 									nextElements[elHash] = htmlEl;
 								}

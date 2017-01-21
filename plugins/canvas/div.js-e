@@ -157,7 +157,7 @@ Div.prototype.draw = function(context) {
 		divElement.setAttribute("class", "canvashtml-item canvashtml-div-item");
 	}
 
-	CSSUtil.setStyle(divElement, this.style);
+	if (this.style != "") CSSUtil.setStyle(divElement, this.style);
 	divElement.innerHTML = this.html;
 
 	if (this.name !== undefined) {
@@ -203,10 +203,11 @@ Div.prototype.resize = function () {
 
 	var element = this.elements[0];
 	var style = element.style;
+	//style.transform = "scale("+scale+")";
 	var autoWidth = this.width === undefined;
 	var autoHeight = this.height === undefined;
 
-	if (autoWidth) {
+	/*if (autoWidth) {
 		var savedHeight = style.height;
 		style.width = "auto";
 		style.height = "auto";
@@ -220,7 +221,7 @@ Div.prototype.resize = function () {
 		} else {
 			style.width = "auto";
 		}
-	}
+	}*/
 
 	if (this.name !== undefined) {
 		var agent = root.lookup("Div");
@@ -242,12 +243,12 @@ Div.prototype.scale = function (scale, zoom , origin) {
 	style.top = Math.round((this.y + origin.y) * scale) + "px";
 
 	if (this.width !== undefined) {
-		style.width = Math.round(this.width * scale) + "px";
+		style.width = Math.round(this.width) + "px";
 	}
 	if (this.height !== undefined) {
-		style.height = Math.round(this.height * scale) + "px";
+		style.height = Math.round(this.height) + "px";
 	}
-	if (this.fontSizeSpecified) {
+	/*if (this.fontSizeSpecified) {
 		style.fontSize = String(this.fontSizeNumber * zoom) + this.fontSizeUnits;
 	} else {
 		if (zoom == 1) {
@@ -255,6 +256,9 @@ Div.prototype.scale = function (scale, zoom , origin) {
 		} else {
 			style.fontSize = zoom + "em";
 		}
+	}*/
+	if (scale != this.cachedScale) {
+		style.transform = "scale("+scale+")";
 	}
 	this.cachedScale = scale;
 	this.resize();
