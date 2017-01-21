@@ -151,6 +151,13 @@ Div.prototype.draw = function(context) {
 		divElement.id = this.name;
 	}
 
+	divElement.addEventListener("click", function(event) {
+		var script = event.target.getAttribute("data-jseden");
+		if (script !== null && script != "") {
+			eden.execute2(script);
+		}
+	});
+
 	if (Array.isArray(this.classNames)) {
 		divElement.setAttribute("class", "canvashtml-item canvashtml-div-item " + this.classNames.join(" "));
 	} else {

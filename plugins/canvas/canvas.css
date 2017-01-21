@@ -130,6 +130,11 @@ div.canvas-dialog .ui-dialog-titlebar {
 	background: #29454B;
 }
 
+.canvashtml-content pre {
+	margin-left: 20px;
+	color: #2b4957;
+}
+
 .canvashtml-content select {
 	margin: 0px;
 	padding: 0px;
