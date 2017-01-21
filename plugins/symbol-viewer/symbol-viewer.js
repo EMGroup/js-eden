@@ -82,7 +82,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 				height: 400,
 				minHeight: 200,
 				minWidth: 200,
-				dialogClass: "symbollist-dialog"
+				classes: {"ui-dialog": "symbollist-dialog ui-front"}
 			});
 
 		me.instances.push(symbollist);

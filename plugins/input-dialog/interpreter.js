@@ -973,7 +973,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				height: idealheight,
 				minHeight: 203,
 				minWidth: 300,
-				dialogClass: "input-dialog",
+				classes: { "ui-dialog": "input-dialog ui-front"},
 				/*close: viewdata.close,*/
 				resizeStop: viewdata.resize,
 				draggable: false
@@ -1011,12 +1011,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		title: Language.ui.input_window.title,
 		category: edenUI.viewCategories.interpretation,
 		menuPriority: 0
-	};
-
-	edenUI.views.History = {
-		dialog: this.createHistory,
-		title: "Execution History",
-		category: edenUI.viewCategories.history
 	};
 	
 	edenUI.history = this.history;

@@ -335,6 +335,7 @@ EdenUI.ExplorerState.prototype.watch = function(observables) {
 	if (this.filter === undefined && observables.length > 0) this.filter = {}; 
 
 	for (var i=0; i<observables.length; i++) {
+		if (observables[i] === undefined) continue;
 		this.filter[observables[i]] = true;
 		if (!this.capture) {
 			this.watchobs[observables[i]] = {

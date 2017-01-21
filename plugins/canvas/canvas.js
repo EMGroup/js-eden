@@ -655,7 +655,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var canvas = canvases[name];
 		if (canvas === undefined) {
 			code_entry = $('<div id="' + name + '-canvascontent" class="canvashtml-content"></div>');
-			code_entry.html('<canvas class="canvashtml-canvas" id="' + name + '-canvas" tabindex="1"></canvas>');
+			code_entry.html('<canvas class="canvashtml-canvas noselect" id="' + name + '-canvas" tabindex="1"></canvas>');
 			jqCanvas = code_entry.find(".canvashtml-canvas");
 			canvas = jqCanvas[0];
 			canvases[name] = canvas;
@@ -1338,7 +1338,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			height: initialHeight + edenUI.titleBarHeight,
 			minHeight: 120,
 			minWidth: 230,
-			dialogClass: "canvas-dialog unpadded-dialog"
+			classes: {"ui-dialog": "canvas-dialog unpadded-dialog ui-front"}
 		});
 
 		viewData = {

@@ -73,7 +73,7 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 				height: 450,
 				minHeight: 120,
 				minWidth: 230,
-				dialogClass: "htmlviews-dialog"
+				classes: {"ui-dialog": "htmlviews-dialog ui-front"}
 			});
 
 		var bgcolour = bgSym.value();

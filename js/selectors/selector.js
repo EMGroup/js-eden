@@ -157,8 +157,48 @@ Eden.Selectors.resultTypes = {
 	"remote": true,
 	"root": true,
 	"enabled": true,
-	"executed": true
+	"executed": true,
+	"exprtree": true
 };
+
+Eden.Selectors.expressionToLists = function(expr) {
+	switch(expr.type) {
+	case "binaryop":	return [Eden.Selectors.expressionToLists(expr.l),expr.op,Eden.Selectors.expressionToLists(expr.r)];
+	case "ternaryop":	return [Eden.Selectors.expressionToLists(expr.first),"if",Eden.Selectors.expressionToLists(expr.condition),"else",Eden.Selectors.expressionToLists(expr.second)];
+	case "unaryop":		return [expr.op,Eden.Selectors.expressionToLists(expr.r)];
+	case "length":		return [Eden.Selectors.expressionToLists(expr.l),"#"];
+	case "index":		return Eden.Selectors.expressionToLists(expr.expression);
+	}
+
+	if (expr.type == "literal") {
+		switch(expr.datatype) {
+		case "NUMBER":
+		case "STRING":
+		case "BOOLEAN":	return expr.value;
+		case "LIST":	var list = [];
+						for (var i=0; i<expr.value.length; i++) {
+							list.push(Eden.Selectors.expressionToLists(expr.value[i]));
+						}
+						return list;
+		}
+	} else if (expr.type == "primary") {
+		if (expr.extras.length == 0) return expr.observable;
+		var res = [expr.observable];
+		for (var i=0; i<expr.extras.length; i++) {
+			res.push(Eden.Selectors.expressionToLists(expr.extras[i]));
+		}
+		return res;
+	}
+}
+
+Eden.Selectors.listsToExpression = function(lists) {
+	if (!Array.isArray(lists)) return lists;
+	var res = [];
+	for (var i=0; i<lists.length; i++) {
+		res.push(Eden.Selectors.listsToExpression(lists[i]));
+	}
+	return "("+res.join(" ")+")";
+}
 
 Eden.Selectors.processResults = function(statements, o) {
 	// Check what kind of result we are to return
@@ -190,6 +230,8 @@ Eden.Selectors.processResults = function(statements, o) {
 										} break;
 				case "outersource"	:	val = stat.getOuterSource();
 										break;
+				case "exprtree"	:	if (stat.expression) val = Eden.Selectors.expressionToLists(stat.expression);
+									break;
 				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
 										stat.base.mainDoxyComment.stripped();
 										var controls = stat.base.mainDoxyComment.getControls();
@@ -198,8 +240,7 @@ Eden.Selectors.processResults = function(statements, o) {
 									break;
 				case "type"		:	val = stat.type; break;
 				//case "path"		:
-				case "name"		:	
-				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
+				case "name"		:	if (stat.lvalue && stat.lvalue.name) {
 										val = stat.lvalue.name;
 									} else if (stat.name && stat.type != "do") {
 										val = stat.name;
@@ -207,6 +248,9 @@ Eden.Selectors.processResults = function(statements, o) {
 										val = stat.base.origin.name;
 									} else if (stat.path !== undefined) {
 										val = stat.path;
+									} break;
+				case "symbol"	:	if (stat.lvalue && stat.lvalue.name) {
+										val = stat.lvalue.name;
 									} break;
 				case "line"		:	if (stat.line !== undefined) {
 										val = stat.line;

@@ -351,7 +351,6 @@ Eden.AST.registerContext = function(stat) {
 }
 
 
-
 /**
  * Find the base/parent statement of a given statement. Used to make sure
  * statements inside functions etc are not executed directly and out of context.

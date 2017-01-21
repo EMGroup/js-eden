@@ -27,7 +27,14 @@ EdenUI.Explorer = function() {
 	this.expscripts = this.element.find(".explore-script");
 	this.expstate = this.element.find(".explore-state");
 
-	this.element.resizable({handles: "w"});
+	eden.root.lookup("jseden_explorer_width").assign(415, eden.root.scope, Symbol.localJSAgent);
+
+	this.element.resizable({
+		handles: "w",
+		stop: function(event, ui) {
+			eden.root.lookup("jseden_explorer_width").assign(ui.size.width, eden.root.scope, Symbol.localJSAgent);
+		}
+	});
 
 	// Make the console...
 	this.console = new EdenUI.ScriptBox(this.consoleele.get(0), {nobuttons: true});

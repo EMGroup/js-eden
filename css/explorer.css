@@ -207,7 +207,7 @@ div.explore-entry-inner {
 	/*display: inline;
 	width: 100%;*/
 	padding: 2px;
-	display: flex;
+	/*display: flex;*/
 	justify-content: space-between;
 }
 
@@ -217,10 +217,10 @@ div.explore-entry-inner:hover {
 
 div.symvalue {
 	display: inline;
-	min-width: 160px;
-	float: right;
+	/*min-width: 160px;
+	float: right;*/
 	margin-left: 3px;
-	max-width: 160px;
+	/*max-width: 160px;*/
 	overflow: hidden;
 }
 

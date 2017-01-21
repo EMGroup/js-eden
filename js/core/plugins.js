@@ -36,11 +36,11 @@
 	//Dimensions of various UI components.
 	EdenUI.prototype.menuBarHeight = 45;
 	EdenUI.prototype.dialogBorderWidth = 3.133;
-	EdenUI.prototype.titleBarHeight = 27.75 + EdenUI.prototype.dialogBorderWidth; //41.22 for script view
+	EdenUI.prototype.titleBarHeight = 0; //27.75 + EdenUI.prototype.dialogBorderWidth; //41.22 for script view
 	EdenUI.prototype.largeTitleBar = 41.22 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize2 = window.innerHeight-$(window).height();
-	EdenUI.prototype.dialogFrameWidth = EdenUI.prototype.scrollBarSize + 2 * EdenUI.prototype.dialogBorderWidth;
+	EdenUI.prototype.dialogFrameWidth = 2 * EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.bottomBarHeight = 34.906;
 
@@ -516,6 +516,10 @@
 		this.eden.execute2(viewEdenCode(), Symbol.defaultAgent, noop);*/
 		this.eden.root.endAutocalcOff();
 		this.emit('createView', [name, type]);
+
+
+		diag.get(0).parentNode.className += " ui-front";
+		console.log("ADDING UI FRONT");
 		return viewData;
 	};
 
