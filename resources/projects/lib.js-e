@@ -1172,16 +1172,16 @@ views_unit_y = ${{ edenUI.gridSizeY }}$;
 /** The maximum width a view can be if it fits within the browser window without scrolling.
  *  @oracle
  */
-screenWidth = ${{ window.innerWidth }}$ - views_frame_width;
+screenWidth = ${{ window.innerWidth }}$ - 2;
 /** The maximum height a view can be if it fits within the browser window without scrolling.
  *  @oracle
  */
-screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2 - (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0)}}$;
+screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2}}$;
 ${{
 	window.addEventListener("resize", function (event) {
 		root.beginAutocalcOff();
-		root.lookup("screenWidth").assign(window.innerWidth - edenUI.dialogFrameWidth, root.scope, Symbol.defaultAgent);
-		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2 - (edenUI.getOptionValue("optHideOnMinimize") != "true"? edenUI.bottomBarHeight : 0), root.scope, Symbol.defaultAgent);
+		root.lookup("screenWidth").assign(window.innerWidth - 2, root.scope, Symbol.defaultAgent);
+		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2, root.scope, Symbol.defaultAgent);
 		root.endAutocalcOff();
 	});
 }}$;

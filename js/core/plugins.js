@@ -35,7 +35,7 @@
 
 	//Dimensions of various UI components.
 	EdenUI.prototype.menuBarHeight = 45;
-	EdenUI.prototype.dialogBorderWidth = 3.133;
+	EdenUI.prototype.dialogBorderWidth = 1;
 	EdenUI.prototype.titleBarHeight = 0; //27.75 + EdenUI.prototype.dialogBorderWidth; //41.22 for script view
 	EdenUI.prototype.largeTitleBar = 41.22 + EdenUI.prototype.dialogBorderWidth;
 	EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
@@ -253,7 +253,7 @@
 		widthSym = view(name, 'width');
 		widthSym.addJSObserver("plugins", updateSize);
 		if (!widthSym.definition && widthSym.value() === undefined) {
-			widthSym.assign(diag.dialog("option", "width") - this.scrollBarSize, root.scope, agent);
+			widthSym.assign(diag.dialog("option", "width") , root.scope, agent);
 		}
 		var heightSym = view(name, 'height');
 		heightSym.addJSObserver("plugins", updateSize);
