@@ -47,13 +47,12 @@ div.eden-section-line {
 
 span.eden-comment {
 	/*font-style: italic;*/
-	/*color: #888a85;*/
-	color: black;
+	color: #777;
 	font: 14px Arial,Helvetica,sans-serif
 }
 
 span.eden-comment-faded {
-	color: #aaa;
+	color: #ccc;
 }
 
 span.eden-comment-faded-h1 {
@@ -63,7 +62,7 @@ span.eden-comment-faded-h1 {
 
 span.eden-comment-h1 {
 	font-weight: bold;
-	color: #888a85;
+	color: #666;
 	font-size: 16pt;
 }
 
