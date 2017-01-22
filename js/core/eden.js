@@ -357,6 +357,30 @@
 		}
 	}
 
+	EdenUI.prototype.fullscreen = function(name, observable) {
+		var sym = eden.root.lookup(observable);
+		var val = sym.value();
+
+		if (document.webkitExitFullscreen) {
+			if (val) {
+				document.onwebkitfullscreenchange = function() {
+					if (!document.webkitIsFullScreen) {
+						sym.assign(false, eden.root.scope, Symbol.hciAgent);
+						edenUI.menu.show();
+					}
+				}
+				var ele = document.getElementById(name+"-canvascontent");
+				ele.webkitRequestFullscreen();
+				edenUI.menu.hide();
+			} else {
+				document.webkitExitFullscreen();
+				edenUI.menu.show();
+			}
+		} else if (document.mozCancelFullScreen) {
+
+		}
+	}
+
 	/**Derives a regular expression from a string.  The string can be a simple search keyword or a
 	 * string containing a regular expression.  The following rules are applied to interpret the
 	 * string:

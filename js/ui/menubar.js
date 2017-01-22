@@ -562,6 +562,14 @@ EdenUI.MenuBar = function() {
 	});
 }
 
+EdenUI.MenuBar.prototype.hide = function() {
+	this.element.hide();
+}
+
+EdenUI.MenuBar.prototype.show = function() {
+	this.element.show();
+}
+
 EdenUI.MenuBar.reset = function() {
 	$(".jseden-title").html("Construit!");
 }
