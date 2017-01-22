@@ -257,7 +257,7 @@ Eden.Selectors.processResults = function(statements, o) {
 									} break; 
 				case "depends"	: val = (stat.dependencies) ? Object.keys(stat.dependencies) : [];
 								  break;
-				case "value"	: val = (stat.expression) ? stat.expression.execute(eden.root, eden.project.ast, eden.root.scope) : undefined;
+				case "value"	: val = (stat.expression) ? stat.expression.execute({scopes:[]}, eden.project.ast, eden.root.scope) : undefined;
 								  break;
 				case "active"	: 	val = (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin && eden.root.symbols[stat.lvalue.name].origin.id == stat.id);
 									break;

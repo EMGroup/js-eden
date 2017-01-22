@@ -1,5 +1,6 @@
 Eden.AST.DummyContext = {
-	subscribeDynamic: function(p,d) { return eden.root.lookup(d); }
+	subscribeDynamic: function(p,d) { return eden.root.lookup(d); },
+	scopes: []
 };
 
 Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, agent) {

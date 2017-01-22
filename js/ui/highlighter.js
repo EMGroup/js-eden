@@ -351,12 +351,16 @@
 		var linestart = 0;
 		var token = "INVALID";
 		var prevtoken = "INVALID";
+		var commentmode = 0;
 
 		var linestack = [];
 
 		// Set the mode for this line based upon mode at end of previous line
 		if (this.mode_at_line[this.line-1]) this.mode = this.mode_at_line[this.line-1];
 		else this.mode = 0;
+
+		// Reset line comments
+		if (this.mode == 222 || this.mode == 333) this.mode = 0;
 
 		// Get error position information
 		if (ast.script && ast.script.errors.length > 0) {
@@ -463,12 +467,27 @@
 
 			if (this.mode == 0 || this.mode == 5) {
 				if (token == "##") {
-					classes += "eden-comment";
-					var comment = "";
+					if (prevtoken == "INVALID") {
+						classes += "eden-comment-faded-h1";
+						line.className += " eden-section-line";
+						commentmode = 1;
+					} else {
+						classes += "eden-comment";
+					}
+					/*var comment = "";
 					while (stream.valid() && stream.peek() != 10) {
 						comment += String.fromCharCode(stream.get());
 					}
-					tokentext = "##" + comment;
+					tokentext = "##" + comment;*/
+					this.mode = 222;
+				} else if (token == "#" && prevtoken == "INVALID") {
+					classes += "eden-comment-faded";
+					//var comment = "";
+					/*while (stream.valid() && stream.peek() != 10) {
+						comment += String.fromCharCode(stream.get());
+					}
+					tokentext = "#" + comment;*/
+					this.mode = 222;
 				} else if (token == "local" || token == "auto" || token == "para" || token == "handle" || token == "oracle") {
 					classes += "eden-storage";
 				} else if (token == "?") {
@@ -562,18 +581,23 @@
 				} else {
 					classes += "eden-path";
 				}
-			} else if (this.mode == 2 || this.mode == 22) {
-				if (token == "*/") {
+			} else if (this.mode == 2 || this.mode == 22 || this.mode == 222) {
+				if (token == "*/" && this.mode != 222) {
 					this.mode = 0;
-					classes += (this.mode == 2) ? "eden-comment" : "eden-doxycomment";
+					classes += (this.mode != 22) ? "eden-comment" : "eden-doxycomment";
 				} else if (token == "@" || token == "#") {
-					this.mode = (this.mode == 2) ? 3 : 33;
+					this.mode = (this.mode == 2) ? 3 : (this.mode == 222) ? 333 : 33;
 					classes += "eden-doxytag";
 				} else {
-					classes += (this.mode == 2) ? "eden-comment" : "eden-doxycomment";
+					if (this.mode == 222) {
+						if (commentmode == 0) classes += "eden-comment";
+						else if (commentmode == 1) classes += "eden-comment-h1";
+					} else {
+						classes += (this.mode != 22) ? "eden-comment" : "eden-doxycomment";
+					}
 				}
-			} else if (this.mode == 3 || this.mode == 33) {
-				this.mode = (this.mode == 3) ? 2 : 22;
+			} else if (this.mode == 3 || this.mode == 33 || this.mode == 333) {
+				this.mode = (this.mode == 3) ? 2 : (this.mode == 333) ? 222 : 22;
 				//if (token == "}" || token == "{" || token == "OBSERVABLE" ) { //Language.doxytags[stream.data.value]) {
 					classes += "eden-doxytag";
 				//} else {
@@ -770,6 +794,7 @@
 					this.line++;
 					if (line !== undefined) {
 						lineelement.appendChild(line);
+						if (line.className == " eden-section-line") lineelement.className += " eden-section-line";
 					} else {
 						this.mode_at_line[this.line-1] = this.mode;
 					}

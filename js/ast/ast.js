@@ -490,6 +490,9 @@ Eden.AST.prototype.next = function() {
 		} else if (this.token == "##") {
 			this.stream.skipLine();
 			this.token = this.stream.readToken();
+		} else if (this.token == "#" && (this.stream.position == 0 || this.stream.code.charAt(this.stream.position-2) == "\n")) {
+			this.stream.skipLine();
+			this.token = this.stream.readToken();
 		// Extract javascript code blocks
 		} else if (this.token == "${{") {
 			var start = this.stream.position;

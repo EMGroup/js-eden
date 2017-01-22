@@ -34,9 +34,37 @@ span.eden-javascript-bold {
 	font-weight: bold;
 }
 
+span.eden-section-line {
+	padding-top: 10px;
+	padding-right: 50px;
+	/*border-top: 1px solid #aaa;*/
+}
+
+div.eden-section-line {
+	height: 30px;
+	padding-top: 10px;
+}
+
 span.eden-comment {
-	font-style: italic;
+	/*font-style: italic;*/
+	/*color: #888a85;*/
+	color: black;
+	font: 14px Arial,Helvetica,sans-serif
+}
+
+span.eden-comment-faded {
+	color: #aaa;
+}
+
+span.eden-comment-faded-h1 {
+	color: #aaa;
+	font-size: 16pt;
+}
+
+span.eden-comment-h1 {
+	font-weight: bold;
 	color: #888a85;
+	font-size: 16pt;
 }
 
 span.eden-doxycomment {
