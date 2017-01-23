@@ -60,6 +60,10 @@ span.eden-comment-faded-h1 {
 	font-size: 16pt;
 }
 
+span.eden-comment-bold {
+	font-weight: bold;
+}
+
 span.eden-comment-h1 {
 	font-weight: bold;
 	color: #666;

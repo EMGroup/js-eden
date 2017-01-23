@@ -298,7 +298,7 @@
 							}
 							break;
 		case "#"		:	if (this.prevtoken == "INVALID") {
-								this.classes += "eden-comment";
+								this.classes += "eden-comment-faded";
 								this.mode = "COMMENT";
 							} else {
 								this.classes += "eden-operator";
@@ -440,30 +440,81 @@
 	}
 
 	EdenUI.Highlight.prototype.COMMENT = function() {
-		if (this.token == "*/") {
-			this.mode = "START";
-			this.classes += "eden-comment";
-		} else if (this.token == "@" || this.token == "#") {
-			this.mode = "COMMENT_TAG";
-			this.pushLine();
-			var nline = document.createElement("span");
-			nline.className = "eden-doxytag";
-			this.lineelement.appendChild(nline);
-			this.lineelement = nline;
+		switch(this.token) {
+		case "*/"		:	this.mode = "START";
+							this.classes += "eden-comment";
+							break;
+		case "@"		:
+		case "#"		:	this.mode = "COMMENT_TAG";
+							this.pushLine();
+							var nline = document.createElement("span");
+							nline.className = "eden-doxytag";
+							this.lineelement.appendChild(nline);
+							this.lineelement = nline;
+							break;
+		case "*"		:	this.mode = "COMMENT_BOLD";
+							this.classes += "eden-comment-faded";
+							break;
+		case "`"		:	this.mode = "COMMENT_CODE";
+							this.classes += "eden-comment-faded";
+							break;
+		case ":"		:	this.mode = "COMMENT_ICON";
+							this.classes += "eden-comment-faded";
+							break;
+		case "\\"		:
+		//case "["		:	this.mode = "COMMENT_LINK";
+		//					this.classes += "eden-comment-faded";
+		//					break;
+		case "?"		:
+		default			:	this.classes += "eden-comment";
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_CODE = function() {
+		if (this.token == "`") {
+			this.classes += "eden-comment-faded";
+			this.mode = "COMMENT";
 		} else {
-			this.classes += "eden-comment";
+			this.START();
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_ICON = function() {
+		if (this.token == "OBSERVABLE") {
+			var icon = document.createElement("span");
+			icon.className = "fa fa-"+this.tokentext;
+			this.lineelement.appendChild(icon);
+			this.classes += "eden-comment-faded";
+		} else if (this.token == ":") {
+			this.classes += "eden-comment-faded";
+			this.mode = "COMMENT";
+		} else {
+			// Some kind of highlight error.
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_LINK = function() {
+		
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_BOLD = function() {
+		if (this.token == "*") {
+			this.classes += "eden-comment-faded";
+			this.mode = "COMMENT";
+		} else {
+			this.classes += "eden-comment-bold";
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_TAG = function() {
-		this.classes += "eden-doxytag";
+		//this.classes += "eden-doxytag";
 		this.mode = "END_COMMENT_TAG";
 	}
 
 	EdenUI.Highlight.prototype.END_COMMENT_TAG = function() {
 		this.popLine();
-		this.mode = "START";
-		this.START();
+		this.mode = "COMMENT";
+		this.COMMENT();
 	}
 
 	EdenUI.Highlight.prototype.DOXY_COMMENT = function() {
@@ -585,7 +636,7 @@
 		else this.mode = "START";
 
 		// Reset line comments
-		if (this.mode == "COMMENT" || this.mode == "SECTION_TITLE") this.mode = "START";
+		if (this.mode == "COMMENT" || this.mode == "SECTION_TITLE" || "COMMENT_BOLD") this.mode = "START";
 
 		// Get error position information
 		if (ast.script && ast.script.errors.length > 0) {
@@ -690,7 +741,7 @@
 				if( inerror) lineerror = true;
 			}
 			if (inerror && ast.script.errors[0].token != "EOF") {
-				classes += "eden-error ";
+				this.classes += "eden-error ";
 			}
 
 
@@ -826,7 +877,7 @@
 					this.line++;
 					if (line !== undefined) {
 						lineelement.appendChild(line);
-						if (line.className == " eden-section-line") lineelement.className += " eden-section-line";
+						//if (line.className == " eden-section-line") lineelement.className += " eden-section-line";
 					} else {
 						this.mode_at_line[this.line-1] = this.mode;
 					}
