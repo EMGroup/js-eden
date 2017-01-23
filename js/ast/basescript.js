@@ -69,7 +69,7 @@ Eden.AST.BaseScript.removeChild = function(child) {
 }
 
 Eden.AST.BaseScript.replaceChild = function(oldchild, newchild) {
-	console.log("REPLACE",this,oldchild,newchild);
+	//console.log("REPLACE",this,oldchild,newchild);
 	var oix;
 	if (typeof oldchild == "number") {
 		oix = oldchild;

@@ -487,7 +487,7 @@
 							this.lineelement.appendChild(nline);
 							this.lineelement = nline;
 							break;
-		case "*"		:	this.mode = "COMMENT_BOLD";
+		case "*"		:	this.mode = "COMMENT_EMPH";
 							this.classes += "eden-comment-hidden";
 							break;
 		case "`"		:	this.mode = "COMMENT_CODE";
@@ -532,13 +532,37 @@
 		
 	}
 
-	EdenUI.Highlight.prototype.COMMENT_BOLD = function() {
+	EdenUI.Highlight.prototype.COMMENT_EMPH = function() {
+		if (this.token == "*") {
+			this.mode = "COMMENT_BOLD";
+			this.classes += "eden-comment-hidden";
+		} else {
+			this.classes += "eden-comment-emph";
+			this.mode = "COMMENT_ITALIC";
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_ITALIC = function() {
 		if (this.token == "*") {
 			this.classes += "eden-comment-hidden";
 			this.mode = "COMMENT";
 		} else {
+			this.classes += "eden-comment-emph";
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_BOLD = function() {
+		if (this.token == "*") {
+			this.classes += "eden-comment-hidden";
+			this.mode = "COMMENT_BOLD_END";
+		} else {
 			this.classes += "eden-comment-bold";
 		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_BOLD_END = function() {
+		this.classes += "eden-comment-hidden";
+		this.mode = "COMMENT";
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_TAG = function() {
