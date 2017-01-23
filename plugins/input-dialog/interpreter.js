@@ -137,6 +137,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var $tabs = $dialogContents.find('.agent-tabs');
 		var $controls = $dialogContents.find('.control-bar');
 		var tabs = $tabs.get(0);
+		var controls = $controls.get(0);
 		//suggestions.hide();
 		$(infobox).hide();
 
@@ -192,6 +193,38 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var tabpositions = {};
 		var browseDialog = undefined;
 		var scratchnum = 1;
+
+		function showTabs(sym, value) {
+			if (value) {
+				tabs.style.display = "flex";
+				inputhider.parentNode.style.top = "35px";
+			} else {
+				tabs.style.display = "none";
+				inputhider.parentNode.style.top = "0";
+			}
+		}
+		if (showTabsSym.value() === undefined && showTabsSym.definition === undefined) {
+			showTabsSym.assign(true, eden.root.scope, Symbol.defaultAgent);
+		}
+		showTabsSym.addJSObserver("scriptview_"+name, showTabs);
+		showTabs(showTabsSym, showTabsSym.value());
+
+
+		function showButtons(sym, value) {
+			if (value) {
+				controls.style.display = "flex";
+				//inputhider.parentNode.style.top = "35px";
+			} else {
+				controls.style.display = "none";
+				//inputhider.parentNode.style.top = "0";
+			}
+		}
+		if (showButtonsSym.value() === undefined && showButtonsSym.definition === undefined) {
+			showButtonsSym.assign(true, eden.root.scope, Symbol.defaultAgent);
+		}
+		showButtonsSym.addJSObserver("scriptview_"+name, showButtons);
+		showButtons(showButtonsSym, showButtonsSym.value());
+		
 
 		function curChanged(sym, value) {
 			if (typeof value == "number" && value >= 0 && value < tab_frags.length) {

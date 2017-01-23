@@ -10,6 +10,10 @@ Eden.AST.BaseScript = function() {
 
 Eden.AST.BaseScript.appendChild = function (ast) {
 	this.statements.push(ast);
+	if (this.statements.length > 1) {
+		ast.previousSibling = this.statements[this.statements.length-2];
+		this.statements[this.statements.length-2].nextSibling = ast;
+	}
 	ast.parent = this;
 	//ast.buildID();
 

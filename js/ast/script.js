@@ -181,7 +181,7 @@ Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
 
 	// Remove nested scripts that shouldn't be executed
 	for (var i=0; i<this.statements.length; i++) {
-		if (this.statements[i].type != "script") filtered.push(this.statements[i]);
+		if (this.statements[i].type != "script" && this.statements[i].type != "section") filtered.push(this.statements[i]);
 	}
 	return filtered;
 }

@@ -362,7 +362,7 @@
 									this.classes += "eden-number";
 								} else if (this.token == "/*") {
 									if (this.stream.peek() == 42) {
-										this.mode = "DOXYCOMMENT";
+										this.mode = "DOXY_COMMENT";
 										this.classes += "eden-doxycomment";
 									} else {
 										this.mode = "COMMENT";
@@ -746,6 +746,7 @@
 			}
 
 
+			if (this[this.mode] === undefined) console.error("No Mode",this.mode);
 			this[this.mode].call(this);
 
 			line = this.lineelement;

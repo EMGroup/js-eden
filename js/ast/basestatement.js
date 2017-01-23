@@ -11,6 +11,8 @@ Eden.AST.BaseStatement = function() {
 	this.source = undefined;
 	this.id = 0;
 	this.stamp = 0;
+	this.nextSibling = undefined;
+	this.previousSibling = undefined;
 }
 
 Eden.AST.BaseStatement.buildID = function() {

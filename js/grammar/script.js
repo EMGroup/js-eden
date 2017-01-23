@@ -82,7 +82,6 @@ Eden.AST.prototype.pSCRIPT = function() {
 		var statement = this.pSTATEMENT();
 
 		if (statement !== undefined) {
-			//console.log("WS: ", this.stream.code.substring(statement.end, this.stream.prevposition));
 
 			if (statement.errors.length > 0) {
 				ast.appendChild(statement);

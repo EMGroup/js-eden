@@ -21,6 +21,13 @@ Eden.AST.Section.prototype.generate = function(ctx, scope) {
 }
 
 Eden.AST.Section.prototype.execute = function(ctx,base,scope,agent) {
+	var stats = [];
+	var node = this.nextSibling;
+	while (node && (node.type != "section" || node.depth > this.depth)) {
+		if (node.type != "dummy") stats.push(node);
+		node = node.nextSibling;
+	}
+	return stats;
 }
 
 Eden.AST.registerStatement(Eden.AST.Section);

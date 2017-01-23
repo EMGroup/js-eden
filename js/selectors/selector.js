@@ -122,6 +122,13 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 				nstats.push.apply(nstats,statements[i].script.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].script.statements, recurse));
 			}
+		} else if (statements[i].type == "section") {
+			var node = statements[i].nextSibling;
+			while (node && (node.type != "section" || node.depth > this.depth)) {
+				if (node.type != "dummy") nstats.push(node);
+				node = node.nextSibling;
+			}
+			if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(nstats, recurse));
 		}
 	}
 	nstats = nstats.filter(function(stat) {
