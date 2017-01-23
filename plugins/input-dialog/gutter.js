@@ -148,13 +148,13 @@ function EdenScriptGutter(parent, infob) {
 			var stat = me.ast.getStatementByLine(line);
 			if (stat) {
 				var lines = stat.getRange();
-				var avgline = Math.floor((lines[1] - lines[0]) / 2) + lines[0];
+				//var avgline = Math.floor((lines[1] - lines[0]) / 2) + lines[0];
 
 				if (me.lines[line].live) {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-stop'>&#xf069;</span";
 				} else { //if (stat.executed == 0) {
 					//me.gutter.childNodes[line].innerHTML = ""; //<span class='eden-gutter-play'>&#xf04b;</span";
-					if (!shiftdown) changeClass(me.gutter.childNodes[avgline], "play", true);
+					if (!shiftdown) changeClass(me.gutter.childNodes[line], "play", true);
 				}
 
 				/*if (lines[0] < lines[1]) me.showBrace(lines[0],lines[1]);
