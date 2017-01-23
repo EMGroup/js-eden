@@ -5,11 +5,11 @@
  * See LICENSE.txt
  */
 
-##HTML Output
-##If two arguments are provided then the view named by the first argument is
-##is updated to have the content set to the HTML code specified by the second
-##argument.  If only one argument is provided then the argument contains the
-##HTML code and the default HTML view is updated.
+#HTML Output
+#If two arguments are provided then the view named by the first argument is
+#is updated to have the content set to the HTML code specified by the second
+#argument.  If only one argument is provided then the argument contains the
+#HTML code and the default HTML view is updated.
 proc html {
 	${{
 		var viewName, content;
@@ -43,10 +43,10 @@ proc html {
 	}}$;
 }
 
-##Creates a HTML view and a triggered procedure so that contents of the view
-##are kept in sync with the value of a given observable at all times.  The first
-##parameter is the name of the observable who's value provides the HTML code.  The
-##second, optional parameter, is the text to place into the window's title bar.
+#Creates a HTML view and a triggered procedure so that contents of the view
+#are kept in sync with the value of a given observable at all times.  The first
+#parameter is the name of the observable who's value provides the HTML code.  The
+#second, optional parameter, is the text to place into the window's title bar.
 /*proc createHTMLView {
 	auto obsName, viewTitle, viewName;
 	if ($# == 1) {

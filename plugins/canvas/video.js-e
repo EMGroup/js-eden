@@ -1,94 +1,94 @@
-## Copyright (c) 2015, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
+# Copyright (c) 2015, Empirical Modelling Group
+# All rights reserved.
+#
+# See LICENSE.txt
 
-##Bugs:
-##Assigning to _chapters causes a jump back to the beginning of the current chapter.
-##Triggered procedures are possibly called twice when making assignments?
-##If _paused is defined by dependency and is true while seeking then the video starts playing while the mouse button is still held down.
-##Attempting to play back video in reverse (vid_speed < 0) only works on Safari on Mac.  A workaround is possible.
-##Loading a new video file will reset the playback speed to 1.
-##Assigning "end" to _chapter gives improper _time.
-##Todo:
-##Add ability to set audio player width using _width
-##Add a _duration observable (assigning prevents playing past that point).  Change .duration to .maximumDuration
-##Add support for poster images.
-##Add click in video area to play/pause.
-##Add feedback for downloading issues.
-##Add mode that draws the video onto the canvas.
-##Useful site for extracting YouTube video URLs: http://www.downvids.net/
-##Alternative site: http://www.youtubeinmp4.com/
-##MP3 files: http://www.mfiles.co.uk/mp3-files.htm
+#Bugs:
+#Assigning to _chapters causes a jump back to the beginning of the current chapter.
+#Triggered procedures are possibly called twice when making assignments?
+#If _paused is defined by dependency and is true while seeking then the video starts playing while the mouse button is still held down.
+#Attempting to play back video in reverse (vid_speed < 0) only works on Safari on Mac.  A workaround is possible.
+#Loading a new video file will reset the playback speed to 1.
+#Assigning "end" to _chapter gives improper _time.
+#Todo:
+#Add ability to set audio player width using _width
+#Add a _duration observable (assigning prevents playing past that point).  Change .duration to .maximumDuration
+#Add support for poster images.
+#Add click in video area to play/pause.
+#Add feedback for downloading issues.
+#Add mode that draws the video onto the canvas.
+#Useful site for extracting YouTube video URLs: http://www.downvids.net/
+#Alternative site: http://www.youtubeinmp4.com/
+#MP3 files: http://www.mfiles.co.uk/mp3-files.htm
 
-##For a Video drawable named "vid", the following observables are available.  All are read/write.
-##
-##vid_url
-##	The URL of the current video loaded into the video player.
-##
-##vid_position
-##	A Point object representing the position of the video player on the canvas.
-##
-##vid_size
-##	A Point object representing the width and height of the video as it is displayed on the canvas.
-##
-##vid_scale
-##	A number representing the canvas scale factor used to express vid_size.
-##
-##vid_controls
-##	Whether or not the built-in playback controls are available to the user or not.
-##
-##vid_paused
-##	True if the video is not currently playing and false if it is playing or if it should be played
-##	as soon as it has finished loading.  Note that if vid_paused is determined by dependency and the
-##	user overrides this decision by pausing or resuming playback using the playback controls then
-##	the value of vid_paused will not reflect the true status of the video playback.  Also, if
-##	vid_paused is determined by dependency and equals true when the end of the video is reached then
-##	the video will play again from the beginning.
-##
-##vid_time
-##	The current temporal position of the video, accurate to the nearest second.  Cannot be set by
-##	dependency unless the video is kept paused.
-##
-##vid_chapters and vid_chapter
-##	If defined then vid_chapters should be an object where the keys are labels attributed to certain
-##	sections of the video and the values are the times when these sections begin.  For example, if
-##	vid_chapters is {lesson1: 60, lesson2: 900} then vid_chapter will contain the string "start"
-##	during the first 60 seconds of playback, contain the string "lesson1" between 60 seconds through
-##	to 15 minutes into the video, at which point the second lesson begins and vid_chapter will
-##	become "lesson2".  When the video has finished playing vid_chapter will become "end".
-##
-##vid_speed
-##	Determines the speed of video playback, e.g. 1 for normal speed or 2 to play back at double
-##	speed.  Setting the speed to zero pauses the video and assigns the value true to vid_paused
-##	unless vid_paused is calculated by dependency.  If vid_speed is set to zero then subsequently
-##	assigning another value to vid_speed won't automatically resume playback unless vid_paused is
-##	calculated by dependency.  If vid_speed is zero when the video becomes unpaused, either by
-##	the value of vid_paused changing from true to false or by the user clicking on the play button,
-##	then the speed will be reset to 1.
-##
-##vid_volume
-##	The current volume level of the video's soundtrack, between 0 and 1.  If vid_volume is specified
-##	by dependency and playback controls are enabled and the user uses them to adjust the volume
-##	then then the dependency will be overwritten by an implicit assignment.
-##
-##Useful properties of the drawable object itself:
-##
-##.duration
-##	The duration of the currently loaded video file (read-only).
-##
-##Useful methods of the drawable object itself:
-##
-##.unmute()
-##	Restores the volume to its previous level if currently playing silently.
+#For a Video drawable named "vid", the following observables are available.  All are read/write.
+#
+#vid_url
+#	The URL of the current video loaded into the video player.
+#
+#vid_position
+#	A Point object representing the position of the video player on the canvas.
+#
+#vid_size
+#	A Point object representing the width and height of the video as it is displayed on the canvas.
+#
+#vid_scale
+#	A number representing the canvas scale factor used to express vid_size.
+#
+#vid_controls
+#	Whether or not the built-in playback controls are available to the user or not.
+#
+#vid_paused
+#	True if the video is not currently playing and false if it is playing or if it should be played
+#	as soon as it has finished loading.  Note that if vid_paused is determined by dependency and the
+#	user overrides this decision by pausing or resuming playback using the playback controls then
+#	the value of vid_paused will not reflect the true status of the video playback.  Also, if
+#	vid_paused is determined by dependency and equals true when the end of the video is reached then
+#	the video will play again from the beginning.
+#
+#vid_time
+#	The current temporal position of the video, accurate to the nearest second.  Cannot be set by
+#	dependency unless the video is kept paused.
+#
+#vid_chapters and vid_chapter
+#	If defined then vid_chapters should be an object where the keys are labels attributed to certain
+#	sections of the video and the values are the times when these sections begin.  For example, if
+#	vid_chapters is {lesson1: 60, lesson2: 900} then vid_chapter will contain the string "start"
+#	during the first 60 seconds of playback, contain the string "lesson1" between 60 seconds through
+#	to 15 minutes into the video, at which point the second lesson begins and vid_chapter will
+#	become "lesson2".  When the video has finished playing vid_chapter will become "end".
+#
+#vid_speed
+#	Determines the speed of video playback, e.g. 1 for normal speed or 2 to play back at double
+#	speed.  Setting the speed to zero pauses the video and assigns the value true to vid_paused
+#	unless vid_paused is calculated by dependency.  If vid_speed is set to zero then subsequently
+#	assigning another value to vid_speed won't automatically resume playback unless vid_paused is
+#	calculated by dependency.  If vid_speed is zero when the video becomes unpaused, either by
+#	the value of vid_paused changing from true to false or by the user clicking on the play button,
+#	then the speed will be reset to 1.
+#
+#vid_volume
+#	The current volume level of the video's soundtrack, between 0 and 1.  If vid_volume is specified
+#	by dependency and playback controls are enabled and the user uses them to adjust the volume
+#	then then the dependency will be overwritten by an implicit assignment.
+#
+#Useful properties of the drawable object itself:
+#
+#.duration
+#	The duration of the currently loaded video file (read-only).
+#
+#Useful methods of the drawable object itself:
+#
+#.unmute()
+#	Restores the volume to its previous level if currently playing silently.
 
-##Example:
+#Example:
 /*
 	vid_url = "...";
 	vid is Video();
 	picture is [vid];
 
-	##Stop to complete an exercise 60 seconds into the video.
+	#Stop to complete an exercise 60 seconds into the video.
 	exercisePoints = [60];
 	exercisesCompleted = [false];
 	exerciseNumber is positionInList(vid_time, exercisePoints);

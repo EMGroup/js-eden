@@ -289,7 +289,7 @@
 	EdenUI.Highlight.prototype.START = function() {
 		switch(this.token) {
 		case "##"		:	if (this.prevtoken == "INVALID") {
-								this.classes += "eden-comment-faded-h1";
+								this.classes += "eden-comment-hidden";
 								this.lineelement.className += "eden-section-line";
 								this.mode = "SECTION_TITLE";
 							} else {
@@ -298,7 +298,7 @@
 							}
 							break;
 		case "#"		:	if (this.prevtoken == "INVALID") {
-								this.classes += "eden-comment-faded";
+								this.classes += "eden-comment-hidden";
 								this.mode = "COMMENT";
 							} else {
 								this.classes += "eden-operator";
@@ -453,13 +453,13 @@
 							this.lineelement = nline;
 							break;
 		case "*"		:	this.mode = "COMMENT_BOLD";
-							this.classes += "eden-comment-faded";
+							this.classes += "eden-comment-hidden";
 							break;
 		case "`"		:	this.mode = "COMMENT_CODE";
-							this.classes += "eden-comment-faded";
+							this.classes += "eden-comment-hidden";
 							break;
 		case ":"		:	this.mode = "COMMENT_ICON";
-							this.classes += "eden-comment-faded";
+							this.classes += "eden-comment-hidden";
 							break;
 		case "\\"		:
 		//case "["		:	this.mode = "COMMENT_LINK";
@@ -472,7 +472,7 @@
 
 	EdenUI.Highlight.prototype.COMMENT_CODE = function() {
 		if (this.token == "`") {
-			this.classes += "eden-comment-faded";
+			this.classes += "eden-comment-hidden";
 			this.mode = "COMMENT";
 		} else {
 			this.START();
@@ -484,9 +484,9 @@
 			var icon = document.createElement("span");
 			icon.className = "fa fa-"+this.tokentext;
 			this.lineelement.appendChild(icon);
-			this.classes += "eden-comment-faded";
+			this.classes += "eden-comment-hidden";
 		} else if (this.token == ":") {
-			this.classes += "eden-comment-faded";
+			this.classes += "eden-comment-hidden";
 			this.mode = "COMMENT";
 		} else {
 			// Some kind of highlight error.
@@ -499,7 +499,7 @@
 
 	EdenUI.Highlight.prototype.COMMENT_BOLD = function() {
 		if (this.token == "*") {
-			this.classes += "eden-comment-faded";
+			this.classes += "eden-comment-hidden";
 			this.mode = "COMMENT";
 		} else {
 			this.classes += "eden-comment-bold";
@@ -522,7 +522,7 @@
 	}
 
 	EdenUI.Highlight.prototype.JAVASCRIPT = function() {
-		classes += "eden-javascript";
+		this.classes += "eden-javascript";
 		if (this.token == "}}$") {
 			this.mode = "START";
 		}
@@ -667,6 +667,7 @@
 				var caret = document.createElement('span');
 				caret.className = "fake-caret";
 				line.appendChild(caret);
+				line.className += " current";
 			}
 
 			// Skip but preserve white space
@@ -788,6 +789,7 @@
 				parentspan.appendChild(tokenspan);
 
 				line.appendChild(parentspan);
+				line.className += " current";
 			} else {
 				var tokenspan = document.createElement('span');
 				tokenspan.className = this.classes;

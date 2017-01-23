@@ -55,6 +55,17 @@ span.eden-comment-faded {
 	color: #ccc;
 }
 
+span.eden-comment-hidden {
+	display: none;
+}
+
+span.current > span.eden-comment-hidden {
+	display: initial;
+	color: red;
+	font-weight: bold;
+	font: 14px Arial,Helvetica,sans-serif
+}
+
 span.eden-comment-faded-h1 {
 	color: #aaa;
 	font-size: 16pt;
@@ -65,9 +76,14 @@ span.eden-comment-bold {
 }
 
 span.eden-comment-h1 {
-	font-weight: bold;
 	color: #666;
-	font-size: 16pt;
+	font: 16pt Arial,Helvetica,sans-serif;
+	font-weight: bold;
+}
+
+span.eden-comment-h2 {
+	color: #666;
+	font: 16pt Arial,Helvetica,sans-serif;
 }
 
 span.eden-doxycomment {

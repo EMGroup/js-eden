@@ -62,6 +62,7 @@ Eden.AST = function(code, imports, origin, options) {
 	this.whens = [];
 	this.options = options;
 	this.lastresult = undefined;
+	this.depth = 0;
 
 	if (!origin) console.error("NO ORIGIN", code);
 
@@ -487,11 +488,27 @@ Eden.AST.prototype.next = function() {
 			}
 			this.token = this.stream.readToken();
 		// Skip line comments
-		} else if (this.token == "##") {
-			this.stream.skipLine();
-			this.token = this.stream.readToken();
-		} else if (this.token == "#" && (this.stream.position == 0 || this.stream.code.charAt(this.stream.position-2) == "\n")) {
-			this.stream.skipLine();
+		//} else if (this.token == "##" && this.lastposition != 0 && /[\s;\{]+/.test(this.stream.code.charAt(this.stream.position-3))) {
+		//	this.stream.skipLine();
+		//	this.token = this.stream.readToken();
+		} else if (this.token == "#" && (this.lastposition == 0 || /[\s;]+/.test(this.stream.code.charAt(this.stream.position-2)))) {
+			var start = this.stream.position;
+			var startline = this.stream.line;
+
+			do {
+				this.stream.skip();
+				this.stream.skipLine();
+				this.stream.skip();
+				this.stream.line++;
+			} while (this.stream.code.charAt(this.stream.position) == "#");
+			
+			this.lastDoxyComment = new Eden.AST.DoxyComment(this.stream.code.substring(start, this.stream.position-1).trim(), startline, this.stream.line);
+			this.lastDoxyComment.parent = this.parentDoxy;
+			if (this.lastDoxyComment.content.endsWith("@{")) {
+				this.parentDoxy = this.lastDoxyComment;
+			} else if (this.lastDoxyComment.content.startsWith("@}")) {
+				if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
+			}
 			this.token = this.stream.readToken();
 		// Extract javascript code blocks
 		} else if (this.token == "${{") {

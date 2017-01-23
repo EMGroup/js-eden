@@ -102,6 +102,10 @@ Eden.AST.prototype.pSCRIPT = function() {
 				ast.appendChild(dummy);
 			}
 		} else {
+			/*if (this.depth > 0) {
+				this.depth--;
+				break;
+			}*/
 			if (this.token != "}" && this.token != ";") {
 				ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
 			}

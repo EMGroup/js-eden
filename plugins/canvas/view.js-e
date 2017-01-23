@@ -1,0 +1,181 @@
+# Copyright (c) 2013, Empirical Modelling Group
+# All rights reserved.
+#
+# See LICENSE.txt
+
+${{
+View = function (name, type, x, y, width, height) {
+	this.type = type;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.name = name;
+}
+
+Div.prototype.hash = function () {
+	return this.x+"$$"+
+		this.y+"$$"+
+		this.width+"$$"+
+		this.height+"$$"+
+		this.type+"$$"+
+		this.name+"$$";
+};
+}}$
+
+/**
+ * Create a View tag to display an embedded view
+ * 
+ * @param name
+ * @param type
+ * @param x X-coordinate
+ * @param y Y-coordinate
+ * @param [width Width in pixels or as a string or undefined
+ * @param [height]] Height in pixels or as a string or undefined
+ * #canvas #view #embedded
+ */
+func View { ${{
+	var name = arguments[0];
+	var type = arguments[1];
+	var x = arguments[2];
+	var y = arguments[3];
+	var width, height;   //Number of pixels, string (e.g. "50%") or undefined (automatic)
+	
+	var argsProcessed = 4;
+	var argType = typeof(arguments[4]);
+	
+	if (argType == "number" || argType == "undefined") {
+		width = arguments[4];
+		argsProcessed++;
+		
+		argType = typeof(arguments[5]);
+		if (argType == "number" || argType == "undefined") {
+			height = arguments[5];
+			argsProcessed++;
+		}
+	}
+
+	return new View(name, type, x, y, width, height);
+}}$ }
+
+${{
+
+View.prototype.draw = function(context) {
+
+  if (this.elements === undefined) {
+	var me = this;
+
+	var divElement = edenUI.views[this.type].embed(this.name, this.name, "").contents.get(0);
+	divElement.className += " canvashtml-item canvashtml-div-item";
+
+	/*document.createElement("div");
+	if (this.name !== undefined) {
+		divElement.id = this.name;
+	}
+
+	divElement.addEventListener("click", function(event) {
+		var script = event.target.getAttribute("data-jseden");
+		if (script !== null && script != "") {
+			eden.execute2(script);
+		}
+	});*/
+
+	//Create object properties that record the automatically generated width and/or height.
+	if (this.width === undefined || this.name !== undefined) {
+		var objectElement = document.createElement("object");
+		objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; " + 
+			"height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
+
+		objectElement.onload = function () {
+			me.resize();
+		}
+
+		objectElement.type = "text/html";
+		objectElement.data = "about:blank";
+		divElement.appendChild(objectElement);
+	}
+
+	this.elements = [divElement];
+  }
+};
+
+View.prototype.resize = function () {
+	var scale = this.cachedScale;
+	if (scale === undefined) {
+		//Not yet added drawn onto a canvas.
+		return;
+	}
+
+	var element = this.elements[0];
+	var style = element.style;
+	//style.transform = "scale("+scale+")";
+	var autoWidth = this.width === undefined;
+	var autoHeight = this.height === undefined;
+
+	/*if (autoWidth) {
+		var savedHeight = style.height;
+		style.width = "auto";
+		style.height = "auto";
+		var contentWidth = element.clientWidth;
+		style.width = contentWidth + "px";
+		style.height = savedHeight;
+		var scrollBarSize = element.offsetWidth - element.clientWidth;
+		if (scrollBarSize > 0) {
+			scrollBarSize = scrollBarSize + 2;
+			style.width = String(contentWidth + scrollBarSize) + "px";
+		} else {
+			style.width = "auto";
+		}
+	}*/
+
+	if (this.name !== undefined) {
+		var agent = root.lookup("Div");
+		var widthSymName = this.name + "_width";
+		var heightSymName = this.name + "_height";
+
+		if (autoWidth || widthSymName in root.symbols) {
+			root.lookup(widthSymName).assign(element.offsetWidth / scale, root.scope, agent);
+		}
+		if (autoHeight || heightSymName in root.symbols) {
+			root.lookup(heightSymName).assign(element.offsetHeight / scale, root.scope, agent);
+		}
+	}
+}
+
+View.prototype.scale = function (scale, zoom , origin) {
+	var style = this.elements[0].style;
+	style.left = Math.round((this.x + origin.x) * scale) + "px";
+	style.top = Math.round((this.y + origin.y) * scale) + "px";
+
+	if (this.width !== undefined) {
+		style.width = Math.round(this.width) + "px";
+	}
+	if (this.height !== undefined) {
+		style.height = Math.round(this.height) + "px";
+	}
+	/*if (this.fontSizeSpecified) {
+		style.fontSize = String(this.fontSizeNumber * zoom) + this.fontSizeUnits;
+	} else {
+		if (zoom == 1) {
+			style.fontSize = ""; //Could be specified by a CSS class.
+		} else {
+			style.fontSize = zoom + "em";
+		}
+	}*/
+	if (scale != this.cachedScale) {
+		style.transform = "scale("+scale+")";
+	}
+	this.cachedScale = scale;
+	this.resize();
+};
+
+View.prototype.toString = function() {
+	return this.getEdenCode();
+};
+
+View.prototype.getEdenCode = function () {
+	var s = "View(" + Eden.edenCodeForValues(this.name, this.type, this.x, this.y, this.width, this.height);
+	return s;
+};
+
+}}$;

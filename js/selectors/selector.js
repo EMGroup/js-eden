@@ -739,7 +739,9 @@ Eden.Selectors.modify = function(selector, attributes, values) {
 
 			case "title":
 			case "comment":
-			case "rawcomment":
+			case "rawcomment":		var doxy = new Eden.AST.DoxyComment(vals[j],0,0);
+									res[i].doxyComment = doxy;
+									break;
 			case "tags":
 			case "executed": break;
 			case "enabled"		:	if (res[i].type == "when") {

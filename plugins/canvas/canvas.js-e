@@ -1,13 +1,13 @@
-## Copyright (c) 2013, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
+# Copyright (c) 2013, Empirical Modelling Group
+# All rights reserved.
+#
+# See LICENSE.txt
 
 action plugins {
 action canvas {
 action canvas {
 
-##Initialize observables
+#Initialize observables
 mouseButton = "";
 mouseButtons = "";
 mouseCapture = false;
@@ -144,8 +144,8 @@ proc createCanvas {
 	createView(viewName, "Canvas2D");
 	execute2("view_" // viewName // "_content is " // obsName // ";", "*Default");
 	if (viewTitle == @) {
-		##Don't attempt to make this update by dependency on redefinition of _view_viewName_content.
-		##Severe performance problems result.
+		# don't attempt to make this update by dependency on redefinition of _view_viewName_content.
+		# Severe performance problems result.
 		viewTitle = "Canvas " // obsName;
 	}
 	`"view_" // viewName // "_title"` = viewTitle;
@@ -480,6 +480,7 @@ do plugins > canvas > tablelayout;
 do plugins > canvas > textbox;
 do plugins > canvas > translation;
 do plugins > canvas > video;
+do plugins > canvas > view;
 
 }
 }

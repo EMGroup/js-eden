@@ -6,13 +6,13 @@
  * See LICENSE.txt
  */
 
-##Debugging flags.
+#Debugging flags.
 debug = ${{ {jsExceptions: edenUI.getOptionValue("developer") == "true" } }}$;
 
-##Version
+#Version
 jseden_version is jseden_version_major*10000000+jseden_version_minor*100000+jseden_version_patch*1000+jseden_version_commit;
 
-##MISSING FUNCTIONS
+#MISSING FUNCTIONS
 
 proc eager {
 	if (autocalc == 0) {
@@ -37,9 +37,9 @@ proc writeln {
 	append jseden_notifications,["log", msg];
 }
 
-##Raises an error if fewer or greater than two arguments are given.
-##Returns undefined if either argument is undefined.
-##tkeden returns strange strings beginning with the word "usage" in these situations.
+#Raises an error if fewer or greater than two arguments are given.
+#Returns undefined if either argument is undefined.
+#tkeden returns strange strings beginning with the word "usage" in these situations.
 func apply {
 	${{
 		if (arguments.length != 2) {
@@ -105,25 +105,25 @@ func forget {
 	}}$;
 };
 
-##Forgets all symbols whose names match a given regular expression or that are explicitly provided
-##as a list.  The optional second argument determines if the search is case sensitive.  The optional
-##third argument determines if the user will be prompted to confirm the deletions and the optional
-##forth parameter determines if system-defined symbols matching the search criteria will
-##also be deleted.
-##
-##Returns a list.
-## 1st element: A list of the symbol names that were successfully forgotten.
-## 2nd element: A list of the symbol names that matched the selection criteria but that could not be
-##	forgotten either because they are referenced by a dependency or because they act as a trigger for
-##	a triggered procedure, or because forgetAll is refusing to forget them because they are system-defined
-##	symbols.  This list item is undefined if an error occurs before the relationships between the
-##	observables have been analysed (such as if one or more of the arguments are invalid).
-## 3rd element: A list of symbol names that could not be forgotten but were set to the undefined
-##	value instead of being completely forgotten.  Names such as "picture" appear on this list
-##	because forgetting them would destroy some built-in system behaviours that the user might not
-##	know how recreate, such as redrawing the canvas if the picture observable is later given a new
-##	definition.
-##
+#Forgets all symbols whose names match a given regular expression or that are explicitly provided
+#as a list.  The optional second argument determines if the search is case sensitive.  The optional
+#third argument determines if the user will be prompted to confirm the deletions and the optional
+#forth parameter determines if system-defined symbols matching the search criteria will
+#also be deleted.
+#
+#Returns a list.
+# 1st element: A list of the symbol names that were successfully forgotten.
+# 2nd element: A list of the symbol names that matched the selection criteria but that could not be
+#	forgotten either because they are referenced by a dependency or because they act as a trigger for
+#	a triggered procedure, or because forgetAll is refusing to forget them because they are system-defined
+#	symbols.  This list item is undefined if an error occurs before the relationships between the
+#	observables have been analysed (such as if one or more of the arguments are invalid).
+# 3rd element: A list of symbol names that could not be forgotten but were set to the undefined
+#	value instead of being completely forgotten.  Names such as "picture" appear on this list
+#	because forgetting them would destroy some built-in system behaviours that the user might not
+#	know how recreate, such as redrawing the canvas if the picture observable is later given a new
+#	definition.
+#
 func forgetAll {
 	${{
 		var searchStr, caseSensitive, requireConfirm, includeSystemSymbols;
@@ -450,7 +450,7 @@ proc touch {
 	}}$;
 }
 
-##A new JS-EDEN specific function.
+#A new JS-EDEN specific function.
 func doDefault {
 	para value, defaultValue;
 	auto argc;
@@ -504,7 +504,7 @@ proc arrangeWindows {
 	forget(sumSym);
 }
 
-## Temporary: Include using the new parser.
+# Temporary: Include using the new parser.
 func include2 {
 	para file;
 	${{ edenUI.eden.include2(arguments[0]) }}$;
@@ -520,10 +520,10 @@ func agentFromFile {
 	${{ edenUI.eden.agentFromFile(arguments[0],arguments[1],arguments[2]) }}$;
 }
 
-##Autocalc compatibility
+#Autocalc compatibility
 autocalc = 1;
 
-##Include the rest of the library
+#Include the rest of the library
 
 action type {
 /**
@@ -537,8 +537,8 @@ action type {
  * belongs, etc.
  */
 
-##=============================================================================
-##Type casting functions.
+#=============================================================================
+#Type casting functions.
 
 /**
  * Convert some value into a character.
@@ -673,8 +673,8 @@ func str {
 	}
 }
 
-##=============================================================================
-##Type testing functions.
+#=============================================================================
+#Type testing functions.
 
 /**
  * `type(expr)` Determines the type of an expression.
@@ -1139,20 +1139,20 @@ proc destroyView {
 proc moveView {
 	para name, x, y;
 	autocalc = 0;
-	##together {
+	/*together {*/
 		`"view_" // name // "_x"` = x;
 		`"view_" // name // "_y"` = y;
-	##}
+	/*}*/
 	autocalc = 1;
 }
 
 proc resizeView {
 	para name, width, height;
 	autocalc = 0;
-	##together {
+	#together {
 		`"view_" // name // "_width"` = width;
 		`"view_" // name // "_height"` = height;
-	##}
+	#}
 	autocalc = 1;
 }
 
@@ -2426,8 +2426,8 @@ func substitute {
 	}}$;
 }
 
-##The same issues arise as with the sublist function (in lists.js-e) and they're handled in the
-##same way.
+#The same issues arise as with the sublist function (in lists.js-e) and they're handled in the
+#same way.
 /**
  * Extract a string from another using indices.
  *   @param source The original source string.
@@ -2670,7 +2670,7 @@ action math {
 PI = ${{ Math.PI }}$;
 semicircleAngle = 180;
 
-##Rounding functions
+#Rounding functions
 
 ${{
   /**
@@ -2969,7 +2969,7 @@ func ceil {
 }
 
 
-## --- End of rounding functions ---
+# --- End of rounding functions ---
 
 
 /** Get the absolute value of a number. The removes the minus sign if there is
@@ -3108,7 +3108,7 @@ func log {
 	}}$;
 }
 
-##The same remarks apply as for min, mutatis mutandis.
+#The same remarks apply as for min, mutatis mutandis.
 
 /**
  * Maximum value in a list or of the arguments given.
@@ -3480,7 +3480,7 @@ action notifications {
 }
 
 action defaults {
-##jseden_project_title = "Construit!";
+#jseden_project_title = "Construit!";
 /** Maker mode @oracle @handle */
 jseden_maker = false;
 /** Display (or hide) menu bar search box. @handle */
@@ -3604,7 +3604,7 @@ func rotatePoint {
 		return @;
 	}
 
-	##Theta is 90 minus the original theta.
+	#Theta is 90 minus the original theta.
 	cosTheta = cos(theta);
 	sinTheta = sin(-theta);
 	translatedX = point["x"] - centre["x"];
@@ -4095,12 +4095,12 @@ proc bindCSSProperty {
 	}}$;
 }
 
-##bindCSSNumericProperty procedure is similar to the bindCSSProperty procedure, except that instead
-##of the bound observable taking on string values like "12pt" the bound observable can instead take
-##on numeric values (like 12) and the associated CSS property will be set using a scale that was
-##previously selected at the time of binding the observable to the CSS.  That is, when this
-##procedure is called "pt" might be specified to indicate that observable records the font size in
-##typographic points.
+#bindCSSNumericProperty procedure is similar to the bindCSSProperty procedure, except that instead
+#of the bound observable taking on string values like "12pt" the bound observable can instead take
+#on numeric values (like 12) and the associated CSS property will be set using a scale that was
+#previously selected at the time of binding the observable to the CSS.  That is, when this
+#procedure is called "pt" might be specified to indicate that observable records the font size in
+#typographic points.
 proc bindCSSNumericProperty {
 	${{
 		var scope, selector, property, obsName, units;
@@ -4174,9 +4174,9 @@ proc bindCSSNumericProperty {
 	}}$;
 }
 
-##bindCSSRule creates a binding where the value of an observable specifies the complete contents
-##to be inserted between a pair of { and } characters in the underlying stylesheet.  For example,
-##the observable might take on a string value like "font-size: 12pt; color: red".
+#bindCSSRule creates a binding where the value of an observable specifies the complete contents
+#to be inserted between a pair of { and } characters in the underlying stylesheet.  For example,
+#the observable might take on a string value like "font-size: 12pt; color: red".
 proc bindCSSRule {
 	${{
 		var scope, selector, obsName;
@@ -4253,9 +4253,9 @@ proc bindCSSRule {
 	}}$;
 }
 
-##Removes the connection between an observable name and a CSS stylesheet.  After calling this
-##procedure future updates to the value of the specified observable will no longer cause changes to
-##the styling of HTML.
+#Removes the connection between an observable name and a CSS stylesheet.  After calling this
+#procedure future updates to the value of the specified observable will no longer cause changes to
+#the styling of HTML.
 proc unbind {
 	${{
 		if (arguments.length != 1) {
@@ -4332,10 +4332,10 @@ action declarevar {
 }
 
 action include {
-## Copyright (c) 2013, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
+# Copyright (c) 2013, Empirical Modelling Group
+# All rights reserved.
+#
+# See LICENSE.txt
 
 func include_css {
 ${{

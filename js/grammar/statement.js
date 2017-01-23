@@ -195,6 +195,9 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						}
 						stat = def; break;
 	case "if"		:	this.next(); stat = this.pIF(); break;
+	case "##"		:	stat = this.pSECTION();
+						break;
+						
 	case "return"	:	this.next();
 						var ret = new Eden.AST.Return();
 
@@ -308,7 +311,9 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	end = this.lastposition;
 	endline = this.lastline;
 	stat.parent = this.parent;
-	stat.doxyComment = doxy;
+	if (stat.doxyComment === undefined) {
+		stat.doxyComment = doxy;// (doxy && doxy.endline == curline-1) ? doxy : undefined;
+	}
 	stat.stamp = this.stamp;
 	stat.numlines = endline - curline - 1;
 	stat.setSource(start, end,this.stream.code.substring(start,end));
