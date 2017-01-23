@@ -24,7 +24,7 @@ Eden.AST.Section.prototype.execute = function(ctx,base,scope,agent) {
 	var stats = [];
 	var node = this.nextSibling;
 	while (node && (node.type != "section" || node.depth > this.depth)) {
-		if (node.type != "dummy") stats.push(node);
+		if (node.type != "dummy" && node.type != "section") stats.push(node);
 		node = node.nextSibling;
 	}
 	return stats;

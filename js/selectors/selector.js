@@ -124,7 +124,7 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 			}
 		} else if (statements[i].type == "section") {
 			var node = statements[i].nextSibling;
-			while (node && (node.type != "section" || node.depth > this.depth)) {
+			while (node && (node.type != "section" || node.depth > statements[i].depth)) {
 				if (node.type != "dummy") nstats.push(node);
 				node = node.nextSibling;
 			}
@@ -432,9 +432,9 @@ Eden.Selectors._parse = function(s, options) {
 		node = new Eden.Selectors.TagNode(tag);
 		s = s.substring(tag.length).trim();
 	} else if (s.charAt(0).match(/[a-zA-Z*?]+/)) {
-		var endix = s.search(/[^a-zA-Z0-9_*?]+/);
+		var endix = s.search(/[^a-zA-Z0-9_*?\s]+/);
 		if (endix == -1) endix = s.length;
-		var name = s.substring(0,endix);
+		var name = s.substring(0,endix).trim();
 		node = new Eden.Selectors.NameNode(name);
 		s = s.substring(endix).trim();
 	} else s = "";

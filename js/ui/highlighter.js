@@ -436,7 +436,31 @@
 	}
 
 	EdenUI.Highlight.prototype.SECTION_TITLE = function() {
+		if (this.token == "#") {
+			this.classes += "eden-comment-hidden";
+			this.mode = "SECTION_TITLE_H2";
+		} else {
+			this.classes += "eden-comment-h1";
+			this.mode = "SECTION_TITLE_H1";
+		}
+	}
+
+	EdenUI.Highlight.prototype.SECTION_TITLE2 = function() {
+		if (this.token == "#") {
+			this.classes += "eden-comment-hidden";
+			this.mode = "SECTION_TITLE3";
+		} else {
+			this.classes += "eden-comment-h2";
+			this.mode = "SECTION_TITLE_H2";
+		}
+	}
+
+	EdenUI.Highlight.prototype.SECTION_TITLE_H1 = function() {
 		this.classes += "eden-comment-h1";
+	}
+
+	EdenUI.Highlight.prototype.SECTION_TITLE_H2 = function() {
+		this.classes += "eden-comment-h2";
 	}
 
 	EdenUI.Highlight.prototype.COMMENT = function() {
@@ -613,6 +637,15 @@
 
 
 
+	EdenUI.Highlight.lineclearmode = {
+		"COMMENT": true,
+		"SECTION_TITLE": true,
+		"SECTION_TITLE2": true,
+		"SECTION_TITLE_H1": true,
+		"SECTION_TITLE_H2": true,
+		"COMMENT_BOLD": true
+	}
+
 	/**
 	 * Highlight a single line but not including the containing line div.
 	 */
@@ -636,7 +669,7 @@
 		else this.mode = "START";
 
 		// Reset line comments
-		if (this.mode == "COMMENT" || this.mode == "SECTION_TITLE" || "COMMENT_BOLD") this.mode = "START";
+		if (EdenUI.Highlight.lineclearmode[this.mode]) this.mode = "START";
 
 		// Get error position information
 		if (ast.script && ast.script.errors.length > 0) {
