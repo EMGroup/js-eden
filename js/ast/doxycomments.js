@@ -81,10 +81,11 @@ Eden.AST.DoxyComment.prototype.stripped = function() {
 
 		var words = lines[i].split(/[ \t]+/);
 		for (var j=0; j<words.length; j++) {
-			if (words[j] != "" && words[j].charAt(0) != "#" && words[j].charAt(0) != "@") {
+			if (words[j] != "" && words[j].charAt(0) != "@") {
 				res += words[j] + " ";
-			} else if (words[j].charAt(0) == "#") {
-				tags[words[j]] = true;
+				if (words[j].charAt(0) == "#") {
+					tags[words[j]] = true;
+				}
 			}
 		}
 		//res = res.trim();

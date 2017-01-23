@@ -32,3 +32,14 @@ Eden.AST.Section.prototype.execute = function(ctx,base,scope,agent) {
 
 Eden.AST.registerStatement(Eden.AST.Section);
 
+Eden.AST.Section.prototype.getRange = function(relative) {
+	var sl = this.getStartLine(relative);
+	var node = this.nextSibling;
+	while (node && node.nextSibling && (node.nextSibling.type != "section" || node.nextSibling.depth > this.depth)) {
+		node = node.nextSibling;
+	}
+	if (node && node.type == "dummy") node = node.previousSibling;
+	var el = (node) ? node.getEndLine(relative) : sl+this.getNumberOfLines();
+	return [sl,el];
+}
+

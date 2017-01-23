@@ -62,12 +62,14 @@ Eden.AST.BaseScript.removeChild = function(child) {
 		return;
 	}
 
+	if (child.nextSibling) child.nextSibling.previousSibling = child.previousSibling;
+	if (child.previousSibling) child.previousSibling.nextSibling = child.nextSibling;
 	child.destroy();
 	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
 }
 
 Eden.AST.BaseScript.replaceChild = function(oldchild, newchild) {
-	//console.log("REPLACE",this,oldchild,newchild);
+	console.log("REPLACE",this,oldchild,newchild);
 	var oix;
 	if (typeof oldchild == "number") {
 		oix = oldchild;
@@ -84,6 +86,10 @@ Eden.AST.BaseScript.replaceChild = function(oldchild, newchild) {
 	}
 
 	
+	newchild.nextSibling = this.statements[oix].nextSibling;
+	if (newchild.nextSibling) newchild.nextSibling.previousSibling = newchild;
+	newchild.previousSibling = this.statements[oix].previousSibling;
+	if (newchild.previousSibling) newchild.previousSibling.nextSibling = newchild;
 	this.statements[oix].destroy();
 	this.statements[oix] = newchild;
 	newchild.parent = this;
@@ -101,6 +107,8 @@ Eden.AST.BaseScript.destroy = function() {
 	this.statements = undefined;
 	this.base = undefined;
 	this.parent = undefined;
+	this.nextSibling = undefined;
+	this.previousSibling = undefined;
 }
 
 Eden.AST.BaseScript.addIndex = function() {
@@ -174,6 +182,7 @@ Eden.AST.BaseScript.getRelativeLine = function(stat, base) {
 Eden.AST.BaseScript.getNumberOfLines = function() {
 	// Add self lines.
 	// And sum of child lines.
+	if (this.statements === undefined) console.error("No Statements",this);
 	var ln = 0;
 	for (var i=0; i<this.statements.length; i++) {
 		ln += this.statements[i].getNumberOfLines();

@@ -290,16 +290,18 @@
 		switch(this.token) {
 		case "##"		:	if (this.prevtoken == "INVALID") {
 								this.classes += "eden-comment-hidden";
-								this.lineelement.className += "eden-section-line";
+								//this.lineelement.className = "eden-comment-line";
 								this.mode = "SECTION_TITLE";
+								this.lineelement.className = "eden-comment-line";
 							} else {
 								this.classes += "eden-comment";
 								this.mode = "COMMENT";
 							}
 							break;
-		case "#"		:	if (this.prevtoken == "INVALID") {
+		case "#"		:	if (this.prevtoken == "INVALID" || this.prevtoken == ";") {
 								this.classes += "eden-comment-hidden";
 								this.mode = "COMMENT";
+								if (this.prevtoken == "INVALID") this.lineelement.className = "eden-comment-line";
 							} else {
 								this.classes += "eden-operator";
 							}
@@ -365,7 +367,7 @@
 										this.mode = "DOXY_COMMENT";
 										this.classes += "eden-doxycomment";
 									} else {
-										this.mode = "COMMENT";
+										this.mode = "BLOCK_COMMENT";
 										this.classes += "eden-comment";
 									}
 								} else {
@@ -463,11 +465,20 @@
 		this.classes += "eden-comment-h2";
 	}
 
-	EdenUI.Highlight.prototype.COMMENT = function() {
+	EdenUI.Highlight.prototype.BLOCK_COMMENT = function() {
 		switch(this.token) {
 		case "*/"		:	this.mode = "START";
 							this.classes += "eden-comment";
 							break;
+		default			:	this.classes += "eden-comment";
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT = function() {
+		switch(this.token) {
+		//case "*/"		:	this.mode = "START";
+		//					this.classes += "eden-comment";
+		//					break;
 		case "@"		:
 		case "#"		:	this.mode = "COMMENT_TAG";
 							this.pushLine();
@@ -542,7 +553,7 @@
 	}
 
 	EdenUI.Highlight.prototype.DOXY_COMMENT = function() {
-		this.COMMENT();
+		this.BLOCK_COMMENT();
 	}
 
 	EdenUI.Highlight.prototype.JAVASCRIPT = function() {
@@ -643,7 +654,9 @@
 		"SECTION_TITLE2": true,
 		"SECTION_TITLE_H1": true,
 		"SECTION_TITLE_H2": true,
-		"COMMENT_BOLD": true
+		"COMMENT_BOLD": true,
+		"COMMENT_CODE": true,
+		"COMMENT_ICON":	true
 	}
 
 	/**
@@ -681,6 +694,7 @@
 		var wsline = "";
 
 		var line = document.createElement('span');
+		line.className = "eden-line-script";
 
 		while (true) {
 			//if (this.mode == 6) {

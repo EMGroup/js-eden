@@ -60,6 +60,8 @@ Eden.AST.BaseStatement.removeIndex = function() {
 Eden.AST.BaseStatement.destroy = function() {
 	if (this.executed < 1) Eden.Index.remove(this);
 	this.parent = undefined;
+	this.nextSibling = undefined;
+	this.previousSibling = undefined;
 	if (this.statements) {
 		for (var i=0; i<this.statements.length; i++) {
 			if (this.statements[i].type != "dummy") this.statements[i].destroy();

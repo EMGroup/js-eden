@@ -482,7 +482,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 
 
 	if (typeof num == "boolean") console.trace("Bool");
-	if (s == "") {
+	if (s === undefined || s == "") {
 		var res = [];
 		if (cb) cb(res);
 		return res;

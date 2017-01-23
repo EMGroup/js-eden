@@ -11,9 +11,10 @@ div.eden-gutter {
 }
 
 div.eden-gutter-item {
-	width: 32px;
+	width: 50px;
 	height: 20px;
 	/*border-right: 1px solid transparent;*/
+	/*border-right: 5px solid #eee;*/
 	padding-left: 5px;
 	padding-top: 3px;
 	box-sizing: border-box;

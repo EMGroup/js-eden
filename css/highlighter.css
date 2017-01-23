@@ -86,6 +86,10 @@ span.eden-comment-h2 {
 	font: 16pt Arial,Helvetica,sans-serif;
 }
 
+span.eden-line-script {
+	margin-left: 20px;
+}
+
 span.eden-doxycomment {
 	font-style: italic;
 	color: #657ed9;

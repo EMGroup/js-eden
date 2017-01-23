@@ -19,7 +19,7 @@ Eden.Fragment = function(selector) {
 
 	//console.error("FRAGMENT");
 
-	//this.reset();
+	this.reset();
 	var me = this;
 
 	Eden.Fragment.listenTo("aststatus", this, function(ast) {
