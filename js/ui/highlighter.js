@@ -274,11 +274,235 @@
 		this.outelement = output;
 		this.line = 1;
 		this.currentline = -1;
-		this.mode = 0;
+		this.mode = "START";
 		this.mode_at_line = {};
 		this.heredocend = undefined;
-		this.lastmode = 0;
+		//this.lastmode = 0;
 		this.scrolltop = -1;
+
+		this.token = undefined;
+		this.prevtoken = undefined;
+		this.modestack = [];
+		this.linestack = undefined;
+	}
+
+	EdenUI.Highlight.prototype.START = function() {
+		switch(this.token) {
+		case "##"		:	if (this.prevtoken == "INVALID") {
+								this.classes += "eden-comment-faded-h1";
+								this.lineelement.className += "eden-section-line";
+								this.mode = "SECTION_TITLE";
+							} else {
+								this.classes += "eden-comment";
+								this.mode = "COMMENT";
+							}
+							break;
+		case "#"		:	if (this.prevtoken == "INVALID") {
+								this.classes += "eden-comment";
+								this.mode = "COMMENT";
+							} else {
+								this.classes += "eden-operator";
+							}
+							break;
+		case "local"	:
+		case "para"		:
+		case "handle"	:
+		case "oracle"	:
+		case "auto"		:	this.classes += "eden-storage"; break;
+		case "NUMBER"	:	this.classes += "eden-number"; break;
+		case "STRING"	:	this.classes += "eden-string"; break;
+		case "BOOLEAN"	:	this.classes += "eden-constant"; break;
+		case "CHARACTER":	this.classes += "eden-string"; break;
+		case "import"	:
+		case "do"		:	this.classes += "eden-keyword";
+							this.mode = "SELECTOR";
+							break;
+		case "${{"		:	this.classes += "eden-javascript";
+							this.mode = "JAVASCRIPT";
+							break;
+		case "?"		:	this.classes += "eden-selector";
+							this.mode = "SELECTOR";
+							break;
+		case "<<"		:	var t = this.stream.readToken();
+							var obs = this.stream.tokenText();
+							this.tokentext += obs;
+							this.heredocend = obs;
+							this.classes += "eden-storage";
+							this.mode = "HEREDOC";
+							break;
+		case "OBSERVABLE":	if (edenFunctions[this.stream.data.value]) {
+								this.classes += "eden-function";
+							} else if (EdenUI.Highlight.isType(this.stream.data.value)) {
+								this.classes += "eden-type";
+							} else if (edenValues[this.stream.data.value]) {
+								this.classes += "eden-constant";
+							} else if (edenSpecials[this.stream.data.value]) {
+								this.classes += "eden-special";
+							} else {
+								this.classes += "eden-observable";
+							}
+							break;
+
+		case "`"		:	this.pushMode();
+							this.mode = "BACKTICK";
+							this.pushLine();
+							var nline = document.createElement("span");
+							nline.className = "eden-backticks";
+							this.lineelement.appendChild(nline);
+							this.lineelement = nline;
+							break;
+
+		default			:	if (this.type == "keyword") {
+								this.classes += "eden-keyword";
+							} else {
+								// Bind negative to number if no whitespace.
+								if (this.token == "-" && this.stream.isNumeric(this.stream.peek())) {
+									this.token = this.stream.readToken();
+									this.tokentext = "-" + this.stream.tokenText();
+									this.classes += "eden-number";
+								} else if (this.token == "/*") {
+									if (this.stream.peek() == 42) {
+										this.mode = "DOXYCOMMENT";
+										this.classes += "eden-doxycomment";
+									} else {
+										this.mode = "COMMENT";
+										this.classes += "eden-comment";
+									}
+								} else {
+									this.classes += "eden-operator";
+								}
+							}
+		}
+	}
+
+	EdenUI.Highlight.prototype.BACKTICK = function() {
+		if (this.token == "`") this.mode = "ENDBACKTICK";
+		else if (this.token == "}") {
+			this.popMode();
+			this.classes += "eden-operator";
+		} else {
+			this.START();
+		}
+	}
+
+	EdenUI.Highlight.prototype.ENDBACKTICK = function() {
+		this.popLine();
+		this.popMode();
+		this.START();
+	}
+
+	EdenUI.Highlight.prototype.SELECTOR = function() {
+		this.pushLine();
+		var nline = document.createElement("span");
+		nline.className = "eden-pathblock";
+		this.lineelement.appendChild(nline);
+		this.lineelementline = nline;
+		this.mode = "SELECTOR2";
+		this.SELECTOR2();
+	}
+
+	EdenUI.Highlight.prototype.SELECTOR2 = function() {
+		if (this.token == "{") {
+			this.classes += "eden-operator";
+			this.pushMode();
+			this.mode = "START";
+		} else if (this.token == "[") {
+			this.classes += "eden-selector";
+			this.mode = "SELECTOR_TYPES";
+		} else if (this.token == ";" || this.token == "=") {
+			this.popLine();
+			this.classes += "eden-operator";
+			this.mode = "START";
+		} else if (this.token == "::" || this.token == "with") {
+			this.popLine();
+			this.classes += "eden-keyword";
+			this.mode = "START";
+		} else if (this.token == "OBSERVABLE" && (this.prevtoken == "." || this.prevtoken == ":") && (Eden.Selectors.PropertyNode.attributes[this.tokentext] || Eden.Selectors.PropertyNode.pseudo[this.tokentext])) {
+			this.classes += "eden-selector2";
+		} else {
+			this.classes += "eden-selector";
+		}
+	}
+
+	EdenUI.Highlight.prototype.SELECTOR_TYPES = function() {
+		if (this.token == "OBSERVABLE" && Eden.Selectors.resultTypes[this.tokentext]) {
+			this.classes += "eden-selector3";
+		} else if (this.token == "]") {
+			this.classes += "eden-selector";
+			this.mode = "SELECTOR2";
+		} else {
+			this.classes += "eden-selector";
+		}
+	}
+
+	EdenUI.Highlight.prototype.SECTION_TITLE = function() {
+		this.classes += "eden-comment-h1";
+	}
+
+	EdenUI.Highlight.prototype.COMMENT = function() {
+		if (this.token == "*/") {
+			this.mode = "START";
+			this.classes += "eden-comment";
+		} else if (this.token == "@" || this.token == "#") {
+			this.mode = "COMMENT_TAG";
+			this.pushLine();
+			var nline = document.createElement("span");
+			nline.className = "eden-doxytag";
+			this.lineelement.appendChild(nline);
+			this.lineelement = nline;
+		} else {
+			this.classes += "eden-comment";
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_TAG = function() {
+		this.classes += "eden-doxytag";
+		this.mode = "END_COMMENT_TAG";
+	}
+
+	EdenUI.Highlight.prototype.END_COMMENT_TAG = function() {
+		this.popLine();
+		this.mode = "START";
+		this.START();
+	}
+
+	EdenUI.Highlight.prototype.DOXY_COMMENT = function() {
+		this.COMMENT();
+	}
+
+	EdenUI.Highlight.prototype.JAVASCRIPT = function() {
+		classes += "eden-javascript";
+		if (this.token == "}}$") {
+			this.mode = "START";
+		}
+	}
+
+	EdenUI.Highlight.prototype.HEREDOC = function() {
+		if (this.prevtoken == "INVALID" && this.tokentext == this.heredocend) {
+			this.classes += "eden-storage";
+			this.mode = "START";
+		} else {
+			this.classes += "eden-string";
+		}
+	}
+
+
+
+
+	EdenUI.Highlight.prototype.pushLine = function() {
+		this.linestack.push(this.lineelement);
+	}
+
+	EdenUI.Highlight.prototype.pushMode = function() {
+		this.modestack.push(this.mode);
+	}
+
+	EdenUI.Highlight.prototype.popLine = function() {
+		this.lineelement = this.linestack.pop();
+	}
+
+	EdenUI.Highlight.prototype.popMode = function() {
+		this.mode = this.modestack.pop();
 	}
 
 
@@ -347,20 +571,21 @@
 		var errmsg = "";
 		var inerror = false;
 		var stream = ast.stream;
+		this.stream = stream;
 		var lineerror = false;
 		var linestart = 0;
 		var token = "INVALID";
 		var prevtoken = "INVALID";
-		var commentmode = 0;
+		//var commentmode = 0;
 
-		var linestack = [];
+		this.linestack = [];
 
 		// Set the mode for this line based upon mode at end of previous line
 		if (this.mode_at_line[this.line-1]) this.mode = this.mode_at_line[this.line-1];
-		else this.mode = 0;
+		else this.mode = "START";
 
 		// Reset line comments
-		if (this.mode == 222 || this.mode == 333) this.mode = 0;
+		if (this.mode == "COMMENT" || this.mode == "SECTION_TITLE") this.mode = "START";
 
 		// Get error position information
 		if (ast.script && ast.script.errors.length > 0) {
@@ -374,10 +599,10 @@
 		var line = document.createElement('span');
 
 		while (true) {
-			if (this.mode == 6) {
-				this.mode = this.lastmode;
-				line = linestack.pop();
-			}
+			//if (this.mode == 6) {
+			//	this.mode = this.lastmode;
+			//	line = linestack.pop();
+			//}
 
 			// Do we need to insert a caret between tokens?
 			if (stream.position == position) {
@@ -415,10 +640,10 @@
 			// End of whitespace, so add it to the line
 			if (wsline != "") {
 				// Import path group mode needs ending
-				if (this.mode == 8) {
-					line = linestack.pop();
-					this.mode = 1;
-				}
+				//if (this.mode == 8) {
+				//	line = linestack.pop();
+				//	this.mode = 1;
+				//}
 				var textnode = document.createTextNode(wsline);
 				line.appendChild(textnode);
 				wsline = "";
@@ -447,9 +672,12 @@
 			}
 
 
-			var type = stream.tokenType(token);
-			var classes = "";
-			var tokentext = stream.tokenText();
+			this.token = token;
+			this.prevtoken = prevtoken;
+			this.type = stream.tokenType(token);
+			this.classes = "";
+			this.tokentext = stream.tokenText();
+			this.lineelement = line;
 
 			// Is this token inside the error if there is one?
 			if (errstart != -1) {
@@ -465,219 +693,23 @@
 				classes += "eden-error ";
 			}
 
-			if (this.mode == 0 || this.mode == 5) {
-				if (token == "##") {
-					if (prevtoken == "INVALID") {
-						classes += "eden-comment-faded-h1";
-						line.className += " eden-section-line";
-						commentmode = 1;
-					} else {
-						classes += "eden-comment";
-					}
-					/*var comment = "";
-					while (stream.valid() && stream.peek() != 10) {
-						comment += String.fromCharCode(stream.get());
-					}
-					tokentext = "##" + comment;*/
-					this.mode = 222;
-				} else if (token == "#" && prevtoken == "INVALID") {
-					classes += "eden-comment-faded";
-					//var comment = "";
-					/*while (stream.valid() && stream.peek() != 10) {
-						comment += String.fromCharCode(stream.get());
-					}
-					tokentext = "#" + comment;*/
-					this.mode = 222;
-				} else if (token == "local" || token == "auto" || token == "para" || token == "handle" || token == "oracle") {
-					classes += "eden-storage";
-				} else if (token == "?") {
-					this.mode = 77;
-				} else if (type == "keyword") {
-					classes += "eden-keyword";
-					if (stream.data.value == "import") {
-						this.mode = 77;
-					} else if (stream.data.value == "do") {
-						this.mode = 77;
-					}
-				} else if (token == "NUMBER") {
-					classes += "eden-number";
-				} else if (token == "<<") {
-					var t = stream.readToken();
-					var obs = stream.tokenText();
-					tokentext += obs;
-					this.heredocend = obs;
-					classes += "eden-storage";
-					this.mode = 44;
-				} else if (token == "STRING") {
-					classes += "eden-string";
-				} else if (token == "CHARACTER") {
-					classes += "eden-string";
-				} else if (token == "BOOLEAN") {
-					classes += "eden-constant";	
-				} else if (token == "OBSERVABLE") {
-					if (edenFunctions[stream.data.value]) {
-						classes += "eden-function";
-					} else if (EdenUI.Highlight.isType(stream.data.value)) {
-						classes += "eden-type";
-					} else if (edenValues[stream.data.value]) {
-						classes += "eden-constant";
-					} else if (edenSpecials[stream.data.value]) {
-						classes += "eden-special";
-					} else {
-						classes += "eden-observable";
-					}
-				} else if (this.mode == 5 && token == "}") {
-					this.mode = this.lastmode;
-					classes += "eden-operator";
-				} else if (token == "`") {
-					if (this.mode == 5) {
-						this.mode = 6;
-					} else {
-						this.lastmode = this.mode;
-						this.mode = 5;
-						linestack.push(line);
-						var nline = document.createElement("span");
-						nline.className = "eden-backticks";
-						line.appendChild(nline);
-						line = nline;
-					}
-				} else if (token == "${{") {
-					classes += "eden-javascript";
-					this.mode = 4;
-				} else {
-					// Bind negative to number if no whitespace.
-					if (token == "-" && stream.isNumeric(stream.peek())) {
-						token = stream.readToken();
-						tokentext = "-" + stream.tokenText();
-						classes += "eden-number";
-					} else if (token == "/*") {
-						if (stream.peek() == 42) {
-							this.mode = 22;
-							classes += "eden-doxycomment";
-						} else {
-							this.mode = 2;
-							classes += "eden-comment";
-						}
-					} else {
-						classes += "eden-operator";
-					}
-				}
-			// Import path and options
-			} else if (this.mode == 1 || this.mode == 7 || this.mode == 8) {
-				if (this.mode == 7) {
-					linestack.push(line);
-					var nline = document.createElement("span");
-					nline.className = "eden-pathblock";
-					line.appendChild(nline);
-					line = nline;
-					this.mode = 8;
-				}
-				if (token == ";") {
-					if (this.mode == 8) line = linestack.pop();
-					this.mode = 0;
-					classes += "eden-operator";
-				} else if (Language.importoptions[stream.data.value]) {
-					classes += "eden-importopt";
-				} else {
-					classes += "eden-path";
-				}
-			} else if (this.mode == 2 || this.mode == 22 || this.mode == 222) {
-				if (token == "*/" && this.mode != 222) {
-					this.mode = 0;
-					classes += (this.mode != 22) ? "eden-comment" : "eden-doxycomment";
-				} else if (token == "@" || token == "#") {
-					this.mode = (this.mode == 2) ? 3 : (this.mode == 222) ? 333 : 33;
-					classes += "eden-doxytag";
-				} else {
-					if (this.mode == 222) {
-						if (commentmode == 0) classes += "eden-comment";
-						else if (commentmode == 1) classes += "eden-comment-h1";
-					} else {
-						classes += (this.mode != 22) ? "eden-comment" : "eden-doxycomment";
-					}
-				}
-			} else if (this.mode == 3 || this.mode == 33 || this.mode == 333) {
-				this.mode = (this.mode == 3) ? 2 : (this.mode == 333) ? 222 : 22;
-				//if (token == "}" || token == "{" || token == "OBSERVABLE" ) { //Language.doxytags[stream.data.value]) {
-					classes += "eden-doxytag";
-				//} else {
-				//	classes += "eden-doxytagerror";
-				//}
-			} else if (this.mode == 4) {
-				if (token == "OBSERVABLE" || type == "keyword") {
-					if (jskeywords.hasOwnProperty(stream.data.value)) {
-						classes += "eden-javascript-bold";
-					} else {
-						classes += "eden-javascript";
-					}
-				} else {
-					classes += "eden-javascript";
-				}
-				if (token == "}}$") {
-					this.mode = 0;
-				}
-			} else if (this.mode == 44) {
-				if (prevtoken == "INVALID" && tokentext == this.heredocend) {
-					classes += "eden-storage";
-					this.mode = 0;
-				} else {
-					classes += "eden-string";
-				}
-			} else if (this.mode == 77 || this.mode == 78 || this.mode == 79) {
-				if (this.mode == 77) {
-					linestack.push(line);
-					var nline = document.createElement("span");
-					nline.className = "eden-pathblock";
-					line.appendChild(nline);
-					line = nline;
-				}
-				if (token == "{") {
-					classes += "eden-operator";
-					if (this.mode == 77) {
-						this.mode = 0;
-					} else {
-						this.lastmode = this.mode;
-						this.mode = 5;
-					}
-				} else if ((this.mode == 78 || this.mode == 77) && token == "[") {
-					classes += "eden-selector";
-					this.mode = 79;
-				} else if (this.mode == 79 && token == "]") {
-					classes += "eden-selector";
-					this.mode = 78;
-				} else if (token == ";" || token == "=") {
-					if (this.mode == 78) line = linestack.pop();
-					classes += "eden-operator";
-					this.mode = 0;
-				} else if (token == "::" || token == "with") {
-					if (this.mode == 78) line = linestack.pop();
-					classes += "eden-keyword";
-					this.mode = 0;
-				} else if (this.mode == 79 && token == "OBSERVABLE" && Eden.Selectors.resultTypes[tokentext]) {
-					classes += "eden-selector3";
-				} else {
-					if (this.mode == 77) this.mode = 78;
-					if (token == "OBSERVABLE" && (prevtoken == "." || prevtoken == ":") && (Eden.Selectors.PropertyNode.attributes[tokentext] || Eden.Selectors.PropertyNode.pseudo[tokentext])) {
-						classes += "eden-selector2";
-					//} else if (token == "OBSERVABLE" && prevtoken == "[" && Eden.Selectors.resultTypes[tokentext]) {
-					//	classes += "eden-selector3";
-					} else {
-						classes += "eden-selector";
-					}
-				}
-			}
+
+			this[this.mode].call(this);
+
+			line = this.lineelement;
+
 
 			// Insert caret in middle of token if needed
 			if (stream.prevposition < position && stream.position > position) {
 				var caret = position - stream.prevposition;
-				var textleft = tokentext.slice(0,caret);
-				var textright = tokentext.slice(caret);
+				var textleft = this.tokentext.slice(0,caret);
+				var textright = this.tokentext.slice(caret);
 
 				// Left text
 				var parentspan = document.createElement('span');
-				parentspan.className = classes;
-				if (classes == "eden-observable") {
-					parentspan.setAttribute("data-observable", tokentext);
+				parentspan.className = this.classes;
+				if (this.classes == "eden-observable") {
+					parentspan.setAttribute("data-observable", this.tokentext);
 				}
 
 				var tokenspan = document.createElement('span');
@@ -707,19 +739,19 @@
 				line.appendChild(parentspan);
 			} else {
 				var tokenspan = document.createElement('span');
-				tokenspan.className = classes;
-				if (classes == "eden-observable") {
-					tokenspan.setAttribute("data-observable", tokentext);
+				tokenspan.className = this.classes;
+				if (this.classes == "eden-observable") {
+					tokenspan.setAttribute("data-observable", this.tokentext);
 				}
-				tokenspan.appendChild(document.createTextNode(tokentext));
+				tokenspan.appendChild(document.createTextNode(this.tokentext));
 				line.appendChild(tokenspan);
 			}
 		}
 
 		// Just in case of error
-		if (linestack.length > 0) {
-			line = linestack[0];
-			this.mode = (this.mode == 78) ? 77 : 0;
+		if (this.linestack.length > 0) {
+			line = this.linestack[0];
+			//this.mode = (this.mode == 78) ? 77 : 0;
 		}
 
 		this.mode_at_line[this.line] = this.mode;
