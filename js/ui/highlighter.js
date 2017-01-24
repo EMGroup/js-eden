@@ -509,9 +509,13 @@
 								this.classes += "eden-comment";
 							} break;
 
-		//case "["		:	this.mode = "COMMENT_LINK";
-		//					this.classes += "eden-comment-hidden";
-		//					break;
+		case "["		:	if (this.stream.peek() != 32) {
+								this.mode = "COMMENT_LINK";
+								this.classes += "eden-comment-hidden";
+							} else {
+								this.classes += "eden-comment";
+							}
+							break;
 							
 		case "`"		:	this.mode = "COMMENT_CODE";
 							this.classes += "eden-comment-hidden";
@@ -529,16 +533,59 @@
 		case "\""		:	this.mode = "COMMENT_ESCAPE";
 							this.classes += "eden-comment-hidden";
 							break;
-		//case "["		:	this.mode = "COMMENT_LINK";
-		//					this.classes += "eden-comment-faded";
-		//					break;
 		case "?"		:
 		default			:	this.classes += "eden-comment";
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_LINK = function() {
-		
+		var linestr = this.stream.peekLine();
+		var endix = linestr.indexOf("]");
+		if (endix == -1) {
+			this.classes += "eden-comment";
+			this.mode = "COMMENT";
+		} else {
+			var remaining = linestr.substring(0, endix);
+			this.tokentext += remaining;
+			console.log("LINK",this.tokentext);
+			this.stream.position += endix;
+			this.classes += "eden-comment";
+			this.mode = "COMMENT_LINK_END";
+
+			// Detect kind of link
+			var urlstart = linestr.substring(endix+2);
+			if (urlstart.startsWith("http://")) {
+				console.log("EXTERNAL URL");
+			} else {
+				console.log("INTERNAL GOTO");
+			}
+
+			this.pushLine();
+			var nline = document.createElement("a");
+			nline.setAttribute("target","_blank");
+			nline.contentEditable = false;
+			this.lineelement.appendChild(nline);
+			this.lineelement = nline;
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_LINK_END = function() {
+		var linestr = this.stream.peekLine();
+		var endix = linestr.indexOf(")");
+		if (endix == -1) {
+			this.classes += "eden-comment-hidden";
+			this.mode = "COMMENT";
+			this.popLine();
+		} else {
+			var remaining = linestr.substring(0,endix);
+			this.tokentext += remaining+")";
+			console.log("LINK LINK", remaining);
+			this.stream.position += endix+1;
+			this.classes += "eden-comment-hidden";
+			this.mode = "COMMENT";
+			this.lineelement.setAttribute("href", remaining.substring(1));
+			this.popLine();
+		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_ESCAPE = function() {
@@ -589,6 +636,7 @@
 				//this.lineelement.appendChild(openspan.substring(1));
 				this.pushLine();
 				var nline = $(html).get(0);
+				nline.contentEditable = false;
 				this.lineelement.appendChild(nline);
 				this.lineelement = nline;
 				this.tokentext = content;
@@ -631,10 +679,6 @@
 		} else {
 			// Some kind of highlight error.
 		}
-	}
-
-	EdenUI.Highlight.prototype.COMMENT_LINK = function() {
-		
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_EMPH = function() {
@@ -789,7 +833,9 @@
 		"COMMENT_EMPH": true,
 		"COMMENT_ITALIC": true,
 		"END_COMMENT_TAG": true,
-		"COMMENT_TAG": true
+		"COMMENT_TAG": true,
+		"COMMENT_LINK": true,
+		"COMMENT_LINK_END": true
 	}
 
 	/**
