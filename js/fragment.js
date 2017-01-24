@@ -38,7 +38,7 @@ Eden.Fragment = function(selector) {
 	Eden.Fragment.listenTo("patch", this, function(frag, ast) {
 		if (frag === me) return;
 		if (ast === me.originast) {
-			console.log("FRAG PATCH",me.name);
+			//console.log("FRAG PATCH",me.name);
 			me.source = me.originast.getInnerSource();
 			//me.ast = new Eden.AST(me.source, undefined, me);
 			me.ast = Eden.AST.fromNode(me.originast,me);
