@@ -36,7 +36,9 @@ Eden.Fragment = function(selector) {
 	});
 
 	Eden.Fragment.listenTo("patch", this, function(frag, ast) {
+		if (frag === me) return;
 		if (ast === me.originast) {
+			console.log("FRAG PATCH",me.name);
 			me.source = me.originast.getInnerSource();
 			//me.ast = new Eden.AST(me.source, undefined, me);
 			me.ast = Eden.AST.fromNode(me.originast,me);
@@ -342,6 +344,7 @@ Eden.Fragment.prototype.setSource = function(src) {
 			// Patch the origin...
 			var parent = this.originast.parent;
 			this.originast.patchInner(this.ast.script);
+			Eden.Fragment.emit("patch", [this, this.originast]);
 
 			// Notify all parent fragments of patch
 			while (parent) {

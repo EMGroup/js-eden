@@ -106,8 +106,8 @@ EdenUI.ScriptArea.prototype.refresh = function() {
 	this.intextarea.value = this.fragment.getSource();
 	if (this.fragment.ast) {
 		this.highlightContent(-1, 0);
-		this.intextarea.focus();
-		this.checkScroll();
+		//this.intextarea.focus();
+		//this.checkScroll();
 
 		//this.gutter.setBaseAST(frag.ast.script);
 	}
