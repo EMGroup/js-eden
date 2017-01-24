@@ -276,6 +276,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					}
 				}
 
+				curtab = -2;
 				curChanged(curSym, curSym.value());
 			}
 		}
