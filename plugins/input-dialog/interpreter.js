@@ -832,7 +832,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function onScratchSearch(e) {
 			var q = e.target.value;
-			Eden.Selectors.query(q,"innersource", undefined, false, function(res) {
+			console.log("SCRATCH SEARCH",q);
+			Eden.Selectors.query(q,"innersource", {minimum: 1}, function(res) {
 				scriptarea.intextarea.value = res.join("\n");
 				tab_frags[curtab].setSourceInitial(scriptarea.intextarea.value);
 				//scriptast = tab_frags[curtab].ast;
