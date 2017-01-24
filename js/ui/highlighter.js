@@ -487,8 +487,17 @@
 							this.lineelement.appendChild(nline);
 							this.lineelement = nline;
 							break;
-		case "*"		:	this.mode = "COMMENT_EMPH";
-							this.classes += "eden-comment-hidden";
+		case "*"		:	if (this.prevtoken == "#") {
+								this.pushLine();
+								var nline = document.createElement("li");
+								nline.className = "eden-comment";
+								this.lineelement.appendChild(nline);
+								this.lineelement = nline;
+								this.classes += "eden-comment-hidden";
+							} else {
+								this.mode = "COMMENT_EMPH";
+								this.classes += "eden-comment-hidden";
+							}
 							break;
 		case "`"		:	this.mode = "COMMENT_CODE";
 							this.classes += "eden-comment-hidden";
@@ -496,16 +505,27 @@
 		case ":"		:	this.mode = "COMMENT_ICON";
 							this.classes += "eden-comment-hidden";
 							break;
-		case "<"		:	this.mode = "COMMENT_HTML";
+		case "<"		:	if (this.stream.peek() != 32) {
+								this.mode = "COMMENT_HTML";
+								this.classes += "eden-comment-hidden";
+							} else {
+								this.classes += "eden-comment";
+							}
+							break;
+		case "\""		:	this.mode = "COMMENT_ESCAPE";
 							this.classes += "eden-comment-hidden";
 							break;
-		case "\\"		:
 		//case "["		:	this.mode = "COMMENT_LINK";
 		//					this.classes += "eden-comment-faded";
 		//					break;
 		case "?"		:
 		default			:	this.classes += "eden-comment";
 		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_ESCAPE = function() {
+		this.mode = "COMMENT";
+		this.classes += "eden-comment";
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_HTML = function() {
@@ -718,7 +738,9 @@
 		"SECTION_TITLE_H2": true,
 		"COMMENT_BOLD": true,
 		"COMMENT_CODE": true,
-		"COMMENT_ICON":	true
+		"COMMENT_ICON":	true,
+		"COMMENT_EMPH": true,
+		"COMMENT_ITALIC": true
 	}
 
 	/**

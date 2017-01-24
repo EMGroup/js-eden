@@ -72,6 +72,10 @@ span.eden-comment {
 	font: 14px Arial,Helvetica,sans-serif
 }
 
+li.eden-comment {
+	margin-left: 10px;
+}
+
 span.eden-comment-faded {
 	color: #ccc;
 }
