@@ -101,9 +101,7 @@ function Construit(options,callback) {
 		"HTMLContent",
 		"ObservablePalette",
 		"PluginManager",
-		"ScriptGenerator",
 		"ScriptInput",
-		"StateTimeLine",
 		"SymbolLookUpTable",
 		"SymbolViewer",
 		"Debugger"

@@ -787,7 +787,9 @@
 		"COMMENT_CODE": true,
 		"COMMENT_ICON":	true,
 		"COMMENT_EMPH": true,
-		"COMMENT_ITALIC": true
+		"COMMENT_ITALIC": true,
+		"END_COMMENT_TAG": true,
+		"COMMENT_TAG": true
 	}
 
 	/**
