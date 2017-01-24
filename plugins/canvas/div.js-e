@@ -246,8 +246,8 @@ Div.prototype.resize = function () {
 
 Div.prototype.scale = function (scale, zoom , origin) {
 	var style = this.elements[0].style;
-	style.left = Math.round((this.x + origin.x) * scale * zoom) + "px";
-	style.top = Math.round((this.y + origin.y) * scale * zoom) + "px";
+	style.left = Math.round((this.x + origin.x) * scale) + "px";
+	style.top = Math.round((this.y + origin.y) * scale) + "px";
 
 	if (this.width !== undefined) {
 		style.width = Math.round(this.width) + "px";
