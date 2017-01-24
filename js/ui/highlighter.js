@@ -496,6 +496,9 @@
 		case ":"		:	this.mode = "COMMENT_ICON";
 							this.classes += "eden-comment-hidden";
 							break;
+		case "<"		:	this.mode = "COMMENT_HTML";
+							this.classes += "eden-comment-hidden";
+							break;
 		case "\\"		:
 		//case "["		:	this.mode = "COMMENT_LINK";
 		//					this.classes += "eden-comment-faded";
@@ -503,6 +506,41 @@
 		case "?"		:
 		default			:	this.classes += "eden-comment";
 		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_HTML = function() {
+		var tagname = this.tokentext;
+		console.log("TAG",tagname);
+		var linestr = this.stream.peekLine();
+		var endopen = linestr.indexOf(">");
+		console.log("LINESTR",linestr);
+		var opentag = "<"+tagname+linestr.substring(0,endopen+1);
+		this.tokentext = opentag.substring(1);
+		this.cacheddata = {opentag: opentag, tagname: tagname};
+		this.classes += "eden-comment-hidden";
+		this.mode = "COMMENT_HTML_CONTENT";
+		this.stream.position += endopen+1;
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_HTML_CONTENT = function() {
+		var linestr = this.stream.peekLine();
+		var endtag = "</"+this.cacheddata.tagname+">";
+		var endix = linestr.indexOf(endtag);
+		if (endix == -1) endix == linestr.length-1;
+		var content = this.tokentext+linestr.substring(0,endix);
+		this.stream.position += endix+endtag.length;
+		//this.tokentext += opentag+endtag
+		this.classes += "eden-comment-hidden";
+		var html = this.cacheddata.opentag+content+endtag;
+		console.log("HTML",html);
+		this.mode = "COMMENT";
+		//var textelement = document.createTextNode(opentag);
+		//var openspan = document.createElement("span");
+		//openspan.className = "eden-comment-hidden";
+		//openspan.appendChild(textelement);
+		//this.lineelement.appendChild(openspan.substring(1));
+		this.lineelement.appendChild($(html).get(0));
+		this.tokentext = endtag;
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_CODE = function() {

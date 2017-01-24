@@ -86,6 +86,20 @@ EdenStream.prototype.readLine = function() {
 	}
 };
 
+EdenStream.prototype.peekLine = function() {
+	var eolix = this.code.indexOf("\n",this.position);
+	if (eolix == -1) {
+		var res = this.code.substring(this.position);
+		//this.position = this.code.length;
+		return res;
+	} else {
+		var res = this.code.substring(this.position, eolix+1);
+		//this.position = eolix+1;
+		//this.line++;
+		return res;
+	}
+};
+
 /**
  * Explicitely set the stream position.
  * Used by error handlers to scan around where the error occurred.

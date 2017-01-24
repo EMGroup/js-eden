@@ -246,8 +246,8 @@ Div.prototype.resize = function () {
 
 Div.prototype.scale = function (scale, zoom , origin) {
 	var style = this.elements[0].style;
-	style.left = Math.round((this.x + origin.x) * scale) + "px";
-	style.top = Math.round((this.y + origin.y) * scale) + "px";
+	style.left = Math.round((this.x + origin.x) * scale * zoom) + "px";
+	style.top = Math.round((this.y + origin.y) * scale * zoom) + "px";
 
 	if (this.width !== undefined) {
 		style.width = Math.round(this.width) + "px";
@@ -264,9 +264,9 @@ Div.prototype.scale = function (scale, zoom , origin) {
 			style.fontSize = zoom + "em";
 		}
 	}*/
-	if (scale != this.cachedScale) {
-		style.transform = "scale("+scale+")";
-	}
+	//if (scale != this.cachedScale) {
+		style.transform = "scale("+zoom+")";
+	//}
 	this.cachedScale = scale;
 	this.resize();
 };
