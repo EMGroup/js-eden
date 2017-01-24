@@ -13,7 +13,7 @@ View = function (name, type, x, y, width, height) {
 	this.name = name;
 }
 
-Div.prototype.hash = function () {
+View.prototype.hash = function () {
 	return this.x+"$$"+
 		this.y+"$$"+
 		this.width+"$$"+
