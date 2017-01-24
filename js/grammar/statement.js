@@ -161,8 +161,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	var endline = -1;
 	var stat = undefined;
 	var end = -1;
-	var doxy = this.lastDoxyComment;
-	this.lastDoxyComment = this.parentDoxy;
+	var doxy = (this.lastDoxyComment.length > 0) ? this.lastDoxyComment.pop() : undefined;
+	if (this.lastDoxyComment.length == 0 && this.parentDoxy) this.lastDoxyComment.push(this.parentDoxy);
 
 	switch (this.token) {
 	case "proc"		:	this.next(); stat = this.pACTION(); break;
@@ -196,6 +196,11 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						stat = def; break;
 	case "if"		:	this.next(); stat = this.pIF(); break;
 	case "##"		:	stat = this.pSECTION();
+						if (this.lastDoxyComment.length > 0 && this.lastline == this.lastDoxyComment[0].startline-1) {
+							console.log("DOXY", this.lastline, this.lastDoxyComment[0].startline);
+							stat.doxyComment = this.lastDoxyComment.shift();
+							//this.lastDoxyComment = this.parentDoxy;
+						}
 						break;
 						
 	case "return"	:	this.next();

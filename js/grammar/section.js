@@ -15,7 +15,7 @@ Eden.AST.prototype.pSECTION = function() {
 	stat = new Eden.AST.Section();
 	stat.name = name;
 	stat.depth = depth;
-	stat.doxyComment = this.lastDoxyComment;
-	this.lastDoxyComment = undefined;
+	//stat.doxyComment = this.lastDoxyComment;
+	//this.lastDoxyComment = undefined;
 	return stat;
 }

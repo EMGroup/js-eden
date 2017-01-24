@@ -66,7 +66,7 @@ Eden.AST = function(code, imports, origin, options) {
 
 	if (!origin) console.error("NO ORIGIN", code);
 
-	this.lastDoxyComment = undefined;
+	this.lastDoxyComment = [];
 	this.mainDoxyComment = undefined;
 	this.parentDoxy = undefined;
 
@@ -477,11 +477,12 @@ Eden.AST.prototype.next = function() {
 			// Store doxy comment so next statement can use it, or if we are
 			// at the beginning of the script then its the main doxy comment.
 			if (isDoxy) {
-				this.lastDoxyComment = new Eden.AST.DoxyComment(this.stream.code.substring(start+3, this.stream.position-2).trim(), startline, this.stream.line);
-				this.lastDoxyComment.parent = this.parentDoxy;
-				if (this.lastDoxyComment.content.endsWith("@{")) {
-					this.parentDoxy = this.lastDoxyComment;
-				} else if (this.lastDoxyComment.content.startsWith("@}")) {
+				var doxy = new Eden.AST.DoxyComment(this.stream.code.substring(start+3, this.stream.position-2).trim(), startline, this.stream.line);
+				this.lastDoxyComment.push(doxy);
+				doxy.parent = this.parentDoxy;
+				if (doxy.content.endsWith("@{")) {
+					this.parentDoxy = doxy;
+				} else if (doxy.content.startsWith("@}")) {
 					if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
 				}
 				//if (startline == 1) this.mainDoxyComment = this.lastDoxyComment;
@@ -502,11 +503,12 @@ Eden.AST.prototype.next = function() {
 				this.stream.line++;
 			} while (this.stream.code.charAt(this.stream.position) == "#");
 			
-			this.lastDoxyComment = new Eden.AST.DoxyComment(this.stream.code.substring(start, this.stream.position-1).trim(), startline, this.stream.line);
-			this.lastDoxyComment.parent = this.parentDoxy;
-			if (this.lastDoxyComment.content.endsWith("@{")) {
-				this.parentDoxy = this.lastDoxyComment;
-			} else if (this.lastDoxyComment.content.startsWith("@}")) {
+			var doxy = new Eden.AST.DoxyComment(this.stream.code.substring(start, this.stream.position-1).trim(), startline, this.stream.line);
+			this.lastDoxyComment.push(doxy);
+			doxy.parent = this.parentDoxy;
+			if (doxy.content.endsWith("@{")) {
+				this.parentDoxy = doxy;
+			} else if (doxy.content.startsWith("@}")) {
 				if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
 			}
 			this.token = this.stream.readToken();

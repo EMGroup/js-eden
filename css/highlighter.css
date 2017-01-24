@@ -47,11 +47,12 @@ span.eden-section-line {
 	background: #666;
 	outline: none;
 	border: 1px solid #aaa;
-	margin: 3px;
+	margin-left: 3px;
+	margin-right: 3px;
 	padding: 2px;
 	padding-left: 10px;
 	padding-right: 10px;
-	height: 24px;
+	height: 22px;
 	cursor: pointer;
 	color: white;
 	text-shadow: 0 3px 3px black;
@@ -61,9 +62,14 @@ span.eden-section-line {
 	background: #29454B;
 }
 
-div.eden-section-line {
-	height: 30px;
-	padding-top: 10px;
+div.eden-section-line:after {
+	content: "";
+	background: #aaa;
+	height: 1px;
+	position: absolute;
+	left: 40px;
+	right: 20px;
+	margin-top: -10px;
 }
 
 span.eden-comment {

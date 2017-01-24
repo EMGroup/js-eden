@@ -284,6 +284,7 @@
 		this.prevtoken = undefined;
 		this.modestack = [];
 		this.linestack = undefined;
+		this.outerline = undefined;
 	}
 
 	EdenUI.Highlight.prototype.START = function() {
@@ -398,7 +399,7 @@
 		var nline = document.createElement("span");
 		nline.className = "eden-pathblock";
 		this.lineelement.appendChild(nline);
-		this.lineelementline = nline;
+		this.lineelement = nline;
 		this.mode = "SELECTOR2";
 		this.SELECTOR2();
 	}
@@ -499,6 +500,19 @@
 								this.classes += "eden-comment-hidden";
 							}
 							break;
+		case "--"		:	if (this.stream.peek() == 45) {
+								this.outerline = "eden-line eden-section-line";
+								this.tokentext += "-";
+								this.stream.position++;
+								this.classes += "eden-comment-hidden";
+							} else {
+								this.classes += "eden-comment";
+							} break;
+
+		//case "["		:	this.mode = "COMMENT_LINK";
+		//					this.classes += "eden-comment-hidden";
+		//					break;
+							
 		case "`"		:	this.mode = "COMMENT_CODE";
 							this.classes += "eden-comment-hidden";
 							break;
@@ -523,6 +537,10 @@
 		}
 	}
 
+	EdenUI.Highlight.prototype.COMMENT_LINK = function() {
+		
+	}
+
 	EdenUI.Highlight.prototype.COMMENT_ESCAPE = function() {
 		this.mode = "COMMENT";
 		this.classes += "eden-comment";
@@ -533,34 +551,63 @@
 		console.log("TAG",tagname);
 		var linestr = this.stream.peekLine();
 		var endopen = linestr.indexOf(">");
-		console.log("LINESTR",linestr);
-		var opentag = "<"+tagname+linestr.substring(0,endopen+1);
-		this.tokentext = opentag.substring(1);
-		this.cacheddata = {opentag: opentag, tagname: tagname};
-		this.classes += "eden-comment-hidden";
-		this.mode = "COMMENT_HTML_CONTENT";
-		this.stream.position += endopen+1;
+		if (endopen >= 0) {
+			console.log("LINESTR",linestr);
+			var opentag = "<"+tagname+linestr.substring(0,endopen+1);
+			this.tokentext = opentag.substring(1);
+			this.cacheddata = {opentag: opentag, tagname: tagname};
+			this.classes += "eden-comment-hidden";
+			this.mode = "COMMENT_HTML_CONTENT";
+			this.stream.position += endopen+1;
+		} else {
+			this.classes += "eden-comment-hidden";
+			this.mode = "COMMENT";
+		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_HTML_CONTENT = function() {
-		var linestr = this.stream.peekLine();
-		var endtag = "</"+this.cacheddata.tagname+">";
-		var endix = linestr.indexOf(endtag);
-		if (endix == -1) endix == linestr.length-1;
-		var content = this.tokentext+linestr.substring(0,endix);
-		this.stream.position += endix+endtag.length;
-		//this.tokentext += opentag+endtag
-		this.classes += "eden-comment-hidden";
-		var html = this.cacheddata.opentag+content+endtag;
-		console.log("HTML",html);
-		this.mode = "COMMENT";
-		//var textelement = document.createTextNode(opentag);
-		//var openspan = document.createElement("span");
-		//openspan.className = "eden-comment-hidden";
-		//openspan.appendChild(textelement);
-		//this.lineelement.appendChild(openspan.substring(1));
-		this.lineelement.appendChild($(html).get(0));
-		this.tokentext = endtag;
+		if (this.token != "<") {
+			var linestr = this.stream.peekLine();
+			var endtag = "</"+this.cacheddata.tagname+">";
+			var endix = linestr.indexOf(endtag);
+			if (endix == -1) {
+				this.classes += "eden-comment-hidden";
+				this.mode = "COMMENT";
+				this.cacheddata = false;
+			} else {
+				var content = this.tokentext+linestr.substring(0,endix);
+				this.stream.position += endix;
+				//this.tokentext += opentag+endtag
+				//this.classes += "eden-comment-hidden";
+				var html = this.cacheddata.opentag+endtag;
+				console.log("HTML",html);
+				//this.mode = "COMMENT";
+				//var textelement = document.createTextNode(opentag);
+				//var openspan = document.createElement("span");
+				//openspan.className = "eden-comment-hidden";
+				//openspan.appendChild(textelement);
+				//this.lineelement.appendChild(openspan.substring(1));
+				this.pushLine();
+				var nline = $(html).get(0);
+				this.lineelement.appendChild(nline);
+				this.lineelement = nline;
+				this.tokentext = content;
+				//this.cacheddata = true;
+			}
+		} else {
+			var linestr = this.stream.peekLine();
+			var endtag = "/"+this.cacheddata.tagname+">";
+			var endix = linestr.indexOf(endtag);
+			if (endix == -1) {
+				this.classes += "eden-comment-hidden";
+			} else {
+				if (this.cacheddata) this.popLine();
+				this.tokentext += endtag;
+				this.stream.position += endix+endtag.length;
+				this.classes += "eden-comment-hidden";
+			}
+			this.mode = "COMMENT";
+		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_CODE = function() {
@@ -758,6 +805,9 @@
 		var token = "INVALID";
 		var prevtoken = "INVALID";
 		//var commentmode = 0;
+
+		//Reset line class
+		this.outerline = "eden-line";
 
 		this.linestack = [];
 
@@ -1002,7 +1052,7 @@
 					lineerror = (linestart <= errstart) && (stream.position >= errend);
 
 					var lineelement = document.createElement('div');
-					lineelement.className = "eden-line";
+					lineelement.className = this.outerline; //"eden-line";
 					if (options && options.spacing && options.spacing[this.line]) lineelement.height = "" + options.spacing[this.line] + "px";
 					//lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
 					lineelement.setAttribute("data-line",this.line-1);
@@ -1040,6 +1090,7 @@
 					}
 					line = document.createTextNode(ltext);
 				} else {
+					//this.outerline = lineelement;
 					line = this.highlightLine(ast, position);
 				}
 			}
@@ -1094,10 +1145,12 @@
 					while (node.lastChild) node.removeChild(node.lastChild);
 
 					linestart = stream.position;
+					//this.outerline = node;
 					line = this.highlightLine(ast, position);
 					lineerror = (linestart <= errstart) && (stream.position >= errend);
 					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
 					node.appendChild(line);
+					node.className = this.outerline;
 					var ch = stream.peek();
 					var blank = document.createTextNode((ch == 13) ? "\n" : "\n");
 					node.appendChild(blank);
@@ -1115,10 +1168,12 @@
 					while (node.lastChild) node.removeChild(node.lastChild);
 
 					linestart = stream.position;
+					//this.outerline = node;
 					line = this.highlightLine(ast, position);
 					lineerror = (linestart <= errstart) && (stream.position >= errend);
 					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
 					node.appendChild(line);
+					node.className = this.outerline;
 					var ch = stream.peek();
 					var blank = document.createTextNode((ch == 13) ? "\n" : "\n");
 					node.appendChild(blank);
