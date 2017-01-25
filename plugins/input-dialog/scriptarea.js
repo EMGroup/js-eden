@@ -170,6 +170,7 @@ EdenUI.ScriptArea.prototype.hideInfoBox = function() {
  * change that needs a reparse.
  */
 EdenUI.ScriptArea.prototype.updateLineCachedHighlight = function() {
+	if (!this.fragment) return;
 	var lineno = -1;
 	var pos = -1;
 	if (document.activeElement === this.intextarea) {

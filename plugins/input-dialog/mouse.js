@@ -10,7 +10,7 @@ EdenUI.ScriptArea.Mouse = function(sa) {
 				sa.intextarea.selectionEnd = end;
 				sa.intextarea.selectionStart = end;
 				var curline = sa.getLineNumber();
-				sa.gutter.selectLine(curline);
+				if (sa.gutter) sa.gutter.selectLine(curline);
 			}
 		},0);
 	}
@@ -60,9 +60,9 @@ EdenUI.ScriptArea.Mouse = function(sa) {
 					sa.intextarea.selectionStart = end;
 					var curline = sa.currentlineno;
 					//gutter.selectLine(curline);
-					if (sa.fragment) {		
+					//if (sa.fragment) {		
 						sa.updateLineCachedHighlight();
-					}
+					//}
 					//checkScroll();
 				}
 			} else {

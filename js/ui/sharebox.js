@@ -4,19 +4,23 @@ EdenUI.Sharebox = function(element) {
 	this.visible = false;
 
 	this.sharebox = element;
-	this.sharebox.html('<div class="menubar-sharebox-title"><span class="menubar-shareicon">&#xf1e0;</span>Save and Share</div><div class="menubar-sharebox-content"><div id="projectoptions"></div><div id="projectuploadbox"></div><br/><br/>Download to file: <span class="downloadurl"></span></div>');
+	this.sharebox.html('<div class="menubar-sharebox-title"><span class="menubar-shareicon">&#xf1e0;</span>Save and Share</div><div class="menubar-sharebox-content"><div id="projectoptions"></div><div id="projectuploadbox"></div></div>');
 	//this.element.append(this.sharebox);
 	//this.sharebox.hide();
 	var projectoptions = this.sharebox.find("#projectoptions");
-	projectoptions.html('<h3>Tags</h3><div>Add tags to your project:<div class=\"projecttags\" contenteditable></div></div><h3>Thumbnail</h3><div><input class="thumbnailtype" type="radio" name="thumbnail" value="auto" checked>Default</input><input class="thumbnailtype" type="radio" name="thumbnail" value="canvas">Canvas</input><input class="thumbnailtype" type="radio" name="thumbnail" value="manual">File</input><div id="projectthumb"></div></div><h3>Description</h3><div><textarea></textarea></div>');
-	projectoptions.accordion({
+	//projectoptions.html('<span>Tags</span><div class=\"projecttags\" contenteditable></div><h3>Thumbnail</h3><div><input class="thumbnailtype" type="radio" name="thumbnail" value="auto" checked>Default</input><input class="thumbnailtype" type="radio" name="thumbnail" value="canvas">Canvas</input><input class="thumbnailtype" type="radio" name="thumbnail" value="manual">File</input><div id="projectthumb"></div></div><h3>Description</h3><div><textarea></textarea></div>');
+	/*projectoptions.accordion({
 		collapsible: true,
 		heightStyle: "content",
+		speed: "fast",
 		classes: {
 			"ui-accordian-header": "ui-corner-top sharebox-header",
 			"ui-accordian-header-collapsed": "ui-corner-all sharebox-header-collapsed"
 		}
-	});
+	});*/
+	this.markdown = new EdenUI.Markdown("");
+	projectoptions.get(0).appendChild(this.markdown.contents);
+
 	var thumb = projectoptions.find("#projectthumb");
 	this.thumbdata = undefined;
 	this.thumbimg = $("<img></img>");
@@ -148,25 +152,25 @@ EdenUI.Sharebox = function(element) {
 	this.sharebox.on("click",".upload", function(e) {
 		//var title = me.element.find(".jseden-title").get(0).textContent;
 		var title = me.title.textContent;
-		var tagbox = me.sharebox.find(".projecttags");
-		var tagstr = tagbox.get(0).textContent.replace(/\u200B/g,"");
-		tagstr = tagstr.toLowerCase().replace(/[\!\'\-\?\&]/g, "").split(" ");
+		var desc = me.markdown.intextarea.value;
+		var listed = $("#listpublic").get(0).checked;
 
 		if (title == "New Project") {
-			me.sharebox.find("#projectuploadbox").html('<br/><br/>Please give your project a name by editing the "New Project" title in the top left.');
+			me.sharebox.find("#projectuploadbox").html('Please give your project a name by editing the "New Project" title in the top left.');
 			return;
 		} else {
-			me.sharebox.find("#projectuploadbox").html('<br/><br/>Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
+			me.sharebox.find("#projectuploadbox").html('Saved to your projects and shared at:<div class="projecturl">Saving...</div>');
 		}
 		//Eden.Agent.uploadAll(function() {
 			//console.log("ALL UPLOADED");
 			eden.project.thumb = me.thumbdata;
-			eden.project.tags = tagstr;
-			eden.project.save(false, function(status) {
+			eden.project.setDescription(desc);
+			console.log("SAVE", listed, desc);
+			eden.project.save(listed, function(status) {
 				if (status) {
 					var url = "?load="+eden.project.id+"&vid="+eden.project.vid;
 					window.history.replaceState({id: eden.project.id, vid: eden.project.vid},"",url);
-					me.sharebox.find(".projecturl").html(window.location.href+url);
+					me.sharebox.find(".projecturl").html(window.location.href+url+'<br><iframe src="https://www.facebook.com/plugins/share_button.php?href=http%3A%2F%2Fjseden.dcs.warwick.ac.uk%2Fnick%2Findex-dev.html&layout=button&size=small&mobile_iframe=true&appId=1447073055317881&width=59&height=20" width="59" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>');
 					//function selectElementContents(el) {
 					var range = document.createRange();
 					range.selectNodeContents(me.sharebox.find(".projecturl").get(0));
@@ -181,7 +185,7 @@ EdenUI.Sharebox = function(element) {
 		//});
 	});
 
-	this.sharebox.on("click",".publish", function(e) {
+	/*this.sharebox.on("click",".publish", function(e) {
 		//var title = me.element.find(".jseden-title").get(0).textContent;
 		var title = me.title.textContent;
 		var tagbox = me.sharebox.find(".projecttags");
@@ -217,7 +221,7 @@ EdenUI.Sharebox = function(element) {
 			}
 		});
 		//});
-	});
+	});*/
 }
 
 EdenUI.Sharebox.prototype.show = function() {
@@ -236,9 +240,11 @@ EdenUI.Sharebox.prototype.update = function() {
 	var title = me.title.textContent;
 
 	if (Eden.DB.isLoggedIn()) {
-		me.sharebox.find("#projectuploadbox").html('<button class="sharebox-button upload">Upload</button><button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');
+		me.sharebox.find("#projectuploadbox").html('<div id="projectthumb"></div><input id="listpublic" type="checkbox" checked>List publically</input>Thumbnail: <input type="file"></input><br/><div class="sharebox-save-buttons"><button class="sharebox-button upload">Save</button><span class="downloadurl"></span></div>'); //<button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');
+		me.sharebox.find("#projectoptions").show();
 	} else {
-		me.sharebox.find("#projectuploadbox").html('');
+		me.sharebox.find("#projectuploadbox").html('<span class="downloadurl"></span>');
+		me.sharebox.find("#projectoptions").hide();
 	}
 	//me.sharebox.show();
 
@@ -250,6 +256,9 @@ EdenUI.Sharebox.prototype.update = function() {
 
 	//Saved to your projects and shared at:<div class="projecturl"></div>
 
+	if (eden.project.id === undefined) {
+		eden.project.tags = (eden.project.title.toLowerCase()+" "+((Eden.DB.isLoggedIn()) ? Eden.DB.username.toLowerCase(): "")).split(" ");
+	}
 	var tags = eden.project.tags;
 
 	/*if (tags === undefined || tags.length == 0) {
@@ -272,8 +281,10 @@ EdenUI.Sharebox.prototype.update = function() {
 		me.sharebox.find(".projecttags").html(taghtml);
 	}
 
+	me.markdown.setValue(eden.project.getDescription());
+
 	me.projectsource = eden.project.generate();
 	var source = "data:application/octet-stream," + encodeURIComponent(me.projectsource);
-	me.sharebox.find(".downloadurl").html('<a href="'+source+'" download="'+title+'.js-e">'+title+'.js-e</a>');
+	me.sharebox.find(".downloadurl").html('<a class="sharebox-button download" href="'+source+'" download="'+title+'.js-e">File</a>');
 }
 

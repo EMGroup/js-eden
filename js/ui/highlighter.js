@@ -269,12 +269,11 @@
 	 * Syntax highlighting class. Make an instance of this, giving a DIV
 	 * element for the generated output.
 	 */
-	EdenUI.Highlight = function(output) {
+	EdenUI.Highlight = function(output, options) {
 		this.ast = undefined;
 		this.outelement = output;
 		this.line = 1;
 		this.currentline = -1;
-		this.mode = "START";
 		this.mode_at_line = {};
 		this.heredocend = undefined;
 		//this.lastmode = 0;
@@ -285,64 +284,101 @@
 		this.modestack = [];
 		this.linestack = undefined;
 		this.outerline = undefined;
+		this.lineelement = undefined;
+		this.startmode = (options && options.start) ? options.start : "START";
+		this.styles = (options && options.styles) ? options.styles : EdenUI.Highlight.defaultStyles;
+		this.clearmodes = (options && options.clearmodes) ? options.clearmodes : EdenUI.Highlight.lineclearmode;
+		this.mode = this.startmode;
+	}
+
+	EdenUI.Highlight.defaultStyles = {
+		"comment": "eden-comment",
+		"hidden-comment": "eden-comment-hidden",
+		"operator": "eden-operator",
+		"observable": "eden-observable",
+		"storage": "eden-storage",
+		"number": "eden-number",
+		"string": "eden-string",
+		"constant": "eden-constant",
+		"string": "eden-string",
+		"keyword": "eden-keyword",
+		"javascript": "eden-javascript",
+		"selector": "eden-selector",
+		"selector2": "eden-selector2",
+		"selector3": "eden-selector3",
+		"function": "eden-function",
+		"type": "eden-type",
+		"special": "eden-special",
+		"backticks": "eden-backticks",
+		"doxycomment": "eden-doxycomment",
+		"pathblock": "eden-pathblock",
+		"comment-h1": "eden-comment-h1",
+		"comment-h2": "eden-comment-h2",
+		"comment-h3": "eden-comment-h3",
+		"horizontal-line": "eden-section-line",
+		"comment-line": "eden-comment-line",
+		"comment-emph": "eden-comment-emph",
+		"comment-bold": "eden-comment-bold",
+		"script-line": "eden-line-script",
+		"doxytag": "eden-doxytag"
 	}
 
 	EdenUI.Highlight.prototype.START = function() {
 		switch(this.token) {
 		case "##"		:	if (this.prevtoken == "INVALID") {
-								this.classes += "eden-comment-hidden";
+								this.classes += this.styles["hidden-comment"];
 								//this.lineelement.className = "eden-comment-line";
 								this.mode = "SECTION_TITLE";
-								this.lineelement.className = "eden-comment-line";
+								this.lineelement.className = this.styles["comment-line"];
 							} else {
-								this.classes += "eden-comment";
+								this.classes += this.styles["comment"];
 								this.mode = "COMMENT";
 							}
 							break;
 		case "#"		:	if (this.prevtoken == "INVALID" || this.prevtoken == ";") {
-								this.classes += "eden-comment-hidden";
+								this.classes += this.styles["hidden-comment"];
 								this.mode = "COMMENT";
-								if (this.prevtoken == "INVALID") this.lineelement.className = "eden-comment-line";
+								if (this.prevtoken == "INVALID") this.lineelement.className = this.styles["comment-line"];
 							} else {
-								this.classes += "eden-operator";
+								this.classes += this.styles["operator"];
 							}
 							break;
 		case "local"	:
 		case "para"		:
 		case "handle"	:
 		case "oracle"	:
-		case "auto"		:	this.classes += "eden-storage"; break;
-		case "NUMBER"	:	this.classes += "eden-number"; break;
-		case "STRING"	:	this.classes += "eden-string"; break;
-		case "BOOLEAN"	:	this.classes += "eden-constant"; break;
-		case "CHARACTER":	this.classes += "eden-string"; break;
+		case "auto"		:	this.classes += this.styles["storage"]; break;
+		case "NUMBER"	:	this.classes += this.styles["number"]; break;
+		case "STRING"	:	this.classes += this.styles["string"]; break;
+		case "BOOLEAN"	:	this.classes += this.styles["constant"]; break;
+		case "CHARACTER":	this.classes += this.styles["string"]; break;
 		case "import"	:
-		case "do"		:	this.classes += "eden-keyword";
+		case "do"		:	this.classes += this.styles["keyword"];
 							this.mode = "SELECTOR";
 							break;
-		case "${{"		:	this.classes += "eden-javascript";
+		case "${{"		:	this.classes += this.styles["javascript"];
 							this.mode = "JAVASCRIPT";
 							break;
-		case "?"		:	this.classes += "eden-selector";
+		case "?"		:	this.classes += this.styles["selector"];
 							this.mode = "SELECTOR";
 							break;
 		case "<<"		:	var t = this.stream.readToken();
 							var obs = this.stream.tokenText();
 							this.tokentext += obs;
 							this.heredocend = obs;
-							this.classes += "eden-storage";
+							this.classes += this.styles["storage"];
 							this.mode = "HEREDOC";
 							break;
 		case "OBSERVABLE":	if (edenFunctions[this.stream.data.value]) {
-								this.classes += "eden-function";
+								this.classes += this.styles["function"];
 							} else if (EdenUI.Highlight.isType(this.stream.data.value)) {
-								this.classes += "eden-type";
+								this.classes += this.styles["type"];
 							} else if (edenValues[this.stream.data.value]) {
-								this.classes += "eden-constant";
+								this.classes += this.styles["constant"];
 							} else if (edenSpecials[this.stream.data.value]) {
-								this.classes += "eden-special";
+								this.classes += this.styles["special"];
 							} else {
-								this.classes += "eden-observable";
+								this.classes += this.styles["observable"];
 							}
 							break;
 
@@ -350,29 +386,29 @@
 							this.mode = "BACKTICK";
 							this.pushLine();
 							var nline = document.createElement("span");
-							nline.className = "eden-backticks";
+							nline.className = this.styles["backticks"];
 							this.lineelement.appendChild(nline);
 							this.lineelement = nline;
 							break;
 
 		default			:	if (this.type == "keyword") {
-								this.classes += "eden-keyword";
+								this.classes += this.styles["keyword"];
 							} else {
 								// Bind negative to number if no whitespace.
 								if (this.token == "-" && this.stream.isNumeric(this.stream.peek())) {
 									this.token = this.stream.readToken();
 									this.tokentext = "-" + this.stream.tokenText();
-									this.classes += "eden-number";
+									this.classes += this.styles["number"];
 								} else if (this.token == "/*") {
 									if (this.stream.peek() == 42) {
 										this.mode = "DOXY_COMMENT";
-										this.classes += "eden-doxycomment";
+										this.classes += this.styles["doxycomment"];
 									} else {
 										this.mode = "BLOCK_COMMENT";
-										this.classes += "eden-comment";
+										this.classes += this.styles["comment"];
 									}
 								} else {
-									this.classes += "eden-operator";
+									this.classes += this.styles["operator"];
 								}
 							}
 		}
@@ -382,7 +418,7 @@
 		if (this.token == "`") this.mode = "ENDBACKTICK";
 		else if (this.token == "}") {
 			this.popMode();
-			this.classes += "eden-operator";
+			this.classes += this.styles["operator"];
 		} else {
 			this.START();
 		}
@@ -397,7 +433,7 @@
 	EdenUI.Highlight.prototype.SELECTOR = function() {
 		this.pushLine();
 		var nline = document.createElement("span");
-		nline.className = "eden-pathblock";
+		nline.className = this.styles["pathblock"];
 		this.lineelement.appendChild(nline);
 		this.lineelement = nline;
 		this.mode = "SELECTOR2";
@@ -406,24 +442,24 @@
 
 	EdenUI.Highlight.prototype.SELECTOR2 = function() {
 		if (this.token == "{") {
-			this.classes += "eden-operator";
+			this.classes += this.styles["operator"];
 			this.pushMode();
-			this.mode = "START";
+			this.mode = this.startmode;
 		} else if (this.token == "[") {
-			this.classes += "eden-selector";
+			this.classes += this.styles["selector"];
 			this.mode = "SELECTOR_TYPES";
 		} else if (this.token == ";" || this.token == "=") {
 			this.popLine();
-			this.classes += "eden-operator";
-			this.mode = "START";
+			this.classes += this.styles["operator"];
+			this.mode = this.startmode;
 		} else if (this.token == "::" || this.token == "with") {
 			this.popLine();
-			this.classes += "eden-keyword";
-			this.mode = "START";
+			this.classes += this.styles["keyword"];
+			this.mode = this.startmode;
 		} else if (this.token == "OBSERVABLE" && (this.prevtoken == "." || this.prevtoken == ":") && (Eden.Selectors.PropertyNode.attributes[this.tokentext] || Eden.Selectors.PropertyNode.pseudo[this.tokentext])) {
-			this.classes += "eden-selector2";
+			this.classes += this.styles["selector2"];
 		} else {
-			this.classes += "eden-selector";
+			this.classes += this.styles["selector"];
 		}
 	}
 
@@ -440,101 +476,101 @@
 
 	EdenUI.Highlight.prototype.SECTION_TITLE = function() {
 		if (this.token == "#") {
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden-comment"];
 			this.mode = "SECTION_TITLE_H2";
 		} else {
-			this.classes += "eden-comment-h1";
+			this.classes += this.styles["comment-h1"];
 			this.mode = "SECTION_TITLE_H1";
 		}
 	}
 
 	EdenUI.Highlight.prototype.SECTION_TITLE2 = function() {
 		if (this.token == "#") {
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden-comment"];
 			this.mode = "SECTION_TITLE3";
 		} else {
-			this.classes += "eden-comment-h2";
+			this.classes += this.styles["comment-h2"];
 			this.mode = "SECTION_TITLE_H2";
 		}
 	}
 
 	EdenUI.Highlight.prototype.SECTION_TITLE_H1 = function() {
-		this.classes += "eden-comment-h1";
+		this.classes += this.styles["comment-h1"];
 	}
 
 	EdenUI.Highlight.prototype.SECTION_TITLE_H2 = function() {
-		this.classes += "eden-comment-h2";
+		this.classes += this.styles["comment-h2"];
 	}
 
 	EdenUI.Highlight.prototype.BLOCK_COMMENT = function() {
 		switch(this.token) {
-		case "*/"		:	this.mode = "START";
-							this.classes += "eden-comment";
+		case "*/"		:	this.mode = this.startmode;
+							this.classes += this.styles["comment"];
 							break;
-		default			:	this.classes += "eden-comment";
+		default			:	this.classes += this.styles["comment"];
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT = function() {
 		switch(this.token) {
-		//case "*/"		:	this.mode = "START";
+		//case "*/"		:	this.mode = this.startmode;
 		//					this.classes += "eden-comment";
 		//					break;
 		case "@"		:
 		case "#"		:	this.mode = "COMMENT_TAG";
 							this.pushLine();
 							var nline = document.createElement("span");
-							nline.className = "eden-doxytag";
+							nline.className = this.styles["doxytag"];
 							this.lineelement.appendChild(nline);
 							this.lineelement = nline;
 							break;
-		case "*"		:	if (this.prevtoken == "#") {
+		case "*"		:	if (this.prevtoken == "#" || this.prevtoken == "INVALID") {
 								this.pushLine();
 								var nline = document.createElement("li");
-								nline.className = "eden-comment";
+								nline.className = this.styles["comment"];
 								this.lineelement.appendChild(nline);
 								this.lineelement = nline;
-								this.classes += "eden-comment-hidden";
+								this.classes += this.styles["hidden-comment"];
 							} else {
 								this.mode = "COMMENT_EMPH";
-								this.classes += "eden-comment-hidden";
+								this.classes += this.styles["hidden-comment"];
 							}
 							break;
 		case "--"		:	if (this.stream.peek() == 45) {
 								this.outerline = "eden-line eden-section-line";
 								this.tokentext += "-";
 								this.stream.position++;
-								this.classes += "eden-comment-hidden";
+								this.classes += this.styles["hidden-comment"];
 							} else {
-								this.classes += "eden-comment";
+								this.classes += this.styles["comment"];
 							} break;
 
 		case "["		:	if (this.stream.peek() != 32) {
 								this.mode = "COMMENT_LINK";
-								this.classes += "eden-comment-hidden";
+								this.classes += this.styles["hidden-comment"];
 							} else {
-								this.classes += "eden-comment";
+								this.classes += this.styles["comment"];
 							}
 							break;
 							
 		case "`"		:	this.mode = "COMMENT_CODE";
-							this.classes += "eden-comment-hidden";
+							this.classes += this.styles["hidden-comment"];
 							break;
 		case ":"		:	this.mode = "COMMENT_ICON";
-							this.classes += "eden-comment-hidden";
+							this.classes += this.styles["hidden-comment"];
 							break;
 		case "<"		:	if (this.stream.peek() != 32) {
 								this.mode = "COMMENT_HTML";
-								this.classes += "eden-comment-hidden";
+								this.classes += this.styles["hidden-comment"];
 							} else {
-								this.classes += "eden-comment";
+								this.classes += this.styles["comment"];
 							}
 							break;
 		case "\""		:	this.mode = "COMMENT_ESCAPE";
-							this.classes += "eden-comment-hidden";
+							this.classes += this.styles["hidden-comment"];
 							break;
 		case "?"		:
-		default			:	this.classes += "eden-comment";
+		default			:	this.classes += this.styles["comment"];
 		}
 	}
 
@@ -542,14 +578,14 @@
 		var linestr = this.stream.peekLine();
 		var endix = linestr.indexOf("]");
 		if (endix == -1) {
-			this.classes += "eden-comment";
+			this.classes += this.styles["comment"];
 			this.mode = "COMMENT";
 		} else {
 			var remaining = linestr.substring(0, endix);
 			this.tokentext += remaining;
 			console.log("LINK",this.tokentext);
 			this.stream.position += endix;
-			this.classes += "eden-comment";
+			this.classes += this.styles["comment"];
 			this.mode = "COMMENT_LINK_END";
 
 			// Detect kind of link
@@ -573,7 +609,7 @@
 		var linestr = this.stream.peekLine();
 		var endix = linestr.indexOf(")");
 		if (endix == -1) {
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden-comment"];
 			this.mode = "COMMENT";
 			this.popLine();
 		} else {
@@ -581,7 +617,7 @@
 			this.tokentext += remaining+")";
 			console.log("LINK LINK", remaining);
 			this.stream.position += endix+1;
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden"];
 			this.mode = "COMMENT";
 			this.lineelement.setAttribute("href", remaining.substring(1));
 			this.popLine();
@@ -590,7 +626,7 @@
 
 	EdenUI.Highlight.prototype.COMMENT_ESCAPE = function() {
 		this.mode = "COMMENT";
-		this.classes += "eden-comment";
+		this.classes += this.styles["comment"];
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_HTML = function() {
@@ -603,11 +639,11 @@
 			var opentag = "<"+tagname+linestr.substring(0,endopen+1);
 			this.tokentext = opentag.substring(1);
 			this.cacheddata = {opentag: opentag, tagname: tagname};
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden-comment"];
 			this.mode = "COMMENT_HTML_CONTENT";
 			this.stream.position += endopen+1;
 		} else {
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden-comment"];
 			this.mode = "COMMENT";
 		}
 	}
@@ -618,7 +654,7 @@
 			var endtag = "</"+this.cacheddata.tagname+">";
 			var endix = linestr.indexOf(endtag);
 			if (endix == -1) {
-				this.classes += "eden-comment-hidden";
+				this.classes += this.styles["hidden-comment"];
 				this.mode = "COMMENT";
 				this.cacheddata = false;
 			} else {
@@ -647,12 +683,12 @@
 			var endtag = "/"+this.cacheddata.tagname+">";
 			var endix = linestr.indexOf(endtag);
 			if (endix == -1) {
-				this.classes += "eden-comment-hidden";
+				this.classes += this.styles["hidden-comment"];
 			} else {
 				if (this.cacheddata) this.popLine();
 				this.tokentext += endtag;
 				this.stream.position += endix+endtag.length;
-				this.classes += "eden-comment-hidden";
+				this.classes += this.styles["hidden-comment"];
 			}
 			this.mode = "COMMENT";
 		}
@@ -660,7 +696,7 @@
 
 	EdenUI.Highlight.prototype.COMMENT_CODE = function() {
 		if (this.token == "`") {
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden-comment"];
 			this.mode = "COMMENT";
 		} else {
 			this.START();
@@ -672,9 +708,9 @@
 			var icon = document.createElement("span");
 			icon.className = "fa fa-"+this.tokentext;
 			this.lineelement.appendChild(icon);
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden-comment"];
 		} else if (this.token == ":") {
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden-comment"];
 			this.mode = "COMMENT";
 		} else {
 			// Some kind of highlight error.
@@ -684,33 +720,33 @@
 	EdenUI.Highlight.prototype.COMMENT_EMPH = function() {
 		if (this.token == "*") {
 			this.mode = "COMMENT_BOLD";
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden-comment"];
 		} else {
-			this.classes += "eden-comment-emph";
+			this.classes += this.styles["comment-emph"];
 			this.mode = "COMMENT_ITALIC";
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_ITALIC = function() {
 		if (this.token == "*") {
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden-comment"];
 			this.mode = "COMMENT";
 		} else {
-			this.classes += "eden-comment-emph";
+			this.classes += this.styles["comment-emph"];
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_BOLD = function() {
 		if (this.token == "*") {
-			this.classes += "eden-comment-hidden";
+			this.classes += this.styles["hidden-comment"];
 			this.mode = "COMMENT_BOLD_END";
 		} else {
-			this.classes += "eden-comment-bold";
+			this.classes += this.styles["comment-bold"];
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_BOLD_END = function() {
-		this.classes += "eden-comment-hidden";
+		this.classes += this.styles["hidden-comment"];
 		this.mode = "COMMENT";
 	}
 
@@ -730,18 +766,18 @@
 	}
 
 	EdenUI.Highlight.prototype.JAVASCRIPT = function() {
-		this.classes += "eden-javascript";
+		this.classes += this.styles["javascript"];
 		if (this.token == "}}$") {
-			this.mode = "START";
+			this.mode = this.startmode;
 		}
 	}
 
 	EdenUI.Highlight.prototype.HEREDOC = function() {
 		if (this.prevtoken == "INVALID" && this.tokentext == this.heredocend) {
-			this.classes += "eden-storage";
-			this.mode = "START";
+			this.classes += this.styles["storage"];
+			this.mode = this.startmode;
 		} else {
-			this.classes += "eden-string";
+			this.classes += this.styles["string"];
 		}
 	}
 
@@ -861,10 +897,10 @@
 
 		// Set the mode for this line based upon mode at end of previous line
 		if (this.mode_at_line[this.line-1]) this.mode = this.mode_at_line[this.line-1];
-		else this.mode = "START";
+		else this.mode = this.startmode;
 
 		// Reset line comments
-		if (EdenUI.Highlight.lineclearmode[this.mode]) this.mode = "START";
+		if (EdenUI.Highlight.lineclearmode[this.mode]) this.mode = this.startmode;
 
 		// Get error position information
 		if (ast.script && ast.script.errors.length > 0) {
@@ -876,7 +912,7 @@
 		var wsline = "";
 
 		var line = document.createElement('span');
-		line.className = "eden-line-script";
+		line.className = this.styles["script-line"];
 
 		while (true) {
 			//if (this.mode == 6) {

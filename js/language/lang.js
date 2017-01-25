@@ -87,6 +87,7 @@ var Language = {
 		"local": "local",
 		"if": "if",
 		"is": "is",
+		//"isasync": "isasync",
 		"in": "in",
 		"else": "else",
 		"for": "for",

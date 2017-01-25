@@ -420,6 +420,13 @@ Symbol.prototype.define = function (definition, origin, subscriptions, source) {
 	return this;
 };
 
+Symbol.prototype.expireSubscribers = function() {
+	for (var s in this.subscribers) {
+		this.subscribers[s].needsGlobalNotify = Symbol.EXPIRED;
+		this.context.expireSymbol(this.subscribers[s]);
+	}
+}
+
 /**
  * Watch another symbol for changes.
  *

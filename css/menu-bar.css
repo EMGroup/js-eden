@@ -148,21 +148,64 @@ span.menubar-notification-jewel {
 }
 
 button.sharebox-button {
-	background: none;
-	border: none;
-	margin-left: 10px;
-	padding-left: 10px;
-	color: #29454B;
-	font-size: 25px;
+	font-size: 14pt;
+	border-radius: 8px;
+	background: #666;
+	outline: none;
+	border: 1px solid #aaa;
+	margin: 10px;
+	padding: 5px;
+	padding-left: 20px;
+	padding-right: 20px;
+	/*height: 24px;*/
 	cursor: pointer;
+	color: white;
+	text-shadow: 0 3px 3px black;
+	margin-left: 20px;
+	margin-right: 20px;
 }
 
 button.sharebox-button.upload:before {
 	font-family: "FontAwesome";
-	font-size: 50px;
+	font-size: 25px;
 	content: '\f0ee';
 	position: relative;
-	top: 10px;
+	top: 2px;
+	padding-right: 10px;
+}
+
+div.sharebox-save-buttons {
+	display: flex;
+	justify-content: center;
+	margin-top: 10px;
+}
+
+a.sharebox-button {
+	font-size: 14pt;
+	border-radius: 8px;
+	background: #666;
+	outline: none;
+	border: 1px solid #aaa;
+	margin: 10px;
+	padding: 5px;
+	padding-left: 20px;
+	padding-right: 20px;
+	/*height: 24px;*/
+	cursor: pointer;
+	color: white;
+	text-shadow: 0 3px 3px black;
+	text-decoration: none;
+	display: inline-block;
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+a.sharebox-button.download:before {
+	font-family: "FontAwesome";
+	font-size: 25px;
+	content: '\f019';
+	position: relative;
+	top: 2px;
 	padding-right: 10px;
 }
 
@@ -532,19 +575,25 @@ iframe.menubar-login-iframe {
 	font-weight: bold;
 }
 
-.ui-accordion-header {
-	background: #29454B;
-	border-color: #29454B;
-	color: white;
-	font-weight: bold;
+#projectoptions {
+	position: relative;
+	height: 150px;
 }
 
-.ui-accordion-header-active {
+#projectoptions h3.ui-accordion-header {
+	/*background: #29454B;
+	border-color: #29454B;
+	color: white;*/
+	font-weight: bold;
+	padding: 3px;
+}
+
+#projectoptions h3.ui-accordion-header-active {
 	background: #416d77;
 	border-color: #416d77;
 }
 
-.ui-accordion-content {
+#projectoptions .ui-accordion-content {
 	font-family: 'arial';
 	font-size: 14px;
 }
@@ -695,10 +744,14 @@ div.menusearch {
 }
 
 #menubar-mainitem-sharebox {
-	width: 400px;
+	width: 500px;
 	left: -358px;
 	cursor: initial;
 	padding-top: 5px;
+}
+
+#menubar-mainitem-sharebox.menubar-menu:before {
+	right: 114px;
 }
 
 #menubar-searchresults {

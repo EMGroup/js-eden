@@ -25,6 +25,18 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		//def.errors = expr.errors;
 		this.parent = parent;
 		return def; //new Eden.AST.Definition(this.pEXPRESSION(), this.parent);
+	/*} else if (this.token == "isasync") {
+		this.next();
+		var def = new Eden.AST.Definition();
+		var parent = this.parent;
+		this.parent = def;
+		var expr = this.pEXPRESSION();
+		def.setExpression(expr);
+		def.setAsync(true);
+		//def.expression = expr;
+		//def.errors = expr.errors;
+		this.parent = parent;
+		return def;*/
 	} else if (this.token == "in") {
 		this.next();
 

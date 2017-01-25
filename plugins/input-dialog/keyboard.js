@@ -80,7 +80,7 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 		case "ArrowDown"	:
 		case "Home"			:
 		case "End"			:	sa.updateLineCachedHighlight();
-								sa.gutter.selectLine(sa.currentlineno);
+								if (sa.gutter) sa.gutter.selectLine(sa.currentlineno);
 								sa.checkScroll();
 								break;
 		//default : sa.rebuild();

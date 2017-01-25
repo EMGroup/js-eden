@@ -212,7 +212,8 @@ Eden.DB.save = function(project, ispublic, callback) {
 					minimisedTitle: project.name,
 					from: project.vid,
 					image: project.thumb,
-					listed: ispublic
+					listed: ispublic,
+					metadata: JSON.stringify({description: project.desc})
 			},
 			success: function(data){
 				if (data === null || data.error) {

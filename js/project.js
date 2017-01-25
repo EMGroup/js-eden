@@ -11,6 +11,7 @@ Eden.Project = function(id, name, source) {
 	this.vid = undefined;
 	this.triggers = {};
 	this.thumb = undefined;
+	this.desc = undefined;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
 	}
@@ -94,6 +95,10 @@ Eden.Project.load = function(pid, vid, cb) {
 				eden.project.authorid = meta.owner;
 				eden.project.thumb = meta.image;
 				eden.project.tags = meta.tags;
+				if (meta.projectMetaData !== null) {
+					var extra = JSON.parse(meta.projectMetaData);
+					eden.project.desc = extra.description;
+				}
 				// TODO More meta
 				// rebuild doxy comment
 				eden.project.ast.script.doxyComment = eden.project.ast.doxyFromOrigin();
@@ -211,6 +216,19 @@ Eden.Project.prototype.addAction = function(name) {
 
 Eden.Project.prototype.generate = function() {
 	return this.ast.getSource();
+}
+
+Eden.Project.prototype.getDescription = function() {
+	if (this.desc === undefined) {
+		this.desc = "# "+this.title+"\nEnter a project description here,\nand some hashtags as below.\n\nTags\\: #"+this.tags.join(" #");
+	}
+	return this.desc;
+}
+
+Eden.Project.prototype.setDescription = function(text) {
+	this.desc = text;
+	var tmpdoxy = new Eden.AST.DoxyComment(text,0,0);
+	this.tags = tmpdoxy.getHashTags().map(function(e) { return e.substring(1); });
 }
 
 Eden.Project.prototype.registerAgent = function(when) {
