@@ -104,7 +104,7 @@ EdenUI.Sharebox = function(element) {
 				if (status) {
 					var url = "?load="+eden.project.id+"&vid="+eden.project.vid;
 					window.history.replaceState({id: eden.project.id, vid: eden.project.vid},"",url);
-					me.sharebox.find(".projecturl").html('<div class="sharebox-url">'+window.location.href+'</div><iframe src="https://www.facebook.com/plugins/share_button.php?href=http%3A%2F%2Fjseden.dcs.warwick.ac.uk%2Fnick%2Findex-dev.html&layout=button&size=small&mobile_iframe=true&appId=1447073055317881&width=59&height=20" width="59" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>');
+					me.sharebox.find(".projecturl").html('<div class="sharebox-url">'+window.location.href+'</div><iframe src="https://www.facebook.com/plugins/share_button.php?href='+encodeURIComponent(window.location.href)+'&layout=button&size=small&mobile_iframe=true&appId=1447073055317881&width=59&height=20" width="59" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>');
 					//function selectElementContents(el) {
 					var range = document.createRange();
 					range.selectNodeContents(me.sharebox.find(".projecturl").get(0));
@@ -141,7 +141,7 @@ EdenUI.Sharebox = function(element) {
 				if (status) {
 					var url = "?load="+eden.project.id+"&vid="+eden.project.vid;
 					window.history.replaceState({id: eden.project.id, vid: eden.project.vid},"",url);
-					me.sharebox.find(".projecturl").html('<div class="sharebox-url">'+window.location.href+'</div><iframe src="https://www.facebook.com/plugins/share_button.php?href=http%3A%2F%2Fjseden.dcs.warwick.ac.uk%2Fnick%2Findex-dev.html&layout=button&size=small&mobile_iframe=true&appId=1447073055317881&width=59&height=20" width="59" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>');
+					me.sharebox.find(".projecturl").html('<div class="sharebox-url">'+window.location.href+'</div><iframe src="https://www.facebook.com/plugins/share_button.php?href='+encodeURIComponent(window.location.href)+'&layout=button&size=small&mobile_iframe=true&appId=1447073055317881&width=59&height=20" width="59" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>');
 					//function selectElementContents(el) {
 					var range = document.createRange();
 					range.selectNodeContents(me.sharebox.find(".projecturl").get(0));

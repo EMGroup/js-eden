@@ -103,6 +103,9 @@ Eden.Project.load = function(pid, vid, cb) {
 				// rebuild doxy comment
 				eden.project.ast.script.doxyComment = eden.project.ast.doxyFromOrigin();
 				eden.project.start();
+
+				var url = "?load="+eden.project.id+"&vid="+eden.project.vid;
+				window.history.replaceState({id: eden.project.id, vid: eden.project.vid},"",url);
 			}
 			if (cb) cb(eden.project);
 		});
