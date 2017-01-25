@@ -42,6 +42,7 @@ div.markdown-outputcontent {
 	/*background: rgba(255,255,255,0.95);
 	box-shadow: 0 0 8px #aaa;*/
 	box-shadow: 0 0 10px #aaa;
+	height: 130px;
 }
 
 span.markdown-comment-hidden {
