@@ -1158,6 +1158,7 @@
 					line = undefined;
 					stream.skip();
 					if (ch == 13) stream.skip();
+					this.outerline = "eden-line";
 					continue;
 				}
 
