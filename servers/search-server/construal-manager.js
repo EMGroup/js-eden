@@ -659,7 +659,8 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 		criteriaVals["@tag" + i] = "% " + t.tag.replace("*","%").substring(1) + " %";				
 	}
 	if(t.type == "name"){
-		
+		criteria.push("minimisedTitle LIKE @minimisedTitle" + i);
+		criteriaVals["@minimisedTitle" + i] = t.name.replace("*","%");		
 	}
 		
 }
