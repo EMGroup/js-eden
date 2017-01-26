@@ -212,9 +212,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function showButtons(sym, value) {
 			if (value) {
 				controls.style.display = "flex";
+				scriptarea.codearea.style.top = "30px";
 				//inputhider.parentNode.style.top = "35px";
 			} else {
 				controls.style.display = "none";
+				scriptarea.codearea.style.top = "0";
 				//inputhider.parentNode.style.top = "0";
 			}
 		}

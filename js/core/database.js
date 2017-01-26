@@ -328,7 +328,7 @@ Eden.DB.search = function(q, callback) {
 
 Eden.DB.getMeta = function(id, callback) {
 	var path = this.remoteURL+"/project/";
-	path += "search?limit=20&projectID="+id;
+	path += "search?limit=20&query=.id("+id+")";
 
 	$.ajax({
 		url: path,
