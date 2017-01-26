@@ -322,7 +322,9 @@
 		"script-line": "eden-line-script",
 		"doxytag": "eden-doxytag",
 		"comment-query": "eden-comment-query",
-		"block-comment": "eden-blockcomment"
+		"block-comment": "eden-blockcomment",
+		"comment-ul": "eden-comment-ul",
+		"comment-blockquote": "eden-comment-blockquote"
 	}
 
 	EdenUI.Highlight.prototype.START = function() {
@@ -552,19 +554,23 @@
 							this.lineelement.appendChild(nline);
 							this.lineelement = nline;
 							break;
-		case "*"		:	if (this.prevtoken == "#" || this.prevtoken == "INVALID") {
+		case "-"		:
+		case "*"		:	if ((this.prevtoken == "#" || this.prevtoken == "INVALID") && (this.stream.peek() == 32 || this.stream.peek() == 9)) {
 								this.pushLine();
-								var nline = document.createElement("li");
-								nline.className = this.styles["comment"];
+								var nline = document.createElement("span");
+								nline.className = this.styles["comment-ul"];
 								this.lineelement.appendChild(nline);
 								this.lineelement = nline;
 								this.classes += this.styles["hidden-comment"];
-							} else {
+							} else if (this.token != "-") {
 								this.pushMode();
 								this.mode = "COMMENT_EMPH";
 								this.classes += this.styles["hidden-comment"];
+							} else {
+								this.classes += this.styles["comment"];
 							}
 							break;
+							
 		case "--"		:	if (this.stream.peek() == 45) {
 								this.outerline = "eden-line eden-section-line";
 								this.tokentext += "-";
@@ -591,6 +597,15 @@
 								this.classes += this.styles["comment"];
 							}
 							break;
+
+		case ">"		:	if ((this.prevtoken == "#" || this.prevtoken == "INVALID") && (this.stream.peek() == 32 || this.stream.peek() == 9)) {
+								this.outerline += " " + this.styles["comment-blockquote"];
+								this.classes += this.styles["hidden-comment"];
+							} else {
+								this.classes += this.styles["comment"];
+							}
+							break;
+						
 							
 		case "`"		:	this.pushMode();
 							this.mode = "COMMENT_CODE";

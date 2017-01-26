@@ -111,6 +111,21 @@ span.current span.eden-comment-hidden {
 	font-weight: bold;
 }
 
+span.eden-comment-ul:before {
+	content: "\f111";
+	color: #2b4957;
+	margin-left: 10px;
+	margin-right: 15px;
+	font-family: "FontAwesome";
+	font-size: 8px;
+}
+
+div.eden-comment-blockquote {
+	border-left: 2px solid #2b4957;
+	background-color: #ddd;
+	margin-left: 10px;
+}
+
 span.eden-comment-faded-h1 {
 	color: #aaa;
 	font-size: 16pt;
