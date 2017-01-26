@@ -649,6 +649,9 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 			criteria.push("minimisedTitle LIKE @minimisedTitle" + i);
 			criteriaVals["@minimisedTitle" + i] = t.param.replace("*","%");
 			break;
+		case ":parent":
+			critera.push("parentProject = @parentProject" +i);
+			criteriaVals["@parentProject" + i] = t.value;
 		}
 	}
 	if(t.type == "tag"){
@@ -656,10 +659,12 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 		criteriaVals["@tag" + i] = "% " + t.tag.replace("*","%").substring(1) + " %";				
 	}
 	if(t.type == "name"){
-		
+		criteria.push("minimisedTitle LIKE @minimisedTitle" + i);
+		criteriaVals["@minimisedTitle" + i] = t.name.replace("*","%");		
 	}
 		
 }
+
 /**
 * Title: Project Search
 * URL: /project/search
