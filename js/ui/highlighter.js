@@ -321,7 +321,8 @@
 		"comment-bold": "eden-comment-bold",
 		"script-line": "eden-line-script",
 		"doxytag": "eden-doxytag",
-		"comment-query": "eden-comment-query"
+		"comment-query": "eden-comment-query",
+		"block-comment": "eden-blockcomment"
 	}
 
 	EdenUI.Highlight.prototype.START = function() {
@@ -403,10 +404,10 @@
 								} else if (this.token == "/*") {
 									if (this.stream.peek() == 42) {
 										this.mode = "DOXY_COMMENT";
-										this.classes += this.styles["doxycomment"];
+										this.classes += this.styles["block-comment"];
 									} else {
 										this.mode = "BLOCK_COMMENT";
-										this.classes += this.styles["comment"];
+										this.classes += this.styles["block-comment"];
 									}
 								} else {
 									this.classes += this.styles["operator"];
@@ -532,9 +533,9 @@
 	EdenUI.Highlight.prototype.BLOCK_COMMENT = function() {
 		switch(this.token) {
 		case "*/"		:	this.mode = this.startmode;
-							this.classes += this.styles["comment"];
+							this.classes += this.styles["block-comment"];
 							break;
-		default			:	this.classes += this.styles["comment"];
+		default			:	this.classes += this.styles["block-comment"];
 		}
 	}
 
@@ -580,14 +581,27 @@
 								this.classes += this.styles["comment"];
 							}
 							break;
+
+		case "!"		:	if (this.stream.peek() == 91) {
+								this.mode = "COMMENT_IMAGE";
+								this.tokentext += "[";
+								this.stream.position++;
+								this.classes += this.styles["hidden-comment"];
+							} else {
+								this.classes += this.styles["comment"];
+							}
+							break;
 							
 		case "`"		:	this.pushMode();
 							this.mode = "COMMENT_CODE";
 							this.classes += this.styles["hidden-comment"];
 							break;
-		case ":"		:	this.mode = "COMMENT_ICON";
-							this.classes += this.styles["hidden-comment"];
-							break;
+		case ":"		:	if (this.stream.peek() != 32) {
+								this.mode = "COMMENT_ICON";
+								this.classes += this.styles["hidden-comment"];
+							} else {
+								this.classes += this.styles["comment"];
+							} break;
 		case "<"		:	if (this.stream.peek() != 32) {
 								this.mode = "COMMENT_HTML";
 								this.classes += this.styles["hidden-comment"];
@@ -691,9 +705,51 @@
 			this.tokentext += remaining+")";
 			console.log("LINK LINK", remaining);
 			this.stream.position += endix+1;
-			this.classes += this.styles["hidden"];
+			this.classes += this.styles["hidden-comment"];
 			this.mode = "COMMENT";
 			this.lineelement.setAttribute("href", remaining.substring(1));
+			this.popLine();
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_IMAGE = function() {
+		var linestr = this.stream.peekLine();
+		var endix = linestr.indexOf("]");
+		if (endix == -1) {
+			this.classes += this.styles["comment"];
+			this.mode = "COMMENT";
+		} else {
+			var remaining = linestr.substring(0, endix);
+			//this.tokentext += remaining;
+			console.log("IMG",this.tokentext);
+			//this.stream.position += endix;
+			this.classes += this.styles["comment"];
+			this.mode = "COMMENT_IMAGE_END";
+
+			this.pushLine();
+			var nline = document.createElement("img");
+			nline.title = remaining;
+			nline.style.verticalAlign = "top";
+			this.lineelement.appendChild(nline);
+			this.lineelement = nline;
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_IMAGE_END = function() {
+		var linestr = this.stream.peekLine();
+		var endix = linestr.indexOf(")");
+		if (endix == -1) {
+			this.classes += this.styles["hidden-comment"];
+			this.mode = "COMMENT";
+			this.popLine();
+		} else {
+			var remaining = linestr.substring(0,endix);
+			this.tokentext += remaining+")";
+			//console.log("LINK LINK", remaining);
+			this.stream.position += endix+1;
+			this.classes += this.styles["hidden-comment"];
+			this.mode = "COMMENT";
+			this.lineelement.setAttribute("src", remaining.substring(1));
 			this.popLine();
 		}
 	}
@@ -1009,7 +1065,10 @@
 		"END_COMMENT_TAG": true,
 		"COMMENT_TAG": true,
 		"COMMENT_LINK": true,
-		"COMMENT_LINK_END": true
+		"COMMENT_LINK_END": true,
+		"COMMENT_HTML": true,
+		"COMMENT_HTML_START": true,
+		"COMMENT_HTML_CONTENT": true
 	}
 
 	/**

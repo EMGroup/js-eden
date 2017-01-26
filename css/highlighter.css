@@ -72,14 +72,18 @@ div.eden-section-line:after {
 	background: #aaa;
 	height: 1px;
 	position: absolute;
-	left: 40px;
-	right: 20px;
+	left: 0;
+	right: 0;
 	margin-top: -10px;
 }
 
 span.eden-comment {
 	/*font-style: italic;*/
 	
+}
+
+span.eden-blockcomment {
+	font-style: italic;
 }
 
 span.eden-comment-line {
@@ -103,8 +107,8 @@ span.eden-comment-hidden {
 span.current span.eden-comment-hidden {
 	display: initial;
 	color: red;
-	font-weight: bold;
 	font: 14px Arial,Helvetica,sans-serif;
+	font-weight: bold;
 }
 
 span.eden-comment-faded-h1 {
@@ -115,7 +119,7 @@ span.eden-comment-faded-h1 {
 span.eden-comment-bold {
 	font: 14px Arial,Helvetica,sans-serif;
 	font-weight: bold;
-	color: #555;
+	/*color: #555;*/
 }
 
 span.eden-comment-emph {
