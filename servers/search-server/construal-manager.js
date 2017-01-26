@@ -639,7 +639,7 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 			criteriaVals["@title" + i] = t.param.replace("*","%");
 			break;
 		case ":me":
-			criteriaVals["@listedOnly"] = false;
+			criteriaVals["@mineOnly"] = true;
 			break;
 		case ".author":
 //			criteria.push("owner = @otherAuthor");
@@ -650,8 +650,12 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 			criteriaVals["@minimisedTitle" + i] = t.param.replace("*","%");
 			break;
 		case ":parent":
-			critera.push("parentProject = @parentProject" +i);
+			criteria.push("parentProject = @parentProject" +i);
 			criteriaVals["@parentProject" + i] = t.value;
+			break;
+		case ".listed":
+			criteriaVals["listedOnly"] = true;
+			break;
 		}
 	}
 	if(t.type == "tag"){
@@ -690,7 +694,6 @@ app.get('/project/search', function(req, res){
 	var criteriaVals = {};
 	
 	var paramObj = {};
-	var listedOnly = true;
 	criteriaVals["@limit"] = 10;
 	if(req.query.limit && (req.query.limit < 50))
 		criteriaVals["@limit"] = req.query.limit;
@@ -698,28 +701,7 @@ app.get('/project/search', function(req, res){
 	if(req.query.offset)
 		criteriaVals["@offset"] = req.query.offset;
 
-	if(req.query.projectID){
-		criteria.push("projects.projectID = @projectID");
-		criteriaVals["@projectID"] = req.query.projectID;
-	}
-	if(req.query.dateBefore){
-		criteria.push("date < @dateBefore");
-		criteriaVals["@dateBefore"] = req.query.dateBefore;
-	}
-	if(req.query.dateAfter){
-		criteria.push("date < @dateAfter");
-		criteriaVals["@dateAfter"] = req.query.dateAfter;
-	}
-	if(req.query.minimisedTitle){
-		criteria.push("minimisedTitle LIKE @minimisedTitle");
-		criteriaVals["@minimisedTitle"] = req.query.minimisedTitle;
-	}
-	if(req.query.title){
-		criteria.push("title LIKE @title");
-		criteriaVals["@title"] = req.query.title;
-	}
-	if(req.query.query){
-		
+	if(req.query.query){		
 		var selectorAST = Eden.Selectors.parse(req.query.query);
 		if(selectorAST.type == "intersection"){	
 			for(var i = 0; i < selectorAST.children.length; i++){
@@ -730,30 +712,13 @@ app.get('/project/search', function(req, res){
 		}
 	}
 	
-	if(req.query.listedOnly && req.query.listedOnly == "false"){
-		listedOnly = false;
-	}
-
-	if(criteriaVals["@listedOnly"] !== undefined) {
-		listedOnly = criteriaVals["@listedOnly"];
-		delete criteriaVals["@listedOnly"];
-	}
+	var mineOnly = (criteriaVals["@mineOnly"] !== undefined) ? criteriaVals["@mineOnly"] : false;
+	var listedOnly = (criteriaVals["@listedOnly"] !== undefined) ? criteriaVals["@listedOnly"] : false;
 	
-	var targetTable = "view_latestVersion";
-	if(listedOnly)
-		targetTable = "view_listedVersion";
-
-	if(req.query.tag){
-		if(Array.isArray(req.query.tag)){
-			for(var i = 0; i < req.query.tag.length; i++){
-				tagCriteria.push("tags LIKE @tag" + i);
-				criteriaVals["@tag" + i] = "% " + req.query.tag[i] + " %";
-			}
-		}else{
-			tagCriteria.push("tags LIKE @tag");
-			criteriaVals["@tag"] = "% " + req.query.tag + " %";
-		}
-	}
+	if(criteriaVals["@mineOnly"] !== undefined)
+		delete criteriaVals["@mineOnly"];
+	if(criteriaVals["@listedOnly"] !== undefined)
+		delete criteriaVals["@listedOnly"];
 	
 	var conditionStr = "";
 	if(criteria.length > 0){
@@ -765,18 +730,28 @@ app.get('/project/search', function(req, res){
 		tagConditionStr = " WHERE " + tagCriteria.join(" AND ");
 	}
 	
-	var listQueryStr = 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
-		+ ' publicVersion, parentProject, projectMetaData,	(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
-		+ ' on projects.projectID = tags.projectID WHERE owner = userid AND '+targetTable+'.projectID = projects.projectID ';
+	var targetTable;
+	var listQueryStr;
 	
-	if(!listedOnly){
-		if(req.user == null) return res.json([]);
-		//else
-		listQueryStr = listQueryStr + ' AND owner = @owner';
-		criteriaVals["@owner"] = req.user.id;
+	if(!mineOnly && !listedOnly){
+		if(req.user == null)
+			listedOnly = true;
 	}
-	
-	listQueryStr = listQueryStr	+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
+		
+	if(mineOnly){
+		if(req.user == null) return res.json([]);
+		listQueryStr = getListQueryStr("view_latestVersion") + ' AND owner = @owner' + conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
+		criteriaVals["@owner"] = req.user.id;
+	}else if(listedOnly){
+		listQueryStr = getListQueryStr("view_listedVersion") + conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
+	}else{
+		listQueryStr = getListQueryStr("view_latestVersion") + ' AND owner = @owner';
+		criteriaVals["@owner"] = req.user.id;
+		listQueryStr += conditionStr + ' group by projects.projectID)' + tagConditionStr;
+		listQueryStr += " UNION " + getListQueryStr("view_listedVersion") + conditionStr + ' group by projects.projectID) ' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
+		console.log(listQueryStr);
+	}
+
 	
 	var listProjectStmt = db.prepare(listQueryStr);
 
@@ -799,6 +774,12 @@ app.get('/project/search', function(req, res){
 		res.json(rows);
 	});
 });
+
+function getListQueryStr(targetTable){
+	return 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
+		+ ' publicVersion, parentProject, projectMetaData,	(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
+		+ ' on projects.projectID = tags.projectID WHERE owner = userid AND '+targetTable+'.projectID = projects.projectID ';	
+}
 
 
 /**
