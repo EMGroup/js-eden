@@ -649,6 +649,9 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 			criteria.push("minimisedTitle LIKE @minimisedTitle" + i);
 			criteriaVals["@minimisedTitle" + i] = t.param.replace("*","%");
 			break;
+		case ":parent":
+			critera.push("parentProject = @parentProject" +i);
+			criteriaVals["@parentProject" + i] = t.value;
 		}
 	}
 	if(t.type == "tag"){
@@ -660,6 +663,7 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 	}
 		
 }
+
 /**
 * Title: Project Search
 * URL: /project/search
