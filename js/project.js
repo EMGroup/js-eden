@@ -21,6 +21,11 @@ Eden.Project = function(id, name, source) {
 	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, Symbol.localJSAgent);
 }
 
+Eden.Project.listenTo = listenTo;
+Eden.Project.emit = emit;
+Eden.Project.unListen = unListen;
+Eden.Project.listeners = {};
+
 Eden.Project.init = function() {
 	var titleSym = eden.root.lookup("jseden_project_title");
 	titleSym.addJSObserver("project", function(sym, value) {
@@ -77,6 +82,7 @@ Eden.Project.search = function(q, cb) {
 }
 
 Eden.Project.load = function(pid, vid, cb) {
+	var me = this;
 	Eden.DB.getMeta(pid, function(metaA) {
 		if (metaA.length == 0) {
 			if (cb) cb();
@@ -97,6 +103,8 @@ Eden.Project.load = function(pid, vid, cb) {
 				eden.project.thumb = meta.image;
 				eden.project.tags = meta.tags;
 				eden.project.parentid = meta.parentProject;
+				eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);
+				eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, Symbol.localJSAgent);	
 				if (meta.projectMetaData !== null) {
 					var extra = JSON.parse(meta.projectMetaData);
 					eden.project.desc = extra.description;
@@ -108,6 +116,8 @@ Eden.Project.load = function(pid, vid, cb) {
 
 				var url = "?load="+eden.project.id+"&vid="+eden.project.vid;
 				window.history.replaceState({id: eden.project.id, vid: eden.project.vid},"",url);
+
+				Eden.Project.emit("load", [me]);
 			}
 			if (cb) cb(eden.project);
 		});

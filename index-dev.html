@@ -583,6 +583,10 @@ See LICENSE.txt
 				});
 			}
 
+			Eden.Project.listenTo("load", this, function() {
+				lopts.css("display","none");
+			});
+
 			lopts.css("display","block");
 			lopts.on("click","#restoreold",function() {
 				Eden.Project.restore();

@@ -793,11 +793,15 @@
 	}
 
 	EdenUI.Highlight.prototype.popLine = function() {
-		this.lineelement = this.linestack.pop();
+		if (this.linestack.length > 0) {
+			this.lineelement = this.linestack.pop();
+		}
 	}
 
 	EdenUI.Highlight.prototype.popMode = function() {
-		this.mode = this.modestack.pop();
+		if (this.modestack.length > 0) {
+			this.mode = this.modestack.pop();
+		}
 	}
 
 
