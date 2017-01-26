@@ -761,7 +761,11 @@ Eden.Selectors.modify = function(selector, attributes, values) {
 											res[i].enabled = true;
 										}
 									} break;
-			case "name": break;
+			case "name"			:	if (res[i].type == "script") {
+										Eden.Index.remove(res[i]);
+										res[i].name = vals[j];
+										Eden.Index.update(res[i]);
+									} break;
 			default: console.error("Cannot modify property '"+attribs[j]+"'");
 			}
 		}
