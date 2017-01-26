@@ -136,8 +136,11 @@ See LICENSE.txt
 		div.cadence-plisting-entry.special {
 			height: 80px;
 			width: 120px;
-			background: transparent;
+			background: none;
 			border: none;
+			box-shadow: none;
+			margin-top: 5px;
+			margin-bottom: 5px;
 		}
 
 		div.cadence-plisting-entry.more {
@@ -146,13 +149,14 @@ See LICENSE.txt
 			background: transparent;
 			border: none;
 			margin-top: 10px;
+			box-shadow: none;
 		}
 
 		div.cadence-plisting-icon {
 			border: 1px solid #eee;
 			font-family: "FontAwesome";
 			font-size: 60px;
-			background: #d0f0f5;
+			/*background: #d0f0f5;*/
 			cursor: pointer;
 			text-align: center;
 			padding-top: 10px;
@@ -171,10 +175,12 @@ See LICENSE.txt
 		}
 
 		div.cadence-plisting-icon.special {
-			background: #f5f5d0;
+			background: none;
 			height: 40px;
-			font-size: 40px;
-			border-radius: 10px;
+			font-size: 60px;
+			border: none;
+			color: white;
+			text-shadow: 10px 10px 10px #111;
 		}
 
 		div.cadence-plisting-icon.more {
@@ -183,6 +189,7 @@ See LICENSE.txt
 			font-size: 40px;
 			color: #eee;
 			border: none;
+			font-weight: bold;
 		}
 
 
@@ -208,7 +215,12 @@ See LICENSE.txt
 
 		div.cadence-plisting-entry:hover .cadence-plisting-icon {
 			border-color: #222;
-			background-color: white;
+			/*background-color: white;*/
+		}
+
+		div.cadence-plisting-entry.special:hover .cadence-plisting-icon {
+			background-color: none;
+			color: #ddd;
 		}
 
 		div.cadence-plisting-entry.more:hover .cadence-plisting-icon {
@@ -420,6 +432,7 @@ See LICENSE.txt
 <script src="js/ui/scriptbox.js"></script>
 <script src="js/ui/presentation.js"></script>
 <script src="js/ui/markdown.js"></script>
+<script src="js/ui/projectdetails.js"></script>
 <script src="plugins/canvas/canvas.js"></script>
 <script src="plugins/symbol-viewer/symbol-viewer.js"></script>
 <script src="plugins/external-html-content/external-html-content.js"></script>
@@ -623,15 +636,17 @@ See LICENSE.txt
 				var pid = e.currentTarget.getAttribute("data-pid");
 				//var tag = parseInt(e.currentTarget.getAttribute("data-tag"));
 				console.log("Load project: " + pid); // + "@"+tag);
-				lopts.css("display","none");
-				$(".loadmodal").show();
-				$(".loadmessage").html("Loading " + "" + "...");
+				//lopts.css("display","none");
+				//$(".loadmodal").show();
+				//$(".loadmessage").html("Loading " + "" + "...");
 
 				//Eden.load(path,tag,function() {
 
-				Eden.Project.load(pid, undefined, function() {
-					$(".loadmodal").hide();
-				});
+				//Eden.Project.load(pid, undefined, function() {
+				//	$(".loadmodal").hide();
+				//});
+
+				projectdetails = new EdenUI.ProjectDetails(pid);
 
 				//});
 			});
@@ -805,12 +820,12 @@ See LICENSE.txt
 	<div class="project-content" style="padding: 20px 0;">
 		<div class="searchouter projectsearch"><input type="text" class="search projectsearch" placeholder="Search..."></input></div>
 		<div class="jseden-dialog-plisting" style="padding: 10px">
-			<div id="loadnew" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf067;</div><div class="cadence-plisting-title">New Project</div></div>
-			<div id="importfile" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf07c;</div><div class="cadence-plisting-title">Import File</div></div>
-			<div id="restoreold" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf01e;</div><div class="cadence-plisting-title">Restore Last</div></div>
+			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
+			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special">&#xf07c;</div></div>
+			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
 		</div>
 		<div id="project-browser">
-			<div class="jseden-project-cat">Published:</div>
+			<div class="jseden-project-cat">Featured:</div>
 			<div id="jseden-public-projects" class="jseden-dialog-plisting">
 			</div>
 			<div class="jseden-project-cat">Your Projects:</div>

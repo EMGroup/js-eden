@@ -492,7 +492,7 @@ Eden.AST.prototype.next = function() {
 		//} else if (this.token == "##" && this.lastposition != 0 && /[\s;\{]+/.test(this.stream.code.charAt(this.stream.position-3))) {
 		//	this.stream.skipLine();
 		//	this.token = this.stream.readToken();
-		} else if (this.token == "#" && (this.lastposition == 0 || /[\s;]+/.test(this.stream.code.charAt(this.stream.position-2)))) {
+		} else if (this.token == "#" && (this.lastposition == 0 || this.lastline < this.stream.line)) {
 			var start = this.stream.position;
 			var startline = this.stream.line;
 
