@@ -114,6 +114,13 @@ span.eden-comment-emph {
 	color: #555;
 }
 
+span.eden-comment-query {
+}
+
+span.eden-comment-query:before{
+	content: attr(data-result);
+}
+
 span.eden-comment-h1 {
 	color: #666;
 	font: 16pt Arial,Helvetica,sans-serif;

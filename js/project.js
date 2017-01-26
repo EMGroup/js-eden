@@ -68,6 +68,7 @@ Eden.Project.init = function() {
 Eden.Project.newFromExisting = function(name, cb) {
 	if (Eden.Project.local[name]) {
 		$.get(Eden.Project.local[name].file, function(data) {
+			eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
 			eden.project = new Eden.Project(undefined, name, data);
 			eden.project.start();
 			if (cb) cb(eden.project);
@@ -203,6 +204,7 @@ Eden.Project.restore = function() {
 		var desc = window.localStorage.getItem("last_desc");
 		var title = window.localStorage.getItem("last_title");
 		if (src && src != "") {
+			eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
 			eden.project = new Eden.Project(id, title, src);
 			eden.project.vid = vid;
 			eden.project.author = author;

@@ -320,7 +320,8 @@
 		"comment-emph": "eden-comment-emph",
 		"comment-bold": "eden-comment-bold",
 		"script-line": "eden-line-script",
-		"doxytag": "eden-doxytag"
+		"doxytag": "eden-doxytag",
+		"comment-query": "eden-comment-query"
 	}
 
 	EdenUI.Highlight.prototype.START = function() {
@@ -595,8 +596,52 @@
 		case "\""		:	this.mode = "COMMENT_ESCAPE";
 							this.classes += this.styles["hidden-comment"];
 							break;
-		case "?"		:
+		case "?"		:	this.mode = "COMMENT_QUERY";
+							this.classes += this.styles["hidden-comment"];
+							break;
 		default			:	this.classes += this.styles["comment"];
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_QUERY = function() {
+		if (this.token == "(") {
+			var linestr = this.stream.peekLine();
+			var count = 0;
+			var endix = -1;
+			for (var i=0; i<linestr.length; i++) {
+				if (linestr.charAt(i) == "(") count++;
+				else if (linestr.charAt(i) == ")") {
+					count--;
+					if (count < 0) {
+						endix = i;
+						break;
+					}
+				}
+			}
+
+			if (endix == -1) {
+				this.mode = "COMMENT";
+				this.classes += this.styles["hidden-comment"];
+			} else {
+				var qstr = linestr.substring(0,endix);
+				this.tokentext += qstr + ")";
+				this.stream.position += qstr.length+1;
+				this.mode = "COMMENT";
+				this.classes += this.styles["hidden-comment"];
+				console.log("QUERY",qstr);
+
+				var ele = document.createElement("span");
+				ele.className += this.styles["comment-query"];
+				this.lineelement.appendChild(ele);
+				var res = Eden.Selectors.query(qstr,"value");
+				if (res.length == 1) res = res[0];
+				else if (res.length > 1) res = res.join(", ");
+				else res = "";
+				ele.setAttribute("data-result", res);
+			}
+		} else {
+			this.mode = "COMMENT";
+			this.classes += this.styles["hidden-comment"];
 		}
 	}
 
