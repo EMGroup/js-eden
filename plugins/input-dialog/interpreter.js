@@ -127,7 +127,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	</div>
 </div>
 <div class="info-bar"></div>
-<div class="outputbox"></div>
 </div></div>`);
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;

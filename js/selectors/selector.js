@@ -763,6 +763,7 @@ Eden.Selectors.modify = function(selector, attributes, values) {
 									} break;
 			case "name"			:	if (res[i].type == "script") {
 										Eden.Index.remove(res[i]);
+										res[i].prefix = "action "+vals[j]+" {";
 										res[i].name = vals[j];
 										Eden.Index.update(res[i]);
 									} break;
