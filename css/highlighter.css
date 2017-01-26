@@ -1,3 +1,8 @@
+span.eden-script {
+	font: 14px/20px Roboto Mono,monospace;
+	-webkit-font-smoothing: antialiased;
+}
+
 span.eden-keyword {
 	font-weight: bold;
 	color: #a40000;
@@ -74,6 +79,10 @@ div.eden-section-line:after {
 
 span.eden-comment {
 	/*font-style: italic;*/
+	
+}
+
+span.eden-comment-line {
 	color: #777;
 	font-size: 14px;
 	font-family: Arial,Helvetica,sans-serif;
@@ -143,6 +152,11 @@ span.eden-comment-h4 {
 	color: #666;
 	font: 12pt Arial,Helvetica,sans-serif;
 	font-weight: bold;
+}
+
+span.eden-comment-icon {
+	color: #2b4957;
+	font-size: 16px;
 }
 
 span.eden-line-script {
