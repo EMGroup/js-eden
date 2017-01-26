@@ -122,7 +122,19 @@ span.eden-comment-h1 {
 
 span.eden-comment-h2 {
 	color: #666;
-	font: 16pt Arial,Helvetica,sans-serif;
+	font: 14pt Arial,Helvetica,sans-serif;
+}
+
+span.eden-comment-h3 {
+	color: #666;
+	font: 12pt Arial,Helvetica,sans-serif;
+	font-weight: bold;
+}
+
+span.eden-comment-h4 {
+	color: #666;
+	font: 12pt Arial,Helvetica,sans-serif;
+	font-weight: bold;
 }
 
 span.eden-line-script {

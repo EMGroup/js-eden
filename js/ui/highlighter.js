@@ -478,6 +478,9 @@
 		if (this.token == "#") {
 			this.classes += this.styles["hidden-comment"];
 			this.mode = "SECTION_TITLE_H2";
+		} else if (this.token == "##") {
+			this.classes += this.styles["hidden-comment"];
+			this.mode = "SECTION_TITLE3";
 		} else {
 			this.classes += this.styles["comment-h1"];
 			this.mode = "SECTION_TITLE_H1";
@@ -494,12 +497,35 @@
 		}
 	}
 
+	EdenUI.Highlight.prototype.SECTION_TITLE3 = function() {
+		if (this.token == "#") {
+			this.classes += this.styles["hidden-comment"];
+			this.mode = "SECTION_TITLE4";
+		} else {
+			this.classes += this.styles["comment-h3"];
+			this.mode = "SECTION_TITLE_H3";
+		}
+	}
+
+	EdenUI.Highlight.prototype.SECTION_TITLE4 = function() {
+			this.classes += this.styles["comment-h4"];
+			this.mode = "SECTION_TITLE_H4";
+	}
+
 	EdenUI.Highlight.prototype.SECTION_TITLE_H1 = function() {
 		this.classes += this.styles["comment-h1"];
 	}
 
 	EdenUI.Highlight.prototype.SECTION_TITLE_H2 = function() {
 		this.classes += this.styles["comment-h2"];
+	}
+
+	EdenUI.Highlight.prototype.SECTION_TITLE_H3 = function() {
+		this.classes += this.styles["comment-h3"];
+	}
+
+	EdenUI.Highlight.prototype.SECTION_TITLE_H4 = function() {
+		this.classes += this.styles["comment-h4"];
 	}
 
 	EdenUI.Highlight.prototype.BLOCK_COMMENT = function() {
@@ -865,8 +891,12 @@
 		"COMMENT": true,
 		"SECTION_TITLE": true,
 		"SECTION_TITLE2": true,
+		"SECTION_TITLE3": true,
+		"SECTION_TITLE4": true,
 		"SECTION_TITLE_H1": true,
 		"SECTION_TITLE_H2": true,
+		"SECTION_TITLE_H3": true,
+		"SECTION_TITLE_H4": true,
 		"COMMENT_BOLD": true,
 		"COMMENT_CODE": true,
 		"COMMENT_ICON":	true,
