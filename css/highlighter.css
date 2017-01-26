@@ -171,7 +171,7 @@ span.eden-importopt {
 
 span.eden-doxytag {
 	font-style: normal;
-	font-weight: bold;
+	/*font-weight: bold;*/
 	color: #3557d9;
 }
 

@@ -134,7 +134,9 @@ EdenUI.Sharebox = function(element) {
 		//Eden.Agent.uploadAll(function() {
 			//console.log("ALL UPLOADED");
 			eden.project.thumb = me.thumbdata;
+			if (eden.project.id) eden.project.parentid = eden.project.id;
 			eden.project.id = undefined;
+			eden.project.vid = undefined;
 			eden.project.setDescription(desc);
 			console.log("FORK", listed, desc);
 			eden.project.save(listed, function(status) {
