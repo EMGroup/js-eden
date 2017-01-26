@@ -559,6 +559,7 @@
 								this.lineelement = nline;
 								this.classes += this.styles["hidden-comment"];
 							} else {
+								this.pushMode();
 								this.mode = "COMMENT_EMPH";
 								this.classes += this.styles["hidden-comment"];
 							}
@@ -580,7 +581,8 @@
 							}
 							break;
 							
-		case "`"		:	this.mode = "COMMENT_CODE";
+		case "`"		:	this.pushMode();
+							this.mode = "COMMENT_CODE";
 							this.classes += this.styles["hidden-comment"];
 							break;
 		case ":"		:	this.mode = "COMMENT_ICON";
@@ -596,7 +598,8 @@
 		case "\""		:	this.mode = "COMMENT_ESCAPE";
 							this.classes += this.styles["hidden-comment"];
 							break;
-		case "?"		:	this.mode = "COMMENT_QUERY";
+		case "?"		:	this.pushMode();
+							this.mode = "COMMENT_QUERY";
 							this.classes += this.styles["hidden-comment"];
 							break;
 		default			:	this.classes += this.styles["comment"];
@@ -620,18 +623,18 @@
 			}
 
 			if (endix == -1) {
-				this.mode = "COMMENT";
+				this.popMode();
 				this.classes += this.styles["hidden-comment"];
 			} else {
 				var qstr = linestr.substring(0,endix);
 				this.tokentext += qstr + ")";
 				this.stream.position += qstr.length+1;
-				this.mode = "COMMENT";
+				this.popMode();
 				this.classes += this.styles["hidden-comment"];
 				console.log("QUERY",qstr);
 
 				var ele = document.createElement("span");
-				ele.className += this.styles["comment-query"];
+				ele.className += this.styles["comment-query"] + " " + this.styles["comment"];
 				this.lineelement.appendChild(ele);
 				var res = Eden.Selectors.query(qstr,"value");
 				if (res.length == 1) res = res[0];
@@ -640,7 +643,7 @@
 				ele.setAttribute("data-result", res);
 			}
 		} else {
-			this.mode = "COMMENT";
+			this.popMode();
 			this.classes += this.styles["hidden-comment"];
 		}
 	}
@@ -768,7 +771,8 @@
 	EdenUI.Highlight.prototype.COMMENT_CODE = function() {
 		if (this.token == "`") {
 			this.classes += this.styles["hidden-comment"];
-			this.mode = "COMMENT";
+			//this.mode = "COMMENT";
+			this.popMode();
 		} else {
 			this.START();
 		}
@@ -793,32 +797,52 @@
 			this.mode = "COMMENT_BOLD";
 			this.classes += this.styles["hidden-comment"];
 		} else {
-			this.classes += this.styles["comment-emph"];
+			//this.lineelement.className = this.styles["comment-emph"];
+			var nline = document.createElement("span");
+			nline.className = this.styles["comment-emph"];
+			this.lineelement.appendChild(nline);
+			this.pushLine();
+			this.lineelement = nline;
+			//this.classes += this.styles["comment-emph"];
 			this.mode = "COMMENT_ITALIC";
+			this.COMMENT();
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_ITALIC = function() {
 		if (this.token == "*") {
 			this.classes += this.styles["hidden-comment"];
-			this.mode = "COMMENT";
+			//this.mode = "COMMENT";
+			this.popLine();
+			this.popMode();
 		} else {
-			this.classes += this.styles["comment-emph"];
+			//this.classes += this.styles["comment-emph"];
+			this.COMMENT();
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_BOLD = function() {
 		if (this.token == "*") {
 			this.classes += this.styles["hidden-comment"];
+			this.popLine();
 			this.mode = "COMMENT_BOLD_END";
 		} else {
-			this.classes += this.styles["comment-bold"];
+			//this.classes += this.styles["comment-bold"];
+			var nline = document.createElement("span");
+			nline.className = this.styles["comment-bold"];
+			this.lineelement.appendChild(nline);
+			this.pushLine();
+			this.lineelement = nline;
+			//this.classes += this.styles["comment-emph"];
+			//this.mode = "COMMENT_ITALIC";
+			this.COMMENT();
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_BOLD_END = function() {
 		this.classes += this.styles["hidden-comment"];
-		this.mode = "COMMENT";
+		//this.mode = "COMMENT";
+		this.popMode();
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_TAG = function() {
@@ -947,6 +971,8 @@
 		"COMMENT_ICON":	true,
 		"COMMENT_EMPH": true,
 		"COMMENT_ITALIC": true,
+		"COMMENT_BOLD_END": true,
+		"COMMENT_QUERY": true,
 		"END_COMMENT_TAG": true,
 		"COMMENT_TAG": true,
 		"COMMENT_LINK": true,
@@ -1011,7 +1037,8 @@
 				var caret = document.createElement('span');
 				caret.className = "fake-caret";
 				line.appendChild(caret);
-				line.className += " current";
+				if (this.linestack.length > 0) this.linestack[0].className += " current";
+				else line.className += " current";
 			}
 
 			// Skip but preserve white space
@@ -1134,7 +1161,8 @@
 				parentspan.appendChild(tokenspan);
 
 				line.appendChild(parentspan);
-				line.className += " current";
+				if (this.linestack.length > 0) this.linestack[0].className += " current";
+				else line.className += " current";
 			} else {
 				var tokenspan = document.createElement('span');
 				tokenspan.className = this.classes;
