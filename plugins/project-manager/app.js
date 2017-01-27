@@ -132,20 +132,20 @@ var app = express();
 
   app.get('/', function(req, res){
 	  if(typeof req.user != "undefined" && req.user.id == null){
-		  res.render('registration', { user: req.user });
-
+//		  res.render('registration', { user: req.user });
+		  res.render('regclosed');
 	  }else{
 		  res.render('index', { user: req.user });
 	  }
   });
 
 app.post('/registration', function(req,res){
-	
+	/*
 	var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?)");
 	stmt.run(req.user.oauthcode, req.body.displayName, function(err){
 		req.user.id = this.lastID;
 		res.redirect(config.BASEURL);
-	});
+	});*/
 });
 
 app.get('/account', ensureAuthenticated, function(req, res){
