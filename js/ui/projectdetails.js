@@ -57,6 +57,8 @@ EdenUI.ProjectDetails = function(projectid) {
 			Eden.Project.load(projectid);
 		});
 
+		buttons.append($('<iframe src="https://www.facebook.com/plugins/like.php?href='+encodeURIComponent(window.location.href+"?load="+projectid)+'&width=350&layout=standard&action=like&size=small&show_faces=false&share=true&height=80&appId=1447073055317881" width="300" height="20" style="border:none;overflow:hidden;float:right;margin-top:5px;" scrolling="no" frameborder="0" allowTransparency="true"></iframe>'));
+
 		me.dialog.append(buttons);
 		
 		Eden.DB.search(":parent("+projectid+")", function(forks) {

@@ -124,11 +124,15 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 			}
 		} else if (statements[i].type == "section") {
 			var node = statements[i].nextSibling;
+			var chi = []
 			while (node && (node.type != "section" || node.depth > statements[i].depth)) {
-				if (node.type != "dummy") nstats.push(node);
+				if (node.type != "dummy") {
+					nstats.push(node);
+					chi.push(node);
+				}
 				node = node.nextSibling;
 			}
-			if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(nstats, recurse));
+			if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(chi, recurse));
 		}
 	}
 	nstats = nstats.filter(function(stat) {

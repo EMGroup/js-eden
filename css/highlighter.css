@@ -127,13 +127,13 @@ span.eden-comment-faded-h1 {
 }
 
 span.eden-comment-bold {
-	font: 14px Arial,Helvetica,sans-serif;
+	/*font: 14px Arial,Helvetica,sans-serif;*/
 	font-weight: bold;
 	/*color: #555;*/
 }
 
 span.eden-comment-emph {
-	font: 14px Arial,Helvetica,sans-serif;
+	/*font: 14px Arial,Helvetica,sans-serif;*/
 	font-style: italic;
 	color: #555;
 }
