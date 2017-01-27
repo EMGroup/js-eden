@@ -489,7 +489,7 @@ EdenUI.MenuBar = function() {
 	});
 
 	eden.root.lookup("jseden_project_title").addJSObserver("menubar", function(sym, value) {
-		if (sym.origin && sym.origin.name != "*JavaScript") {
+		if (sym.origin && sym.origin !== Symbol.hciAgent) {
 			$(".jseden-title").get(0).textContent = value;
 		}
 		try {
@@ -556,8 +556,8 @@ EdenUI.MenuBar = function() {
 
 	this.element.on("keyup", ".jseden-title", function(e) {
 		var sym = eden.root.lookup("jseden_project_title");
-		if (!sym.eden_definition) {
-			sym.assign(e.currentTarget.textContent, eden.root.scope, Symbol.localJSAgent);
+		if (!sym.definition) {
+			sym.assign(e.currentTarget.textContent, eden.root.scope, Symbol.hciAgent);
 		}
 	});
 }

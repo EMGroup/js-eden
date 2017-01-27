@@ -29,7 +29,7 @@ Eden.Project.listeners = {};
 Eden.Project.init = function() {
 	var titleSym = eden.root.lookup("jseden_project_title");
 	titleSym.addJSObserver("project", function(sym, value) {
-		if (sym.last_modified_by !== eden.project) {
+		if (sym.origin !== eden.project) {
 			if (eden.project === undefined) return;
 			eden.project.title = value;
 			if (this.id === undefined) {
@@ -104,8 +104,10 @@ Eden.Project.load = function(pid, vid, cb) {
 				eden.project.thumb = meta.image;
 				eden.project.tags = meta.tags;
 				eden.project.parentid = meta.parentProject;
-				eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);
-				eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, Symbol.localJSAgent);	
+				eden.root.lookup("jseden_project_title").assign(meta.title, eden.root.scope, Symbol.localJSAgent);
+				eden.root.lookup("jseden_project_name").assign(meta.minimisedTitle, eden.root.scope, Symbol.localJSAgent);	
+				eden.root.lookup("jseden_project_thumb").assign(meta.image, eden.root.scope, Symbol.localJSAgent);
+				eden.root.lookup("jseden_project_author").assign(meta.ownername, eden.root.scope, Symbol.localJSAgent);
 				if (meta.projectMetaData !== null) {
 					var extra = JSON.parse(meta.projectMetaData);
 					eden.project.desc = extra.description;

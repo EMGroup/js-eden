@@ -624,7 +624,8 @@
 								this.classes += this.styles["comment"];
 							}
 							break;
-		case "\""		:	this.mode = "COMMENT_ESCAPE";
+		case "\""		:	this.pushMode();
+							this.mode = "COMMENT_ESCAPE";
 							this.classes += this.styles["hidden-comment"];
 							break;
 		case "?"		:	this.pushMode();
@@ -660,7 +661,6 @@
 				this.stream.position += qstr.length+1;
 				this.popMode();
 				this.classes += this.styles["hidden-comment"];
-				console.log("QUERY",qstr);
 
 				var ele = document.createElement("span");
 				ele.className += this.styles["comment-query"]; // + " " + this.styles["comment"];
@@ -770,17 +770,15 @@
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_ESCAPE = function() {
-		this.mode = "COMMENT";
+		this.popMode();
 		this.classes += this.styles["comment"];
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_HTML = function() {
 		var tagname = this.tokentext;
-		console.log("TAG",tagname);
 		var linestr = this.stream.peekLine();
 		var endopen = linestr.indexOf(">");
 		if (endopen >= 0) {
-			console.log("LINESTR",linestr);
 			var opentag = "<"+tagname+linestr.substring(0,endopen+1);
 			this.tokentext = opentag.substring(1);
 			this.cacheddata = {opentag: opentag, tagname: tagname};
@@ -828,7 +826,6 @@
 				//this.tokentext += opentag+endtag
 				//this.classes += "eden-comment-hidden";
 				var html = this.cacheddata.opentag+endtag;
-				console.log("HTML",html);
 				this.mode = "COMMENT_HTML_CONTENT";
 				//var textelement = document.createTextNode(opentag);
 				//var openspan = document.createElement("span");
@@ -938,15 +935,23 @@
 			this.pushLine();
 			this.lineelement = nline;
 			//this.classes += this.styles["comment-emph"];
-			//this.mode = "COMMENT_ITALIC";
+			this.mode = "COMMENT_BOLD_END";
 			this.COMMENT();
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_BOLD_END = function() {
-		this.classes += this.styles["hidden-comment"];
-		//this.mode = "COMMENT";
-		this.popMode();
+		if (this.token == "*") {
+			if (this.stream.code.charAt(this.stream.position) == "*") {
+				this.classes += this.styles["hidden-comment"];
+				this.stream.position++;
+				this.tokentext += "*";
+			}
+			this.popLine();
+			this.popMode();
+		} else {
+			this.COMMENT();
+		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_TAG = function() {

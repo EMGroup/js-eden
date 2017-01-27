@@ -120,11 +120,6 @@ span.eden-comment-ul:before {
 	font-size: 8px;
 }
 
-div.eden-comment-blockquote {
-	border-left: 2px solid #2b4957;
-	background-color: #ddd;
-	margin-left: 10px;
-}
 
 span.eden-comment-faded-h1 {
 	color: #aaa;
@@ -319,5 +314,11 @@ div.eden-line {
 	/*right: 0;*/
 	/*left: 43px;*/
 	/*z-index: 2;*/
+}
+
+div.eden-comment-blockquote {
+	border-left: 2px solid #2b4957;
+	background-color: #eee;
+	margin-left: 15px;
 }
 
