@@ -38,7 +38,12 @@ EdenUI.ProjectDetails = function(projectid) {
 		descbox.innerHTML = res;
 		me.dialog.get(0).appendChild(descbox);
 
-		var buttons = $('<div><button class="openproject script-button"><span class="explorer-control-icon">&#xf04b;</span>Open</button><button class="restoreproject script-button"><span class="explorer-control-icon">&#xf040;</span>Maker</button></div>');
+		var buttons;
+		if (meta[0].owner == Eden.DB.userid) {
+			buttons = $('<div><button class="openproject script-button"><span class="explorer-control-icon">&#xf04b;</span>Open</button><button class="restoreproject script-button"><span class="explorer-control-icon">&#xf040;</span>Maker</button><button class="deleteproject script-button"><span class="explorer-control-icon">&#xf00d;</span>Delete</button></div>');
+		} else {
+			 buttons = $('<div><button class="openproject script-button"><span class="explorer-control-icon">&#xf04b;</span>Open</button><button class="restoreproject script-button"><span class="explorer-control-icon">&#xf040;</span>Maker</button></div>');
+		}
 
 		buttons.on("click",".openproject", function() {
 			me.remove();

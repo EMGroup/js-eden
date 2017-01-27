@@ -481,13 +481,18 @@
 	EdenUI.Highlight.prototype.SECTION_TITLE = function() {
 		if (this.token == "#") {
 			this.classes += this.styles["hidden-comment"];
-			this.mode = "SECTION_TITLE_H2";
+			this.lineelement.className += " " + this.styles["comment-h2"];
+			//this.mode = "SECTION_TITLE_H2";
+			this.mode = "COMMENT";
 		} else if (this.token == "##") {
 			this.classes += this.styles["hidden-comment"];
 			this.mode = "SECTION_TITLE3";
 		} else {
-			this.classes += this.styles["comment-h1"];
-			this.mode = "SECTION_TITLE_H1";
+			//this.classes += this.styles["comment-h1"];
+			this.lineelement.className += " " + this.styles["comment-h1"];
+			//this.mode = "SECTION_TITLE_H1";
+			this.mode = "COMMENT";
+			this.COMMENT();
 		}
 	}
 
@@ -555,7 +560,7 @@
 							this.lineelement = nline;
 							break;
 		case "-"		:
-		case "*"		:	if ((this.prevtoken == "#" || this.prevtoken == "INVALID") && (this.stream.peek() == 32 || this.stream.peek() == 9)) {
+		case "*"		:	if ((this.prevtoken == "##" || this.prevtoken == "#" || this.prevtoken == "INVALID") && (this.stream.peek() == 32 || this.stream.peek() == 9)) {
 								this.pushLine();
 								var nline = document.createElement("span");
 								nline.className = this.styles["comment-ul"];
@@ -598,7 +603,7 @@
 							}
 							break;
 
-		case ">"		:	if ((this.prevtoken == "#" || this.prevtoken == "INVALID") && (this.stream.peek() == 32 || this.stream.peek() == 9)) {
+		case ">"		:	if ((this.prevtoken == "##" || this.prevtoken == "#" || this.prevtoken == "INVALID") && (this.stream.peek() == 32 || this.stream.peek() == 9)) {
 								this.outerline += " " + this.styles["comment-blockquote"];
 								this.classes += this.styles["hidden-comment"];
 							} else {

@@ -22,10 +22,12 @@ EdenUI.Sharebox = function(element) {
 	projectoptions.get(0).appendChild(this.markdown.contents);
 
 	this.sharebox.on("change", "#thumbfile", function(e) {
+		var thumb = me.sharebox.find("#projectthumb");
 		var thumbinput = $("#thumbfile");
 		thumb.html("");
 		var fileinput = thumbinput.get(0);
 		var file = fileinput.files[0];
+		console.log("THUMB FILE",file);
 		var reader = new FileReader();
 		reader.onload = function(e) {
 			//Eden.loadFromString(e.target.result);
