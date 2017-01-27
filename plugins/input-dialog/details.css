@@ -1,0 +1,62 @@
+div.script-details {
+	display: flex;
+	flex-direction: column;
+	font-family: initial;
+	font-size: 12pt;
+	position: absolute;
+	padding: 40px;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	background: rgba(255,255,255,0.6);
+}
+
+div.blur {
+	filter: blur(5px);
+}
+
+div.script-details-prop {
+	display: flex;
+	margin: 5px;
+	height: 30px;
+	line-height: 30px;
+}
+
+div.script-details-label {
+	margin-right: 15px;
+	text-align: right;
+	width: 25%;
+	padding: 5px;
+	font-weight: bold;
+}
+
+div.script-details-status {
+	flex-grow: 0;
+	flex-shrink: 0;
+	width: 50px;
+	font-family: "FontAwesome";
+	font-weight: bold;
+	height: 100%;
+	text-align: center;
+	font-size: 16pt;
+	color: #22aa22;
+}
+
+input.script-details-value {
+	flex-grow: 2;
+	padding: 5px;
+	border-radius: 3px;
+	border: 1px solid #29454B;
+	box-shadow: 0 0 6px #888;
+}
+
+input.script-details-readonly {
+	background: #eee;
+}
+
+div.script-details-buttons {
+	text-align: right;
+	padding: 30px;
+}
+

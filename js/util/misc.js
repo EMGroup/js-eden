@@ -7,6 +7,31 @@
 
 function noop() {}
 
+function generateTimeStamp(str) {
+	var relativeTimeRe = /(\d*)(minutes|minute|min|hours|hour|days|day|weeks|week|months|month|mon|years|year|Quarters|Quarter|seconds|second|sec|s|m|h|d|M|y|Y|Q|ms|w)/g;
+
+	var comp;
+	var stamp = 0;
+	while ((comp = relativeTimeRe.exec(str)) !== null) {
+		console.log("Reltime:",comp);
+		switch(comp[2]) {
+		case "second":
+		case "seconds":
+		case "s"	:	stamp += parseInt(comp[1]) * 1000; break;
+		case "minute":
+		case "minutes":
+		case "m"	:	stamp += parseInt(comp[1]) * 60000; break;
+		case "hour":
+		case "hours":
+		case "h"	:	stamp += parseInt(comp[1]) * 3600000; break;
+		case "days":
+		case "d":		stamp += parseInt(comp[1]) * 3600000 * 24; break;
+		}
+	}
+
+	return stamp;
+}
+
 function hashCode(str){
     var hash = 0;
     if (str.length == 0) return hash;
@@ -16,6 +41,27 @@ function hashCode(str){
         hash = hash & hash; // Convert to 32bit integer
     }
     return hash;
+}
+
+function getTextWidth(text, font) {
+    // re-use canvas object for better performance
+    var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+    var context = canvas.getContext("2d");
+    context.font = font;
+    var metrics = context.measureText(text);
+    return metrics.width;
+}
+
+function unListen(target) {
+	for (var x in this.listeners) {
+		var l = this.listeners[x];
+		for (var i=0; i<l.length; i++) {
+			if (l[i].target === target) {
+				l.splice(i,1);
+				break;
+			}
+		}
+	}
 }
 
 function listenTo(eventName, target, callback) {
@@ -72,3 +118,30 @@ function concatAndResolveUrl(url, concat) {
 	}
 	return url3.join('/');
 }
+
+Utils = {
+	flatten: function (array) {
+		var flat = [];
+		for (var i = 0, l = array.length; i < l; ++i){
+			flat = flat.concat(array[i] instanceof Array ? this.flatten(array[i]) : array[i]);
+		}
+		return flat;
+	},
+
+	construct: (function () {
+		/** @constructor */
+		var temp_ctor = function () {};
+
+		return function (ctor) {
+			temp_ctor.prototype = ctor.prototype;
+			var instance = new temp_ctor();
+			var args = [];
+			for (var i = 1; i < arguments.length; i++) {
+				args.push(arguments[i]);
+			}
+			ctor.apply(instance, args);
+			return instance;
+		};
+	})()
+};
+

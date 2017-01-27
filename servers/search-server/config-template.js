@@ -1,8 +1,15 @@
 module.exports = {
+		GOOGLE_CLIENT_ID: "",
+		GOOGLE_CLIENT_SECRET: "",
+		SESSION_SECRET: "",
+		TWITTER_CONSUMER_KEY: "",
+		TWITTER_CONSUMER_SECRET: "",
 		SESSION_SECRET: "",
 		HOSTNAME: "localhost",
-		PORT: 18881,
-		BASEURL: "http://localhost:18881",
+				FACEBOOK_CLIENTID: 0,
+		FACEBOOK_CLIENT_SECRET: "",
+		PORT: 18882,
+		BASEURL: "http://localhost:18882",
 		JSEDENPATH: "../../",
-		DBPATH: ""
+		DBPATH: "construals.sqlite3"
 	}

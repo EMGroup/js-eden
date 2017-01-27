@@ -157,12 +157,6 @@ module.exports = function (grunt) {
     },
 
     watch: {
-      // regenerate parser file when grammar changes
-      grammar: {
-        files: 'translator/grammar.jison',
-        tasks: ['jison']
-      },
-
 	  coresrc: {
 		files: ['js/core/*.js','js/ui/*.js','./plugins/**/*.js'],
 		tasks: ['uglify']
@@ -171,23 +165,7 @@ module.exports = function (grunt) {
 	  plugincss: {
 	    files: ['plugins/**/*.css'],
 		tasks: ['cssmin']
-	  },
-
-	  merge: {
-		  files: [
-			'library/**/*.js-e', 'library/**/*.jse',
-			'plugins/canvas-html5/**/*.js-e', 'plugins/canvas-html5/**/*.jse',			
-		],
-		  tasks: ['merge']
-	  },
-
-      // reload browser when parser changes
-      parser: {
-        files: 'js/eden/core/parser.js',
-        options: {
-          livereload: true
-        }
-      }
+	  }
     },
 
     connect: {

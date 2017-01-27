@@ -33,6 +33,27 @@ var Language = {
 		"remove": "remove"
 	},
 
+	selectors: {
+		"has-name": true,
+		"name": true,
+		"type": true,
+		"definition": true,
+		"assignment": true,
+		"script": true,
+		"when": true,
+		"for": true,
+		"if": true,
+		"last": true,
+		"nth": true,
+		"executed": true,
+		"not": true,
+		"unexecuted": true,
+		"remote": true,
+		"value": true,
+		"active": true,
+		"depends": true
+	},
+
 	doxytags: {
 		"title": "title",
 		"author": "author",
@@ -62,9 +83,11 @@ var Language = {
 		"auto": "auto",
 		"para": "para",
 		"action": "action",
+		"procedure": "procedure",
 		"local": "local",
 		"if": "if",
 		"is": "is",
+		//"isasync": "isasync",
 		"in": "in",
 		"else": "else",
 		"for": "for",

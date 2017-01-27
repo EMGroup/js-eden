@@ -1,5 +1,6 @@
 Eden.AST.DummyContext = {
-	subscribeDynamic: function(p,d) { return eden.root.lookup(d); }
+	subscribeDynamic: function(p,d) { return eden.root.lookup(d); },
+	scopes: []
 };
 
 Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, agent) {
@@ -44,7 +45,12 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 				yield 0;
 			}
 		} else if (statements[i].type == "import") {
-			yield statements[i];
+			if (statements[i].statements === undefined) {
+				statements[i].selector = (statements[i].path) ? statements[i].path.execute(ctx, base, scope, agent) : undefined;
+				yield statements[i];
+				//statements.splice.apply(statements, [i, 1].concat(statements[i].statements));
+				//i--;
+			}
 		} else if (statements[i].type == "do") {
 			statements[i].executed = 1;
 			statements[i].selector = (statements[i].name) ? statements[i].name.execute(ctx, base, scope, agent) : undefined;
@@ -65,6 +71,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 				//whens[i].active = false;
 			}
 		} else {
+			//if (typeof statements[i].execute != "function") console.error("NO EXECUTE", statements[i]);
 			var res = statements[i].execute(ctx, base, scope, agent);
 			if (res && Array.isArray(res) && res.length > 0) {
 				// Allow for a scope shift.
@@ -132,63 +139,75 @@ function runEdenAction(source, action, cb) {
 			// Need to do an import and block until done.
 			} else if (delay.value.type == "import") {
 				delay.value.executed = 1;
-				if (eden.peer) eden.peer.imports(source, delay.value.path, delay.value.tag, delay.value.options);
+				//if (eden.peer) eden.peer.imports(source, delay.value.path, delay.value.tag, delay.value.options);
 
-				Eden.Agent.importAgent(delay.value.path, delay.value.tag, delay.value.options, function(ag) {
-					if (ag) {
-						var already = false;
-						// Check to see if already imported to local scope...
-						for (var i=0; i<me.imports.length; i++) {
-							if (me.imports[i] === ag) {
-								already = true;
-								break;
-							}
-						}
-						// If not, import it.
-						if (!already) me.imports.push(ag);
+				//console.log("IMPORT",delay.value.selector);
+
+				Eden.Selectors.query(delay.value.selector, undefined, {context: delay.value.parent, minimum: 1, options: {external: true, index: true}}, function(stats) {
+					if (stats === undefined) {
+						var err = new Eden.RuntimeError(me, Eden.RuntimeError.UNKNOWN, delay.value, "Selector '"+delay.value.selector+"' has no results");
+						err.line = delay.value.line;
+						delay.value.errors.push(err);
+						//delay.value.statements = [];
+					} else {
+						delay.value.statements = stats;
 					}
-
 					// Continue execution.
 					runEdenAction.call(me,source, action, cb);
 				});
+
 			// Call another action and block until done
 			} else if (delay.value.type == "do") {
+				var stats;
+
+				function docb(stats) {
+					if (stats && stats.length > 0) {
+						//var stats = script.statements;
+						// Params are deprecated.
+						var params = delay.value.params;
+						// Allow for execution in a different scope.
+						var nscope = delay.value.nscope;
+
+						if (nscope.range) {
+							nscope.range = false;
+							var sscripts = [];
+
+							while (true) {
+								var cscope = nscope.clone();
+								sscripts.push(new Eden.AST.ScopedScript(stats, cscope));
+								if (nscope.next() == false) break;
+							}
+
+							nscope.range = true;
+							me.executeStatements(sscripts, undefined, source, function() {
+								runEdenAction.call(me,source, action, cb);
+							}, {parameters: params}, nscope);
+						} else {
+							me.executeStatements(stats, undefined, source, function() {
+								runEdenAction.call(me,source, action, cb);
+							}, {parameters: params}, nscope);
+						}
+					} else {
+						var err = new Eden.RuntimeWarning(delay.value, Eden.RuntimeWarning.EMPTYDO, delay.value.selector);
+						err.line = delay.value.line;
+						//delay.value.errors.push(err);
+						delay.value.warning = err;
+						eden.emit("warning", [source,err]);
+						runEdenAction.call(me,source, action, cb);
+					}
+				}
+
 				// Note that getActionByName can return entire agents!
-				var stats = (delay.value.name) ? Eden.Query.querySelector(delay.value.selector, undefined, me) : delay.value.script.statements;
+				if (delay.value.name) {
+					// Get contextual root...
+					Eden.Selectors.query(delay.value.selector, undefined, {context: delay.value.parent, minimum: 1}, docb);
+				} else {
+					stats = delay.value.script.statements;
+					docb(stats);
+				}
+
 				//var script = (delay.value.name) ? me.getActionByName(delay.value.name) : delay.value.script;
 				//console.log("STATS",stats, delay.value.selector);
-				if (stats && stats.length > 0) {
-					//var stats = script.statements;
-					// Params are deprecated.
-					var params = delay.value.params;
-					// Allow for execution in a different scope.
-					var nscope = delay.value.nscope;
-
-					if (nscope.range) {
-						nscope.range = false;
-						var sscripts = [];
-
-						while (true) {
-							var cscope = nscope.clone();
-							sscripts.push(new Eden.AST.ScopedScript(stats, cscope));
-							if (nscope.next() == false) break;
-						}
-
-						nscope.range = true;
-						me.executeStatements(sscripts, undefined, source, function() {
-							runEdenAction.call(me,source, action, cb);
-						}, {parameters: params}, nscope);
-					} else {
-						me.executeStatements(stats, undefined, source, function() {
-							runEdenAction.call(me,source, action, cb);
-						}, {parameters: params}, nscope);
-					}
-				} else {
-					var err = new Eden.RuntimeError(me, Eden.RuntimeError.ACTIONNAME, delay.value, "Selector '"+delay.value.selector+"' has no results");
-					err.line = delay.value.line;
-					delay.value.errors.push(err);
-					Eden.Agent.emit("error", [source,err]);
-				}
 			}
 		} else if (delay.value == 0) {
 			runEdenAction.call(this,source, action, cb);
@@ -243,7 +262,7 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 
 		err.line = this.line;
 
-		if (agent) Eden.Agent.emit("error", [agent,err]);
+		if (agent) eden.emit("error", [agent,err]);
 		else console.log(err.prettyPrint());
 		//throw e;
 	}
@@ -287,7 +306,7 @@ Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx
 
 		err.line = this.line;
 
-		if (agent) Eden.Agent.emit("error", [agent,err]);
+		if (agent) eden.emit("error", [agent,err]);
 		else console.log(err.prettyPrint());
 		//throw e;
 	}

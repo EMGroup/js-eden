@@ -1,0 +1,714 @@
+# Copyright (c) 2015, Empirical Modelling Group
+# All rights reserved.
+#
+# See LICENSE.txt
+
+#Bugs:
+#Assigning to _chapters causes a jump back to the beginning of the current chapter.
+#Triggered procedures are possibly called twice when making assignments?
+#If _paused is defined by dependency and is true while seeking then the video starts playing while the mouse button is still held down.
+#Attempting to play back video in reverse (vid_speed < 0) only works on Safari on Mac.  A workaround is possible.
+#Loading a new video file will reset the playback speed to 1.
+#Assigning "end" to _chapter gives improper _time.
+#Todo:
+#Add ability to set audio player width using _width
+#Add a _duration observable (assigning prevents playing past that point).  Change .duration to .maximumDuration
+#Add support for poster images.
+#Add click in video area to play/pause.
+#Add feedback for downloading issues.
+#Add mode that draws the video onto the canvas.
+#Useful site for extracting YouTube video URLs: http://www.downvids.net/
+#Alternative site: http://www.youtubeinmp4.com/
+#MP3 files: http://www.mfiles.co.uk/mp3-files.htm
+
+#For a Video drawable named "vid", the following observables are available.  All are read/write.
+#
+#vid_url
+#	The URL of the current video loaded into the video player.
+#
+#vid_position
+#	A Point object representing the position of the video player on the canvas.
+#
+#vid_size
+#	A Point object representing the width and height of the video as it is displayed on the canvas.
+#
+#vid_scale
+#	A number representing the canvas scale factor used to express vid_size.
+#
+#vid_controls
+#	Whether or not the built-in playback controls are available to the user or not.
+#
+#vid_paused
+#	True if the video is not currently playing and false if it is playing or if it should be played
+#	as soon as it has finished loading.  Note that if vid_paused is determined by dependency and the
+#	user overrides this decision by pausing or resuming playback using the playback controls then
+#	the value of vid_paused will not reflect the true status of the video playback.  Also, if
+#	vid_paused is determined by dependency and equals true when the end of the video is reached then
+#	the video will play again from the beginning.
+#
+#vid_time
+#	The current temporal position of the video, accurate to the nearest second.  Cannot be set by
+#	dependency unless the video is kept paused.
+#
+#vid_chapters and vid_chapter
+#	If defined then vid_chapters should be an object where the keys are labels attributed to certain
+#	sections of the video and the values are the times when these sections begin.  For example, if
+#	vid_chapters is {lesson1: 60, lesson2: 900} then vid_chapter will contain the string "start"
+#	during the first 60 seconds of playback, contain the string "lesson1" between 60 seconds through
+#	to 15 minutes into the video, at which point the second lesson begins and vid_chapter will
+#	become "lesson2".  When the video has finished playing vid_chapter will become "end".
+#
+#vid_speed
+#	Determines the speed of video playback, e.g. 1 for normal speed or 2 to play back at double
+#	speed.  Setting the speed to zero pauses the video and assigns the value true to vid_paused
+#	unless vid_paused is calculated by dependency.  If vid_speed is set to zero then subsequently
+#	assigning another value to vid_speed won't automatically resume playback unless vid_paused is
+#	calculated by dependency.  If vid_speed is zero when the video becomes unpaused, either by
+#	the value of vid_paused changing from true to false or by the user clicking on the play button,
+#	then the speed will be reset to 1.
+#
+#vid_volume
+#	The current volume level of the video's soundtrack, between 0 and 1.  If vid_volume is specified
+#	by dependency and playback controls are enabled and the user uses them to adjust the volume
+#	then then the dependency will be overwritten by an implicit assignment.
+#
+#Useful properties of the drawable object itself:
+#
+#.duration
+#	The duration of the currently loaded video file (read-only).
+#
+#Useful methods of the drawable object itself:
+#
+#.unmute()
+#	Restores the volume to its previous level if currently playing silently.
+
+#Example:
+/*
+	vid_url = "...";
+	vid is Video();
+	picture is [vid];
+
+	#Stop to complete an exercise 60 seconds into the video.
+	exercisePoints = [60];
+	exercisesCompleted = [false];
+	exerciseNumber is positionInList(vid_time, exercisePoints);
+	vid_controls is exerciseNumber == 0 || exercisesCompleted[exerciseNumber];
+	vid_paused is vid_controls == false;
+*/
+
+func Video {
+	${{
+		var argsProcessed;
+
+		var name;
+		if (typeof(arguments[0]) == "string") {
+			name = arguments[0];
+			argsProcessed = 1;
+		} else {
+			name = root.currentObservableName();
+			argsProcessed = 0;
+			if (name === undefined) {
+				eden.error(new Error("Video: Every video must have a name."), "error");
+				return undefined;
+			}
+		}
+		var preload;
+		if (argsProcessed < arguments.length) {
+			preload = arguments[argsProcessed];
+		} else {
+			preload = false;
+		}
+		return new Audiovisual(name, "Video", preload);
+	}}$;
+}
+
+func Audio {
+	${{
+		var argsProcessed;
+
+		var name;
+		if (typeof(arguments[0]) == "string") {
+			name = arguments[0];
+			argsProcessed = 1;
+		} else {
+			name = root.currentObservableName();
+			argsProcessed = 0;
+			if (name === undefined) {
+				eden.error(new Error("Audio: Every audio player must have a name."), "error");
+				return undefined;
+			}
+		}
+		var preload;
+		if (argsProcessed < arguments.length) {
+			preload = arguments[argsProcessed];
+		} else {
+			preload = false;
+		}
+		return new Audiovisual(name, "Audio", preload);
+	}}$;
+}
+
+${{
+	window.Audiovisual = function(name, type, preload) {
+		this.name = name;
+		this.obsName = root.currentObservableName();
+		this.type = type;
+		this.preload = preload;
+		this.atEnd = false;
+		
+		Object.defineProperty(this, "duration", {
+			enumerable: true,
+			get: function () {
+				if (this.elements === undefined || !this.elements[0].duration) {
+					return 0;
+				} else {
+					return this.elements[0].duration;
+				}
+			}
+		});
+	}
+	
+	Audiovisual.prototype.hash = function () {
+		return this.name;
+	}
+
+	function getMediaElement(audiovisual) {
+		return audiovisual.elements[0];
+	}
+
+	function loadMedia(audiovisual) {
+		var mediaElement = getMediaElement(audiovisual);
+		mediaElement.autoplay = !root.lookup(audiovisual.name + "_paused").value();
+		if (audiovisual.preload) {
+			mediaElement.preload = "auto";
+		} else {
+			mediaElement.preload = "metadata";
+		}
+		mediaElement.load();
+	}
+
+	Audiovisual.prototype.reload = function () {
+		var mediaElement = getMediaElement(this);
+		var position = mediaElement.currentTime;
+		loadMedia(this);
+		mediaElement.currentTime = position;
+	};
+
+	Audiovisual.prototype.unmute = function () {
+		getMediaElement(this).muted = false;
+	}
+
+	Audiovisual.prototype.draw = function (context) {
+		if (this.elements === undefined ) {
+			var me = this;
+			var name = this.name;
+			var agent = Symbol.localJSAgent;
+			root.beginAutocalcOff();
+
+	//Create HTML tag
+
+			var mediaElement = document.createElement(this.type.toLowerCase());
+
+
+	//Symbols not unique to videos
+
+			var chapterSym = root.lookup(name + "_chapter");
+			var chapterMarksSym = root.lookup(name + "_chapters");
+			var loopSym = root.lookup(name + "_looping");
+			var pausedSym = root.lookup(name + "_paused");
+			var positionSym = root.lookup(name + "_position");
+			var speedSym = root.lookup(name + "_speed");
+			var timeSym = root.lookup(name + "_time");
+			var urlSym = root.lookup(name + "_url");
+			var volumeSym = root.lookup(name + "_volume");
+
+
+	//Chapters
+
+			var chapterMarks, chapterNames, chapterIndex, nextChapterAt;
+			var goToChapter = function () {
+				var numChapters = chapterMarks.length;
+				if (chapterIndex == -1) {
+					if (numChapters > 0 && chapterMarks[0] == 0) {
+						chapterIndex = 0;
+					}
+				}
+				var chapterName;
+				if (chapterIndex == -1) {
+					chapterName = "start";
+				} else if (chapterIndex == numChapters) {
+					chapterName = "end";
+					me.atEnd = true;
+				} else {
+					chapterName = chapterNames[chapterIndex];
+				}
+				if (chapterName != chapterSym.value()) {
+					chapterSym.assign(chapterName, root.scope, Symbol.defaultAgent);
+				}
+				if (chapterIndex < numChapters - 1) {
+					nextChapterAt = chapterMarks[chapterIndex + 1];
+				} else {
+					nextChapterAt = undefined;
+				}
+			};
+			var setChapters = function (symbol, chapters) {
+				chapterMarks = [];
+				chapterNames = [];
+				chapterIndex = -1;
+				nextChapterAt = undefined;
+				
+				if (chapters instanceof Object) {
+					for (var chapterName in chapters) {
+						var beginsAt = chapters[chapterName];
+						var i = 0;
+						while (i < chapterMarks.length) {
+							if (beginsAt < chapterMarks[i]) {
+								break;
+							}
+							i++;
+						}
+						chapterMarks.splice(i, 0, beginsAt);
+						chapterNames.splice(i, 0, chapterName);
+					}
+					
+					if (!me.atEnd) {
+						var currentPos = timeSym.value();
+						while (chapterIndex < chapterMarks.length - 1 &&
+						 currentPos >= chapterMarks[chapterIndex + 1]) {
+							chapterIndex++;
+						}
+						goToChapter();
+					}
+				}
+			}; //end of function
+			if (chapterMarksSym.value() === undefined && chapterMarksSym.definition === undefined) {
+				chapterMarksSym.assign({}, root.scope, Symbol.defaultAgent);
+			}
+			setChapters(chapterMarksSym, chapterMarksSym.value());
+			chapterMarksSym.addJSObserver("setChapters", setChapters);
+
+			chapterSym.addJSObserver("jumpToChapter", function (symbol, value) {
+				var currentTime = mediaElement.currentTime;
+				var numChapters = chapterMarks.length;
+				var newTime;
+				if (value == "start") {
+					chapterIndex = -1;
+					newTime = 0;
+				} else if (value == "end") {
+					chapterIndex = numChapters;
+					newTime = mediaElement.duration;
+				} else {
+					var found = false;
+					for (var i = 0; i < numChapters; i++) {
+						if (value == chapterNames[i]) {
+							chapterIndex = i;
+							newTime = chapterMarks[chapterIndex];
+							break;
+						}
+					}
+				}
+				if (newTime !== undefined) {
+					timeSym.assign(newTime, root.scope, agent);
+					mediaElement.currentTime = newTime;
+					goToChapter();
+				}
+			});
+
+	//Looping
+
+			var initialLooping = loopSym.value();
+			if (initialLooping === undefined && loopSym.definition === undefined) {
+				loopSym.assign(false, root.scope, Symbol.defaultAgent);
+			} else if (initialLooping) {
+				mediaElement.loop = true;
+			}
+			loopSym.addJSObserver("setLooping", function (sym, value) {
+				mediaElement.loop = value;
+			});
+
+
+	//Playback controls
+
+			if (this.type == "Video") {
+
+				var controlsSym = root.lookup(name + "_controls");
+				var controls = controlsSym.value();
+				if (controls === undefined) {
+					if (controlsSym.definition === undefined) {
+						controlsSym.assign(true, root.scope, agent);
+					} else {
+						mediaElement.controls = true;
+					}
+				} else {
+					mediaElement.controls = controls;
+				}
+				controlsSym.addJSObserver("showHideControls", function (symbol, showControls) {
+					mediaElement.controls = showControls;
+				});
+			} else {
+				mediaElement.controls = true;
+			}
+
+
+	//Position on screen
+
+			mediaElement.className = "canvashtml-item";
+			this.cachedOrigin = new Point(0, 0);
+			this.cachedScaleFactor = 1;
+			var position = positionSym.value();
+			if (position === undefined) {
+				position = new Point(0, 0);
+				positionSym.assign(position, root.scope, Symbol.defaultAgent);
+			}
+			positionSym.addJSObserver("reposition", function (sym, position) {
+				me.doTranslation(position);
+			});
+
+
+	//Size
+
+			this.cachedZoom = 1;
+			if (this.type == "Video") {
+				var sizeSym = root.lookup(name + "_size");
+				var scaleSym = root.lookup(name + "_scale");
+				var size = sizeSym.value();
+				sizeSym.addJSObserver("resize", function (symbol, size) {
+					var scale = scaleSym.value();
+					if (scale !== undefined) {
+						me.doScaling(size, scale);
+					}
+				});
+				scaleSym.addJSObserver("resize", function (symbol, scale) {
+					if (scale !== undefined) {
+						me.doScaling(sizeSym.value(), scale);
+					}
+				});
+				mediaElement.addEventListener("loadedmetadata", function (event) {
+					if (sizeSym.value() === undefined) {
+						root.beginAutocalcOff();
+						scaleSym.assign(1, root.scope, agent);
+						sizeSym.assign(new Point(mediaElement.videoWidth, root.scope, mediaElement.videoHeight), agent);
+						root.endAutocalcOff();
+					}
+				});
+
+			} else {
+			
+			}
+
+
+	//Paused or playing
+
+			var beginPaused = pausedSym.value();
+			if (beginPaused === undefined && pausedSym.definition === undefined) {
+				pausedSym.assign(true, root.scope, agent);
+			} else if (beginPaused == false) {
+				mediaElement.autoplay = true;
+			}
+			pausedSym.addJSObserver("pausePlay", function (symbol, pause) {
+				if (pause) {
+					mediaElement.pause();
+				} else {
+					me.atEnd = false;
+					mediaElement.play();
+				}
+			});
+			mediaElement.addEventListener("pause", function (event) {
+				if (pausedSym.definition === undefined) {
+					pausedSym.assign(true, root.scope, agent);
+				}
+			});
+			mediaElement.addEventListener("playing", function (event) {
+				if (pausedSym.definition === undefined) {
+					pausedSym.assign(false, root.scope, agent);
+				}
+				if (speedSym.value() == 0) {
+					mediaElement.defaultPlaybackRate = 1;
+					mediaElement.playbackRate = 1;
+				}
+			});
+
+
+	//Seeking and time moving forward
+
+			var time = timeSym.value();
+			if (time !== undefined) {
+				mediaElement.currentTime = parseFloat(time);
+			} else if (timeSym.definition === undefined) {
+				timeSym.assign(0, root.scope, Symbol.defaultAgent);
+			}
+
+			function findChapter() {
+				var oldChapterIndex  = chapterIndex;
+				var numChapters = chapterMarks.length;
+				if (me.atEnd) {
+					//Seeked to the end (and not looping)
+					chapterIndex = numChapters;
+				} else {
+					var currentTime = mediaElement.currentTime;
+					if (nextChapterAt !== undefined && currentTime >= nextChapterAt) {
+						//Seeking forward
+						while (chapterIndex < numChapters - 1 && currentTime >= chapterMarks[chapterIndex + 1]) {
+							chapterIndex++;
+						}
+					} else {
+						//Seeking backward
+						if (chapterIndex == numChapters) {
+							chapterIndex--;
+						}
+						while (chapterIndex >= 0 && chapterMarks[chapterIndex] > currentTime) {
+							chapterIndex--;
+						}
+					}
+				}
+
+				if (chapterIndex != oldChapterIndex) {
+					goToChapter();
+				}
+			}
+
+			timeSym.addJSObserver("seek", function (symbol, seconds) {
+				if (symbol.last_modified_by !== me.type) {
+					mediaElement.currentTime = seconds;
+				}
+			});
+			mediaElement.addEventListener("timeupdate", function (event) {
+				if (mediaElement.paused) {
+					return;
+				}
+				var currentTime = mediaElement.currentTime;
+				var newTimeIndex = Math.floor(currentTime);
+				if (newTimeIndex != me.timeIndex) {
+					timeSym.assign(newTimeIndex, root.scope, agent);
+					me.timeIndex = newTimeIndex;					
+				}
+				if (nextChapterAt !== undefined && currentTime >= nextChapterAt) {
+					chapterIndex++;
+					chapterSym.assign(chapterNames[chapterIndex], root.scope, agent);
+					if (chapterIndex < chapterMarks.length - 1) {
+						nextChapterAt = chapterMarks[chapterIndex]
+					} else {
+						nextChapterAt = undefined;
+					}
+				}
+			});
+			mediaElement.addEventListener("ended", function (event) {
+				timeSym.assign(mediaElement.duration, root.scope, agent);
+				chapterIndex = chapterMarks.length;
+				goToChapter();
+			});
+			mediaElement.addEventListener("seeking", function (event) {
+				var currentTime = mediaElement.currentTime;
+				if (timeSym.value() !== currentTime) {
+					timeSym.assign(currentTime, root.scope, agent);
+				}
+				me.atEnd = currentTime == mediaElement.duration;
+				findChapter();
+			});
+			mediaElement.addEventListener("seeked", function (event) {
+				var isPaused = pausedSym.value();
+				me.timeIndex = Math.floor(mediaElement.currentTime);
+				if (!isPaused) {
+					mediaElement.play();
+				}
+			});
+
+
+	//Playback speed
+
+			var speedResetOnLoad;
+			var speed = speedSym.value();
+			if (speed === undefined) {
+				speedSym.assign(1, root.scope, Symbol.defaultAgent);
+			} else if (speed > 0) {
+				mediaElement.defaultPlaybackRate = speed;
+			}
+			speedSym.addJSObserver("changePlaybackSpeed", function (symbol, speed) {
+				if (mediaElement.playbackRate != speed) {
+					if (speed > 0) {
+						mediaElement.defaultPlaybackRate = speed;
+					} else {
+						mediaElement.defaultPlaybackRate = 1;					
+					}
+					mediaElement.playbackRate = speed;
+				}
+			});
+			mediaElement.addEventListener("ratechange", function (event) {
+				root.beginAutocalcOff();
+				var speed = mediaElement.playbackRate;
+				if (speedSym.definition === undefined) {
+					speedSym.assign(speed, root.scope, agent);
+				}
+				if (speed == 0) {
+					mediaElement.pause();
+				} else if (!pausedSym.value()) {
+					mediaElement.play();
+				}
+				root.endAutocalcOff();
+			});
+
+
+	//Volume
+
+			var volume = volumeSym.value();
+			if (volume === undefined) {
+				volumeSym.assign(1, root.scope, Symbol.defaultAgent);
+			} else if (volume == 0) {
+				mediaElement.muted = true;
+			} else {
+				mediaElement.volume = volume;			
+			}
+			this.volumeChanging = false;
+			volumeSym.addJSObserver("adjustVolume", function (symbol, volume) {
+				if (!me.volumeChanging) {
+					me.volumeChanging = true;
+					if (symbol.definition === undefined) {
+						if (volume == 0) {
+							mediaElement.muted = true;
+						} else {
+							mediaElement.muted = false;
+							mediaElement.volume = volume;
+						}
+					} else {
+						mediaElement.volume = volume;
+					}
+					me.volumeChanging = false;
+				}
+
+			});
+			mediaElement.addEventListener("volumechange", function (event) {
+				if (!me.volumeChanging) {
+					me.volumeChanging = true;
+					var oldVolume = volumeSym.value();
+					var newVolume = mediaElement.volume;
+					if (mediaElement.muted) {
+						if (volumeSym.definition === undefined) {
+							volumeSym.assign(0, root.scope, agent);
+						}
+					} else if (oldVolume != newVolume) {
+						if (volumeSym.definition === undefined) {
+							volumeSym.assign(newVolume, root.scope, agent);
+						} else {
+							mediaElement.volume = oldVolume;
+						}
+					}
+					me.volumeChanging = false;
+				}
+			});
+
+	//Loading a video file
+
+			var url = urlSym.value();
+			if (url !== undefined) {
+				if (this.preload) {
+					mediaElement.preload  = "auto";
+				} else {
+					mediaElement.preload = "metadata";
+				}
+				mediaElement.src = url;
+			}
+			urlSym.addJSObserver("newVideo", function (symbol, url) {
+				if (url != mediaElement.src) {
+					timeSym.assign(0, root.scope, agent);
+					me.timeIndex = 0;
+					chapterIndex = -1;
+					goToChapter();
+					mediaElement.src = url;
+					loadMedia(me);
+				}
+			});
+
+
+	//Mouse Zones
+
+		if (this.type == "Video") {
+			mediaElement.onmousedown = function (event) {
+				var mouseFollow = root.lookup("mouseFollow").value();
+				root.lookup("mouseDownZone").assign(me.name, root.scope, Symbol.hciAgent, mouseFollow);
+			};
+			mediaElement.onmouseup = function (event) {
+				edenUI.plugins.Canvas2D.endClick();
+			};
+			edenUI.plugins.Canvas2D.initZoneFromName(this.name, this.type)
+		}
+		mediaElement.onmouseenter = function (event) {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(me.name, root.scope, Symbol.hciAgent, mouseFollow);
+		};
+
+
+	//Finalize creation
+
+			this.elements = [mediaElement];
+			root.endAutocalcOff();
+		}
+	}
+
+	Audiovisual.prototype.scale = function (scale, zoom , origin) {
+		this.cachedScaleFactor = scale;
+		this.cachedOrigin = origin;
+
+		var name = this.name;
+		var position = root.lookup(name + "_position").value();
+		this.doTranslation(position);
+
+		if (this.type == "Video") {
+			this.cachedZoom = zoom;
+			var scaleSym = root.lookup(name + "_scale");
+			var videoScale = scaleSym.value();
+
+			if (videoScale === undefined) {
+				videoScale = scale / zoom;
+				scaleSym.assign(videoScale, root.scope, root.lookup(this.type));
+			} else {
+				var size = root.lookup(name + "_size").value();
+				this.doScaling(size, videoScale);
+			}
+		}
+	}
+
+	Audiovisual.prototype.doScaling = function (size, scale) {
+		if (size instanceof Point) {
+			var element = this.elements[0];
+			var scaleFactor = this.cachedZoom * scale;
+			element.width = size.x * scaleFactor;
+			element.height = size.y * scaleFactor;
+		}
+	}
+
+	Audiovisual.prototype.doTranslation = function (position) {
+		if (position instanceof Point) {
+			var style = this.elements[0].style;
+			var origin = this.cachedOrigin;
+			var scaleFactor = this.cachedScaleFactor;
+			style.left = ((origin.x + position.x) * scaleFactor) + "px";
+			style.top = ((origin.y + position.y) * scaleFactor) + "px";
+		}
+	}
+
+	Audiovisual.prototype.toString = function () {
+		if (this.name == this.obsName) {
+			return this.type + "(" + Eden.edenCodeForValues(this.preload) + ")";
+		} else {
+			return this.type + "(" + Eden.edenCodeForValues(this.name, this.preload) + ")";		
+		}
+	}
+	
+	Audiovisual.prototype.getEdenCode = Audiovisual.prototype.toString;
+
+	//Create an observable for background sounds.
+	var backgroundAudioSym = root.lookup("background_audio");
+	var backgroundAudioPausedSym = root.lookup("background_audio_paused");
+	if (backgroundAudioPausedSym.value() === undefined && backgroundAudioPausedSym.definition === undefined) {
+		backgroundAudioPausedSym.assign(false, root.scope, Symbol.defaultAgent);
+	}
+	var backgroundAudio = new Audiovisual("background_audio", "Audio", true);
+	backgroundAudioSym.assign(backgroundAudio, root.scope,Symbol.defaultAgent);
+	backgroundAudio.draw();
+	backgroundAudioSym.addJSObserver("initialize", function (sym, value) {
+		if (value instanceof Audiovisual) {
+			value.draw();
+		}
+	});
+
+}}$;

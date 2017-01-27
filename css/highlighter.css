@@ -1,3 +1,8 @@
+span.eden-script {
+	font: 14px/20px Roboto Mono,monospace;
+	-webkit-font-smoothing: antialiased;
+}
+
 span.eden-keyword {
 	font-weight: bold;
 	color: #a40000;
@@ -34,9 +39,142 @@ span.eden-javascript-bold {
 	font-weight: bold;
 }
 
+span.eden-section-line {
+	padding-top: 10px;
+	padding-right: 50px;
+	/*border-top: 1px solid #aaa;*/
+}
+
+.eden-line button {
+	/*font-family: "FontAwesome";*/
+	font-size: 10pt;
+	border-radius: 5px;
+	background: #666;
+	outline: none;
+	border: 1px solid #aaa;
+	margin-left: 3px;
+	margin-right: 3px;
+	padding: 2px;
+	padding-left: 10px;
+	padding-right: 10px;
+	height: 22px;
+	cursor: pointer;
+	color: white;
+	text-shadow: 0 3px 3px black;
+}
+
+.eden-line button:hover {
+	background: #29454B;
+}
+
+div.eden-section-line:after {
+	content: "";
+	background: #aaa;
+	height: 1px;
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin-top: -10px;
+}
+
 span.eden-comment {
+	/*font-style: italic;*/
+	
+}
+
+span.eden-blockcomment {
 	font-style: italic;
-	color: #888a85;
+}
+
+span.eden-comment-line {
+	color: #777;
+	font-size: 14px;
+	font-family: Arial,Helvetica,sans-serif;
+}
+
+li.eden-comment {
+	margin-left: 10px;
+}
+
+span.eden-comment-faded {
+	color: #ccc;
+}
+
+span.eden-comment-hidden {
+	display: none;
+}
+
+span.current span.eden-comment-hidden {
+	display: initial;
+	color: red;
+	font: 14px Arial,Helvetica,sans-serif;
+	font-weight: bold;
+}
+
+span.eden-comment-ul:before {
+	content: "\f111";
+	color: #2b4957;
+	margin-left: 10px;
+	margin-right: 15px;
+	font-family: "FontAwesome";
+	font-size: 8px;
+}
+
+
+span.eden-comment-faded-h1 {
+	color: #aaa;
+	font-size: 16pt;
+}
+
+span.eden-comment-bold {
+	/*font: 14px Arial,Helvetica,sans-serif;*/
+	font-weight: bold;
+	/*color: #555;*/
+}
+
+span.eden-comment-emph {
+	/*font: 14px Arial,Helvetica,sans-serif;*/
+	font-style: italic;
+	color: #555;
+}
+
+span.eden-comment-query {
+}
+
+span.eden-comment-query:before{
+	content: attr(data-result);
+}
+
+span.eden-comment-h1 {
+	color: #666;
+	font: 16pt Arial,Helvetica,sans-serif;
+	font-weight: bold;
+}
+
+span.eden-comment-h2 {
+	color: #666;
+	font: 14pt Arial,Helvetica,sans-serif;
+}
+
+span.eden-comment-h3 {
+	color: #666;
+	font: 12pt Arial,Helvetica,sans-serif;
+	font-weight: bold;
+}
+
+span.eden-comment-h4 {
+	color: #666;
+	font: 12pt Arial,Helvetica,sans-serif;
+	font-weight: bold;
+}
+
+span.eden-comment-icon {
+	color: #2b4957;
+	font-size: 16px;
+}
+
+span.eden-line-script {
+	margin-left: 20px;
 }
 
 span.eden-doxycomment {
@@ -50,8 +188,17 @@ span.eden-number {
 }
 
 span.eden-selector {
-	color: #75507b;
+	color: blue;
+}
+
+span.eden-selector2 {
+	color: blue;
 	font-weight: bold;
+}
+
+span.eden-selector3 {
+	color: #ad7fa8;
+	/*font-weight: bold;*/
 }
 
 span.eden-string {
@@ -72,7 +219,7 @@ span.eden-importopt {
 
 span.eden-doxytag {
 	font-style: normal;
-	font-weight: bold;
+	/*font-weight: bold;*/
 	color: #3557d9;
 }
 
@@ -155,15 +302,23 @@ span.eden-drag-observable {
 }
 
 div.eden-line {
-	position: relative;
+	/*position: absolute;*/
 	/*top: 20px;*/
 	/*display: inline;*/
-	min-width: 6px;
-	width: 100%;
+	/*min-width: 6px;*/
+	/*width: 100%;*/
 	height: 20px;
 	margin-left: -5px;
 	padding-left: 5px;
 	padding-right: 1px;
-	z-index: 2;
+	/*right: 0;*/
+	/*left: 43px;*/
+	/*z-index: 2;*/
+}
+
+div.eden-comment-blockquote {
+	border-left: 2px solid #2b4957;
+	background-color: #eee;
+	margin-left: 15px;
 }
 

@@ -1,0 +1,4351 @@
+/**
+ * @title Eden Base Library
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+#Debugging flags.
+debug = ${{ {jsExceptions: edenUI.getOptionValue("developer") == "true" } }}$;
+
+#Version
+jseden_version is jseden_version_major*10000000+jseden_version_minor*100000+jseden_version_patch*1000+jseden_version_commit;
+
+#MISSING FUNCTIONS
+
+proc eager {
+	if (autocalc == 0) {
+		autocalc = 1;
+		autocalc = 0;
+	};
+};
+
+func time {
+  ${{
+  var now = new Date();
+  return Math.floor(now.getTime() / 1000);
+  }}$;
+};
+
+jseden_notifications = [];
+proc writeln {
+	para text;
+	auto msg;
+	msg = str(text);
+	${{ console.log(msg); }}$;
+	append jseden_notifications,["log", msg];
+}
+
+#Raises an error if fewer or greater than two arguments are given.
+#Returns undefined if either argument is undefined.
+#tkeden returns strange strings beginning with the word "usage" in these situations.
+func apply {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("apply: This function requires exactly 2 arguments."), "error");
+			return undefined;			
+		} else if (typeof(arguments[0]) != "function") {
+			eden.error(new Error("apply: The first argument must be of type func or type proc, not " + typeof(arguments[0])), "error");
+			return undefined;
+		} else if (!Array.isArray(arguments[1])) {
+			eden.error(new Error("apply: The second argument must be of type list, not " + typeof(arguments[1])), "error");
+			return undefined;
+		} else {
+			return arguments[0].apply(this, arguments[1]);
+		}
+	}}$;
+}
+
+func forget {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("forget: This function requires exactly 1 argument."), "error");
+			return 2;
+		}
+	
+		var nameToDelete, symbolToDelete;
+		
+		if (typeof(arguments[0]) == "string") {
+			nameToDelete = arguments[0];
+			if (!(nameToDelete in root.symbols)) {
+				return 1;
+			}
+			symbolToDelete = root.lookup(nameToDelete);
+			if (symbolToDelete.garbage) {
+				return 1;
+			}
+			nameToDelete = "/" + nameToDelete;
+		} else if (arguments[0] instanceof Symbol) {
+			symbolToDelete = arguments[0];
+			nameToDelete = symbolToDelete.name;
+		} else {
+			eden.error(new Error("forget: The argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
+			return 1;
+		}
+		
+		if (nameToDelete == "/picture") {
+			root.lookup("picture").assign(undefined, root.scope, this);
+			return 3;
+		}
+
+		if (!symbolToDelete.canSafelyBeForgotten()) {
+			return 2;
+		}
+
+		symbolToDelete.forget();
+		/*
+		 * The new environment no longer seems to call this automatically at completion of execution, so call
+		 * it manually here to force a clean-up.  Hopefully nothing in the parser is holding onto a Symbol
+		 * object belonging to a forgotten observable, otherwise bad things will happen.
+		 * TODO: Verify that bad things don't happen.
+		 */
+		root.collectGarbage();
+		return 0;
+	}}$;
+};
+
+#Forgets all symbols whose names match a given regular expression or that are explicitly provided
+#as a list.  The optional second argument determines if the search is case sensitive.  The optional
+#third argument determines if the user will be prompted to confirm the deletions and the optional
+#forth parameter determines if system-defined symbols matching the search criteria will
+#also be deleted.
+#
+#Returns a list.
+# 1st element: A list of the symbol names that were successfully forgotten.
+# 2nd element: A list of the symbol names that matched the selection criteria but that could not be
+#	forgotten either because they are referenced by a dependency or because they act as a trigger for
+#	a triggered procedure, or because forgetAll is refusing to forget them because they are system-defined
+#	symbols.  This list item is undefined if an error occurs before the relationships between the
+#	observables have been analysed (such as if one or more of the arguments are invalid).
+# 3rd element: A list of symbol names that could not be forgotten but were set to the undefined
+#	value instead of being completely forgotten.  Names such as "picture" appear on this list
+#	because forgetting them would destroy some built-in system behaviours that the user might not
+#	know how recreate, such as redrawing the canvas if the picture observable is later given a new
+#	definition.
+#
+func forgetAll {
+	${{
+		var searchStr, caseSensitive, requireConfirm, includeSystemSymbols;
+		var regExp, symbol;
+		var obsToDelete = undefined;
+		var includeAgent = {name: "/include"};
+		
+		if (arguments.length > 4) {
+			eden.error(new Error("forgetAll: This function requires at most 4 arguments."), "error");
+			return [[], undefined, []];
+		}
+
+		if (arguments.length == 0) {
+			searchStr = "";
+		} else if (typeof(arguments[0]) == "string") {
+			searchStr = arguments[0];
+		} else if (Array.isArray(arguments[0])) {
+			obsToDelete = arguments[0];
+		} else if (arguments[0] === undefined) {
+			return [[], undefined, []];
+		} else {
+			eden.error(new Error("forgetAll: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			return [[], undefined, []];
+		}
+
+		if (arguments.length > 1) {
+			if (typeof(arguments[1]) != "boolean") {
+				eden.error(new Error("forgetAll: The second argument must be a boolean, not a " + typeof(arguments[1])), "error");
+				return [[], undefined, []];
+			}
+			caseSensitive = arguments[1];
+		} else {
+			caseSensitive = true;
+		}
+		
+		if (obsToDelete !== undefined && arguments.length > 2) {
+			eden.error(new Error("forgetAll: Cannot specify case sensitivity when selecting using a list."), "error");
+			return [[], undefined, []];
+		}
+		
+		if (arguments.length >= 3) {
+			if (typeof(arguments[2]) != "boolean") {
+				eden.error(new Error("forgetAll: The third argument must be a boolean, not a " + typeof(arguments[2])), "error");
+				return [[], undefined, []];
+			}
+			requireConfirm = arguments[2];
+		} else if (obsToDelete !== undefined && arguments.length == 2) {
+			requireConfirm = arguments[1];
+		} else {
+			requireConfirm = true;
+		}
+		
+		if (arguments.length > 3) {
+			if (typeof(arguments[3]) != "boolean") {
+				eden.error(new Error("forgetAll: The forth argument must be a boolean, not a " + typeof(arguments[3])), "error");
+				return [[], undefined, []];
+			}
+			includeSystemSymbols = arguments[3];
+		} else {
+			includeSystemSymbols = false;
+		}
+		
+		var references = {};
+		var unableToDelete = [];
+		var reset = {};
+
+		var initialDefinition;
+		if (obsToDelete !== undefined) {
+
+			//Observables given as a list.
+			for (var i = 0; i < obsToDelete.length; i++) {
+				var name;
+				if (obsToDelete[i] instanceof Symbol) {
+					name = obsToDelete[i].name.slice(1);
+					symbol = obsToDelete[i];
+				} else if (typeof(obsToDelete[i]) == "string") {
+					name = obsToDelete[i];
+					symbol = root.lookup(name);
+				} else if (obsToDelete === undefined) {
+					continue;
+				} else {
+					eden.error(new Error("forgetAll: All list items must be strings or pointers.  Item " + i + " is a " + typeof(obsToDelete[i])), "error");
+					return [[], undefined, []];
+				}
+
+				if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
+					unableToDelete.push(name);
+					continue;
+				}
+
+				initialDefinition = eden.initialDefinition(name);
+				if (initialDefinition) {
+					reset[name] = initialDefinition;
+				} else {
+					var referencedBy = [];
+					for (var dependency in symbol.subscribers) {
+						referencedBy.push(dependency.slice(1));
+					}
+					for (var triggeredProc in symbol.observers) {
+						referencedBy.push(triggeredProc.slice(1));
+					}
+					references[name] = referencedBy;
+				}
+			}
+
+		} else {
+
+			//Search for observables by regular expression.
+			if (caseSensitive) {
+				regExp = new RegExp(searchStr);
+			} else {
+				regExp = new RegExp(searchStr, "i");
+			}
+			var viewsRE = /^_[vV]iew(s?)_/;
+			
+			for (var name in root.symbols) {
+				if (regExp.test(name)) {
+					if (!includeSystemSymbols) {
+						if (Eden.isitSystemSymbol(name) || viewsRE.test(name)) {
+							continue;
+						}
+					}
+					
+					initialDefinition = eden.initialDefinition(name);
+					if (initialDefinition) {
+						reset[name] = initialDefinition;
+					} else {
+						symbol = root.symbols[name];
+						var referencedBy = [];
+						for (var dependency in symbol.subscribers) {
+							referencedBy.push(dependency.slice(1));
+						}
+						for (var triggeredProc in symbol.observers) {
+							referencedBy.push(triggeredProc.slice(1));
+						}
+						references[name] = referencedBy;
+					}
+				}
+			}
+		}
+		
+		var canForget = {};
+
+		/* Traverses the subgraph of symbols suggested for deletion and returns true if the named
+		 * symbol isn't referenced by anything outside of the subgraph.
+		 */
+		var isSafeToForget = function (name) {
+			if (name in canForget) {
+				return canForget[name];
+			}
+			if (name in reset) {
+				return true;
+			}
+			if (!(name in references)) {
+				canForget[name] = false;
+				return false;
+			}
+			var referencedBy = references[name];
+			if (referencedBy.length == 0) {
+				canForget[name] = true;
+				return true;
+			} else {
+				for (var i = 0; i < referencedBy.length; i++) {
+					var success = isSafeToForget(referencedBy[i]);
+					if (!success) {
+						canForget[name] = false;
+						return false;
+					}
+				}
+				canForget[name] = true;
+				return true;
+			}
+		};
+		
+		var namesToDelete = [];
+		for (name in references) {
+			var success = isSafeToForget(name);
+			if (success) {
+				namesToDelete.push(name);
+			} else {
+				unableToDelete.push(name);
+			}
+		}
+		
+		var confirmed;
+		var resetList = Object.keys(reset);
+		var deletePlusReset = namesToDelete.concat(resetList);
+		if (deletePlusReset.length > 0 && requireConfirm) {
+			if (deletePlusReset.length <= 50) {
+				confirmed = confirm("You are about to delete the following " + deletePlusReset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusReset.join("\n"));
+			} else {
+				var numNotDisplayed = deletePlusReset.length - 50;
+				confirmed = confirm("You are about to delete " + deletePlusReset.length +
+					" symbols.  Is this correct?\n\n" + deletePlusReset.slice(0, 50).join("\n") +
+					"\n...\n(" + numNotDisplayed + " more)");
+			}
+		} else {
+			confirmed = true;
+		}
+		
+		if (confirmed) {
+			var noop = function () { };
+			var wasInInitialState = eden.isInInitialState();
+			root.beginAutocalcOff();
+
+			for (name in reset) {
+				eden.execute(reset[name], "forgetAll", "", includeAgent, noop);
+			}
+
+			for (var i = 0; i < namesToDelete.length; i++) {
+				var name = namesToDelete[i];
+				symbol = root.symbols[name];
+				if (symbol !== undefined) {
+					if ("refreshView" in symbol.jsObservers) {
+						/* Set the symbol to undefined before deleting it, so at least it is clear
+						 * that the view is no longer valid and isn't merely "hung".
+						 */
+						symbol.assign(undefined, root.scope);
+						if (edenUI.plugins.Canvas2D && edenUI.plugins.Canvas2D.destroyViews) {
+							// Close the window if it's a canvas picture observable. (JS-EDEN 1.2.2 and earlier).
+							edenUI.plugins.Canvas2D.destroyViews(name);
+						}
+					}
+					symbol.forget();
+					// Close the window if this observable defines the content for a view (e.g. canvas).
+					var match = name.match(/^_view_(.*)_content$/);
+					if (match !== null) {
+						edenUI.destroyView(match[1], true);
+					}
+				}
+			}
+			if (wasInInitialState) {
+				eden.captureInitialState(); //Re-assert still in initial state.		
+			}
+			/*
+			 * The new environment no longer seems to call this automatically at completion of execution, so call
+			 * it manually here to force a clean-up.  Hopefully nothing in the parser is holding onto a Symbol
+			 * object belonging to a forgotten observable, otherwise bad things will happen.
+			 * TODO: Verify that bad things don't happen.
+			 */
+			root.collectGarbage();
+			root.endAutocalcOff();
+			return [namesToDelete, unableToDelete, resetList];
+		} else {
+			return [[], unableToDelete, []];
+		}
+		
+	}}$;
+}
+
+proc error {
+	para msg;
+	append jseden_notifications,["error",msg];
+}
+
+func nameof {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("nameof: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+
+		var pointer = arguments[0];
+		
+		if (pointer instanceof Symbol) {	
+			return pointer.name.slice(1);
+		} else if (
+			pointer !== null &&
+			typeof(pointer) == "object" &&
+			"keys" in pointer &&
+			Array.isArray(pointer.keys) &&
+			pointer.keys.length > 0 &&
+			"parent" in pointer &&
+			pointer.parent instanceof Symbol
+		) {
+			return pointer.parent.name.slice(1) + "[" + pointer.keys[0] + "]";
+		} else {
+			eden.error(new Error("nameof: The argument must be a pointer, not a " + typeof(pointer)), "error");
+			return undefined;
+		}
+	}}$;
+}
+
+proc todo {
+	para p1;
+	auto code;
+	auto argc;
+
+	argc = ${{ arguments.length }}$;
+
+	if (argc != 1) {
+		error("todo: This proc requires exactly 1 argument.");
+		return;
+	}
+	
+	code = p1;
+	
+	if (code == @) {
+		return;
+	} else if (!isString(code)) {
+		error("todo: The argument must be of type string, not " // type(code));
+		return;
+	}
+	
+	code = code // ";";
+	
+	after (0) {
+		execute(code);
+	}
+}
+
+proc touch {
+	${{
+		root.beginAutocalcOff();
+		for (var i = 0; i < arguments.length; i++) {
+			if (arguments[i] instanceof Symbol) {
+				root.expireSymbol(arguments[i]);
+			} else {
+				eden.error(new Error("touch: Argument " + (i+1) + " must be a pointer, not a " + typeof(arguments[i])), "error");
+			}
+		}
+		root.endAutocalcOff();
+	}}$;
+}
+
+#A new JS-EDEN specific function.
+func doDefault {
+	para value, defaultValue;
+	auto argc;
+
+	argc = ${{ arguments.length }}$;
+
+	if (argc != 2) {
+		error("doDefault: This function requires exactly 2 arguments.");
+	}
+	if (value == @) {
+		if (defaultValue == @) {
+			error("doDefault: The default value cannot be undefined.");
+		} else {
+			return defaultValue;
+		}
+	} else {
+		return value;
+	}
+}
+
+proc arrangeWindows {
+	para windowOrder;
+	auto name, i, sumSym;
+
+	if (windowOrder == @) {
+		windowOrder = views_list;
+	} else  {
+		for (i =  1; i <= views_list#; i++) {
+			if (positionInList(views_list[i], windowOrder) == 0) {
+				windowOrder = windowOrder // [views_list[i]];
+			}
+		}
+	}
+
+	sumSym = "curr_x" + str(randomInteger(0, 9007199254740991));
+	execute(sumSym // " = 0;");
+	for (i = 1; i <= windowOrder#; i++) {
+		name = windowOrder[i];
+		/*
+		if (`"view_"//name//"_position"` != @) {
+			continue;
+		}
+		`"view_"//name//"_x"` = curr_x;
+		`"view_"//name//"_y"` = 0;
+		curr_x += `"view_"//name//"_width"` + 27;
+		*/
+		execute("view_" // name // "_x = " // sumSym // ";");
+		execute("view_" // name // "_y = 0;");
+		execute(sumSym // " += view_" // name // "_width + 27;");
+	}
+	forget(sumSym);
+}
+
+# Temporary: Include using the new parser.
+func include2 {
+	para file;
+	${{ edenUI.eden.include2(arguments[0]) }}$;
+}
+
+func execute2 {
+	para script;
+	${{ edenUI.eden.execute2(arguments[0]) }}$;
+}
+
+func agentFromFile {
+	para name, file, exec;
+	${{ edenUI.eden.agentFromFile(arguments[0],arguments[1],arguments[2]) }}$;
+}
+
+#Autocalc compatibility
+autocalc = 1;
+
+#Include the rest of the library
+
+action type {
+/**
+ * @title Type Checking
+ * Copyright (c) 2014, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * Functions for casting between types, determining the type to which a value
+ * belongs, etc.
+ */
+
+#=============================================================================
+#Type casting functions.
+
+/**
+ * Convert some value into a character.
+ *   @param value The source value.
+ * #library #type #character
+ */
+func char {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("char: this function requires exactly one argument."), "error");
+			return undefined;		
+		}
+		var type = typeof(arguments[0]);
+		if (type == "boolean") {
+			return arguments[0]? String.fromCharCode(1) : String.fromCharCode(0);
+		} else if (type == "number") {
+			return String.fromCharCode(arguments[0]);
+		} else if (type == "string") {
+			return arguments[0].charAt(0);
+		} else {
+			return undefined;
+		}
+	}}$;
+}
+
+/**
+ * Casts a value to an int.
+ *
+ * Improvements (over the previously built-in function of the same name):
+ *
+ * Strings that don't begin with a digit now return the character code of the
+ * first and only character if the string is exactly one character long and zero
+ * otherwise.  Previously NaN was returned.
+ *
+ * Boolean values are converted into 1 and 0.
+ *
+ * Values belonging to types other than numbers, strings and Booleans result in
+ * undefined being returned instead of NaN.
+ *
+ * Continuing discrepancies with tkeden:
+ *
+ * Because JavaScript doesn't have a separate character type distinct from
+ * strings, applying this function to a numeral returns a number in the range
+ * 0-9 (favouring the string interpretation) and not the ASCII character code
+ * (the character interpretation).  So int('A') is 65 but int('0') is 0, not 48.
+ *
+ * Pointer values result in undefined being returned because there is no way to
+ * get JavaScript to reveal the memory address of a variable.
+ *    @param value The original value.
+ * #library #types #number
+ */
+func int {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("int: this function requires exactly one argument."), "error");
+			return undefined;
+		}
+
+		var value = arguments[0];
+		var type = typeof(value);
+		var number = parseInt(value);
+
+		switch (type) {
+			case "number":
+				return number;
+			case "string":
+				if (!isNaN(number)) {
+					return number;
+				} else if (arguments[0].length == 1) {
+					return value.charCodeAt();
+				} else {
+					return 0;
+				}
+			case "boolean":
+				return value? 1 : 0;
+			default:
+				return undefined;
+		}
+	}}$;
+}
+
+/**
+ * `int('0')` incorrectly gives 0 instead of 48.  This complementary function
+ * (a JS-EDEN specific addition) always gives the Unicode character code,
+ * including for numerals.  Unlike int() this function raises an error if its
+ * argument is not a single character.
+ * #library #types
+ */
+func charCode {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("charCode: this function requires exactly one argument."), "error");
+			return undefined;			
+		}
+		
+		var value = arguments[0];
+		if (value === undefined) {
+			return undefined;
+		} else if (typeof(value) != "string") {
+			eden.error(new Error("charCode: The argument must be a string, not a " + typeof(value)), "error");
+			return undefined;
+		} else if (value.length != 1) {
+			eden.error(new Error("charCode: The argument must be a single character, not " + value), "error");
+			return undefined;
+		} else {
+			return value.charCodeAt(0);
+		}
+	}}$;
+}
+
+/**
+ * Convert a value of any type to a string.
+ *   @param value The original value to convert.
+ * #library #types #string
+ */
+func str {
+	para v;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc != 1) {
+		error("str: this function requires exactly one argument.");
+		return @;		
+	}
+
+	if (v == @) {
+		return "undefined";
+	} else if (isString(v)) {
+		return v;
+	} else {
+		return edenCode(v);
+	}
+}
+
+#=============================================================================
+#Type testing functions.
+
+/**
+ * `type(expr)` Determines the type of an expression.
+ *
+ * Differences from tkeden:
+ * Returns "object" if its argument is a JavaScript object or "@" if it's null.
+ *
+ * JavaScript doesn't make a distinction between integer and floating point
+ * expressions.  JavaScript only has a single numeric type and it's a floating
+ * point type.  This function will check if the value is an integer or not but
+ * type(1.5 + 2.5) incorrectly returns "int".  "@" is returned for NaNs.  tkeden
+ * flags expressions such as 0/0 as unrecoverable errors and thus NaNs don't
+ * arise in tkeden.
+ *
+ * JavaScript has a dedicated Boolean type and this function will return
+ * "boolean" when applied to Boolean expressions.  This is internally consistent
+ * with JS-EDEN but when this function returns "boolean" tkeden would have
+ * returned "int".
+ *
+ * Attempts to return "func" for all built-in and user-defined functions and
+ * "proc" for all built-in and user-defined procs.  However, the determination
+ * of whether a value is a func or a proc is based solely on whether the
+ * compiled JavaScript contains a return statement that returns a value.  It is
+ * not based on whether the original EDEN definition began with the keyword func
+ * or the keyword proc.  Because the only information being provided to this
+ * function is the value itself and not anything more substantial (such as a
+ * symbol table name), we can't 100% reliably distinguish between func-s, proc-s
+ * and built-ins because the values of all three are just JavaScript values that
+ * look like function () {...} in JavaScript.
+ *
+ * Possible return values are:
+ * "boolean", "float", "func", "int", "list", "object", "pointer", "proc",
+ * "string" and "@".
+ *
+ * This function never returns "char" because JavaScript doesn't have a character
+ * type, only strings of length one.  There seems no obvious reason to prefer
+ * classifying such a value as a character rather than string of length one.
+ * (But distinguishing integers from reals where possible has many practical
+ * applications.)
+ *
+ * Use this function to get a string representation of the type to which a value
+ * belongs.  To determine if a value belongs to one specific type then the isXXX
+ * functions defined below (unavailable in tkeden) execute faster and provide a
+ * more lucid form of expression than tests such as, if (type(v) == "string").
+ * #library #types
+ */
+func type {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("type: this function requires exactly one argument."), "error");
+			return undefined;
+		}
+
+		var value = arguments[0];
+		
+		if (value === null) {
+			return "@";
+		}
+		
+		var typeName = typeof(value);
+		
+		if (typeName == "undefined") {
+			return "@";
+		} else if (typeName == "number") {
+			if (isNaN(value)) {
+				return "@";
+			} else if (Number.isInteger(value)) {
+				return "int";
+			} else {
+				return "float";
+			}
+		} else if (Array.isArray(value)) {
+			return "list";
+		} else if (typeName == "function") {
+			/* Trying to simplify the following expression confuses the JS-EDEN
+			 * parser, which doesn't understand comment characters inside a reg
+			 * exp inside JavaScript inside EDEN code.
+			 */
+			if ((new RegExp("\\breturn\\s+([^\\/;]|(\\/[^\\/" + "*]))")).test(value.toString())) {
+				return "func";
+			} else {
+				return "proc";
+			}
+		} else if (
+			(value instanceof Symbol) || (
+				typeName == "object" &&
+				"keys" in value &&
+				Array.isArray(value.keys) &&
+				value.keys.length > 0 &&
+				"parent" in value &&
+				value.parent instanceof Symbol
+		)) {
+			return "pointer";
+		} else {
+			//boolean, object or string
+			return typeName;
+		}
+	}}$;
+}
+
+/** Tests if a value is a Boolean value. #library #types */
+func isBoolean {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isBoolean: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return typeof(arguments[0]) == "boolean";
+	}}$;
+}
+
+/** Tests if a value is a func or a proc. #library #types */
+func isCallable {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isCallable: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return typeof(arguments[0]) == "function";
+	}}$;
+}
+
+/** Tests if a value is a char value (string of length 1). #library #types */
+func isChar {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isChar: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return typeof(arguments[0]) == "string" && arguments[0].length == 1;
+	}}$;
+}
+
+/** #library #types */
+func isDefined {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isDefined: This function requires exactly 1 argument."), "error");
+			return undefined;
+		} else if (arguments[0] === undefined) {
+			return undefined;
+		} else if (typeof(arguments[0]) == "string") {
+			var name = arguments[0];
+			return name in root.symbols;
+		} else {
+			eden.error(new Error("isDefined: The argument must be a string, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		}
+	}}$;
+}
+
+/**
+ * Tests if a value is defined in the modelling sense.  To be defined a value
+ * must not be:
+ *
+ *	1.	The undefined value
+ *		Referred to as @ in EDEN or by the word undefined in JavaScript.
+ *	2.	The null object
+ *		null can't have properties attached to it or accept standard method
+ *		invocations like toString(), unlike all other object-typed values.
+ *	3.	A NaN
+ *		Although NaNs are part of the JavaScript number type that EDEN
+ *		inherits, NaNs are not numbers from a modelling perspective.  An
+ *		expression that evaluates to NaN, such as 0/0 has mathematical
+ *		conceptions that are something akin to "undefined".  Also, expressions
+ *		such as 0/0 == 0/0 evaluate to false because one NaN value is never
+ *		equal to another NaN value, which is mathematically queer.
+ * #library #types
+ */
+func isValue {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isValue: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var v = arguments[0];
+		return v !== undefined && v !== null && (typeof(v) != "number" || !isNaN(v));
+	}}$;
+}
+
+/** Tests if a value is a func. #library #types #function */
+func isFunc {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isFunc: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var value = arguments[0];
+		return typeof(value) == "function" && (new RegExp("\\breturn\\s+([^\\/;]|(\\/[^\\/" + "*]))")).test(value.toString());
+	}}$;
+}
+
+/** Tests if a value is an integer. #library #types #number */
+func isInt {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isInt: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var v = arguments[0];
+		return Number.isInteger(v);
+	}}$;
+}
+
+/** Tests if a value is a list. #library #types #list */
+func isList {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isList: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return Array.isArray(arguments[0]);
+	}}$;
+}
+
+/** Tests if a value is a NaN. #library #types #number */
+func isNaN {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isNaN: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return isNaN(arguments[0]);
+	}}$;
+}
+
+/** Tests if a value is a number (float or int). #library #types #number */
+func isNumber {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isNumber: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return typeof(arguments[0]) == "number";
+	}}$;
+}
+
+/**
+ * Tests if a value is an object (non-null).  Although JS-EDEN internally
+ * represents pointers as JavaScript objects, pointers are a distinct type as
+ * far EDEN is concerned.
+ * #library #types
+ */
+func isObject {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isObject: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return arguments[0] !== null && typeof(arguments[0]) == "object" && !Array.isArray(arguments[0]) && !root.lookup("isPointer").definition(root)(arguments[0]);
+	}}$;
+}
+
+/** #library #types */
+func isPoint {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isPoint: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return (arguments[0] instanceof Point);
+	}}$;
+}
+
+/** Tests if a value is a pointer. #library #types */
+func isPointer {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isPointer: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var value = arguments[0];
+		return (value instanceof Symbol) || (
+				typeof(value) == "object" &&
+				"keys" in value &&
+				Array.isArray(value.keys) &&
+				value.keys.length > 0 &&
+				"parent" in value &&
+				value.parent instanceof Symbol);
+	}}$;
+}
+
+/** Tests if a value is a proc. #types #library #procedure */
+func isProc {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isProc: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		var value = arguments[0];
+		return typeof(value) == "function" && !(new RegExp("\\breturn\\s+([^\\/;]|(\\/[^\\/" + "*]))")).test(value.toString());
+	}}$;
+}
+
+/** Tests if a value is a string. #library #string #types */
+func isString {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("isString: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		return typeof(arguments[0]) == "string";
+	}}$;
+}
+}
+
+action core {
+/**
+ * Core library functions such as createView.
+ *
+ * @title Core Library
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+/**
+ * Execute a string as JS-Eden script.
+ *   @param script The script to interpret.
+ */
+func execute {
+	para script;
+	${{ eden.execute2(script, "execute", "", {name: "/execute"}, function () { } ); }}$;
+}
+
+/**
+ * Generate a new dictionary object. It can be given an even number of arguments
+ * which act as key and value pairs to set in the dictionary object returned.
+ *	@return A dictionary object with the given key-value pairs.
+ */
+func Object {
+	${{
+		if (arguments.length % 2 == 1) {
+			eden.error(new Error("Object: This function requires an even number of arguments, not " + arguments.length + " arguments."), "error");
+			return undefined;
+		}
+
+		var result = {};
+		for (var i = 0; i < arguments.length - 1; i = i + 2) {
+			var key = arguments[i];
+			if (typeof(key) != "string") {
+				eden.error(new Error("Object: Argument " + String(i + 1) + " must be a string, not a " + typeof(key)), "error");
+				return undefined;
+			}
+			result[key] = arguments[i + 1];
+		}
+		return result;
+	}}$;
+}
+
+/**
+ * Make a point object.
+ *   @param x X-Coordinate
+ *   @param y Y-Coordinate
+ *   @return Javascript Point Object
+ */
+func Point {
+	para x,y;
+	${{ return new Point(x, y); }}$;
+}
+
+/**
+ * Create new window of a particular type. Some examples of common types are:
+ *   Canvas2D, ScriptView, SymbolList.
+ *
+ *   @param name Some custom but unique name for the window.
+ *   @param type One of the allowed types of window.
+ *   @return A view data object.
+ */
+proc createView {
+	para name, type;
+	${{ edenUI.createView(name, type, this); }}$;
+}
+
+${{
+	root.lookup("views_list").addJSObserver("createAndDestroy", function (sym, viewNameList) {
+		var maxViewNumber = 0;
+		var viewNames = {};
+		var viewName, typeSym, viewType;
+		// Create any new views whose names have been inserted into the list.
+		function addTypeObserver(symbol, name) {
+			symbol.addJSObserver("changeType", function (sym, newType) {
+				if (newType !== undefined && root.lookup("views_list").value().indexOf(name) !== -1) {
+					edenUI.createView(name, newType);
+				}
+			});		
+		}
+
+		if (viewNameList) {
+			for (var i = 0; i < viewNameList.length; i++) {
+				viewName = viewNameList[i];
+				typeSym = root.lookup("view_" + viewName + "_type");
+				viewType = typeSym.value();
+
+				if (viewType === undefined) {
+					addTypeObserver(typeSym, viewName);
+				} else if (!(viewName in edenUI.activeDialogs)) {
+					edenUI.createView(viewName, viewType);
+				}
+
+				viewNames[viewName] = true;
+
+				var match = viewName.match(/(\d+)$/);
+				if (match !== null) {
+					var viewNumber = parseInt(match[1]);
+					if (viewNumber > maxViewNumber) {
+						maxViewNumber = viewNumber;
+					}
+				}
+			}
+		}
+		/* Destroy any views whose names have been removed from the list but preserve their observables.
+		 * Use the destroyView procedure to destroy a view and forget its observables. 
+		 */
+		for (viewName in edenUI.activeDialogs) {
+			if (!(viewName in viewNames)) {
+				edenUI.destroyView(viewName, false);
+			}
+		}
+		// Keep track of what to call the next view that is created using the menu bar.
+		var numViewsSym = root.lookup("views_number_created");
+		if (numViewsSym.value() < maxViewNumber) {
+			numViewsSym.assign(maxViewNumber, root.scope, Symbol.hciAgent);
+		}
+	});
+}}$;
+
+/**
+ * Make sure the named view is visible. It must already have been created.
+ *   @param name The name of the view.
+ */
+proc showView {
+	para name;
+	`"view_" // name // "_visibility"` = "visible";
+	${{
+		edenUI.showView(name); //Explicitly invoke this to make sure the view gets moved to the top.
+		edenUI.brieflyHighlightView(name);
+	}}$;
+}
+
+proc hideView {
+	para name;
+	`"view_" // name // "_visibility"` = "hidden";
+}
+
+proc highlightView {
+	para name;
+	${{ edenUI.highlightView(name, false); }}$;
+}
+
+proc stopHighlightingView {
+	para name;
+	${{ edenUI.stopHighlightingView(name, false, false); }}$;
+}
+
+proc destroyView {
+	para name;
+	${{ edenUI.destroyView(name, true); }}$;
+}
+
+proc moveView {
+	para name, x, y;
+	autocalc = 0;
+	/*together {*/
+		`"view_" // name // "_x"` = x;
+		`"view_" // name // "_y"` = y;
+	/*}*/
+	autocalc = 1;
+}
+
+proc resizeView {
+	para name, width, height;
+	autocalc = 0;
+	#together {
+		`"view_" // name // "_width"` = width;
+		`"view_" // name // "_height"` = height;
+	#}
+	autocalc = 1;
+}
+
+/*
+ * The summed dimensions of all window borders, title bars, scroll bars and any
+ * other parts that are not part of a view's content.  _view_xxx_width +
+ * _views_frame_width gives the first x position where another view can be
+ * placed without overlapping with xxx.
+ */
+views_frame_width = ${{ edenUI.dialogFrameWidth }}$;
+views_frame_height = ${{ edenUI.dialogFrameHeight }}$;
+/** The size of the grid squares that windows snap to. #grid @oracle */
+views_unit_x = ${{ edenUI.gridSizeX }}$;
+/** The size of the grid squares that windows snap to. #grid @oracle */
+views_unit_y = ${{ edenUI.gridSizeY }}$;
+
+/** The maximum width a view can be if it fits within the browser window without scrolling.
+ *  @oracle
+ */
+screenWidth = ${{ window.innerWidth }}$ - 2;
+/** The maximum height a view can be if it fits within the browser window without scrolling.
+ *  @oracle
+ */
+screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2}}$;
+${{
+	window.addEventListener("resize", function (event) {
+		root.beginAutocalcOff();
+		root.lookup("screenWidth").assign(window.innerWidth - 2, root.scope, Symbol.defaultAgent);
+		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2, root.scope, Symbol.defaultAgent);
+		root.endAutocalcOff();
+	});
+}}$;
+
+${{
+	showSymbols = function (type, searchStr, viewName, searchLang) {
+		if (arguments.length > 4) {
+			eden.error(new Error("show" + type + "s: This procedure requires at most 3 parameters."), "error");
+			return;
+		}
+
+		if (searchStr === undefined) {
+			searchStr = "";
+		}
+		if (typeof(searchStr) != "string") {
+			eden.error(new Error("show" + type + "s: The first argument must be a string, not a " + typeof(searchStr)), "error");
+			return;
+		}
+		
+		if (viewName === undefined) {
+			viewName = "show" + type + "s";
+		} else if (typeof(viewName) != "string") {
+			eden.error(new Error("show" + type + "s: The second argument must be a string, not a " + typeof(viewName)), "error");
+			return;
+		}
+
+		if (searchLang !== undefined && typeof(searchLang) != "string") {
+			eden.error(new Error("show" + type + "s: The third argument must be a string, not a " + typeof(viewName)), "error");
+			return;	
+		}
+
+		var preferRegExps = edenUI.getOptionValue("optSimpleWildcards") === "false";
+		if (preferRegExps) {
+			if (searchLang == "regexp") {
+				//No need for explicit override, user prefers regexps (for now) anyway.
+				searchLang = undefined;
+			} else {
+				//Construal specified simple search (or unspecified), but user prefers regexps, so translate.
+				var fromLang;
+				if (searchLang === undefined) {
+					//The following line should match the same heuristic check in edenUI.regExpFromStr
+					if (/[\\+^$|({[]|(\.\*[^\s*?])/.test(searchStr)) {
+						//Auto detect regular expression being used.
+						fromLang = "regexp";
+					} else {
+						fromLang = "simple";
+					}
+				}
+				if (fromLang != "regexp" && searchStr != "") {
+					searchStr = edenUI.regExpFromStr(searchStr, "", false, fromLang).source;
+				}
+			}
+		} else if (searchLang == "simple") {
+			//No need for explicit override, user prefers simple search (for now) anyway.
+			searchLang = undefined;
+		}
+
+		var existingViewType = root.lookup("view_" + viewName + "_type").value();
+		if (existingViewType != type + "List") {
+			root.lookup("view_" + viewName + "_title").assign(type + " List (" + viewName + ")", root.scope, this);
+		}
+		edenUI.createView(viewName, type + "List");
+		root.lookup("view_" + viewName + "_search_language").assign(searchLang, root.scope, this);
+		root.lookup("view_" + viewName + "_search_string").assign(searchStr, root.scope, this);
+	}
+}}$;
+
+proc showAgents {
+	${{
+		showSymbols("Agent", arguments[0], arguments[1], arguments[2]);
+	}}$;
+}
+
+proc showFunctions {
+	${{
+		showSymbols("Function", arguments[0], arguments[1], arguments[2]);
+	}}$;
+}
+
+proc showObservables {
+	${{
+		showSymbols("Observable", arguments[0], arguments[1], arguments[2]);
+	}}$;
+}
+
+proc showSymbols {
+	${{
+		showSymbols("Symbol", arguments[0], arguments[1], arguments[2]);
+	}}$;
+}
+
+/**
+ * Query scripts for specific statements and documentation using a selector
+ * that navigates the syntax trees to find matches. The second parameter
+ * chooses what output to give, and is one of the following strings:
+ *
+ * * "source" - The source code for the matching statements.
+ * * "comment" - The full doxy comment for the matches.
+ * * "brief" - A one sentence comment for each result.
+ * * "tags" - All hashtags in each result.
+ * * "id" - A unique selector to get each result.
+ * * "line" - Line number of that result in its script.
+ * * "@..." - Where ... is any control name.
+ *
+ * The function returns a list of results, which may be empty. It never
+ * returns undefined.
+ *
+ * The first parameter is the selector, some examples of which are:
+ *
+ * * `examples/loops > #Step1` All statements in examples/loop script containing the hashtag #Step1 in their comments.
+ * * `lift/liftsim > :5` The 5th statement in the lift/liftsim script.
+ * * `wmb/ * #demo > when` All "when" statements in scripts starting with "wmb/" and are tagged with #demo.
+ * * `logo/basic > when:depends(turtle_x) > :2` The second statement in all when statements that depend upon `turtle_x` in the script `logo/basic`.
+ */
+func querySelector {
+	para q,o;
+	if (o == @) o = "id";
+	${{
+		return Eden.Selectors.query(q,o);
+	}}$;
+}
+
+}
+
+action list {
+/**
+ * @title List Library
+ *  Copyright (c) 2014, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * Functions that operate on lists.
+ */
+
+/**
+ * Generate an array of size n filled with a default value.
+ *   @param n Size of array to make.
+ *   @param [default] Fill it with this value.
+ *   @return New array of size n.
+ *   @deprecated
+ *   #library
+ * 
+ * If the first argument is undefined then the result is undefined.
+ * If more than two arguments are provided then an error is raised.
+ * #library #list
+ */
+func array {
+	${{
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("array: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;			
+		}
+		
+		var n = arguments[0];
+
+		if (n === undefined) {
+			return undefined;
+		} else if (typeof(n) != "number" || !Number.isInteger(n)) {
+			eden.error(new Error("array: The first argument must be an int, not a " + typeof(n)), "error");
+			return undefined;
+		}
+		
+		var arr = new Array(n);
+		if (arguments[1] !== undefined) {
+			for (var i = 0; i < n; i++) {
+				arr[i] = arguments[1];
+			}
+		}
+		return arr;
+	}}$;
+}
+
+/**
+ * Returns the position of first argument in the list if it is found somewhere
+ * in the list given by the second argument, zero if it's not in the list or
+ * undefined if the list is undefined.
+ *
+ * The optional third argument allows a initial portion of the list to be omitted
+ * from the search.
+ *
+ * If the optional forth argument is true then the list is assumed to be in
+ * alphabetical order, ascending numerical order or nested list lexicographic
+ * order and a binary search algorithm will be used for increased efficiency,
+ * otherwise a linear search will be used.
+ * #library #string #list #search
+ */
+func positionInList {
+	${{
+		if (arguments.length < 2 || arguments.length > 4) {
+			eden.error(new Error("positionInList: This function requires a minimum of 2 arguments and a maximum of 4 arguments."), "error");
+			return undefined;
+		}
+		
+		var searchValue = arguments[0];
+		var list = arguments[1];
+		var lowerBound = arguments[2]
+		var isSorted = arguments[3];
+		var low, high, middle, element;
+
+		if (list === undefined) {
+			return undefined;
+		} else if (!Array.isArray(list)) {
+			eden.error(new Error("positionInList: The second argument must be a a list, not a " + typeof(list)), "error");
+			return undefined;
+		} 
+
+		if (lowerBound === undefined) {
+			low = 0;
+		} else if (!Number.isInteger(lowerBound) || lowerBound < 1) {
+			eden.error(new Error("positionInList: The third argument must be a positive integer, not a " + typeof(lowerBound)), "error");
+			return undefined;
+		} else if (lowerBound > 0) {
+			low = lowerBound - 1;
+		} else {
+			low = 0;
+		}
+
+		if (isSorted !== undefined && typeof(isSorted) != "boolean") {
+			eden.error(new Error("positionInList: The fourth argument must be a Boolean, not a " + type(isSorted)), "error");
+			return undefined;
+		}
+
+		high = list.length - 1;
+		if (high == -1) {
+			return 0;
+		}
+
+		if (isSorted) {
+			while (low <= high) {
+				middle = Math.floor((low + high) / 2);
+				element = list[middle];
+				if (element > searchValue) {
+					high = middle - 1;
+				} else if (element < searchValue) {
+					low = middle + 1;
+				} else {
+					return middle + 1;
+				}
+			}
+		} else if (Array.isArray(searchValue)) {
+			for (var i = low; i <= high; i++) {
+				if (arrayCompare(searchValue, list[i])) {
+					return i + 1;
+				}
+			}
+		} else if (low == 0) {
+			return list.indexOf(searchValue) + 1;
+		} else {
+			for (var i = low; i <= high; i++) {
+				if (list[i] == searchValue) {
+					return i + 1;
+				}
+			}
+		}
+		return 0;
+	}}$;
+}
+
+/**
+ * Reverse a list.
+ *   @param list
+ *   @return Reverse of the list.
+ *   #library #list
+ */
+func reverse {
+	para list;
+	auto result, i;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc != 1) {
+		error("reverse: This function requires exactly one argument.");
+		return @;
+	}
+	if (list == @) {
+		return @;
+	} else if (type(list) != "list") {
+		error("reverse: The argument must be a list, not a " // type(list));
+		return @;
+	}
+	
+	result = array(list#, @);
+	for (i = 1; i <= list#; i++) {
+		result[i] = list[list# - i + 1];
+	}
+	return result;
+}
+
+/**
+ * Search a string or a list.
+ *
+ * This function is identical to indexOf except:
+ *
+ * It takes an additional parameter that specifies a custom comparison function
+ * to use instead of the built-in less than operator.
+ *
+ * If the first argument is a string then it is only possible to search for a
+ * single character, not an arbitrary substring.
+ *   @param searchValue The value to search for.
+ *   @param list The list to search
+ *   @param compare A function pointer to use as comparator.
+ *   @param [lowerBound]
+ *   @param [isSorted]
+ *   @return Index of the value if found.
+ *   #library #list #string
+ */
+func search {
+	para searchValue, list, compare, lowerBound, isSorted;
+	auto low, high, middle, relativeOrder, element, i, haystackType;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 3 || argc > 5) {
+		error("search: this function requires a minimum of 3 arguments and a maximum of 5 arguments.");
+		return @;
+	}
+
+	if (list == @) {
+		return @;
+	}
+
+	haystackType = type(list);
+	if (haystackType == "string") {
+		if (type(searchValue) != "string") {
+			error("search: the first argument is a string so the second argument must also be a string and not a " // type(searchValue));
+			return @;
+		}
+		if(searchValue# > 1) {
+			error("search: search can only find a character within a string, not a string of length " // str(searchValue#));
+			return @;
+		}
+	} else if (haystackType != "list") {
+		error("indexOf: the first argument must be a string or a list, not a " // haystackType);
+		return @;
+	}
+
+	high = list#;
+	if (high == 0) {
+		return 0;
+	}
+
+	if (lowerBound == @) {
+		low = 1;
+	} else {
+		low = lowerBound;
+	}
+
+	if (isSorted) {
+		while (low <= high) {
+			middle = int((low + high) / 2);
+			element = list[middle];
+			relativeOrder = compare(element, searchValue);
+			if (relativeOrder > 0) {
+				high = middle - 1;
+			} else if (relativeOrder < 0) {
+				low = middle + 1;
+			} else {
+				return middle;
+			}
+		}
+	} else {
+		for (i = low; i <= high; i++) {
+			if (compare(list[i], searchValue) == 0) {
+				return i;
+			}
+		}
+	}
+	return 0;
+}
+
+/**
+ * Returns the list equal to the first argument sorted according to the
+ * collation order specified by the second argument.  Valid values for the
+ * second parameter are:
+ *
+ *  * @ - Return the original list without sorting the items.
+ *  * "ascending" - Sort the items in ascending order according to the values returned by
+ *      JavaScript's less than (<) and greater than (>) operators.  Lists of
+ *      strings will be sorted alphabetically, lists of numbers will be sorted
+ *      numerically and lists of lists will be sorted lexicographically.
+ *  * "descending" - Sort the items in descending order according to the values returned by
+ *      JavaScript's less than (<) and greater than (>) operators.
+ *  * a function - The function should take two parameters and return a positive
+ *      value if the first argument should be appear after the second argument
+ *      in the result list, a negative value if it should appear before and zero
+ *      if the two arguments are equal.
+ *
+ * If the second parameter is omitted then the result is the same as if 1 was
+ * specified.
+ *
+ * If one of the list items is undefined then the undefined value will remain in
+ * in the same position in the output list and the two sublists formed by
+ * considering the items before and after the undefined value will be sorted
+ * separately.
+ *   @param list The list to be sorted.
+ *   @param [order] Change direction or sorting function.
+ *   @return Sorted list.
+ *   #library #list
+ */
+func sort {
+	${{ 
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("sort: this function requires a minimum of 1 argument and a maximum of 2 arguments."), "error");
+			return undefined;		
+		}
+		var values = arguments[0];
+		var sortingSingleString;
+		if (values === undefined) {
+			return undefined;
+		} else if (typeof(values) == "string") {
+			values = values.split("");
+			sortingSingleString = true;
+		} else if (!Array.isArray(values)) {
+			eden.error(new Error("sort: first argument must be a list or a string, not a " + typeof(values) + "."), "error");
+			return undefined;
+		} else {
+			values = values.slice();
+			sortingSingleString = false;
+		}
+		
+		var sortFunction;
+		if (arguments.length < 2) {
+			sortFunction = "ascending";
+		} else {
+			sortFunction = arguments[1];
+		}
+		
+		if (sortFunction === undefined) {
+			return values;
+		} else if (sortFunction == "ascending") {
+			if (sortingSingleString) {
+				sortFunction = undefined;
+			} else {
+				sortFunction = function (a, b) {
+					if (a > b) {
+						return 1;
+					} else if (a < b) {
+						return -1;
+					} else {
+						return 0;
+					}
+				}
+			}
+		} else if (sortFunction == "descending") {
+			sortFunction = function (a, b) {
+				if (a > b) {
+					return -1;
+				} else if (a < b) {
+					return 1;
+				} else {
+					return 0;
+				}
+			}
+		} else if (typeof(sortFunction) != "function") {
+			eden.error(new Error("sort: unknown collation order " + sortFunction), "error");
+			return undefined;
+		}
+		
+		if (sortingSingleString) {
+			return values.sort(sortFunction).join("");
+		} else {
+			var begin = 0;
+			var sorted, partition;
+			for (var i = 0; i < values.length; i++) {
+				if (values[i] === undefined) {
+					partition = values.slice(begin, i);
+					partition.sort(sortFunction);
+					if (sorted === undefined) {
+						sorted = partition;
+					} else {
+						sorted = sorted.concat(partition);
+					}
+					sorted.push(undefined);
+					begin = i + 1;
+				}
+			}
+
+			partition = values.slice(begin, values.length);
+			partition.sort(sortFunction);
+			if (sorted === undefined) {
+				sorted = partition;
+			} else {
+				sorted = sorted.concat(partition);
+			}
+			return sorted;
+		}
+	}}$;
+}
+
+/**
+ * This function incorporates both the rules specified by the EDEN Language
+ * Guide and JavaScript's rules.
+ *
+ * sublist(list, from, to)
+ *
+ * If from > to then the result is [] (from the EDEN Language Guide).
+ *
+ * If to is greater than the length of the list then the result is padded with
+ * a required number of undefined elements (from the EDEN Language Guide).
+ *
+ * If list is undefined then the result is undefined, which is following what
+ * I believe is a general JS-EDEN design principle.  This behaviour is
+ * inconsistent with tkeden however.  Nevertheless the Language Guide doesn't
+ * explicitly say that an implementation must raise an error.
+ *
+ * The Language Guide says that the user should not provide a from value less than 1.
+ * tkeden produces an error in this case.  The Language Guide suggests that the
+ * user is at fault for calling the function with an argument outside of the
+ * range permitted by the specification and again the specification does not
+ * explicitly demand that the interpreter produces an error message in this case.
+ * If one applies a formal methods viewpoint then calling a function with an
+ * unsatisfied precondition permits the function's author to handle it in any
+ * way that they choose.  If from is less than zero then this implementation applies
+ * the JavaScript convention that negative numbers refer to positions counted
+ * backward from the end of the list, so the last element of the list can be
+ * referred to using the index -1, the penultimate element as -2, etc.  If from
+ * is zero and list is defined then an error is raised.  Similarly, if from is
+ * negative then this implementation allows to to be negative too, with the same
+ * counting back from the end of the list semantics applied to both from and to.
+ *
+ * If to is undefined then the end of the list is used as the limit, which is another
+ * JavaScript rule.  If from is undefined then the results are the same
+ * as when from is 1 except that to can be negative and have the counting back
+ * from the end of the list semantics.  This is my own rule to mediate the
+ * tension between JavaScript's rules and EDEN's rules.
+ *
+ * If to is omitted then the result is the same as when it is explicitly
+ * specified as undefined.
+ *
+ * In conclusion this function implements EDEN's sublist function with several
+ * extensions that ascribe meaningful results in cases when tkeden would baulk
+ * with an error messge.
+ *   @param list The source list.
+ *   @param from Start index (inclusive).
+ *   @param [to] Optional end, or defaults to end of list. Can be negative.
+ *   @return The sublist.
+ *   #library #list #string
+ */
+func sublist {
+	${{
+		if (arguments.length < 2 || arguments.length > 3) {
+			eden.error(new Error("substr: this function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
+			return undefined;
+		}
+
+		var list = arguments[0];
+		var from = arguments[1];
+		var to = arguments[2];
+		
+		if (list === undefined) {
+			return undefined;
+		}
+		if (!Array.isArray(list)) {
+			eden.error(new Error("sublist: expected list but got " + typeof(list)), "error");
+			return undefined;
+		}
+		if (from === undefined) {
+			from = 1;
+		} else if (from > to) {
+			return [];
+		}
+		if (from > 0) {
+			from = from - 1;
+		} else if (from == 0) {
+			eden.error(new Error("sublist: from cannot be 0."), "error");
+			return undefined;
+		}
+		if (to == 0) {
+			to = list.length;
+		}
+		
+		var result = list.slice(from, to);
+		
+		if (to > list.length) {
+			result = result.concat(new Array(to - list.length));
+		}
+		
+		return result;
+	}}$;
+}
+
+/**
+ * Returns a list with the first item removed.
+ *   @param list Source list
+ *   @return The list minus the first item.
+ *   #library #list #string
+ */
+func tail {
+	para p1;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc != 1) {
+		error("tail: This function requires exactly 1 argument.");
+		return @;
+	} else if (p1 == @) {
+		return @;
+	} else if (!isList(p1)) {
+		error("tail: The argument must be a list, not a " // type(p1));
+		return @;
+	} else if (p1# == 0) {
+		error("tail: The empty list does not have a tail.");
+		return @;
+	} else {
+		return sublist(p1, 2, p1#);
+	}
+}
+
+/**
+ * Removes duplicate values from a list
+ * @param list Source list
+ * @return The list with duplicate values removed
+ * 
+ * #library #list #duplicates
+ *
+ */
+
+func unique{
+	para inList;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+	if(argc != 1){
+		error("tail: This function requires exactly 1 argument.");
+		return @;
+	}
+	${{
+		var inList = arguments[0];
+inList = inList.filter( function( item, index, inputArray ) {
+           return inputArray.indexOf(item) == index;
+    });
+		return inList;
+	}}$;
+}
+}
+
+action string {
+/**
+ * @title String Functions
+ * Copyright (c) 2014, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * Functions that operate on strings.
+ */
+
+/** Fetches a URL, treats its contents are text, and assigns it to an observable.  The first argument
+ *  is a pointer to an observable that will hold the text.  The second argument is the url.  The
+ *  optional third argument is a boolean that, if true, waits for the download to finish before
+ *  processing the rest of the JS-EDEN script (if possible).
+ *   @param symbol Pointer to observable to fill.
+ *   @param url The URL of the text file.
+ *   @param [sync] Wait for completion before continuing.
+ *   #library #string
+ */
+proc loadTextFileIntoObservable {
+	${{
+		var me = this;
+		if (arguments.length < 2 || arguments.length > 3) {
+			eden.error(new Error("loadTextFileIntoObservable: This procedure requires at least 2 arguments and at most 3 arguments."), "error");
+			return;
+		}
+
+		var symbol = arguments[0];
+		var url = arguments[1];
+		var synchronous = arguments[2];
+
+		if (!(symbol instanceof Symbol)) {
+			eden.error(new Error("loadTextFileIntoObservable: The first argument must be a pointer, not a " + typeof(symbol)), "error");
+			return;
+		}
+		if (synchronous === undefined) {
+			synchronous = false;
+		}
+
+		URLUtil.downloadFile({
+			url: url,
+			sync: synchronous,
+			success: function (content) {
+				symbol.assign(content, root.scope, me);
+			},
+			error: function (request, problem, errorMsg) {
+				if (problem == "error") {
+					eden.error(new Error("loadTextFileIntoObservable: " + errorMsg + " for " + url));
+				} else {
+					eden.error(new Error("loadTextFileIntoObservable: " + problem + " for " + url));
+				}
+			},
+		});
+	}}$;
+}
+
+/** Given a value, this function returns the string representing the simplest
+ *  EDEN code that evaluates as that value.  For example, edenCode applied to a
+ *  string is the string formed by adding quotes to the original string.
+ *   @param value The value to convert.
+ *   @return String representation of the value.
+ *   #library #string
+ */
+func edenCode {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("edenCode: This function requires exactly 1 argument."), "error");
+			return undefined;
+		 } else {
+			return Eden.edenCodeForValue(arguments[0]);
+		 }
+	}}$;
+}
+
+/** Concatenates a collection of values, separating each one by a given separator string, separator
+ *  element or separator list.  The values can either be provided as multiple arguments or
+ *  alternatively as a single list type argument.
+ *
+ *  Basically you can pass to this function any list of values that you want to
+ *  munge together and it will attempt to figure out what you meant.
+ *
+ *  `concat("", string1, ..., stringN)` performs the same as strcat in tkeden.
+ *
+ *  `concat([], list1, ..., listN)` performs the same listcat in tkeden.
+ *
+ *  To summarize the detailed case by case behavioural descriptions that follow later:
+ *
+ *	* The items to concatenate can be specified either as a list or as separate arguments.
+ *	* If the items are specified as separate arguments then a separator must be provided, otherwise it is optional.
+ *
+ *	* If the items to be concatenated are all lists then list concatenation is used.
+ *	* If one or more items are undefined then the entire result is undefined.
+ *	* Otherwise string concatenation is used, with automatic conversion of non-string items to strings.
+ *
+ *	* For string concatenation: the separator is intended to be a string, or another not undefined value that gets implicitly converted into a string.
+ *	* For string concatenation: if the separator is undefined then the entire result is undefined if there is more than one item.
+ *	* For list concatenation: if the separator is a list then the items are concatenated as itemN // separator // itemM
+ *	* For list concatenation: if the separator is not a list then the items are concatenated as itemN // [separator] // itemM
+ *
+ *  **Case 1:** separator + a list of strings
+ *  	The strings are concatenated, separated by the separator.  If the separator
+ *  	is undefined and there are two more strings then undefined is returned.  If
+ *  	the separator is defined but is not a string then it is automatically
+ *  	converted into a string.
+ *
+ *  **Case 2:** separator + a list of lists
+ *  	The lists are concatenated, separated by the separator element or separator list.
+ *
+ *  **Case 3:** separator + a list of things that are not all lists but are all defined
+ *  	Any list items that are not strings are converted into strings, then as Case 1.
+ *
+ *  **Case 4:** separator + a list containing the undefined value
+ *  	Undefined is returned.
+ *
+ *  **Case 5:** separator + one or more further arguments that are all strings
+ *  	The strings are concatenated, separated by the separator.
+ *
+ *  **Case 6:** separator + two or more further arguments that are all lists
+ *  	The lists are concatenated, separated by the separator element or separator list.
+ *
+ *  **Case 7:** separator + one or more further arguments that are not all lists but are all defined
+ *  	Any arguments that are not strings are converted into strings, then as Case 5.
+ *
+ *  **Case 8:** separator + one or more further arguments, at least one of which is undefined
+ *  	Undefined is returned.
+ *
+ *  **Case 9:** Single argument, which is a list of lists
+ *  	The list is flattened by one level.
+ *
+ *  **Case 10:** Single argument, which is a list whose items are not exclusively nested lists but are all defined
+ *  	The list is concatenated using the empty string as the separator.
+ *
+ *  **Case 11:** Single argument, which is list that contains at least one undefined element
+ *  	Undefined is returned.
+ *
+ *  **Case 12:** Single argument, which is not a list.
+ *  	The empty string is returned.
+ *
+ * #library #string
+ */
+func concat {
+	para p1,p2;
+	auto separator, concatStrings, list, i, item, result;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+	concatStrings = false;
+	if (argc == 0) {
+		error("concat: This function requires at least one argument.");
+		return @;
+	} else if (argc == 1 && isList(p1)) {
+		list = p1;
+	} else if (argc == 2 && isList(p2)) {
+		if (isList(p1)) {
+			return p1;
+		} else {
+			separator = p1;
+			list = p2;
+		}
+	} else {
+		separator = p1;
+		list = sublist(${{argments}}$, 2, argc);
+	}
+	
+	for (i = 1; i <= list#; i++) {
+		if (list[i] == @) {
+			return @;
+		} else if (!isList(list[i])) {
+			concatStrings = true;
+			break;
+		}
+	}
+	
+	if (argc == 1 && isList(p1)) {
+		if (concatStrings) {
+			separator = "";
+			result = "";
+		} else {
+			separator = [];
+			result = [];
+		}
+	} else if (concatStrings) {
+		if (separator == @) {
+			if (list# > 1) {
+				return @;
+			}
+		} else {
+			separator = str(separator);
+		}
+		result = "";
+	} else {
+		if (!isList(separator)) {
+			separator = [separator];
+		}
+		result = [];
+	}
+
+	for (i = 1; i < list#; i++) {
+		if (concatStrings) {
+			item = str(list[i]);
+		} else {
+			item = list[i];
+		}
+		result = result // item // separator;
+	}
+	if (list# > 0) {
+		if (concatStrings) {
+			item = str(list[list#]);
+		} else {
+			item = list[list#];
+		}
+		result = result // item;
+	}
+	return result;
+}
+
+
+func decodeHTML {
+${{
+	/* Replaces HTML character entities in a string with the equivalent real characters with the
+	 * following exceptions: &amp; &lt; &gt; &quot; &apos;
+	 */
+	  var element = document.createElement('div');
+		var str = arguments[0];
+
+		if (typeof(str) == "string") {
+		  //Strip html tags
+		  str = str.replace(/&(amp|#38|lt|#60|gt|#62|quot|#34|apos|#39);/g, "&amp;$1;");
+		  str = str.replace(/&([^\s;]*\s)/g, "&amp;$1");
+		  str = str.replace(/</g, "&lt;");
+		  element.innerHTML = str;
+		  str = element.textContent;
+		  element.textContent = '';
+		}
+
+		return str;
+}}$;
+}
+
+
+/**
+ * Make a string lower case only.
+ *  @param source A string.
+ *  @return The lower case version of source.
+ *  #library #string
+ */
+func lowercase {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("lowercase: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		
+		var arg = arguments[0];
+		
+		if (arg === undefined) {
+			return undefined;
+		} else if (typeof(arg) == "string") {
+			return arg.toLocaleLowerCase();
+		} else {
+			eden.error(new Error("lowercase: This function cannot be applied to a value of type " + typeof(arg)), "error");
+			return undefined;
+		}
+	}}$;
+}
+
+/**
+ * #library #string
+ */
+func RE {
+	${{
+		if (arguments.length < 1 || arguments.length > 3) {
+			eden.error(new Error("RE: The function requires at least 1 argument and at most 3 arguments"), "error");
+			return undefined;
+		}
+		var pattern = arguments[0];
+		if (pattern === undefined) {
+			return undefined;
+		} else if (typeof(pattern) != "string") {
+			eden.error(new Error("RE: The first argument must be a string, not a " + typeof(pattern)), "error");
+			return undefined;
+		}
+		
+		var caseSensitive, global;
+		if (arguments.length >= 2) {
+			caseSensitive = arguments[1];
+			if (caseSensitive === undefined) {
+				return undefined;
+			} else if (typeof(caseSensitive) != "boolean") {
+				eden.error(new Error("RE: The second argument must be a boolean, not a " + typeof(caseSensitive)), "error");
+				return undefined;
+			}
+			if (arguments.length == 3) {
+			global = arguments[2];
+				if (global === undefined) {
+					return undefined;
+				} else if (typeof(global) != "boolean") {
+					eden.error(new Error("RE: The third argument must be a boolean, not a " + typeof(global)), "error");
+					return undefined;
+				}			
+			} else {
+				global = true;
+			}
+		} else {
+			caseSensitive = true;
+			global = true;
+		}
+		
+		var flags;
+		if (caseSensitive) {
+			flags = "";
+		} else {
+			flags = "i";
+		}
+		if (global) {
+			flags = flags + "g";
+		}
+		return new RegExp(pattern, flags);
+	}}$;
+}
+
+/**
+ * * `positionOfRE(patternStr, caseSensitive (optional), targetStr, startOffset (optional))`
+ * * `positionOfRE(reObject, targetStr, startOffset (optional, requires g flag))`
+ * #library #string
+ */
+func positionOfRE {
+	${{
+		if (arguments.length < 2 || arguments.length > 4) {
+			eden.error(new Error("positionOfRE: The function requires at least 2 arguments and at most 4 arguments"), "error");
+			return undefined;
+		}
+		var pattern = arguments[0];
+		var reFromObject = false;
+		if (pattern === undefined) {
+			return undefined;
+		} else if (pattern instanceof RegExp) {
+			reFromObject = true;
+		} else if (typeof(pattern) != "string") {
+			eden.error(new Error("positionOfRE: The first argument must be a string or a regular expression object, not a " + typeof(pattern)), "error");
+			return undefined;
+		}
+		
+		var caseSensitive = true;
+		var argsProcessed = 1;
+		var subject, offset;
+		
+		if (arguments.length > 2) {
+			if (arguments[1] === undefined) {
+				return undefined;
+			} else if (typeof(arguments[1]) == "string") {
+				subject = arguments[1];
+				argsProcessed = 2;
+			} else if (reFromObject) {
+				if (arguments[1] !== undefined) {
+					eden.error(new Error("positionOfRE: Case sensitivity cannot be specified separately when the regular expression is selected using the RE function."), "error");
+				}
+				return undefined;
+			} else if (typeof(arguments[1]) == "boolean") {
+				caseSensitive = arguments[1];
+				subject = arguments[2];
+				argsProcessed = 3;				
+			} else {
+				eden.error(new Error("positionOfRE: The second argument must be a string or a boolean, not a " + typeof(arguments[1])), "error");
+				return undefined;
+			}
+			if (arguments.length > argsProcessed) {
+				offset = arguments[argsProcessed];
+				if (typeof(offset) == "number") {
+					if (!Number.isInteger(offset) || offset < 1) {
+						eden.error(new Error("positionOfRE: The starting offset must be a positive integer."), "error");
+						return undefined;
+					}
+					offset--;
+				} else {
+					eden.error(new Error("positionOfRE: The starting offset must be a positive integer, not a " + typeof(offset)), "error");
+					return undefined;
+				}
+			}
+		} else {
+			subject = arguments[1];
+		}
+		
+		if (subject === undefined) {
+			return undefined;
+		} else if (typeof(subject) != "string") {
+				eden.error(new Error("positionOfRE: The value to match against must be a string, not a " + typeof(caseSensitive)), "error");
+				return undefined;
+		}
+		
+		var regExp;
+		if (reFromObject) {
+			regExp = pattern;
+			if (offset !== undefined && offset != 0 && !regExp.global) {
+				return subject.slice(offset).search(regExp) + offset + 1;
+			}
+		} else if (caseSensitive) {
+			regExp = new RegExp(pattern, "g");
+		} else {
+			regExp = new RegExp(pattern, "ig");
+		}
+		if (offset !== undefined) {
+			regExp.lastIndex = offset;
+		}
+		if (offset !== undefined || (reFromObject && regExp.global)) {
+			var match = regExp.exec(subject);
+			if (match === null) {
+				return 0;
+			} else {
+				return regExp.lastIndex;
+			}
+		} else {
+			return subject.search(regExp) + 1;
+		}
+	}}$;
+}
+
+/**
+ * #library #string
+ */
+func escapeRE {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("escapeRE: This function requires exactly one argument."), "error");
+			return undefined;
+		}
+		var str = arguments[0];
+		if (str === undefined) {
+			return undefined;
+		} else if (typeof(str) != "string") {
+			eden.error(new Error("escapeRE: The argument must be a string, not a " + typeof(str)), "error");
+			return undefined;
+		}
+		
+		metaRE = /([\\^$*+?.()|{[])/g;
+		return str.replace(metaRE, "\\$1");
+	}}$;
+}
+
+/** Returns the string formed by replacing the first instance of the second
+ *  argument with the string given by the third argument in the string the string
+ *  given by the first argument.
+ *   @param source
+ *   @param search
+ *   @param replacement
+ *   @param [start] Start position.
+ *   #library #string
+ */
+func replaceFirst {
+	${{
+		if (arguments.length < 3 || arguments.length > 4) {
+			eden.error(new Error("replaceFirst: This function requires a minimum of 3 arguments and a maximum of 4 arguments."), "error");
+			return undefined;
+		}
+		var source = arguments[0];
+		if (source === undefined) {
+			return undefined;
+		} else if (typeof(source) != "string") {
+			eden.error(new Error("replaceFirst: The first argument must be a string, not a " + typeof(source)), "error");
+			return undefined;
+		}
+		
+		var search = arguments[1];
+		if (search === undefined) {
+			return undefined;
+		} else if (typeof(search) != "string") {
+			eden.error(new Error("replaceFirst: The second argument must be a string, not a " + typeof(search)), "error");
+			return undefined;
+		}
+
+		var replacement = arguments[2];
+		if (replacement === undefined) {
+			if (source.indexOf(search) == -1) {
+				return source;
+			} else {
+				return undefined;
+			}
+		} else if (typeof(replacement) != "string") {
+			eden.error(new Error("replaceFirst: The third argument must be a string, not a " + typeof(replacement)), "error");
+			return undefined;
+		}
+		
+		if (arguments.length == 3) {
+			return source.replace(search, replacement);
+		} else {
+			var startPos = arguments[3];
+			if (startPos !== undefined && typeof(startPos) != "number") {
+				eden.error(new Error("replaceFirst: The forth argument must be an int, not a " + typeof(startPos)), "error");
+				return undefined;
+			} else if (startPos === undefined || isNaN(startPos)) {
+				if (source.indexOf(search) == -1) {
+					return source;
+				} else {
+					return undefined;
+				}
+			} else if (!Number.isInteger(startPos)) {
+				eden.error(new Error("replaceFirst: The forth argument must be an int, not a float."), "error");
+				return undefined;
+			} else if (startPos == 0) {
+				eden.error(new Error("replaceFirst: The forth argument must cannot be 0."), "error");
+				return undefined;
+			} else if (startPos > 0) {
+				return source.slice(0, startPos - 1).concat(source.slice(startPos - 1).replace(search, replacement));
+			} else {
+				return source.slice(0, startPos).concat(source.slice(startPos).replace(search, replacement));			
+			}
+		}
+	}}$;
+}
+
+/**
+ * Replaces occurrences of strings like {1} and {name} in a string by values given as arguments (converted
+ * to strings using str() first if necessary).
+ *
+ * Examples:
+ * * `substitute("Hello.  My name is {1}.  I am {2} years old.", "John", 49})`
+ * * `substitute("Hello.  My name is {1}.  I am {2} years old.", ["John", 49])`
+ * * `substitute("Hello.  My name is {name}.  I am {age} years old.", {name: "John", age: 49})`
+ *
+ * #library #string
+ */
+func substitute {
+	${{
+		var placeholderRE = /(^|[^\\])\{([^}]+)\}/g;
+		if (arguments.length == 0) {
+			eden.error(new Error("substitute: This function requires at least one argument."), "error");
+			return undefined;
+		} else if (arguments[0] === undefined) {
+			return undefined;
+		} else if (typeof(arguments[0]) != "string") {
+			eden.error(new Error("substitute: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			return undefined;
+		} else if (arguments.length == 1 && placeholderRE.test(arguments[0])) {
+			eden.error(new Error("substitute: The target string contains placeholders but no placeholder values were provided."), "error");
+			return undefined;
+		}
+
+		var argList;
+		var useObject = false;
+		var isArray = Array.isArray(arguments[1]);
+		if (arguments.length == 2 && isArray && arguments[1].length > 0) {
+			argList = arguments[1];
+			argList.unshift("");
+		} else {
+			argList = arguments;
+			if (arguments.length == 2 && !isArray && typeof(arguments[1]) == "object" && arguments[1] !== null) {
+				useObject = true;
+			}
+		}
+		var meArgs = arguments;
+
+		var strFunc = root.lookup("str").value();
+		var digitsRE = /\d+/;
+		var observables = {};
+		var scannedForObservables = false;
+		var errorMsg;
+		function replaceFunc (match, beforeChar, varName) {
+			var value;
+			if (digitsRE.test(varName)) {
+				//Case 1: Placeholders are numeric, {1}, etc.
+				var num = parseInt(varName);
+				if (num == 0) {
+					errorMsg = "Bad placeholder {0}";
+					value = "";
+				} else if (num < argList.length) {
+					value = argList[num];
+				} else if (argList.length == 2 && argList[1] === undefined) {
+					//Could have intended to pass a list but passed undefined instead.
+					value = "undefined";
+				} else {
+					errorMsg = "Found placeholder {" + varName + "} but only " + (argList.length - 1) + " values were provided.";
+					value = "";
+				}
+			} else if (useObject) {
+				//Case 2: Placeholders refer to object properties.
+				value = meArgs[1][varName];
+			} else {
+				//Case 3: Placeholders refer to observable names.
+				if (!scannedForObservables) {
+					for (var i = 1; i < argList.length ; i++) {
+						if (argList[i] instanceof Symbol) {
+							observables[argList[i].name.slice(1)] = argList[i];
+						}
+					}
+					scannedForObservables = true;
+				}
+				if (!(varName in observables)) {
+					if (meArgs.length == 2 && (meArgs[1] === undefined || meArgs[1] === null)) {
+						value = "undefined";
+					} else {
+						errorMsg = "Found placeholder for observable " + varName + " but couldn't find a matching pointer-typed argument in the argument list.";
+					}
+				} else {
+					value = observables[varName].value();
+				}
+			}
+			return beforeChar + strFunc(value);
+		};
+
+		var replaced = arguments[0].replace(placeholderRE, replaceFunc);
+		if (errorMsg !== undefined) {
+			eden.error(new Error("substitute: " + errorMsg), "error");
+			return undefined;
+		}
+		return replaced;
+	}}$;
+}
+
+#The same issues arise as with the sublist function (in lists.js-e) and they're handled in the
+#same way.
+/**
+ * Extract a string from another using indices.
+ *   @param source The original source string.
+ *   @param from Start index to extract from, inclusive.
+ *   @param [to] End index or end of string if missing.
+ *   @return The substring requested.
+ *   #library #string
+ */
+func substr {
+	${{
+		if (arguments.length < 2 || arguments.length > 3) {
+			eden.error(new Error("substr: this function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
+			return undefined;
+		}
+		
+		var str = arguments[0];
+		var from = arguments[1];
+		var to = arguments[2];
+		
+		if (str === undefined) {
+			return undefined;
+		}
+		if (typeof(str) != "string") {
+			eden.error(new Error("substr: expected string but got " + typeof(str)), "error");
+			return undefined;
+		}
+		if (from === undefined) {
+			from = 1;
+		} else if (from > to) {
+			return "";
+		}
+		if (from > 0) {
+			from = from - 1;
+		} else if (from == 0) {
+			eden.error(new Error("substr: from cannot be 0."), "error");
+			return undefined;
+		}
+		if (to == 0) {
+			to = str.length;
+		}
+		
+		var result = str.slice(from, to);
+		
+		if (to > str.length) {
+			result = result + Array(to - str.length + 1).join(" ");
+		}
+		
+		return result;
+	}}$;
+}
+
+/**
+ * Returns the position of first argument in if it occurs somewhere as a substring
+ * in the string given by the second argument, zero if it's not a substring, or
+ * undefined if the substring is undefined or target string is undefined.
+ *
+ * The optional third argument allows a initial portion of the list to be omitted
+ * from the search.
+ *
+ * #library #string
+ */
+func substringPosition {
+	${{
+		if (arguments.length < 2 || arguments.length > 3) {
+			eden.error(new Error("substringPosition: This function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
+			return undefined;
+		}
+		
+		var substring = arguments[0];
+		var target = arguments[1];
+		var from = arguments[2]
+
+		if (substring === undefined) {
+			return undefined;
+		} else if (typeof(substring) != "string") {
+			eden.error(new Error("substringPosition: The first argument must be a a string, not a " + typeof(substring)), "error");
+			return undefined;
+		}
+
+		if (target === undefined) {
+			return undefined;
+		} else if (typeof(target) != "string") {
+			eden.error(new Error("substringPosition: The second argument must be a a string, not a " + typeof(target)), "error");
+			return undefined;
+		}
+
+		if (from === undefined) {
+			from = 1;
+		} else if (typeof(from) != "number") {
+			eden.error(new Error("substringPosition: The third argument must be a number, not a " + typeof(from)), "error");
+			return undefined;
+		} else if (from < 1) {
+			from = 1;
+		}
+
+		if (from == 1) {
+			return target.indexOf(substring) + 1;
+		} else {
+			var index = target.slice(from - 1).indexOf(substring);
+			if (index === -1) {
+				return 0;
+			} else {
+				return index + from;
+			}
+		}
+	}}$;
+}
+
+/**
+ * Remove white space from either end of a string.
+ *   @param string
+ *   @param [type] Default is "both", can also be "left" or "right".
+ *   @return The trimmed string.
+ *   #library #string
+ */
+func trim {
+	${{
+		if (arguments.length < 1 || arguments.length > 2) {
+			eden.error(new Error("trim: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var value = arguments[0];
+		
+		var trimType;
+		if (arguments.length == 1) {
+			trimType = "both";
+		} else {
+			trimType = arguments[1];
+		}
+
+		if (value === undefined) {
+			if (trimType == "left" || trimType == "right" || trimType == "both") {
+				return undefined;
+			}
+		} else if (typeof(value) != "string") {
+			eden.error(new Error("trim: The first argument cannot be of type " + typeof(value)), "error");
+			return undefined;
+		}
+		
+		if (trimType == "left") {
+			return value.replace(/^\s*/, "");
+		} else if (trimType == "right") {
+			return value.replace(/\s*$/, "");
+		} else if (trimType == "both") {
+			return value.replace(/(^\s*)|(\s*$)/g, "");
+		} else {
+			eden.error(new Error("trim: type of trimming must be \"left\", \"right\" or \"both\"."), "error");
+			return undefined;
+		}
+	}}$;
+}
+
+/**
+ * Convert a string to entirely uppercase.
+ *   @param string
+ *   @return String in uppercase.
+ *   #library #string
+ */
+func uppercase {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("uppercase: This function requires exactly 1 argument."), "error");
+			return undefined;
+		}
+		
+		var arg = arguments[0];
+		
+		if (arg === undefined) {
+			return undefined;
+		} else if (typeof(arg) == "string") {
+			return arg.toLocaleUpperCase();
+		} else {
+			eden.error(new Error("upercase: This function cannot be applied to a value of type " + typeof(arg)), "error");
+			return undefined;
+		}
+	}}$;
+}
+
+/**
+ * Generate HTML from a markdown formatted text string.
+ *    @param source The markdown string.
+ *    @return HTML.
+ *    #string #html #markdown #library
+ */
+func markdown {
+	para s;
+	${{
+	var sdown = new showdown.Converter();
+	var res = sdown.makeHtml(s);
+	return res;
+	}}$;
+}
+
+/**
+ * Generate syntax highlighting HTML from a JS-Eden source string.
+ *   @param source JS-Eden script.
+ *   @return HTML.
+ *   #string #library #html #syntax
+ */
+func highlightScript {
+	para s;
+	${{ return EdenUI.Highlight.html(s); }}$;
+}
+
+/**
+ * Check if one string starts with another.
+ * #string #library
+ */
+func startsWith {
+	para s, c;
+	${{ return s.startsWith(c); }}$;
+}
+
+/**
+ * Split a string into an array.
+ * @param s Source string
+ * @param separator Character or string to use a separator.
+ * #library #string #list
+ */
+func splitString {
+	para s, token;
+	${{ return s.split(token); }}$;
+}
+
+}
+
+/**
+ * Math functions library.
+ * @title Math Library
+ * @author Elizabeth Hudnott and Tim Monks
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * #library #math
+ */
+action math {
+PI = ${{ Math.PI }}$;
+semicircleAngle = 180;
+
+#Rounding functions
+
+${{
+  /**
+   * Decimal adjustment of a number.
+   * from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
+   *
+   * @param {String}  type  The type of adjustment ("round", "floor", "ceil" or any other static Math method).
+   * @param {Number}  value The number.
+   * @param {Integer} exp   The exponent (the 10 logarithm of the adjustment base) (exp = 0 - number of decimal places required).
+   * @returns {Number} The adjusted value.
+   */
+   decimalAdjust = function (type, value, exp) {
+		// If the exp is undefined or zero...
+		if (typeof exp === 'undefined' || +exp === 0) {
+		  return Math[type](value);
+		}
+		value = +value;
+		exp = +exp;
+		// If the value is not a number or the exp is not an integer...
+		if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+		  return NaN;
+		}
+		// Shift
+		value = value.toString().split('e');
+		value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+		// Shift back
+		value = value.toString().split('e');
+		return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+	};
+}}$;
+
+/** Rounding down to a specified number of decimal places.
+ *   @param number The number to round down.
+ *   @param [decimalPlaces] Number of decimal places to include.
+ *   @return The rounded number.
+ *   #library #math
+ */
+func roundDown {
+	${{
+		if (arguments.length == 0 || arguments.length > 2) {
+			throw new Eden.RuntimeError(undefined, Eden.RuntimeError.ARGUMENTS, undefined, "This function requires at least 1 argument and at most 2 arguments.");
+			//return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			throw new Eden.RuntimeError(undefined, Eden.RuntimeError.ARGUMENTS, undefined, "The first argument must be a number, not a " + typeof(number));
+			//return undefined;
+		}
+
+		var decimalPlaces;
+		if (arguments.length == 2) {
+			decimalPlaces = arguments[1];
+		} else {
+			decimalPlaces = 0;
+		}
+		
+		if (decimalPlaces === 0) {
+			return Math.round(number);
+		} else if (decimalPlaces === undefined) {
+			return undefined;
+		} else if (typeof(decimalPlaces) != "number") {
+			throw new Eden.RuntimeError(undefined, Eden.RuntimeError.ARGUMENTS, undefined, "The second argument must be an int, not a " + typeof(decimalPlaces));
+			//return undefined;
+		} else if (!Number.isInteger(decimalPlaces)) {
+			throw new Eden.RuntimeError(undefined, Eden.RuntimeError.ARGUMENTS, undefined, "The second argument must be an int, not a float");
+			//return undefined;
+		} else {
+			return decimalAdjust("floor", number, -decimalPlaces);
+		}
+	}}$;
+}
+
+/** Nearest rounding to a specified number of decimal places.
+ *   @param number The number to round.
+ *   @param [decimalPlaces] Number of decimal places to include.
+ *   @return The rounded number.
+ *   #library #math
+ */
+func round {
+	${{
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("round: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("round: The first argument must be a number, not a " + typeof(number)), "error");
+			return undefined;
+		}
+
+		var decimalPlaces;
+		if (arguments.length == 2) {
+			decimalPlaces = arguments[1];
+		} else {
+			decimalPlaces = 0;
+		}
+		
+		if (decimalPlaces === 0) {
+			return Math.round(number);
+		} else if (decimalPlaces === undefined) {
+			return undefined;
+		} else if (typeof(decimalPlaces) != "number") {
+			eden.error(new Error("round: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
+			return undefined;
+		} else if (!Number.isInteger(decimalPlaces)) {
+			eden.error(new Error("round: The second argument must be an int, not a float"), "error");
+			return undefined;
+		} else {
+			return parseFloat(number.toFixed(decimalPlaces));
+		}
+	}}$;
+}
+
+/** Rounding up to a specified number of decimal places.
+ *   @param number The number to round up.
+ *   @param [decimalPlaces] Number of decimal places to include.
+ *   @return The rounded number.
+ *   #library #math
+ */
+func roundUp {
+	${{
+		if (arguments.length == 0 || arguments.length > 2) {
+			eden.error(new Error("roundUp: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("roundUp: The first argument must be a number, not a " + typeof(number)), "error");
+			return undefined;
+		}
+
+		var decimalPlaces;
+		if (arguments.length == 2) {
+			decimalPlaces = arguments[1];
+		} else {
+			decimalPlaces = 0;
+		}
+		
+		if (decimalPlaces === 0) {
+			return Math.round(number);
+		} else if (decimalPlaces === undefined) {
+			return undefined;
+		} else if (typeof(decimalPlaces) != "number") {
+			eden.error(new Error("roundUp: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
+			return undefined;
+		} else if (!Number.isInteger(decimalPlaces)) {
+			eden.error(new Error("roundUp: The second argument must be an int, not a float"), "error");
+			return undefined;
+		} else {
+			return decimalAdjust("ceil", number, -decimalPlaces);
+		}
+	}}$;
+}
+
+
+/** Rounding down to a multiple of another number.
+ *  Some multiples may not return the correct results, with an error approximately equal to the magnitude
+ *  of the 17th decimal digit.  This is because many decimal numbers cannot be represented exactly
+ *  in IEEE 754 floating point format.  For multiples such as 0.1, 0.01, etc. the roundDown, round and
+ *  roundUp functions will sometimes give more accurate results because of JavaScript quirks.
+ *   @param number The number to round down.
+ *   @param [multiple]
+ *   @return The rounded number.
+ *   #library #math #round #down
+*/
+func floor {
+	${{
+		if (arguments.length < 1 || arguments.length > 2) {
+			eden.error(new Error("floor: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("floor: The first argument must be a number, not a " + typeof(number)), "error");
+			return undefined;
+		}
+
+		var multiple;
+		if (arguments.length == 2) {
+			multiple = arguments[1];
+			if (multiple === undefined) {
+				return undefined;
+			} else if (typeof(multiple) != "number") {
+				eden.error(new Error("floor: The second argument must be a number, not a " + typeof(multiple)), "error");
+				return undefined;
+			}
+		} else {
+			multiple = 1;
+		}
+		
+		if (multiple == 1) {
+			return Math.floor(number);
+		} else {
+			return Math.floor((number / multiple).toPrecision(16)) * multiple;
+		}
+	}}$;
+}
+
+/** Nearest rounding to a multiple of another number.
+ *  Some multiples may not return the correct results, with an error approximately equal to the magnitude
+ *  of the 17th decimal digit.  This is because many decimal numbers cannot be represented exactly
+ *  in IEEE 754 floating point format.  For multiples such as 0.1, 0.01, etc. the roundDown, round and
+ *  roundUp functions will sometimes give more accurate results because of JavaScript quirks.
+ *   @param number The number to round.
+ *   @param [multiple]
+ *   @return The rounded number.
+ *   #library #math
+*/
+func roundMultiple {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("roundMultiple: This function requires exactly 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("roundMultiple: The first argument must be a number, not a " + typeof(number)), "error");
+			return undefined;
+		}
+
+		var multiple = arguments[1];
+		if (multiple === undefined) {
+			return undefined;
+		} else if (typeof(multiple) != "number") {
+			eden.error(new Error("roundMultiple: The second argument must be a number, not a " + typeof(multiple)), "error");
+			return undefined;
+		}
+		
+		if (multiple == 1) {
+			return Math.round(number);
+		} else {
+			return Math.round((number / multiple).toPrecision(16)) * multiple;
+		}
+	}}$;
+}
+
+/** Rounding up to a multiple of another number.
+ *  Some multiples may not return the correct results, with an error approximately equal to the magnitude
+ *  of the 17th decimal digit.  This is because many decimal numbers cannot be represented exactly
+ *  in IEEE 754 floating point format.  For multiples such as 0.1, 0.01, etc. the roundDown, round and
+ *  roundUp functions will sometimes give more accurate results because of JavaScript quirks.
+ *   @param number The number to round up.
+ *   @param [multiple]
+ *   @return The rounded number.
+ *   #library #math #round #up
+*/
+func ceil {
+	${{
+		if (arguments.length < 1 || arguments.length > 2) {
+			eden.error(new Error("ceil: This function requires at least 1 argument and at most 2 arguments."), "error");
+			return undefined;
+		}
+		
+		var number = arguments[0];
+		if (number === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("ceil: The first argument must be a number, not a " + typeof(number)), "error");
+			return undefined;
+		}
+
+		var multiple;
+		if (arguments.length == 2) {
+			multiple = arguments[1];
+			if (multiple === undefined) {
+				return undefined;
+			} else if (typeof(multiple) != "number") {
+				eden.error(new Error("ceil: The second argument must be a number, not a " + typeof(multiple)), "error");
+				return undefined;
+			}
+		} else {
+			multiple = 1;
+		}
+
+		if (multiple == 1) {
+			return Math.ceil(number);
+		} else {
+			return Math.ceil((number / multiple).toPrecision(16)) * multiple;
+		}
+	}}$;
+}
+
+
+# --- End of rounding functions ---
+
+
+/** Get the absolute value of a number. The removes the minus sign if there is
+ *  one.
+ *   @param number
+ *   #library #math #absolute #positive
+ */
+func abs {
+  return ${{ Math.abs(arguments[0]); }}$;
+}
+
+/**
+ * Get the arccosine of x in degrees.
+ *   @param x
+ *   @return Arccosine in degrees.
+ *   #library #math #arc #cosine
+ */
+func acos {
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		if (x == 0.5) {
+			return semicircleAngle / 3;
+		} else {
+			return Math.acos(x) * semicircleAngle / Math.PI;
+		}
+	}}$;
+}
+
+/**
+ * Get the arcsine of x in degrees.
+ *   @param x
+ *   @return Arcsine in degrees.
+ *   #library #math #arc #sine
+ */
+func asin {
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		if (x == 0.5) {
+			return semicircleAngle / 6;
+		} else {
+			return Math.asin(x) * semicircleAngle / Math.PI;
+		}
+	}}$;
+}
+
+
+func atan {
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		return Math.atan(x) * semicircleAngle / Math.PI;
+	}}$;
+}
+
+/**
+ * Returns the cosine of a given angle.
+ *   @param angle Angle in degrees.
+ *   @return Cosine (between -1 and 1).
+ * #cosine
+ */
+func cos {
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		if (Number.isInteger(semicircleAngle)) {
+			var xSymmetry, sign;
+			if (x >= 0) {
+				xSymmetry = x % (2 * semicircleAngle);
+			} else {
+				xSymmetry = (-x) % (2 * semicircleAngle);
+			}
+			sign = 1;
+			if (xSymmetry >= semicircleAngle) {
+				xSymmetry = xSymmetry - semicircleAngle;
+				sign = -1;
+			}
+			if (xSymmetry == 0) {
+				return sign;
+			} else if (xSymmetry == semicircleAngle / 2) {
+				return 0;
+			} else if (xSymmetry == semicircleAngle / 3) {
+				return 0.5 * sign;
+			} else if (xSymmetry == (2 * semicircleAngle) / 3) {
+				return -0.5 * sign;
+			}
+		}
+		return Math.cos(Math.PI * (x / semicircleAngle));
+	}}$;
+}
+
+/** Get the value of E to the power of x.
+ *   @param x
+ *   #library #math #exponent
+ */
+func exp {
+  return ${{ Math.exp(arguments[0]); }}$;
+}
+
+/** Get the natural logarithm (base E) of x.
+ *   @param x
+ *   #library #math #natural #logarithm
+ */
+func ln {
+  return ${{ Math.log(arguments[0]); }}$;
+}
+
+/** Get the logarithm of x base y.
+ *   @param x
+ *   @param [y] The base, default is 10.
+ *   #library #math #logarithm
+ */
+func log {
+	${{
+		var number = arguments[0];
+		var base;
+		if (arguments.length == 1) {
+			base = 10;
+		} else if (arguments.length != 2) {
+			eden.error(new Error("log: The function requires at least one argument and at most two arguments."), "error");
+			return undefined;
+		} else {
+			base = arguments[1];
+		}
+
+		if (number === undefined || base === undefined) {
+			return undefined;
+		} else if (typeof(number) != "number") {
+			eden.error(new Error("log: The first argument must be a number, not a " + typeof(number)), "error");
+		} else if (typeof(base) != "number") {
+			eden.error(new Error("log: The second argument must be a number, not a " + typeof(base)), "error");
+		}
+
+		return Math.log(number) / Math.log(base);
+	}}$;
+}
+
+#The same remarks apply as for min, mutatis mutandis.
+
+/**
+ * Maximum value in a list or of the arguments given.
+ *   @param a A number or a list of numbers.
+ *   @param [b...] If param a is not a list then use b and so on.
+ *   #library #math #maximum #largest
+ */
+func max {
+	para p1;
+	auto list, i, maxSoFar;
+	auto argc;
+
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 0) {
+		return @;
+	} else if (argc == 1 && type(p1) == "list") {
+		list = p1;
+		if (list# == 0) {
+			return @;
+		}
+	} else {
+		list = ${{ arguments }}$;
+	}
+
+	maxSoFar = list[1];	
+	for (i = 2; i <= list#; i++) {
+		if (list[i] > maxSoFar) {
+			maxSoFar = list[i];
+		}
+	}
+	return maxSoFar;
+}
+
+/**
+ *  Find the minimum value for the given arguments (or a list).
+ *
+ *  If exactly one argument is provided and it is the empty list then undefined
+ *  is returned.  tkeden produces an error message.
+ *
+ *  If two or more list type arguments are provided then they are compared
+ *  lexicographically, e.g. min([2], [1,2]) is [1,2].  tkeden returns the lowest
+ *  value from the first list in this scenario.  If exactly one argument is
+ *  provided and it is a list then the lowest value from that list is returned,
+ *  the same as in tkeden.
+ *
+ *  min(@, 2) returns @ but min(2, @) returns 2.  This is bizarre but consistent
+ *  with tkeden.
+ *
+ *   @param p A list or number
+ *   @param [p2...] Other numbers to compare.
+ *   @return The smallest number.
+ *   #library #math #minimum #smallest
+ */
+func min {
+	para p1;
+	auto list, i, minSoFar;
+	auto argc;
+
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 0) {
+		return @;
+	} else if (argc == 1 && type(p1) == "list") {
+		list = p1;
+		if (list# == 0) {
+			return @;
+		}
+	} else {
+		list = ${{ arguments }}$;
+	}
+	
+	minSoFar = list[1];
+
+	for (i = 2; i <= list#; i++) {
+		if (list[i] < minSoFar) {
+			minSoFar = list[i];
+		}
+	}
+	return minSoFar;
+}
+
+func mod {
+	para x, n;
+	return x>=0? x % n : (n + (x % n));
+}
+
+/** Get the value of x to the power of y.
+ *   @param x
+ *   @param y
+ *   #library #math #power
+ */
+func pow {
+  return ${{ Math.pow(arguments[0],arguments[1]); }}$;
+}
+
+/**
+ * Return a random boolean with a given probability.
+ *   @param [probability] Optional probability, default is 0.5.
+ *   @return Random boolean.
+ *   #library #math
+ */
+func randomBoolean {
+	para probability;
+	if (probability == @) {
+		probability = 0.5;
+	}
+	return random() <= probability;
+}
+
+func randomInteger {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("randomInteger: This function requires exactly 2 arguments"), "error");
+			return undefined;
+		}
+		
+		var lowerBound = arguments[0];
+		var upperBound = arguments[1];
+
+		if (lowerBound === undefined || upperBound === undefined) {
+			return undefined;
+		} else if (typeof(lowerBound) != "number") {
+			eden.error(new Error("randomInteger: The lower bound must be an int, not a " + typeof(lowerBound)), "error");
+			return undefined;
+		} else if (isNaN(lowerBound)) {
+			return undefined;
+		} else if (!Number.isInteger(lowerBound)) {
+			eden.error(new Error("randomInteger: The lower bound must be an int, not a float."), "error");
+			return undefined;
+		} else if (typeof(upperBound) != "number") {
+			eden.error(new Error("randomInteger: The upper bound must be an int, not a " + typeof(upperBound)), "error");
+			return undefined;
+		} else if (isNaN(upperBound)) {
+			return undefined;
+		} else if (!Number.isInteger(upperBound)) {
+			eden.error(new Error("randomInteger: The upper bound must be an int, not a float."), "error");
+			return undefined;
+		}
+		
+		var n = Math.floor(root.lookup("random").definition(root, root.scope)() * (upperBound - lowerBound + 1) + lowerBound);
+		if (n > upperBound) {
+			// 1 / 2^62 chance
+			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+			n = upperBound;
+		}
+		return n;
+	}}$;
+}
+
+func randomFloat {
+	${{
+		if (arguments.length != 2) {
+			eden.error(new Error("randomFloat: This function requires exactly 2 arguments"), "error");
+			return undefined;
+		}
+
+		var lowerBound = arguments[0];
+		var upperBound = arguments[1];
+
+		if (lowerBound === undefined || upperBound === undefined) {
+			return undefined;
+		} else if (typeof(lowerBound) != "number") {
+			eden.error(new Error("randomFloat: The lower bound must be a float, not a " + typeof(lowerBound)), "error");
+			return undefined;
+		} else if (isNaN(lowerBound)) {
+			return undefined;
+		} else if (typeof(upperBound) != "number") {
+			eden.error(new Error("randomFloat: The upper bound must be a float, not a " + typeof(upperBound)), "error");
+			return undefined;
+		} else if (isNaN(upperBound)) {
+			return undefined;
+		}
+
+		var n = root.lookup("random").definition(root)() * (upperBound - lowerBound + 1) + lowerBound;
+		if (n > upperBound) {
+			n = upperBound;
+		}
+		return n;
+	}}$;
+}
+
+${{
+	xorshift32Random = function (state) {
+		state ^= state << 13;
+		state ^= state >>> 17;
+		state ^= state << 5;
+		return state;
+	}
+}}$;
+
+func xorshiftRandomGenerator {
+	${{
+		var stateSym = root.lookup("randomGeneratorState");
+		var lower = xorshift32Random(stateSym.value());
+		var upper = xorshift32Random(lower);
+		stateSym.assign(upper, root.scope, root.lookup("xorshiftRandomGenerator"));
+		upper = Math.abs(upper) * 4194304; // 2^22, 53 bits of precision in total
+		return (upper + Math.abs(lower)) / 9007199254740991; // 2^53 - 1
+	}}$;
+}
+
+randomSeed = @;
+randomGenerator is xorshiftRandomGenerator;
+
+${{
+	window.inRandomFunc = false;
+
+	root.lookup("randomSeed").addJSObserver("applySeed", function (obs, seed) {
+		root.lookup("randomGeneratorState").assign(seed, root.scope, obs);
+		root.lookup("randomIndex").assign(0, root.scope, obs);
+	});
+
+	root.lookup("randomGenerator").addJSObserver("applySeed", function (obs, generator) {
+		root.lookup("randomGeneratorState").assign(root.lookup("randomSeed").value(), root.scope, obs);		
+		root.lookup("randomIndex").assign(0, root.scope, obs);
+	});
+
+	root.lookup("randomIndex").addJSObserver("skipToIndex", function (obs, desiredIndex) {
+		if (inRandomFunc) {
+			return;
+		}
+		inRandomFunc = true;
+		var generator = root.lookup("randomGenerator").value();
+		root.lookup("randomGeneratorState").assign(root.lookup("randomSeed").value(), root.scope, obs);
+		for (var i = 0; i < desiredIndex; i++) {
+			generator();
+		}
+		inRandomFunc = false;
+	});
+}}$;
+	
+func random {
+	auto result;
+	${{ inRandomFunc = true; }}$;
+	randomIndex++;
+	if (randomSeed == @) {
+		result = ${{ Math.random() }}$;
+	} else {
+		result = randomGenerator();
+	}
+	${{ inRandomFunc = false; }}$;
+	return result;
+}
+
+/**
+ * Returns the cosine of a given angle.
+ *   @param angle Angle in degrees.
+ *   @return Cosine (between -1 and 1).
+ */
+func sin {
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		if (Number.isInteger(semicircleAngle)) {
+			var xSymmetry, sign;
+			if (x >= 0) {
+				xSymmetry = x % (2 * semicircleAngle);
+				sign = 1;
+			} else {
+				xSymmetry = (-x) % (2 * semicircleAngle);
+				sign = -1;
+			}
+			if (xSymmetry >= semicircleAngle) {
+				xSymmetry = xSymmetry - semicircleAngle;
+				sign = -sign;
+			}
+			if (xSymmetry == 0) {
+				return 0;
+			} else if (xSymmetry == semicircleAngle / 2) {
+				return sign;
+			} else if (xSymmetry == semicircleAngle / 6 || xSymmetry == (5 * semicircleAngle) / 6) {
+				return 0.5 * sign;
+			}
+		}
+		return Math.sin(Math.PI * (x / semicircleAngle));
+	}}$;
+}
+
+
+/**
+ * Get the square root of x.
+ *   @param x
+ *   @return Square root
+ *   #library #math #square
+ */
+func sqrt {
+  return ${{ Math.sqrt(arguments[0]); }}$;
+}
+
+/**
+ * Add all the number in the arguments or in a list together.
+ *    @param l A number or a list.
+ *    @param [l2...] If l is not a list then add these arguments.
+ *    @return Sum of all arguments or a list.
+ *    #library #math #add
+ */
+func sum {
+	${{
+		var list, total, type;
+		if (arguments.length == 1 && Array.isArray(arguments[0])) {
+			list = arguments[0];
+		} else {
+			list = arguments;
+		}
+
+		total = 0;
+		for (var i = 0; i < list.length; i++) {
+			type = typeof(list[i]);
+			if (type === undefined) {
+				return undefined;
+			} else if (type == "number" || type == "boolean") {
+				total = total + list[i];
+			} else {
+				eden.error(new Error("sum: Item " + i + " must be a number, not a " + type));
+				return undefined;
+			}
+		}
+		return total;
+	}}$;
+}
+
+/**
+ * Get the tangent of an angle.
+ *   @param x Angle in degrees.
+ *   @return Tangent of angle.
+ *   #library #math #tangent
+ */
+func tan {
+	${{
+		var x = arguments[0];
+		var semicircleAngle = root.lookup("semicircleAngle").value();
+		if (Number.isInteger(semicircleAngle)) {
+			var xSymmetry, sign;
+			if (x >= 0) {
+				xSymmetry = x % semicircleAngle;
+				sign = 1;
+			} else {
+				xSymmetry = (-x) % semicircleAngle;
+				sign = -1;
+			}
+			if (xSymmetry == 0) {
+				return 0;
+			} else if (xSymmetry == semicircleAngle / 2) {
+				return Infinity;
+			} else if (xSymmetry == semicircleAngle / 4) {
+				return sign;
+			} else if (xSymmetry == (3 * semicircleAngle) / 4) {
+				return -sign;
+			}
+		}
+		return Math.tan(Math.PI * (x / semicircleAngle));
+	}}$;
+}
+
+semicircleAngle ~> [sin, cos, tan, asin, acos, atan];
+}
+
+action colour {
+
+}
+
+action scoping {
+
+}
+
+action notifications {
+
+}
+
+action defaults {
+#jseden_project_title = "Construit!";
+/** Maker mode @oracle @handle */
+jseden_maker = false;
+/** Display (or hide) menu bar search box. @handle */
+jseden_menu_showsearch is jseden_project_title != "Construit!";
+/** Display (or hide) menu bar share project button. @handle */
+jseden_menu_showshare is jseden_project_title != "Construit!";
+/** Display (or hide) menu bar create views button. @handle */
+jseden_menu_showcreate is jseden_project_title != "Construit!";
+/** Display (or hide) menu bar existing views button. @handle */
+jseden_menu_showexisting is jseden_project_title != "Construit!";
+/** Display (or hide) menu bar settings button. @handle */
+jseden_menu_showsettings = false;
+/** Display (or hide) menu bar help button. @handle */
+jseden_menu_showhelp = false;
+/** Your logged in user name. @oracle */
+jseden_pm_user = jseden_pm_user;
+/** Is the explorer panel accessible? */
+jseden_explorer_enabled = true;
+jseden_explorer_visible is jseden_maker;
+jseden_explorer_watch is querySelector(jseden_explorer_search,"symbol");
+jseden_script_query = ".type(script).name:not(:remote,ACTIVE)";
+}
+
+do lib > core;
+do lib > type;
+do lib > math;
+do lib > string;
+do lib > list;
+do lib > scoping;
+do lib > notifications;
+do lib > defaults;
+
+action algebra {
+
+}
+
+action geometry {
+/**
+ * @title Geometry Library
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+func centroid {
+	para p1;
+	auto points, x, y, i, nx, ny;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 1 && isList(p1)) {
+		points = p1;
+	} else {
+		points = ${{ arguments }}$;
+	}
+
+	nx = 0;
+	ny = 0;
+	for (i = 1; i <= points#; i++) {
+		if (points[i] != @) {
+			if (!isPoint(points[i])) {
+				error("centroid: Item " // str(i) // " must be a Point, not a " // type(points[i]));
+				return @;
+			}
+			if (points[i]["x"] != @) {
+				if (x == @) {
+					x = points[i]["x"];
+				} else {
+					x = x + points[i]["x"];
+				}
+				nx++;
+			}
+			if (points[i]["y"] != @) {
+				if (y == @) {
+					y = points[i]["y"];
+				} else {
+					y = y + points[i]["y"];
+				}
+				ny++;
+			}
+		}
+	}
+	if (nx != 0) {
+		x = x / nx;
+	}
+	if (ny != 0) {
+		y = y / ny;
+	}
+	return Point(x, y);
+}
+
+func rotatePoint {
+	para point, theta, centre;
+	auto translatedX, translatedY, rotatedX, rotatedY, cosTheta, sinTheta;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+	
+	if (argc < 2 || argc > 3) {
+		error("rotatePoint: This function requires at least 2 arguments and at most 3 arguments.");
+		return @;	
+	}
+	if (argc == 2) {
+		centre = Point(0, 0);
+	}
+
+	if (point == @ || theta == @ || centre == @) {
+		return @;
+	}
+
+	if (!isPoint(point)) {
+		error("rotatePoint: The first argument must be a Point, not a " // type(point));
+		return @;
+	} else if (!isNumber(theta)) {
+		error("rotatePoint: The second argument must be a number, not a " // type(theta));
+		return @;
+	} else if (!isPoint(centre)) {
+		error("rotatePoint: The centre of enlargement must be a Point, not a " // type(centre));
+		return @;	
+	} else if (point["x"] == @ || point["y"] == @ || centre["x"] == @ || centre["y"] == @) {
+		return @;
+	}
+
+	#Theta is 90 minus the original theta.
+	cosTheta = cos(theta);
+	sinTheta = sin(-theta);
+	translatedX = point["x"] - centre["x"];
+	translatedY = point["y"] - centre["y"];
+
+	rotatedX = translatedX * cosTheta - translatedY * sinTheta + centre["x"];
+	rotatedY = translatedX * sinTheta + translatedY * cosTheta + centre["y"];
+	return Point(rotatedX, rotatedY);
+}
+
+func scalePoint {
+	para p1,p2,p3;
+	auto point, scaleX, scaleY, centre, x, y;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 2 || argc > 4) {
+		error("scalePoint: This function requires at least 2 arguments and at most 3 arguments.");
+		return @;	
+	}
+	if (argc == 2) {
+		point = p1;
+		scaleX = p2;
+		scaleY = p3;
+		centre = Point(0, 0);
+	} else if (argc == 3) {
+		point = p1;
+		scaleX = p1;
+		if (isPoint(p3)) {
+			scaleY = scaleX;
+			centre = p3;
+		} else {
+			scaleY = p3;
+			centre = Point(0, 0);			
+		}
+	}
+
+	if (point == @ || scaleX == @ || scaleY == @ || centre == @) {
+		return @;
+	}
+
+	if (!isPoint(point)) {
+		error("scalePoint: The first argument must be a Point, not a " // type(point));
+		return @;
+	} else if (!isNumber(scaleX)) {
+		error("scalePoint: The second argument must be a number, not a " // type(scaleX));
+		return @;
+	} else if (!isNumber(scaleY)) {
+		error("scalePoint: The third argument must be a number, not a " // type(scaleY));
+		return @;
+	} else if (!isPoint(centre)) {
+		error("scalePoint: The centre of enlargement must be a Point, not a " // type(centre));
+		return @;	
+	}
+
+	if (point["x"] == @ || centre["x"] == @) {
+		x = @;
+	} else {
+		x = (point["x"] - centre["x"]) * scaleX + centre["x"];
+	}
+	if (point["y"] == @ || centre["y"] == @) {
+		y = @;
+	} else {
+		y = (point["y"] - centre["y"]) * scaleY + centre["y"];
+	}
+	return Point(x, y);
+}
+}
+
+action dynamic {
+
+}
+
+/**
+ * @title Eden Clocks Agent
+ * Copyright (c) 2015, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * Implementation of tkeden's edenclocks functionality in JS-EDEN.  The timing is a bit more reliable
+ * than after(), though there are still some timing errors.
+ * 
+ *Enhancements, in addition to the functionality offered by tkeden:
+ *
+ * (1) If the observable pointed to is a procedure rather than a numeric observable then the
+ *      procedure will be called (with no arguments) once per clock pulse.
+ * (2) The edenclocks_paused observable can be used to pause and unpause all active clocks without
+ *     losing the phase differences between them.
+ */
+action clocks {
+edenclocks = [];
+edenclocks_paused = false;
+debug["edenclocks"] = false;
+
+${{
+	root.edenclocks = {};
+	var edenclocks = root.lookup("edenclocks");
+	edenclocks.addJSObserver("setClocks", function (symbol, clocks) {
+		var newClockNames = {};
+		var debugSym = root.lookup("debug");
+		var debug = debugSym.value().edenclocks;
+		var pausedSym = root.lookup("edenclocks_paused");
+
+		if (Array.isArray(clocks)) {
+			var incrementClock = function (symbol) {
+				if (!pausedSym.cache.value) {
+					symbol.assign(symbol.cache.value + 1, root.scope, Symbol.localJSAgent);
+					if (debugSym.cache.value.edenclocks) {
+						console.log("edenclocks: clock " + symbol.name);
+					}
+				}
+			};
+			var callClockProc = function (symbol) {
+				if (!pausedSym.cache.value) {
+					if (debugSym.cache.value.edenclocks) {
+						console.log("edenclocks: clock " + symbol.name);
+					}				
+					symbol.definition(root, root.scope)();
+				}
+			};
+			var startClock = function (interval, target) {
+				if (target.definition !== undefined && /^proc\s/.test(target.eden_definition)) {
+					return window.setInterval(callClockProc, interval, target);
+				} else {
+					var currentValue = target.value();
+					if (currentValue === undefined) {
+						target.assign(0, root.scope, Symbol.localJSAgent);
+						return window.setInterval(incrementClock, interval, target);
+					} else if (typeof(currentValue) == "number") {
+						return window.setInterval(incrementClock, interval, target);					
+					} else {
+						var targetName = target.name.slice(1);
+						eden.error(new Error("edenclocks: edenclock observable " + targetName + " must be a procedure or have a numeric value assigned, not a " + typeof(currentValue) + ".  Paused edenclock " + targetName), "error");
+						return undefined;
+					}
+				}
+			};
+
+			for (var i = 0; i < clocks.length; i++) {
+				var clockDetails = clocks[i];
+				if (Array.isArray(clockDetails)) {
+					var clockSymbol = clockDetails[0];
+					if (clockSymbol instanceof Symbol) {
+						var clockName = clockSymbol.name;
+						var clockInterval = clockDetails[1];
+						if (clockInterval !== undefined && typeof(clockInterval) != "number") {
+							eden.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list where the second element is a number or undefined, not a " + typeof(clockInterval) + ".  Paused edenclock " + clockName), "error");
+							clockInterval = undefined;
+						}
+						var existingClock = root.edenclocks[clockName];
+						var timer;
+						if (existingClock === undefined) {
+							if (clockInterval === undefined) {
+								if (debug) {
+									console.log("edenclocks: new clock " + clockName + ", paused");
+								}
+								root.edenclocks[clockName] = {intervalID: undefined, interval: undefined};
+							} else {
+								if (debug) {
+									console.log("edenclocks: new clock " + clockName + ", " + clockInterval + "ms");
+								}
+								timer = startClock(clockInterval, clockSymbol);
+								root.edenclocks[clockName] = {intervalID: timer, interval: clockInterval};
+							}
+						} else if (existingClock.intervalID === undefined) {
+							if (clockInterval !== undefined) {
+								if (debug) {
+									console.log("edenclocks: restart clock " + clockName + ", " + clockInterval + "ms");
+								}
+								timer = startClock(clockInterval, clockSymbol);
+								existingClock.intervalID = timer;
+								existingClock.interval = clockInterval;
+							}					
+						} else if (clockInterval === undefined) {
+							window.clearInterval(existingClock.intervalID);
+							if (debug) {
+								console.log("edenclocks: pause clock " + clockName);
+							}
+							existingClock.intervalID = undefined;
+						} else if (clockInterval != existingClock.interval) {
+							window.clearInterval(existingClock.intervalID);
+							if (debug) {
+								console.log("edenclocks: change interval " + clockName + ", " + clockInterval + "ms");
+							}
+							timer = startClock(clockInterval, clockSymbol);
+							existingClock.intervalID = timer;
+							existingClock.interval = clockInterval;
+						}
+						newClockNames[clockName] = true;
+					} else if (clockSymbol !== undefined) {
+						eden.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list where the first element is a pointer, not a " + typeof(clockSymbol)), "error");
+					}
+				} else if (clockDetails !== undefined) {
+					eden.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list, not a " + typeof(clockDetails)), "error");
+				}
+			}
+		} else if (clocks !== undefined) {
+			eden.error(new Error("edenclocks: The value assigned to edenclocks must be a list, not a " + typeof(clocks)), "error");
+		}
+		for (var clockName in root.edenclocks) {
+			if (!(clockName in newClockNames)) {
+				var existingClock = root.edenclocks[clockName];
+				if (existingClock.intervalID !== undefined) {
+					window.clearInterval(existingClock.intervalID);
+					if (debug) {
+						console.log("edenclocks: delete clock " + clockName);
+					}
+					existingClock.intervalID = undefined;
+				}
+			}
+		}
+	});
+}}$;
+
+proc setedenclock {
+	para clockPtr, millis;
+	auto i;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc != 2) {
+		error("setedenclock: This procedure requires exactly 2 arguments.");
+	} else if (!isPointer(clockPtr)) {
+		error("setedenclock: The first argument must be a pointer, not a " // type(clockPtr));
+	} else if (millis != @ && !isNumber(millis)) {
+		error("setedenclock: The second argument must be a number or undefined, not a " // type(millis));
+	} else {
+		if (debug["edenclocks"]) {
+			${{ console.log("edenclocks: setedenclock(" + arguments[0].name.slice(1) + ", " + arguments[1] + ")"); }}$;
+		}
+		for (i = 1; i <= edenclocks#; i++) {
+			if (isList(edenclocks[i]) && edenclocks[i][1] == clockPtr) {
+				edenclocks = sublist(edenclocks, 1, i - 1) // [[clockPtr, millis]] // sublist(edenclocks, i + 1);
+				return;
+			}
+		}
+		edenclocks = edenclocks // [[clockPtr, millis]];
+	}
+}
+
+proc removeedenclock {
+	para clockPtr;
+	auto i;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc != 1) {
+		error("removeedenclock: This procedure requires exactly 1 argument.");
+	} else if (!isPointer(clockPtr)) {
+		error("removeedenclock: The argument must be a pointer, not a " // type(clockPtr));
+	} else {
+		if (debug["edenclocks"]) {
+			${{ console.log("edenclocks: removeedenclock(" + arguments[0].name.slice(1) + ")"); }}$;
+		}
+		for (i = 1; i <= edenclocks#; i++) {
+			if (isList(edenclocks[i]) && edenclocks[i][1] == clockPtr) {
+				edenclocks = sublist(edenclocks, 1, i - 1) // sublist(edenclocks, i + 1);
+				return;
+			}
+		}
+	}
+}
+}
+
+action html {
+/**
+ * @title Bridging HTML/CSS
+ * Copyright (c) 2014, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * Functions for mapping between content or styling described by EDEN observables and syntactically
+ * correct HTML mark-up or CSS.
+ */
+
+/**
+ * Given an EDEN list of strings, returns a string containing HTML mark-up for formatting the given
+ * items as an unordered (bullet point) list.
+ * #library #html
+ */
+func htmlBulletList {
+	para p1;
+	auto items, item, result, i;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 1 && isList(p1)) {
+		items = p1;
+	} else {
+		items = ${{ arguments }}$;
+	}
+	
+	if (items# == 0) {
+		return "";
+	}
+	
+	result = "<ul>";
+	
+	for (i = 1; i <= items#; i++) {
+		item = items[i];
+		if (item == @) {
+			item = "<span style=\"color: red\">undefined</style>";
+		} else {
+			item = str(item);
+		}
+		result = result // "<li style=\"margin-bottom: 7pt\">" // item // "</li>\n";
+	}
+	
+	result = result // "</ul>\n";
+	return result;
+}
+
+/**
+ * Given an EDEN list of strings, returns a string containing HTML mark-up for
+ * formatting the given items as an ordered (numbered) list.
+ * #library #html
+ */
+func htmlNumberedList {
+	para p1,p2;
+	auto items, item, result, i, numberingType, start;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 0) {
+		return "";
+	} else if (argc <= 3 && ${{ arguments[arguments.length-1] }}$ == @) {
+		return "";
+	} else if (argc <= 3 && isList(${{ arguments[arguments.length-1] }}$)) {
+		items = ${{ arguments[arguments.length-1] }}$;
+		if (isString(p1)) {
+			numberingType = p1;
+			if (argc == 3) {
+				if (isInt(p2)) {
+					start = p2;
+				} else if (p2 == @) {
+					numberingType = "symbols(\"?\")";
+				} else {
+					error("htmlNumberedList: The second argument must be an integer, not a " // type(p2));
+					return "";
+				}
+			}
+		} else if (isInt(p1) && argc == 2) {
+			start = p1;
+		} else if (p1 == @) {
+			numberingType = "symbols(\"?\")";		
+		} else if (argc > 1) {
+			error("htmlNumberedList: The first argument must be a string or an integer, not a " // type(p1));
+			return "";
+		}
+	} else {
+		if (argc >= 2 && (isString(p1) || p1 == @) && (isInt(p2) || p2 == @)) {
+			numberingType = p1;
+			start = p2;
+			items = sublist(${{arguments}}$, 3);
+		} else if (argc >= 1 && (isInt(p1) || p1 == @)) {
+			start = p1;
+			items = sublist(${{arguments}}$, 2);
+		} else {
+			items = ${{arguments}}$;
+		}
+	}
+	
+	if (items# == 0) {
+		return "";
+	}
+	
+	result = "<ol";
+	if (start != @) {
+		result = result // " start=\"" // str(start) // "\"";
+	}
+	if (${{ numberingType.match(/^[1aAiI]$/) }}$) {
+		result = result // " type=\"" // numberingType // "\"";
+	} else if (numberingType != @) {
+		result = result // " style='list-style-type: " // numberingType // "'";
+	}
+	result = result + ">\n";
+	
+	for (i = 1; i <= items#; i++) {
+		item = items[i];
+		if (item == @) {
+			item = "<span style=\"color: red\">undefined</style>";
+		} else {
+			item = str(item);
+		}
+		result = result // "<li style=\"margin-bottom: 7pt\">" // item // "</li>\n";
+	}
+	
+	result = result // "</ol>\n";
+	return result;
+}
+
+_option_global_css = false;
+
+/**
+ * This procedure binds the value of CSS property to an EDEN observable.  Any future changes to the
+ * value of the observable are instantaneously reflected by corresponding changes in the styling of
+ * HTML content.
+ *
+ * The first parameter (which is optional) specifies a CSS ID (without the initial # symbol) in which
+ * to limit the scope of the styling changes.  For example, a scope of "jspe_slide" would be used to
+ * apply styling to the content of JSPE slides.  The second parameter specifies a CSS selector name.
+ * If the selector name contains a reference to a CSS ID (#something) or a CSS class name (.something)
+ * then the scope parameter can be omitted.  Otherwise it must be specified unless the
+ * _option_global_css observable has been assigned the value true.  That is, by default, global stylistic changes
+ * that affect, for example, all <div> tags on the screen are not permitted because this might result in
+ * unforeseen effects that make the JS-EDEN environment unusable.  Even omitting a scope and using
+ * a class name selector may cause unwanted effects if the class name happens to be used internally
+ * by the environment's own HTML.  Nonetheless, no attempt is currently made to prohibit such a
+ * situation.  However, usage of the scope parameter is strongly encouraged except when deliberately
+ * trying to craft CSS that affects multiple JS-EDEN views.  If the selector name is the empty string
+ * and a scope has been specified then the styling is applied to the scoping container itself, e.g.
+ *  #jspe_slide
+ *
+ * The third parameter specifies the CSS property name to affect and the forth parameter specifies
+ * the name of the EDEN observable that will contain the value of the CSS property.
+ *
+ * Note that for the purposes of CSS precedence rules, a single property binding results in the
+ * creation of a small stylesheet.  Stylesheets are added to the document in the order that the
+ * relevant bindXXX procedure invocations were called.  Each stylesheet is added such that is becomes
+ * the last child of the <head> element immediately after the relevent bindXXX procedure is called.
+ * Binding multiple observable names to the same combination of scope, selector and property name
+ * is not advised and will have undesirable effects.
+ * #library #css #html
+ */
+proc bindCSSProperty {
+	${{
+		var scope, selector, property, obsName;
+		
+		if (arguments.length == 3) {
+			scope = undefined;
+			selector = arguments[0];
+			property = arguments[1];
+			obsName = arguments[2];		
+		} else if (arguments.length == 4) {
+			scope = arguments[0];
+			selector = arguments[1];
+			property = arguments[2];
+			obsName = arguments[3];
+		} else {
+			eden.error(new Error("bindCSSProperty: This procedure requires a minimum of 3 arguments and a maximum of 4 arguments."), "error");
+			return;
+		}
+		
+		if (typeof(property) != "string") {
+			eden.error(new Error("bindCSSProperty: The CSS property name must be a string, not a " + typeof(property)), "error");
+			return;
+		}
+		if (obsName instanceof Symbol) {
+			obsName = obsName.name.slice(1);
+		} else if (typeof(obsName) != "string") {
+			eden.error(new Error("bindCSSProperty: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
+			return;
+		}
+		
+		selector = putCSSSelectorIntoScope(scope, selector);
+		if (selector === undefined) {
+			//Disallowed or invalid selector.
+			return;
+		}
+		
+		var stylesheet;		
+		var stylesheetID = "css-dependencies-" + selector.replace(/\s+/g, "$$") + "$$" + property;
+		var styleElement = document.getElementById(stylesheetID);
+		if (styleElement === null) {
+			styleElement = document.createElement("style");
+			styleElement.id = stylesheetID;
+			var headElement = document.getElementsByTagName("head")[0];
+			headElement.appendChild(styleElement);
+			stylesheet = styleElement.sheet;
+			stylesheet.insertRule(selector + "{ }", 0);
+		} else {
+			stylesheet = styleElement.sheet;
+		}
+		
+		var cssDeclarations = stylesheet.cssRules[0].style;
+		var updateFunction = function (obs, value) {
+			if (value === undefined) {
+				cssDeclarations.cssText = "";
+			} else {
+				cssDeclarations.cssText = property + ": " + value + ";";
+			}
+		};
+		var obsSym = root.lookup(obsName);
+		updateFunction("/" + obsName, obsSym.value());
+		obsSym.addJSObserver("bind", updateFunction);
+	}}$;
+}
+
+#bindCSSNumericProperty procedure is similar to the bindCSSProperty procedure, except that instead
+#of the bound observable taking on string values like "12pt" the bound observable can instead take
+#on numeric values (like 12) and the associated CSS property will be set using a scale that was
+#previously selected at the time of binding the observable to the CSS.  That is, when this
+#procedure is called "pt" might be specified to indicate that observable records the font size in
+#typographic points.
+proc bindCSSNumericProperty {
+	${{
+		var scope, selector, property, obsName, units;
+		
+		if (arguments.length == 4) {
+			scope = undefined;
+			selector = arguments[0];
+			property = arguments[1];
+			obsName = arguments[2];
+			units = arguments[3];
+		} else if (arguments.length == 5) {
+			scope = arguments[0];
+			selector = arguments[1];
+			property = arguments[2];
+			obsName = arguments[3];
+			units = arguments[4];
+		} else {
+			eden.error(new Error("bindCSSNumericProperty: This procedure requires a minimum of 4 arguments and a maximum of 5 arguments."), "error");
+			return;
+		}
+		
+		if (typeof(property) != "string") {
+			eden.error(new Error("bindCSSNumericProperty: The CSS property name must be a string, not a " + typeof(property)), "error");
+			return;
+		}
+		if (obsName instanceof Symbol) {
+			obsName = obsName.name.slice(1);
+		} else if (typeof(obsName) != "string") {
+			eden.error(new Error("bindCSSNumericProperty: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
+			return;
+		}
+		if (typeof(units) != "string") {
+			eden.error(new Error("bindCSSNumericProperty: The unit name must be a string, not a " + typeof(units)), "error");
+			return;
+		}
+		
+		selector = putCSSSelectorIntoScope(scope, selector);
+		if (selector === undefined) {
+			//Disallowed or invalid selector.
+			return;
+		}
+		
+		var stylesheet;		
+		var stylesheetID = "css-dependencies-" + selector.replace(/\s+/g, "$$") + "$$" + property;
+		var styleElement = document.getElementById(stylesheetID);
+		if (styleElement === null) {
+			styleElement = document.createElement("style");
+			styleElement.id = stylesheetID;
+			var headElement = document.getElementsByTagName("head")[0];
+			headElement.appendChild(styleElement);
+			stylesheet = styleElement.sheet;
+			stylesheet.insertRule(selector + "{ }", 0);
+		} else {
+			stylesheet = styleElement.sheet;
+		}
+		
+		var cssDeclarations = stylesheet.cssRules[0].style;
+		var updateFunction = function (obs, value) {
+			if (value === undefined) {
+				cssDeclarations.cssText = "";
+			} else if (/[+-]?[0-9]*(\.[0-9]+)?(e[+-]?[0-9]+)?/.test(value)) {
+				cssDeclarations.cssText = property + ": " + value + units + ";";
+			} else {
+				//values like auto and inherit
+				cssDeclarations.cssText = property + ": " + value + ";";			
+			}
+		};
+		var obsSym = root.lookup(obsName);
+		updateFunction("/" + obsName, obsSym.value());
+		obsSym.addJSObserver("bind", updateFunction);
+	}}$;
+}
+
+#bindCSSRule creates a binding where the value of an observable specifies the complete contents
+#to be inserted between a pair of { and } characters in the underlying stylesheet.  For example,
+#the observable might take on a string value like "font-size: 12pt; color: red".
+proc bindCSSRule {
+	${{
+		var scope, selector, obsName;
+		
+		if (arguments.length == 2) {
+			scope = undefined;
+			selector = arguments[0];
+			obsName = arguments[1];
+		} else if (arguments.length == 3) {
+			scope = arguments[0];
+			selector = arguments[1];
+			obsName = arguments[2];
+		} else {
+			eden.error(new Error("bindCSSRule: This procedure requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
+			return;
+		}
+		
+		if (obsName instanceof Symbol) {
+			obsName = obsName.name.slice(1);
+		} else if (typeof(obsName) != "string") {
+			eden.error(new Error("bindCSSRule: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
+			return;
+		}
+		
+		selector = putCSSSelectorIntoScope(scope, selector);
+		if (selector === undefined) {
+			//Disallowed or invalid selector.
+			return;
+		}
+		
+		var stylesheet;		
+		var stylesheetID = "css-dependencies-" + selector.replace(/\s+/g, "$$");
+		var styleElement = document.getElementById(stylesheetID);
+		if (styleElement === null) {
+			styleElement = document.createElement("style");
+			styleElement.id = stylesheetID;
+			var headElement = document.getElementsByTagName("head")[0];
+			headElement.appendChild(styleElement);
+			stylesheet = styleElement.sheet;
+			stylesheet.insertRule(selector + "{ }", 0);
+		} else {
+			stylesheet = styleElement.sheet;
+		}
+		
+		var cssDeclarations = stylesheet.cssRules[0].style;
+		var updateFunction = function (obs, value) {
+			if (value === undefined) {
+				cssDeclarations.cssText = "";
+			} else if (typeof(value) == "object") {
+				var capital = /([A-Z])/g;
+				var jsSyntax = /^\w*[A-Z]\w*$/;
+				var declarations = "";
+				for (var key in value) {
+					if (typeof(value[key]) == "string") {
+						var property;
+						if (jsSyntax.test(key)) {
+							property = key.replace(capital, function (match, capitalLetter) {
+								return "-" + capitalLetter.toLowerCase();
+							});
+						} else {
+							property = key;
+						}
+						declarations = declarations + property + ": " + value[key] + ";\n";
+					}
+				}
+				cssDeclarations.cssText = declarations;
+			} else {
+				cssDeclarations.cssText = value;
+			}
+		};
+		var obsSym = root.lookup(obsName);
+		updateFunction("/" + obsName, obsSym.value());
+		obsSym.addJSObserver("bind", updateFunction);
+	}}$;
+}
+
+#Removes the connection between an observable name and a CSS stylesheet.  After calling this
+#procedure future updates to the value of the specified observable will no longer cause changes to
+#the styling of HTML.
+proc unbind {
+	${{
+		if (arguments.length != 1) {
+			eden.error(new Error("unbind: This procedure requires exactly 1 argument."), "error");
+			return;
+		}
+		var obsSym;
+		if (arguments[0] instanceof Symbol) {
+			obsSym = arguments[0];
+		} else if (typeof(arguments[0]) == "string") {
+			obsSym = root.lookup(arguments[0]);
+		} else {
+			eden.error(new Error("unbind: The argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
+			return;
+		}
+		obsSym.removeJSObserver("bind");
+	}}$;
+}
+
+${{
+	putCSSSelectorIntoScope = function (scope, selector) {
+		var scopeSpecified;
+		if (scope === undefined) {
+			scopeSpecified = false;
+		} else if (typeof(scope) != "string") {
+			eden.error(new Error("Scope for CSS modifications must be a string, not a " + typeof(scope)), "error");
+				return undefined;
+		} else {
+			scopeSpecified = !(/^\s*$/.test(scope));
+		}
+
+		if (typeof(selector) != "string") {
+			eden.error(new Error("CSS selector must be a string, not a " + typeof(selector)), "error");
+			return undefined;
+		}
+		
+		var regExp = /^\s*(([^",]|("[^"]*"))+)(,|$)/g
+		var match, individualSelector;
+		var selectors = [];
+		var authoringMode = root.lookup("_option_global_css").value();
+		
+		while ((match = regExp.exec(selector)) !== null) {
+			individualSelector = match[1];
+			if (/^((:not\(([^"]|("[^"]*"))*\))|[^":.#]|(\:[^n])|("[^"]*"))*[.#]/.test(individualSelector)) {
+				selectors.push(individualSelector);
+			} else if (scopeSpecified) {
+				selectors.push("#" + scope + " " + individualSelector);
+			} else if (authoringMode) {
+				selectors.push(individualSelector);
+			} else {
+				eden.error(new Error("Cannot alter CSS globally for selector " + individualSelector +
+					" when not in tool authoring mode (_option_global_css = false).  Please specify a scope in which to restrict the changes."),
+					"error");
+				return undefined;
+			}
+		}
+
+		if (selectors.length == 0) {
+			if (scopeSpecified && selector == "") {
+				return "#" + scope;
+			} else {
+				eden.error(new Error("Invalid CSS selector specified."), "error");
+				return undefined;
+			}
+		} else {
+			return selectors.join(", ");
+		}
+	}
+}}$;
+}
+
+action declarevar {
+
+}
+
+action include {
+# Copyright (c) 2013, Empirical Modelling Group
+# All rights reserved.
+#
+# See LICENSE.txt
+
+func include_css {
+${{
+	$("<link/>", {
+	   rel: "stylesheet",
+	   type: "text/css",
+	   href: arguments[0]
+	}).appendTo("head");
+}}$;
+};
+}
+
+

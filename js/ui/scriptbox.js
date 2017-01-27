@@ -5,7 +5,7 @@ EdenUI.ScriptBox = function(element, options) {
 
 	// Construct the inner elements required.
 	this.contents = $(this.outer);
-	this.contents.html('<div class="scriptbox-inputhider"><textarea autofocus tabindex="1" class="hidden-textarea"></textarea><div class="scriptbox-codearea"></div></div><div class="scriptbox-outputbox"><div class="scriptbox-statement"><div class="scriptbox-output" contenteditable="true" spellcheck="false"></div></div></div><div class="info-bar"></div></div>');
+	this.contents.html('<div class="scriptbox-inputhider"><textarea autofocus tabindex="1" class="hidden-textarea" style="height: 5px;"></textarea><div class="scriptbox-codearea"></div></div><div class="scriptbox-outputbox"><div class="scriptbox-statement"><div class="scriptbox-output" contenteditable="true" spellcheck="false"></div></div></div><div class="info-bar"></div></div>');
 	//this.outer.appendChild(this.contents.get(0));
 
 	//this.statements = [""];
@@ -16,6 +16,7 @@ EdenUI.ScriptBox = function(element, options) {
 	this.$codearea = this.contents.find('.scriptbox-codearea');
 	this.codearea = this.$codearea.get(0);
 	this.intextarea = this.contents.find('.hidden-textarea').get(0);
+	this.inputhider = this.contents.find('.scriptbox-inputhider').get(0);
 	//this.$codearea.append($('<div class="scriptbox-statement" data-statement="'+(dstat.id)+'"><div class="grippy"></div><div class="scriptbox-sticky stuck"></div><div class="scriptbox-gutter" data-statement="'+dstat.id+'"></div><div spellcheck="false" tabindex="2" contenteditable class="scriptbox-output" data-statement="'+dstat.id+'"></div></div>'));
 	this.outdiv = this.contents.find('.scriptbox-output').get(0);
 	this.$codearea.sortable({revert: 100, handle: ".grippy",
@@ -83,16 +84,23 @@ EdenUI.ScriptBox = function(element, options) {
 		if (me.ast && me.ast.script && !me.ast.hasErrors() && e.keyCode == 13 && me.ast.token == "EOF" && me.intextarea.selectionStart >= me.ast.script.end) {
 			//console.log("BREAK TO NEW BOX");
 			//me.insertStatement(undefined, true);
-			me.ast.execute(EdenUI.ScriptBox.consoleAgent);
 			me.history.push(me.ast.stream.code);
 			me.historyindex = me.history.length;
 			if (window.localStorage) {
 				window.localStorage.setItem("console_history", JSON.stringify(me.history));
 			}
 			$(me.outdiv).find(".fake-caret").remove();
-			me.$codearea.append($('<div>'+me.outdiv.innerHTML+'</div>'));
+			me.$codearea.append($('<div class="scriptbox-historic">'+me.outdiv.innerHTML+'</div>'));
+
+			me.ast.execute(EdenUI.ScriptBox.consoleAgent, function() {
+				if (me.ast.lastresult !== undefined) {
+					console.log("Result",me.ast.lastresult);
+					me.$codearea.append($('<div class="scriptbox-value">'+EdenUI.Highlight.html(Eden.edenCodeForValue(me.ast.lastresult))+'</div>'));
+				}
+			});
+
 			// Make sure scrolled to bottom.
-			me.codearea.scrollTop = me.codearea.scrollHeight;
+			me.inputhider.scrollTop = me.inputhider.scrollHeight;
 			me.setSource("");
 			e.preventDefault();
 			return;
@@ -542,11 +550,10 @@ EdenUI.ScriptBox.prototype.enable = function() {
 EdenUI.ScriptBox.prototype.setSource = function(src) {
 	//if (this.currentstatement === undefined) return;
 	this.intextarea.value = src;
-	this.ast = new Eden.AST(src,undefined,EdenUI.ScriptBox.consoleAgent);
+	this.ast = new Eden.AST(src,undefined,EdenUI.ScriptBox.consoleAgent, {noindex: true});
 	this.highlightContent(this.ast, -1, 0);
 	this.intextarea.focus();
 	if (this.ast.script && this.ast.script.errors.length == 0) {
-		console.log("NO ERRORS!!!");
 		//Eden.Statement.statements[this.currentstatement].setSource(src,this.ast);
 		changeClass(this.outdiv.parentNode,"error",false);
 	} else if (src == "") {
@@ -575,7 +582,7 @@ EdenUI.ScriptBox.prototype.updateLineHighlight = function() {
 		lineno = this.getLineNumber(this.intextarea);
 	}
 
-	this.ast = new Eden.AST(this.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent);
+	this.ast = new Eden.AST(this.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent, {noindex: true});
 	//scriptagent.setSource(intextarea.value, false, lineno);
 	this.highlighter.ast = this.ast;
 
@@ -585,7 +592,6 @@ EdenUI.ScriptBox.prototype.updateLineHighlight = function() {
 	//rebuildNotifications();
 
 	if (this.ast.script && this.ast.script.errors.length == 0) {
-		console.log("NO ERRORS!!!");
 		//Eden.Statement.statements[this.currentstatement].setSource(this.intextarea.value,this.ast);
 		changeClass(this.outdiv.parentNode,"error",false);
 	} else {
@@ -619,7 +625,7 @@ EdenUI.ScriptBox.prototype.updateLineCachedHighlight = function() {
  * could be such changes), for example when pasting.
  */
 EdenUI.ScriptBox.prototype.updateEntireHighlight = function(rerun) {
-	this.ast = new Eden.AST(this.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent);
+	this.ast = new Eden.AST(this.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent, {noindex: true});
 	this.highlighter.ast = this.ast;
 	var pos = -1;
 	if (document.activeElement === this.intextarea) {
@@ -633,7 +639,6 @@ EdenUI.ScriptBox.prototype.updateEntireHighlight = function(rerun) {
 	this.highlightContent(this.ast, -1, pos);
 
 	if (this.ast.script && this.ast.script.errors.length == 0) {
-		console.log("NO ERROR so execute!");
 		//Eden.Statement.statements[this.currentstatement].setSource(this.intextarea.value,this.ast);
 		//changeClass(this.outdiv.parentNode.childNodes[(this.showstars)?2:1],"error",false);
 	} else {
@@ -706,7 +711,7 @@ EdenUI.ScriptBox.prototype.highlightContent = function(ast, lineno, position) {
 					me.replaceLine(me.dragline, content);
 
 					//me.setSource(me.intextarea.value, false, dragline);
-					me.ast = new Eden.AST(me.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent);
+					me.ast = new Eden.AST(me.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent, {noindex: true});
 					me.highlighter.ast = me.ast;
 
 					//console.log("Dragline: " + dragline);

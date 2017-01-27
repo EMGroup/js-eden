@@ -1,0 +1,89 @@
+/*
+ * Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+#HTML Output
+#If two arguments are provided then the view named by the first argument is
+#is updated to have the content set to the HTML code specified by the second
+#argument.  If only one argument is provided then the argument contains the
+#HTML code and the default HTML view is updated.
+proc html {
+	${{
+		var viewName, content;
+		switch (arguments.length) {
+		case 1:
+			viewName = "html";
+			content = arguments[0];
+			break;
+		case 2:
+			viewName = arguments[0];
+			content = arguments[1];
+			if (typeof(viewName) != "string") {
+				eden.error(new Error("html: The name of the view to update must be a string, not a " + typeof(viewName)), "error");
+				return;
+			} else if (!eden.isValidIdentifier(viewName)) {
+				eden.error(new Error("html: The name of the view to update must be a valid EDEN identifier."), "error");
+				return;
+			}
+			break;
+		default:
+			eden.error(new Error("html: This procedure requires at least 1 argument and at most 2 arguments."), "error");
+			return;
+		}
+
+		root.lookup("_view_" + viewName + "_content").assign(content, root.scope, root.lookup("html"));
+
+		if (!(viewName in edenUI.viewInstances)) {
+			edenUI.createView(viewName, "HTMLContent");
+		}
+
+	}}$;
+}
+
+#Creates a HTML view and a triggered procedure so that contents of the view
+#are kept in sync with the value of a given observable at all times.  The first
+#parameter is the name of the observable who's value provides the HTML code.  The
+#second, optional parameter, is the text to place into the window's title bar.
+/*proc createHTMLView {
+	auto obsName, viewTitle, viewName;
+	if ($# == 1) {
+		obsName = $[1];
+	} else if ($# == 2) {
+		obsName = $[1];
+		viewTitle = $[2];
+	} else if ($# == 3) {
+		viewName = $[1];
+		obsName = $[2];
+		viewTitle = $[3];
+		if (!isString(viewName)) {
+			error("createHTMLView: The first argument must be a string, not a " // type(viewName));
+			return;
+		}
+	} else {
+		error("createHTMLView: This procedure requires at least 1 argument and at most 3 arguments.");
+		return;
+	}
+
+	if (isPointer(obsName)) {
+		obsName = nameof(obsName);
+	} else if (!isString(obsName)) {
+		error("createHTMLView: The observable name must be expressed as a string or a pointer, not a " // type(obsName));
+		return;
+	}
+	if (viewName == @) {
+		viewName = obsName;
+	}
+	if (viewTitle == @) {
+		viewTitle = uppercase(substr(viewName, 1, 1)) // substr(viewName, 2);
+	} else if (!isString(viewTitle)) {
+		error("createHTMLView: The window title must be a string, not a " // type(viewTitle));
+		return;
+	}
+
+	createView(viewName, "HTMLContent");
+	execute("_view_" // viewName // "_content is " // obsName // ";");
+	`"_view_" // viewName // "_title"` = viewTitle;
+}*/

@@ -152,60 +152,9 @@
 				}
 
 				//console.log("Associated: ",);
-				edenUI.explorer.watch(observables);
+				//edenUI.explorer.watch(observables);
 			}
 		});
-	}
-
-
-	/**
-	 * Parse an agent name string to attempt to find its location and display
-	 * that location to the user by opening a script view to it. If it is
-	 * already in a script view it will change to that tab and scroll to the
-	 * line if the line is known. Note that it does not always succeed.
-	 * @param {String} An agent/symbol name.
-	 * @param {number?} Optional line number if already known.
-	 */
-	EdenUI.prototype.gotoCode = function(agentname, line) {
-		// Is it a symbol name?
-		if (agentname.charAt(0) == "/") {
-			// Find, if possible, where this symbol is located currently.
-			var sym = eden.root.lookup(agentname.slice(1));
-			
-			// Attempt to get line number.
-			if (sym.eden_definition && sym.last_modified_by.name.charAt(0) != "*" && sym.last_modified_by.name.charAt(0) != "/") {
-				var ag = Eden.Agent.agents[sym.last_modified_by.name];
-				if (ag) {
-					line = ag.findDefinitionLine(sym.name.slice(1), sym.eden_definition);
-				}
-			}
-
-			this.gotoCode(sym.last_modified_by.name, line);
-		// The agent is a script name so attempt to go to an open one first
-		} else if (agentname.charAt(0) != "*" && !Eden.Agent.emit("goto", [Eden.Agent.agents[agentname], line])) {
-			this.createView("explorescript", "ScriptInput", window);
-			eden.root.lookup("_view_explorescript_agent").assign(agentname, eden.root.scope);
-			Eden.Agent.emit("goto", [Eden.Agent.agents[agentname], line]);
-		// The agent is something special, a "when" or "javascript".
-		} else if (agentname.charAt(0) == "*") {
-			if (agentname.startsWith("*Action")) {
-				var s = agentname.split(":");
-				var ag = Eden.Agent.agents[s[1]];
-				if (ag && ag.ast) {
-					var script = ag.ast.scripts[s[2]];
-					if (script) {
-						this.gotoCode(ag.name, script.line);
-					}
-				}
-			} else if (agentname.startsWith("*When")) {
-				var s = agentname.split(":");
-				var ag = Eden.Agent.agents[s[1]];
-				if (ag) {
-					this.gotoCode(ag.name, parseInt(s[2]));
-				}
-			}
-			// Nothing we can do otherwise
-		}
 	}
 
 	/**Momentarily provides a visual cue to direct the user's gaze towards a particular view.
@@ -405,6 +354,30 @@
 			}
 		} catch (e) {
 			//Cookies are blocked.
+		}
+	}
+
+	EdenUI.prototype.fullscreen = function(name, observable) {
+		var sym = eden.root.lookup(observable);
+		var val = sym.value();
+
+		if (document.webkitExitFullscreen) {
+			if (val) {
+				document.onwebkitfullscreenchange = function() {
+					if (!document.webkitIsFullScreen) {
+						sym.assign(false, eden.root.scope, Symbol.hciAgent);
+						edenUI.menu.show();
+					}
+				}
+				var ele = document.getElementById(name+"-canvascontent");
+				ele.webkitRequestFullscreen();
+				edenUI.menu.hide();
+			} else {
+				document.webkitExitFullscreen();
+				edenUI.menu.show();
+			}
+		} else if (document.mozCancelFullScreen) {
+
 		}
 	}
 
@@ -651,7 +624,7 @@
 	 */
 	Eden.prototype.error = function (error, origin) {
 
-		Eden.Agent.emit("error", [Symbol.jsAgent, new Eden.RuntimeError(undefined, 0, undefined, error)]);
+		eden.emit("error", [Symbol.jsAgent, new Eden.RuntimeError(undefined, 0, undefined, error)]);
 		return;
 
 		/*if (origin != "error") {
@@ -680,7 +653,7 @@
 	 * @param {string?} prefix Prefix used for relative includes.
 	 * @param {function(*)} success
 	 */
-	Eden.prototype.execute = function (code, origin, prefix, agent, success) {
+	/*Eden.prototype.execute = function (code, origin, prefix, agent, success) {
 		if (arguments.length == 1) {
 			success = noop;
 			origin = 'unknown';
@@ -695,7 +668,7 @@
 		}
 
 		this.polyglot.execute(code, origin, prefix, agent, success);
-	};
+	};*/
 
 	/**
 	 * @param {string} includePath
@@ -717,14 +690,14 @@
 		var agobj = agent;
 
 		if (agent === undefined || typeof agent == "string") {
-			agobj = {name: 'execute', getSource: function() { return code; }, getLine: function() { return 0; }};
+			agobj = {name: '*execute'};
 			if (agent) agobj.name = agent;
 		}
 
 		//if (agobj.getSource === undefined) agobj.getSource = function() { return code; };
 		//if (agobj.getLine === undefined) agobj.getLine = function() { return 0; };
 
-		var ast = new Eden.AST(code, undefined, agobj);
+		var ast = new Eden.AST(code, undefined, agobj, {noindex: true});
 		if (ast.script.errors.length == 0) {
 			ast.execute(agobj, success);
 		} else {
@@ -732,6 +705,7 @@
 			success && success(false);
 		}
 	};
+	Eden.prototype.execute = Eden.prototype.execute2;
 
 
 	/** Deprecated */

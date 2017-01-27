@@ -9,73 +9,36 @@ EdenUI.plugins.ScriptInput.dialogs = {};
 
 EdenUI.plugins.ScriptInput.dialogs.newAgent = function(element, callback) {
 	var obscurer = $('<div class="script-obscurer noselect"></div>');
-	var content = $('<div class="script-subdialog-newagent noselect"><span class="script-subdialog-title">Create or import agent:</span><br/><input class="script-subdialog-text" type="text" spellcheck="false" list="agentlist" placeholder="model/component/agent"></input><datalist id="agentlist"></datalist><span class="status missing"></span><br><button class="button-icon-green button-add">Add</button><button style="position: absolute; right: 20px" class="button-icon-silver button-cancel">Cancel</button><button style="position: absolute; right: 100px;" class="button-icon-silver button-agents">Browse</button></div>');
-	var input = content.find('.script-subdialog-text');
-	var status = input.get(0).nextSibling.nextSibling;
-	var datalist = content.find('#agentlist');
-	var valid = false;
-
-	datalist.empty();
-	for (var a in Eden.Agent.agents) {
-		var opt = $('<option>'+a+'</option>');
-		datalist.append(opt);
-	}
-
-	content
-	.on("input blur", ".script-subdialog-text", function() {
-		var value = input.get(0).value;
-		//console.log(value);
-		
-		var valsplit = value.split("/");
-		var valtest = true;
-		for (var i=0; i<valsplit.length; i++) {
-				if (/^[a-z][a-z0-9]+$/i.test(valsplit[i]) == false) {
-						valtest = false;
-						break;
-				}
-		}
-
-		if (value == "") {
-			valid = false;
-			status.className = "missing";
-		} else if (valtest) {
-			if (Eden.Agent.agents[value] === undefined) {
-				Eden.DB.getMeta(value, function(path,meta) {
-					if (meta) {
-						status.className = "download";
-						valid = true;
-					} else {
-						status.className = "addnew";
-						valid = true;
-					}
-				});
-			} else {
-				if (Eden.Agent.agents[value].owned) {
-					status.className = "readonly";
-				} else {
-					status.className = "edit";
-				}
-				valid = true;
-			}
-		} else {
-			status.className = "invalid";
-			valid = false;
-		}
-	})
-	.on("click", ".button-add", function() {
-		if (valid) {
-			element.get(0).removeChild(obscurer.get(0));
-			callback(true, input.get(0).value);
-		}
-	})
-	.on("click", ".button-agents", function() {
-		element.get(0).removeChild(obscurer.get(0));
-		callback(false, true);
-	})
-	.on("click", ".button-cancel", function() {
+	var content = $('\<div class="script-subdialog script-subdialog-newagent noselect">\
+<span class="script-subdialog-title">Create Tab:</span>\
+<div class="script-subdialog-panel">\
+<button>Scratch</button></div>\
+<div class="script-subdialog-panel">\
+<input class=\"namebox\" type="text" spellcheck="false" placeholder=\"New Tab\"></input>\
+<button class=\"button-new\">New</button></div>\
+<div class="script-subdialog-panel">\
+<input type="text" class=\"searchbox\" spellcheck="false" placeholder=\"Search\"></input>\
+<button class=\"button-search\">Load</button><br/>\
+</div>\
+</div>');
+	var searchbox = content.find(".searchbox").get(0);
+	var namebox = content.find(".namebox").get(0);
+	
+	content.on("click", ".button-cancel", function() {
 		element.get(0).removeChild(obscurer.get(0));
 		callback(false);
-	}); 
+	});
+
+	content.on("click", ".button-search", function() {
+		element.get(0).removeChild(obscurer.get(0));
+		callback(true, searchbox.value);
+	});
+
+	content.on("click", ".button-new", function() {
+		eden.project.addAction(namebox.value);
+		element.get(0).removeChild(obscurer.get(0));
+		callback(true, "."+namebox.value);
+	});
 
 	obscurer.append(content);
 	element.append(obscurer);

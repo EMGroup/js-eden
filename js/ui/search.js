@@ -4,125 +4,174 @@ EdenUI.SearchBox = function(element) {
 	this.element = element;
 
 	element.on("click", ".menubar-search-result", function(e) {
-		var obs = e.currentTarget.getAttribute("data-obs");
-		var script = e.currentTarget.getAttribute("data-script");
+		var obs = e.currentTarget.getAttribute("data-id");
+
 		if (obs && obs != "") {
-			me.updateSymbolDetails($(e.currentTarget), obs);
+			me.updateSymbolDetails(e.currentTarget, obs);
 		} else if (script && script != "") {
-			Eden.Agent.importAgent(script, "default", ["noexec"], function(ag) {
-				// Now inspect doxy controls of script.
-				if (ag.ast.mainDoxyComment && ag.ast.mainDoxyComment.getControls()["@run"]) {
-					console.log("DOXY CONTROLS RUN");
-					ag.execute();
-				} else {
-					edenUI.gotoCode(script, -1);
-				}
-			});
+			
 		}
 	});
 
 	element.on('click', '.edit-result', function(e) {
 		//console.log(e);
-		edenUI.gotoCode("/"+e.target.parentNode.parentNode.getAttribute("data-obs"),-1);
+		//edenUI.gotoCode("/"+e.target.parentNode.parentNode.getAttribute("data-obs"),-1);
+	});
+
+	element.on('click', '.script-goto', function(e) {
+		var id = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-id");
+		me.element.hide();
+		Eden.Selectors.goto(id);
+	});
+
+	element.on('click', '.script-import', function(e) {
+		var id = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-id");
+		//me.element.hide();
+		Eden.Selectors.query(id, undefined, {minimum: 1, options: {external: true, index: true}}, function(stats) {
+			if (id && id != "") {
+				e.currentTarget.parentNode.parentNode.parentNode.setAttribute("data-imported","true");
+				me.updateSymbolDetails(e.currentTarget.parentNode.parentNode.parentNode, id);
+			}
+		});
 	});
 };
 
 EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
-	var docele = element.find(".doxy-search-details");
-	if (docele && docele.length > 0 && eden.dictionary[name]) {
-		var stripped = eden.dictionary[name].pretty();
-		if (stripped && stripped.length > 0) {
-			docele.html(stripped);
-		}
-	}
-}
+	console.log("Update details", name);
 
-EdenUI.SearchBox.prototype.makeSymbolResult = function(name) {
-	var sym = eden.root.lookup(name);
-	var symstr;
+	var dataimported = element.getAttribute("data-imported");
+	var dataremote = element.getAttribute("data-remote");
 
-	if (sym.eden_definition) {
-		if (sym.eden_definition.startsWith("func")) {
-			symstr = "func " + name;
-		} else if (sym.eden_definition.startsWith("proc")) {
-			symstr = "proc " + name;
-		} else if (sym.eden_definition.length > 55) {
-			symstr = sym.eden_definition.substr(0,55) + "...";
-		} else {
-			symstr = sym.eden_definition;
-		}
-	} else {
-		var valstr = Eden.edenCodeForValue(sym.value());
-		if (valstr.length + name.length + 3 > 55) {
-			symstr = name + " = " + valstr.substr(0,55 - name.length - 3)+"...";
-		} else {
-			symstr = name + " = " + valstr + ";";
-		}
-	}
-
-	var ctrlstr = '<div class="menubar-search-rescontrols"><span class="edit-result">&#xf044;</span><span>&#xf06e;</span></div>';
-
-	var docstr = "";
-	if (eden.dictionary[name]) {
-		var stripped = eden.dictionary[name].brief();
-		if (stripped && stripped.length > 0) {
-			docstr = '<div class="doxy-search-details"><p>'+stripped+'</p></div>';
-		}
-	}
-
-	var ele = $('<div class="menubar-search-result" data-obs="'+name+'">'+EdenUI.Highlight.html(symstr)+ctrlstr+docstr+'</div>');
-	return ele;
-}
-
-EdenUI.SearchBox.prototype.makeAgentResult = function(when) {
-	var symstr;
-
-	if (when.base) {
-		symstr = when.base.getSource(when).split("{")[0];
-	} else {
+	Eden.Selectors.query("@history " + name, "id,path,source,type,value,active,tags,rawcomment,historic", {minimum: 1, options: {external: true}}, function(ast){
+	if (ast.length == 0) {
+		console.log("No result");
 		return;
 	}
-	if (symstr.length > 55) {
-		symstr = symstr.substr(0,55) + "...";
+
+	ast = ast[0];
+	var id = ast[0];
+	var path = ast[1];
+	var source = ast[2];
+	var type = ast[3];
+	var value = ast[4];
+	var active = ast[5];
+	var tags = ast[6];
+	var comment = ast[7];
+	var historic = ast[8];
+
+	if (comment) comment = new Eden.AST.DoxyComment(comment);
+
+	var docele = $(element).find(".doxy-search-details");
+	if (docele === null || docele.length == 0) {
+		docele = $('<div class="doxy-search-details"></div>');
+		element.appendChild(docele.get(0));
 	}
-
-	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
-
-	var docstr = "";
-	if (when.doxyComment) {
-		var stripped = when.doxyComment.brief();
-		if (stripped && stripped.length > 0) {
-			docstr = '<div class="doxy-search-details"><p>'+stripped+'</p></div>';
+	docele = docele.get(0);
+	
+	if (type == "assignment" || type == "definition") {
+		symstr = source;
+		if (element.firstChild.className == "") {
+			element.firstChild.innerHTML = EdenUI.Highlight.html(symstr);
+		} else {
+			element.childNodes[1].innerHTML = EdenUI.Highlight.html(symstr);
 		}
 	}
 
-	var ele = $('<div class="menubar-search-result" data-agent="'+when.name+'">'+EdenUI.Highlight.html(symstr)+ctrlstr+docstr+'</div>');
-	return ele;
+	var html = "";
+
+	if (!historic) {
+		if (dataremote == "true") {
+			html += "<p>";
+			if (dataimported != "true") {
+				html += '<button class="script-button script-import">Import</button>';
+			}// else {
+				html += '<button class="script-button script-goto">Goto</button></p>';
+			//}
+		} else {
+			if (type == "assignment" || type == "definition") {
+				html = '<p><button class="script-button script-goto">Goto</button><button class="script-button">Watch</button><button class="script-button">More</button></p>';
+			} else {
+				html = '<p><button class="script-button script-goto">Goto</button><button class="script-button">More</button></p>';
+			}
+		}
+	} else { html = ''; }
+
+	/*if (ast instanceof Symbol && ast.type != "function") {
+		html += "<p>";
+		html += "<b>Path:</b> " + path + "<br>";
+		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(value);
+		html += "</p>";
+	} else*/ if (active) {
+		html += "<p>";
+		html += "<b>Path:</b> " + path + "<br>";
+		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(value);
+		html += "</p>";
+	} else {
+		html += "<p>";
+		html += "<b>Path:</b> " + path;
+		html += "</p>";
+	}
+
+	if (comment) {
+		//var tags = ast.doxyComment.getHashTags();
+		if (tags && tags.length > 0) {
+			html += "<p><b>Tags:</b> " + tags.join(" ") + "</p>";
+		}
+		var stripped = comment.pretty(); //ast.doxyComment.pretty();
+		if (stripped && stripped.length > 0) {
+			html += stripped;
+		}
+	}
+
+	docele.innerHTML = html;
+	});
 }
 
 EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 	var symstr;
+	var iconstr = "";
+	var extraclass = "";
+	var extradata = "";
+	var dohl = true;
 
-	//console.log("MAKE STATEMENT",stat);
+	if (stat.executed == -1) extraclass = " historic";
+	var origin = stat.getOrigin();
 
-	var base = stat.base;
-	if (base === undefined) {
-		// Attempt to find base.
-		var p = stat.parent;
-		while (p.parent) p = p.parent;
-		base = p.base;
-	}
-
-	if (base) {
-		symstr = base.getSource(stat).split("\n")[0];
+	if (stat.type == "script") {
+		if (origin && origin.remote) {
+			extradata += " data-remote=\"true\"";
+			if (stat.indexed) extradata += " data-imported=\"true\"";
+			iconstr = '<span class="search-scriptres">&#xf08e;</span>';
+		} else {
+			iconstr = '<span class="search-scriptres">&#xf15c;</span>';
+		}
+		if (stat.parent === undefined) {
+			symstr = "<span class=\"eden-keyword\">Project: </span><b>" + ((stat.base && stat.base.origin && stat.base.origin.title) ? stat.base.origin.title : stat.name) + "</b>";
+			dohl = false;
+		} else if (stat.name) {
+			symstr = "action " + stat.name;
+		} else {
+			symstr = stat.getInnerSource();
+		}
+	} else if (stat.type == "when") {
+		if (stat.enabled) iconstr = '<span class="search-scriptres">&#xf00c;</span>';
+		symstr = stat.prefix.trim();
 	} else {
-		symstr = stat.type;
-	}
-	if (symstr.length > 55) {
-		symstr = symstr.substr(0,55) + "...";
+		if (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin && eden.root.symbols[stat.lvalue.name].origin.id == stat.id) {
+			iconstr = '<span class="search-scriptres">&#xf00c;</span>';
+		}
+		if (!stat.getSource()) console.error("NO SOURCE",stat);
+		symstr = stat.getSource().split("\n")[0];
 	}
 
-	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
+	if (dohl) {
+		if (symstr.length > 55) {
+			symstr = symstr.substr(0,55) + "...";
+		}
+		symstr = EdenUI.Highlight.html(symstr);
+	}
+
+	//var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
 
 	var docstr = "";
 	if (stat.doxyComment) {
@@ -132,36 +181,14 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 		}
 	}
 
-	var ele = $('<div class="menubar-search-result">'+EdenUI.Highlight.html(symstr)+ctrlstr+docstr+'</div>');
+	var ele = $('<div class="menubar-search-result'+extraclass+'" data-id="'+Eden.Selectors.getID(stat)+'"'+extradata+'>'+iconstr+symstr+docstr+'</div>');
 	return ele;
 }
 
-EdenUI.SearchBox.prototype.makeSourceResult = function(stat) {
-	var symstr;
 
-	//console.log("MAKE STATEMENT",stat);
-
-	symstr = stat;
-	if (symstr.length > 55) {
-		symstr = symstr.substr(0,55) + "...";
-	}
-
-	var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';
-
-	var docstr = "";
-	/*if (stat.doxyComment) {
-		var stripped = stat.doxyComment.brief();
-		if (stripped && stripped.length > 0) {
-			docstr = '<div class="doxy-search-details"><p>'+stripped+'</p></div>';
-		}
-	}*/
-
-	var ele = $('<div class="menubar-search-result">'+EdenUI.Highlight.html(symstr)+ctrlstr+docstr+'</div>');
-	return ele;
-}
 
 EdenUI.SearchBox.prototype.makeScriptResult = function(script) {
-	var symstr;
+	/*var symstr;
 
 	var meta = Eden.DB.meta[script];
 
@@ -190,7 +217,7 @@ EdenUI.SearchBox.prototype.makeScriptResult = function(script) {
 	}
 
 	var ele = $('<div class="menubar-search-result" data-script="'+script+'">'+symstr+ctrlstr+docstr+'</div>');
-	return ele;
+	return ele;*/
 }
 
 EdenUI.SearchBox.prototype.updateSearch = function(q) {
@@ -206,7 +233,7 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 		// Scripts by hashtag and observable.
 		// Peer users
 		// Project manager
-		Eden.Query.search(q, function(res) {
+		Eden.Selectors.query(q, undefined, {minimum: 1, options: {external: true}}, function(res) {
 			me.element.html("");
 			var resouter = $('<div class="menubar-search-outer"></div>');
 			/*var categories = $('<div class="menubar-search-cat"><div class="menubar-search-category symbols active">&#xf06e;</div><div class="menubar-search-category agents">&#xf007;</div><div class="menubar-search-category views">&#xf2d0;</div></div>');*/
@@ -219,23 +246,19 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 			var MAXRES = 8;
 			var count = 0;
 
-			for (i=0; i<res.all.length; i++) {
+			console.log(res);
+
+			for (i=0; i<res.length; i++) {
 				if (count >= MAXRES) break;
 				count++;
 				var ele;
-				if (typeof res.all[i] == "object") {
-					if (res.all[i].type == "when") {
-						ele = me.makeAgentResult(res.all[i])
-					} else if (res.all[i].type) {
-						ele = me.makeStatementResult(res.all[i]);
-					}
-				} else if (res.all[i].charAt(0) == "/") {
-					ele = me.makeSymbolResult(res.all[i].slice(1))
-				} else if (res.all[i].startsWith("*script")) {
-					ele = me.makeScriptResult(res.all[i].substring(7));
-				} else {
-					ele = me.makeSourceResult(res.all[i]);
-				}
+
+				//if (res[i] instanceof Symbol) {
+				//	ele = me.makeSymbolResult(res[i]);
+				//} else {
+					ele = me.makeStatementResult(res[i]);
+				//}
+
 				symresults.append(ele);
 			}
 
@@ -263,32 +286,27 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 				more.on("click", function() {
 					symresults.html("");
 					var count = 0;
-					for (; i<res.all.length; i++) {
+					for (; i<res.length; i++) {
 						if (count > MAXRES) break;
 						count++;
 						var ele;
-						if (typeof res.all[i] == "object") {
-							if (res.all[i].type == "when") {
-								ele = me.makeAgentResult(res.all[i])
-							}
-						} else if (res.all[i].charAt(0) == "/") {
-							ele = me.makeSymbolResult(res.all[i].slice(1))
-						}  else if (res.all[i].startsWith("*script")) {
-							ele = me.makeScriptResult(res.all[i].substring(7));
+						if (res[i] instanceof Symbol) {
+							ele = me.makeSymbolResult(res[i]);
 						} else {
-							ele = me.makeSourceResult(res.all[i]);
+							ele = me.makeStatementResult(res[i]);
 						}
+
 						symresults.append(ele);
 					}
 					// Do we need to show a more button
-					if (i < res.all.length) {
+					if (i < res.length) {
 						doMore();
 					}
 				});
 			}
 
 			// Do we need to show a more button
-			if (i < res.all.length) {
+			if (i < res.length) {
 				doMore();
 			}
 		});

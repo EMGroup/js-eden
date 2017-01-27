@@ -1,0 +1,266 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+/**
+ * Creates a Button
+ * 
+ * 
+ * @param [name] Name to be used for the _click and _clicked observable
+ * @param label Label to be displayed
+ * @param [imageURL] Image to be displayed on the button
+ * @param x
+ * @param y
+ * @param [width]
+ * @param [height]
+ * @param [enabled]
+ * 
+ * #canvas #button
+ */
+func Button {
+${{
+	var argsProcessed, arg, argType;
+	var name, label, imageURL;
+	var nameSpecified = false;
+	for (argsProcessed = 0; argsProcessed < 3; argsProcessed++) {
+		arg = arguments[argsProcessed];
+		if (arg !== undefined && typeof(arg) != "string") {
+			break;
+		}
+	}
+
+	if (argsProcessed == 3) {
+		name = arguments[0];
+		label = arguments[1];
+		imageURL = arguments[2];
+		nameSpecified = true;
+	} else if (argsProcessed > 0) {
+		var str = arguments[argsProcessed - 1];
+		var found = false;
+		for (var i = 0; i < Button.imageFileSuffixes.length; i++) {
+			var filenameSuffix = Button.imageFileSuffixes[i];
+			if (str.substr(-filenameSuffix.length) == filenameSuffix) {
+				imageURL = str;
+				if (argsProcessed == 2) {
+					label = arguments[0];
+				}
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			label = str;
+			if (argsProcessed == 2) {
+				name = arguments[0];
+				nameSpecified = true;
+			}
+		}
+	}
+	if (name === undefined) {
+		var obsName = root.currentObservableName();
+		if (!nameSpecified) {
+			name = obsName;
+		}
+		if (name === undefined) {
+			eden.error(new Error("Button: The button defined by observable " + obsName + " must have a name."), "error");
+			return undefined;
+		}	
+	}
+
+	var x = arguments[argsProcessed];
+	argsProcessed++;
+	var y = arguments[argsProcessed];
+	argsProcessed++;
+	arg = arguments[argsProcessed];
+	argType = typeof(arg);
+
+	var width, minHeight, enabled;
+
+	if (argType == "number") {
+		width = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);
+
+		if (argType == "number") {
+			minHeight = arg;
+			argsProcessed++;
+			arg = arguments[argsProcessed];
+			argType = typeof(arg);
+		}
+	}
+
+	if (argType == "boolean") {
+		enabled = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		argType = typeof(arg);	
+	} else {
+		enabled = true;
+	}
+
+	if (argsProcessed < arguments.length - 2) {
+		argsProcessed = arguments.length - 2;
+	}
+
+	var fillcolour = arguments[argsProcessed];
+	var textcolour = arguments[argsProcessed + 1];
+	return new Button(name, label, imageURL, x, y, width, minHeight, enabled, fillcolour, textcolour);
+}}$;
+}
+
+${{
+Button = function (name, label, imageURL, x, y, width, minHeight, enabled, fillcolour, textcolour) {
+	this.name = name;
+	this.obsName = root.currentObservableName();
+	this.label = label;
+	this.imageURL = imageURL;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.minHeight = minHeight;
+	this.enabled = enabled;
+	this.fillcolour = fillcolour;
+	this.textcolour = textcolour;
+};
+
+Button.imageFileSuffixes = [".jpg", ".jpeg", ".png", ".gif", ".svg", ".svgz", ".webp", ".bmp", ".ico"];
+
+Button.prototype.hash = function () {
+	return this.name+"$$"+
+				this.label+"$$"+
+				this.imageURL+"$$"+
+				this.x+"$$"+
+				this.y+"$$"+
+				this.width+"$$"+
+				this.minHeight+"$$"+
+				this.enabled+"$$"+
+				this.fillcolour+"$$"+
+				this.textcolour;
+};
+
+Button.prototype.draw = function (context) {
+
+	if (this.elements === undefined) {
+		var name = this.name;
+
+		var disabled = this.enabled === false? 'disabled="disabled" ' : ' ';
+		var inputHtml = '<button ' +
+			disabled +
+			'class="canvashtml-item" ' +
+			'style="';
+		if (this.fillcolour !== undefined) {
+			inputHtml = inputHtml + 'background-color: ' + this.fillcolour + '; ';
+		}
+		if (this.textcolour !== undefined) {
+			inputHtml = inputHtml + 'color: ' + this.textcolour + '; ';
+		}
+		if (this.width === undefined) {
+			inputHtml = inputHtml + 'max-width: 256px';
+		}
+		inputHtml = inputHtml + '">';
+		if (this.imageURL !== undefined) {
+			inputHtml = inputHtml + '<img src="' + this.imageURL + '" style="max-width: 100%"/><br/>';
+		}
+		if (this.label !== undefined) {
+			inputHtml = inputHtml + this.label;
+		}
+		inputHtml = inputHtml + '</button>';
+
+		var inputJQ = $(inputHtml);
+		var clickSym = root.lookup(name + "_click");
+		if (clickSym.value() === undefined) {
+			//var agent = root.lookup("Button");
+			clickSym.assign(false, root.scope, Symbol.hciAgent);
+			root.lookup(name + "_clicked").assign(false, root.scope, Symbol.hciAgent);
+		}
+
+		inputJQ
+		.click(function () {
+			root.lookup(name + "_clicked").assign(true, root.scope, Symbol.hciAgent, true);
+			root.lookup(name + "_clicked").assign(false, root.scope, Symbol.hciAgent, true);
+		})
+		.on("mousedown", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseDownZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
+		})
+		.on("mouseup", function () {
+			edenUI.plugins.Canvas2D.endClick();
+		})
+		.on("mouseenter", function () {
+			var mouseFollow = root.lookup("mouseFollow").value();
+			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
+		});
+
+		var button = inputJQ.get(0);
+		this.elements = [button];
+
+	} else {
+
+		//Case when the user has performed direct assignment to one or more JavaScript properties.
+		var button = this.elements[0];
+		button.value = this.label;
+
+		if (this.enabled) {
+			button.disabled = false;
+		} else {
+			button.disabled = true;
+		}
+
+		var style = button.style;
+		var fillcolour = this.fillcolour;
+		if (style.backgroundColor != fillcolour) {
+			if (fillcolour === undefined) {
+				style.backgroundColor = "ButtonFace";
+			} else {
+				style.backgroundColor = fillcolour;
+			}
+		}
+		var textcolour = this.textcolour;
+		if (style.color != textcolour) {
+			if (textcolour === undefined) {
+				style.color = "ButtonText";
+			} else {
+				style.color = textcolour;
+			}
+		}
+	}
+};
+
+Button.prototype.scale = function (scale, zoom, origin) {
+	var style = this.elements[0].style;
+	style.left = Math.round((this.x + origin.x) * scale) + "px";
+	style.top =  Math.round((this.y + origin.y) * scale) + "px";
+	style.fontSize = zoom + "em";
+
+	if (this.width === undefined) {
+		style.width = "";
+	} else {
+		style.width = Math.round(this.width * scale) + "px";
+	}
+
+	if (this.minHeight === undefined) {
+		style.minHeight = "";
+	} else {
+		style.minHeight = Math.ceil(this.minHeight * scale) + "px";
+	}
+};
+
+Button.prototype.toString = function () {
+	var s;
+	if (this.name == this.obsName) {
+		s = "Button(" + Eden.edenCodeForValues(this.label, this.imageURL, this.x, this.y, this.enabled);
+	} else {
+		s = "Button(" + Eden.edenCodeForValues(this.name, this.label, this.imageURL, this.x, this.y, this.enabled);
+	}
+	if (this.fillcolour !== undefined || this.textcolour !== undefined) {
+		s = s + ", " + Eden.edenCodeForValues(this.fillcolour, this.textcolour);
+	}
+	s = s + ")";
+	return s;
+};
+
+Button.prototype.getEdenCode = Button.prototype.toString;
+
+}}$;

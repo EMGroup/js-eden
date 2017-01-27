@@ -1,0 +1,16 @@
+/**
+ * @title Start Your Model
+ */
+action start {/* Enter some script here */
+}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+do :project > start;
+
+action ACTIVE {views_list = ["myscript"];
+view_myscript_type = "ScriptInput";
+view_myscript_tabs = [":project > start"];
+view_myscript_current = 0;
+jseden_project_title = "New Project";}
+

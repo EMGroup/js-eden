@@ -4,7 +4,7 @@
 	tab-size: 4;
 	/*margin: 5px;*/
 	position: absolute;
-	top: 0px;
+	top: 30px;
 	bottom: 0;
 	left: 0;
 	right: 0;
@@ -13,10 +13,26 @@
 	color: #2b4957;/*#233b46;*/
 	/*padding-top: 8px;
 	padding-left: 5px;*/
-	background-color: #e5e5e5;
+	background-color: white;
 	/*overflow: auto;*/
 	-webkit-font-smoothing: antialiased;
 	-webkit-transform: translate3d(0,0,0);
+}
+
+div.inputhider::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+ 
+div.inputhider::-webkit-scrollbar-thumb {
+  background: #666;
+  /**border-radius: 20px;*/
+}
+
+div.inputhider::-webkit-scrollbar-track {
+  background: #ddd;
+  /**border-radius: 20px;*/
+/*	margin-left: 28px;*/
 }
 
 
@@ -76,12 +92,35 @@ div.agent-tabs {
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 30px;
-	background-color: #cecece;
+	height: 35px;
+	background-color: rgba(41,69,75,0.9);
 	box-sizing: border-box;
-	border-bottom: 1px solid #719ECE;
+	/*border-bottom: 1px solid #719ECE;*/
 	overflow: hidden;
-	padding-left: 20px;
+	/*padding-left: 20px;*/
+	display: flex;
+}
+
+div.agent-tab-more {
+	height: 35px;
+	line-height: 35px;
+	background: none;
+	color: #bbb;
+	margin-left: 15px;
+	flex-shrink: 0;
+	text-shadow: 0 3px 3px black;
+	cursor: pointer;
+}
+
+div.agent-tab-more:hover {
+	color: white;
+}
+
+span.tab-icon2 {
+	font-family: "FontAwesome";
+	font-size: 16pt;
+	margin-right: 10px;
+	font-weight: normal;
 }
 
 span.tab-icon {
@@ -106,26 +145,23 @@ span.tab-icon.noagent {
 }
 
 div.agent-tab-container {
-	position: absolute;
 	display: flex;
 	/*flex-wrap: wrap;*/
-	left: 30px;
-	right: 30px;
-	top: 0;
 	height: 30px;
 	padding: 0;
-	margin: 0;
+	margin-top: 5px;
 	overflow: hidden;
 }
 
 div.agent-tableft {
-	position: absolute;
-	left: 10px;
-	top: 0px;
 	width: 20px;
-	line-height: 30px;
-	height: 30px;
+	line-height: 35px;
+	height: 35px;
 	cursor: pointer;
+	color: white;
+	text-shadow: 0 0 4px black;
+	margin-left: 5px;
+	flex-shrink: 0;
 }
 
 div.agent-tableft:hover {
@@ -140,14 +176,16 @@ div.agent-tableft:after {
 }
 
 div.agent-tabright {
-	position: absolute;
-	right: 10px;
-	top: 0px;
 	width: 20px;
-	line-height: 30px;
-	height: 30px;
+	line-height: 35px;
+	height: 35px;
 	cursor: pointer;
 	text-align: right;
+	color: white;
+	text-shadow: 0 0 4px black;
+	margin-right: 10px;
+	flex-shrink: 0;
+	margin-left: auto;
 }
 
 div.agent-tabright:hover {
@@ -168,7 +206,8 @@ div.agent-newtab {
 	line-height: 30px;
 	height: 30px;
 	cursor: pointer;
-	color: #666;
+	color: #ddd;
+	text-shadow: 0 3px 3px black;
 }
 
 div.agent-newtab:after {
@@ -179,15 +218,50 @@ div.agent-newtab:after {
 }
 
 div.agent-newtab:hover {
-	color: #719ECE;
+	color: white;
+}
+
+span.close {
+	font-family: "FontAwesome";
+	color: #888;
+	margin-left: 12px;
+	cursor: pointer;
+	font-size: 12pt;
+	font-weight: normal;
+}
+
+span.close:hover {
+	color: #222;
+}
+
+div.script-input-windowcontrols {
+	height: 35px;
+	line-height: 35px;
+	background: none;
+	color: #bbb;
+	margin-left: auto;
+	flex-shrink: 0;
+	text-shadow: 0 3px 3px black;
+	cursor: pointer;
+}
+
+span.windowcontrol {
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	margin-right: 10px;
+	font-weight: normal;
+}
+
+span.windowcontrol:hover {
+	color: white;
 }
 
 div.agent-tab {
 	/*float: left;*/
 	flex-shrink: 0;
 	/*width: 150px;*/
-	padding-left: 25px;
-	padding-right: 25px;
+	padding-left: 15px;
+	padding-right: 15px;
 	height: 100%;
 	margin-left: 10px;
 	font-family: Verdana,Arial,sans-serif;
@@ -197,9 +271,10 @@ div.agent-tab {
 	opacity: 0.70;
 	text-align: center;
 	font-weight: bold;
-	line-height: 30px;
+	line-height: 26px;
 	border-left: 1px solid transparent;
 	border-right: 1px solid transparent;
+	border-top: 1px solid transparent;
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;
 	-webkit-font-smoothing: antialiased;
@@ -207,7 +282,7 @@ div.agent-tab {
 	cursor: pointer;
 	overflow: hidden;
 	display: flex;
-	line-height: 30px;
+	background: rgba(229,229,229,0.8);
 }
 
 div.agent-tab-notcurrent:hover {
@@ -215,6 +290,7 @@ div.agent-tab-notcurrent:hover {
 	box-sizing: border-box;
 	border-left: 1px solid #aaa;
 	border-right: 1px solid #aaa;
+	border-top: 1px solid #aaa;
 	border-bottom: 3px solid #aaa;
 	color: #666;
 }
@@ -222,9 +298,10 @@ div.agent-tab-notcurrent:hover {
 div.agent-tab-current {
 	background-color: white;
 	box-sizing: border-box;
-	border-bottom: 3px solid #719ECE;
+	/*border-bottom: 3px solid #719ECE;*/
 	border-left: 1px solid #aaa;
 	border-right: 1px solid #aaa;
+	border-top: 1px solid #aaa;
 	color: #222;
 	opacity: 1.0;
 	z-index: 10;
@@ -370,17 +447,16 @@ span.valueof {
 
 div.control-bar {
 	position: absolute;
-	left: 0;
+	left: 28px;
 	right: 0;
-	bottom: 0;
+	top: 10px;
 	height: 30px;
-	background: #f5f5f5;
-	border-bottom-left-radius: 6px;
-	border-bottom-right-radius: 6px;
-	border-top-left-radius: 0px;
-	border-top-right-radius: 0px;
-	border-top: 1px solid #e5e5e5;
+	/*background: #f5f5f5;*/
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	/*border-top: 1px solid #e5e5e5;*/
 	z-index: 6;
+	/*box-shadow: 0 0 8px #4a6887;*/
 }
 
 
@@ -403,7 +479,7 @@ div.control-bar {
 	float: left;
 }
 
-textarea.hidden-textarea {
+textarea.hidden-textarea2 {
 	position: fixed;
 	white-space: pre;
 	word-wrap: normal;
@@ -413,21 +489,103 @@ textarea.hidden-textarea {
 	width: 80%;*/
 	height: 50px;
 	tab-size: 4;
+	margin-left: -5000px;
+}
+
+button.script-button {
+	/*font-family: "FontAwesome";*/
+	font-size: 10pt;
+	border-radius: 5px;
+	background: #666;
+	outline: none;
+	border: 1px solid #aaa;
+	margin: 3px;
+	padding: 2px;
+	padding-left: 10px;
+	padding-right: 10px;
+	height: 24px;
+	cursor: pointer;
+	color: white;
+	text-shadow: 0 3px 3px black;
+}
+
+button.script-button:hover {
+	background: #29454B;
+}
+
+input.scratchsearch {
+	width: 200px;
+	background: white;
+	color: #222;
+	font-size: 10pt;
+	padding: 2px;
+	padding-left: 40px;
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	outline: none;
+	box-sizing: border-box;
+	margin-left: 5px;
+	height: 24px;
+}
+
+span.scratchsearch:before {
+	color: #aaa;
+	font-size: 12pt;
+	left: 35px;
+	position: relative;
+	content: "\f002";
+	background: none;
+	top: 2px;
+	margin-top: 0;
+	z-index: 2;
+	font-family: "FontAwesome";
+}
+
+input.editname {
+	width: 200px;
+	background: white;
+	color: #222;
+	font-size: 10pt;
+	padding: 2px;
+	padding-left: 40px;
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	outline: none;
+	box-sizing: border-box;
+	margin-left: 5px;
+	height: 24px;
+}
+
+span.editname:before {
+	color: #aaa;
+	font-size: 12pt;
+	left: 35px;
+	position: relative;
+	content: "\f02b";
+	background: none;
+	top: 2px;
+	margin-top: 0;
+	z-index: 2;
+	font-family: "FontAwesome";
+}
+
+input.scratchfilter:hover {
+	border-color: #666;
 }
 
 div.outputcontent {
-	display: inline-block;
+	position: relative;
+	/*display: flex;
+	flex-direction: column;*/
 	/* width: 100%;*/
-	min-width: calc(100% - 28px);
-	min-height: calc(100% - 3px);
+	min-width: calc(100% - 56px);
+	min-height: calc(100% - 28px);
 	resize: none;
 	margin-left: 28px;
-	border-left-width: 1px;
-	border-left-style: solid;
-	border-left-color: #719ECE;
+	/*border: 1px solid #719ECE;*/
 	box-sizing: border-box;
 	padding-left: 15px;
-	padding-top: 15px;
+	padding-top: 20px;
 	padding-right: 1px;
 	/*padding: 4px;*/
 	/*margin: 5px;*/
@@ -437,14 +595,59 @@ div.outputcontent {
 	white-space: pre;
 	/*overflow: auto;*/
 	/*background: #f5f5f5;*/
-	background: white;
-	box-shadow: 0 0 8px #aaa;
+	/*background: white;*/
+	/*background: rgba(255,255,255,0.95);
+	box-shadow: 0 0 8px #aaa;*/
+	margin-right: 28px;
+	margin-bottom: 28px;
 }
 
-div.readonly {
-	-webkit-filter: grayscale(70%);
-	filter: grayscale(30%);
-	background-color: #f5f5f5;
+div.browser {
+	display: flex;
+	padding: 10px;
+	flex-wrap: wrap;
+	align-content: flex-start;
+	flex-direction: row;
+}
+
+div.browse-entry {
+	flex-shrink: 0;
+	width: 100px;
+	height: 90px;
+	background: #e5e5e5;
+	overflow: hidden;
+	margin: 5px;
+	text-align: center;
+	font-size: 10pt;
+	font-family: initial;
+	cursor: pointer;
+	color: black;
+	z-index: 2;
+	border-radius: 10px;
+}
+
+div.browse-entry:hover {
+	background: #29454B;
+	color: white;
+}
+
+div.browse-icon {
+	font-family: "FontAwesome";
+	font-size: 30pt;
+	line-height: 60px;
+	width: 100%;
+}
+
+div.browse-icon.executed {
+	color: #88aa88;
+}
+
+div.browse-icon.project {
+	color: #8888aa;
+}
+
+div.browse-icon.root {
+	color: gold;
 }
 
 div.inspect {
@@ -476,15 +679,33 @@ div.input-dialog .ui-dialog-content {
 	overflow: visible;
 }
 
+div.scriptsubcontent {
+	top: 35px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	position: absolute;
+	/*box-shadow: 0 0 15px #4a6887;*/
+	overflow: hidden;
+}
+
 div.inputhider {
 	overflow: auto;
 	position: absolute;
 	left: 0;
 	right: 0;
-	top: 30px;
-	bottom: 30px;
-	background: #e5e5e5;
-	box-shadow: 0 0 8px #888;
+	top: 0;
+	bottom: 0;
+	/*background: #e5e5e5;*/
+	/*border-radius: 6px;*/
+	/*background: rgba(229,229,229,0.8);*/
+	background: white;
+}
+
+div.readonly {
+	/*-webkit-filter: grayscale(70%);
+	filter: grayscale(30%);*/
+	background-color: #ddd;
 }
 
 div.input-dialog .ui-dialog-titlebar {
@@ -508,6 +729,8 @@ div.input-dialog .ui-dialog-titlebar {
 	padding: 0;
 	line-height: 30px;
 	padding-left: 20px;
+	display: none !important;
+	overflow: visible;
 
 }
 
@@ -646,5 +869,15 @@ span.options-menu-icon {
 	font-size: 11pt;
 	margin-left: 18px;
 	width: 16px;
+}
+
+span.diff-insert {
+	box-sizing: border-box;
+	border: 1px solid green;
+}
+
+span.diff-remove {
+	box-sizing: border-box;
+	border: 1px solid red;
 }
 
