@@ -118,16 +118,16 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	 * Common input window view constructor.
 	 */
 	this.createCommon = function (name, mtitle, code, embedded) {
-		var $dialogContents = $(`<div class="inputdialogcontent">
-<div class="agent-tabs handle"></div>
-<div class="scriptsubcontent">
-	<div class="inputhider">
-		<div class="control-bar noselect">
-		</div>
-	</div>
-</div>
-<div class="info-bar"></div>
-</div></div>`);
+		var $dialogContents = $('<div class="inputdialogcontent">\
+<div class="agent-tabs handle"></div>\
+<div class="scriptsubcontent">\
+	<div class="inputhider">\
+		<div class="control-bar noselect">\
+		</div>\
+	</div>\
+</div>\
+<div class="info-bar"></div>\
+</div></div>');
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
 		var inputhider = $dialogContents.find('.inputhider').get(0);
