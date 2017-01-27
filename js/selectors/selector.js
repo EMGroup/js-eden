@@ -124,7 +124,7 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 			}
 		} else if (statements[i].type == "section") {
 			var node = statements[i].nextSibling;
-			var chi = []
+			var chi = [];
 			while (node && (node.type != "section" || node.depth > statements[i].depth)) {
 				if (node.type != "dummy") {
 					nstats.push(node);
