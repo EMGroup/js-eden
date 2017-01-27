@@ -1,6 +1,6 @@
 div.markdown {
-	margin-left: 40px;
-	margin-right: 40px;
+	margin-left: 20px;
+	margin-right: 20px;
 	margin-top: 20px;
 	margin-bottom: 30px;
 	padding: 10px;
@@ -9,22 +9,11 @@ div.markdown {
 	clear: right;
 }
 
-div.projectdetails {
-	display: flex;
-	flex-direction: column;
-	margin-left: 40px;
-	margin-top: 20px;
-}
-
-span.projectdetails-label {
-	font-weight: bold;
-	margin-right: 10px;
-}
-
 div.markdown h1 {
 	color: #666;
 	font: 16pt Arial,Helvetica,sans-serif;
 	font-weight: bold;
+	margin-top: 5px;
 }
 
 .markdown-inputCodeArea {

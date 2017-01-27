@@ -22,10 +22,11 @@ EdenUI.ProjectDetails = function(projectid) {
 
 		var img = $('<img style="float: right;" src="'+meta[0].image+'"></img>');
 		me.dialog.append(img);
+		var t = meta[0].date.split(/[- :]/);
 
 		var details = $('<div class="projectdetails">\
 			<span><span class="projectdetails-label">Author:</span><span class="projectdetails-value">'+meta[0].ownername+'</span></span>\
-			<span><span class="projectdetails-label">Date:</span><span class="projectdetails-value">'+meta[0].date+'</span></span>\
+			<span><span class="projectdetails-label">Last Changed:</span><span class="projectdetails-value">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span></span>\
 		</div>');
 		me.dialog.append(details);
 
@@ -58,6 +59,20 @@ EdenUI.ProjectDetails = function(projectid) {
 
 		me.dialog.append(buttons);
 		
+		Eden.DB.search(":parent("+projectid+")", function(forks) {
+			if (forks.length > 0) {
+				var forksbox = document.createElement("div");
+				forksbox.className = "projectdetails-forks";
+				for (var i=0; i<forks.length; i++) {
+					var forkentry = document.createElement("div");
+					forkentry.className = "projectdetails-fork";
+					var t = forks[i].date.split(/[- :]/);
+					forkentry.innerHTML = "Forked as \"" + forks[i].title + "\" by " + forks[i].ownername + " " + get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
+					forksbox.appendChild(forkentry);
+				}
+				me.dialog.get(0).insertBefore(forksbox,descbox.nextSibling);
+			}
+		});
 	});
 }
 

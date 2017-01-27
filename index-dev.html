@@ -19,6 +19,7 @@ See LICENSE.txt
 	<link rel="stylesheet" type="text/css" href="css/explorer.css">
 	<link rel="stylesheet" type="text/css" href="css/scriptbox.css">
 	<link rel="stylesheet" type="text/css" href="css/markdown.css">
+	<link rel="stylesheet" type="text/css" href="css/projectdetails.css">
 	<link rel="stylesheet" type="text/css" href="plugins/canvas/canvas.css"/>
 	<link rel="stylesheet" type="text/css" href="plugins/symbol-viewer/symbol-viewer.css">
 	<link rel="stylesheet" type="text/css" href="plugins/observable-mining/observable-mining.css">
@@ -699,7 +700,7 @@ See LICENSE.txt
 					}
 
 					var meta = projects[i];
-					//var t = meta.date.split(/[- :]/);
+					var t = meta.date.split(/[- :]/);
 					var title = meta.title;
 					var thumb = meta.image;
 					//var tags = meta.tags;
@@ -710,7 +711,7 @@ See LICENSE.txt
 					if (pub) {
 						subtitle = meta.ownername;
 					} else {
-						//subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
+						subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
 					}
 
 					//Eden.DB.getMeta(path+"/"+x,function(path,meta) {
