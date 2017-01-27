@@ -1019,7 +1019,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				height: idealheight,
 				minHeight: 203,
 				minWidth: 300,
-				classes: { "ui-dialog": "input-dialog ui-front"},
+				classes: { "ui-dialog": "input-dialog ui-front no-print"},
 				/*close: viewdata.close,*/
 				resizeStop: viewdata.resize,
 				draggable: false
