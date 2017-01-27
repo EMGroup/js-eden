@@ -23,18 +23,15 @@ See LICENSE.txt
 	<title>JS-EDEN</title>
 
 	<link rel="stylesheet" type="text/css" href="css/jseden.css">
-	<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.10.4.custom.min.css">
+	<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.12.1.min.css">
 	<link rel="stylesheet" type="text/css" href="css/eden.css">
+	<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
 	<link rel="stylesheet" type="text/css" href="plugins/jseden-plugins.min.css">
+	<link rel="stylesheet" type="text/css" media="print" href="css/print.css" />
 
 	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
-	<script type="text/javascript" src="js/lib/jquery-ui-1.10.4.custom.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery-ui-1.12.1.min.js"></script>
 	<style type="text/css">
-		/*If we ever upgrade to jquery.ui version 1.10 or later then remove the following rule. */
-		.ui-front {
-			z-index: 10000 !important;
-		}
-
 		.ui-dialog {
 			z-index: 9999;
 		}
@@ -46,8 +43,8 @@ See LICENSE.txt
 			box-sizing: border-box;
 			padding-top: 20px;
 			padding-bottom:30px;
-			padding-left: 80px;
-			padding-right: 80px;
+			padding-left: 50px;
+			padding-right: 50px;
 			/*border: 1px solid #eee;*/
 			width: 100%;
 			height: 100%;
@@ -80,14 +77,14 @@ See LICENSE.txt
 		div.cadence-plisting-entry {
 			width: 200px;
 			height: 170px;
-			margin: 5px;
+			margin: 15px;
 			background-repeat: no-repeat;
 			cursor: pointer;
-			/*color: #132023;*/
-			background: #416d77;
+			color: #132023;
+			background: white;
 			border: 1px solid #777;
-			border-radius: 5px;
 			padding: 8px;
+			box-shadow: 10px 10px 10px #111;
 		}
 
 		div.project-content {
@@ -121,8 +118,11 @@ See LICENSE.txt
 		div.cadence-plisting-entry.special {
 			height: 80px;
 			width: 120px;
-			background: transparent;
+			background: none;
 			border: none;
+			box-shadow: none;
+			margin-top: 5px;
+			margin-bottom: 5px;
 		}
 
 		div.cadence-plisting-entry.more {
@@ -131,13 +131,14 @@ See LICENSE.txt
 			background: transparent;
 			border: none;
 			margin-top: 10px;
+			box-shadow: none;
 		}
 
 		div.cadence-plisting-icon {
 			border: 1px solid #eee;
 			font-family: "FontAwesome";
 			font-size: 60px;
-			background: #d0f0f5;
+			/*background: #d0f0f5;*/
 			cursor: pointer;
 			text-align: center;
 			padding-top: 10px;
@@ -156,10 +157,12 @@ See LICENSE.txt
 		}
 
 		div.cadence-plisting-icon.special {
-			background: #f5f5d0;
+			background: none;
 			height: 40px;
-			font-size: 40px;
-			border-radius: 10px;
+			font-size: 60px;
+			border: none;
+			color: white;
+			text-shadow: 10px 10px 10px #111;
 		}
 
 		div.cadence-plisting-icon.more {
@@ -168,13 +171,13 @@ See LICENSE.txt
 			font-size: 40px;
 			color: #eee;
 			border: none;
+			font-weight: bold;
 		}
 
 
 		div.cadence-plisting-title {
 			font-weight: bold;
 			font-family: Roboto,Arial,sans-serif;
-			color: white;
 			font-size: 14px;
 			line-height: 16px;
 			padding-left: 2px;
@@ -183,7 +186,6 @@ See LICENSE.txt
 
 		div.cadence-plisting-subtitle {
 			font-family: Roboto,Arial,sans-serif;
-			color: #eee;
 			font-size: 12px;
 			line-height: 16px;
 			padding-left: 2px;
@@ -195,7 +197,12 @@ See LICENSE.txt
 
 		div.cadence-plisting-entry:hover .cadence-plisting-icon {
 			border-color: #222;
-			background-color: white;
+			/*background-color: white;*/
+		}
+
+		div.cadence-plisting-entry.special:hover .cadence-plisting-icon {
+			background-color: none;
+			color: #ddd;
 		}
 
 		div.cadence-plisting-entry.more:hover .cadence-plisting-icon {
@@ -352,68 +359,8 @@ See LICENSE.txt
 		Eden.projecttags = {};
 		var cachedprojects;
 		var maxres = URLUtil.getParameterByName("max");
+		var searchstr = "";
 		maxres = (maxres && maxres != "") ? parseInt(maxres) : undefined;
-
-		function updateSearch(q) {
-			var pbrowser = $("#project-browser");
-
-			if (q != "") {
-				if (cachedprojects === undefined) {
-					cachedprojects = pbrowser.html();
-					$(".jseden-dialog-plisting").hide();
-				}
-				pbrowser.html('<div id="jseden-searched-projects" class="jseden-dialog-plisting"></div>');
-
-				// Generate project search result...
-				var results = [];
-				var qs = q.split(" ");
-				for (var i=0; i<qs.length; i++) {
-					var regex = edenUI.regExpFromStr(qs[i]);
-					for (var t in Eden.projecttags) {
-						if (regex.test(t)) {
-							results.push.apply(results, Eden.projecttags[t]);
-						}
-					}
-				}
-
-				// Count duplicates
-				var dupcount = {};
-				var unique = [];
-				for (var i=0; i<results.length; i++) {
-					if (dupcount[results[i]] === undefined) {
-						unique.push(results[i]);
-						dupcount[results[i]] = 0;
-					}
-					dupcount[results[i]]++;
-				}
-
-				// Sort by number of duplicates
-				//results = unique.sort(function(a,b) {
-				//	return dupcount[a] < dupcount[b];
-				//});
-
-				// Remove any that don't match each token
-				var fresults = [];
-				for (var i=0; i<results.length; i++) {
-					if (dupcount[results[i]] == qs.length) fresults.push(results[i]);
-				}
-
-				// Now sort by date
-				fresults.sort(function(a,b) {
-					var da = Eden.DB.meta[a].date;
-					var db = Eden.DB.meta[b].date;
-					return db.localeCompare(da);
-				});
-
-				var presults = pbrowser.find("#jseden-searched-projects");
-				displayProjects2(presults, true, fresults, (maxres) ? maxres : 9);
-
-			} else if (cachedprojects) {
-				pbrowser.html(cachedprojects);
-				cachedprojects = undefined;
-				$(".jseden-dialog-plisting").show();
-			}
-		}
 
 		$(".loadmodal").hide();
 		if (!loaded) {
@@ -432,14 +379,34 @@ See LICENSE.txt
 				Eden.loadFromURL("library2/NewProject.js-e");
 			}*/
 
+			function updateSearch() {
+				var plist = lopts.find("#jseden-public-projects");
+
+				//console.log("Load projects: " + path);
+
+				Eden.DB.search(searchstr, function(data) {
+					console.log("SEARCH",searchstr,data);
+					var pliste = plist.get(0);
+					while (pliste.lastChild) pliste.removeChild(pliste.lastChild);
+					displayProjects2(plist, true, data);
+				});
+			}
+
+			Eden.Project.listenTo("load", this, function() {
+				lopts.css("display","none");
+			});
+
 			lopts.css("display","block");
 			lopts.on("click","#restoreold",function() {
-				Eden.restore();
+				Eden.Project.restore();
 				lopts.css("display","none");
 			})
 			.on("click","#loadnew",function() {
 				//Eden.loadFromURL("library2/NewProject.js-e");
-				Eden.loadFromString("import lib; jseden_project_title = \"New Project\";");
+				//Eden.loadFromString("import lib; jseden_project_title = \"New Project\";");
+
+				Eden.Project.newFromExisting("NewProject");
+
 				lopts.css("display","none");
 			})
 			.on("click","#importfile",function() {
@@ -455,9 +422,15 @@ See LICENSE.txt
 				.on("click","#openfile",function() {
 					var fileinput = $("#theimportfile").get(0);
 					var file = fileinput.files[0];
+					var filename = file.name;
+					filename = filename.substring(0,filename.lastIndexOf("."));
+					filename = filename.replace(/\([0-9]+\)/,"");
+					console.log("FILE",file);
 					var reader = new FileReader();
 					reader.onload = function(e) {
-						Eden.loadFromString(e.target.result);
+						//Eden.loadFromString(e.target.result);
+						eden.project = new Eden.Project(undefined, filename, e.target.result.replace(/\r/g,""));
+						eden.project.start();
 						importfile.css("display","none");
 					};
 					reader.readAsText(file);
@@ -469,20 +442,26 @@ See LICENSE.txt
 				}
 			})
 			.on("keyup",".search", function(e) {
-				var q = e.currentTarget.value;
-				updateSearch(q);
+				searchstr = e.currentTarget.value;
+				updateSearch();
 			})
 			.on("click",".project",function(e) {
-				var path = e.currentTarget.getAttribute("data-path");
-				var tag = parseInt(e.currentTarget.getAttribute("data-tag"));
-				console.log("Load project: " + path + "@"+tag);
-				lopts.css("display","none");
-				$(".loadmodal").show();
-				$(".loadmessage").html("Loading " + Eden.DB.meta[path].title + "...");
+				var pid = e.currentTarget.getAttribute("data-pid");
+				//var tag = parseInt(e.currentTarget.getAttribute("data-tag"));
+				console.log("Load project: " + pid); // + "@"+tag);
+				//lopts.css("display","none");
+				//$(".loadmodal").show();
+				//$(".loadmessage").html("Loading " + "" + "...");
 
-				Eden.load(path,tag,function() {
+				//Eden.load(path,tag,function() {
 
-				});
+				//Eden.Project.load(pid, undefined, function() {
+				//	$(".loadmodal").hide();
+				//});
+
+				projectdetails = new EdenUI.ProjectDetails(pid);
+
+				//});
 			});
 
 			function setLoadObserver() {
@@ -516,6 +495,8 @@ See LICENSE.txt
 			function displayProjects2(output, pub, projects, count) {
 				var maxres = (count) ? count : 6;
 
+				if (projects === undefined) return;
+
 				for (var i=0; i<projects.length; i++) {
 					if (i == maxres) {
 						output.append($('<div class="cadence-plisting-entry more noselect"><div class="cadence-plisting-icon more">&#xf103;</div></div>'));
@@ -526,26 +507,26 @@ See LICENSE.txt
 						break;
 					}
 
-					var meta = Eden.DB.meta[projects[i]];
+					var meta = projects[i];
 					var t = meta.date.split(/[- :]/);
 					var title = meta.title;
-					var thumb = meta.thumb;
-					var tags = meta.tags;
+					var thumb = meta.image;
+					//var tags = meta.tags;
 
-					if (meta.hidden) continue;
+					//if (meta.hidden) continue;
 
 					var subtitle;
 					if (pub) {
-						subtitle = meta.author;
+						subtitle = meta.ownername;
 					} else {
 						subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
 					}
 
 					//Eden.DB.getMeta(path+"/"+x,function(path,meta) {
-					if (thumb) {
-						output.append($('<div class="cadence-plisting-entry project noselect" data-path="'+(projects[i])+'" data-tag="'+meta.publicID+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+					if (thumb !== null) {
+						output.append($('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
 					} else {
-						output.append($('<div class="cadence-plisting-entry project noselect" data-path="'+(projects[i])+'" data-tag="'+meta.publicID+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+						output.append($('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
 						//console.log(Eden.DB.meta[path+"/"+x]);
 					}
 					//});
@@ -553,30 +534,19 @@ See LICENSE.txt
 			}
 
 			function displayProjects(pub, cb) {
-				var user = (pub)?"public" : ((Eden.DB.username) ? Eden.DB.username.split(" ").join("") : "public");
-				var path = "jseden1/"+user;
+				//var user = (pub)?"public" : ((Eden.DB.username) ? Eden.DB.username.replace(/[^a-zA-Z]/g, "") : "public");
+				//var path = "jseden1/"+user;
 				var plist = (pub) ? lopts.find("#jseden-public-projects") : lopts.find("#jseden-private-projects");
 
 				//console.log("Load projects: " + path);
 
-				Eden.DB.getDirectory(path, function(data) {
-					var ordered = [];
-
-					for (var x in data) {
-						ordered.push(path+"/"+x);
-					}
-
-					// Sort by most recent
-					ordered.sort(function(a,b) {
-						var da = Eden.DB.meta[a].date;
-						var db = Eden.DB.meta[b].date;
-						return db.localeCompare(da);
-					});
+				Eden.DB.search((pub) ? searchstr : ":me", function(data) {
+					console.log("SEARCH",data);
 
 
-					displayProjects2(plist, pub, ordered);
+					displayProjects2(plist, pub, data);
 
-					for (var i=0; i<ordered.length; i++) {
+					/*for (var i=0; i<ordered.length; i++) {
 						var meta = Eden.DB.meta[ordered[i]];
 						var tags = meta.tags;
 						//console.log(tags);
@@ -588,30 +558,30 @@ See LICENSE.txt
 						}
 					}
 
-					projects = ordered;
-					if (cb) cb(ordered);
+					projects = ordered;*/
+					if (cb) cb([]);
 				});
 			}
 
 			if (Eden.DB.isConnected()) {
 				if (q && q != "") {
-					updateSearch(q);
+					//updateSearch(q);
 					displayProjects(true, function() {
-						updateSearch(q);
+						//updateSearch(q);
 					});
 					lopts.find(".searchouter").remove();
 					lopts.find(".project-content").prepend($('<div class="jseden-project-cat">'+q+':</div>'));
 				} else {
 					displayProjects(true, function() {
 						if (Eden.DB.isLoggedIn()) {
-							var plist = lopts.find("#jseden-private-projects").get(0);
+							/*var plist = lopts.find("#jseden-private-projects").get(0);
 							var node = plist.firstChild;
 							while (node) {
 								var next = node.nextSibling;
 								plist.removeChild(node);
 								node = next;
-							}
-							displayProjects();
+							}*/
+							//displayProjects();
 						}
 					});
 				}
@@ -663,12 +633,12 @@ See LICENSE.txt
 	<div class="project-content" style="padding: 20px 0;">
 		<div class="searchouter projectsearch"><input type="text" class="search projectsearch" placeholder="Search..."></input></div>
 		<div class="jseden-dialog-plisting" style="padding: 10px">
-			<div id="loadnew" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf067;</div><div class="cadence-plisting-title">New Project</div></div>
-			<div id="importfile" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf07c;</div><div class="cadence-plisting-title">Import File</div></div>
-			<div id="restoreold" class="cadence-plisting-entry noselect special"><div class="cadence-plisting-icon special">&#xf01e;</div><div class="cadence-plisting-title">Restore Last</div></div>
+			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
+			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special">&#xf07c;</div></div>
+			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
 		</div>
 		<div id="project-browser">
-			<div class="jseden-project-cat">Published:</div>
+			<div class="jseden-project-cat">Featured:</div>
 			<div id="jseden-public-projects" class="jseden-dialog-plisting">
 			</div>
 			<div class="jseden-project-cat">Your Projects:</div>
