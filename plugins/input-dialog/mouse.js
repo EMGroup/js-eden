@@ -23,8 +23,9 @@ EdenUI.ScriptArea.Mouse = function(sa) {
 	function onOutputMouseUp(e) {
 		sa.hideInfoBox();
 		//hideMenu();
+		//console.log(e);
 
-		if (sa.readonly) return;
+		if (sa.readonly || e.target.isContentEditable == false) return;
 
 		if (sa.gotomode) {
 			var element = e.target;

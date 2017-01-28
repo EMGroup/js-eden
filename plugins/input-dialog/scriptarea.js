@@ -55,12 +55,13 @@ EdenUI.ScriptArea = function() {
 
 EdenUI.ScriptArea.prototype.setReadonly = function(ro) {
 	this.alwaysreadonly = ro;
-	if (ro) {
+	if (ro === true) {
 		this.readonly = true;
 		this.outdiv.contentEditable = false;
 	} else {
-		//this.readonly = true;
-		//this.outdiv.contentEditable = false;
+		this.readonly = (this.fragment) ? this.fragment.locked : false;
+		this.outdiv.contentEditable = !this.readonly;
+		if (ro == "comment") this.updateEntireHighlight();
 	}
 }
 
@@ -112,7 +113,7 @@ EdenUI.ScriptArea.prototype.setFragment = function(frag) {
 		me.outdiv.contentEditable = false;
 		//outdiv.style.display = "inline-block";
 	} else {
-		me.readonly = me.alwaysreadonly;
+		me.readonly = me.alwaysreadonly === true;
 		//setSubTitle("");
 		// The readonly class changes colour scheme
 		//changeClass(inputhider, "readonly", false);
@@ -297,6 +298,14 @@ EdenUI.ScriptArea.prototype.highlightContent = function(lineno, position, option
 	if (document.activeElement !== this.intextarea) {
 		// TODO Make this efficient by keeping record of fake-caret.
 		$(this.outdiv).find(".fake-caret").addClass("fake-blur-caret");
+	}
+
+	if (this.alwaysreadonly == "comment") {
+		var clines = $(this.outdiv).find(".eden-comment-line");
+		console.log("COMMENTLOCK",clines);
+		for (var i=0; i<clines.length; i++) {
+			clines[i].contentEditable = false;
+		}
 	}
 
 	// Make sure number dragging always works.
