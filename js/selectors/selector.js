@@ -269,8 +269,11 @@ Eden.Selectors.processResults = function(statements, o) {
 									} break; 
 				case "depends"	: val = (stat.dependencies) ? Object.keys(stat.dependencies) : [];
 								  break;
-				case "value"	: val = (stat.expression) ? stat.expression.execute({scopes:[]}, eden.project.ast, eden.root.scope) : undefined;
-								  break;
+				case "value"	: 	if (stat instanceof Symbol) {
+										val = stat.value();
+									} else {
+										val = (stat.expression) ? stat.expression.execute({scopes:[]}, eden.project.ast, eden.root.scope) : undefined;
+								 	} break;
 				case "active"	: 	val = (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin && eden.root.symbols[stat.lvalue.name].origin.id == stat.id);
 									break;
 				case "executed"	:	val = stat.executed > 0; break;
