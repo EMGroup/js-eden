@@ -296,7 +296,9 @@ Eden.DB.load = function(pid, vid, callback) {
 Eden.DB.search = function(q, callback) {
 	var path = this.remoteURL+"/project/";
 	if (q == "") path += "search?limit=20";
-	else path += "search?limit=20&query="+q;
+	else path += "search?limit=20&query="+encodeURIComponent(q);
+
+	//console.log("PATH",path)
 
 	$.ajax({
 		url: path,

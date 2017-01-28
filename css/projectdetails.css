@@ -1,8 +1,11 @@
 div.projectdetails {
 	display: flex;
 	flex-direction: column;
-	margin-left: 40px;
-	margin-top: 20px;
+	margin-left: 50px;
+	margin-bottom: 20px;
+	font-size: 10pt;
+	font-family: Arial;
+	color: #444;
 }
 
 span.projectdetails-label {
@@ -15,5 +18,12 @@ div.projectdetails-forks {
 	padding: 5px;
 	border: 1px solid #aaa;
 	font: 11pt Arial,Helvetica,sans-serif;
+}
+
+img.projectdetails-thumb {
+	float: right;
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
 }
 

@@ -28,6 +28,15 @@ Eden.Selectors.NameNode.prototype.construct = function() {
 		stats = Eden.Index.getByNameRegex(reg);
 	} else {
 		stats = Eden.Index.getByName(this.name);
+		var tags = this.name.toLowerCase().split(" ");
+		//console.log("SEARCH TAGS",tags);
+		var tagres = Eden.Index.getByTag("#"+tags[0]);
+		for (var i=1; i<tags.length; i++) {
+			tagres = tagres.filter(function(stat) {
+				return stat.doxyComment && stat.doxyComment.hasTag("#"+tags[i]);
+			});
+		}
+		stats.push.apply(stats, tagres);
 	}
 
 	if (!this.options || !this.options.history) {
