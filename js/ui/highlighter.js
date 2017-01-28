@@ -289,6 +289,8 @@
 		this.styles = (options && options.styles) ? options.styles : EdenUI.Highlight.defaultStyles;
 		this.clearmodes = (options && options.clearmodes) ? options.clearmodes : EdenUI.Highlight.lineclearmode;
 		this.mode = this.startmode;
+
+		this.metrics = {};
 	}
 
 	EdenUI.Highlight.defaultStyles = {
@@ -343,6 +345,13 @@
 								this.classes += this.styles["hidden-comment"];
 								this.mode = "COMMENT";
 								if (this.prevtoken == "INVALID") this.lineelement.className = this.styles["comment-line"];
+								else {
+									var nline = document.createElement("span");
+									nline.className = this.styles["comment-line"];
+									this.pushLine();
+									this.lineelement.appendChild(nline);
+									this.lineelement = nline;
+								}
 							} else {
 								this.classes += this.styles["operator"];
 							}
@@ -635,6 +644,8 @@
 							break;
 		case "?"		:	this.pushMode();
 							this.mode = "COMMENT_QUERY";
+							if (this.metrics[this.line] == undefined) this.metrics[this.line] = {};
+							this.metrics[this.line].query = true;
 							this.classes += this.styles["hidden-comment"];
 							break;
 		default			:	this.classes += this.styles["comment"];
@@ -1155,16 +1166,34 @@
 				var caret = document.createElement('span');
 				caret.className = "fake-caret";
 				line.appendChild(caret);
-				if (this.linestack.length > 0) this.linestack[0].className += " current";
-				else line.className += " current";
+				//if (this.linestack.length > 0) this.linestack[0].className += " current";
+				//else line.className += " current";
+
+				var p = line;
+				while (p && p.nodeName != "DIV") {
+					if (p.className == this.styles["comment-line"]) {
+						p.className += " current";
+						break;
+					}
+					p = p.parentNode;
+				}
 			}
 
 			// Skip but preserve white space
 			var ch= stream.peek();
 			if (ch == 10 || ch == 13) {
 				if (wsline != "") {
-					var textnode = document.createTextNode(wsline);
-					line.appendChild(textnode);
+					if (line.lastChild && line.lastChild.className != this.styles["hidden-comment"] && line.lastChild.className != "fake-caret") {
+						//line.lastChild.appendChild(textnode);
+						if (line.lastChild.lastChild && line.lastChild.lastChild.nodeName == "#text") line.lastChild.lastChild.textContent += wsline;
+						else {
+							var textnode = document.createTextNode(wsline);
+							line.lastChild.appendChild(textnode);
+						}
+					} else {
+						var textnode = document.createTextNode(wsline);
+						line.appendChild(textnode);
+					}
 					wsline = "";
 				}
 				break;
@@ -1185,8 +1214,17 @@
 				//	line = linestack.pop();
 				//	this.mode = 1;
 				//}
-				var textnode = document.createTextNode(wsline);
-				line.appendChild(textnode);
+				if (line.lastChild && line.lastChild.className != this.styles["hidden-comment"] && line.lastChild.className != "fake-caret") {
+					//line.lastChild.appendChild(textnode);
+					if (line.lastChild.lastChild && line.lastChild.lastChild.nodeName == "#text") line.lastChild.lastChild.textContent += wsline;
+					else {
+						var textnode = document.createTextNode(wsline);
+						line.lastChild.appendChild(textnode);
+					}
+				} else {
+					var textnode = document.createTextNode(wsline);
+					line.appendChild(textnode);
+				}
 				wsline = "";
 			}
 
@@ -1200,8 +1238,17 @@
 			if (token == "EOF") {
 				if (wsline != "") {
 					// Add any trailing whitespace
-					var textnode = document.createTextNode(wsline);
-					line.appendChild(textnode);
+					if (line.lastChild && line.lastChild.className != this.styles["hidden-comment"] && line.lastChild.className != "fake-caret") {
+						//line.lastChild.appendChild(textnode);
+						if (line.lastChild.lastChild && line.lastChild.lastChild.nodeName == "#text") line.lastChild.lastChild.textContent += wsline;
+						else {
+							var textnode = document.createTextNode(wsline);
+							line.lastChild.appendChild(textnode);
+						}
+					} else {
+						var textnode = document.createTextNode(wsline);
+						line.appendChild(textnode);
+					}
 					wsline = "";
 				}
 				break;
@@ -1279,16 +1326,33 @@
 				parentspan.appendChild(tokenspan);
 
 				line.appendChild(parentspan);
-				if (this.linestack.length > 0) this.linestack[0].className += " current";
-				else line.className += " current";
-			} else {
-				var tokenspan = document.createElement('span');
-				tokenspan.className = this.classes;
-				if (this.classes == "eden-observable") {
-					tokenspan.setAttribute("data-observable", this.tokentext);
+				//if (this.linestack.length > 0) this.linestack[0].className += " current";
+				//else line.className += " current";
+				var p = line;
+				while (p && p.nodeName != "DIV") {
+					if (p.className == this.styles["comment-line"]) {
+						p.className += " current";
+						break;
+					}
+					p = p.parentNode;
 				}
-				tokenspan.appendChild(document.createTextNode(this.tokentext));
-				line.appendChild(tokenspan);
+			} else {
+				if (line.lastChild && line.lastChild.className == this.classes) {
+					var tokenspan = line.lastChild;
+					if (tokenspan.lastChild && tokenspan.lastChild.nodeName == "#text") {
+						tokenspan.lastChild.textContent += this.tokentext;
+					} else {
+						tokenspan.appendChild(document.createTextNode(this.tokentext));
+					}
+				} else {
+					var tokenspan = document.createElement('span');
+					tokenspan.className = this.classes;
+					if (this.classes == "eden-observable") {
+						tokenspan.setAttribute("data-observable", this.tokentext);
+					}
+					tokenspan.appendChild(document.createTextNode(this.tokentext));
+					line.appendChild(tokenspan);
+				}
 			}
 		}
 
@@ -1347,6 +1411,7 @@
 
 		// Highlight all if -1
 		if (hline == -1 ) {
+			this.metrics = {};
 			detach(this, this.outelement, false, function() {
 
 			// Clear!
