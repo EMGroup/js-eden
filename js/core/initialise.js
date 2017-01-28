@@ -78,6 +78,7 @@ function Construit(options,callback) {
 	var master = URLUtil.getParameterByName("master");
 	var myid = URLUtil.getParameterByName("id");
 	var query = URLUtil.getParameterByName("q");
+	var mode = URLUtil.getParameterByName("mode");
 
 	// Add URL parameters to observables...
 	var urlparams = URLUtil.getParameters();
@@ -268,20 +269,14 @@ function Construit(options,callback) {
 
 						Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
 							if (load != "") {
+								if (mode !== null && mode != "") {
+									eden.root.lookup("jseden_project_mode").assign(mode, eden.root.scope, Symbol.defaultAgent);
+								}
 								Eden.Project.load(parseInt(load),(vid === null || vid == "") ? undefined : parseInt(vid),function(){ doneLoading(true); });
-							} else if (query != "") {
-								Eden.DB.search(query, function(res) {
-									if (res.length == 1) {
-										console.log(res[0]);
-										Eden.Project.load(res[0].projectID, undefined, function() {
-											doneLoading(true);
-										});
-									} else {
-										if (res.length > 1) console.error("Ambiguous project query");
-										doneLoading(false);
-									}
-								});
 							} else if (restore != "") {
+								if (mode !== null && mode != "") {
+									eden.root.lookup("jseden_project_mode").assign(mode, eden.root.scope, Symbol.defaultAgent);
+								}
 								Eden.project.restore();
 								doneLoading(true);
 							} else {
