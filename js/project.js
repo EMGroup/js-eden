@@ -198,11 +198,15 @@ Eden.Project.restore = function() {
 	if (window.localStorage) {
 		var src = window.localStorage.getItem("last_project");
 		var id = window.localStorage.getItem("last_id");
+		if (id == "undefined") id = undefined;
 		var vid = window.localStorage.getItem("last_vid");
+		if (vid == "undefined") vid = undefined;
 		var author = window.localStorage.getItem("last_author");
+		if (author == "undefined") author = undefined;
 		var authorid = window.localStorage.getItem("last_authorid");
 		var name = window.localStorage.getItem("last_name");
 		var thumb = window.localStorage.getItem("last_thumb");
+		if (thumb == "undefined") thumb = undefined;
 		var desc = window.localStorage.getItem("last_desc");
 		var title = window.localStorage.getItem("last_title");
 		if (src && src != "") {
