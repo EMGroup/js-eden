@@ -1,16 +1,24 @@
 div.projectdetails {
 	display: flex;
-	flex-direction: column;
 	margin-left: 50px;
+	margin-right: 50px;
 	margin-bottom: 20px;
 	font-size: 10pt;
 	font-family: Arial;
 	color: #444;
+	justify-content: space-between;
 }
 
 span.projectdetails-label {
 	font-weight: bold;
-	margin-right: 10px;
+	margin-right: 5px;
+}
+
+div.projectdetails-buttons {
+	clear: right;
+	margin: 0;
+	padding: 20px;
+	border-top: 1px solid #aaa;
 }
 
 div.projectdetails-forks {
