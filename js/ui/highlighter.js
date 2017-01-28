@@ -289,6 +289,8 @@
 		this.styles = (options && options.styles) ? options.styles : EdenUI.Highlight.defaultStyles;
 		this.clearmodes = (options && options.clearmodes) ? options.clearmodes : EdenUI.Highlight.lineclearmode;
 		this.mode = this.startmode;
+
+		this.metrics = {};
 	}
 
 	EdenUI.Highlight.defaultStyles = {
@@ -642,6 +644,8 @@
 							break;
 		case "?"		:	this.pushMode();
 							this.mode = "COMMENT_QUERY";
+							if (this.metrics[this.line] == undefined) this.metrics[this.line] = {};
+							this.metrics[this.line].query = true;
 							this.classes += this.styles["hidden-comment"];
 							break;
 		default			:	this.classes += this.styles["comment"];
@@ -1407,6 +1411,7 @@
 
 		// Highlight all if -1
 		if (hline == -1 ) {
+			this.metrics = {};
 			detach(this, this.outelement, false, function() {
 
 			// Clear!

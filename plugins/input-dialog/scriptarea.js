@@ -36,6 +36,12 @@ EdenUI.ScriptArea = function() {
 		if (me.fragment === undefined || me.fragment.ast === undefined) return;
 		me.gutter.generate(me.fragment.ast.script, me.currentlineno);
 		//scriptast.clearExecutedState();
+
+		// Also check for highlighter query lines
+		for (var x in me.highlighter.metrics) {
+			console.log("METRIC",x);
+			if (me.highlighter.metrics[x].query) me.highlightContent(x,me.intextarea.selectionEnd);
+		}
 	}, 300);
 
 	var keyboard = new EdenUI.ScriptArea.Keyboard(this);
