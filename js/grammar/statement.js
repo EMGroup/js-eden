@@ -207,6 +207,30 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						}
 						stat = def; break;
 	case "if"		:	this.next(); stat = this.pIF(); break;
+	case "#"		:	var start2 = this.stream.position;
+						var startline2 = this.stream.line;
+
+						do {
+							this.stream.skip();
+							this.stream.skipLine();
+							this.stream.skip();
+							this.stream.line++;
+						} while (this.stream.code.charAt(this.stream.position) == "#");
+			
+						var doxy2 = new Eden.AST.DoxyComment(this.stream.code.substring(start2, this.stream.position-1).trim(), startline2, this.stream.line);
+						this.lastDoxyComment.push(doxy2);
+						doxy2.parent = this.parentDoxy;
+						if (doxy2.content.endsWith("@{")) {
+							this.parentDoxy = doxy2;
+						} else if (doxy2.content.startsWith("@}")) {
+							if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
+						}
+						this.next(); //this.stream.readToken();
+						//return this.pSTATEMENT();
+						//console.log("DOXY HASH",this.token, this.stream.line, this.origin);
+						stat = new Eden.AST.DummyStatement();
+						break;
+
 	case "##"		:	stat = this.pSECTION();
 						if (this.lastDoxyComment.length > 0 && this.lastline == this.lastDoxyComment[0].startline-1) {
 							//console.log("DOXY", this.lastline, this.lastDoxyComment[0].startline);

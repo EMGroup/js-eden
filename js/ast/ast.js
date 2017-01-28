@@ -492,7 +492,7 @@ Eden.AST.prototype.next = function() {
 		//} else if (this.token == "##" && this.lastposition != 0 && /[\s;\{]+/.test(this.stream.code.charAt(this.stream.position-3))) {
 		//	this.stream.skipLine();
 		//	this.token = this.stream.readToken();
-		} else if (this.token == "#" && (this.lastposition == 0 || this.lastline < this.stream.line)) {
+		/*} else if (this.token == "#" && (this.lastposition == 0 || this.lastline < this.stream.line)) {
 			var start = this.stream.position;
 			var startline = this.stream.line;
 
@@ -511,7 +511,7 @@ Eden.AST.prototype.next = function() {
 			} else if (doxy.content.startsWith("@}")) {
 				if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
 			}
-			this.token = this.stream.readToken();
+			this.token = this.stream.readToken();*/
 		// Extract javascript code blocks
 		} else if (this.token == "${{") {
 			var start = this.stream.position;
