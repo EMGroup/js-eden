@@ -2,17 +2,17 @@ EdenUI.ScriptArea.Mouse = function(sa) {
 	function onOutputMouseDown(e) {
 		if (sa.readonly) return;
 
-		setTimeout(function() {
+		//setTimeout(function() {
 			// To prevent false cursor movement when dragging numbers...
-			if (document.activeElement === sa.outdiv) {
+			/*if (document.activeElement === sa.outdiv) {
 				var end = getCaretCharacterOffsetWithin(sa.outdiv);
 				var start = getStartCaretCharacterOffsetWithin(sa.outdiv);
 				sa.intextarea.selectionEnd = end;
 				sa.intextarea.selectionStart = end;
 				var curline = sa.getLineNumber();
 				if (sa.gutter) sa.gutter.selectLine(curline);
-			}
-		},0);
+			}*/
+		//},0);
 	}
 
 	/**
@@ -23,8 +23,9 @@ EdenUI.ScriptArea.Mouse = function(sa) {
 	function onOutputMouseUp(e) {
 		sa.hideInfoBox();
 		//hideMenu();
+		//console.log(e);
 
-		if (sa.readonly) return;
+		if (sa.readonly || e.target.isContentEditable == false) return;
 
 		if (sa.gotomode) {
 			var element = e.target;

@@ -1374,6 +1374,70 @@
 
 
 
+	EdenUI.Highlight.prototype.highlightExactLine = function(ast, hline, position) {
+		this.ast = ast;
+		this.line = 1;
+
+		var errstart = -1;
+		var errend = -1;
+		var errmsg = "";
+		var inerror = false;
+		var stream = ast.stream;
+		var title = "";
+
+		if (this.outelement === undefined) return;
+
+		if (ast.script && ast.script.errors.length > 0) {
+			errstart = ast.script.errors[0].prevposition;
+			errend = ast.script.errors[0].position;
+			errmsg = ast.script.errors[0].messageText();
+		}
+
+		stream.reset();
+
+		var line = undefined;
+		var lineerror = false;
+		var linestart = 0;
+		var token = "INVALID";
+		var prevtoken = "INVALID";
+
+		// Skip until the lines we are looking for
+		while (stream.valid() && (this.line < (hline))) {
+			var ch = stream.peek();
+			if (ch == 10 || ch == 13) {
+				this.line++;
+			}
+			stream.skip();
+			if (ch == 13) stream.skip();
+		}
+
+		// Highlight 3 lines, 1 before and after what we want
+		//for (var i=2; i>=0; i--) {
+			this.line = hline;
+			if (this.metrics[this.line]) delete this.metrics[this.line];
+			var node = this.outelement.childNodes[hline-1];
+			if (node !== undefined) {
+				//Remove existing content
+				while (node.lastChild) node.removeChild(node.lastChild);
+
+				linestart = stream.position;
+				//this.outerline = node;
+				line = this.highlightLine(ast, position);
+				lineerror = (linestart <= errstart) && (stream.position >= errend);
+				//node.className = generateLineClass(this, stream, linestart,lineerror,position);
+				node.appendChild(line);
+				node.className = this.outerline;
+				var ch = stream.peek();
+				var blank = document.createTextNode((ch == 13) ? "\n" : "\n");
+				node.appendChild(blank);
+				stream.skip();
+				if (ch == 13) stream.skip();
+			}
+		//}
+	}
+
+
+
 	/**
 	 * Generate a syntax highlighted version of the stream. Call this with
 	 * an abstract syntax tree of the code, the line to highlight (or -1 for
