@@ -868,6 +868,7 @@
 			//this.mode = "COMMENT";
 			this.popMode();
 		} else {
+			this.classes += "eden-script ";
 			this.START();
 		}
 	}

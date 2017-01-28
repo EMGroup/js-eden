@@ -260,7 +260,7 @@ Eden.Project.prototype.generate = function() {
 
 Eden.Project.prototype.getDescription = function() {
 	if (this.desc === undefined) {
-		this.desc = "# "+this.title+"\nEnter a project description here,\nand some hashtags as below.\n\nTags\\: #"+this.tags.join(" #");
+		this.desc = "# "+this.title+"\nEnter a project description here,\nand some hashtags as below.\n\nTags: #"+this.tags.join(" #");
 	}
 	return this.desc;
 }

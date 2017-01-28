@@ -1,12 +1,12 @@
 div.markdown {
 	margin-left: 20px;
 	margin-right: 20px;
-	margin-top: 20px;
-	margin-bottom: 30px;
+	/*margin-top: 20px;*/
+	margin-bottom: 20px;
 	padding: 10px;
-	border: 1px solid #aaa;
+	/*border: 1px solid #aaa;*/
 	font: 11pt Arial,Helvetica,sans-serif;
-	clear: right;
+	/*clear: right;*/
 }
 
 div.markdown h1 {
