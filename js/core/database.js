@@ -97,6 +97,20 @@ Eden.DB.connect = function(url, callback) {
 		}
 	}, 20000);
 
+	function loginSlowPoll() {
+		if (Eden.DB.isConnected()) {
+			setTimeout(function() {
+				Eden.DB.getLoginName(function(name) {
+					if (name) {
+						loginSlowPoll();
+					} else {
+						Eden.DB.disconnect();
+					}
+				})
+			}, 60000*5);
+		}
+	}
+
 	function loginLoop() {
 		if (Eden.DB.isConnected() && Eden.DB.username === undefined) {
 			setTimeout(function() {
@@ -104,6 +118,7 @@ Eden.DB.connect = function(url, callback) {
 					if (name) {
 						Eden.DB.emit("login", [name]);
 						eden.root.lookup("jseden_pm_user").assign(name, eden.root.scope, Symbol.localJSAgent);
+						loginSlowPoll();
 					} else {
 						loginLoop();
 					}
