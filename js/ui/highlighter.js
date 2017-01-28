@@ -1177,6 +1177,9 @@
 					}
 					p = p.parentNode;
 				}
+
+				//if (this.metrics[this.line-1] == undefined) this.metrics[this.line-1] = {};
+				//this.metrics[this.line-1].current = true;
 			}
 
 			// Skip but preserve white space
@@ -1336,6 +1339,9 @@
 					}
 					p = p.parentNode;
 				}
+
+				//if (this.metrics[this.line] == undefined) this.metrics[this.line] = {};
+				//this.metrics[this.line].current = true;
 			} else {
 				if (line.lastChild && line.lastChild.className == this.classes) {
 					var tokenspan = line.lastChild;
@@ -1514,6 +1520,7 @@
 			// Highlight 3 lines, 1 before and after what we want
 			for (var i=2; i>=0; i--) {
 				this.line = hline-i+1;
+				if (this.metrics[this.line]) delete this.metrics[this.line];
 				var node = this.outelement.childNodes[hline-i];
 				if (node !== undefined) {
 					//Remove existing content
@@ -1537,6 +1544,7 @@
 			// Highlight lines if mode changed
 			while (this.mode_at_line[this.line+1] !== undefined && this.mode_at_line[this.line] != this.mode_at_line[this.line+1]) {
 				this.line++;
+				if (this.metrics[this.line]) delete this.metrics[this.line];
 				var node = this.outelement.childNodes[this.line-1];
 				if (node !== undefined) {
 					//Remove existing content
