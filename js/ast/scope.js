@@ -159,7 +159,7 @@ Eden.AST.Scope.prototype.execute = function(ctx, base, scope) {
 	rhs += "return ";
 	rhs += gen;
 	rhs += ";})";
-	console.log(rhs);
+	//console.log(rhs);
 	return eval(rhs)(eden.root,scope);
 }
 
