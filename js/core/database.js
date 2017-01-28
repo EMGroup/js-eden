@@ -278,8 +278,8 @@ Eden.DB.load = function(pid, vid, callback) {
 			success: function(data){
 				if (data == null || data.error) {
 					callback(undefined, "No such version");
-					console.error("No such version " + tag + " for " + path);
-					//console.log(data);
+					console.error("No such version " + vid + " for " + pid);
+					console.log(data);
 				} else {
 					callback(data);
 				}

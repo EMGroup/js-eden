@@ -1,6 +1,7 @@
 span.eden-script {
 	font: 14px/20px Roboto Mono,monospace;
 	-webkit-font-smoothing: antialiased;
+	color: #2b4957;
 }
 
 span.eden-keyword {

@@ -16,6 +16,10 @@ div.markdown h1 {
 	margin-top: 5px;
 }
 
+div.markdown p {
+	text-align: justify;
+}
+
 .markdown-inputCodeArea {
 	-moz-tab-size: 4;
 	-o-tab-size: 4;

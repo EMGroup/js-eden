@@ -36,16 +36,16 @@ EdenUI.ProjectDetails = function(projectid) {
 		var t = meta[0].date.split(/[- :]/);
 
 		var details = $('<div class="projectdetails">\
-			<span><span class="projectdetails-label">by </span><span class="projectdetails-value">'+meta[0].ownername+'</span></span>\
-			<span><span class="projectdetails-label">Last Changed:</span><span class="projectdetails-value">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span></span>\
+			<span><span class="projectdetails-label">by:</span><span class="projectdetails-value">'+meta[0].ownername+'</span></span>\
+			<span><span class="projectdetails-label">changed:</span><span class="projectdetails-value">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span></span>\
 		</div>');
 		me.dialog.append(details);
 
 		var buttons;
 		if (meta[0].owner == Eden.DB.userid) {
-			buttons = $('<div style="clear:right;"><button class="openproject script-button"><span class="explorer-control-icon">&#xf04b;</span>Open</button><button class="restoreproject script-button"><span class="explorer-control-icon">&#xf040;</span>Maker</button><button class="deleteproject script-button"><span class="explorer-control-icon">&#xf00d;</span>Delete</button><br></div>');
+			buttons = $('<div class="projectdetails-buttons"><button class="openproject script-button"><span class="explorer-control-icon">&#xf04b;</span>Open</button><button class="restoreproject script-button"><span class="explorer-control-icon">&#xf040;</span>Maker</button><button class="deleteproject script-button"><span class="explorer-control-icon">&#xf00d;</span>Delete</button><br></div>');
 		} else {
-			 buttons = $('<div><button class="openproject script-button"><span class="explorer-control-icon">&#xf04b;</span>Open</button><button class="restoreproject script-button"><span class="explorer-control-icon">&#xf040;</span>Maker</button><br></div>');
+			 buttons = $('<div class="projectdetails-buttons"><button class="openproject script-button"><span class="explorer-control-icon">&#xf04b;</span>Open</button><button class="restoreproject script-button"><span class="explorer-control-icon">&#xf040;</span>Maker</button><br></div>');
 		}
 
 		buttons.on("click",".openproject", function() {
