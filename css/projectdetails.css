@@ -1,0 +1,19 @@
+div.projectdetails {
+	display: flex;
+	flex-direction: column;
+	margin-left: 40px;
+	margin-top: 20px;
+}
+
+span.projectdetails-label {
+	font-weight: bold;
+	margin-right: 10px;
+}
+
+div.projectdetails-forks {
+	margin: 20px;
+	padding: 5px;
+	border: 1px solid #aaa;
+	font: 11pt Arial,Helvetica,sans-serif;
+}
+

@@ -1,3 +1,21 @@
+div.markdown {
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-top: 20px;
+	margin-bottom: 30px;
+	padding: 10px;
+	border: 1px solid #aaa;
+	font: 11pt Arial,Helvetica,sans-serif;
+	clear: right;
+}
+
+div.markdown h1 {
+	color: #666;
+	font: 16pt Arial,Helvetica,sans-serif;
+	font-weight: bold;
+	margin-top: 5px;
+}
+
 .markdown-inputCodeArea {
 	-moz-tab-size: 4;
 	-o-tab-size: 4;

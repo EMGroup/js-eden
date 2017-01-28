@@ -127,7 +127,6 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	</div>
 </div>
 <div class="info-bar"></div>
-<div class="outputbox"></div>
 </div></div>`);
 		//var $optmenu = $('<ul class="input-options-menu"><li>Mode</li><li>Word-wrap</li><li>Spellcheck</li><li>All Leaves</li><li>All Options</li></ul>');		
 		var position = 0;
@@ -213,9 +212,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		function showButtons(sym, value) {
 			if (value) {
 				controls.style.display = "flex";
+				scriptarea.codearea.style.top = "30px";
 				//inputhider.parentNode.style.top = "35px";
 			} else {
 				controls.style.display = "none";
+				scriptarea.codearea.style.top = "0";
 				//inputhider.parentNode.style.top = "0";
 			}
 		}
@@ -889,6 +890,15 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			scriptarea.details.toggle();
 		}
 
+		function onButtonClick(e) {
+			console.log("BUTTON",e);
+			var script = e.currentTarget.getAttribute("data-jseden");
+			if (script && script != "") {
+				console.log(script);
+				eden.execute2(script, {name: "execute"});
+			}
+		}
+
 
 		$controls
 		.on('keyup', 'input.editname', onNameChange)
@@ -901,6 +911,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		// Set the event handlers
 		$dialogContents
+		.on('click', 'button', onButtonClick)
 		.on('click', '.close', onTabClose)
 		.on('click', '.agent-tab-more', onBrowse)
 		.on('click', '.browse-entry', onBrowseClick)

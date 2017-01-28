@@ -22,10 +22,12 @@ EdenUI.Sharebox = function(element) {
 	projectoptions.get(0).appendChild(this.markdown.contents);
 
 	this.sharebox.on("change", "#thumbfile", function(e) {
+		var thumb = me.sharebox.find("#projectthumb");
 		var thumbinput = $("#thumbfile");
 		thumb.html("");
 		var fileinput = thumbinput.get(0);
 		var file = fileinput.files[0];
+		console.log("THUMB FILE",file);
 		var reader = new FileReader();
 		reader.onload = function(e) {
 			//Eden.loadFromString(e.target.result);
@@ -134,7 +136,9 @@ EdenUI.Sharebox = function(element) {
 		//Eden.Agent.uploadAll(function() {
 			//console.log("ALL UPLOADED");
 			eden.project.thumb = me.thumbdata;
+			if (eden.project.id) eden.project.parentid = eden.project.id;
 			eden.project.id = undefined;
+			eden.project.vid = undefined;
 			eden.project.setDescription(desc);
 			console.log("FORK", listed, desc);
 			eden.project.save(listed, function(status) {
@@ -211,7 +215,7 @@ EdenUI.Sharebox.prototype.update = function() {
 	var title = me.title.textContent;
 
 	if (Eden.DB.isLoggedIn()) {
-		if (eden.project.authorid != Eden.DB.userid) {
+		if (eden.project.authorid != Eden.DB.userid && eden.project.authorid != -1) {
 			me.sharebox.find("#projectuploadbox").html('<div id="projectthumb"></div><div style="margin-top: 40px; float: left"><input id="listpublic" type="checkbox" checked>List publically</input></div><input id="thumbfile" type="file"></input><div class="sharebox-save-buttons"><button class="sharebox-button fork">Fork</button><span class="downloadurl"></span></div>'); //<button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');
 		} else {
 			me.sharebox.find("#projectuploadbox").html('<div id="projectthumb"></div><div style="margin-top: 40px; float: left"><input id="listpublic" type="checkbox" checked>List publically</input></div><input id="thumbfile" type="file"></input><div class="sharebox-save-buttons"><button class="sharebox-button upload">Save</button><button class="sharebox-button fork">Fork</button><span class="downloadurl"></span></div>'); //<button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');

@@ -209,7 +209,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "if"		:	this.next(); stat = this.pIF(); break;
 	case "##"		:	stat = this.pSECTION();
 						if (this.lastDoxyComment.length > 0 && this.lastline == this.lastDoxyComment[0].startline-1) {
-							console.log("DOXY", this.lastline, this.lastDoxyComment[0].startline);
+							//console.log("DOXY", this.lastline, this.lastDoxyComment[0].startline);
 							stat.doxyComment = this.lastDoxyComment.shift();
 							//this.lastDoxyComment = this.parentDoxy;
 						}

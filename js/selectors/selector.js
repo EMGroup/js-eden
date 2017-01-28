@@ -124,11 +124,15 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 			}
 		} else if (statements[i].type == "section") {
 			var node = statements[i].nextSibling;
+			var chi = [];
 			while (node && (node.type != "section" || node.depth > statements[i].depth)) {
-				if (node.type != "dummy") nstats.push(node);
+				if (node.type != "dummy") {
+					nstats.push(node);
+					chi.push(node);
+				}
 				node = node.nextSibling;
 			}
-			if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(nstats, recurse));
+			if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(chi, recurse));
 		}
 	}
 	nstats = nstats.filter(function(stat) {
@@ -143,7 +147,8 @@ Eden.Selectors.allowedOptions = {
 	"all": true,		// Don't apply a "unique" to the results
 	"indexed": true,	// Ignore any context and use an indexed search
 	"index": true,		// Automatically index any external results (import)
-	"nosort": true		// Don't sort the results by time stamp.
+	"nosort": true,		// Don't sort the results by time stamp.
+	"remote": true		// Force server search only (if external is also set).
 };
 
 Eden.Selectors.resultTypes = {
@@ -498,29 +503,33 @@ Eden.Selectors.query = function(s, o, options, cb) {
 		return [];
 	}
 
-	// If a context is given, search in this first unless told otherwise
-	if (ctx && ctx.type == "script" && (!sast.options || !sast.options.indexed)) {
-		statements = sast.filter(ctx.statements);
-	}
+	if (!sast.options || !sast.options.remote) {
+		// If a context is given, search in this first unless told otherwise
+		if (ctx && ctx.type == "script" && (!sast.options || !sast.options.indexed)) {
+			statements = sast.filter(ctx.statements);
+		}
 
-	// If there are still no results, do an indexed searched
-	if (!statements || statements.length == 0) {
-		statements = sast.filter();
-	}
-	if (statements === undefined) statements = [];
+		// If there are still no results, do an indexed searched
+		if (!statements || statements.length == 0) {
+			statements = sast.filter();
+		}
+		if (statements === undefined) statements = [];
 
-	// Make sure results are unique by id
-	if (!sast.options || !sast.options.all) {
-		statements = Eden.Selectors.unique(statements);
-	}
+		// Make sure results are unique by id
+		if (!sast.options || !sast.options.all) {
+			statements = Eden.Selectors.unique(statements);
+		}
 	
-	// Sort by timestamp unless told not to.
-	if (!sast.options || !sast.options.nosort) {
-		statements = Eden.Selectors.sort(statements);
-	}
+		// Sort by timestamp unless told not to.
+		if (!sast.options || !sast.options.nosort) {
+			statements = Eden.Selectors.sort(statements);
+		}
 
-	// Convert AST node results into requested attributes...
-	statements = Eden.Selectors.processResults(statements, o, num);
+		// Convert AST node results into requested attributes...
+		statements = Eden.Selectors.processResults(statements, o, num);
+	} else {
+		statements = [];
+	}
 
 	// If there are still no results and the query is not a local only
 	// query, then look elsewhere. Only possible if a callback is given.
@@ -761,7 +770,12 @@ Eden.Selectors.modify = function(selector, attributes, values) {
 											res[i].enabled = true;
 										}
 									} break;
-			case "name": break;
+			case "name"			:	if (res[i].type == "script") {
+										Eden.Index.remove(res[i]);
+										res[i].prefix = "action "+vals[j]+" {";
+										res[i].name = vals[j];
+										Eden.Index.update(res[i]);
+									} break;
 			default: console.error("Cannot modify property '"+attribs[j]+"'");
 			}
 		}

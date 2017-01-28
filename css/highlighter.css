@@ -1,3 +1,8 @@
+span.eden-script {
+	font: 14px/20px Roboto Mono,monospace;
+	-webkit-font-smoothing: antialiased;
+}
+
 span.eden-keyword {
 	font-weight: bold;
 	color: #a40000;
@@ -67,15 +72,24 @@ div.eden-section-line:after {
 	background: #aaa;
 	height: 1px;
 	position: absolute;
-	left: 40px;
-	right: 20px;
+	left: 0;
+	right: 0;
 	margin-top: -10px;
 }
 
 span.eden-comment {
 	/*font-style: italic;*/
+	
+}
+
+span.eden-blockcomment {
+	font-style: italic;
+}
+
+span.eden-comment-line {
 	color: #777;
-	font: 14px Arial,Helvetica,sans-serif
+	font-size: 14px;
+	font-family: Arial,Helvetica,sans-serif;
 }
 
 li.eden-comment {
@@ -90,12 +104,22 @@ span.eden-comment-hidden {
 	display: none;
 }
 
-span.current > span.eden-comment-hidden {
+span.current span.eden-comment-hidden {
 	display: initial;
 	color: red;
-	font-weight: bold;
 	font: 14px Arial,Helvetica,sans-serif;
+	font-weight: bold;
 }
+
+span.eden-comment-ul:before {
+	content: "\f111";
+	color: #2b4957;
+	margin-left: 10px;
+	margin-right: 15px;
+	font-family: "FontAwesome";
+	font-size: 8px;
+}
+
 
 span.eden-comment-faded-h1 {
 	color: #aaa;
@@ -103,15 +127,22 @@ span.eden-comment-faded-h1 {
 }
 
 span.eden-comment-bold {
-	font: 14px Arial,Helvetica,sans-serif;
+	/*font: 14px Arial,Helvetica,sans-serif;*/
 	font-weight: bold;
-	color: #555;
+	/*color: #555;*/
 }
 
 span.eden-comment-emph {
-	font: 14px Arial,Helvetica,sans-serif;
+	/*font: 14px Arial,Helvetica,sans-serif;*/
 	font-style: italic;
 	color: #555;
+}
+
+span.eden-comment-query {
+}
+
+span.eden-comment-query:before{
+	content: attr(data-result);
 }
 
 span.eden-comment-h1 {
@@ -122,7 +153,24 @@ span.eden-comment-h1 {
 
 span.eden-comment-h2 {
 	color: #666;
-	font: 16pt Arial,Helvetica,sans-serif;
+	font: 14pt Arial,Helvetica,sans-serif;
+}
+
+span.eden-comment-h3 {
+	color: #666;
+	font: 12pt Arial,Helvetica,sans-serif;
+	font-weight: bold;
+}
+
+span.eden-comment-h4 {
+	color: #666;
+	font: 12pt Arial,Helvetica,sans-serif;
+	font-weight: bold;
+}
+
+span.eden-comment-icon {
+	color: #2b4957;
+	font-size: 16px;
 }
 
 span.eden-line-script {
@@ -171,7 +219,7 @@ span.eden-importopt {
 
 span.eden-doxytag {
 	font-style: normal;
-	font-weight: bold;
+	/*font-weight: bold;*/
 	color: #3557d9;
 }
 
@@ -266,5 +314,11 @@ div.eden-line {
 	/*right: 0;*/
 	/*left: 43px;*/
 	/*z-index: 2;*/
+}
+
+div.eden-comment-blockquote {
+	border-left: 2px solid #2b4957;
+	background-color: #eee;
+	margin-left: 15px;
 }
 

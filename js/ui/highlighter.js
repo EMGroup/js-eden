@@ -320,7 +320,11 @@
 		"comment-emph": "eden-comment-emph",
 		"comment-bold": "eden-comment-bold",
 		"script-line": "eden-line-script",
-		"doxytag": "eden-doxytag"
+		"doxytag": "eden-doxytag",
+		"comment-query": "eden-comment-query",
+		"block-comment": "eden-blockcomment",
+		"comment-ul": "eden-comment-ul",
+		"comment-blockquote": "eden-comment-blockquote"
 	}
 
 	EdenUI.Highlight.prototype.START = function() {
@@ -402,10 +406,10 @@
 								} else if (this.token == "/*") {
 									if (this.stream.peek() == 42) {
 										this.mode = "DOXY_COMMENT";
-										this.classes += this.styles["doxycomment"];
+										this.classes += this.styles["block-comment"];
 									} else {
 										this.mode = "BLOCK_COMMENT";
-										this.classes += this.styles["comment"];
+										this.classes += this.styles["block-comment"];
 									}
 								} else {
 									this.classes += this.styles["operator"];
@@ -477,10 +481,18 @@
 	EdenUI.Highlight.prototype.SECTION_TITLE = function() {
 		if (this.token == "#") {
 			this.classes += this.styles["hidden-comment"];
-			this.mode = "SECTION_TITLE_H2";
+			this.lineelement.className += " " + this.styles["comment-h2"];
+			//this.mode = "SECTION_TITLE_H2";
+			this.mode = "COMMENT";
+		} else if (this.token == "##") {
+			this.classes += this.styles["hidden-comment"];
+			this.mode = "SECTION_TITLE3";
 		} else {
-			this.classes += this.styles["comment-h1"];
-			this.mode = "SECTION_TITLE_H1";
+			//this.classes += this.styles["comment-h1"];
+			this.lineelement.className += " " + this.styles["comment-h1"];
+			//this.mode = "SECTION_TITLE_H1";
+			this.mode = "COMMENT";
+			this.COMMENT();
 		}
 	}
 
@@ -494,6 +506,21 @@
 		}
 	}
 
+	EdenUI.Highlight.prototype.SECTION_TITLE3 = function() {
+		if (this.token == "#") {
+			this.classes += this.styles["hidden-comment"];
+			this.mode = "SECTION_TITLE4";
+		} else {
+			this.classes += this.styles["comment-h3"];
+			this.mode = "SECTION_TITLE_H3";
+		}
+	}
+
+	EdenUI.Highlight.prototype.SECTION_TITLE4 = function() {
+			this.classes += this.styles["comment-h4"];
+			this.mode = "SECTION_TITLE_H4";
+	}
+
 	EdenUI.Highlight.prototype.SECTION_TITLE_H1 = function() {
 		this.classes += this.styles["comment-h1"];
 	}
@@ -502,12 +529,20 @@
 		this.classes += this.styles["comment-h2"];
 	}
 
+	EdenUI.Highlight.prototype.SECTION_TITLE_H3 = function() {
+		this.classes += this.styles["comment-h3"];
+	}
+
+	EdenUI.Highlight.prototype.SECTION_TITLE_H4 = function() {
+		this.classes += this.styles["comment-h4"];
+	}
+
 	EdenUI.Highlight.prototype.BLOCK_COMMENT = function() {
 		switch(this.token) {
 		case "*/"		:	this.mode = this.startmode;
-							this.classes += this.styles["comment"];
+							this.classes += this.styles["block-comment"];
 							break;
-		default			:	this.classes += this.styles["comment"];
+		default			:	this.classes += this.styles["block-comment"];
 		}
 	}
 
@@ -524,18 +559,23 @@
 							this.lineelement.appendChild(nline);
 							this.lineelement = nline;
 							break;
-		case "*"		:	if (this.prevtoken == "#" || this.prevtoken == "INVALID") {
+		case "-"		:
+		case "*"		:	if ((this.prevtoken == "##" || this.prevtoken == "#" || this.prevtoken == "INVALID") && (this.stream.peek() == 32 || this.stream.peek() == 9)) {
 								this.pushLine();
-								var nline = document.createElement("li");
-								nline.className = this.styles["comment"];
+								var nline = document.createElement("span");
+								nline.className = this.styles["comment-ul"];
 								this.lineelement.appendChild(nline);
 								this.lineelement = nline;
 								this.classes += this.styles["hidden-comment"];
-							} else {
+							} else if (this.token != "-") {
+								this.pushMode();
 								this.mode = "COMMENT_EMPH";
 								this.classes += this.styles["hidden-comment"];
+							} else {
+								this.classes += this.styles["comment"];
 							}
 							break;
+							
 		case "--"		:	if (this.stream.peek() == 45) {
 								this.outerline = "eden-line eden-section-line";
 								this.tokentext += "-";
@@ -552,13 +592,36 @@
 								this.classes += this.styles["comment"];
 							}
 							break;
+
+		case "!"		:	if (this.stream.peek() == 91) {
+								this.mode = "COMMENT_IMAGE";
+								this.tokentext += "[";
+								this.stream.position++;
+								this.classes += this.styles["hidden-comment"];
+							} else {
+								this.classes += this.styles["comment"];
+							}
+							break;
+
+		case ">"		:	if ((this.prevtoken == "##" || this.prevtoken == "#" || this.prevtoken == "INVALID") && (this.stream.peek() == 32 || this.stream.peek() == 9)) {
+								this.outerline += " " + this.styles["comment-blockquote"];
+								this.classes += this.styles["hidden-comment"];
+							} else {
+								this.classes += this.styles["comment"];
+							}
+							break;
+						
 							
-		case "`"		:	this.mode = "COMMENT_CODE";
+		case "`"		:	this.pushMode();
+							this.mode = "COMMENT_CODE";
 							this.classes += this.styles["hidden-comment"];
 							break;
-		case ":"		:	this.mode = "COMMENT_ICON";
-							this.classes += this.styles["hidden-comment"];
-							break;
+		case ":"		:	if (this.stream.peek() != 32) {
+								this.mode = "COMMENT_ICON";
+								this.classes += this.styles["hidden-comment"];
+							} else {
+								this.classes += this.styles["comment"];
+							} break;
 		case "<"		:	if (this.stream.peek() != 32) {
 								this.mode = "COMMENT_HTML";
 								this.classes += this.styles["hidden-comment"];
@@ -566,11 +629,56 @@
 								this.classes += this.styles["comment"];
 							}
 							break;
-		case "\""		:	this.mode = "COMMENT_ESCAPE";
+		case "\""		:	this.pushMode();
+							this.mode = "COMMENT_ESCAPE";
 							this.classes += this.styles["hidden-comment"];
 							break;
-		case "?"		:
+		case "?"		:	this.pushMode();
+							this.mode = "COMMENT_QUERY";
+							this.classes += this.styles["hidden-comment"];
+							break;
 		default			:	this.classes += this.styles["comment"];
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_QUERY = function() {
+		if (this.token == "(") {
+			var linestr = this.stream.peekLine();
+			var count = 0;
+			var endix = -1;
+			for (var i=0; i<linestr.length; i++) {
+				if (linestr.charAt(i) == "(") count++;
+				else if (linestr.charAt(i) == ")") {
+					count--;
+					if (count < 0) {
+						endix = i;
+						break;
+					}
+				}
+			}
+
+			if (endix == -1) {
+				this.popMode();
+				this.classes += this.styles["hidden-comment"];
+			} else {
+				var qstr = linestr.substring(0,endix);
+				this.tokentext += qstr + ")";
+				this.stream.position += qstr.length+1;
+				this.popMode();
+				this.classes += this.styles["hidden-comment"];
+
+				var ele = document.createElement("span");
+				ele.className += this.styles["comment-query"]; // + " " + this.styles["comment"];
+				this.lineelement.appendChild(ele);
+				var res = Eden.Selectors.query(qstr,"value");
+				if (res.length == 1) res = res[0];
+				else if (res.length > 1) res = res.join(", ");
+				else res = "";
+				ele.setAttribute("data-result", res);
+			}
+		} else {
+			this.popMode();
+			this.classes += this.styles["hidden-comment"];
 		}
 	}
 
@@ -617,31 +725,72 @@
 			this.tokentext += remaining+")";
 			console.log("LINK LINK", remaining);
 			this.stream.position += endix+1;
-			this.classes += this.styles["hidden"];
+			this.classes += this.styles["hidden-comment"];
 			this.mode = "COMMENT";
 			this.lineelement.setAttribute("href", remaining.substring(1));
 			this.popLine();
 		}
 	}
 
+	EdenUI.Highlight.prototype.COMMENT_IMAGE = function() {
+		var linestr = this.stream.peekLine();
+		var endix = linestr.indexOf("]");
+		if (endix == -1) {
+			this.classes += this.styles["comment"];
+			this.mode = "COMMENT";
+		} else {
+			var remaining = linestr.substring(0, endix);
+			//this.tokentext += remaining;
+			console.log("IMG",this.tokentext);
+			//this.stream.position += endix;
+			this.classes += this.styles["comment"];
+			this.mode = "COMMENT_IMAGE_END";
+
+			this.pushLine();
+			var nline = document.createElement("img");
+			nline.title = remaining;
+			nline.style.verticalAlign = "top";
+			this.lineelement.appendChild(nline);
+			this.lineelement = nline;
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_IMAGE_END = function() {
+		var linestr = this.stream.peekLine();
+		var endix = linestr.indexOf(")");
+		if (endix == -1) {
+			this.classes += this.styles["hidden-comment"];
+			this.mode = "COMMENT";
+			this.popLine();
+		} else {
+			var remaining = linestr.substring(0,endix);
+			this.tokentext += remaining+")";
+			//console.log("LINK LINK", remaining);
+			this.stream.position += endix+1;
+			this.classes += this.styles["hidden-comment"];
+			this.mode = "COMMENT";
+			this.lineelement.setAttribute("src", remaining.substring(1));
+			this.popLine();
+		}
+	}
+
 	EdenUI.Highlight.prototype.COMMENT_ESCAPE = function() {
-		this.mode = "COMMENT";
+		this.popMode();
 		this.classes += this.styles["comment"];
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_HTML = function() {
 		var tagname = this.tokentext;
-		console.log("TAG",tagname);
 		var linestr = this.stream.peekLine();
 		var endopen = linestr.indexOf(">");
 		if (endopen >= 0) {
-			console.log("LINESTR",linestr);
 			var opentag = "<"+tagname+linestr.substring(0,endopen+1);
 			this.tokentext = opentag.substring(1);
 			this.cacheddata = {opentag: opentag, tagname: tagname};
 			this.classes += this.styles["hidden-comment"];
-			this.mode = "COMMENT_HTML_CONTENT";
+			this.mode = "COMMENT_HTML_START";
 			this.stream.position += endopen+1;
+			//this.COMMENT();
 		} else {
 			this.classes += this.styles["hidden-comment"];
 			this.mode = "COMMENT";
@@ -650,21 +799,39 @@
 
 	EdenUI.Highlight.prototype.COMMENT_HTML_CONTENT = function() {
 		if (this.token != "<") {
+			this.COMMENT();
+		} else {
 			var linestr = this.stream.peekLine();
-			var endtag = "</"+this.cacheddata.tagname+">";
+			var endtag = "/"+this.cacheddata.tagname+">";
 			var endix = linestr.indexOf(endtag);
 			if (endix == -1) {
 				this.classes += this.styles["hidden-comment"];
-				this.mode = "COMMENT";
-				this.cacheddata = false;
 			} else {
-				var content = this.tokentext+linestr.substring(0,endix);
-				this.stream.position += endix;
+				if (this.cacheddata) this.popLine();
+				this.tokentext += endtag;
+				this.stream.position += endix+endtag.length;
+				this.classes += this.styles["hidden-comment"];
+			}
+			this.mode = "COMMENT";
+		}
+	}
+
+	EdenUI.Highlight.prototype.COMMENT_HTML_START = function() {
+		if (this.token != "<") {
+			//var linestr = this.stream.peekLine();
+			//var endtag = "</"+this.cacheddata.tagname+">";
+			//var endix = linestr.indexOf(endtag);
+			//if (endix == -1) {
+			//	this.classes += this.styles["hidden-comment"];
+			//	this.mode = "COMMENT";
+			//	this.cacheddata = false;
+			//} else {
+				//var content = this.tokentext+linestr.substring(0,endix);
+				//this.stream.position += endix;
 				//this.tokentext += opentag+endtag
 				//this.classes += "eden-comment-hidden";
 				var html = this.cacheddata.opentag+endtag;
-				console.log("HTML",html);
-				//this.mode = "COMMENT";
+				this.mode = "COMMENT_HTML_CONTENT";
 				//var textelement = document.createTextNode(opentag);
 				//var openspan = document.createElement("span");
 				//openspan.className = "eden-comment-hidden";
@@ -675,9 +842,10 @@
 				nline.contentEditable = false;
 				this.lineelement.appendChild(nline);
 				this.lineelement = nline;
-				this.tokentext = content;
+				//this.tokentext = content;
 				//this.cacheddata = true;
-			}
+				this.COMMENT();
+			//}
 		} else {
 			var linestr = this.stream.peekLine();
 			var endtag = "/"+this.cacheddata.tagname+">";
@@ -697,7 +865,8 @@
 	EdenUI.Highlight.prototype.COMMENT_CODE = function() {
 		if (this.token == "`") {
 			this.classes += this.styles["hidden-comment"];
-			this.mode = "COMMENT";
+			//this.mode = "COMMENT";
+			this.popMode();
 		} else {
 			this.START();
 		}
@@ -705,8 +874,20 @@
 
 	EdenUI.Highlight.prototype.COMMENT_ICON = function() {
 		if (this.token == "OBSERVABLE") {
+			if (this.stream.code.charAt(this.stream.position) == "-") {
+				var linestr = this.stream.peekLine();
+				var endix = linestr.indexOf(":");
+				if (endix == -1) {
+					this.classes += this.styles["comment"];
+					this.mode = "COMMENT";
+					return;
+				}
+				var remain = linestr.substring(0,endix);
+				this.tokentext += remain;
+				this.stream.position += remain.length;
+			}
 			var icon = document.createElement("span");
-			icon.className = "fa fa-"+this.tokentext;
+			icon.className = "eden-comment-icon fa fa-"+this.tokentext;
 			this.lineelement.appendChild(icon);
 			this.classes += this.styles["hidden-comment"];
 		} else if (this.token == ":") {
@@ -722,32 +903,60 @@
 			this.mode = "COMMENT_BOLD";
 			this.classes += this.styles["hidden-comment"];
 		} else {
-			this.classes += this.styles["comment-emph"];
+			//this.lineelement.className = this.styles["comment-emph"];
+			var nline = document.createElement("span");
+			nline.className = this.styles["comment-emph"];
+			this.lineelement.appendChild(nline);
+			this.pushLine();
+			this.lineelement = nline;
+			//this.classes += this.styles["comment-emph"];
 			this.mode = "COMMENT_ITALIC";
+			this.COMMENT();
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_ITALIC = function() {
 		if (this.token == "*") {
 			this.classes += this.styles["hidden-comment"];
-			this.mode = "COMMENT";
+			//this.mode = "COMMENT";
+			this.popLine();
+			this.popMode();
 		} else {
-			this.classes += this.styles["comment-emph"];
+			//this.classes += this.styles["comment-emph"];
+			this.COMMENT();
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_BOLD = function() {
 		if (this.token == "*") {
 			this.classes += this.styles["hidden-comment"];
+			this.popLine();
 			this.mode = "COMMENT_BOLD_END";
 		} else {
-			this.classes += this.styles["comment-bold"];
+			//this.classes += this.styles["comment-bold"];
+			var nline = document.createElement("span");
+			nline.className = this.styles["comment-bold"];
+			this.lineelement.appendChild(nline);
+			this.pushLine();
+			this.lineelement = nline;
+			//this.classes += this.styles["comment-emph"];
+			this.mode = "COMMENT_BOLD_END";
+			this.COMMENT();
 		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_BOLD_END = function() {
-		this.classes += this.styles["hidden-comment"];
-		this.mode = "COMMENT";
+		if (this.token == "*") {
+			if (this.stream.code.charAt(this.stream.position) == "*") {
+				this.classes += this.styles["hidden-comment"];
+				this.stream.position++;
+				this.tokentext += "*";
+			}
+			this.popLine();
+			this.popMode();
+		} else {
+			this.COMMENT();
+		}
 	}
 
 	EdenUI.Highlight.prototype.COMMENT_TAG = function() {
@@ -793,11 +1002,15 @@
 	}
 
 	EdenUI.Highlight.prototype.popLine = function() {
-		this.lineelement = this.linestack.pop();
+		if (this.linestack.length > 0) {
+			this.lineelement = this.linestack.pop();
+		}
 	}
 
 	EdenUI.Highlight.prototype.popMode = function() {
-		this.mode = this.modestack.pop();
+		if (this.modestack.length > 0) {
+			this.mode = this.modestack.pop();
+		}
 	}
 
 
@@ -861,17 +1074,26 @@
 		"COMMENT": true,
 		"SECTION_TITLE": true,
 		"SECTION_TITLE2": true,
+		"SECTION_TITLE3": true,
+		"SECTION_TITLE4": true,
 		"SECTION_TITLE_H1": true,
 		"SECTION_TITLE_H2": true,
+		"SECTION_TITLE_H3": true,
+		"SECTION_TITLE_H4": true,
 		"COMMENT_BOLD": true,
 		"COMMENT_CODE": true,
 		"COMMENT_ICON":	true,
 		"COMMENT_EMPH": true,
 		"COMMENT_ITALIC": true,
+		"COMMENT_BOLD_END": true,
+		"COMMENT_QUERY": true,
 		"END_COMMENT_TAG": true,
 		"COMMENT_TAG": true,
 		"COMMENT_LINK": true,
-		"COMMENT_LINK_END": true
+		"COMMENT_LINK_END": true,
+		"COMMENT_HTML": true,
+		"COMMENT_HTML_START": true,
+		"COMMENT_HTML_CONTENT": true
 	}
 
 	/**
@@ -932,7 +1154,8 @@
 				var caret = document.createElement('span');
 				caret.className = "fake-caret";
 				line.appendChild(caret);
-				line.className += " current";
+				if (this.linestack.length > 0) this.linestack[0].className += " current";
+				else line.className += " current";
 			}
 
 			// Skip but preserve white space
@@ -1055,7 +1278,8 @@
 				parentspan.appendChild(tokenspan);
 
 				line.appendChild(parentspan);
-				line.className += " current";
+				if (this.linestack.length > 0) this.linestack[0].className += " current";
+				else line.className += " current";
 			} else {
 				var tokenspan = document.createElement('span');
 				tokenspan.className = this.classes;

@@ -88,11 +88,14 @@ EdenUI.Explorer = function() {
 	}
 	visSym.addJSObserver("explorer", function(sym, val) {
 		console.log("VISIBLE");
-		if (val && me.enabled) me.element.show();
-		else {
+		if (val && me.enabled) {
+			me.element.show();
+			eden.root.lookup("jseden_explorer_width").assign(me.element.get(0).clientWidth+2, eden.root.scope, Symbol.localJSAgent);
+		} else {
 			me.element.hide();
 			me.state.capture = false;
 			me.state.clear();
+			eden.root.lookup("jseden_explorer_width").assign(0, eden.root.scope, Symbol.localJSAgent);
 		}
 	});
 

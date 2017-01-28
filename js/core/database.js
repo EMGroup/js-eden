@@ -213,7 +213,8 @@ Eden.DB.save = function(project, ispublic, callback) {
 					from: project.vid,
 					image: project.thumb,
 					listed: ispublic,
-					metadata: JSON.stringify({description: project.desc})
+					metadata: JSON.stringify({description: project.desc}),
+					parentProject: project.parentid
 			},
 			success: function(data){
 				if (data === null || data.error) {
@@ -327,7 +328,7 @@ Eden.DB.search = function(q, callback) {
 
 Eden.DB.getMeta = function(id, callback) {
 	var path = this.remoteURL+"/project/";
-	path += "search?limit=20&projectID="+id;
+	path += "search?limit=20&query=.id("+id+")";
 
 	$.ajax({
 		url: path,

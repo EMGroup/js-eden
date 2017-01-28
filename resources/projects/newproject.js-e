@@ -5,7 +5,7 @@ action start {/* Enter some script here */
 }
 
 do lib:unexecuted;
-do :project > ACTIVE;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
 do :project > start;
 
 action ACTIVE {views_list = ["myscript"];

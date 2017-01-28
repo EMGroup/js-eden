@@ -354,6 +354,7 @@ Eden.Fragment.prototype.setSource = function(src) {
 		}
 
 		Eden.Fragment.emit("status", [this]);
+		eden.root.lookup("jseden_fragment_changed").assign(me.selector, eden.root.scope, Symbol.localJSAgent);
 
 		//this.lastast.destroy();
 		//this.lastast = undefined;

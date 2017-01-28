@@ -153,7 +153,7 @@ Div.prototype.draw = function(context) {
 
 	divElement.addEventListener("click", function(event) {
 		var script = event.target.getAttribute("data-jseden");
-		if (script !== null && script != "") {
+		if (!event.target.className.includes("disabled") && script !== null && script != "") {
 			eden.execute2(script);
 		}
 	});

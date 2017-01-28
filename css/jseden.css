@@ -120,14 +120,14 @@ input.obs-watch-check {
 	position: relative;
 	top: 10%;
     margin: 20px auto; /* 15% from the top and centered */
-	border: 1px solid #222;
-	border-bottom-left-radius: 6px;
+	/*border: 1px solid #222;*/
+	/*border-bottom-left-radius: 6px;
 	border-bottom-right-radius: 6px;
 	border-top-left-radius: 6px;
-	border-top-right-radius: 6px;
-	box-shadow: 0 0 15px #4a6887;
+	border-top-right-radius: 6px;*/
+	box-shadow: 10px 10px 10px #111;
     padding: 20px;
-    border: 1px solid #888;
+    /*border: 1px solid #888;*/
     max-width: 800px; /* Could be more or less, depending on screen size */
 	width: 80%;
 }

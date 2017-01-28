@@ -9,6 +9,7 @@ Eden.Project = function(id, name, source) {
 	//this.ast.script.lock = 1;
 	this.id = id;
 	this.vid = undefined;
+	this.parentid = undefined;
 	this.triggers = {};
 	this.thumb = undefined;
 	this.desc = undefined;
@@ -20,10 +21,15 @@ Eden.Project = function(id, name, source) {
 	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, Symbol.localJSAgent);
 }
 
+Eden.Project.listenTo = listenTo;
+Eden.Project.emit = emit;
+Eden.Project.unListen = unListen;
+Eden.Project.listeners = {};
+
 Eden.Project.init = function() {
 	var titleSym = eden.root.lookup("jseden_project_title");
 	titleSym.addJSObserver("project", function(sym, value) {
-		if (sym.last_modified_by !== eden.project) {
+		if (sym.origin !== eden.project) {
 			if (eden.project === undefined) return;
 			eden.project.title = value;
 			if (this.id === undefined) {
@@ -62,6 +68,7 @@ Eden.Project.init = function() {
 Eden.Project.newFromExisting = function(name, cb) {
 	if (Eden.Project.local[name]) {
 		$.get(Eden.Project.local[name].file, function(data) {
+			eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
 			eden.project = new Eden.Project(undefined, name, data);
 			eden.project.start();
 			if (cb) cb(eden.project);
@@ -76,6 +83,7 @@ Eden.Project.search = function(q, cb) {
 }
 
 Eden.Project.load = function(pid, vid, cb) {
+	var me = this;
 	Eden.DB.getMeta(pid, function(metaA) {
 		if (metaA.length == 0) {
 			if (cb) cb();
@@ -95,6 +103,11 @@ Eden.Project.load = function(pid, vid, cb) {
 				eden.project.authorid = meta.owner;
 				eden.project.thumb = meta.image;
 				eden.project.tags = meta.tags;
+				eden.project.parentid = meta.parentProject;
+				eden.root.lookup("jseden_project_title").assign(meta.title, eden.root.scope, Symbol.localJSAgent);
+				eden.root.lookup("jseden_project_name").assign(meta.minimisedTitle, eden.root.scope, Symbol.localJSAgent);	
+				eden.root.lookup("jseden_project_thumb").assign(meta.image, eden.root.scope, Symbol.localJSAgent);
+				eden.root.lookup("jseden_project_author").assign(meta.ownername, eden.root.scope, Symbol.localJSAgent);
 				if (meta.projectMetaData !== null) {
 					var extra = JSON.parse(meta.projectMetaData);
 					eden.project.desc = extra.description;
@@ -106,6 +119,8 @@ Eden.Project.load = function(pid, vid, cb) {
 
 				var url = "?load="+eden.project.id+"&vid="+eden.project.vid;
 				window.history.replaceState({id: eden.project.id, vid: eden.project.vid},"",url);
+
+				Eden.Project.emit("load", [me]);
 			}
 			if (cb) cb(eden.project);
 		});
@@ -182,9 +197,23 @@ Eden.Project.prototype.save = function(pub, callback) {
 Eden.Project.restore = function() {
 	if (window.localStorage) {
 		var src = window.localStorage.getItem("last_project");
-		var title = window.localStorage.getItem("title");
+		var id = window.localStorage.getItem("last_id");
+		var vid = window.localStorage.getItem("last_vid");
+		var author = window.localStorage.getItem("last_author");
+		var authorid = window.localStorage.getItem("last_authorid");
+		var name = window.localStorage.getItem("last_name");
+		var thumb = window.localStorage.getItem("last_thumb");
+		var desc = window.localStorage.getItem("last_desc");
+		var title = window.localStorage.getItem("last_title");
 		if (src && src != "") {
-			eden.project = new Eden.Project(undefined, title, src);
+			eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
+			eden.project = new Eden.Project(id, title, src);
+			eden.project.vid = vid;
+			eden.project.author = author;
+			eden.project.name = name;
+			eden.project.authorid = authorid;
+			eden.project.thumb = thumb;
+			eden.project.desc = desc;
 			eden.project.start();
 		}
 	}
@@ -197,6 +226,14 @@ Eden.Project.prototype.restore = function() {
 Eden.Project.prototype.localSave = function() {
 	if (window.localStorage) {
 		window.localStorage.setItem("last_project", this.generate());
+		window.localStorage.setItem("last_id", this.id);
+		window.localStorage.setItem("last_vid", this.vid);
+		window.localStorage.setItem("last_author", this.author);
+		window.localStorage.setItem("last_authorid", this.authorid);
+		window.localStorage.setItem("last_name", this.name);
+		window.localStorage.setItem("last_title", this.title);
+		window.localStorage.setItem("last_thumb", this.thumb);
+		window.localStorage.setItem("last_desc", this.desc);
 	}
 }
 
