@@ -40,9 +40,13 @@ EdenUI.ScriptArea = function() {
 
 		// Also check for highlighter query lines
 		for (var x in me.highlighter.metrics) {
+			if (me.currentlineno == x) {
+				continue;
+			}
 			if (me.highlighter.metrics[x].query) {
-				console.log("METRIC",x);
-				me.highlightContent(x,me.intextarea.selectionEnd);
+				//console.log("METRIC",x);
+				//me.highlightContent(x,me.intextarea.selectionEnd);
+				me.highlighter.highlightExactLine(me.fragment.ast, x, me.intextarea.selectionEnd);
 			}
 		}
 	}, 300);
