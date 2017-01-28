@@ -20,6 +20,7 @@ EdenUI.ScriptArea = function() {
 
 	this.fragment = undefined;
 	this.readonly = false;
+	this.alwaysreadonly = false;
 	this.currentlineno = -1;
 	this.currentcharno = -1;
 	this.gotomode = false;
@@ -50,6 +51,17 @@ EdenUI.ScriptArea = function() {
 	var mouse = new EdenUI.ScriptArea.Mouse(this);
 
 	this.rebuildinterval = 400;
+}
+
+EdenUI.ScriptArea.prototype.setReadonly = function(ro) {
+	this.alwaysreadonly = ro;
+	if (ro) {
+		this.readonly = true;
+		this.outdiv.contentEditable = false;
+	} else {
+		//this.readonly = true;
+		//this.outdiv.contentEditable = false;
+	}
 }
 
 EdenUI.ScriptArea.prototype.setFragment = function(frag) {
@@ -100,11 +112,11 @@ EdenUI.ScriptArea.prototype.setFragment = function(frag) {
 		me.outdiv.contentEditable = false;
 		//outdiv.style.display = "inline-block";
 	} else {
-		me.readonly = false;
+		me.readonly = me.alwaysreadonly;
 		//setSubTitle("");
 		// The readonly class changes colour scheme
 		//changeClass(inputhider, "readonly", false);
-		me.outdiv.contentEditable = true;
+		me.outdiv.contentEditable = !me.readonly;
 		//outdiv.style.display = "inline-block";
 	}
 	});

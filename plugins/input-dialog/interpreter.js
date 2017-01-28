@@ -174,12 +174,14 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var obs_showbuttons = "view_"+name+"_showbuttons";
 		var obs_tabs = "view_"+name+"_tabs";
 		var obs_zoom = "view_"+name+"_zoom";
+		var obs_readonly = "view_"+name+"_readonly";
 
 		var tabsSym = eden.root.lookup(obs_tabs);
 		var zoomSym = eden.root.lookup(obs_zoom);
 		var curSym = eden.root.lookup(obs_tabix);
 		var showTabsSym = eden.root.lookup(obs_showtabs);
 		var showButtonsSym = eden.root.lookup(obs_showbuttons);
+		var readonlySym = eden.root.lookup(obs_readonly);
 
 		var origin = { name: name };
 
@@ -225,6 +227,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 		showButtonsSym.addJSObserver("scriptview_"+name, showButtons);
 		showButtons(showButtonsSym, showButtonsSym.value());
+
+		function readonlyChange(sym, value) {
+			scriptarea.setReadonly(value);
+		}
+		readonlySym.addJSObserver("scriptview_"+name, readonlyChange);
+		readonlyChange(readonlySym, readonlySym.value());
 		
 
 		function curChanged(sym, value) {
