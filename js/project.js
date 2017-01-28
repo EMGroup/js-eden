@@ -84,17 +84,18 @@ Eden.Project.search = function(q, cb) {
 
 Eden.Project.load = function(pid, vid, cb) {
 	var me = this;
-	Eden.DB.getMeta(pid, function(metaA) {
-		if (metaA.length == 0) {
-			if (cb) cb();
-			return;
-		}
+	//Eden.DB.getMeta(pid, function(metaA) {
+	//	if (metaA.length == 0) {
+	//		if (cb) cb();
+	//		return;
+	//	}
 
-		var meta = metaA[0];
-		console.log("META",meta);
+	//	var meta = metaA[0];
+	//	console.log("META",meta);
 
 		Eden.DB.load(pid, vid, function(data) {
 			if (data) {
+				var meta = data;
 				eden.project = new Eden.Project(pid, meta.minimisedTitle, data.source);
 				console.log("LOAD PROJECT",data);
 				eden.project.vid = data.saveID;
@@ -102,7 +103,7 @@ Eden.Project.load = function(pid, vid, cb) {
 				eden.project.author = meta.ownername;
 				eden.project.authorid = meta.owner;
 				eden.project.thumb = meta.image;
-				eden.project.tags = meta.tags;
+				eden.project.tags = meta.tags.trim().split(" ");
 				eden.project.parentid = meta.parentProject;
 				eden.root.lookup("jseden_project_title").assign(meta.title, eden.root.scope, Symbol.localJSAgent);
 				eden.root.lookup("jseden_project_name").assign(meta.minimisedTitle, eden.root.scope, Symbol.localJSAgent);	
@@ -124,7 +125,7 @@ Eden.Project.load = function(pid, vid, cb) {
 			}
 			if (cb) cb(eden.project);
 		});
-	});
+	//});
 
 	if (cb) cb();
 }
