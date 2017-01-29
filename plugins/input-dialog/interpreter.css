@@ -346,7 +346,8 @@ span.fake-caret {
 
 div.eden-line-script > span.fake-caret:only-child {
 	position: relative;
-	display: inline-block;
+	padding-left: 1px;
+	/*display: inline-block;*/
 }
 
 span.fake-blur-caret {
