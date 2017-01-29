@@ -353,8 +353,10 @@ EdenScriptGutter.prototype.executeSelected = function() {
 
 EdenScriptGutter.prototype.showBrace = function(start, end) {
 	this.brace.style.display = "block";
-	this.brace.style.top = "" + (start * 20 + 20) + "px";
-	var height = ((end - start + 1) * 20);
+	var top = this.lineelements.childNodes[start].offsetTop;
+	this.brace.style.top = top + "px";
+	var height = this.lineelements.childNodes[end].offsetTop+this.lineelements.childNodes[end].clientHeight;
+	height -= top;
 	this.brace.setAttribute("height", "" + height);
 	this.bracepath.setAttribute("d", makeCurlyBrace(20,4,20,height-4,20,0.52));
 }
