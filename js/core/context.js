@@ -163,8 +163,11 @@ Folder.prototype.getInnerSource = function() {
 		if (sym.origin && sym.origin.getOrigin) {
 			var o = sym.origin.getOrigin();
 			if (!o || (o && !o.remote)) {
-				res += sym.getSource() + "\n";
-				this.numlines += sym.origin.numlines + 1;
+				var src = sym.getSource();
+				if (src) {
+					res += src + "\n";
+					this.numlines += sym.origin.numlines + 1;
+				}
 			}
 		}
 	}
