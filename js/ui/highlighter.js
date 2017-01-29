@@ -268,7 +268,7 @@
 				//else line.className += " current";
 
 				var p = line;
-				while (p && p.nodeName != "DIV") {
+				while (p && p.nodeName == "DIV") {
 					if (p.className.startsWith(this.styles["comment-line"])) {
 						p.className += " current";
 						break;
@@ -430,7 +430,7 @@
 				//if (this.linestack.length > 0) this.linestack[0].className += " current";
 				//else line.className += " current";
 				var p = line;
-				while (p && p.nodeName != "DIV") {
+				while (p && p.nodeName == "DIV") {
 					if (p.className.startsWith(this.styles["comment-line"])) {
 						p.className += " current";
 						break;

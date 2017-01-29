@@ -56,8 +56,9 @@ return ( "M " +  x1 + " " +  y1 +
   		" T " + tx1 + " " + ty1 );
 }
 
-function EdenScriptGutter(parent, infob) {
+function EdenScriptGutter(parent, infob, lineelements) {
 	var me = this;
+	this.lineelements = lineelements;
 	this.$gutter = $('<div class="eden-gutter"></div>');
 
 	var xmlns = "http://www.w3.org/2000/svg";
@@ -613,6 +614,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			var ele = document.createElement("div");
 			ele.className = "eden-gutter-item";
 			ele.setAttribute("data-line", ""+i);
+			ele.style.height = this.lineelements.childNodes[i].clientHeight+"px";
 			this.gutter.appendChild(ele);
 			if (this.lines[i] === undefined) this.lines[i] = {selected: false, live: false, executed: false};
 		}

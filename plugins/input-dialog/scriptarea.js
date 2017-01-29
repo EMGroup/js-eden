@@ -25,7 +25,7 @@ EdenUI.ScriptArea = function() {
 	this.currentcharno = -1;
 	this.gotomode = false;
 	this.highlighter = new EdenUI.Highlight(this.outdiv);
-	this.gutter = new EdenScriptGutter(this.codearea, this.infobox);
+	this.gutter = new EdenScriptGutter(this.codearea, this.infobox, this.outdiv);
 	this.details = new EdenUI.ScriptArea.Details(this);
 	this.cachedhlopt = undefined;
 
