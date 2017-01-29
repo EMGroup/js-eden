@@ -85,6 +85,7 @@ span.eden-comment {
 
 span.eden-blockcomment {
 	font-style: italic;
+	color: #aaa;
 }
 
 div.eden-comment-line {

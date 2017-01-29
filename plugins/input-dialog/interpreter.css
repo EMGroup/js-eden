@@ -344,6 +344,11 @@ span.fake-caret {
 	animation: 1s blink step-end infinite;*/
 }
 
+div.eden-line-script > span.fake-caret:only-child {
+	position: relative;
+	display: inline-block;
+}
+
 span.fake-blur-caret {
 	background: transparent;
 }
