@@ -315,7 +315,7 @@ div.eden-line {
 	/*height: 20px;*/
 	margin-left: -5px;
 	padding-left: 5px;
-	padding-right: 20px;
+	margin-right: 20px;
 	line-height: 20px;
 	/*right: 0;*/
 	/*left: 43px;*/
@@ -325,6 +325,12 @@ div.eden-line {
 div.eden-comment-blockquote {
 	border-left: 2px solid #2b4957;
 	background-color: #eee;
-	margin-left: 15px;
+	margin-left: 25px;
+	margin-right: 50px;
+	padding-left: 30px;
+	padding-right: 20px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	white-space: normal;
 }
 
