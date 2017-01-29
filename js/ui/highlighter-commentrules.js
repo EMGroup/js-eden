@@ -329,7 +329,17 @@ EdenUI.Highlight.prototype.COMMENT_ESCAPE = function() {
 EdenUI.Highlight.prototype.COMMENT_HTML = function() {
 	var tagname = this.tokentext;
 	var linestr = this.stream.peekLine();
-	var endopen = linestr.indexOf(">");
+	var endopen = -1; //linestr.indexOf(">");
+	//var endix = -1; //= linestr.indexOf(endtag);
+	var quote = false;
+	for (var i=0; i<linestr.length; i++) {
+		if (linestr.charAt(i) == "\"") quote = !quote;
+		else if (quote && linestr.charAt(i) == "\\") i++;
+		else if (!quote && linestr.charAt(i) == ">") {
+			endopen = i;
+			break;
+		}
+	}
 	if (endopen >= 0) {
 		var opentag = "<"+tagname+linestr.substring(0,endopen+1);
 		this.tokentext = opentag.substring(1);
@@ -351,6 +361,7 @@ EdenUI.Highlight.prototype.COMMENT_HTML_CONTENT = function() {
 		var linestr = this.stream.peekLine();
 		var endtag = "/"+this.cacheddata.tagname+">";
 		var endix = linestr.indexOf(endtag);
+
 		if (endix == -1) {
 			this.classes += this.styles["hidden-comment"];
 		} else {
