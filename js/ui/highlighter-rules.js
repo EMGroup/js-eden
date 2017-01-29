@@ -242,14 +242,14 @@ EdenUI.Highlight.prototype.START = function() {
 	case "#"		:	if (this.prevtoken == "INVALID" || this.prevtoken == ";") {
 							this.classes += this.styles["hidden-comment"];
 							this.mode = "COMMENT";
-							if (this.prevtoken == "INVALID") this.lineelement.className = this.styles["comment-line"];
-							else {
-								var nline = document.createElement("span");
+							if (this.prevtoken == "INVALID") this.lineelement.style.marginLeft = "0";
+							//else {
+								var nline = document.createElement("div");
 								nline.className = this.styles["comment-line"];
 								this.pushLine();
 								this.lineelement.appendChild(nline);
 								this.lineelement = nline;
-							}
+							//}
 							// Remove a single space if it exists.
 							if (this.stream.peek() == 32) {
 								this.tokentext += " ";
