@@ -5,19 +5,25 @@ div.markdown {
 	margin-bottom: 20px;
 	padding: 10px;
 	/*border: 1px solid #aaa;*/
-	font: 11pt Arial,Helvetica,sans-serif;
+	font: 11pt "Roboto",UILanguageFont,Arial,sans-serif;
 	/*clear: right;*/
+	color: #333;
 }
 
 div.markdown h1 {
-	color: #666;
-	font: 16pt Arial,Helvetica,sans-serif;
-	font-weight: bold;
+	color: #222;
+	font: 16pt "Roboto",UILanguageFont,Arial,sans-serif;
+	/*font-weight: bold;*/
 	margin-top: 5px;
 }
 
 div.markdown p {
 	text-align: justify;
+}
+
+span.markdown-hashtag {
+	color: #3557d9;
+	cursor: pointer;
 }
 
 .markdown-inputCodeArea {

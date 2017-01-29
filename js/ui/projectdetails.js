@@ -12,7 +12,7 @@ EdenUI.ProjectDetails = function(projectid) {
 	});
 
 	// Create a centered dialog.
-	this.dialog = $('<div class="modal-content" style="width: 500px"></div>');
+	this.dialog = $('<div class="modal-content" style="width: 600px"></div>');
 	this.obscurer.append(this.dialog);
 
 	document.body.appendChild(this.obscurer.get(0));
@@ -20,15 +20,17 @@ EdenUI.ProjectDetails = function(projectid) {
 	Eden.DB.getMeta(projectid, function(meta) {
 		console.log("DETAILS META", meta);
 
-		var img = $('<img class="projectdetails-thumb" src="'+meta[0].image+'"></img>');
-		me.dialog.append(img);
+		if (meta[0].image !== null) {
+			var img = $('<img class="projectdetails-thumb" src="'+meta[0].image+'"></img>');
+			me.dialog.append(img);
+		}
 
 		console.log(meta[0].projectMetaData);
 		var meta2 = (meta[0].projectMetaData !== null) ? JSON.parse(meta[0].projectMetaData) : {};
 		var descbox = document.createElement("div");
 		descbox.className = "markdown";
 		var sdown = new showdown.Converter();
-		var desc = (meta2 && meta2.description) ? meta2.description.replace(/\s(#[a-zA-Z0-9]+)/g, ' <span style="color:blue;">$1</span>') : "";
+		var desc = (meta2 && meta2.description) ? meta2.description.replace(/\s(#[a-zA-Z0-9]+)/g, ' <span class="markdown-hashtag">$1</span>') : "";
 		var res = sdown.makeHtml(desc);
 		descbox.innerHTML = res;
 		me.dialog.get(0).appendChild(descbox);
@@ -37,24 +39,25 @@ EdenUI.ProjectDetails = function(projectid) {
 
 		var details = $('<div class="projectdetails">\
 			<span><span class="projectdetails-label">by:</span><span class="projectdetails-value">'+meta[0].ownername+'</span></span>\
-			<span><span class="projectdetails-label">changed:</span><span class="projectdetails-value">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span></span>\
+			<span>, <span class="projectdetails-value">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span></span>\
 		</div>');
-		me.dialog.append(details);
 
 		var rating = $('<div class="projectdetails-rating">\
-<span class="projectdetails-star">&#xf006;</span>\
-<span class="projectdetails-star">&#xf006;</span>\
-<span class="projectdetails-star">&#xf006;</span>\
-<span class="projectdetails-star">&#xf006;</span>\
-<span class="projectdetails-star">&#xf006;</span>\
+<span class="projectdetails-star">&#xf005;</span>\
+<span class="projectdetails-star">&#xf005;</span>\
+<span class="projectdetails-star">&#xf005;</span>\
+<span class="projectdetails-star">&#xf005;</span>\
+<span class="projectdetails-star">&#xf005;</span>\
 </div>');
 		me.dialog.append(rating);
+		me.dialog.append(details);
+
 		rating.on("click",".projectdetails-star", function(e) {
 			var p = e.currentTarget.parentNode;
 			var stars = 0;
 			for (var i=0; i<5; i++) {
 				p.childNodes[i].className = "projectdetails-star" + ((stars > 0) ? "" : " selected");
-				p.childNodes[i].innerHTML = (stars > 0) ? "&#xf006;" : "&#xf005;";
+				p.childNodes[i].innerHTML = (stars > 0) ? "&#xf005;" : "&#xf005;";
 				if (p.childNodes[i] === e.currentTarget) {
 					stars = i+1;
 				}
@@ -68,7 +71,7 @@ EdenUI.ProjectDetails = function(projectid) {
 		if (stars) {
 			for (var i=0; i<5; i++) {
 				p.childNodes[i].className = "projectdetails-star" + ((i >= stars) ? "" : " selected");
-				p.childNodes[i].innerHTML = (i >= stars) ? "&#xf006;" : "&#xf005;";
+				p.childNodes[i].innerHTML = (i >= stars) ? "&#xf005;" : "&#xf005;";
 			}
 		}
 		
