@@ -104,6 +104,15 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 	this.statements = ast.statements;
 	//this.base = ast;
 
+	// Make sure there is always a blank line after a # comment
+	if (this.statements.length > 0 && this.statements[this.statements.length-1].type == "dummy") {
+		var lstat = this.statements[this.statements.length-1];
+		if (lstat.source.charAt(lstat.source.length-1) != "\n") {
+			console.log("ADD END LINE");
+			lstat.source += "\n";
+		}
+	}
+
 	// Update script index...
 	// Is this needed now??
 	//for (var x in ast.scripts) {
