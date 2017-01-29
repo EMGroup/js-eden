@@ -62,7 +62,7 @@ See LICENSE.txt
 		div.jseden-dialog-plisting {
 			box-sizing: border-box;
 			padding-top: 20px;
-			padding-bottom:30px;
+			/*padding-bottom:30px;*/
 			padding-left: 50px;
 			padding-right: 50px;
 			/*border: 1px solid #eee;*/
@@ -483,73 +483,6 @@ See LICENSE.txt
 <script type="text/javascript">
 	var projects;
 
-	function get_time_diff( timestamp )
-	{
-		var datetime = timestamp * 1000;
-		var now = Date.now();
-		var _date = new Date();
-		var _userOffset = _date.getTimezoneOffset()*60000;
-		datetime -= _userOffset;
-
-		if( isNaN(datetime) )
-		{
-		    return "";
-		}
-
-		if (datetime < now) {
-		    var milisec_diff = now - datetime;
-		}else{
-		    var milisec_diff = datetime - now;
-		}
-
-		var days = Math.floor(milisec_diff / 1000 / 60 / (60 * 24));
-
-		var date_diff = new Date( milisec_diff );
-
-		if (days > 5) {
-			return (new Date(datetime)).toDateString();
-		} else {
-			var result = "";
-			if (days > 0) {
-				result += days;
-				if (days > 1) {
-					result += " days ago";
-				} else {
-					result += " day ago";
-				}
-			} else {
-				if (date_diff.getUTCHours() > 0) {
-					var hours = date_diff.getUTCHours();
-					result += hours;
-					if (hours > 1) {
-						result += " hours ago";
-					} else {
-						result += " hour ago";
-					}
-				} else {
-					var mins = date_diff.getUTCMinutes();
-					if (mins > 0) {
-						result += mins;
-						if (mins > 1) {
-							result += " minutes ago";
-						} else {
-							result += " minute ago";
-						}
-					} else {
-						var secs = date_diff.getUTCSeconds();
-						result += secs;
-						if (secs > 1) {
-							result += " seconds ago";
-						} else {
-							result += " seconds ago";
-						}
-					}
-				}
-			}
-			return result;
-		}
-	}
-
 	$(".loadmodal").show();
 	Construit(undefined, function(loaded) {
 		// Place to record projects by tag.
@@ -562,19 +495,7 @@ See LICENSE.txt
 		$(".loadmodal").hide();
 		if (!loaded) {
 			var q = URLUtil.getParameterByName("q");
-
-			// Initially the menu bar needs to be simple...
-			/*eden.root.lookup("jseden_menu_showsearch").assign(false, eden.root.scope, Symbol.defaultAgent);
-			eden.root.lookup("jseden_menu_showshare").assign(false, eden.root.scope, Symbol.defaultAgent);
-			eden.root.lookup("jseden_menu_showcreate").assign(false, eden.root.scope, Symbol.defaultAgent);
-			eden.root.lookup("jseden_menu_showexisting").assign(false, eden.root.scope, Symbol.defaultAgent);
-			eden.root.lookup("jseden_menu_showsettings").assign(false, eden.root.scope, Symbol.defaultAgent);
-			eden.root.lookup("jseden_menu_showhelp").assign(false, eden.root.scope, Symbol.defaultAgent);*/
-
 			var lopts = $("#loadoptions");
-			/*if (!Eden.restore()) {
-				Eden.loadFromURL("library2/NewProject.js-e");
-			}*/
 
 			function updateSearch() {
 				var plist = lopts.find("#jseden-public-projects");
@@ -585,7 +506,7 @@ See LICENSE.txt
 					console.log("SEARCH",searchstr,data);
 					var pliste = plist.get(0);
 					while (pliste.lastChild) pliste.removeChild(pliste.lastChild);
-					displayProjects2(plist, true, data);
+					EdenUI.ProjectDetails._searchProjects(plist, true, data);
 				});
 			}
 
@@ -599,11 +520,7 @@ See LICENSE.txt
 				lopts.css("display","none");
 			})
 			.on("click","#loadnew",function() {
-				//Eden.loadFromURL("library2/NewProject.js-e");
-				//Eden.loadFromString("import lib; jseden_project_title = \"New Project\";");
-
 				Eden.Project.newFromExisting("NewProject");
-
 				lopts.css("display","none");
 			})
 			.on("click","#importfile",function() {
@@ -664,13 +581,6 @@ See LICENSE.txt
 			function setLoadObserver() {
 				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
 					if (value) {
-						// TODO Only if now defined by something else...
-						/*eden.root.lookup("jseden_menu_showsearch").assign(true, eden.root.scope, Symbol.localJSAgent);
-						eden.root.lookup("jseden_menu_showshare").assign(true, eden.root.scope, Symbol.localJSAgent);
-						eden.root.lookup("jseden_menu_showcreate").assign(true, eden.root.scope, Symbol.localJSAgent);
-						eden.root.lookup("jseden_menu_showexisting").assign(true, eden.root.scope, Symbol.localJSAgent);
-						eden.root.lookup("jseden_menu_showsettings").assign(true, eden.root.scope, Symbol.localJSAgent);
-						eden.root.lookup("jseden_menu_showhelp").assign(false, eden.root.scope, Symbol.localJSAgent);*/
 						lopts.css("display","none");
 						$(".loadmessage").html("Loading...");
 						$(".loadmodal").hide();
@@ -689,98 +599,33 @@ See LICENSE.txt
 				}
 			});
 
-			function displayProjects2(output, pub, projects, count) {
-				var maxres = (count) ? count : 6;
-
-				if (projects === undefined) return;
-
-				for (var i=0; i<projects.length; i++) {
-					if (i == maxres) {
-						output.append($('<div class="cadence-plisting-entry more noselect"><div class="cadence-plisting-icon more">&#xf103;</div></div>'));
-						output.on("click",".more",function(e) {
-							output.html("");
-							displayProjects2(output, pub, projects, maxres + 6);
-						});
-						break;
-					}
-
-					var meta = projects[i];
-					var t = meta.date.split(/[- :]/);
-					var title = meta.title;
-					var thumb = meta.image;
-					//var tags = meta.tags;
-
-					//if (meta.hidden) continue;
-
-					var subtitle;
-					if (pub) {
-						subtitle = meta.ownername;
-					} else {
-						subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
-					}
-
-					//Eden.DB.getMeta(path+"/"+x,function(path,meta) {
-					if (thumb !== null) {
-						output.append($('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
-					} else {
-						output.append($('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
-						//console.log(Eden.DB.meta[path+"/"+x]);
-					}
-					//});
-				}
-			}
-
-			function displayProjects(pub, cb) {
-				//var user = (pub)?"public" : ((Eden.DB.username) ? Eden.DB.username.replace(/[^a-zA-Z]/g, "") : "public");
-				//var path = "jseden1/"+user;
-				var plist = (pub) ? lopts.find("#jseden-public-projects") : lopts.find("#jseden-private-projects");
-
-				//console.log("Load projects: " + path);
-
-				Eden.DB.search((pub) ? searchstr : ":me", function(data) {
-					console.log("SEARCH",data);
 
 
-					displayProjects2(plist, pub, data);
-
-					/*for (var i=0; i<ordered.length; i++) {
-						var meta = Eden.DB.meta[ordered[i]];
-						var tags = meta.tags;
-						//console.log(tags);
-						if (tags) {
-							for (var j=0; j<tags.length; j++) {
-								if (Eden.projecttags[tags[j]] === undefined) Eden.projecttags[tags[j]] = [];
-								Eden.projecttags[tags[j]].push(ordered[i]);
-							}
-						}
-					}
-
-					projects = ordered;*/
-					if (cb) cb([]);
-				});
+			function displayProjects(id, query, cb) {
+				var plist = lopts.find("#jseden-"+id+"-projects");
+				EdenUI.ProjectDetails.searchProjects(plist, query, 6, cb);
 			}
 
 			if (Eden.DB.isConnected()) {
 				if (q && q != "") {
-					//updateSearch(q);
-					displayProjects(true, function() {
+					//searchstr = q;
+					//updateSearch();
+					//displayProjects(true, function() {
 						//updateSearch(q);
-					});
+					//});
 					lopts.find(".searchouter").remove();
-					lopts.find(".project-content").prepend($('<div class="jseden-project-cat">'+q+':</div>'));
+					var content = lopts.find(".project-content");
+					//content[0].removeChild(content[0].firstChild);
+					var newblock = $('<div class="jseden-project-cat">'+q+':</div>');
+					var newres = $('<div id="jseden-custom-projects" class="jseden-dialog-plisting">');
+					content.prepend(newres);
+					content.prepend(newblock);
+					EdenUI.ProjectDetails.searchProjects(newres, q, 6);
+					displayProjects("featured", "#featured");
+					displayProjects("recent");
 				} else {
-					displayProjects(true, function() {
-						if (Eden.DB.isLoggedIn()) {
-							/*var plist = lopts.find("#jseden-private-projects").get(0);
-							var node = plist.firstChild;
-							while (node) {
-								var next = node.nextSibling;
-								plist.removeChild(node);
-								node = next;
-							}*/
-							//displayProjects();
-						}
-					});
+					displayProjects("featured", "#featured");
+					displayProjects("recent");
 				}
 			} else {
 				$("#project-browser").html('<div class="jseden-project-cat">Offline Examples:</div><div id="jseden-public-projects" class="jseden-dialog-plisting"></div>');
@@ -796,7 +641,7 @@ See LICENSE.txt
 					node = next;
 				}
 
-				displayProjects();
+				displayProjects("private",":me");
 			});
 
 			Eden.DB.listenTo("logout", this, function() {
@@ -836,7 +681,10 @@ See LICENSE.txt
 		</div>
 		<div id="project-browser">
 			<div class="jseden-project-cat">Featured:</div>
-			<div id="jseden-public-projects" class="jseden-dialog-plisting">
+			<div id="jseden-featured-projects" class="jseden-dialog-plisting">
+			</div>
+			<div class="jseden-project-cat">Recent:</div>
+			<div id="jseden-recent-projects" class="jseden-dialog-plisting">
 			</div>
 			<div class="jseden-project-cat">Your Projects:</div>
 			<div id="jseden-private-projects" class="jseden-dialog-plisting">
