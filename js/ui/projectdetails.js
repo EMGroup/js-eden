@@ -41,6 +41,38 @@ EdenUI.ProjectDetails = function(projectid) {
 		</div>');
 		me.dialog.append(details);
 
+		var rating = $('<div class="projectdetails-rating">\
+<span class="projectdetails-star">&#xf006;</span>\
+<span class="projectdetails-star">&#xf006;</span>\
+<span class="projectdetails-star">&#xf006;</span>\
+<span class="projectdetails-star">&#xf006;</span>\
+<span class="projectdetails-star">&#xf006;</span>\
+</div>');
+		me.dialog.append(rating);
+		rating.on("click",".projectdetails-star", function(e) {
+			var p = e.currentTarget.parentNode;
+			var stars = 0;
+			for (var i=0; i<5; i++) {
+				p.childNodes[i].className = "projectdetails-star" + ((stars > 0) ? "" : " selected");
+				p.childNodes[i].innerHTML = (stars > 0) ? "&#xf006;" : "&#xf005;";
+				if (p.childNodes[i] === e.currentTarget) {
+					stars = i+1;
+				}
+			}
+			//console.log("RATE",stars);
+			Eden.DB.rate(projectid, stars);
+		});
+
+		var p = rating[0];
+		var stars = meta[0].myrating;
+		if (stars) {
+			for (var i=0; i<5; i++) {
+				p.childNodes[i].className = "projectdetails-star" + ((i >= stars) ? "" : " selected");
+				p.childNodes[i].innerHTML = (i >= stars) ? "&#xf006;" : "&#xf005;";
+			}
+		}
+		
+
 		var buttons;
 		if (meta[0].owner == Eden.DB.userid) {
 			buttons = $('<div class="projectdetails-buttons"><button class="openproject script-button"><span class="explorer-control-icon">&#xf04b;</span>Open</button><button class="restoreproject script-button"><span class="explorer-control-icon">&#xf040;</span>Maker</button><button class="deleteproject script-button"><span class="explorer-control-icon">&#xf00d;</span>Delete</button><br></div>');
