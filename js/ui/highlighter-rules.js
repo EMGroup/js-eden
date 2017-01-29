@@ -240,12 +240,17 @@ EdenUI.Highlight.prototype.START = function() {
 						}
 						break;
 	case "#"		:	if (this.prevtoken == "INVALID" || this.prevtoken == ";") {
+							var isdoxy = this.stream.peek() == 33;
+							if (isdoxy) {
+								this.tokentext += "!";
+								this.stream.position++;
+							}
 							this.classes += this.styles["hidden-comment"];
 							this.mode = "COMMENT";
 							if (this.prevtoken == "INVALID") this.lineelement.style.marginLeft = "0";
 							//else {
 								var nline = document.createElement("div");
-								nline.className = this.styles["comment-line"];
+								nline.className = (isdoxy) ? this.styles["comment-line"]+ " " + this.styles["doxycomment"] : this.styles["comment-line"];
 								this.pushLine();
 								this.lineelement.appendChild(nline);
 								this.lineelement = nline;

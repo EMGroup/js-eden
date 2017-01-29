@@ -95,10 +95,12 @@ div.eden-comment-line {
 	white-space: pre-wrap;
 	word-wrap: initial;
 	text-align: justify;
+	display: inline-block;
 }
 
 li.eden-comment {
 	margin-left: 10px;
+	white-space: normal;
 }
 
 span.eden-comment-faded {
@@ -114,6 +116,10 @@ div.current span.eden-comment-hidden {
 	color: red;
 	font: 14px Arial,Helvetica,sans-serif;
 	font-weight: bold;
+}
+
+span.eden-comment-ul {
+	white-space: normal;
 }
 
 span.eden-comment-ul:before {
@@ -185,6 +191,12 @@ span.eden-line-script {
 span.eden-doxycomment {
 	font-style: italic;
 	color: #657ed9;
+}
+
+div.eden-doxycomment {
+	font-style: italic;
+	color: #657ed9;
+	margin-left: 20px;
 }
 
 span.eden-number {
