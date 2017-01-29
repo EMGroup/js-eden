@@ -43,10 +43,20 @@ EdenUI.ScriptArea = function() {
 			if (me.currentlineno == x) {
 				continue;
 			}
-			if (me.highlighter.metrics[x].query) {
+			var metric = me.highlighter.metrics[x];
+			if (metric.query) {
 				//console.log("METRIC",x);
 				//me.highlightContent(x,me.intextarea.selectionEnd);
-				me.highlighter.highlightExactLine(me.fragment.ast, x, me.intextarea.selectionEnd);
+				//me.highlighter.highlightExactLine(me.fragment.ast, x, me.intextarea.selectionEnd);
+
+				for (var i=0; i<metric.qelements.length; i++) {
+					var qstr = metric.qelements[i].getAttribute("data-query");
+					var res = Eden.Selectors.query(qstr,"value");
+					if (res.length == 1) res = res[0];
+					else if (res.length > 1) res = res.join(", ");
+					else res = "";
+					metric.qelements[i].setAttribute("data-result", res);
+				}
 			}
 		}
 	}, 300);
