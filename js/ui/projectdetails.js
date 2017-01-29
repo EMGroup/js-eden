@@ -54,9 +54,10 @@ EdenUI.ProjectDetails = function(projectid) {
 		});
 
 		buttons.on("click",".deleteproject", function() {
-			me.remove();
-			// TODO ASK CONFIRM
-			Eden.DB.remove(projectid);
+			if (confirm("Are you sure you want to delete this project?")) {
+				me.remove();
+				Eden.DB.remove(projectid);
+			}
 		});
 
 		buttons.on("click",".restoreproject", function() {
