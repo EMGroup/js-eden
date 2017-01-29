@@ -243,7 +243,7 @@
 
 		var wsline = "";
 
-		var line = document.createElement('span');
+		var line = document.createElement('div');
 		line.className = this.styles["script-line"];
 
 		while (true) {

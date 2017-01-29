@@ -156,24 +156,24 @@ span.eden-comment-query:before{
 	content: attr(data-result);
 }
 
-span.eden-comment-h1 {
+div.eden-comment-h1 {
 	color: #666;
 	font: 16pt Arial,Helvetica,sans-serif;
 	font-weight: bold;
 }
 
-span.eden-comment-h2 {
+div.eden-comment-h2 {
 	color: #666;
 	font: 14pt Arial,Helvetica,sans-serif;
 }
 
-span.eden-comment-h3 {
+div.eden-comment-h3 {
 	color: #666;
 	font: 12pt Arial,Helvetica,sans-serif;
 	font-weight: bold;
 }
 
-span.eden-comment-h4 {
+div.eden-comment-h4 {
 	color: #666;
 	font: 12pt Arial,Helvetica,sans-serif;
 	font-weight: bold;
@@ -184,8 +184,9 @@ span.eden-comment-icon {
 	font-size: 16px;
 }
 
-span.eden-line-script {
+div.eden-line-script {
 	margin-left: 20px;
+	display: inline-block;
 }
 
 span.eden-doxycomment {
