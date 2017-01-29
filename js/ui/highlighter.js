@@ -336,6 +336,11 @@
 								//this.lineelement.className = "eden-comment-line";
 								this.mode = "SECTION_TITLE";
 								this.lineelement.className = this.styles["comment-line"];
+								// Remove a single space if it exists.
+								if (this.stream.peek() == 32) {
+									this.tokentext += " ";
+									this.stream.position++;
+								}
 							} else {
 								this.classes += this.styles["comment"];
 								this.mode = "COMMENT";
@@ -351,6 +356,11 @@
 									this.pushLine();
 									this.lineelement.appendChild(nline);
 									this.lineelement = nline;
+								}
+								// Remove a single space if it exists.
+								if (this.stream.peek() == 32) {
+									this.tokentext += " ";
+									this.stream.position++;
 								}
 							} else {
 								this.classes += this.styles["operator"];
@@ -493,9 +503,19 @@
 			this.lineelement.className += " " + this.styles["comment-h2"];
 			//this.mode = "SECTION_TITLE_H2";
 			this.mode = "COMMENT";
+			// Remove a single space if it exists.
+			if (this.stream.peek() == 32) {
+				this.tokentext += " ";
+				this.stream.position++;
+			}
 		} else if (this.token == "##") {
 			this.classes += this.styles["hidden-comment"];
 			this.mode = "SECTION_TITLE3";
+			// Remove a single space if it exists.
+			if (this.stream.peek() == 32) {
+				this.tokentext += " ";
+				this.stream.position++;
+			}
 		} else {
 			//this.classes += this.styles["comment-h1"];
 			this.lineelement.className += " " + this.styles["comment-h1"];
@@ -509,6 +529,11 @@
 		if (this.token == "#") {
 			this.classes += this.styles["hidden-comment"];
 			this.mode = "SECTION_TITLE3";
+			// Remove a single space if it exists.
+			if (this.stream.peek() == 32) {
+				this.tokentext += " ";
+				this.stream.position++;
+			}
 		} else {
 			this.classes += this.styles["comment-h2"];
 			this.mode = "SECTION_TITLE_H2";
@@ -519,6 +544,11 @@
 		if (this.token == "#") {
 			this.classes += this.styles["hidden-comment"];
 			this.mode = "SECTION_TITLE4";
+			// Remove a single space if it exists.
+			if (this.stream.peek() == 32) {
+				this.tokentext += " ";
+				this.stream.position++;
+			}
 		} else {
 			this.classes += this.styles["comment-h3"];
 			this.mode = "SECTION_TITLE_H3";
@@ -587,8 +617,10 @@
 							
 		case "--"		:	if (this.stream.peek() == 45) {
 								this.outerline = "eden-line eden-section-line";
-								this.tokentext += "-";
-								this.stream.position++;
+								while (this.stream.peek() == 45) {
+									this.tokentext += "-";
+									this.stream.position++;
+								}
 								this.classes += this.styles["hidden-comment"];
 							} else {
 								this.classes += this.styles["comment"];
@@ -1171,7 +1203,7 @@
 
 				var p = line;
 				while (p && p.nodeName != "DIV") {
-					if (p.className == this.styles["comment-line"]) {
+					if (p.className.startsWith(this.styles["comment-line"])) {
 						p.className += " current";
 						break;
 					}
@@ -1333,7 +1365,7 @@
 				//else line.className += " current";
 				var p = line;
 				while (p && p.nodeName != "DIV") {
-					if (p.className == this.styles["comment-line"]) {
+					if (p.className.startsWith(this.styles["comment-line"])) {
 						p.className += " current";
 						break;
 					}
