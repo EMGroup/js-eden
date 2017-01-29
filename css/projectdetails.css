@@ -9,6 +9,19 @@ div.projectdetails {
 	justify-content: space-between;
 }
 
+span.projectdetails-star {
+	font-family: "FontAwesome";
+	font-size: 16pt;
+	margin-left: 5px;
+	cursor: pointer;
+	color: #666;
+}
+
+span.projectdetails-star.selected {
+	color: gold;
+	text-shadow: 0 0 5px #222;
+}
+
 span.projectdetails-label {
 	font-weight: bold;
 	margin-right: 5px;

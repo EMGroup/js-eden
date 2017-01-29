@@ -406,6 +406,35 @@ Eden.DB.remove = function(projectid, callback) {
 	});
 }
 
+Eden.DB.rate = function(projectid, stars) {
+	$.ajax({
+		url: this.remoteURL+"/project/rate",
+		type: "post",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		data:{	projectID: projectid,
+				stars: stars
+		},
+		success: function(data){
+			if (data === null || data.error) {
+				console.error(data);
+				eden.error((data) ? data.description : "No response from server");
+				//if (callback) callback(false);
+			} else {
+				
+			}
+		},
+		error: function(a){
+			//console.error(a);
+			//eden.error(a);
+			Eden.DB.disconnect(true);
+			//if (callback) callback(false);
+		}
+	});
+}
+
 Eden.DB.searchSelector = function(q, kind, callback) {
 	$.ajax({
 		url: this.remoteURL+"/code/search?selector="+q.replace("#","%23")+"&outtype="+kind,
