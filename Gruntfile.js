@@ -204,6 +204,8 @@ module.exports = function (grunt) {
 				],
 				'./js/ui/jseden-ui.min.js': [
 					'./js/ui/highlighter.js',
+					'./js/ui/highlighter-rules.js',
+					'./js/ui/highlighter-commentrules.js',
 					'./js/ui/contextmenu.js',
 					'./js/ui/buttonbar.js',
 					'./js/ui/tabs.js',

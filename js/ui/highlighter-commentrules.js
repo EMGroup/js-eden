@@ -240,7 +240,6 @@ EdenUI.Highlight.prototype.COMMENT_LINK = function() {
 	} else {
 		var remaining = linestr.substring(0, endix);
 		this.tokentext += remaining;
-		console.log("LINK",this.tokentext);
 		this.stream.position += endix;
 		this.classes += this.styles["comment"];
 		this.mode = "COMMENT_LINK_END";
@@ -248,9 +247,9 @@ EdenUI.Highlight.prototype.COMMENT_LINK = function() {
 		// Detect kind of link
 		var urlstart = linestr.substring(endix+2);
 		if (urlstart.startsWith("http://")) {
-			console.log("EXTERNAL URL");
+			//console.log("EXTERNAL URL");
 		} else {
-			console.log("INTERNAL GOTO");
+			//console.log("INTERNAL GOTO");
 		}
 
 		this.pushLine();
@@ -272,7 +271,6 @@ EdenUI.Highlight.prototype.COMMENT_LINK_END = function() {
 	} else {
 		var remaining = linestr.substring(0,endix);
 		this.tokentext += remaining+")";
-		console.log("LINK LINK", remaining);
 		this.stream.position += endix+1;
 		this.classes += this.styles["hidden-comment"];
 		this.mode = "COMMENT";

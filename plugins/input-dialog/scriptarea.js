@@ -316,7 +316,7 @@ EdenUI.ScriptArea.prototype.highlightContent = function(lineno, position, option
 
 	if (this.alwaysreadonly == "comment") {
 		var clines = $(this.outdiv).find(".eden-comment-line");
-		console.log("COMMENTLOCK",clines);
+
 		for (var i=0; i<clines.length; i++) {
 			clines[i].contentEditable = false;
 		}

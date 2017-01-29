@@ -231,9 +231,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 
 							if (this.lastStatement && this.lastStatement.type != "dummy" && this.lastStatement.doxyComment === undefined) {
 								this.lastStatement.doxyComment = doxy2;
-								console.log("ATTACH DOXY",this.lastline,startline2,this.lastStatement);
 							} else {
-								console.log("PREFIX DOXY", doxy2.content);
 								this.lastDoxyComment.push(doxy2);
 							}
 						}
