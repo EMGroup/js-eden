@@ -7,6 +7,73 @@
 
 function noop() {}
 
+function get_time_diff( timestamp )
+{
+	var datetime = timestamp * 1000;
+	var now = Date.now();
+	var _date = new Date();
+	var _userOffset = _date.getTimezoneOffset()*60000;
+	datetime -= _userOffset;
+
+	if( isNaN(datetime) )
+	{
+	    return "";
+	}
+
+	if (datetime < now) {
+	    var milisec_diff = now - datetime;
+	}else{
+	    var milisec_diff = datetime - now;
+	}
+
+	var days = Math.floor(milisec_diff / 1000 / 60 / (60 * 24));
+
+	var date_diff = new Date( milisec_diff );
+
+	if (days > 5) {
+		return (new Date(datetime)).toDateString();
+	} else {
+		var result = "";
+		if (days > 0) {
+			result += days;
+			if (days > 1) {
+				result += " days ago";
+			} else {
+				result += " day ago";
+			}
+		} else {
+			if (date_diff.getUTCHours() > 0) {
+				var hours = date_diff.getUTCHours();
+				result += hours;
+				if (hours > 1) {
+					result += " hours ago";
+				} else {
+					result += " hour ago";
+				}
+			} else {
+				var mins = date_diff.getUTCMinutes();
+				if (mins > 0) {
+					result += mins;
+					if (mins > 1) {
+						result += " minutes ago";
+					} else {
+						result += " minute ago";
+					}
+				} else {
+					var secs = date_diff.getUTCSeconds();
+					result += secs;
+					if (secs > 1) {
+						result += " seconds ago";
+					} else {
+						result += " seconds ago";
+					}
+				}
+			}
+		}
+		return result;
+	}
+}
+
 function generateTimeStamp(str) {
 	var relativeTimeRe = /(\d*)(minutes|minute|min|hours|hour|days|day|weeks|week|months|month|mon|years|year|Quarters|Quarter|seconds|second|sec|s|m|h|d|M|y|Y|Q|ms|w)/g;
 

@@ -28,7 +28,7 @@ EdenUI.ProjectDetails = function(projectid) {
 		var descbox = document.createElement("div");
 		descbox.className = "markdown";
 		var sdown = new showdown.Converter();
-		var desc = meta2.description.replace(/\s(#[a-zA-Z0-9]+)/g, ' <span style="color:blue;">$1</span>');
+		var desc = (meta2 && meta2.description) ? meta2.description.replace(/\s(#[a-zA-Z0-9]+)/g, ' <span style="color:blue;">$1</span>') : "";
 		var res = sdown.makeHtml(desc);
 		descbox.innerHTML = res;
 		me.dialog.get(0).appendChild(descbox);
@@ -51,6 +51,13 @@ EdenUI.ProjectDetails = function(projectid) {
 		buttons.on("click",".openproject", function() {
 			me.remove();
 			Eden.Project.load(projectid);
+		});
+
+		buttons.on("click",".deleteproject", function() {
+			if (confirm("Are you sure you want to delete this project?")) {
+				me.remove();
+				Eden.DB.remove(projectid);
+			}
 		});
 
 		buttons.on("click",".restoreproject", function() {
@@ -82,5 +89,54 @@ EdenUI.ProjectDetails = function(projectid) {
 
 EdenUI.ProjectDetails.prototype.remove = function() {
 	document.body.removeChild(this.obscurer.get(0));
+}
+
+EdenUI.ProjectDetails.searchProjects = function(output, query, count, cb) {
+	if (!query) query = "";
+	Eden.DB.search(query, function(data) {
+		EdenUI.ProjectDetails._searchProjects(output, !query.startsWith(":me"), data , count);
+		if (cb) cb(data);
+	});
+}
+
+EdenUI.ProjectDetails._searchProjects = function(output, pub, projects, count) {
+	var maxres = (count) ? count : 6;
+
+	if (projects === undefined) return;
+
+	for (var i=0; i<projects.length; i++) {
+		if (i == maxres) {
+			output.append($('<div class="cadence-plisting-entry more noselect"><div class="cadence-plisting-icon more">&#xf103;</div></div>'));
+			output.on("click",".more",function(e) {
+				output.html("");
+				EdenUI.ProjectDetails._searchProjects(output, pub, projects, maxres + 6);
+			});
+			break;
+		}
+
+		var meta = projects[i];
+		var t = meta.date.split(/[- :]/);
+		var title = meta.title;
+		var thumb = meta.image;
+		//var tags = meta.tags;
+
+		//if (meta.hidden) continue;
+
+		var subtitle;
+		if (pub) {
+			subtitle = meta.ownername;
+		} else {
+			subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
+		}
+
+		//Eden.DB.getMeta(path+"/"+x,function(path,meta) {
+		if (thumb !== null) {
+			output.append($('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+		} else {
+			output.append($('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+			//console.log(Eden.DB.meta[path+"/"+x]);
+		}
+		//});
+	}
 }
 

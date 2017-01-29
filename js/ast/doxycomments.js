@@ -61,12 +61,13 @@ Eden.AST.DoxyComment.prototype.stripped = function() {
 	var res = "";
 
 	for (var i=0; i<lines.length; i++) {
+		if (lines[i].charAt(0) == "#") lines[i] = lines[i].slice(1).trim();
 		lines[i] = lines[i].trim();
 		if (lines[i] == "") {
 			res += "\n";
 			continue;
 		}
-		if (lines[i].charAt(0) == "#" || lines[i].charAt(0) == "*") lines[i] = lines[i].slice(1).trim();
+		if (lines[i].charAt(0) == "*") lines[i] = lines[i].slice(1).trim();
 		if (lines[i].charAt(0) == "@") {
 			var spaceix = lines[i].indexOf(" ");
 			var cont = lines[i].substring(0,spaceix);

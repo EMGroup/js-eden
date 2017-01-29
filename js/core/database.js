@@ -374,6 +374,38 @@ Eden.DB.getMeta = function(id, callback) {
 	});
 }
 
+Eden.DB.remove = function(projectid, callback) {
+	$.ajax({
+		url: this.remoteURL+"/project/remove",
+		type: "post",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		data:{	projectID: projectid
+		},
+		success: function(data){
+			if (data === null || data.error) {
+				console.error(data);
+				eden.error((data) ? data.description : "No response from server");
+				if (callback) callback(false);
+			} else {
+				console.log("Removed", data);
+				//meta.updateVersion(data.saveID, data.tag, meta.title, meta.name, meta.date);
+				//project.id = data.projectID;
+				//project.vid = data.saveID;
+				if (callback) callback(true);
+			}
+		},
+		error: function(a){
+			//console.error(a);
+			//eden.error(a);
+			Eden.DB.disconnect(true);
+			if (callback) callback(false);
+		}
+	});
+}
+
 Eden.DB.searchSelector = function(q, kind, callback) {
 	$.ajax({
 		url: this.remoteURL+"/code/search?selector="+q.replace("#","%23")+"&outtype="+kind,
