@@ -65,7 +65,7 @@ View.prototype.draw = function(context) {
   if (this.elements === undefined) {
 	var me = this;
 
-	var divElement = edenUI.views[this.type].embed(this.name, this.name, "").contents.get(0);
+	var divElement = edenUI.createEmbedded(this.name, this.type).contents.get(0);
 	divElement.className += " canvashtml-item canvashtml-div-item";
 
 	/*document.createElement("div");

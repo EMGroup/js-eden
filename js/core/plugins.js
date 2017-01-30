@@ -51,6 +51,14 @@
 	//Case when a window is moved off to the left of the screen.
 	EdenUI.prototype.minimumWindowWidthShowing = 72 + EdenUI.prototype.dialogBorderWidth;
 
+
+	EdenUI.prototype.createEmbedded = function(name, type) {
+		if (this.embeddedInstances[name]) return this.embeddedInstances[name];
+		var eview = edenUI.views[type].embed(name, name, "");
+		this.embeddedInstances[name] = eview;
+		return eview;
+	}
+
 	/**
 	 * A view is a window which appears in the JsEden UI.
 	 *

@@ -5,15 +5,15 @@ div.markdown {
 	margin-bottom: 20px;
 	padding: 10px;
 	/*border: 1px solid #aaa;*/
-	font: 11pt "Roboto",UILanguageFont,Arial,sans-serif;
+	font: 11pt "Source Sans Pro",UILanguageFont,Arial,sans-serif;
 	/*clear: right;*/
 	color: #333;
 }
 
 div.markdown h1 {
 	color: #222;
-	font: 16pt "Roboto",UILanguageFont,Arial,sans-serif;
-	/*font-weight: bold;*/
+	font: 16pt "Source Sans Pro",UILanguageFont,Arial,sans-serif;
+	font-weight: bold;
 	margin-top: 5px;
 }
 

@@ -61,7 +61,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	var cleanupCanvas = function (canvasElement, previousElements) {
 		var hash;
 		for (hash in previousElements) {
-			if (!previousElements[hash].togarbage) {
+			if (previousElements[hash][0].getAttribute("data-garbage") == "false") {
 				continue;
 			}
 			var elementsToRemove = previousElements[hash];
@@ -187,7 +187,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 					var hash;
 					for (hash in previousElements) {
-						previousElements[hash].togarbage = true;
+						previousElements[hash][0].setAttribute("data-garbage", true);
 					}
 					if (Array.isArray(picture)) {
 						var scale = root.lookup("view_" + viewName + "_scale").value();
@@ -313,7 +313,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 								if (htmlEl) {
 									//var htmlJQ = $(htmlEl);
 									//htmlJQ.css("transform", cssTransform);
-									htmlEl.togarbage = false;
+									htmlEl[0].setAttribute("data-garbage", false);
 									if (!existingEl) {
 										content.appendChild(htmlEl[0]);
 									}

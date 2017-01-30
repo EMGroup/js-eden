@@ -1,5 +1,5 @@
 span.eden-script {
-	font: 12px/20px Roboto Mono,monospace;
+	font: 12px/20px 'Roboto Mono',monospace;
 	-webkit-font-smoothing: antialiased;
 	color: #2b4957;
 }
@@ -91,7 +91,7 @@ span.eden-blockcomment {
 div.eden-comment-line {
 	color: #777;
 	font-size: 14px;
-	font-family: Arial,Helvetica,sans-serif;
+	font-family: "Source Sans Pro",Arial,Helvetica,sans-serif;
 	line-height: 20px;
 	white-space: pre-wrap;
 	word-wrap: initial;
@@ -115,7 +115,7 @@ span.eden-comment-hidden {
 div.current span.eden-comment-hidden {
 	display: initial;
 	color: red;
-	font: 14px Arial,Helvetica,sans-serif;
+	font: 14px "Source Sans Pro",Arial,Helvetica,sans-serif;
 	font-weight: bold;
 }
 
@@ -159,24 +159,24 @@ span.eden-comment-query:before{
 
 div.eden-comment-h1 {
 	color: #666;
-	font: 16pt Arial,Helvetica,sans-serif;
+	font: 16pt "Source Sans Pro",Arial,Helvetica,sans-serif;
 	font-weight: bold;
 }
 
 div.eden-comment-h2 {
 	color: #666;
-	font: 14pt Arial,Helvetica,sans-serif;
+	font: 14pt "Source Sans Pro",Arial,Helvetica,sans-serif;
 }
 
 div.eden-comment-h3 {
 	color: #666;
-	font: 12pt Arial,Helvetica,sans-serif;
+	font: 12pt "Source Sans Pro",Arial,Helvetica,sans-serif;
 	font-weight: bold;
 }
 
 div.eden-comment-h4 {
 	color: #666;
-	font: 12pt Arial,Helvetica,sans-serif;
+	font: 12pt "Source Sans Pro",Arial,Helvetica,sans-serif;
 	font-weight: bold;
 }
 
@@ -313,7 +313,7 @@ div.eden-warnline:before {
 }
 
 span.eden-drag-observable {
-	font: 14px/20px Roboto Mono,monospace;
+	font: 14px/20px 'Roboto Mono',monospace;
 	-webkit-font-smoothing: antialiased;
 	background-color: #cfe4ff;
 	padding: 10px;
