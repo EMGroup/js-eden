@@ -68,6 +68,13 @@ EdenUI.ProjectDetails = function(projectid) {
 		});
 
 		var p = rating[0];
+		var astars = meta[0].overallRating;
+		if (astars) {
+			for (var i=0; i<5; i++) {
+				p.childNodes[i].className = "projectdetails-star" + ((i >= astars) ? "" : " average");
+				p.childNodes[i].innerHTML = (i >= stars) ? "&#xf005;" : "&#xf005;";
+			}
+		}
 		var stars = meta[0].myrating;
 		if (stars) {
 			for (var i=0; i<5; i++) {
