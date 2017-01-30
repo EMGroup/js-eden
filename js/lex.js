@@ -271,10 +271,10 @@ EdenStream.prototype.parseAlphaNumeric = function(data) {
 
 
 
-EdenStream.prototype.parseString = function(data, kind) {
+EdenStream.prototype.parseString = function(data) {
 	var result = "";
 
-	while (this.valid() && this.peek() != kind) {
+	while (this.valid() && this.peek() != 34) {
 		var chr = String.fromCharCode(this.get());
 		if (chr == "\n"){
 			this.unget();
@@ -293,7 +293,7 @@ EdenStream.prototype.parseString = function(data, kind) {
 	}
 
 	// Remove end quote
-	if (this.valid() && this.peek() == kind) {
+	if (this.valid() && this.peek() == 34) {
 		this.skip();
 		data.error = false;
 	} else {
@@ -366,7 +366,7 @@ EdenStream.prototype.readToken = function() {
 	case 33	:	if (this.peek() == 61) { this.skip(); return "!="; }
 				if (this.peek() == 126) { this.skip(); return "!~"; }
 				return "!";
-	case 34	:	this.parseString(this.data, 34); return "STRING";
+	case 34	:	this.parseString(this.data); return "STRING";
 	case 35	:	if (this.peek() == 35) { this.skip(); return "##"; }
 				return "#";
 	case 36	:	if (this.peek() == 123 && this.peek2() == 123) {
@@ -378,7 +378,7 @@ EdenStream.prototype.readToken = function() {
 	case 38	:	if (this.peek() == 38) { this.skip(); return "&&"; }
 				if (this.peek() == 61) { this.skip(); return "&="; }
 				return "&";
-	case 39 :	this.parseString(this.data, 39); return "STRING";
+	case 39 :	this.parseCharacter(this.data); return "CHARACTER";
 	case 40	:	return "(";
 	case 41	:	return ")";
 	case 42	:	if (this.peek() == 61) { this.skip(); return "*="; }
