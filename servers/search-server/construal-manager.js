@@ -115,6 +115,7 @@ var errors = require(config.JSEDENPATH + "js/core/errors.js");
 var warnings = require(config.JSEDENPATH + "js/core/warnings.js");
 var db = new sqlite3.Database(config.DBPATH);
 var allKnownProjects = {};
+var projectRatings = {};
 
 passportUsers.setupPassport(passport,db);
 edenUI = {};
@@ -410,7 +411,7 @@ function updateProject(req,res,callback){
 		db.run(deleteStr,tagObject,function(err){
 			if(err){
 				db.run("ROLLBACK");
-				res.json({error: -1, description: "SQL Error", err:err})
+				res.json({error: -1, description: "SQL Error", err:err});
 			}else
 				updateTags(req,req.body.projectID,function(err){
 					if(err){
@@ -549,7 +550,10 @@ app.get('/code/search', function(req, res){
 			res.json([]);
 		} else {
 			var nodelist = Eden.Selectors.unique(sast.filter());
-			var srcList = Eden.Selectors.processResults(nodelist, req.query.outtype);
+			var outtype = "source";
+			if(req.query.outtype !== undefined)
+				outtype = req.query.outtype;
+			var srcList = Eden.Selectors.processResults(nodelist, outtype);
 			res.json(srcList);
 		}
 });
@@ -579,42 +583,60 @@ app.get('/project/get', function(req,res){
 	//If both undefined, get full snapshot of latest version (with no diffs)
 	//If 'from' undefined, get full snapshot of 'to' version (no diffs).
 	//If 'to' undefined but from is defined, get diff from 'from' to latest version.
-	
+
 	if(req.query.projectID){
-		if(req.query.to){
-			db.serialize(function(){
-				getFullVersion(req.query.to,req.query.projectID, [], function(ret){
-					var source = ret.source;
-					var date = ret.date;
-					if(req.query.from){
-						sendDiff(req.query.from,source,req.query.projectID,res);
-					}else{
-						res.json({saveID: req.query.to, projectID: req.query.projectID,source:source, date:date});
-					}
-				});
-			});
-		}else{
-			var getProjectStmt = db.prepare("select saveID,date FROM view_latestVersion WHERE projectID = ?;");
-			getProjectStmt.all(req.query.projectID,function(err,rows){
-				var row = rows[0];
+		var metadataQuery =  "SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date, stars as myrating FROM "
+			+ "(SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date, " +
+				' publicVersion, parentProject, projectMetaData,	stars, (" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers, view_latestVersion left outer join tags'
+					+ ' on projects.projectID = tags.projectID LEFT OUTER JOIN projectratings ON projectratings.projectID = projects.projectID' +
+					' AND projectratings.userID = ? WHERE owner = oauthusers.userid AND view_latestVersion.projectID = projects.projectID'
+					+ ' AND projects.projectID = ? group by projects.projectID)';
+		var ratingsUser = -1;
+		if(req.user != undefined)
+			ratingsUser = req.user.id;
+		db.get(metadataQuery,ratingsUser,req.query.projectID,function(err,metaRow){
+			if(err){
+				res.json({error: -1, description: "SQL Error", err: err});
+				return;
+			}
+			
+			if(req.query.to){
 				db.serialize(function(){
-					getFullVersion(row.saveID,req.query.projectID, [], function(ret){
+					getFullVersion(req.query.to,req.query.projectID, metaRow, function(ret){
 						var source = ret.source;
+						var date = ret.date;
 						if(req.query.from){
-							sendDiff(req.query.from,source,req.query.projectID,saveID,res);
+							sendDiff(req.query.from,source,req.query.projectID,res,metaRow);
 						}else{
-							res.json({saveID: row.saveID, date: row.date, projectID: req.query.projectID,source: source});
+							var srcRow = {saveID: req.query.to, projectID: req.query.projectID,source:source, date:date, meta: metaRow};
+							res.json(Object.assign(srcRow,metaRow));
 						}
 					});
 				});
-			});
-		}
+			}else{
+				var getProjectStmt = db.prepare("select saveID,date FROM view_latestVersion WHERE projectID = ?;");
+				getProjectStmt.all(req.query.projectID,function(err,rows){
+					var row = rows[0];
+					db.serialize(function(){
+						getFullVersion(row.saveID,req.query.projectID, metaRow, function(ret){
+							var source = ret.source;
+							if(req.query.from){
+								sendDiff(req.query.from,source,req.query.projectID,saveID,res,metaRow);
+							}else{
+								var srcRow = {saveID: row.saveID, date: row.date, projectID: req.query.projectID,source: source, meta: metaRow};
+								res.json(Object.assign(srcRow,metaRow));
+							}
+						});
+					});
+				});
+			}
+		});
 	}else{
 		res.json({error: 7, description: "projectID must be defined" });
 	}
 });
 
-function sendDiff(fromID,toSource,projectID,toID,res){
+function sendDiff(fromID,toSource,projectID,toID,res,metaRow){
 	db.serialize(function(){
 		getFullVersion(fromID,projectID,[],function(ret){
 			var source = ret.source;
@@ -622,7 +644,8 @@ function sendDiff(fromID,toSource,projectID,toID,res){
 			var d = dmp.diff_main(source,toSource,false);
 			var p = dmp.patch_make(source,toSource,d);
 			var patchText = dmp.patch_toText(p);
-			res.json({from: fromID, projectID: projectID, to: toID, patch: patchText});
+			var srcRow = {from: fromID, projectID: projectID, to: toID, patch: patchText};
+			res.json(Object.assing(srcRow,metaRow));
 		});
 	});
 }
@@ -639,7 +662,7 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 			criteriaVals["@title" + i] = t.param.replace("*","%");
 			break;
 		case ":me":
-			criteriaVals["@listedOnly"] = false;
+			criteriaVals["@mineOnly"] = true;
 			break;
 		case ".author":
 //			criteria.push("owner = @otherAuthor");
@@ -649,9 +672,14 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 			criteria.push("minimisedTitle LIKE @minimisedTitle" + i);
 			criteriaVals["@minimisedTitle" + i] = t.param.replace("*","%");
 			break;
+		case ".parent":
 		case ":parent":
-			critera.push("parentProject = @parentProject" +i);
+			criteria.push("parentProject = @parentProject" +i);
 			criteriaVals["@parentProject" + i] = t.value;
+			break;
+		case ".listed":
+			criteriaVals["listedOnly"] = true;
+			break;
 		}
 	}
 	if(t.type == "tag"){
@@ -664,6 +692,33 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 	}
 		
 }
+
+
+app.post('/project/rate', function(req,res){
+	var userID = req.user.id;
+	var starRating = req.body.stars;
+	var projectID = req.body.projectID;
+	var rateSQL = "UPDATE projectratings SET stars = ? WHERE projectID = ? AND userID = ?;";
+	delete projectRatings[req.body.projectID];
+	db.run(rateSQL,starRating,projectID,userID,function(err){
+		if(err){
+			res.json({error: -1, description: "SQL Error", err: err})
+			return;
+		}
+		if(this.changes == 0){
+			var insRateSQL = "INSERT INTO projectratings VALUES (?,?,?);";
+			db.run(insRateSQL,projectID,userID,starRating,function(err){
+				if(err){
+					res.json({error: -1, description: "SQL Error", err: err})
+					return;
+				}
+				res.json({status: "INSERTED"});
+			});
+		}else{
+			res.json({status: "UPDATED"});
+		}
+	});
+});
 
 /**
 * Title: Project Search
@@ -690,7 +745,6 @@ app.get('/project/search', function(req, res){
 	var criteriaVals = {};
 	
 	var paramObj = {};
-	var listedOnly = true;
 	criteriaVals["@limit"] = 10;
 	if(req.query.limit && (req.query.limit < 50))
 		criteriaVals["@limit"] = req.query.limit;
@@ -698,28 +752,7 @@ app.get('/project/search', function(req, res){
 	if(req.query.offset)
 		criteriaVals["@offset"] = req.query.offset;
 
-	if(req.query.projectID){
-		criteria.push("projects.projectID = @projectID");
-		criteriaVals["@projectID"] = req.query.projectID;
-	}
-	if(req.query.dateBefore){
-		criteria.push("date < @dateBefore");
-		criteriaVals["@dateBefore"] = req.query.dateBefore;
-	}
-	if(req.query.dateAfter){
-		criteria.push("date < @dateAfter");
-		criteriaVals["@dateAfter"] = req.query.dateAfter;
-	}
-	if(req.query.minimisedTitle){
-		criteria.push("minimisedTitle LIKE @minimisedTitle");
-		criteriaVals["@minimisedTitle"] = req.query.minimisedTitle;
-	}
-	if(req.query.title){
-		criteria.push("title LIKE @title");
-		criteriaVals["@title"] = req.query.title;
-	}
-	if(req.query.query){
-		
+	if(req.query.query){		
 		var selectorAST = Eden.Selectors.parse(req.query.query);
 		if(selectorAST.type == "intersection"){	
 			for(var i = 0; i < selectorAST.children.length; i++){
@@ -730,30 +763,13 @@ app.get('/project/search', function(req, res){
 		}
 	}
 	
-	if(req.query.listedOnly && req.query.listedOnly == "false"){
-		listedOnly = false;
-	}
-
-	if(criteriaVals["@listedOnly"] !== undefined) {
-		listedOnly = criteriaVals["@listedOnly"];
-		delete criteriaVals["@listedOnly"];
-	}
+	var mineOnly = (criteriaVals["@mineOnly"] !== undefined) ? criteriaVals["@mineOnly"] : false;
+	var listedOnly = (criteriaVals["@listedOnly"] !== undefined) ? criteriaVals["@listedOnly"] : false;
 	
-	var targetTable = "view_latestVersion";
-	if(listedOnly)
-		targetTable = "view_listedVersion";
-
-	if(req.query.tag){
-		if(Array.isArray(req.query.tag)){
-			for(var i = 0; i < req.query.tag.length; i++){
-				tagCriteria.push("tags LIKE @tag" + i);
-				criteriaVals["@tag" + i] = "% " + req.query.tag[i] + " %";
-			}
-		}else{
-			tagCriteria.push("tags LIKE @tag");
-			criteriaVals["@tag"] = "% " + req.query.tag + " %";
-		}
-	}
+	if(criteriaVals["@mineOnly"] !== undefined)
+		delete criteriaVals["@mineOnly"];
+	if(criteriaVals["@listedOnly"] !== undefined)
+		delete criteriaVals["@listedOnly"];
 	
 	var conditionStr = "";
 	if(criteria.length > 0){
@@ -765,20 +781,34 @@ app.get('/project/search', function(req, res){
 		tagConditionStr = " WHERE " + tagCriteria.join(" AND ");
 	}
 	
-	var listQueryStr = 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
-		+ ' publicVersion, parentProject, projectMetaData,	(" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
-		+ ' on projects.projectID = tags.projectID WHERE owner = userid AND '+targetTable+'.projectID = projects.projectID ';
+	var targetTable;
+	var listQueryStr;
 	
-	if(!listedOnly){
-		if(req.user == null) return res.json([]);
-		//else
-		listQueryStr = listQueryStr + ' AND owner = @owner';
-		criteriaVals["@owner"] = req.user.id;
+	if(!mineOnly && !listedOnly){
+		if(req.user == null)
+			listedOnly = true;
 	}
 	
-	listQueryStr = listQueryStr	+ conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
-	
+	if(req.user == null)
+		criteriaVals["@ratingsUser"] = -1;
+	else
+		criteriaVals["@ratingsUser"] = req.user.id;
+		
+	if(mineOnly){
+		if(req.user == null) return res.json([]);
+		listQueryStr = getListQueryStr("view_latestVersion") + ' AND owner = @owner' + conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
+		criteriaVals["@owner"] = req.user.id;
+	}else if(listedOnly){
+		listQueryStr = getListQueryStr("view_listedVersion") + conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
+	}else{
+		listQueryStr = getListQueryStr("view_latestVersion") + ' AND owner = @owner';
+		criteriaVals["@owner"] = req.user.id;
+		listQueryStr += conditionStr + ' group by projects.projectID)' + tagConditionStr;
+		listQueryStr += " UNION " + getListQueryStr("view_listedVersion") + conditionStr + ' group by projects.projectID) ' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
+	}
+
 	var listProjectStmt = db.prepare(listQueryStr);
+	var unknownRatings = [];
 
 	listProjectStmt.all(criteriaVals,function(err,rows){
 		if(err){
@@ -795,10 +825,62 @@ app.get('/project/search', function(req, res){
 				
 				rows[i].tags = tmpTags;
 			}
+			var projectID = rows[i].projectID;
+			if(projectRatings[projectID] !== undefined){
+				rows[i].overallRating = projectRatings[projectID];
+			}else{
+				unknownRatings.push(projectID);
+			}
 		}
-		res.json(rows);
+		if(unknownRatings.length == 0){
+			res.json(rows);
+		}else{
+			processNextRating(rows,unknownRatings,0,res);
+		}
 	});
 });
+
+function processNextRating(projectRows, unknownRatings,i,res){
+	if(i == unknownRatings.length){
+		for(j = 0; j < projectRows.length; j++){
+			if(projectRows[j].overallRating == undefined){
+				projectRows[j].overallRating = projectRatings[projectRows[j].projectID];
+			}
+		}
+		res.json(projectRows);
+	}else{
+		var getRatingsStmt = "SELECT count(1) as c,sum(stars) as s FROM projectratings WHERE projectID = ?";
+		var projectID = unknownRatings[i];
+		db.get(getRatingsStmt,projectID,function(err,row){
+			if(err){
+				res.json({error: -1, description: "SQL Error", err:err});
+			}
+			projectRatings[projectID] = row.s / row.c;
+			processNextRating(projectRows,unknownRatings,i+1,res);
+		});
+	}
+}
+
+app.post('/project/remove',ensureAuthenticated, function(req,res){
+	var projectID = req.body.projectID;
+	var userID = req.user.id;
+	var delStatement = "DELETE FROM projects WHERE projectID = ? AND owner = ?";
+	db.run(delStatement,projectID, userID,function(err){
+		if(err){
+			res.json({error: -1, description: "SQL Error", err:err});
+		}
+		if(this.changes == 0)
+			res.json({error: 10, description: "Matching project not found"});
+		if(this.changes > 0)
+			res.json({status: "deleted", changes: this.changes});
+	});
+});
+
+function getListQueryStr(targetTable){
+	return 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date, stars as myrating FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
+		+ ' publicVersion, parentProject, projectMetaData,	stars, (" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
+		+ ' on projects.projectID = tags.projectID LEFT OUTER JOIN projectratings ON projectratings.projectID = projects.projectID AND projectratings.userID = @ratingsUser WHERE owner = oauthusers.userid AND '+targetTable+'.projectID = projects.projectID ';	
+}
 
 
 /**
