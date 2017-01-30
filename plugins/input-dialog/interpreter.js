@@ -903,6 +903,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			console.log("BUTTON",e);
 			var script = e.currentTarget.getAttribute("data-jseden");
 			if (script && script != "") {
+				//script = script.replace(/\\/g,"");
 				console.log(script);
 				eden.execute2(script, {name: "execute"});
 			}
@@ -920,7 +921,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		// Set the event handlers
 		$dialogContents
-		.on('click', 'button', onButtonClick)
+		.on('click', 'button,.button', onButtonClick)
 		.on('click', '.close', onTabClose)
 		.on('click', '.agent-tab-more', onBrowse)
 		.on('click', '.browse-entry', onBrowseClick)

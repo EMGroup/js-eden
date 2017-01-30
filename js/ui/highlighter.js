@@ -91,6 +91,7 @@
 		"comment-h1": "eden-comment-h1",
 		"comment-h2": "eden-comment-h2",
 		"comment-h3": "eden-comment-h3",
+		"comment-h4": "eden-comment-h4",
 		"horizontal-line": "eden-section-line",
 		"comment-line": "eden-comment-line",
 		"comment-emph": "eden-comment-emph",
