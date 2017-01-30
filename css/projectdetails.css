@@ -1,12 +1,18 @@
 div.projectdetails {
 	display: inline-block;
-	margin-left: 30px;
+	margin-left: 10px;
 	font-size: 10pt;
 	font-family: "Source Sans Pro",Arial,sans-serif;
 	color: #444;
 	justify-content: space-between;
 	line-height: 25px;
 	padding-bottom: 5px;
+}
+
+span.projectdetails-rateavg {
+	margin-right: 20px;
+	font-size: 14pt;
+	font-family: "Source Sans Pro",Arial,sans-serif;
 }
 
 div.projectdetails-rating {

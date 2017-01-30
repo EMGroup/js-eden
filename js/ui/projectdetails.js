@@ -36,9 +36,10 @@ EdenUI.ProjectDetails = function(projectid) {
 		me.dialog.get(0).appendChild(descbox);
 
 		var t = meta[0].date.split(/[- :]/);
+		var astars = (meta[0].overallRating !== null) ? meta[0].overallRating / meta[0].numRatings : 0;
 
 		var details = $('<div class="projectdetails">\
-			<span><span class="projectdetails-label">by:</span><span class="projectdetails-value">'+meta[0].ownername+'</span></span>\
+			<span class="projectdetails-rateavg">'+astars.toFixed(1)+'</span><span><span class="projectdetails-label">by:</span><span class="projectdetails-value">'+meta[0].ownername+'</span></span>\
 			<span>, <span class="projectdetails-value">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span></span>\
 		</div>');
 
@@ -68,10 +69,10 @@ EdenUI.ProjectDetails = function(projectid) {
 		});
 
 		var p = rating[0];
-		var astars = meta[0].overallRating;
 		if (astars) {
+			var astarsf = Math.floor(astars);
 			for (var i=0; i<5; i++) {
-				p.childNodes[i].className = "projectdetails-star" + ((i >= astars) ? "" : " average");
+				p.childNodes[i].className = "projectdetails-star" + ((i >= astarsf) ? "" : " average");
 				p.childNodes[i].innerHTML = (i >= stars) ? "&#xf005;" : "&#xf005;";
 			}
 		}
