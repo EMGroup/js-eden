@@ -53,7 +53,6 @@
 
 
 	EdenUI.prototype.createEmbedded = function(name, type) {
-		console.log("CREATEEMBEDDED");
 		if (this.embeddedInstances[name]) return this.embeddedInstances[name];
 		var eview = edenUI.views[type].embed(name, name, "");
 		this.embeddedInstances[name] = eview;
