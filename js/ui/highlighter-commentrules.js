@@ -44,15 +44,20 @@ EdenUI.Highlight.prototype.SECTION_TITLE2 = function() {
 EdenUI.Highlight.prototype.SECTION_TITLE3 = function() {
 	if (this.token == "#") {
 		this.classes += this.styles["hidden-comment"];
-		this.mode = "SECTION_TITLE4";
+		this.lineelement.className += " " + this.styles["comment-h4"];
+		this.mode = "COMMENT";
+		//this.mode = "SECTION_TITLE4";
 		// Remove a single space if it exists.
 		if (this.stream.peek() == 32) {
 			this.tokentext += " ";
 			this.stream.position++;
 		}
 	} else {
-		this.classes += this.styles["comment-h3"];
-		this.mode = "SECTION_TITLE_H3";
+		//this.classes += this.styles["comment-h3"];
+		this.lineelement.className += " " + this.styles["comment-h3"];
+		//this.mode = "SECTION_TITLE_H3";
+		this.mode = "COMMENT";
+		this.COMMENT();
 	}
 }
 
