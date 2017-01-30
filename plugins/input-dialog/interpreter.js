@@ -118,6 +118,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 	 * Common input window view constructor.
 	 */
 	this.createCommon = function (name, mtitle, code, embedded) {
+		console.log("CREATING",name);
 		var $dialogContents = $('<div class="inputdialogcontent">\
 <div class="agent-tabs handle"></div>\
 <div class="scriptsubcontent">\

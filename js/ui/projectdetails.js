@@ -53,6 +53,7 @@ EdenUI.ProjectDetails = function(projectid) {
 		me.dialog.append(details);
 
 		rating.on("click",".projectdetails-star", function(e) {
+			if (Eden.DB.isLoggedIn() == false) return;
 			var p = e.currentTarget.parentNode;
 			var stars = 0;
 			for (var i=0; i<5; i++) {

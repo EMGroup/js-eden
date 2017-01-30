@@ -182,8 +182,11 @@ Eden.AST.BaseScript.getRelativeLine = function(stat, base) {
 Eden.AST.BaseScript.getNumberOfLines = function() {
 	// Add self lines.
 	// And sum of child lines.
-	if (this.statements === undefined) console.error("No Statements",this);
-	var ln = 0;
+	if (this.statements === undefined) {
+		console.error("No Statements",this);
+	}
+
+	var ln = this.numlines;
 	for (var i=0; i<this.statements.length; i++) {
 		ln += this.statements[i].getNumberOfLines();
 	}

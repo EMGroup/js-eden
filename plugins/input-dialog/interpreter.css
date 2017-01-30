@@ -52,7 +52,7 @@ div.history {
 	right: 0;
 	padding: 10px;
 	-webkit-font-smoothing: antialiased;
-	font: 12px/16px Roboto Mono,monospace;
+	font: 12px/16px 'Roboto Mono',monospace;
 	overflow: auto;
 	white-space: pre;
 }
@@ -490,7 +490,7 @@ textarea.hidden-textarea2 {
 	white-space: pre;
 	word-wrap: normal;
 	overflow: auto;
-	font: 14px/20px Roboto Mono,monospace;
+	font: 14px/20px 'Roboto Mono',monospace;
 	/*left: 5px;
 	width: 80%;*/
 	height: 50px;
@@ -597,7 +597,7 @@ div.outputcontent {
 	/*margin: 5px;*/
 	cursor: text;
 	outline: none;
-	font: 14px/20px Roboto Mono,monospace;
+	font: 14px/20px 'Roboto Mono',monospace;
 	white-space: pre;
 	/*overflow: auto;*/
 	/*background: #f5f5f5;*/
@@ -830,7 +830,7 @@ div.eden_suggestions {
 	background: white;
 	color: #2b4957;
 	opacity: 0.9;
-	font: 12px/20px Roboto Mono,monospace;
+	font: 12px/20px 'Roboto Mono',monospace;
 	z-index: 2000;
 	overflow-x: hidden;
 	overflow-y: auto;

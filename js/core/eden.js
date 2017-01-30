@@ -48,6 +48,8 @@
 		 */
 		this.viewInstances = {};
 
+		this.embeddedInstances = {};
+
 		/**A mapping between view names and the name of the type of view that each view belongs to.
 		 * @type {Object.<string,*>}
 		 */

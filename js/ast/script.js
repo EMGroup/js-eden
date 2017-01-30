@@ -171,6 +171,10 @@ Eden.AST.Script.prototype.setSource = function(start, end, src) {
 		this.prefix = src.substring(0, this.statements[0].start-start);
 		this.postfix = src.substring(this.statements[this.statements.length-1].end-start);
 	}
+
+	this.numlines = 0;
+	for (var i=0; i<this.prefix.length; i++) if (this.prefix.charAt(i) == "\n") this.numlines++;
+	for (var i=0; i<this.postfix.length; i++) if (this.postfix.charAt(i) == "\n") this.numlines++;
 }
 
 Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
