@@ -272,7 +272,11 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "value"	: 	if (stat instanceof Symbol) {
 										val = stat.value();
 									} else {
+										try {
 										val = (stat.expression) ? stat.expression.execute({scopes:[]}, eden.project.ast, eden.root.scope) : undefined;
+										} catch(e) {
+
+										}
 								 	} break;
 				case "active"	: 	val = (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin && eden.root.symbols[stat.lvalue.name].origin.id == stat.id);
 									break;
