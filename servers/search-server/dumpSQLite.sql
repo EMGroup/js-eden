@@ -16,6 +16,20 @@ CREATE TABLE projectversions (
 	foreign key(projectID) REFERENCES projects(projectID),
 	foreign key(parentDiff) REFERENCES projectversions(saveID)
 );
+
+CREATE TABLE projectstats(
+	"projectID" INTEGER NOT NULL,
+	"downloads" INTEGER NOT NULL DEFAULT 0,
+	"forks" INTEGER NOT NULL DEFAULT 0,
+	"stars" INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE projectratings(
+	"projectID" INTEGER NOT NULL,
+	"userID" INTEGER NOT NULL,
+	"stars" INTEGER NOT NULL
+)
+
 CREATE TABLE projects (
     "projectID" INTEGER PRIMARY KEY,
     "title" TEXT NOT NULL,
@@ -41,6 +55,9 @@ group by projectID) as maxv, projectversions where maxsaveID = projectversions.s
 CREATE VIEW view_listedVersion AS
 select saveID,date,projects.projectid FROM projectversions,projects where saveID = publicVersion;
 
+
+CREATE UNIQUE INDEX "projectrating" ON projectratings(projectID ASC,userID ASC);
+CREATE UNIQUE INDEX "projectstat" ON projectstats(projectID ASC);
 
 CREATE UNIQUE INDEX "userid" on oauthusers (userid ASC);
 CREATE UNIQUE INDEX "oauthstring" on oauthusers (oauthstring ASC);
