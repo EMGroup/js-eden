@@ -268,12 +268,11 @@
 				//else line.className += " current";
 
 				var p = line;
-				while (p && p.nodeName == "DIV") {
-					if (p.className.startsWith(this.styles["comment-line"])) {
-						p.className += " current";
-						break;
-					}
+				while (p && p.nodeName != "DIV") {
 					p = p.parentNode;
+				}
+				if (p && p.className.startsWith(this.styles["comment-line"])) {
+					p.className += " current";
 				}
 
 				//if (this.metrics[this.line-1] == undefined) this.metrics[this.line-1] = {};
@@ -430,12 +429,11 @@
 				//if (this.linestack.length > 0) this.linestack[0].className += " current";
 				//else line.className += " current";
 				var p = line;
-				while (p && p.nodeName == "DIV") {
-					if (p.className.startsWith(this.styles["comment-line"])) {
-						p.className += " current";
-						break;
-					}
+				while (p && p.nodeName != "DIV") {
 					p = p.parentNode;
+				}
+				if (p && p.className.startsWith(this.styles["comment-line"])) {
+					p.className += " current";
 				}
 
 				//if (this.metrics[this.line] == undefined) this.metrics[this.line] = {};
