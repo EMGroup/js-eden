@@ -116,6 +116,7 @@ var warnings = require(config.JSEDENPATH + "js/core/warnings.js");
 var db = new sqlite3.Database(config.DBPATH);
 var allKnownProjects = {};
 var projectRatings = {};
+var projectRatingsCount = {};
 
 passportUsers.setupPassport(passport,db);
 edenUI = {};
@@ -475,6 +476,27 @@ function createProject(req, res, callback){
 			});
 		}
 		});
+	if(req.body.parentProject){
+		var downloadsSQL = "UPDATE projectstats SET forks = forks + 1 WHERE projectID = ?;";
+		db.run(downloadsSQL,req.body.parentProject,function(err){
+			if(err){
+				res.json({error: -1, description: "SQL Error", err: err})
+				return;
+			}
+			if(this.changes == 0){
+				var insDownloadsSQL = "INSERT INTO projectstats VALUES (?,0,1,0)";
+				db.run(insDownloadsSQL,req.body.parentProject,function(err){
+					if(err){
+						res.json({error: -1, description: "SQL Error", err: err})
+						return;
+					}
+					console.log("INSERTED projectstats");
+				});
+			}else{
+				console.log("UPDATED projectstats");
+			}
+		});
+	}
 }
 
 function addProjectVersion(req, res, projectID){
@@ -599,6 +621,26 @@ app.get('/project/get', function(req,res){
 				res.json({error: -1, description: "SQL Error", err: err});
 				return;
 			}
+			
+			var downloadsSQL = "UPDATE projectstats SET downloads = downloads + 1 WHERE projectID = ?;";
+			db.run(downloadsSQL,req.query.projectID,function(err){
+				if(err){
+					res.json({error: -1, description: "SQL Error", err: err})
+					return;
+				}
+				if(this.changes == 0){
+					var insDownloadsSQL = "INSERT INTO projectstats VALUES (?,1,0,0)";
+					db.run(insDownloadsSQL,req.query.projectID,function(err){
+						if(err){
+							res.json({error: -1, description: "SQL Error", err: err})
+							return;
+						}
+						console.log("INSERTED projectstats");
+					});
+				}else{
+					console.log("UPDATED projectstats");
+				}
+			});
 			
 			if(req.query.to){
 				db.serialize(function(){
@@ -828,6 +870,7 @@ app.get('/project/search', function(req, res){
 			var projectID = rows[i].projectID;
 			if(projectRatings[projectID] !== undefined){
 				rows[i].overallRating = projectRatings[projectID];
+				rows[i].numRatings = projectRatingsCount[projectID];
 			}else{
 				unknownRatings.push(projectID);
 			}
@@ -845,6 +888,7 @@ function processNextRating(projectRows, unknownRatings,i,res){
 		for(j = 0; j < projectRows.length; j++){
 			if(projectRows[j].overallRating == undefined){
 				projectRows[j].overallRating = projectRatings[projectRows[j].projectID];
+				projectRows[j].numRatings = projectRatingsCount[projectRows[j].projectID];
 			}
 		}
 		res.json(projectRows);
@@ -855,7 +899,8 @@ function processNextRating(projectRows, unknownRatings,i,res){
 			if(err){
 				res.json({error: -1, description: "SQL Error", err:err});
 			}
-			projectRatings[projectID] = row.s / row.c;
+			projectRatings[projectID] = row.s;
+			projectRatingsCount[projectID] = row.c;
 			processNextRating(projectRows,unknownRatings,i+1,res);
 		});
 	}
@@ -877,9 +922,9 @@ app.post('/project/remove',ensureAuthenticated, function(req,res){
 });
 
 function getListQueryStr(targetTable){
-	return 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date, stars as myrating FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
-		+ ' publicVersion, parentProject, projectMetaData,	stars, (" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
-		+ ' on projects.projectID = tags.projectID LEFT OUTER JOIN projectratings ON projectratings.projectID = projects.projectID AND projectratings.userID = @ratingsUser WHERE owner = oauthusers.userid AND '+targetTable+'.projectID = projects.projectID ';	
+	return 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date, downloads,forks, myrating FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
+		+ ' publicVersion, parentProject, projectMetaData,	projectratings.stars as myrating, downloads,forks, (" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
+		+ ' on projects.projectID = tags.projectID LEFT OUTER JOIN projectstats ON projectstats.projectID = projects.projectID LEFT OUTER JOIN projectratings ON projectratings.projectID = projects.projectID AND projectratings.userID = @ratingsUser WHERE owner = oauthusers.userid AND '+targetTable+'.projectID = projects.projectID ';	
 }
 
 
