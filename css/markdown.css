@@ -26,6 +26,23 @@ span.markdown-hashtag {
 	cursor: pointer;
 }
 
+div.markdown-inputhider {
+	overflow: auto;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	/*background: #e5e5e5;*/
+	/*border-radius: 6px;*/
+	/*background: rgba(229,229,229,0.8);*/
+	background: white;
+	border: 1px solid #719ECE;
+	box-shadow: 0 0 10px #aaa;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
 .markdown-inputCodeArea {
 	-moz-tab-size: 4;
 	-o-tab-size: 4;
@@ -55,21 +72,17 @@ div.markdown-outputcontent {
 	min-width: calc(100% - 56px);
 	min-height: calc(100% - 28px);
 	resize: none;
-	border: 1px solid #719ECE;
-	border-radius: 4px;
 	box-sizing: border-box;
 	padding: 10px;
-	margin: 10px;
 	cursor: text;
 	outline: none;
 	font: 10pt Roboto Mono,monospace;
 	white-space: pre;
-	overflow: auto;
+	/*overflow: auto;*/
 	/*background: #f5f5f5;*/
 	/*background: white;*/
 	/*background: rgba(255,255,255,0.95);
 	box-shadow: 0 0 8px #aaa;*/
-	box-shadow: 0 0 10px #aaa;
 	height: 130px;
 }
 
@@ -77,19 +90,23 @@ span.markdown-comment-hidden {
 	color: #aaa;
 }
 
+div.markdown-comment-line {
+	display: inline-block;
+}
+
 span.markdown-tag {
 	font-style: normal;
 	color: #3557d9;
 }
 
-span.markdown-comment-h1 {
+div.markdown-comment-h1 {
 	color: #666;
-	font: 11pt Arial,Helvetica,sans-serif;
+	font: 14pt Arial,Helvetica,sans-serif;
 	font-weight: bold;
 }
 
-span.markdown-comment-h2 {
+div.markdown-comment-h2 {
 	color: #666;
-	font: 11pt Arial,Helvetica,sans-serif;
+	font: 12pt Arial,Helvetica,sans-serif;
 }
 

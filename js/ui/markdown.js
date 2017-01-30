@@ -1,6 +1,6 @@
 EdenUI.Markdown = function(initial) {
 	this.contents = document.createElement("div");
-	this.contents.className = "inputhider";
+	this.contents.className = "markdown-inputhider";
 
 	this.intextarea = document.createElement("textarea"); //$dialogContents.find('.hidden-textarea').get(0);
 	this.intextarea.autofocus = true;
@@ -90,7 +90,7 @@ EdenUI.Markdown.styles = {
 		"comment-line": "eden-comment-line",
 		"comment-emph": "eden-comment-emph",
 		"comment-bold": "eden-comment-bold",
-		"script-line": "",
+		"script-line": "markdown-comment-line",
 		"doxytag": "markdown-tag",
 		"comment-query": "eden-comment-query",
 		"block-comment": "eden-blockcomment",
