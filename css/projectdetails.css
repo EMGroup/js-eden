@@ -22,6 +22,10 @@ span.projectdetails-star {
 	color: #ddd;
 }
 
+span.projectdetails-star.average {
+	color: #666;
+}
+
 span.projectdetails-star.selected {
 	color: gold;
 	text-shadow: 0 0 5px #222;
