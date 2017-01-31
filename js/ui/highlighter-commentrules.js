@@ -337,9 +337,15 @@ EdenUI.Highlight.prototype.COMMENT_HTML = function() {
 	var endopen = -1; //linestr.indexOf(">");
 	//var endix = -1; //= linestr.indexOf(endtag);
 	var quote = false;
+	var kind = 0;
 	for (var i=0; i<linestr.length; i++) {
-		if (linestr.charAt(i) == "\"") quote = !quote;
-		else if (quote && linestr.charAt(i) == "\\") i++;
+		if (linestr.charCodeAt(i) == kind) {
+			quote = !quote;
+			kind = 0;
+		} else if (kind == 0 && (linestr.charCodeAt(i) == 34 || linestr.charCodeAt(i) == 39)) {
+			quote = !quote;
+			kind = linestr.charCodeAt(i);
+		} else if (quote && linestr.charAt(i) == "\\") i++;
 		else if (!quote && linestr.charAt(i) == ">") {
 			endopen = i;
 			break;
@@ -355,6 +361,8 @@ EdenUI.Highlight.prototype.COMMENT_HTML = function() {
 		//this.COMMENT();
 	} else {
 		this.classes += this.styles["hidden-comment"];
+		this.tokentext += linestr.substring(0,linestr.length-1);
+		this.stream.position += linestr.length-1;
 		this.mode = "COMMENT";
 	}
 }
@@ -402,7 +410,9 @@ EdenUI.Highlight.prototype.COMMENT_HTML_START = function() {
 			//this.lineelement.appendChild(openspan.substring(1));
 			this.pushLine();
 			var nline = $(html).get(0);
-			nline.contentEditable = false;
+			if (this.cacheddata.tagname == "button" || this.cacheddata.tagname == "a") {
+				nline.contentEditable = false;
+			}
 			this.lineelement.appendChild(nline);
 			this.lineelement = nline;
 			//this.tokentext = content;
