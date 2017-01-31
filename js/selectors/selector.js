@@ -494,7 +494,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 
 
 	if (typeof num == "boolean") console.trace("Bool");
-	if (s === undefined || s == "") {
+	if (typeof s != "string" || s == "") {
 		var res = [];
 		if (cb) cb(res);
 		return res;
