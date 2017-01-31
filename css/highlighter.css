@@ -157,6 +157,10 @@ span.eden-comment-query:before{
 	content: attr(data-result);
 }
 
+div.current span.eden-comment-query:before {
+	background-color: #cce;
+}
+
 div.eden-comment-h1 {
 	color: #666;
 	font: 16pt "Source Sans Pro",Arial,Helvetica,sans-serif;
