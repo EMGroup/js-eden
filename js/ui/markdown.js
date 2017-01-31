@@ -145,6 +145,15 @@ EdenUI.Markdown.prototype.enableGotoMode = function() {
 
 }
 
+EdenUI.Markdown.prototype.focusText = function() {
+	var end = getCaretCharacterOffsetWithin(this.outdiv);
+	var start = getStartCaretCharacterOffsetWithin(this.outdiv);
+
+	this.intextarea.focus();
+	this.intextarea.selectionEnd = end;
+	this.intextarea.selectionStart = start;
+}
+
 EdenUI.Markdown.prototype.focusOutput = function() {
 	this.setCaretToFakeCaret();
 	this.outdiv.focus();

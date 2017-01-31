@@ -707,6 +707,12 @@ Eden.Selectors.goto = function(selector) {
 
 		if (!success) {
 			// Need to create a script view...
+			edenUI.createView("gotoscript","ScriptInput");
+			var id = (res[0].type == "script") ? selector : Eden.Selectors.getID(res[0].parent);
+			var tabs = [id];
+			eden.root.lookup("view_gotoscript_tabs").assign(tabs, eden.root.scope, Symbol.localJSAgent);
+			eden.root.lookup("view_gotoscript_current").assign(0, eden.root.scope, Symbol.localJSAgent);
+			success = true;
 		}
 	}
 	return success;
