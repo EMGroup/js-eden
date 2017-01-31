@@ -412,8 +412,22 @@ EdenUI.Highlight.prototype.COMMENT_ESCAPE = function() {
 	this.classes += this.styles["comment"];
 }
 
+EdenUI.Highlight.prototype.validHTMLTags = {
+	"button": true,
+	"span": true,
+	"a": true,
+	"img": true
+}
+
 EdenUI.Highlight.prototype.COMMENT_HTML = function() {
 	var tagname = this.tokentext;
+
+	if (!EdenUI.Highlight.prototype.validHTMLTags[tagname]) {
+		this.mode = "COMMENT";
+		this.COMMENT();
+		return;
+	}
+
 	var linestr = this.stream.peekLine();
 	var endopen = -1; //linestr.indexOf(">");
 	//var endix = -1; //= linestr.indexOf(endtag);
@@ -468,27 +482,13 @@ EdenUI.Highlight.prototype.COMMENT_HTML_CONTENT = function() {
 	}
 }
 
+
 EdenUI.Highlight.prototype.COMMENT_HTML_START = function() {
 	if (this.token != "<") {
-		//var linestr = this.stream.peekLine();
-		//var endtag = "</"+this.cacheddata.tagname+">";
-		//var endix = linestr.indexOf(endtag);
-		//if (endix == -1) {
-		//	this.classes += this.styles["hidden-comment"];
-		//	this.mode = "COMMENT";
-		//	this.cacheddata = false;
-		//} else {
-			//var content = this.tokentext+linestr.substring(0,endix);
-			//this.stream.position += endix;
-			//this.tokentext += opentag+endtag
-			//this.classes += "eden-comment-hidden";
-			var html = this.cacheddata.opentag+endtag;
-			this.mode = "COMMENT_HTML_CONTENT";
-			//var textelement = document.createTextNode(opentag);
-			//var openspan = document.createElement("span");
-			//openspan.className = "eden-comment-hidden";
-			//openspan.appendChild(textelement);
-			//this.lineelement.appendChild(openspan.substring(1));
+		var html = this.cacheddata.opentag+endtag;
+		this.mode = "COMMENT_HTML_CONTENT";
+
+		//if (EdenUI.Highlight.validHTMLTags[this.cacheddata.tagname]) {
 			this.pushLine();
 			var nline = $(html).get(0);
 			if (this.cacheddata.tagname == "button" || this.cacheddata.tagname == "a") {
@@ -496,9 +496,10 @@ EdenUI.Highlight.prototype.COMMENT_HTML_START = function() {
 			}
 			this.lineelement.appendChild(nline);
 			this.lineelement = nline;
-			//this.tokentext = content;
-			//this.cacheddata = true;
 			this.COMMENT();
+		//} else {
+		//	this.mode = "COMMENT";
+		//}
 		//}
 	} else {
 		var linestr = this.stream.peekLine();
