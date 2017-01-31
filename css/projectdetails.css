@@ -18,12 +18,17 @@ span.projectdetails-rateavg {
 div.projectdetails-rating {
 	display: inline-block;
 	margin-left: 20px;
+	font-size: 16pt;
+}
+
+div.projectdetails-ratingsmall {
+	display: inline-block;
+	font-size: 10pt;
 }
 
 span.projectdetails-star {
 	font-family: "FontAwesome";
-	font-size: 16pt;
-	margin-left: 5px;
+	margin-right: 5px;
 	cursor: pointer;
 	color: #ddd;
 }
