@@ -921,7 +921,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		// Set the event handlers
 		$dialogContents
-		.on('click', 'button,.executable', onButtonClick)
+		.on('click', 'button,.executable,a', onButtonClick)
 		.on('click', '.close', onTabClose)
 		.on('click', '.agent-tab-more', onBrowse)
 		.on('click', '.browse-entry', onBrowseClick)
