@@ -173,14 +173,33 @@ EdenUI.ProjectDetails._searchProjects = function(output, pub, projects, count) {
 			subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
 		}
 
+		var ele;
 		//Eden.DB.getMeta(path+"/"+x,function(path,meta) {
 		if (thumb !== null) {
-			output.append($('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+			ele = $('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>');
 		} else {
-			output.append($('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>'));
+			ele = $('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>');
 			//console.log(Eden.DB.meta[path+"/"+x]);
 		}
+		output.append(ele);
 		//});
+
+		var astars = (meta.overallRating !== null) ? meta.overallRating / meta.numRatings : 0;
+		var rating = $('<div class="projectdetails-ratingsmall">\
+<span class="projectdetails-star">&#xf005;</span>\
+<span class="projectdetails-star">&#xf005;</span>\
+<span class="projectdetails-star">&#xf005;</span>\
+<span class="projectdetails-star">&#xf005;</span>\
+<span class="projectdetails-star">&#xf005;</span>\
+</div>');
+		ele.append(rating);
+		var p=rating.get(0);
+		if (astars) {
+			var astarsf = Math.floor(astars);
+			for (var j=0; j<5; j++) {
+				p.childNodes[j].className = "projectdetails-star" + ((j >= astarsf) ? "" : " average");
+			}
+		}
 	}
 }
 

@@ -182,7 +182,16 @@ Eden.Selectors.expressionToLists = function(expr) {
 	case "index":		return Eden.Selectors.expressionToLists(expr.expression);
 	}
 
-	if (expr.type == "literal") {
+	console.log(expr);
+
+	if (expr.type == "functioncall") {
+		console.log("FUNCCALL");
+		var list = [];
+		for (var i=0; i<expr.params.length; i++) {
+			list.push(Eden.Selectors.expressionToLists(expr.params[i]));
+		}
+		return ["(",list,")"];
+	} else if (expr.type == "literal") {
 		switch(expr.datatype) {
 		case "NUMBER":
 		case "STRING":
