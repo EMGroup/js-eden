@@ -164,6 +164,7 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 						this.classes += this.styles["hidden-comment"];
 						break;
 	case ":"		:	if (this.stream.peek() != 32) {
+							this.pushMode();
 							this.mode = "COMMENT_ICON";
 							this.classes += this.styles["hidden-comment"];
 						} else {
@@ -273,6 +274,9 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs) {
 								ele.style.cursor = "pointer";
 								changeClass(ele, "executable", true);
 								break;
+		case "width":
+		case "height":			ele.setAttribute(name,val);
+								break;
 		}
 	}
 }
@@ -290,7 +294,6 @@ EdenUI.Highlight.prototype.COMMENT_ATTRS = function() {
 		this.tokentext += remaining+"}";
 		this.stream.position += endix+1;
 		this.classes += this.styles["hidden-comment"];
-		this.mode = "COMMENT";
 		
 		this.parseAttrs(attrs);
 
@@ -574,7 +577,7 @@ EdenUI.Highlight.prototype.COMMENT_ICON = function() {
 			var endix = linestr.indexOf(":");
 			if (endix == -1) {
 				this.classes += this.styles["comment"];
-				this.mode = "COMMENT";
+				this.popMode();
 				return;
 			}
 			var remain = linestr.substring(0,endix);
@@ -587,7 +590,7 @@ EdenUI.Highlight.prototype.COMMENT_ICON = function() {
 		this.classes += this.styles["hidden-comment"];
 	} else if (this.token == ":") {
 		this.classes += this.styles["hidden-comment"];
-		this.mode = "COMMENT";
+		this.popMode();
 	} else {
 		// Some kind of highlight error.
 	}
