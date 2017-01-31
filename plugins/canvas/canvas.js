@@ -171,6 +171,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var picture = pictureSym.value();
 					var context = canvas.getContext('2d');
 					var content = contents[viewName];
+					var contentindex = 0;
 					if (content === undefined) {
 						//View has been destroyed.
 						return;
@@ -315,9 +316,14 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 									//htmlJQ.css("transform", cssTransform);
 									htmlEl[0].setAttribute("data-garbage", false);
 									if (!existingEl) {
-										content.appendChild(htmlEl[0]);
+										if (content.length <= contentindex) {
+											content.appendChild(htmlEl[0]);
+										} else {
+											content.insertBefore(htmlEl[0], content.childNodes[contentindex]);
+										}
 									}
 									nextElements[elHash] = htmlEl;
+									contentindex++;
 								}
 
 								index++;
