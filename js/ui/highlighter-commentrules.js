@@ -254,6 +254,8 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs) {
 		case "decoration": name = "text-decoration"; break;
 		}
 
+		if (!ele.style) return;
+
 		switch(name) {
 		case "color":
 		case "font-size":
