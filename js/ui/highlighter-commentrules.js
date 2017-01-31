@@ -197,6 +197,84 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 	}
 }
 
+EdenUI.Highlight.prototype.parseAttrs = function(attrs) {
+	var ele = this.lineelement.lastChild;
+	if (!ele) ele = this.lineelement;
+	else ele = ele.previousSibling;
+	if (!ele) ele = this.lineelement;
+	
+	// Process attributes...
+	while (attrs && attrs.length > 0) {
+		//console.log("ATTRS",attrs);
+		var endix = attrs.indexOf("=");
+		if (endix == -1) break;
+		var name = attrs.substring(0,endix);
+		var val = "";
+		attrs = attrs.substring(endix+1);
+
+		if (attrs.charAt(0) == "?") {
+			// Parse a query for the style value
+		} else if (attrs.charAt(0) == "\"" || attrs.charAt(0) == "'") {
+			endix = -1;
+			var kind = attrs.charAt(0);
+			for (var i=1; i<attrs.length; i++) {
+				if (attrs.charAt(i) == kind) {
+					endix = i; break;
+				} else if (attrs.charAt(i) == "\\") i++;
+			}
+
+			if (endix == -1) break;
+			val = attrs.substring(1,endix);
+			attrs = attrs.substring(endix+1);
+		} else {
+			endix = -1;
+			for (var i=0; i<attrs.length; i++) {
+				if (attrs.charAt(i) == " ") {
+					endix = i; break;
+				}
+			}
+
+			if (endix == -1) {
+				val = attrs;
+				attrs = "";
+			} else {
+				val = attrs.substring(0,endix);
+				attrs = attrs.substring(endix+1);
+			}
+		}
+
+		attrs = attrs.trim();
+
+		//console.log("NAME",name, "VAL", val);
+
+		switch(name) {
+		case "colour": name = "color"; break;
+		case "size": name = "font-size"; break;
+		case "family": name = "font-family"; break;
+		case "decoration": name = "text-decoration"; break;
+		}
+
+		switch(name) {
+		case "color":
+		case "font-size":
+		case "font-family":
+		case "text-decoration":
+		case "margin-left":
+		case "margin-right":	ele.style[name] = val;
+								break;
+		case "editable":		if (val == "true" || val == "false") {
+									ele.contentEditable = val;
+								}
+								break;
+		case "script":			ele.setAttribute("data-jseden", val);
+								ele.contentEditable = false;
+								ele.style.cursor = "pointer";
+								changeClass(ele, "executable", true);
+								break;
+		}
+	}
+}
+
 EdenUI.Highlight.prototype.COMMENT_ATTRS = function() {
 	var linestr = this.stream.peekLine();
 	var endix = linestr.indexOf("}");
@@ -211,49 +289,8 @@ EdenUI.Highlight.prototype.COMMENT_ATTRS = function() {
 		this.stream.position += endix+1;
 		this.classes += this.styles["hidden-comment"];
 		this.mode = "COMMENT";
-		var ele = this.lineelement.lastChild;
-		if (!ele) ele = this.lineelement;
-		else ele = ele.previousSibling;
-		if (!ele) ele = this.lineelement;
 		
-		// Process attributes...
-		attrs = attrs.split(" ");
-		for (var i=0; i<attrs.length; i++) {
-			if (attrs[i].charAt(0) == ".") {
-
-			} else {
-				var s = attrs[i].split("=");
-				if (s.length < 2) break;
-				var name = s[0];
-				var val = s[1];
-
-				switch(name) {
-				case "colour": name = "color"; break;
-				case "size": name = "font-size"; break;
-				case "family": name = "font-family"; break;
-				case "decoration": name = "text-decoration"; break;
-				}
-
-				switch(name) {
-				case "color":
-				case "font-size":
-				case "font-family":
-				case "text-decoration":
-				case "margin-left":
-				case "margin-right":	ele.style[name] = val;
-										break;
-				case "editable":		if (val == "true" || val == "false") {
-											ele.contentEditable = val;
-										}
-										break;
-				case "script":			ele.setAttribute("data-jseden", val);
-										ele.contentEditable = false;
-										changeClass(ele, "executable", true);
-										break;
-				}
-				
-			}
-		}
+		this.parseAttrs(attrs);
 
 		//this.popLine();
 		this.popMode();
