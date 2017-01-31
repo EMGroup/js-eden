@@ -204,7 +204,8 @@
 		"COMMENT_LINK_END": true,
 		"COMMENT_HTML": true,
 		"COMMENT_HTML_START": true,
-		"COMMENT_HTML_CONTENT": true
+		"COMMENT_HTML_CONTENT": true,
+		"COMMENT_ATTRS": true
 	}
 
 	/**

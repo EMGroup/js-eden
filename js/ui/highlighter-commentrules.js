@@ -189,7 +189,74 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 						if (this.metrics[this.line].qelements === undefined) this.metrics[this.line].qelements = [];
 						this.classes += this.styles["hidden-comment"];
 						break;
+	case "{"		:	this.pushMode();
+						this.mode = "COMMENT_ATTRS";
+						this.classes += this.styles["hidden-comment"];
+						break;
 	default			:	this.classes += this.styles["comment"];
+	}
+}
+
+EdenUI.Highlight.prototype.COMMENT_ATTRS = function() {
+	var linestr = this.stream.peekLine();
+	var endix = linestr.indexOf("}");
+
+	if (endix == -1) {
+		this.classes += this.styles["hidden-comment"];
+		this.popMode();
+	} else {
+		var remaining = linestr.substring(0,endix);
+		var attrs = this.tokentext + remaining;
+		this.tokentext += remaining+"}";
+		this.stream.position += endix+1;
+		this.classes += this.styles["hidden-comment"];
+		this.mode = "COMMENT";
+		var ele = this.lineelement.lastChild;
+		if (!ele) ele = this.lineelement;
+		else ele = ele.previousSibling;
+		if (!ele) ele = this.lineelement;
+		
+		// Process attributes...
+		attrs = attrs.split(" ");
+		for (var i=0; i<attrs.length; i++) {
+			if (attrs[i].charAt(0) == ".") {
+
+			} else {
+				var s = attrs[i].split("=");
+				if (s.length < 2) break;
+				var name = s[0];
+				var val = s[1];
+
+				switch(name) {
+				case "colour": name = "color"; break;
+				case "size": name = "font-size"; break;
+				case "family": name = "font-family"; break;
+				case "decoration": name = "text-decoration"; break;
+				}
+
+				switch(name) {
+				case "color":
+				case "font-size":
+				case "font-family":
+				case "text-decoration":
+				case "margin-left":
+				case "margin-right":	ele.style[name] = val;
+										break;
+				case "editable":		if (val == "true" || val == "false") {
+											ele.contentEditable = val;
+										}
+										break;
+				case "script":			ele.setAttribute("data-jseden", val);
+										ele.contentEditable = false;
+										changeClass(ele, "executable", true);
+										break;
+				}
+				
+			}
+		}
+
+		//this.popLine();
+		this.popMode();
 	}
 }
 
@@ -249,37 +316,51 @@ EdenUI.Highlight.prototype.COMMENT_LINK = function() {
 		this.classes += this.styles["comment"];
 		this.mode = "COMMENT_LINK_END";
 
-		// Detect kind of link
-		var urlstart = linestr.substring(endix+2);
-		if (urlstart.startsWith("http://")) {
-			//console.log("EXTERNAL URL");
-		} else {
-			//console.log("INTERNAL GOTO");
-		}
+		if (linestr.charAt(endix+1) == "(") {
+			// Detect kind of link
+			var urlstart = linestr.substring(endix+2);
+			if (urlstart.startsWith("http://")) {
+				//console.log("EXTERNAL URL");
+			} else {
+				//console.log("INTERNAL GOTO");
+			}
 
-		this.pushLine();
-		var nline = document.createElement("a");
-		nline.setAttribute("target","_blank");
-		nline.contentEditable = false;
-		this.lineelement.appendChild(nline);
-		this.lineelement = nline;
+			this.pushLine();
+			var nline = document.createElement("a");
+			nline.setAttribute("target","_blank");
+			nline.contentEditable = false;
+			this.lineelement.appendChild(nline);
+			this.lineelement = nline;
+		} else {
+			this.pushLine();
+			var nline = document.createElement("span");
+			this.lineelement.appendChild(nline);
+			this.lineelement = nline;
+		}
 	}
 }
 
 EdenUI.Highlight.prototype.COMMENT_LINK_END = function() {
+	console.log("LINKEND",this.token);
 	var linestr = this.stream.peekLine();
-	var endix = linestr.indexOf(")");
-	if (endix == -1) {
-		this.classes += this.styles["hidden-comment"];
-		this.mode = "COMMENT";
-		this.popLine();
+	if (linestr.charAt(0) == "(") {
+		var endix = linestr.indexOf(")");
+		if (endix == -1) {
+			this.classes += this.styles["hidden-comment"];
+			this.mode = "COMMENT";
+			this.popLine();
+		} else {
+			var remaining = linestr.substring(0,endix);
+			this.tokentext += remaining+")";
+			this.stream.position += endix+1;
+			this.classes += this.styles["hidden-comment"];
+			this.mode = "COMMENT";
+			this.lineelement.setAttribute("href", remaining.substring(1));
+			this.popLine();
+		}
 	} else {
-		var remaining = linestr.substring(0,endix);
-		this.tokentext += remaining+")";
-		this.stream.position += endix+1;
 		this.classes += this.styles["hidden-comment"];
 		this.mode = "COMMENT";
-		this.lineelement.setAttribute("href", remaining.substring(1));
 		this.popLine();
 	}
 }
