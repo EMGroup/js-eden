@@ -85,8 +85,8 @@ Eden.Index.remove = function(node) {
 			}
 		}
 
-		if (node.doxyComment) {
-			var tags = node.doxyComment.getHashTags();
+		if (node.tags) {
+			var tags = node.tags;
 			for (var i=0; i<tags.length; i++) {
 				if (Eden.Index.tag_index[tags[i]] === undefined) continue;
 				var ix = Eden.Index.tag_index[tags[i]].indexOf(node.id);
@@ -114,8 +114,8 @@ Eden.Index.update = function(node) {
 		}
 
 		// Update tag index...
-		if (node.doxyComment) {
-			var tags = node.doxyComment.getHashTags();
+		if (node.tags) {
+			var tags = node.tags;
 			for (var i=0; i<tags.length; i++) {
 				if (Eden.Index.tag_index[tags[i]] === undefined) Eden.Index.tag_index[tags[i]] = [];
 				if (Eden.Index.tag_index[tags[i]].indexOf(node.id) == -1) Eden.Index.tag_index[tags[i]].push(node.id);

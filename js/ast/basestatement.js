@@ -18,10 +18,12 @@ Eden.AST.BaseStatement = function() {
 
 Eden.AST.BaseStatement.setDoxyComment = function(doxy) {
 	this.doxyComment = doxy;
-	if (this.tags === undefined) {
-		this.tags = doxy.getHashTags();
-	} else {
-		this.tags = this.tags.concat(doxy.getHashTags());
+	if (doxy) {
+		if (this.tags === undefined) {
+			this.tags = doxy.getHashTags();
+		} else {
+			this.tags = this.tags.concat(doxy.getHashTags());
+		}
 	}
 }
 

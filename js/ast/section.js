@@ -16,6 +16,18 @@ Eden.AST.Section = function() {
 	this.depth = 1;
 };
 
+Eden.AST.Section.prototype.setName = function(name) {
+	this.name = name;
+	var tags = name.match(/#[\w]+/g);
+	if (tags !== null) {
+		if (this.tags === undefined) {
+			this.tags = tags;
+		} else {
+			this.tags = this.tags.concat(tags);
+		}
+	}
+}
+
 Eden.AST.Section.prototype.generate = function(ctx, scope) {
 	return "";
 }
