@@ -33,8 +33,11 @@ Eden.Project.init = function() {
 			if (eden.project === undefined) return;
 			eden.project.title = value;
 			if (this.id === undefined) {
+				Eden.Index.remove(eden.project.ast.script);
 				eden.project.name = value.replace(/[^a-zA-Z0-9]/g, "");
 				eden.project.ast.script.name = eden.project.name;
+				console.log("REINDEX PROJECT");
+				Eden.Index.update(eden.project.ast.script);
 			}
 			// Fabricate a fake doxy comment for the script using meta data.
 			//eden.project.updateDoxy();
