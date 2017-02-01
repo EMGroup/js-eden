@@ -577,6 +577,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var drawable = picture[i];
 			if (typeof(drawable) != "object") {
 				continue;
+			} else if (Array.isArray(drawable)) {
+				var drawableHit = this.findDrawableHitInList(drawable, context, scale, x, y, fromBottom, testAll);
+				if (drawableHit) return drawableHit;
+				else continue;
 			}
 
 			var hitTest = drawable.isHit;
@@ -905,8 +909,35 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var mousePos = root.lookup('mousePosition').value();
 				root.lookup('mouseDownView').assign(canvasName, root.scope, Symbol.hciAgent, followMouse);
 				root.lookup('mouseDown').assign(mousePos, root.scope, Symbol.hciAgent, followMouse);
-				var hitZone = root.lookup("mouseZone").value();
-				root.lookup("mouseDownZone").assign(hitZone, root.scope, Symbol.hciAgent, followMouse);
+				//var hitZone = root.lookup("mouseZone").value();
+
+				var scale = root.lookup("view_" + canvasName + "_scale").value();
+				var zoom = root.lookup("view_" + canvasName + "_zoom").value();
+				var combinedScale = scale * zoom;
+
+				var windowPos = $(this).offset();
+				var x = (e.pageX - Math.round(windowPos.left)) / combinedScale;
+				var y = (e.pageY - Math.round(windowPos.top)) / combinedScale;
+
+				var offset = root.lookup("view_" + canvasName + "_offset").value();
+				if (offset instanceof Point) {
+					x = x - offset.x;
+					y = y - offset.y;
+				}
+
+				var drawableHit = me.findDrawableHit(canvasName, x, y, false, false);
+				var zoneHit;
+				if (drawableHit === undefined) {
+					zoneHit = undefined;
+				} else {
+					zoneHit = drawableHit.name;
+				}
+				var zoneSym = root.lookup("mouseZone");
+				var previousZone = zoneSym.value();
+				if (zoneHit !== previousZone) {
+					zoneSym.assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
+				}
+				root.lookup("mouseDownZone").assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
 			}
 			root.endAutocalcOff();
 
