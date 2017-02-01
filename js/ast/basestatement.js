@@ -13,6 +13,16 @@ Eden.AST.BaseStatement = function() {
 	this.stamp = 0;
 	this.nextSibling = undefined;
 	this.previousSibling = undefined;
+	this.tags = undefined;
+}
+
+Eden.AST.BaseStatement.setDoxyComment = function(doxy) {
+	this.doxyComment = doxy;
+	if (this.tags === undefined) {
+		this.tags = doxy.getHashTags();
+	} else {
+		this.tags = this.tags.concat(doxy.getHashTags());
+	}
 }
 
 Eden.AST.BaseStatement.buildID = function() {
