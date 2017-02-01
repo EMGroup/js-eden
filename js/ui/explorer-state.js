@@ -164,10 +164,16 @@ EdenUI.ExplorerState = function(element) {
 	});
 
 	this.searchbox.on("keyup", function(e) {
-		if (searchSym.eden_definition === undefined) {
+		if (searchSym.definition === undefined) {
 			searchSym.assign(e.target.value, eden.root.scope, Symbol.localJSAgent);
 		}
 	});
+
+	/*setInterval(function() {
+		if (searchSym.definition === undefined) {
+			searchSym.assign(searchSym.value(), eden.root.scope, Symbol.localJSAgent);
+		}
+	}, 500);*/
 
 	var watchSym = eden.root.lookup("jseden_explorer_watch");
 	var watchVal = watchSym.value();

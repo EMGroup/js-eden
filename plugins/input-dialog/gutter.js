@@ -276,6 +276,7 @@ function EdenScriptGutter(parent, infob, lineelements) {
 			var stat = me.ast.getStatementByLine(line);
 			if (!((stat && stat.hasErrors()) || me.lines[line].live || alreadylive)) {
 				//changeClass(e.target, "select", false);
+
 				me.executeSelected();
 				if (!alreadyselected) {
 					var stat = me.ast.getStatementByLine(downline);
@@ -346,6 +347,7 @@ EdenScriptGutter.prototype.executeSelected = function() {
 			//this.ast.executeLine(i, agent);
 			eden.project.ast.executeStatement(stat, i, eden.project);
 			i = sellines[1];
+			eden.root.lookup("jseden_fragment_executed").assign(".id("+stat.id+")", eden.root.scope, Symbol.hciAgent);
 		}
 	}
 }
