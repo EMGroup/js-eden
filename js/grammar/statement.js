@@ -230,7 +230,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							}
 
 							if (this.lastStatement && this.lastStatement.type != "dummy" && this.lastStatement.doxyComment === undefined) {
-								this.lastStatement.doxyComment = doxy2;
+								this.lastStatement.setDoxyComment(doxy2);
 							} else {
 								this.lastDoxyComment.push(doxy2);
 							}
@@ -244,7 +244,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "##"		:	stat = this.pSECTION();
 						if (this.lastDoxyComment.length > 0 && this.lastline == this.lastDoxyComment[0].startline-1) {
 							//console.log("DOXY", this.lastline, this.lastDoxyComment[0].startline);
-							stat.doxyComment = this.lastDoxyComment.shift();
+							stat.setDoxyComment(this.lastDoxyComment.shift());
 							//this.lastDoxyComment = this.parentDoxy;
 						}
 						break;
@@ -363,7 +363,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	endline = this.lastline;
 	stat.parent = this.parent;
 	if (stat.doxyComment === undefined) {
-		stat.doxyComment = doxy;// (doxy && doxy.endline == curline-1) ? doxy : undefined;
+		stat.setDoxyComment(doxy);// (doxy && doxy.endline == curline-1) ? doxy : undefined;
 	}
 	stat.stamp = this.stamp;
 	stat.numlines = endline - curline - 1;

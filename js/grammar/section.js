@@ -13,7 +13,7 @@ Eden.AST.prototype.pSECTION = function() {
 	this.next();
 	
 	stat = new Eden.AST.Section();
-	stat.name = name;
+	stat.setName(name);
 	stat.depth = depth;
 	//stat.doxyComment = this.lastDoxyComment;
 	//this.lastDoxyComment = undefined;

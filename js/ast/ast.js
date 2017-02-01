@@ -85,7 +85,7 @@ Eden.AST = function(code, imports, origin, options) {
 		if (origin.id) this.script.id = origin.id;
 		this.script.setSource(0,code.length, code);
 		//this.script.doxyComment = this.mainDoxyComment;
-		this.script.doxyComment = this.doxyFromOrigin();
+		this.script.setDoxyComment(this.doxyFromOrigin());
 		if (!this.options || !this.options.noindex) this.script.addIndex();
 		else if (this.script.id == 0) this.script.buildID();
 		this.errors = this.script.errors;
@@ -330,6 +330,7 @@ Eden.AST.registerStatement = function(stat) {
 	stat.prototype.removeIndex = Eden.AST.BaseStatement.removeIndex;
 	stat.prototype.destroy = Eden.AST.BaseStatement.destroy;
 	stat.prototype.buildID = Eden.AST.BaseStatement.buildID;
+	stat.prototype.setDoxyComment = Eden.AST.BaseStatement.setDoxyComment;
 }
 
 Eden.AST.registerScript = function(stat) {
