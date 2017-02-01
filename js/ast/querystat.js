@@ -4,6 +4,7 @@ Eden.AST.Query = function() {
 	this.selector = undefined;
 	this.restypes = [];
 	this.modexpr = undefined;
+	this.kind = "=";
 }
 
 Eden.AST.Query.prototype.setSelector = function(selector) {
@@ -17,8 +18,9 @@ Eden.AST.Query.prototype.setResultTypes = function(restypes) {
 	this.restypes = restypes;
 }
 
-Eden.AST.Query.prototype.setModify = function(expr) {
+Eden.AST.Query.prototype.setModify = function(expr, kind) {
 	this.modexpr = expr;
+	this.kind = kind;
 	if (expr && expr.errors.length > 0) {
 		this.errors.push.apply(this.errors, expr.errors);
 	}
@@ -43,7 +45,17 @@ Eden.AST.Query.prototype.execute = function(ctx,base,scope, agent) {
 		//console.log(res);
 		base.lastresult = res;
 	} else {
-		Eden.Selectors.modify(this.selector.execute(ctx,base,scope,agent), this.restypes, this.modexpr.execute(ctx,base,scope,agent));
+		var selector = this.selector.execute(ctx,base,scope,agent);
+		var modexpr = this.modexpr.execute(ctx,base,scope,agent);
+
+		switch(this.kind) {
+		case "="	:	Eden.Selectors.assign(selector, this.restypes, modexpr);
+						break;
+		case "+="	:	Eden.Selectors.append(selector, this.restypes, modexpr);
+						break;
+		case "//="	:	Eden.Selectors.concat(selector, this.restypes, modexpr);
+						break;
+		}
 	}
 }
 

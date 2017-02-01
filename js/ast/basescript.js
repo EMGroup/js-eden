@@ -22,12 +22,42 @@ Eden.AST.BaseScript.appendChild = function (ast) {
 	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
 
 	//if (ast.type != "dummy" && this.indexed && ast.addIndex === undefined) console.error("No index",ast);
-	//if (ast.type != "dummy" && this.indexed) ast.addIndex(); //Eden.Index.update(ast);
+	// WHY WAS THIS COMMENTED OUT!!!!!
+	if (ast.type != "dummy" && this.indexed) ast.addIndex(); //Eden.Index.update(ast);
 	if (ast.errors.length > 0) {
 		this.errors.push.apply(this.errors, ast.errors);
 	}
 }
 Eden.AST.BaseScript.append = Eden.AST.BaseScript.appendChild;
+
+Eden.AST.BaseScript.insertAfter = function(after, ast) {
+	var ix;
+	for (ix = 0; ix<this.statements.length; ix++) {
+		if (this.statements[ix] === after) break;
+	}
+	if (ix+1 < this.statements.length) {
+		ast.previousSibling = this.statements[ix];
+		ast.nextSibling = this.statements[ix+1];
+		this.statements[ix].nextSibling = ast;
+		this.statements[ix+1].previousSibling = ast;
+		this.statements.splice(ix+1, 0, ast);
+	} else if (ix < this.statements.length) {
+		ast.previousSibling = this.statements[ix];
+		ast.nextSibling = undefined;
+		this.statements[ix].nextSibling = ast;
+		this.statements.push(ast);
+	} else {
+		return;
+	}
+
+	ast.parent = this;	
+	if (ast.type != "dummy" && this.indexed) ast.addIndex();
+	if (ast.errors.length > 0) {
+		this.errors.push.apply(this.errors, ast.errors);
+	}
+
+	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
+}
 
 Eden.AST.BaseScript.insertBefore = function(before, ast) {
 	var ix;
