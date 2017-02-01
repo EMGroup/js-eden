@@ -341,6 +341,7 @@ Eden.AST.registerScript = function(stat) {
 	stat.prototype.appendChild = Eden.AST.BaseScript.appendChild;
 	stat.prototype.removeChild = Eden.AST.BaseScript.removeChild;
 	stat.prototype.insertBefore = Eden.AST.BaseScript.insertBefore;
+	stat.prototype.insertAfter = Eden.AST.BaseScript.insertAfter;
 	stat.prototype.replaceChild = Eden.AST.BaseScript.replaceChild;
 	stat.prototype.addIndex = Eden.AST.BaseScript.addIndex;
 	stat.prototype.removeIndex = Eden.AST.BaseScript.removeIndex;

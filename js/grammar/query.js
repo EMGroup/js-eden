@@ -40,10 +40,11 @@ Eden.AST.prototype.pQUERY = function() {
 		return stat;
 	}
 
-	if (this.token == "=") {
+	if (this.token == "=" || this.token == "+=" || this.token == "//=") {
+		var kind = this.token;
 		this.next();
 		var expr = this.pEXPRESSION();
-		stat.setModify(expr);
+		stat.setModify(expr, kind);
 	}
 
 	if (restype.length == 0) {

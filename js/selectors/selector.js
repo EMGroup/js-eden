@@ -730,7 +730,7 @@ Eden.Selectors.goto = function(selector) {
 /**
  * Edit AST nodes that match a query.
  */
-Eden.Selectors.modify = function(selector, attributes, values) {
+Eden.Selectors.assign = function(selector, attributes, values) {
 	var res = Eden.Selectors.query(selector);
 
 	var attribs = (typeof attributes == "string") ? attributes.split(",") : attributes;
@@ -792,6 +792,77 @@ Eden.Selectors.modify = function(selector, attributes, values) {
 											res[i].enabled = true;
 										}
 									} break;
+			case "name"			:	if (res[i].type == "script") {
+										Eden.Index.remove(res[i]);
+										res[i].prefix = "action "+vals[j]+" {";
+										res[i].name = vals[j];
+										Eden.Index.update(res[i]);
+									} break;
+			default: console.error("Cannot modify property '"+attribs[j]+"'");
+			}
+		}
+	}
+}
+
+/**
+ * Edit AST nodes that match a query.
+ */
+Eden.Selectors.append = function(selector, attributes, values) {
+	var res = Eden.Selectors.query(selector);
+
+	var attribs = (typeof attributes == "string") ? attributes.split(",") : attributes;
+	var vals = (Array.isArray(values)) ? values : [values];
+
+	if (vals.length < attribs.length) {
+		console.error("Not enough values");
+		return;
+	}
+
+	for (var i=0; i<res.length; i++) {
+		for (var j=0; j<attribs.length; j++) {
+			switch (attribs[j]) {
+			case "source"		:	if (res[i].parent) {
+										var parent = res[i].parent;
+										if (typeof vals[j] == "string") {
+											var newnode = Eden.AST.parseStatement(vals[j]);
+											res[i].parent.insertBefore(res[i], newnode);
+										} else if (vals[j] === undefined) {
+											//res[i].parent.removeChild(res[i]);
+										}
+										// Notify all parent fragments of patch
+										while (parent) {
+											Eden.Fragment.emit("patch", [undefined, parent]);
+											parent = parent.parent;
+										}
+									} else {
+										console.error("Cannot replace outer source of root script");
+									}
+									break;
+			case "innersource"	:	if (res[i].type == "script") {
+										var newnode = Eden.AST.parseScript(vals[j]);
+										//res[i].patchInner(newnode);
+
+										for (var k=0; k<newnode.statements.length; k++) {
+											res[i].appendChild(newnode.statements[k]);
+										}
+
+										var parent = res[i];
+										// Notify all parent fragments of patch
+										while (parent) {
+											Eden.Fragment.emit("patch", [undefined, parent]);
+											parent = parent.parent;
+										}
+									} else {
+										console.error("Cannot replace innersource of non-script node");
+									}
+									break;
+
+			case "title":
+			case "comment":
+			case "rawcomment":		var doxy = new Eden.AST.DoxyComment(vals[j],0,0);
+									res[i].doxyComment = doxy;
+									break;
+			case "tags":
 			case "name"			:	if (res[i].type == "script") {
 										Eden.Index.remove(res[i]);
 										res[i].prefix = "action "+vals[j]+" {";
