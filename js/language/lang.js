@@ -75,11 +75,11 @@ var Language = {
 	},
 
 	keywords: {
-		"func": "func",
+		"func": "func",			/* To be deprecated */
 		"function": "function",
 		"oracle": "oracle",
 		"handle": "handle",
-		"proc": "proc",
+		"proc": "proc",			/* Deprecated */
 		"auto": "auto",
 		"para": "para",
 		"action": "action",
@@ -87,7 +87,6 @@ var Language = {
 		"local": "local",
 		"if": "if",
 		"is": "is",
-		//"isasync": "isasync",
 		"in": "in",
 		"else": "else",
 		"for": "for",
@@ -101,15 +100,17 @@ var Language = {
 		"return": "return",
 		"when": "when",
 		"wait": "wait",
-		//"include": "include",
 		"import": "import",
-		"insert": "insert",
-		"append": "append",
-		"delete": "delete",
+		"insert": "insert",		/* Deprecated, use a function */
+		"append": "append",		/* Deprecated, use += */
+		"delete": "delete",		/* Should be repurposed to remove observables */
 		"require": "require",
-		"after": "after",
-		"shift": "shift",
-		"with": "with"
+		"after": "after",		/* Deprecatedm use wait */
+		"shift": "shift",		/* Deprecated, use a function */
+		"with": "with",
+		"and": "and",
+		"or": "or",
+		"not": "not"
 	},
 	symbols: {
 		"int": "int",

@@ -63,7 +63,7 @@ Eden.AST.prototype.pEXPRESSION_PPPPPP = function() {
 Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 	var left = this.pTERM();
 
-	while (this.token == "&&" || this.token == "||") {
+	while (this.token == "&&" || this.token == "||" || this.token == "&" || this.token == "|" || this.token == "and" || this.token == "or") {
 		var binop = new Eden.AST.BinaryOp(this.token);
 		this.next();
 		binop.left(left);

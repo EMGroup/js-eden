@@ -5,6 +5,9 @@ Eden.AST.BinaryOp = function(op) {
 	this.l = undefined;
 	this.r = undefined;
 	this.warning = undefined;
+
+	if (this.op == "&" || this.op == "and") this.op = "&&";
+	else if (this.op == "|" || this.op == "or") this.op = "||";
 }
 Eden.AST.BinaryOp.prototype.left = Eden.AST.fnEdenASTleft;
 Eden.AST.BinaryOp.prototype.error = Eden.AST.fnEdenASTerror;

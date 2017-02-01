@@ -187,7 +187,7 @@ Eden.AST.prototype.pFACTOR = function() {
 		this.next();
 		return lit;
 	// Unary boolean not
-	} else if (this.token == "!") {
+	} else if (this.token == "!" || this.token == "not") {
 		this.next();
 		var f = this.pFACTOR();
 		return new Eden.AST.UnaryOp("!", f);
