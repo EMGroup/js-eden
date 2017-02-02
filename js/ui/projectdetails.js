@@ -1,8 +1,9 @@
-EdenUI.ProjectDetails = function(projectid) {
+EdenUI.ProjectDetails = function(projectid,newtab) {
 	var me = this;
 
 	this.projectid = projectid;
 	this.meta = undefined;
+	this.newtab = newtab;
 
 	// Create a modal obscurer.
 	this.obscurer = $('<div class=\"modal\" style=\"display: block;\"></div>');
@@ -94,7 +95,11 @@ EdenUI.ProjectDetails = function(projectid) {
 
 		buttons.on("click",".openproject", function() {
 			me.remove();
-			Eden.Project.load(projectid);
+			if (!me.newtab) {
+				Eden.Project.load(projectid);
+			} else {
+				window.open(window.location.origin + window.location.pathname + "?load="+projectid);
+			}
 		});
 
 		buttons.on("click",".deleteproject", function() {
@@ -135,15 +140,15 @@ EdenUI.ProjectDetails.prototype.remove = function() {
 	document.body.removeChild(this.obscurer.get(0));
 }
 
-EdenUI.ProjectDetails.searchProjects = function(output, query, count, cb) {
+EdenUI.ProjectDetails.searchProjects = function(output, query, count, cb, newtab) {
 	if (!query) query = "";
 	Eden.DB.search(query, function(data) {
-		EdenUI.ProjectDetails._searchProjects(output, !query.startsWith(":me"), data , count);
+		EdenUI.ProjectDetails._searchProjects(output, !query.startsWith(":me"), data , count, newtab);
 		if (cb) cb(data);
 	});
 }
 
-EdenUI.ProjectDetails._searchProjects = function(output, pub, projects, count) {
+EdenUI.ProjectDetails._searchProjects = function(output, pub, projects, count, newtab) {
 	var maxres = (count) ? count : 6;
 
 	if (projects === undefined) return;
@@ -187,7 +192,7 @@ EdenUI.ProjectDetails._searchProjects = function(output, pub, projects, count) {
 		ele.click(function(e) {
 			var pid = e.currentTarget.getAttribute("data-pid");
 			console.log("Load project: " + pid); // + "@"+tag);
-			new EdenUI.ProjectDetails(pid);
+			new EdenUI.ProjectDetails(pid, newtab);
 		});
 
 		var astars = (meta.overallRating !== null) ? meta.overallRating / meta.numRatings : 0;
