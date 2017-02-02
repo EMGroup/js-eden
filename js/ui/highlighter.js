@@ -63,6 +63,7 @@
 		this.styles = (options && options.styles) ? options.styles : EdenUI.Highlight.defaultStyles;
 		this.clearmodes = (options && options.clearmodes) ? options.clearmodes : EdenUI.Highlight.lineclearmode;
 		this.mode = this.startmode;
+		this.incomment = false;
 
 		this.metrics = {};
 	}
@@ -234,7 +235,10 @@
 		else this.mode = this.startmode;
 
 		// Reset line comments
-		if (EdenUI.Highlight.lineclearmode[this.mode]) this.mode = this.startmode;
+		if (this.clearmodes[this.mode]) {
+			this.incomment = false;
+			this.mode = this.startmode;
+		}
 
 		// Get error position information
 		if (ast.script && ast.script.errors.length > 0) {
@@ -284,6 +288,8 @@
 			// Skip but preserve white space
 			var ch= stream.peek();
 			if (ch == 10 || ch == 13) {
+				//if (this.incomment && stream.peek2() == 35) wsline += " ";
+
 				if (wsline != "") {
 					if (line.lastChild && line.lastChild.className != this.styles["hidden-comment"] && line.lastChild.className != "fake-caret") {
 						//line.lastChild.appendChild(textnode);
@@ -298,7 +304,15 @@
 					}
 					wsline = "";
 				}
-				break;
+
+				/*if (this.incomment && stream.peek2() == 35) {
+					var hiddenhash = document.createElement("span");
+					hiddenhash.className = this.styles["hidden-comment"];
+					line.appendChild(hiddenhash);
+					stream.position += 2;
+				} else {*/
+					break;
+				//}
 			} else if (ch == 9 || ch == 13 || ch == 32 || ch == 160) {
 				stream.skip();
 				if (ch == 32 || ch == 160) {

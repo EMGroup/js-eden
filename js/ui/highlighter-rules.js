@@ -247,6 +247,8 @@ EdenUI.Highlight.prototype.START = function() {
 							}
 							this.classes += this.styles["hidden-comment"];
 							this.mode = "COMMENT";
+							this.incomment = true;
+
 							if (this.prevtoken == "INVALID") this.lineelement.style.marginLeft = "0";
 							//else {
 								var nline = document.createElement("div");
