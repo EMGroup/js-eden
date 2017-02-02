@@ -1309,6 +1309,14 @@ proc goto {
 	${{ Eden.Selectors.goto(q); }}$;
 }
 
+proc showProjects {
+	para id, q;
+	${{
+	var ele = $("#"+id);
+	EdenUI.ProjectDetails.searchProjects(ele,q);
+	}}$;
+}
+
 }
 
 action list {
