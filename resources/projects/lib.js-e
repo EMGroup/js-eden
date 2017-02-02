@@ -1313,6 +1313,7 @@ proc showProjects {
 	para id, q;
 	${{
 	var ele = $("#"+id);
+	ele.html("");
 	EdenUI.ProjectDetails.searchProjects(ele,q);
 	}}$;
 }

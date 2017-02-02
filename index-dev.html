@@ -560,8 +560,9 @@ See LICENSE.txt
 			.on("keyup",".search", function(e) {
 				searchstr = e.currentTarget.value;
 				updateSearch();
-			})
-			.on("click",".project",function(e) {
+			});
+
+			/*.on("click",".project",function(e) {
 				var pid = e.currentTarget.getAttribute("data-pid");
 				//var tag = parseInt(e.currentTarget.getAttribute("data-tag"));
 				console.log("Load project: " + pid); // + "@"+tag);
@@ -578,7 +579,7 @@ See LICENSE.txt
 				projectdetails = new EdenUI.ProjectDetails(pid);
 
 				//});
-			});
+			});*/
 
 			function setLoadObserver() {
 				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {

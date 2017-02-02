@@ -184,6 +184,12 @@ EdenUI.ProjectDetails._searchProjects = function(output, pub, projects, count) {
 		output.append(ele);
 		//});
 
+		ele.click(function(e) {
+			var pid = e.currentTarget.getAttribute("data-pid");
+			console.log("Load project: " + pid); // + "@"+tag);
+			new EdenUI.ProjectDetails(pid);
+		});
+
 		var astars = (meta.overallRating !== null) ? meta.overallRating / meta.numRatings : 0;
 		var rating = $('<div class="projectdetails-ratingsmall">\
 <span class="projectdetails-star">&#xf005;</span>\
