@@ -199,8 +199,8 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 	}
 }
 
-EdenUI.Highlight.prototype.parseAttrs = function(attrs) {
-	var ele = this.lineelement.lastChild;
+EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
+	if (!ele) ele = this.lineelement.lastChild;
 	if (!ele) ele = this.lineelement;
 	else ele = ele.previousSibling;
 	if (!ele) ele = this.lineelement;
@@ -283,6 +283,8 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs) {
 								break;
 		}
 	}
+
+	return ele;
 }
 
 EdenUI.Highlight.prototype.COMMENT_ATTRS = function() {
@@ -300,10 +302,12 @@ EdenUI.Highlight.prototype.COMMENT_ATTRS = function() {
 		this.classes += this.styles["hidden-comment"];
 		
 		if (attrs.charAt(0) == "?") {
-			console.log("ATTRS",attrs);
+			// Record the fact that this is a query line
+			if (this.metrics[this.line] == undefined) this.metrics[this.line] = {};
+			this.metrics[this.line].squery = true;
+
 			var res = this.parseQuery(attrs);
 			if (res) {
-				console.log("RES",res);
 				res = res.join(" ");
 				this.parseAttrs(res);
 			}
