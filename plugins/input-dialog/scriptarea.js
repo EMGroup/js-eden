@@ -28,6 +28,7 @@ EdenUI.ScriptArea = function() {
 	this.gutter = new EdenScriptGutter(this.codearea, this.infobox, this.outdiv);
 	this.details = new EdenUI.ScriptArea.Details(this);
 	this.cachedhlopt = undefined;
+	this.disablehl = false;
 
 	// Init the scroll optimisation.
 	this.highlighter.setScrollTop(0);
@@ -292,6 +293,12 @@ EdenUI.ScriptArea.prototype.focusText = function() {
 	if (start != end) this.refreshentire = true;
 }
 
+EdenUI.ScriptArea.prototype.toggleHighlighting = function() {
+	this.disablehl = !this.disablehl;
+	this.updateEntireHighlight();
+	this.gutter.clear();
+}
+
 /**
  * Call the highlighter to generate the new highlight output, and then
  * post process this to allow for extra warnings and number dragging.
@@ -303,6 +310,9 @@ EdenUI.ScriptArea.prototype.highlightContent = function(lineno, position, option
 	var me = this;
 
 	if (!ast) return;
+
+	if (options === undefined && this.disablehl) options = {};
+	if (this.disablehl) options.disabled = true;
 
 	this.highlighter.highlight(ast, lineno, position, options);
 	//gutter.generate(ast,lineno);

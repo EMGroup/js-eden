@@ -521,8 +521,13 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 				content = "&#xf06a";
 				title = stat.errors[0].messageText();
 			}
+			this.lines[i].errored = true;
 			doupdate = true;
 		} else {
+			if (this.lines[i].errored) {
+				doupdate = true;
+				this.lines[i].errored = false;
+			}
 			if (stat.warning) {
 				className += " warning";
 				content = "&#xf071";
@@ -543,9 +548,9 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 			}
 
 			// Need to remove any old error messages
-			if (this.gutter.childNodes[i].className.indexOf("error") >= 0) {
-				doupdate = true;
-			}
+			//if (this.gutter.childNodes[i].className.indexOf("error") >= 0) {
+			//	doupdate = true;
+			//}
 		}
 
 		if (this.lines && this.lines[i]) {
@@ -553,11 +558,22 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 				doupdate = true;
 				this.lines[i].executed = false;
 			}
+
 			if (this.lines[i].selected) className += " select";
 			if (this.lines[i].live) {
 				className += " live";
 				//doreplace = false;
 			}
+		}
+	} else {
+		// Clear any only gutter info form line that is no longer a script line.
+		if (this.lines[i].errored) {
+			doupdate = true;
+			this.lines[i].errored = false;
+		}
+		if (this.lines[i].executed) {
+			doupdate = true;
+			this.lines[i].executed = true;
 		}
 	}
 
@@ -589,22 +605,6 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 EdenScriptGutter.prototype.generate = function(ast, lineno) {
 	this.ast = ast;
 	if (this.edits) return;
-	/*var linediff = ast.lines.length - this.gutter.childNodes.length;
-
-	if (linediff < 0) {
-		linediff = Math.abs(linediff);
-		// Too many lines, remove nodes
-		for (var i=0; i<linediff; i++) {
-			this.gutter.removeChild(this.gutter.lastChild);
-		}
-	} else if (linediff > 0) {
-		// Not enough lines, add nodes
-		for (var i=0; i<linediff; i++) {
-			var item = document.createElement("div");
-			item.className = "eden-gutter-item";
-			this.gutter.appendChild(item);
-		}
-	}*/
 
 	var globaldoupdate = false;
 	var numlines = ast.getNumberOfLines()+1;
@@ -615,6 +615,8 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 
 	// Reset all lines if number of lines changes
 	if (numlines != this.gutter.childNodes.length) {
+		this.hideBrace();
+
 		while (this.gutter.firstChild) {
 			this.gutter.removeChild(this.gutter.firstChild);
 		}
@@ -624,7 +626,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 			ele.setAttribute("data-line", ""+i);
 			ele.style.height = this.lineelements.childNodes[i].clientHeight+"px";
 			this.gutter.appendChild(ele);
-			if (this.lines[i] === undefined) this.lines[i] = {selected: false, live: false, executed: false};
+			if (this.lines[i] === undefined) this.lines[i] = {selected: false, live: false, executed: false, errored: false};
 		}
 
 		globaldoupdate = true;
