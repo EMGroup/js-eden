@@ -278,6 +278,9 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs) {
 		case "width":
 		case "height":			ele.setAttribute(name,val);
 								break;
+
+		case "background":		ele.style.background = val;
+								break;
 		}
 	}
 }
@@ -296,10 +299,45 @@ EdenUI.Highlight.prototype.COMMENT_ATTRS = function() {
 		this.stream.position += endix+1;
 		this.classes += this.styles["hidden-comment"];
 		
-		this.parseAttrs(attrs);
+		if (attrs.charAt(0) == "?") {
+			console.log("ATTRS",attrs);
+			var res = this.parseQuery(attrs);
+			if (res) {
+				console.log("RES",res);
+				res = res.join(" ");
+				this.parseAttrs(res);
+			}
+		} else {
+			this.parseAttrs(attrs);
+		}
 
 		//this.popLine();
 		this.popMode();
+	}
+}
+
+EdenUI.Highlight.prototype.parseQuery = function(q) {
+	var linestr = q.substring(2);
+	var count = 0;
+	var endix = -1;
+	for (var i=0; i<linestr.length; i++) {
+		if (linestr.charAt(i) == "(") count++;
+		else if (linestr.charAt(i) == ")") {
+			count--;
+			if (count < 0) {
+				endix = i;
+				break;
+			}
+		}
+	}
+
+	if (endix == -1) {
+		return undefined;
+	} else {
+		var qstr = linestr.substring(0,endix);
+		var res = Eden.Selectors.query(qstr,"value");
+		return res;
+		//this.metrics[this.line].qelements.push(ele);
 	}
 }
 

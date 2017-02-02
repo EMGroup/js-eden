@@ -1304,6 +1304,11 @@ func querySelector {
 	}}$;
 }
 
+proc goto {
+	para q;
+	${{ Eden.Selectors.goto(q); }}$;
+}
+
 }
 
 action list {
