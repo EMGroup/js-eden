@@ -551,6 +551,7 @@
 		var inerror = false;
 		var stream = ast.stream;
 		var title = "";
+		var disablehl = (options && options.disabled) ? true : false; 
 
 		if (this.outelement === undefined) return;
 
@@ -620,7 +621,7 @@
 					continue;
 				}
 
-				if (this.scrolltop >= 0 && (this.line < this.scrolltop-105 || this.line > this.scrolltop+105)) {
+				if (disablehl || (this.scrolltop >= 0 && (this.line < this.scrolltop-105 || this.line > this.scrolltop+105))) {
 					// Extract unhighlighted line
 					var eolix = stream.code.indexOf("\n",stream.position);
 					var ltext;
@@ -690,7 +691,21 @@
 
 					linestart = stream.position;
 					//this.outerline = node;
-					line = this.highlightLine(ast, position);
+					if (disablehl) {
+						// Extract unhighlighted line
+						var eolix = stream.code.indexOf("\n",stream.position);
+						var ltext;
+						if (eolix == -1) {
+							ltext = stream.code.substring(stream.position);
+							stream.position = stream.code.length;
+						} else {
+							ltext = stream.code.substring(stream.position, eolix);
+							stream.position = eolix;
+						}
+						line = document.createTextNode(ltext);
+					} else {
+						line = this.highlightLine(ast, position);
+					}
 					lineerror = (linestart <= errstart) && (stream.position >= errend);
 					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
 					node.appendChild(line);
@@ -727,29 +742,6 @@
 				}
 			}
 
-			// Now check for dirty lines to change line class
-			/*console.log(ast.lines);
-			for (var i=0; i<this.outelement.childNodes.length; i++) {
-				if (ast.lines[i]) {
-					if (ast.lines[i].executed == 1) {
-						this.outelement.childNodes[i].className = "eden-line eden-executedline";
-					} else if (ast.lines[i].executed == 2) {
-						this.outelement.childNodes[i].className = "eden-line eden-guardedline";
-					} else if (ast.lines[i].errors.length > 0) {
-						this.outelement.childNodes[i].className += " eden-errorblock";
-					}
-				} else if (ast.lines[i] === undefined && i > 0 && ast.lines[i-1] && ast.lines[i-1].parent) {
-					if (ast.lines[i-1].executed == 1) {
-						this.outelement.childNodes[i].className = "eden-line eden-executedline";
-					} else if (ast.lines[i-1].executed == 2) {
-						this.outelement.childNodes[i].className = "eden-line eden-guardedline";
-					} else if (ast.lines[i-1].errors.length > 0) {
-						this.outelement.childNodes[i].className += " eden-errorblock";
-					}
-				}
-			}*/
-
-			//});
 		}
 	};
 

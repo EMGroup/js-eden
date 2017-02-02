@@ -31,6 +31,10 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 											e.preventDefault();
 											break;
 
+		case "Ctrl-h"		:	sa.toggleHighlighting();
+								e.preventDefault();
+								break;
+
 		case "Ctrl-Shift-ArrowLeft"		:
 		case "Ctrl-Shift-ArrowRight"	:
 		case "Ctrl-Shift-ArrowUp"		:
