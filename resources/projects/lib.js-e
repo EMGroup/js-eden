@@ -1314,7 +1314,7 @@ proc showProjects {
 	${{
 	var ele = $("#"+id);
 	ele.html("");
-	EdenUI.ProjectDetails.searchProjects(ele,q);
+	EdenUI.ProjectDetails.searchProjects(ele,q,undefined,undefined,true);
 	}}$;
 }
 
