@@ -54,6 +54,7 @@ Eden.AST.DoxyComment.prototype.getProperty = function(name) {
 }
 
 Eden.AST.DoxyComment.prototype.stripped = function() {
+	if (this.content === undefined) return "";
 	var controls = {};
 	var tags = {};
 	var lines = this.content.split("\n");
