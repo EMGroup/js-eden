@@ -471,36 +471,135 @@
 	}
 
 
-
-	EdenUI.Highlight.prototype.highlightExactLine = function(ast, hline, position) {
+	EdenUI.Highlight.prototype.updateAST = function(ast) {
 		this.ast = ast;
-		this.line = 1;
-
-		var errstart = -1;
-		var errend = -1;
-		var errmsg = "";
-		var inerror = false;
-		var stream = ast.stream;
-		var title = "";
-
-		if (this.outelement === undefined) return;
+		this.errstart = -1;
+		this.errend = -1;
+		this.errmsg = "";
+		this.inerror = false;
+		this.stream = ast.stream;
+		this.stream.reset();
+		this.title = "";
 
 		if (ast.script && ast.script.errors.length > 0) {
-			errstart = ast.script.errors[0].prevposition;
-			errend = ast.script.errors[0].position;
-			errmsg = ast.script.errors[0].messageText();
+			this.errstart = ast.script.errors[0].prevposition;
+			this.errend = ast.script.errors[0].position;
+			this.errmsg = ast.script.errors[0].messageText();
 		}
+	}
 
-		stream.reset();
-
+	EdenUI.Highlight.prototype.highlightAll = function(position, options) {
 		var line = undefined;
 		var lineerror = false;
 		var linestart = 0;
 		var token = "INVALID";
 		var prevtoken = "INVALID";
+		var stream = this.stream;
+
+		//var curtop = (options && options.spacing && options.spacing[0]) ? options.spacing[0] : 20;
+
+		this.metrics = {};
+		detach(this, this.outelement, false, function() {
+
+		// Clear!
+		//this.outelement.innerHTML = "";
+		while (this.outelement.lastChild) this.outelement.removeChild(this.outelement.lastChild);
+		this.mode_at_line = {};
+
+		while (stream.valid()) {
+			var ch= stream.peek();
+			var lineclass = "";
+			if (ch == 10 || ch == 13) {
+				lineerror = (linestart <= this.errstart) && (stream.position >= this.errend);
+
+				var lineelement = document.createElement('div');
+				lineelement.className = this.outerline; //"eden-line";
+				if (options && options.spacing && options.spacing[this.line]) lineelement.height = "" + options.spacing[this.line] + "px";
+				//lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
+				lineelement.setAttribute("data-line",this.line-1);
+				//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
+				//curtop += (options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20;
+				this.line++;
+				if (line !== undefined) {
+					lineelement.appendChild(line);
+					//if (line.className == " eden-section-line") lineelement.className += " eden-section-line";
+				} else {
+					this.mode_at_line[this.line-1] = this.mode;
+				}
+				var blank = document.createTextNode((ch == 13)? "\n" : "\n");
+				lineelement.appendChild(blank);
+
+				this.outelement.appendChild(lineelement);
+
+				linestart = stream.position+1;
+				line = undefined;
+				stream.skip();
+				if (ch == 13) stream.skip();
+				this.outerline = "eden-line";
+				continue;
+			}
+
+			if (this.disablehl || (this.scrolltop >= 0 && (this.line < this.scrolltop-105 || this.line > this.scrolltop+105))) {
+				// Extract unhighlighted line
+				var eolix = stream.code.indexOf("\n",stream.position);
+				var ltext;
+				if (eolix == -1) {
+					ltext = stream.code.substring(stream.position);
+					stream.position = stream.code.length;
+				} else {
+					ltext = stream.code.substring(stream.position, eolix);
+					stream.position = eolix;
+				}
+				line = document.createTextNode(ltext);
+			} else {
+				//this.outerline = lineelement;
+				line = this.highlightLine(this.ast, position);
+			}
+		}
+
+		lineerror = (linestart <= this.errstart) && (stream.position >= this.errend);
+
+		if (line !== undefined) {
+			var lineelement = document.createElement('div');
+			lineelement.className = "eden-line";
+			//lineelement.style.top = "" + curtop + "px";
+			lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
+			lineelement.setAttribute("data-line",this.line-1);
+			//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
+			lineelement.appendChild(line);
+			this.outelement.appendChild(lineelement);
+		} else {
+			var lineelement = document.createElement('div');
+			if (position >= stream.position) {
+				lineelement.className = "eden-line";
+				lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
+				lineelement.setAttribute("data-line",this.line-1);
+				var caret = document.createElement('span');
+				caret.className = "fake-caret";
+				lineelement.appendChild(caret);
+			} else {
+				lineelement.className = "eden-line";
+				//lineelement.style.top = "" + curtop + "px";
+			}
+			this.outelement.appendChild(lineelement);
+		}
+
+		});  // End detach
+	}
+
+
+	EdenUI.Highlight.prototype.highlightOpt = function(hline, position, options) {
+		var line = undefined;
+		var lineerror = false;
+		var linestart = 0;
+		var token = "INVALID";
+		var prevtoken = "INVALID";
+		var stream = this.stream;
+
+		//detach(this, this.outelement, false, function() {
 
 		// Skip until the lines we are looking for
-		while (stream.valid() && (this.line < (hline))) {
+		while (stream.valid() && (this.line < (hline-1))) {
 			var ch = stream.peek();
 			if (ch == 10 || ch == 13) {
 				this.line++;
@@ -510,118 +609,17 @@
 		}
 
 		// Highlight 3 lines, 1 before and after what we want
-		//for (var i=2; i>=0; i--) {
-			this.line = hline;
+		for (var i=2; i>=0; i--) {
+			this.line = hline-i+1;
 			if (this.metrics[this.line]) delete this.metrics[this.line];
-			var node = this.outelement.childNodes[hline-1];
+			var node = this.outelement.childNodes[hline-i];
 			if (node !== undefined) {
 				//Remove existing content
 				while (node.lastChild) node.removeChild(node.lastChild);
 
 				linestart = stream.position;
 				//this.outerline = node;
-				line = this.highlightLine(ast, position);
-				lineerror = (linestart <= errstart) && (stream.position >= errend);
-				//node.className = generateLineClass(this, stream, linestart,lineerror,position);
-				node.appendChild(line);
-				node.className = this.outerline;
-				var ch = stream.peek();
-				var blank = document.createTextNode((ch == 13) ? "\n" : "\n");
-				node.appendChild(blank);
-				stream.skip();
-				if (ch == 13) stream.skip();
-			}
-		//}
-	}
-
-
-
-	/**
-	 * Generate a syntax highlighted version of the stream. Call this with
-	 * an abstract syntax tree of the code, the line to highlight (or -1 for
-	 * all) and the current cursor position.
-	 */
-	EdenUI.Highlight.prototype.highlight = function(ast, hline, position, options) {
-		this.ast = ast;
-		this.line = 1;
-
-		var errstart = -1;
-		var errend = -1;
-		var errmsg = "";
-		var inerror = false;
-		var stream = ast.stream;
-		var title = "";
-		var disablehl = (options && options.disabled) ? true : false; 
-
-		if (this.outelement === undefined) return;
-
-		if (ast.stream.code.length == 0) {
-			if (this.outelement) {
-				this.outelement.innerHTML = "<div class='eden-line'><span class='fake-caret'></span></div>";
-			}
-			return;
-		}
-
-		if (ast.script && ast.script.errors.length > 0) {
-			errstart = ast.script.errors[0].prevposition;
-			errend = ast.script.errors[0].position;
-			errmsg = ast.script.errors[0].messageText();
-		}
-
-		stream.reset();
-
-		var line = undefined;
-		var lineerror = false;
-		var linestart = 0;
-		var token = "INVALID";
-		var prevtoken = "INVALID";
-
-		//var curtop = (options && options.spacing && options.spacing[0]) ? options.spacing[0] : 20;
-
-		// Highlight all if -1
-		if (hline == -1 ) {
-			this.metrics = {};
-			detach(this, this.outelement, false, function() {
-
-			// Clear!
-			//this.outelement.innerHTML = "";
-			while (this.outelement.lastChild) this.outelement.removeChild(this.outelement.lastChild);
-			this.mode_at_line = {};
-
-			while (stream.valid()) {
-				var ch= stream.peek();
-				var lineclass = "";
-				if (ch == 10 || ch == 13) {
-					lineerror = (linestart <= errstart) && (stream.position >= errend);
-
-					var lineelement = document.createElement('div');
-					lineelement.className = this.outerline; //"eden-line";
-					if (options && options.spacing && options.spacing[this.line]) lineelement.height = "" + options.spacing[this.line] + "px";
-					//lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
-					lineelement.setAttribute("data-line",this.line-1);
-					//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
-					//curtop += (options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20;
-					this.line++;
-					if (line !== undefined) {
-						lineelement.appendChild(line);
-						//if (line.className == " eden-section-line") lineelement.className += " eden-section-line";
-					} else {
-						this.mode_at_line[this.line-1] = this.mode;
-					}
-					var blank = document.createTextNode((ch == 13)? "\n" : "\n");
-					lineelement.appendChild(blank);
-
-					this.outelement.appendChild(lineelement);
-
-					linestart = stream.position+1;
-					line = undefined;
-					stream.skip();
-					if (ch == 13) stream.skip();
-					this.outerline = "eden-line";
-					continue;
-				}
-
-				if (disablehl || (this.scrolltop >= 0 && (this.line < this.scrolltop-105 || this.line > this.scrolltop+105))) {
+				if (this.disablehl) {
 					// Extract unhighlighted line
 					var eolix = stream.code.indexOf("\n",stream.position);
 					var ltext;
@@ -632,117 +630,95 @@
 						ltext = stream.code.substring(stream.position, eolix);
 						stream.position = eolix;
 					}
-					line = document.createTextNode(ltext);
+
+				
+					// Insert caret in middle of token if needed
+					if (linestart < position && stream.position > position) {
+						var caret = position - linestart;
+						var textleft = ltext.slice(0,caret);
+						var textright = ltext.slice(caret);
+						var parentspan = document.createElement("span");
+
+						var leftnode = document.createTextNode(textleft);
+						parentspan.appendChild(leftnode);
+
+						// Caret!
+						var caret = document.createElement('span');
+						caret.className = "fake-caret";
+						parentspan.appendChild(caret);
+
+						var rightnode = document.createTextNode(textright);
+						parentspan.appendChild(rightnode);
+
+						line = parentspan;
+					} else {
+						line = document.createTextNode(ltext);
+					}
 				} else {
-					//this.outerline = lineelement;
-					line = this.highlightLine(ast, position);
+					line = this.highlightLine(this.ast, position);
 				}
-			}
-
-			lineerror = (linestart <= errstart) && (stream.position >= errend);
-
-			if (line !== undefined) {
-				var lineelement = document.createElement('div');
-				lineelement.className = "eden-line";
-				//lineelement.style.top = "" + curtop + "px";
-				lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
-				lineelement.setAttribute("data-line",this.line-1);
-				//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
-				lineelement.appendChild(line);
-				this.outelement.appendChild(lineelement);
-			} else {
-				var lineelement = document.createElement('div');
-				if (position >= stream.position) {
-					lineelement.className = "eden-line";
-					lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
-					lineelement.setAttribute("data-line",this.line-1);
-					var caret = document.createElement('span');
-					caret.className = "fake-caret";
-					lineelement.appendChild(caret);
-				} else {
-					lineelement.className = "eden-line";
-					//lineelement.style.top = "" + curtop + "px";
-				}
-				this.outelement.appendChild(lineelement);
-			}
-
-			});  // End detach
-		} else {
-			//detach(this, this.outelement, false, function() {
-
-			// Skip until the lines we are looking for
-			while (stream.valid() && (this.line < (hline-1))) {
+				lineerror = (linestart <= this.errstart) && (stream.position >= this.errend);
+				//node.className = generateLineClass(this, stream, linestart,lineerror,position);
+				node.appendChild(line);
+				node.className = this.outerline;
 				var ch = stream.peek();
-				if (ch == 10 || ch == 13) {
-					this.line++;
-				}
+				var blank = document.createTextNode((ch == 13) ? "\n" : "\n");
+				node.appendChild(blank);
 				stream.skip();
 				if (ch == 13) stream.skip();
 			}
-
-			// Highlight 3 lines, 1 before and after what we want
-			for (var i=2; i>=0; i--) {
-				this.line = hline-i+1;
-				if (this.metrics[this.line]) delete this.metrics[this.line];
-				var node = this.outelement.childNodes[hline-i];
-				if (node !== undefined) {
-					//Remove existing content
-					while (node.lastChild) node.removeChild(node.lastChild);
-
-					linestart = stream.position;
-					//this.outerline = node;
-					if (disablehl) {
-						// Extract unhighlighted line
-						var eolix = stream.code.indexOf("\n",stream.position);
-						var ltext;
-						if (eolix == -1) {
-							ltext = stream.code.substring(stream.position);
-							stream.position = stream.code.length;
-						} else {
-							ltext = stream.code.substring(stream.position, eolix);
-							stream.position = eolix;
-						}
-						line = document.createTextNode(ltext);
-					} else {
-						line = this.highlightLine(ast, position);
-					}
-					lineerror = (linestart <= errstart) && (stream.position >= errend);
-					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
-					node.appendChild(line);
-					node.className = this.outerline;
-					var ch = stream.peek();
-					var blank = document.createTextNode((ch == 13) ? "\n" : "\n");
-					node.appendChild(blank);
-					stream.skip();
-					if (ch == 13) stream.skip();
-				}
-			}
-
-			// Highlight lines if mode changed
-			while (this.mode_at_line[this.line+1] !== undefined && this.mode_at_line[this.line] != this.mode_at_line[this.line+1]) {
-				this.line++;
-				if (this.metrics[this.line]) delete this.metrics[this.line];
-				var node = this.outelement.childNodes[this.line-1];
-				if (node !== undefined) {
-					//Remove existing content
-					while (node.lastChild) node.removeChild(node.lastChild);
-
-					linestart = stream.position;
-					//this.outerline = node;
-					line = this.highlightLine(ast, position);
-					lineerror = (linestart <= errstart) && (stream.position >= errend);
-					//node.className = generateLineClass(this, stream, linestart,lineerror,position);
-					node.appendChild(line);
-					node.className = this.outerline;
-					var ch = stream.peek();
-					var blank = document.createTextNode((ch == 13) ? "\n" : "\n");
-					node.appendChild(blank);
-					stream.skip();
-					if (ch == 13) stream.skip();
-				}
-			}
-
 		}
+
+		if (this.disablehl) return;
+
+		// Highlight lines if mode changed
+		while (this.mode_at_line[this.line+1] !== undefined && this.mode_at_line[this.line] != this.mode_at_line[this.line+1]) {
+			this.line++;
+			if (this.metrics[this.line]) delete this.metrics[this.line];
+			var node = this.outelement.childNodes[this.line-1];
+			if (node !== undefined) {
+				//Remove existing content
+				while (node.lastChild) node.removeChild(node.lastChild);
+
+				linestart = stream.position;
+				//this.outerline = node;
+				line = this.highlightLine(this.ast, position);
+				lineerror = (linestart <= this.errstart) && (stream.position >= this.errend);
+				//node.className = generateLineClass(this, stream, linestart,lineerror,position);
+				node.appendChild(line);
+				node.className = this.outerline;
+				var ch = stream.peek();
+				var blank = document.createTextNode((ch == 13) ? "\n" : "\n");
+				node.appendChild(blank);
+				stream.skip();
+				if (ch == 13) stream.skip();
+			}
+		}
+	}
+
+
+	/**
+	 * Generate a syntax highlighted version of the stream. Call this with
+	 * an abstract syntax tree of the code, the line to highlight (or -1 for
+	 * all) and the current cursor position.
+	 */
+	EdenUI.Highlight.prototype.highlight = function(ast, hline, position, options) {
+		this.ast = ast;
+		this.updateAST(ast);
+		this.line = 1;
+		if (this.outelement === undefined) return;
+
+		if (ast.stream.code.length == 0) {
+			if (this.outelement) {
+				this.outelement.innerHTML = "<div class='eden-line'><span class='fake-caret'></span></div>";
+			}
+			return;
+		}
+
+		this.disablehl = (options && options.disabled) ? true : false;
+
+		if (hline == -1) return this.highlightAll(position, options);
+		else return this.highlightOpt(hline, position, options); 
 	};
 
 	EdenUI.Highlight.html = function(str, single) {
