@@ -345,7 +345,7 @@
 			}
 
 			prevtoken = token;
-			token = stream.readToken();
+			token = stream.readToken(this.incomment);
 
 			if (typeof token != "string") {
 				console.error("Token error: line = " + this.line + " position = " + stream.position);

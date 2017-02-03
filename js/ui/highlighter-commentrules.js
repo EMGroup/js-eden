@@ -134,7 +134,12 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 						} break;
 
 	case "["		:	if (this.stream.peek() != 32) {
+							this.pushMode();
 							this.mode = "COMMENT_LINK";
+							this.pushLine();
+							var nline = document.createElement("span");
+							this.lineelement.appendChild(nline);
+							this.lineelement = nline;
 							this.classes += this.styles["hidden-comment"];
 						} else {
 							this.classes += this.styles["comment"];
@@ -389,38 +394,38 @@ EdenUI.Highlight.prototype.COMMENT_QUERY = function() {
 }
 
 EdenUI.Highlight.prototype.COMMENT_LINK = function() {
-	var linestr = this.stream.peekLine();
-	var endix = linestr.indexOf("]");
-	if (endix == -1) {
-		this.classes += this.styles["comment"];
-		this.mode = "COMMENT";
+	if (this.token != "]") {
+		this.COMMENT();
 	} else {
-		var remaining = linestr.substring(0, endix);
-		this.tokentext += remaining;
-		this.stream.position += endix;
-		this.classes += this.styles["comment"];
-		this.mode = "COMMENT_LINK_END";
+		this.classes += this.styles["hidden-comment"];
 
-		if (linestr.charAt(endix+1) == "(") {
+		if (this.stream.peek() == 40) {
 			// Detect kind of link
-			var urlstart = linestr.substring(endix+2);
-			if (urlstart.startsWith("http://")) {
+			//var urlstart = linestr.substring(endix+2);
+			//if (urlstart.startsWith("http://")) {
 				//console.log("EXTERNAL URL");
-			} else {
+			//} else {
 				//console.log("INTERNAL GOTO");
-			}
+			//}
 
-			this.pushLine();
+			var curline = this.lineelement;
+			var parent = curline.parentNode;
+			//this.popLine();
 			var nline = document.createElement("a");
 			nline.setAttribute("target","_blank");
 			nline.contentEditable = false;
-			this.lineelement.appendChild(nline);
-			this.lineelement = nline;
+
+			if (parent) {
+				parent.removeChild(curline);
+				nline.appendChild(curline);
+				parent.appendChild(nline);
+				this.lineelement = nline;
+			}
+
+			this.mode = "COMMENT_LINK_END";
 		} else {
-			this.pushLine();
-			var nline = document.createElement("span");
-			this.lineelement.appendChild(nline);
-			this.lineelement = nline;
+			this.popMode();
+			this.popLine();
 		}
 	}
 }
@@ -428,25 +433,21 @@ EdenUI.Highlight.prototype.COMMENT_LINK = function() {
 EdenUI.Highlight.prototype.COMMENT_LINK_END = function() {
 	console.log("LINKEND",this.token);
 	var linestr = this.stream.peekLine();
-	if (linestr.charAt(0) == "(") {
+	if (this.token == "(") {
 		var endix = linestr.indexOf(")");
 		if (endix == -1) {
 			this.classes += this.styles["hidden-comment"];
-			this.mode = "COMMENT";
+			this.popMode();
 			this.popLine();
 		} else {
 			var remaining = linestr.substring(0,endix);
 			this.tokentext += remaining+")";
 			this.stream.position += endix+1;
 			this.classes += this.styles["hidden-comment"];
-			this.mode = "COMMENT";
-			this.lineelement.setAttribute("href", remaining.substring(1));
+			this.popMode();
+			this.lineelement.setAttribute("href", remaining);
 			this.popLine();
 		}
-	} else {
-		this.classes += this.styles["hidden-comment"];
-		this.mode = "COMMENT";
-		this.popLine();
 	}
 }
 
