@@ -1,5 +1,5 @@
 span.eden-script {
-	font: 12px/20px 'Roboto Mono',monospace;
+	font-family: 'Roboto Mono',monospace;
 	-webkit-font-smoothing: antialiased;
 	color: #2b4957;
 }
