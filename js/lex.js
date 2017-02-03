@@ -350,7 +350,7 @@ EdenStream.prototype.parseNumber = function(data) {
 
 
 
-EdenStream.prototype.readToken = function() {
+EdenStream.prototype.readToken = function(ignorestrings) {
 	this.prevline = this.line;
 	this.skipWhiteSpace();
 	this.prevposition = this.position;
@@ -366,7 +366,8 @@ EdenStream.prototype.readToken = function() {
 	case 33	:	if (this.peek() == 61) { this.skip(); return "!="; }
 				if (this.peek() == 126) { this.skip(); return "!~"; }
 				return "!";
-	case 34	:	this.parseString(this.data, 34); return "STRING";
+	case 34	:	if (!ignorestrings) { this.parseString(this.data, 34); return "STRING"; }
+				else return "\"";
 	case 35	:	if (this.peek() == 35) { this.skip(); return "##"; }
 				return "#";
 	case 36	:	if (this.peek() == 123 && this.peek2() == 123) {
@@ -378,7 +379,8 @@ EdenStream.prototype.readToken = function() {
 	case 38	:	if (this.peek() == 38) { this.skip(); return "&&"; }
 				if (this.peek() == 61) { this.skip(); return "&="; }
 				return "&";
-	case 39 :	this.parseString(this.data, 39); return "STRING";
+	case 39 :	if (!ignorestrings) { this.parseString(this.data, 39); return "STRING"; }
+				else return "'";
 	case 40	:	return "(";
 	case 41	:	return ")";
 	case 42	:	if (this.peek() == 61) { this.skip(); return "*="; }

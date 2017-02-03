@@ -277,12 +277,14 @@ EdenUI.Highlight.prototype.START = function() {
 	case "CHARACTER":	this.classes += this.styles["string"]; break;
 	case "import"	:
 	case "do"		:	this.classes += this.styles["keyword"];
+						this.pushMode();
 						this.mode = "SELECTOR";
 						break;
 	case "${{"		:	this.classes += this.styles["javascript"];
 						this.mode = "JAVASCRIPT";
 						break;
 	case "?"		:	this.classes += this.styles["selector"];
+						this.pushMode();
 						this.mode = "SELECTOR";
 						break;
 	case "<<"		:	var t = this.stream.readToken();
@@ -374,11 +376,13 @@ EdenUI.Highlight.prototype.SELECTOR2 = function() {
 	} else if (this.token == ";" || this.token == "=") {
 		this.popLine();
 		this.classes += this.styles["operator"];
-		this.mode = this.startmode;
+		//this.mode = this.startmode;
+		this.popMode();
 	} else if (this.token == "::" || this.token == "with") {
 		this.popLine();
 		this.classes += this.styles["keyword"];
-		this.mode = this.startmode;
+		//this.mode = this.startmode;
+		this.popMode();
 	} else if (this.token == "OBSERVABLE" && (this.prevtoken == "." || this.prevtoken == ":") && (Eden.Selectors.PropertyNode.attributes[this.tokentext] || Eden.Selectors.PropertyNode.pseudo[this.tokentext])) {
 		this.classes += this.styles["selector2"];
 	} else {
