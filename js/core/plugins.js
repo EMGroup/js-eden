@@ -525,8 +525,8 @@
 		this.eden.root.endAutocalcOff();
 		this.emit('createView', [name, type]);
 
-
-		diag.get(0).parentNode.className += " ui-front";
+		var nostackSym = view(name, 'nostack');
+		if (!nostackSym.value()) diag.get(0).parentNode.className += " ui-front";
 		console.log("ADDING UI FRONT");
 		return viewData;
 	};

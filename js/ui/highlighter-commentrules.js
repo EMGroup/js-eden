@@ -502,7 +502,8 @@ EdenUI.Highlight.prototype.validHTMLTags = {
 	"button": true,
 	"span": true,
 	"a": true,
-	"img": true
+	"img": true,
+	"input": true
 }
 
 EdenUI.Highlight.prototype.COMMENT_HTML = function() {
