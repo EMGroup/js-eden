@@ -751,7 +751,7 @@
 		var top = topLeft.top;
 		var width = diag.dialog("option", "width") + 2 * EdenUI.prototype.dialogBorderWidth;
 		var height = diag.dialog("option", "height") + 2 * EdenUI.prototype.dialogBorderWidth;
-		var pinned = diagWindow.hasClass("ui-front");
+		var pinned = diagWindow.hasClass("ui-top");
 
 		var dialogs = $(".ui-dialog-content");
 		for (var i = 0; i < dialogs.length; i++) {
@@ -910,7 +910,8 @@
 	 */
 	EdenUI.prototype.pinView = function (name) {
 		var dialogWindow = this.getDialogWindow(name);
-		dialogWindow.addClass("ui-front");
+		dialogWindow.removeClass("ui-front");
+		dialogWindow.addClass("ui-top");
 		this.viewInstances[name].pinned = true;
 	};
 
@@ -919,9 +920,13 @@
 	 */
 	EdenUI.prototype.unpinView = function (name) {
 		var dialogWindow = this.getDialogWindow(name);
-		dialogWindow.removeClass("ui-front");
-		this.viewInstances[name].pinned = false;
-		this.windowHighlighter.unpin(dialogWindow);
+		if (this.viewInstances[name].pinned) {
+			dialogWindow.removeClass("ui-top");
+			dialogWindow.get(0).style.zIndex = 9999;
+			dialogWindow.addClass("ui-front");
+			this.viewInstances[name].pinned = false;
+			this.windowHighlighter.unpin(dialogWindow);
+		}
 	};
 
 	EdenUI.prototype.newProject = function () {
