@@ -195,7 +195,6 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 						break;
 	case "?"		:	this.pushMode();
 						this.mode = "COMMENT_QUERY";
-						this.cacheddata = undefined;
 						// Record the fact that this is a query line
 						if (this.metrics[this.line] == undefined) this.metrics[this.line] = {};
 						this.metrics[this.line].query = true;
@@ -378,27 +377,7 @@ EdenUI.Highlight.prototype.parseQuery = function(q) {
 }
 
 EdenUI.Highlight.prototype.COMMENT_QUERY = function() {
-	if (this.token == "[") {
-		var linestr = this.stream.peekLine();
-		var endix = -1;
-		for (var i=0; i<linestr.length; i++) {
-			if (linestr.charAt(i) == "]") {
-				endix = i;
-				break;
-			}
-		}
-
-		if (endix == -1) {
-			this.classes.push("hidden-comment");
-			return;
-		} else {
-			this.classes.push("hidden-comment");
-			this.cacheddata = linestr.substring(0,endix);
-			console.log("Q RES TYPE",this.cacheddata);
-			this.stream.position += endix+1;
-			this.tokentext += this.cacheddata + "]";
-		}
-	} else if (this.token == "(") {
+	if (this.token == "(") {
 		var linestr = this.stream.peekLine();
 		var count = 0;
 		var endix = -1;
@@ -427,12 +406,11 @@ EdenUI.Highlight.prototype.COMMENT_QUERY = function() {
 			//ele.className += this.styles["comment-query"]; // + " " + this.styles["comment"];
 			this.applyClasses(ele, ["comment-query"]);
 			this.lineelement.appendChild(ele);
-			var res = Eden.Selectors.query(qstr,(this.cacheddata) ? this.cacheddata : "value");
+			var res = Eden.Selectors.query(qstr,"value");
 			if (res.length == 1) res = res[0];
 			else if (res.length > 1) res = res.join(", ");
 			else res = "";
 			ele.setAttribute("data-result", res);
-			if (this.cacheddata) ele.setAttribute("data-attribs", this.cacheddata);
 			ele.setAttribute("data-query", qstr);
 			this.metrics[this.line].qelements.push(ele);
 		}

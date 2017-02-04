@@ -52,8 +52,7 @@ EdenUI.ScriptArea = function() {
 
 				for (var i=0; i<metric.qelements.length; i++) {
 					var qstr = metric.qelements[i].getAttribute("data-query");
-					var astr = metric.qelements[i].getAttribute("data-attribs");
-					var res = Eden.Selectors.query(qstr,(astr !== null && astr.length > 0) ? astr : "value");
+					var res = Eden.Selectors.query(qstr,"value");
 					if (res.length == 1) res = res[0];
 					else if (res.length > 1) res = res.join(", ");
 					else res = "";
