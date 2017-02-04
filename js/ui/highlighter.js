@@ -65,6 +65,8 @@
 		this.mode = this.startmode;
 		this.incomment = false;
 
+		this.styleExtensions = {};
+
 		this.metrics = {};
 	}
 
@@ -77,7 +79,6 @@
 		"number": "eden-number",
 		"string": "eden-string",
 		"constant": "eden-constant",
-		"string": "eden-string",
 		"keyword": "eden-keyword",
 		"javascript": "eden-javascript",
 		"selector": "eden-selector",
@@ -102,7 +103,8 @@
 		"comment-query": "eden-comment-query",
 		"block-comment": "eden-blockcomment",
 		"comment-ul": "eden-comment-ul",
-		"comment-blockquote": "eden-comment-blockquote"
+		"comment-blockquote": "eden-comment-blockquote",
+		"script": "eden-script"
 	}
 
 	EdenUI.Highlight.prototype.pushLine = function() {
@@ -207,6 +209,30 @@
 		"COMMENT_HTML_START": true,
 		"COMMENT_HTML_CONTENT": true,
 		"COMMENT_ATTRS": true
+	}
+
+	EdenUI.Highlight.prototype.applyClasses = function(node, classes) {
+		var iclass = (classes) ? classes : this.classes;
+		var className = "";
+		for (var i=0; i<iclass.length; i++) {
+			className += this.styles[iclass[i]] + " ";
+			if (this.styleExtensions[iclass[i]]) {
+				var sext = this.styleExtensions[iclass[i]];
+				for (var x in sext) {
+					this.applyAttribute(node, x, sext[x]);
+					//node.style[x] = sext[x];
+				}
+			}
+		}
+		node.className = className.trim();
+	}
+
+	EdenUI.Highlight.prototype.generateClasses = function() {
+		var className = "";
+		for (var i=0; i<this.classes.length; i++) {
+			className += this.styles[this.classes[i]] + " ";
+		}
+		return className.trim();
 	}
 
 	/**
@@ -379,7 +405,7 @@
 			this.token = token;
 			this.prevtoken = prevtoken;
 			this.type = stream.tokenType(token);
-			this.classes = "";
+			this.classes = [];
 			this.tokentext = stream.tokenText();
 			this.lineelement = line;
 
@@ -394,7 +420,7 @@
 				if( inerror) lineerror = true;
 			}
 			if (inerror && ast.script.errors[0].token != "EOF") {
-				this.classes += "eden-error ";
+				this.classes.push("error");
 			}
 
 
@@ -412,10 +438,11 @@
 
 				// Left text
 				var parentspan = document.createElement('span');
-				parentspan.className = this.classes;
-				if (this.classes == "eden-observable") {
-					parentspan.setAttribute("data-observable", this.tokentext);
-				}
+				//parentspan.className = this.classes;
+				this.applyClasses(parentspan);
+				//if (this.classes.indexOf("observable")) {
+				//	parentspan.setAttribute("data-observable", this.tokentext);
+				//}
 
 				var tokenspan = document.createElement('span');
 				//tokenspan.className = classes;
@@ -455,7 +482,7 @@
 				//if (this.metrics[this.line] == undefined) this.metrics[this.line] = {};
 				//this.metrics[this.line].current = true;
 			} else {
-				if (line.lastChild && line.lastChild.className == this.classes) {
+				if (line.lastChild && line.lastChild.className == this.generateClasses()) {
 					var tokenspan = line.lastChild;
 					if (tokenspan.lastChild && tokenspan.lastChild.nodeName == "#text") {
 						tokenspan.lastChild.textContent += this.tokentext;
@@ -464,10 +491,11 @@
 					}
 				} else {
 					var tokenspan = document.createElement('span');
-					tokenspan.className = this.classes;
-					if (this.classes == "eden-observable") {
-						tokenspan.setAttribute("data-observable", this.tokentext);
-					}
+					//tokenspan.className = this.classes;
+					this.applyClasses(tokenspan);
+					//if (this.classes == "eden-observable") {
+					//	tokenspan.setAttribute("data-observable", this.tokentext);
+					//}
 					tokenspan.appendChild(document.createTextNode(this.tokentext));
 					line.appendChild(tokenspan);
 				}
@@ -513,6 +541,7 @@
 		//var curtop = (options && options.spacing && options.spacing[0]) ? options.spacing[0] : 20;
 
 		this.metrics = {};
+		this.styleExtensions = {};
 		detach(this, this.outelement, false, function() {
 
 		// Clear!
