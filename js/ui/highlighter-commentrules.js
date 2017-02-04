@@ -601,7 +601,7 @@ EdenUI.Highlight.prototype.COMMENT_HTML = function() {
 EdenUI.Highlight.prototype.COMMENT_HTML_CONTENT = function() {
 	if (this.token != "<") {
 		this.COMMENT();
-	} else {
+	} else if (this.cacheddata) {
 		var linestr = this.stream.peekLine();
 		var endtag = "/"+this.cacheddata.tagname+">";
 		var endix = linestr.indexOf(endtag);
@@ -614,6 +614,8 @@ EdenUI.Highlight.prototype.COMMENT_HTML_CONTENT = function() {
 			this.stream.position += endix+endtag.length;
 			this.classes.push("hidden-comment");
 		}
+		this.mode = "COMMENT";
+	} else {
 		this.mode = "COMMENT";
 	}
 }
