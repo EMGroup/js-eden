@@ -527,6 +527,7 @@
 
 		var nostackSym = view(name, 'nostack');
 		if (!nostackSym.value()) diag.get(0).parentNode.className += " ui-front";
+		else diag.get(0).parentNode.className += " ui-back";
 		console.log("ADDING UI FRONT");
 		return viewData;
 	};
