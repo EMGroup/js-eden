@@ -225,17 +225,18 @@ var jskeywords = {
 EdenUI.Highlight.prototype.START = function() {
 	switch(this.token) {
 	case "##"		:	if (this.prevtoken == "INVALID") {
-							this.classes += this.styles["hidden-comment"];
+							this.classes.push("hidden-comment");
 							//this.lineelement.className = "eden-comment-line";
 							this.mode = "SECTION_TITLE";
-							this.lineelement.className = this.styles["comment-line"];
+							//this.lineelement.className = this.styles["comment-line"];
+							this.applyClasses(this.lineelement, ["comment-line"]);
 							// Remove a single space if it exists.
 							if (this.stream.peek() == 32) {
 								this.tokentext += " ";
 								this.stream.position++;
 							}
 						} else {
-							this.classes += this.styles["comment"];
+							this.classes.push("comment");
 							this.mode = "COMMENT";
 						}
 						break;
@@ -245,14 +246,15 @@ EdenUI.Highlight.prototype.START = function() {
 								this.tokentext += "!";
 								this.stream.position++;
 							}
-							this.classes += this.styles["hidden-comment"];
+							this.classes.push("hidden-comment");
 							this.mode = "COMMENT";
 							this.incomment = true;
 
 							if (this.prevtoken == "INVALID") this.lineelement.style.marginLeft = "0";
 							//else {
 								var nline = document.createElement("div");
-								nline.className = (isdoxy) ? this.styles["comment-line"]+ " " + this.styles["doxycomment"] : this.styles["comment-line"];
+								//nline.className = (isdoxy) ? this.styles["comment-line"]+ " " + this.styles["doxycomment"] : this.styles["comment-line"];
+								this.applyClasses(nline, (isdoxy) ? ["comment-line","doxycomment"] : ["comment-line"]);
 								this.pushLine();
 								this.lineelement.appendChild(nline);
 								this.lineelement = nline;
@@ -263,27 +265,27 @@ EdenUI.Highlight.prototype.START = function() {
 								this.stream.position++;
 							}
 						} else {
-							this.classes += this.styles["operator"];
+							this.classes.push("operator");
 						}
 						break;
 	case "local"	:
 	case "para"		:
 	case "handle"	:
 	case "oracle"	:
-	case "auto"		:	this.classes += this.styles["storage"]; break;
-	case "NUMBER"	:	this.classes += this.styles["number"]; break;
-	case "STRING"	:	this.classes += this.styles["string"]; break;
-	case "BOOLEAN"	:	this.classes += this.styles["constant"]; break;
-	case "CHARACTER":	this.classes += this.styles["string"]; break;
+	case "auto"		:	this.classes.push("storage"); break;
+	case "NUMBER"	:	this.classes.push("number"); break;
+	case "STRING"	:	this.classes.push("string"); break;
+	case "BOOLEAN"	:	this.classes.push("constant"); break;
+	case "CHARACTER":	this.classes.push("string"); break;
 	case "import"	:
-	case "do"		:	this.classes += this.styles["keyword"];
+	case "do"		:	this.classes.push("keyword");
 						this.pushMode();
 						this.mode = "SELECTOR";
 						break;
-	case "${{"		:	this.classes += this.styles["javascript"];
+	case "${{"		:	this.classes.push("javascript");
 						this.mode = "JAVASCRIPT";
 						break;
-	case "?"		:	this.classes += this.styles["selector"];
+	case "?"		:	this.classes.push("selector");
 						this.pushMode();
 						this.mode = "SELECTOR";
 						break;
@@ -291,19 +293,19 @@ EdenUI.Highlight.prototype.START = function() {
 						var obs = this.stream.tokenText();
 						this.tokentext += obs;
 						this.heredocend = obs;
-						this.classes += this.styles["storage"];
+						this.classes.push("storage");
 						this.mode = "HEREDOC";
 						break;
 	case "OBSERVABLE":	if (edenFunctions[this.stream.data.value]) {
-							this.classes += this.styles["function"];
+							this.classes.push("function");
 						} else if (EdenUI.Highlight.isType(this.stream.data.value)) {
-							this.classes += this.styles["type"];
+							this.classes.push("type");
 						} else if (edenValues[this.stream.data.value]) {
-							this.classes += this.styles["constant"];
+							this.classes.push("constant");
 						} else if (edenSpecials[this.stream.data.value]) {
-							this.classes += this.styles["special"];
+							this.classes.push("special");
 						} else {
-							this.classes += this.styles["observable"];
+							this.classes.push("observable");
 						}
 						break;
 
@@ -311,29 +313,30 @@ EdenUI.Highlight.prototype.START = function() {
 						this.mode = "BACKTICK";
 						this.pushLine();
 						var nline = document.createElement("span");
-						nline.className = this.styles["backticks"];
+						//nline.className = this.styles["backticks"];
+						this.applyClasses(nline, ["backticks"]);
 						this.lineelement.appendChild(nline);
 						this.lineelement = nline;
 						break;
 
 	default			:	if (this.type == "keyword") {
-							this.classes += this.styles["keyword"];
+							this.classes.push("keyword");
 						} else {
 							// Bind negative to number if no whitespace.
 							if (this.token == "-" && this.stream.isNumeric(this.stream.peek())) {
 								this.token = this.stream.readToken();
 								this.tokentext = "-" + this.stream.tokenText();
-								this.classes += this.styles["number"];
+								this.classes.push("number");
 							} else if (this.token == "/*") {
 								if (this.stream.peek() == 42) {
 									this.mode = "DOXY_COMMENT";
-									this.classes += this.styles["block-comment"];
+									this.classes.push("block-comment");
 								} else {
 									this.mode = "BLOCK_COMMENT";
-									this.classes += this.styles["block-comment"];
+									this.classes.push("block-comment");
 								}
 							} else {
-								this.classes += this.styles["operator"];
+								this.classes.push("operator");
 							}
 						}
 	}
@@ -343,7 +346,7 @@ EdenUI.Highlight.prototype.BACKTICK = function() {
 	if (this.token == "`") this.mode = "ENDBACKTICK";
 	else if (this.token == "}") {
 		this.popMode();
-		this.classes += this.styles["operator"];
+		this.classes.push("operator");
 	} else {
 		this.START();
 	}
@@ -358,7 +361,8 @@ EdenUI.Highlight.prototype.ENDBACKTICK = function() {
 EdenUI.Highlight.prototype.SELECTOR = function() {
 	this.pushLine();
 	var nline = document.createElement("span");
-	nline.className = this.styles["pathblock"];
+	//nline.className = this.styles["pathblock"];
+	this.applyClasses(nline, ["pathblock"]);
 	this.lineelement.appendChild(nline);
 	this.lineelement = nline;
 	this.mode = "SELECTOR2";
@@ -367,42 +371,42 @@ EdenUI.Highlight.prototype.SELECTOR = function() {
 
 EdenUI.Highlight.prototype.SELECTOR2 = function() {
 	if (this.token == "{") {
-		this.classes += this.styles["operator"];
+		this.classes.push("operator");
 		this.pushMode();
 		this.mode = this.startmode;
 	} else if (this.token == "[") {
-		this.classes += this.styles["selector"];
+		this.classes.push("selector");
 		this.mode = "SELECTOR_TYPES";
 	} else if (this.token == ";" || this.token == "=") {
 		this.popLine();
-		this.classes += this.styles["operator"];
+		this.classes.push("operator");
 		//this.mode = this.startmode;
 		this.popMode();
 	} else if (this.token == "::" || this.token == "with") {
 		this.popLine();
-		this.classes += this.styles["keyword"];
+		this.classes.push("keyword");
 		//this.mode = this.startmode;
 		this.popMode();
 	} else if (this.token == "OBSERVABLE" && (this.prevtoken == "." || this.prevtoken == ":") && (Eden.Selectors.PropertyNode.attributes[this.tokentext] || Eden.Selectors.PropertyNode.pseudo[this.tokentext])) {
-		this.classes += this.styles["selector2"];
+		this.classes.push("selector2");
 	} else {
-		this.classes += this.styles["selector"];
+		this.classes.push("selector");
 	}
 }
 
 EdenUI.Highlight.prototype.SELECTOR_TYPES = function() {
 	if (this.token == "OBSERVABLE" && Eden.Selectors.resultTypes[this.tokentext]) {
-		this.classes += "eden-selector3";
+		this.classes.push("selector3");
 	} else if (this.token == "]") {
-		this.classes += "eden-selector";
+		this.classes.push("selector");
 		this.mode = "SELECTOR2";
 	} else {
-		this.classes += "eden-selector";
+		this.classes.push("selector");
 	}
 }
 
 EdenUI.Highlight.prototype.JAVASCRIPT = function() {
-	this.classes += this.styles["javascript"];
+	this.classes.push("javascript");
 	if (this.token == "}}$") {
 		this.mode = this.startmode;
 	}
@@ -410,9 +414,9 @@ EdenUI.Highlight.prototype.JAVASCRIPT = function() {
 
 EdenUI.Highlight.prototype.HEREDOC = function() {
 	if (this.prevtoken == "INVALID" && this.tokentext == this.heredocend) {
-		this.classes += this.styles["storage"];
+		this.classes.push("storage");
 		this.mode = this.startmode;
 	} else {
-		this.classes += this.styles["string"];
+		this.classes.push("string");
 	}
 }
