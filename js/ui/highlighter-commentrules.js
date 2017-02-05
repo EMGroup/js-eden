@@ -161,6 +161,16 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 							this.classes.push("comment");
 						}
 						break;
+	case "$"		:	if (this.stream.peek() == 91) {
+							this.pushMode();
+							this.mode = "COMMENT_BUTTON";
+							this.tokentext += "[";
+							this.stream.position++;
+							this.classes.push("hidden-comment");
+						} else {
+							this.classes.push("comment");
+						}
+						break;
 
 	case ">"		:	if ((this.prevtoken == "##" || this.prevtoken == "#" || this.prevtoken == "INVALID") && (this.stream.peek() == 32 || this.stream.peek() == 9)) {
 							this.outerline += " " + this.styles["comment-blockquote"];
@@ -389,6 +399,8 @@ EdenUI.Highlight.prototype.applyAttribute = function(ele, name, val) {
 							break;
 	case "cursor":			ele.style.cursor = val;
 							break;
+	case "class":			this.applyClasses(ele, val.split(" "));
+							break;
 	}
 }
 
@@ -466,11 +478,14 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 		case "left": name = "margin-left"; break;
 		case "right": name = "margin-right"; break;
 		case "underline": name = "text-decoration"; val = "underline"; break;
+		case "highlight": name = "background"; val = "yellow"; break;
 		}
 
 		if (css_color_names[name]) {
 			val = name;
 			name = "color";
+		} else if (name == "") {
+			name = "class";
 		}
 
 		if (extension) {
@@ -684,6 +699,25 @@ EdenUI.Highlight.prototype.COMMENT_IMAGE = function() {
 		nline.style.verticalAlign = "top";
 		this.lineelement.appendChild(nline);
 		this.lineelement = nline;
+	}
+}
+
+EdenUI.Highlight.prototype.COMMENT_BUTTON = function() {
+	this.pushLine();
+	var nline = document.createElement("button");
+	this.lineelement.appendChild(nline);
+	this.lineelement = nline;
+	nline.contentEditable = false;
+	this.mode = "COMMENT_BUTTON_CONTENT";
+}
+
+EdenUI.Highlight.prototype.COMMENT_BUTTON_CONTENT = function() {
+	if (this.token == "]") {
+		this.classes.push("hidden-comment");
+		this.popLine();
+		this.popMode();
+	} else {
+		this.COMMENT();
 	}
 }
 
