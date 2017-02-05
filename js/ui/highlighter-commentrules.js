@@ -211,6 +211,154 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 	}
 }
 
+var css_color_names = {"aliceblue": true,
+"antiquewhite": true,
+"aqua": true,
+"aquamarine": true,
+"azure": true,
+"beige": true,
+"bisque": true,
+"black": true,
+"blanchedalmond": true,
+"blue": true,
+"blueviolet": true,
+"brown": true,
+"burlywood": true,
+"cadetblue": true,
+"chartreuse": true,
+"chocolate": true,
+"coral": true,
+"cornflowerblue": true,
+"cornsilk": true,
+"crimson": true,
+"cyan": true,
+"darkblue": true,
+"darkcyan": true,
+"darkgoldenrod": true,
+"darkgray": true,
+"darkgrey": true,
+"darkgreen": true,
+"darkkhaki": true,
+"darkmagenta": true,
+"darkolivegreen": true,
+"darkorange": true,
+"darkorchid": true,
+"darkred": true,
+"darksalmon": true,
+"darkseagreen": true,
+"darkslateblue": true,
+"darkslategray": true,
+"darkslategrey": true,
+"darkturquoise": true,
+"darkviolet": true,
+"deeppink": true,
+"deepskyblue": true,
+"dimgray": true,
+"dimgrey": true,
+"dodgerblue": true,
+"firebrick": true,
+"floralwhite": true,
+"forestgreen": true,
+"fuchsia": true,
+"gainsboro": true,
+"ghostwhite": true,
+"gold": true,
+"goldenrod": true,
+"gray": true,
+"grey": true,
+"green": true,
+"greenyellow": true,
+"honeydew": true,
+"hotpink": true,
+"indianred": true,
+"indigo": true,
+"ivory": true,
+"khaki": true,
+"lavender": true,
+"lavenderblush": true,
+"lawngreen": true,
+"lemonchiffon": true,
+"lightblue": true,
+"lightcoral": true,
+"lightcyan": true,
+"lightgoldenrodyellow": true,
+"lightgray": true,
+"lightgrey": true,
+"lightgreen": true,
+"lightpink": true,
+"lightsalmon": true,
+"lightseagreen": true,
+"lightskyblue": true,
+"lightslategray": true,
+"lightslategrey": true,
+"lightsteelblue": true,
+"lightyellow": true,
+"lime": true,
+"limegreen": true,
+"linen": true,
+"magenta": true,
+"maroon": true,
+"mediumaquamarine": true,
+"mediumblue": true,
+"mediumorchid": true,
+"mediumpurple": true,
+"mediumseagreen": true,
+"mediumslateblue": true,
+"mediumspringgreen": true,
+"mediumturquoise": true,
+"mediumvioletred": true,
+"midnightblue": true,
+"mintcream": true,
+"mistyrose": true,
+"moccasin": true,
+"navajowhite": true,
+"navy": true,
+"oldlace": true,
+"olive": true,
+"olivedrab": true,
+"orange": true,
+"orangered": true,
+"orchid": true,
+"palegoldenrod": true,
+"palegreen": true,
+"paleturquoise": true,
+"palevioletred": true,
+"papayawhip": true,
+"peachpuff": true,
+"peru": true,
+"pink": true,
+"plum": true,
+"powderblue": true,
+"purple": true,
+"red": true,
+"rosybrown": true,
+"royalblue": true,
+"saddlebrown": true,
+"salmon": true,
+"sandybrown": true,
+"seagreen": true,
+"seashell": true,
+"sienna": true,
+"silver": true,
+"skyblue": true,
+"slateblue": true,
+"slategray": true,
+"slategrey": true,
+"snow": true,
+"springgreen": true,
+"steelblue": true,
+"tan": true,
+"teal": true,
+"thistle": true,
+"tomato": true,
+"turquoise": true,
+"violet": true,
+"wheat": true,
+"white": true,
+"whitesmoke": true,
+"yellow": true,
+"yellowgreen": true};
+
 EdenUI.Highlight.prototype.applyAttribute = function(ele, name, val) {
 	if (!ele.style) return;
 
@@ -264,10 +412,17 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 	while (attrs && attrs.length > 0) {
 		//console.log("ATTRS",attrs);
 		var endix = attrs.indexOf("=");
-		if (endix == -1) break;
-		var name = attrs.substring(0,endix);
+		var name;
+
+		if (endix == -1) {
+			name = attrs;
+			attrs = "";
+		} else {
+			name = attrs.substring(0,endix);
+			attrs = attrs.substring(endix+1);
+		}
+
 		var val = "";
-		attrs = attrs.substring(endix+1);
 
 		if (attrs.charAt(0) == "?") {
 			// Parse a query for the style value
@@ -283,7 +438,7 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 			if (endix == -1) break;
 			val = attrs.substring(1,endix);
 			attrs = attrs.substring(endix+1);
-		} else {
+		} else if (attrs.length > 0) {
 			endix = -1;
 			for (var i=0; i<attrs.length; i++) {
 				if (attrs.charAt(i) == " ") {
@@ -305,8 +460,17 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 		switch(name) {
 		case "colour": name = "color"; break;
 		case "size": name = "font-size"; break;
+		case "font":
 		case "family": name = "font-family"; break;
 		case "decoration": name = "text-decoration"; break;
+		case "left": name = "margin-left"; break;
+		case "right": name = "margin-right"; break;
+		case "underline": name = "text-decoration"; val = "underline"; break;
+		}
+
+		if (css_color_names[name]) {
+			val = name;
+			name = "color";
 		}
 
 		if (extension) {
