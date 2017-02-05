@@ -161,6 +161,16 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 							this.classes.push("comment");
 						}
 						break;
+	case "$"		:	if (this.stream.peek() == 91) {
+							this.pushMode();
+							this.mode = "COMMENT_BUTTON";
+							this.tokentext += "[";
+							this.stream.position++;
+							this.classes.push("hidden-comment");
+						} else {
+							this.classes.push("comment");
+						}
+						break;
 
 	case ">"		:	if ((this.prevtoken == "##" || this.prevtoken == "#" || this.prevtoken == "INVALID") && (this.stream.peek() == 32 || this.stream.peek() == 9)) {
 							this.outerline += " " + this.styles["comment-blockquote"];
@@ -195,6 +205,7 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 						break;
 	case "?"		:	this.pushMode();
 						this.mode = "COMMENT_QUERY";
+						this.cacheddata = undefined;
 						// Record the fact that this is a query line
 						if (this.metrics[this.line] == undefined) this.metrics[this.line] = {};
 						this.metrics[this.line].query = true;
@@ -209,6 +220,154 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 	default			:	this.classes.push("comment");
 	}
 }
+
+var css_color_names = {"aliceblue": true,
+"antiquewhite": true,
+"aqua": true,
+"aquamarine": true,
+"azure": true,
+"beige": true,
+"bisque": true,
+"black": true,
+"blanchedalmond": true,
+"blue": true,
+"blueviolet": true,
+"brown": true,
+"burlywood": true,
+"cadetblue": true,
+"chartreuse": true,
+"chocolate": true,
+"coral": true,
+"cornflowerblue": true,
+"cornsilk": true,
+"crimson": true,
+"cyan": true,
+"darkblue": true,
+"darkcyan": true,
+"darkgoldenrod": true,
+"darkgray": true,
+"darkgrey": true,
+"darkgreen": true,
+"darkkhaki": true,
+"darkmagenta": true,
+"darkolivegreen": true,
+"darkorange": true,
+"darkorchid": true,
+"darkred": true,
+"darksalmon": true,
+"darkseagreen": true,
+"darkslateblue": true,
+"darkslategray": true,
+"darkslategrey": true,
+"darkturquoise": true,
+"darkviolet": true,
+"deeppink": true,
+"deepskyblue": true,
+"dimgray": true,
+"dimgrey": true,
+"dodgerblue": true,
+"firebrick": true,
+"floralwhite": true,
+"forestgreen": true,
+"fuchsia": true,
+"gainsboro": true,
+"ghostwhite": true,
+"gold": true,
+"goldenrod": true,
+"gray": true,
+"grey": true,
+"green": true,
+"greenyellow": true,
+"honeydew": true,
+"hotpink": true,
+"indianred": true,
+"indigo": true,
+"ivory": true,
+"khaki": true,
+"lavender": true,
+"lavenderblush": true,
+"lawngreen": true,
+"lemonchiffon": true,
+"lightblue": true,
+"lightcoral": true,
+"lightcyan": true,
+"lightgoldenrodyellow": true,
+"lightgray": true,
+"lightgrey": true,
+"lightgreen": true,
+"lightpink": true,
+"lightsalmon": true,
+"lightseagreen": true,
+"lightskyblue": true,
+"lightslategray": true,
+"lightslategrey": true,
+"lightsteelblue": true,
+"lightyellow": true,
+"lime": true,
+"limegreen": true,
+"linen": true,
+"magenta": true,
+"maroon": true,
+"mediumaquamarine": true,
+"mediumblue": true,
+"mediumorchid": true,
+"mediumpurple": true,
+"mediumseagreen": true,
+"mediumslateblue": true,
+"mediumspringgreen": true,
+"mediumturquoise": true,
+"mediumvioletred": true,
+"midnightblue": true,
+"mintcream": true,
+"mistyrose": true,
+"moccasin": true,
+"navajowhite": true,
+"navy": true,
+"oldlace": true,
+"olive": true,
+"olivedrab": true,
+"orange": true,
+"orangered": true,
+"orchid": true,
+"palegoldenrod": true,
+"palegreen": true,
+"paleturquoise": true,
+"palevioletred": true,
+"papayawhip": true,
+"peachpuff": true,
+"peru": true,
+"pink": true,
+"plum": true,
+"powderblue": true,
+"purple": true,
+"red": true,
+"rosybrown": true,
+"royalblue": true,
+"saddlebrown": true,
+"salmon": true,
+"sandybrown": true,
+"seagreen": true,
+"seashell": true,
+"sienna": true,
+"silver": true,
+"skyblue": true,
+"slateblue": true,
+"slategray": true,
+"slategrey": true,
+"snow": true,
+"springgreen": true,
+"steelblue": true,
+"tan": true,
+"teal": true,
+"thistle": true,
+"tomato": true,
+"turquoise": true,
+"violet": true,
+"wheat": true,
+"white": true,
+"whitesmoke": true,
+"yellow": true,
+"yellowgreen": true};
 
 EdenUI.Highlight.prototype.applyAttribute = function(ele, name, val) {
 	if (!ele.style) return;
@@ -240,6 +399,8 @@ EdenUI.Highlight.prototype.applyAttribute = function(ele, name, val) {
 							break;
 	case "cursor":			ele.style.cursor = val;
 							break;
+	case "class":			this.applyClasses(ele, val.split(" "));
+							break;
 	}
 }
 
@@ -263,10 +424,17 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 	while (attrs && attrs.length > 0) {
 		//console.log("ATTRS",attrs);
 		var endix = attrs.indexOf("=");
-		if (endix == -1) break;
-		var name = attrs.substring(0,endix);
+		var name;
+
+		if (endix == -1) {
+			name = attrs;
+			attrs = "";
+		} else {
+			name = attrs.substring(0,endix);
+			attrs = attrs.substring(endix+1);
+		}
+
 		var val = "";
-		attrs = attrs.substring(endix+1);
 
 		if (attrs.charAt(0) == "?") {
 			// Parse a query for the style value
@@ -282,7 +450,7 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 			if (endix == -1) break;
 			val = attrs.substring(1,endix);
 			attrs = attrs.substring(endix+1);
-		} else {
+		} else if (attrs.length > 0) {
 			endix = -1;
 			for (var i=0; i<attrs.length; i++) {
 				if (attrs.charAt(i) == " ") {
@@ -304,8 +472,20 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 		switch(name) {
 		case "colour": name = "color"; break;
 		case "size": name = "font-size"; break;
+		case "font":
 		case "family": name = "font-family"; break;
 		case "decoration": name = "text-decoration"; break;
+		case "left": name = "margin-left"; break;
+		case "right": name = "margin-right"; break;
+		case "underline": name = "text-decoration"; val = "underline"; break;
+		case "highlight": name = "background"; val = "yellow"; break;
+		}
+
+		if (css_color_names[name]) {
+			val = name;
+			name = "color";
+		} else if (name == "") {
+			name = "class";
 		}
 
 		if (extension) {
@@ -377,7 +557,27 @@ EdenUI.Highlight.prototype.parseQuery = function(q) {
 }
 
 EdenUI.Highlight.prototype.COMMENT_QUERY = function() {
-	if (this.token == "(") {
+	if (this.token == "[") {
+		var linestr = this.stream.peekLine();
+		var endix = -1;
+		for (var i=0; i<linestr.length; i++) {
+			if (linestr.charAt(i) == "]") {
+				endix = i;
+				break;
+			}
+		}
+
+		if (endix == -1) {
+			this.classes.push("hidden-comment");
+			return;
+		} else {
+			this.classes.push("hidden-comment");
+			this.cacheddata = linestr.substring(0,endix);
+			console.log("Q RES TYPE",this.cacheddata);
+			this.stream.position += endix+1;
+			this.tokentext += this.cacheddata + "]";
+		}
+	} else if (this.token == "(") {
 		var linestr = this.stream.peekLine();
 		var count = 0;
 		var endix = -1;
@@ -406,11 +606,12 @@ EdenUI.Highlight.prototype.COMMENT_QUERY = function() {
 			//ele.className += this.styles["comment-query"]; // + " " + this.styles["comment"];
 			this.applyClasses(ele, ["comment-query"]);
 			this.lineelement.appendChild(ele);
-			var res = Eden.Selectors.query(qstr,"value");
+			var res = Eden.Selectors.query(qstr,(this.cacheddata) ? this.cacheddata : "value");
 			if (res.length == 1) res = res[0];
 			else if (res.length > 1) res = res.join(", ");
 			else res = "";
 			ele.setAttribute("data-result", res);
+			if (this.cacheddata) ele.setAttribute("data-attribs", this.cacheddata);
 			ele.setAttribute("data-query", qstr);
 			this.metrics[this.line].qelements.push(ele);
 		}
@@ -501,6 +702,25 @@ EdenUI.Highlight.prototype.COMMENT_IMAGE = function() {
 	}
 }
 
+EdenUI.Highlight.prototype.COMMENT_BUTTON = function() {
+	this.pushLine();
+	var nline = document.createElement("button");
+	this.lineelement.appendChild(nline);
+	this.lineelement = nline;
+	nline.contentEditable = false;
+	this.mode = "COMMENT_BUTTON_CONTENT";
+}
+
+EdenUI.Highlight.prototype.COMMENT_BUTTON_CONTENT = function() {
+	if (this.token == "]") {
+		this.classes.push("hidden-comment");
+		this.popLine();
+		this.popMode();
+	} else {
+		this.COMMENT();
+	}
+}
+
 EdenUI.Highlight.prototype.COMMENT_IMAGE_END = function() {
 	var linestr = this.stream.peekLine();
 	var endix = linestr.indexOf(")");
@@ -579,7 +799,7 @@ EdenUI.Highlight.prototype.COMMENT_HTML = function() {
 EdenUI.Highlight.prototype.COMMENT_HTML_CONTENT = function() {
 	if (this.token != "<") {
 		this.COMMENT();
-	} else {
+	} else if (this.cacheddata) {
 		var linestr = this.stream.peekLine();
 		var endtag = "/"+this.cacheddata.tagname+">";
 		var endix = linestr.indexOf(endtag);
@@ -592,6 +812,8 @@ EdenUI.Highlight.prototype.COMMENT_HTML_CONTENT = function() {
 			this.stream.position += endix+endtag.length;
 			this.classes.push("hidden-comment");
 		}
+		this.mode = "COMMENT";
+	} else {
 		this.mode = "COMMENT";
 	}
 }
