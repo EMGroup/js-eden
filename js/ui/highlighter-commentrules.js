@@ -500,7 +500,18 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 
 EdenUI.Highlight.prototype.COMMENT_ATTRS = function() {
 	var linestr = this.stream.peekLine();
-	var endix = linestr.indexOf("}");
+	var count = 0;
+	var endix = -1;
+	for (var i=0; i<linestr.length; i++) {
+		if (linestr.charAt(i) == "{") count++;
+		else if (linestr.charAt(i) == "}") {
+			count--;
+			if (count < 0) {
+				endix = i;
+				break;
+			}
+		}
+	}
 
 	if (endix == -1) {
 		this.classes.push("hidden-comment");
