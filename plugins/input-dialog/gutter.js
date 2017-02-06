@@ -82,6 +82,7 @@ function EdenScriptGutter(parent, infob, lineelements) {
 
 	this.ast = undefined;
 	this.lines = [];
+	this.errors = [];
 	this.agents = {};
 	this.hovering = false;
 	this.ctx = undefined;
@@ -320,11 +321,12 @@ EdenScriptGutter.prototype.clear = function() {
 
 
 
-EdenScriptGutter.prototype.setBaseAST = function(base) {
+EdenScriptGutter.prototype.setBaseAST = function(base, errors) {
 	while (this.gutter.firstChild) {
 		this.gutter.removeChild(this.gutter.firstChild);
 	}
 	this.ast = base;
+	this.errors = errors;
 	this.lines = [];
 	this.edits = undefined;
 	this.hideBrace();
@@ -506,6 +508,7 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 	/*if (i == lineno-1) {
 		className += " eden-gutter-current";
 	}*/
+
 	var stat = ast.getStatementByLine(i);
 	if (stat) {
 
@@ -567,10 +570,21 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 		}
 	} else {
 		// Clear any only gutter info form line that is no longer a script line.
-		if (this.lines[i].errored) {
+		if (this.errors && this.errors.length > 0 && this.errors[0].line == i+1) {
+			if (!this.lines[i].errored) {
+				className += " error";
+				content = "&#xf06a";
+				title = this.errors[0].messageText();
+				errorline = i;
+				this.lines[i].errored = true;
+				doupdate = true;
+			}
+		} else if (this.lines[i].errored) {
 			doupdate = true;
 			this.lines[i].errored = false;
+			title = "";
 		}
+
 		if (this.lines[i].executed) {
 			doupdate = true;
 			this.lines[i].executed = true;

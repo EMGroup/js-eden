@@ -331,6 +331,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_QUERYSELECTCOMMA */ [
 	"Expected a comma separated list of attributes"
+],
+/* EDEN_ERROR_BLOCKCOMMENT */ [
+	"A block comment has not been closed"
 ]
 ];
 

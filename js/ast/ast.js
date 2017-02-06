@@ -88,7 +88,12 @@ Eden.AST = function(code, imports, origin, options) {
 		this.script.setDoxyComment(this.doxyFromOrigin());
 		if (!this.options || !this.options.noindex) this.script.addIndex();
 		else if (this.script.id == 0) this.script.buildID();
-		this.errors = this.script.errors;
+
+		if (this.errors.length == 0) {
+			this.errors = this.script.errors;
+		} else {
+			this.errors.push.apply(this.errors, this.script.errors);
+		}
 	}
 }
 
@@ -477,6 +482,10 @@ Eden.AST.prototype.next = function() {
 				}
 			}
 
+			if (this.token != "*/") {
+				this.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BLOCKCOMMENT));
+			}
+
 			// Store doxy comment so next statement can use it, or if we are
 			// at the beginning of the script then its the main doxy comment.
 			if (isDoxy) {
@@ -491,30 +500,6 @@ Eden.AST.prototype.next = function() {
 				//if (startline == 1) this.mainDoxyComment = this.lastDoxyComment;
 			}
 			this.token = this.stream.readToken();
-		// Skip line comments
-		//} else if (this.token == "##" && this.lastposition != 0 && /[\s;\{]+/.test(this.stream.code.charAt(this.stream.position-3))) {
-		//	this.stream.skipLine();
-		//	this.token = this.stream.readToken();
-		/*} else if (this.token == "#" && (this.lastposition == 0 || this.lastline < this.stream.line)) {
-			var start = this.stream.position;
-			var startline = this.stream.line;
-
-			do {
-				this.stream.skip();
-				this.stream.skipLine();
-				this.stream.skip();
-				this.stream.line++;
-			} while (this.stream.code.charAt(this.stream.position) == "#");
-			
-			var doxy = new Eden.AST.DoxyComment(this.stream.code.substring(start, this.stream.position-1).trim(), startline, this.stream.line);
-			this.lastDoxyComment.push(doxy);
-			doxy.parent = this.parentDoxy;
-			if (doxy.content.endsWith("@{")) {
-				this.parentDoxy = doxy;
-			} else if (doxy.content.startsWith("@}")) {
-				if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
-			}
-			this.token = this.stream.readToken();*/
 		// Extract javascript code blocks
 		} else if (this.token == "${{") {
 			var start = this.stream.position;
