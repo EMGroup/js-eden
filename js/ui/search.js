@@ -85,13 +85,13 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 			if (dataimported != "true") {
 				html += '<button class="script-button script-import">Import</button>';
 			}// else {
-				html += '<button class="script-button script-goto">Goto</button></p>';
+				html += '<button class="script-button script-goto">View</button></p>';
 			//}
 		} else {
 			if (type == "assignment" || type == "definition") {
-				html = '<p><button class="script-button script-goto">Goto</button><button class="script-button">Watch</button><button class="script-button">More</button></p>';
+				html = '<p><button class="script-button script-goto">View</button><button class="script-button">Watch</button><button class="script-button">More</button></p>';
 			} else {
-				html = '<p><button class="script-button script-goto">Goto</button><button class="script-button">More</button></p>';
+				html = '<p><button class="script-button script-goto">View</button><button class="script-button">More</button></p>';
 			}
 		}
 	} else { html = ''; }
@@ -145,9 +145,13 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 		} else {
 			iconstr = '<span class="search-scriptres">&#xf15c;</span>';
 		}
-		if (stat.parent === undefined) {
-			symstr = "<span class=\"eden-keyword\">Project: </span><b>" + ((stat.base && stat.base.origin && stat.base.origin.title) ? stat.base.origin.title : stat.name) + "</b>";
-			dohl = false;
+		//if (stat.parent === undefined) {
+		//	symstr = "<span class=\"eden-keyword\">Project: </span><b>" + ((stat.base && stat.base.origin && stat.base.origin.title) ? stat.base.origin.title : stat.name) + "</b>";
+		//	dohl = false;
+		//} else
+		if (stat.doxyComment && stat.doxyComment.getProperty("title")) {
+			//console.log("TITLE",stat.doxyComment.getProperty("title"));
+			symstr = stat.doxyComment.getProperty("title")[0];
 		} else if (stat.name) {
 			symstr = "action " + stat.name;
 		} else {
@@ -246,19 +250,15 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 			var MAXRES = 8;
 			var count = 0;
 
-			console.log(res);
+			//console.log(res);
 
 			for (i=0; i<res.length; i++) {
+				if (res[i].parent === undefined && res[i].executed == 0) continue;
 				if (count >= MAXRES) break;
 				count++;
 				var ele;
 
-				//if (res[i] instanceof Symbol) {
-				//	ele = me.makeSymbolResult(res[i]);
-				//} else {
-					ele = me.makeStatementResult(res[i]);
-				//}
-
+				ele = me.makeStatementResult(res[i]);
 				symresults.append(ele);
 			}
 

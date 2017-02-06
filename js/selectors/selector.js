@@ -778,7 +778,16 @@ Eden.Selectors.assign = function(selector, attributes, values) {
 			case "title":
 			case "comment":
 			case "rawcomment":		var doxy = new Eden.AST.DoxyComment(vals[j],0,0);
-									res[i].doxyComment = doxy;
+									var dum = new Eden.AST.DummyStatement();
+									dum.setSource(0,0,"#! " + vals[j].trim().replace(/\n/g, "\n# ")+"\n");
+									if (res[i].doxyComment) {
+										res[i].parent.replaceChild(res[i].previousSibling, dum);
+									} else {
+										res[i].parent.insertBefore(res[i], dum);
+									}
+									Eden.Index.remove(res[i]);
+									res[i].setDoxyComment(doxy);
+									Eden.Index.update(res[i]);
 									break;
 			case "tags":
 			case "executed": break;
@@ -861,6 +870,9 @@ Eden.Selectors.append = function(selector, attributes, values) {
 			case "comment":
 			case "rawcomment":		var doxy = new Eden.AST.DoxyComment(vals[j],0,0);
 									res[i].doxyComment = doxy;
+									var dum = new Eden.AST.DummyStatement();
+									dum.setSource(vals[j],0,0);
+									res[i].parent.insertBefore(res[i], dum);
 									break;
 			case "tags":
 			case "name"			:	if (res[i].type == "script") {

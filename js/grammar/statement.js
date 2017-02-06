@@ -232,7 +232,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 								if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
 							}
 
-							if (this.lastStatement && this.lastStatement.type != "dummy" && this.lastStatement.doxyComment === undefined) {
+							if (this.lastStatement && this.lastStatement.type != "dummy" && this.lastStatement.doxyComment === undefined && this.lastStatementEndline == startline2-1) {
 								this.lastStatement.setDoxyComment(doxy2);
 							} else {
 								this.lastDoxyComment.push(doxy2);
@@ -372,6 +372,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	stat.numlines = endline - curline - 1;
 	stat.setSource(start, end,this.stream.code.substring(start,end));
 	this.lastStatement = stat;
+	this.lastStatEndline = endline;
 
 	return stat;
 };
