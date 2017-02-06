@@ -33,7 +33,7 @@ Eden.Selectors.NameNode.prototype.construct = function() {
 		var tagres = Eden.Index.getByTag("#"+tags[0]);
 		for (var i=1; i<tags.length; i++) {
 			tagres = tagres.filter(function(stat) {
-				return stat !== eden.project.ast.script && stat.doxyComment && stat.doxyComment.hasTag("#"+tags[i]);
+				return (!eden.project || stat !== eden.project.ast.script) && stat.doxyComment && stat.doxyComment.hasTag("#"+tags[i]);
 			});
 		}
 		stats.push.apply(stats, tagres);
