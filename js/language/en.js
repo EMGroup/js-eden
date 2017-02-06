@@ -334,6 +334,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_BLOCKCOMMENT */ [
 	"A block comment has not been closed"
+],
+/* EDEN_ERROR_NEWLINE */ [
+	"You must have a new line after a section header or comment"
 ]
 ];
 

@@ -99,6 +99,10 @@ div.eden-comment-line {
 	display: inline-block;
 }
 
+div.eden-comment-line.current {
+	text-align: left;
+}
+
 li.eden-comment {
 	margin-left: 10px;
 	white-space: normal;
