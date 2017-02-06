@@ -70,6 +70,7 @@ Eden.AST = function(code, imports, origin, options) {
 	this.mainDoxyComment = undefined;
 	this.parentDoxy = undefined;
 	this.lastStatement = undefined;
+	this.lastStatementEndline = -1;
 
 	if(this.stream) this.stream.data = this.data;
 

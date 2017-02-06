@@ -6,7 +6,8 @@ action start {/* Enter some script here */
 
 do lib:unexecuted;
 if (jseden_project_mode == "restore") do :project > ACTIVE;
-do :project > start;
+if (jseden_project_mode != "safe") do :project > start;
+else createView("safemode","ScriptInput");
 
 action ACTIVE {views_list = ["myscript"];
 view_myscript_type = "ScriptInput";
