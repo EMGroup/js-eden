@@ -71,12 +71,16 @@ Eden.AST.DoxyComment.prototype.stripped = function() {
 		if (lines[i].charAt(0) == "*") lines[i] = lines[i].slice(1).trim();
 		if (lines[i].charAt(0) == "@") {
 			var spaceix = lines[i].indexOf(" ");
-			var cont = lines[i].substring(0,spaceix);
-			var details = lines[i].substring(spaceix+1,lines[i].length);
-			//console.log("Parsed control:",cont,details);
+			if (spaceix == -1) {
+				controls[lines[i]] = true;
+			} else {
+				var cont = lines[i].substring(0,spaceix);
+				var details = lines[i].substring(spaceix+1,lines[i].length);
+				//console.log("Parsed control:",cont,details);
 
-			if (controls[cont] === undefined) controls[cont] = [];
-			controls[cont].push(details);
+				if (controls[cont] === undefined) controls[cont] = [];
+				controls[cont].push(details);
+			}
 
 			lines[i] = "";
 		}
@@ -109,7 +113,7 @@ Eden.AST.DoxyComment.prototype.brief = function() {
 }
 
 Eden.AST.DoxyComment.prototype.pretty = function() {
-	var s = this.stripped();
+	var s = this.stripped().replace(/\s(#[a-zA-Z0-9]+)/g, ' <span class="markdown-hashtag">$1</span>');
 	var paras = this.controls["@param"];
 	/*var res = "<p>";
 	for (var i=0; i<s.length; i++) {

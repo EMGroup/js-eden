@@ -376,6 +376,8 @@ EdenUI.Highlight.prototype.applyAttribute = function(ele, name, val) {
 	case "color":
 	case "font-size":
 	case "font-family":
+	case "font-weight":
+	case "font-style":
 	case "text-decoration":
 	case "margin-left":
 	case "margin-right":	ele.style[name] = val;
@@ -479,6 +481,8 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 		case "right": name = "margin-right"; break;
 		case "underline": name = "text-decoration"; val = "underline"; break;
 		case "highlight": name = "background"; val = "yellow"; break;
+		case "bold": name = "font-weight"; val = "bold"; break;
+		case "italic": name = "font-style"; val = "italic"; break;
 		}
 
 		if (css_color_names[name] || name.charAt(0) == "#") {
