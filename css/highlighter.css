@@ -103,6 +103,11 @@ div.eden-comment-line.current {
 	text-align: left;
 }
 
+div.eden-wrapline {
+	white-space: pre-wrap;
+	word-wrap: initial;
+}
+
 li.eden-comment {
 	margin-left: 10px;
 	white-space: normal;
