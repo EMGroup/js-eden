@@ -4,6 +4,7 @@
 	padding-right: 0.35em;
 	padding-top: 0.5em;
 	padding-bottom: 0.35em;
+	font-size: 10pt;
 }
 
 .symbollist-outer {
@@ -53,7 +54,8 @@
 }
 
 .symbollist-search {
-	width: calc(100% - 80px);
+	width: calc(100% - 90px);
+	padding-left: 5px;
 }
 
 .symbollist-dialog {
@@ -84,10 +86,11 @@ div.symbollist-dialog .ui-dialog-titlebar {
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
 	box-shadow: 0 0 10px #4a6887;
-	background: -webkit-linear-gradient(#fafafa, #cccccc); 
+	/*background: -webkit-linear-gradient(#fafafa, #cccccc); 
 	background: -o-linear-gradient(#fafafa, #cccccc); 
 	background: -moz-linear-gradient(#fafafa, #cccccc); 
-	background: linear-gradient(#fafafa, #cccccc);  
+	background: linear-gradient(#fafafa, #cccccc);  */
+	font-size: 10pt;
 }
 
 .symbollist-results {
