@@ -481,7 +481,7 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 		case "highlight": name = "background"; val = "yellow"; break;
 		}
 
-		if (css_color_names[name]) {
+		if (css_color_names[name] || name.charAt(0) == "#") {
 			val = name;
 			name = "color";
 		} else if (name == "") {

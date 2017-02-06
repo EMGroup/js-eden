@@ -336,7 +336,7 @@ Eden.Fragment.prototype.setSource = function(src) {
 	// TODO Transfer execution/when status...
 	//oldast.destroy();
 
-	if (this.ast.script.errors.length == 0) {
+	if (this.ast.errors.length == 0) {
 		//clearTimeout(this.autosavetimer);
 		//this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Fragment.AUTOSAVE_INTERVAL);
 
