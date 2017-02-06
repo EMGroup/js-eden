@@ -242,6 +242,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				if (curtab != value) {
 					curtab = value;
 					scriptarea.setFragment(tab_frags[curtab]);
+					if (scriptarea.fragment.originast && scriptarea.fragment.originast.doxyComment && scriptarea.fragment.originast.doxyComment.getProperty("nobuttons")) {
+						showButtonsSym.assign(false, eden.root.scope, Symbol.localJSAgent);
+						console.log("DISABLE BUTTONS");
+					}
 				}
 				rebuildTabs();
 			} else {

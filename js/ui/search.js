@@ -20,8 +20,20 @@ EdenUI.SearchBox = function(element) {
 
 	element.on('click', '.script-goto', function(e) {
 		var id = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-id");
-		me.element.hide();
-		Eden.Selectors.goto(id);
+		var imported = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-imported");
+		if (imported != "true") {
+			Eden.Selectors.query(id, undefined, {minimum: 1, options: {external: true, index: true}}, function(stats) {
+				//if (id && id != "") {
+					e.currentTarget.parentNode.parentNode.parentNode.setAttribute("data-imported","true");
+					me.updateSymbolDetails(e.currentTarget.parentNode.parentNode.parentNode, id);
+					me.element.hide();
+					Eden.Selectors.goto(id);
+				//}
+			});
+		} else {
+			me.element.hide();
+			Eden.Selectors.goto(id);
+		}
 	});
 
 	element.on('click', '.script-import', function(e) {
@@ -114,9 +126,9 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 
 	if (comment) {
 		//var tags = ast.doxyComment.getHashTags();
-		if (tags && tags.length > 0) {
-			html += "<p><b>Tags:</b> " + tags.join(" ") + "</p>";
-		}
+		//if (tags && tags.length > 0) {
+		//	html += "<p><b>Tags:</b> " + tags.join(" ") + "</p>";
+		//}
 		var stripped = comment.pretty(); //ast.doxyComment.pretty();
 		if (stripped && stripped.length > 0) {
 			html += stripped;
