@@ -8,6 +8,8 @@ Eden.AST.prototype.pSECTION = function() {
 	if (this.stream.valid()) {
 		this.stream.position--;
 		this.stream.line--;
+	} else {
+		this.errors.push(new Eden.SyntaxError(this,Eden.SyntaxError.NEWLINE));
 	}
 	//console.log("SECTION",name);
 	this.next();

@@ -144,6 +144,10 @@ Eden.AST.prototype.pFACTOR = function() {
 			res += line;
 		}
 
+		if (!this.stream.valid()) {
+			this.errors.push(new Eden.SyntaxError(this,Eden.SyntaxError.NEWLINE));
+		}
+
 		this.next();
 
 		var lit = new Eden.AST.Literal("STRING", res.slice(0,-1).replace(/\\/g,"\\\\").replace(/"/g, "\\\""));
