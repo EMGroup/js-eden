@@ -379,7 +379,20 @@
 				edenUI.menu.show();
 			}
 		} else if (document.mozCancelFullScreen) {
-
+			if (val) {
+				document.onmozfullscreenchange = function() {
+					if (!document.mozFullScreen) {
+						sym.assign(false, eden.root.scope, Symbol.hciAgent);
+						edenUI.menu.show();
+					}
+				}
+				var ele = document.getElementById(name+"-canvascontent");
+				ele.mozRequestFullScreen();
+				edenUI.menu.hide();
+			} else {
+				document.mozCancelFullScreen();
+				edenUI.menu.show();
+			}
 		}
 	}
 

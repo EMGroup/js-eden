@@ -161,6 +161,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					scriptarea.highlighter.setScrollTop(stop);
 					scrolltopline = stop;
 					scriptarea.updateCachedHighlight();
+					scriptarea.gutter.clear();
 				}
 			}, 100);
 		});
