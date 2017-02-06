@@ -594,6 +594,8 @@
 					stream.position = eolix;
 				}
 				line = document.createTextNode(ltext);
+
+				if (ltext.trim().charAt(0) == "#") this.outerline = "eden-line eden-comment-line";
 			} else {
 				//this.outerline = lineelement;
 				line = this.highlightLine(this.ast, position);
