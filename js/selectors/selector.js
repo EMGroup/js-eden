@@ -679,7 +679,8 @@ Eden.Selectors.execute = function(selector, cb) {
  * should be the one used.
  */
 Eden.Selectors.goto = function(selector) {
-	var res = Eden.Selectors.query(selector, undefined, {minimum: 1});
+	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true}, function(res) {
+	//console.log("GOTORES", selector, res);
 
 	if (res.length == 0) return false;
 
@@ -725,6 +726,7 @@ Eden.Selectors.goto = function(selector) {
 		}
 	}
 	return success;
+	});
 }
 
 /**
