@@ -20,20 +20,20 @@ EdenUI.SearchBox = function(element) {
 
 	element.on('click', '.script-goto', function(e) {
 		var id = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-id");
-		var imported = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-imported");
-		if (imported != "true") {
-			Eden.Selectors.query(id, undefined, {minimum: 1, options: {external: true, index: true}}, function(stats) {
+		//var imported = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-imported");
+		//if (imported != "true") {
+			//Eden.Selectors.query(id, undefined, {minimum: 1, options: {external: true, index: true}}, function(stats) {
 				//if (id && id != "") {
-					e.currentTarget.parentNode.parentNode.parentNode.setAttribute("data-imported","true");
-					me.updateSymbolDetails(e.currentTarget.parentNode.parentNode.parentNode, id);
-					me.element.hide();
-					Eden.Selectors.goto(id);
+					//e.currentTarget.parentNode.parentNode.parentNode.setAttribute("data-imported","true");
+					//me.updateSymbolDetails(e.currentTarget.parentNode.parentNode.parentNode, id);
+					//me.element.hide();
+					//Eden.Selectors.goto(id);
 				//}
-			});
-		} else {
+			//});
+		//} else {
 			me.element.hide();
-			Eden.Selectors.goto(id);
-		}
+			Eden.Selectors.goto("@external " + id);
+		//}
 	});
 
 	element.on('click', '.script-import', function(e) {
@@ -94,9 +94,9 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	if (!historic) {
 		if (dataremote == "true") {
 			html += "<p>";
-			if (dataimported != "true") {
-				html += '<button class="script-button script-import">Import</button>';
-			}// else {
+			//if (dataimported != "true") {
+				//html += '<button class="script-button script-import">Import</button>';
+			//}// else {
 				html += '<button class="script-button script-goto">View</button></p>';
 			//}
 		} else {
