@@ -31,24 +31,8 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			<div class=\"symbollist-search-box-outer\"> \
 				<input type=\"text\" class=\"symbollist-search symbollist-control\" /> \
 				<a class=\"symbollist-edit symbollist-control symbollist-rightmost-control\">Edit Listed</a><br/> \
-				<select id=\"" + viewName + "-category-filter\" class=\"symbollist-control\"> \
-					<option value=\"user\">Construal</option>";
+				";
 
-		var categories = Eden.getSymbolCategories(viewType);
-		for (var i = 0; i < categories.length; i++) {
-			html = html + "<option value=\"" + categories[i] + "\">" + categories[i] + "</option>";
-		}
-		html = html+"<option value=\"system\">Complete Library</option> \
-					<option value=\"all\">All Sources</option> \
-				</select>";
-		if (viewType == "obs") {
-			html = html + "\
-				<select id=\"" + viewName + "-type-filter\" class=\"symbollist-control symbollist-rightmost-control\"> \
-					<option value=\"formulas\">Dependencies</option>\
-					<option value=\"vars\">Base Observables</option>\
-					<option value=\"all\" selected=\"selected\">All Kinds</option>\
-				</select>";
-		}
 		html = html + "\
 			</div> \
 			<div class=\"symbollist-results\"></div>";
@@ -154,15 +138,15 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			searchStrSym.assign(searchBoxElem.value, root.scope, Symbol.hciAgent);
 		});
 
-		document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
-			symbollist.search(searchBoxElem.value, makeRegExp(), event.target.value);
-		});
+		//document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
+		//	symbollist.search(searchBoxElem.value, makeRegExp(), event.target.value);
+		//});
 
-		if (type == "obs") {
-			document.getElementById(name + "-type-filter").addEventListener("change", function (event) {
-				symbollist.search(searchBoxElem.value, makeRegExp(), undefined, event.target.value);
-			});
-		}
+		//if (type == "obs") {
+		//	document.getElementById(name + "-type-filter").addEventListener("change", function (event) {
+		//		symbollist.search(searchBoxElem.value, makeRegExp(), undefined, event.target.value);
+		//	});
+		//}
 
 		var viewData = {
 			destroy: function () {
@@ -333,7 +317,7 @@ EdenUI.plugins.SymbolViewer.SymbolList = function (root, element, type) {
 	this.root = root;
 	this.regExp = new RegExp("");
 	this.type = type;
-	this.category = "user"; // Show "user" defined, "system" defined, a custom category name or "all"
+	this.category = "all"; // Show "user" defined, "system" defined, a custom category name or "all"
 	this.customCategory = false;
 	this.subtypes = "all";   // Show "formulas", "vars" or "all"
 	this.symresults = element;
@@ -356,10 +340,10 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (searchStr, r
 		this.regExp = regExp;
 
 		this.regExp = regExp;
-		if (category !== undefined) {
-			this.category = category;
-			this.customCategory = (category != "user" && category != "system" && category != "all");
-		}
+		//if (category !== undefined) {
+		//	this.category = category;
+		//	this.customCategory = (category != "user" && category != "system" && category != "all");
+		//}
 		if (subtypes !== undefined) {
 			this.subtypes = subtypes;
 		}
@@ -378,10 +362,10 @@ EdenUI.plugins.SymbolViewer.SymbolList.prototype.search = function (searchStr, r
 		this.searchStr = searchStr;
 		this.searchStrLowerCase = searchStr.toLowerCase();
 		this.regExp = regExp;
-		if (category !== undefined) {
-			this.category = category;
-			this.customCategory = (category != "user" && category != "system" && category != "all");
-		}
+		//if (category !== undefined) {
+		//	this.category = category;
+		//	this.customCategory = (category != "user" && category != "system" && category != "all");
+		//}
 		if (subtypes !== undefined) {
 			this.subtypes = subtypes;
 		}
