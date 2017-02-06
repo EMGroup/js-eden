@@ -595,7 +595,7 @@
 				}
 				line = document.createTextNode(ltext);
 
-				if (ltext.trim().charAt(0) == "#") this.outerline = "eden-line eden-comment-line";
+				if (!this.disablehl && ltext.trim().charAt(0) == "#") this.outerline = "eden-line eden-wrapline";
 			} else {
 				//this.outerline = lineelement;
 				line = this.highlightLine(this.ast, position);
