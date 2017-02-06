@@ -483,7 +483,9 @@ Eden.AST.prototype.next = function() {
 			}
 
 			if (this.token != "*/") {
-				this.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BLOCKCOMMENT));
+				var err = new Eden.SyntaxError(this, Eden.SyntaxError.BLOCKCOMMENT);
+				err.line = startline;
+				this.errors.push(err);
 			}
 
 			// Store doxy comment so next statement can use it, or if we are
