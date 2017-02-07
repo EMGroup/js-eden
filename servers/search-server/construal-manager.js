@@ -211,10 +211,10 @@ function reindexProject(projectID){
 		}else{
 			var row = rows[0];
 			getFullVersion(row.saveID, row.projectID,row,function(data){
-				var tmpAst = new Eden.AST(data.source,undefined,{id: row.projectID, saveID: row.saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
-				
 				if(allKnownProjects[row.projectID])
 					allKnownProjects[row.projectID].destroy();
+
+				var tmpAst = new Eden.AST(data.source,undefined,{id: row.projectID, saveID: row.saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
 
 				allKnownProjects[row.projectID] = tmpAst.script;
 			});
