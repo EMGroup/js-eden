@@ -644,6 +644,7 @@ EdenUI.Highlight.prototype.COMMENT_LINK = function() {
 
 		if (this.stream.peek() == 40) {
 			// Detect kind of link
+			//var linestr = this.stream.peekLine();
 			//var urlstart = linestr.substring(endix+2);
 			//if (urlstart.startsWith("http://")) {
 				//console.log("EXTERNAL URL");
@@ -688,7 +689,11 @@ EdenUI.Highlight.prototype.COMMENT_LINK_END = function() {
 			this.stream.position += endix+1;
 			this.classes.push("hidden-comment");
 			this.popMode();
-			this.lineelement.setAttribute("href", remaining);
+			if (remaining.startsWith("http://")) {
+				this.lineelement.setAttribute("href", remaining);
+			} else {
+				this.lineelement.setAttribute("href", "javascript: Eden.Selectors.goto('"+remaining+"');");
+			}
 			this.popLine();
 		}
 	}
