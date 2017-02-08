@@ -53,6 +53,12 @@ Eden.AST.prototype.pWHEN = function() {
 		var scope = this.pSCOPE();
 		when.setScope(scope);
 		if (scope.errors.length > 0) return when;
+
+		if (this.token != ";") {
+			when.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+			return when;
+		}
+		this.next();
 	}
 
 	// Compile the expression and log dependencies

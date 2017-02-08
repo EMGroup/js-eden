@@ -31,7 +31,12 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	var result = "function(context, scope, cache) {\n";
 	this.locals = (ctx) ? ctx.locals : undefined;
 	this.params = (ctx) ? ctx.params : undefined;
+	this.backtickCount = 0;
 	var express = this.expression.generate(this, "scope", {bound: dobound, indef: true});
+
+	if (this.backtickCount > 0) {
+		result += "var btick = 0;\n";
+	} 
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {

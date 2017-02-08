@@ -316,14 +316,14 @@ Symbol.prototype.subscribe = function () {
 };
 
 Symbol.prototype.subscribeDynamic = function (position, dependency, scope) {
-	//console.log("SUBDYN",dependency);
 	// To put the dependency on the outer scoped observable is in a scoping context
-	if (scope && scope.cause) {
+	if (scope && scope !== eden.root.scope && scope.cause) {
 		// TODO WHY WAS THIS HERE? Nested scopes?
 		//return scope.cause.subscribeDynamic(scope.causecount++, dependency, scope);
 		//var basescope = scope.baseScope();
 		//if (basescope !== scope) {
-		//	return basescope.cause.subscribeDynamic(basescope.cause.causecount++, dependency, scope);
+			//console.log("SUBDYN",dependency, basescope.cause.causecount);
+			//return basescope.cause.subscribeDynamic(basescope.cause.causecount++, dependency, scope);
 		//}
 	}
 

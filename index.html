@@ -34,11 +34,24 @@ See LICENSE.txt
 	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
 	<script type="text/javascript" src="js/lib/jquery-ui-1.12.1.min.js"></script>
 	<style type="text/css">
+		/*If we ever upgrade to jquery.ui version 1.10 or later then remove the following rule. */
+		.ui-front {
+			/*z-index: 10000 !important;*/
+		}
+
+		.ui-top {
+			z-index: 200000 !important;
+		}
+
+		/* Used to force a dialog to the back */
+		.ui-back {
+			z-index: 9000 !important;
+		}
+
 		.ui-dialog {
 			z-index: 9999;
 		}
 	</style>
-	<script type="text/javascript" src="js/lib/jquery.dialogextend.min.js"></script>
 		<style type="text/css">
 
 		div.jseden-dialog-plisting {
@@ -305,7 +318,7 @@ See LICENSE.txt
 			var lopts = $("#loadoptions");
 
 			function updateSearch() {
-				var plist = lopts.find("#jseden-public-projects");
+				var plist = lopts.find("#jseden-featured-projects");
 
 				//console.log("Load projects: " + path);
 
@@ -365,8 +378,9 @@ See LICENSE.txt
 			.on("keyup",".search", function(e) {
 				searchstr = e.currentTarget.value;
 				updateSearch();
-			})
-			.on("click",".project",function(e) {
+			});
+
+			/*.on("click",".project",function(e) {
 				var pid = e.currentTarget.getAttribute("data-pid");
 				//var tag = parseInt(e.currentTarget.getAttribute("data-tag"));
 				console.log("Load project: " + pid); // + "@"+tag);
@@ -383,7 +397,7 @@ See LICENSE.txt
 				projectdetails = new EdenUI.ProjectDetails(pid);
 
 				//});
-			});
+			});*/
 
 			function setLoadObserver() {
 				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
