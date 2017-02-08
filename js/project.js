@@ -279,6 +279,12 @@ Eden.Project.prototype.setDescription = function(text) {
 	this.tags = tmpdoxy.getHashTags().map(function(e) { return e.substring(1); });
 }
 
+Eden.Project.prototype.addTrigger = function(when, d, scope) {
+	console.log("Add When Trigger",d);
+	if (this.triggers[d] === undefined) this.triggers[d] = [];
+	this.triggers[d].push({statement: when, scope: scope});
+}
+
 Eden.Project.prototype.registerAgent = function(when) {
 	console.log("REGISTER WHEN", when);
 	for (var x in when.dependencies) {

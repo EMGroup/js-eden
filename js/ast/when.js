@@ -67,7 +67,7 @@ Eden.AST.When.prototype.setScope = function (scope) {
 }
 
 Eden.AST.When.prototype.subscribeDynamic = function(position, dependency, scope) {
-	//console.log("Subscribe Dyn: ", dependency, scope);
+	console.log("Subscribe Dyn: ", dependency, scope);
 	/*if (this.base.triggers[dependency]) {
 		if (this.base.triggers[dependency].indexOf(this) == -1) {
 			this.base.triggers[dependency].push(this);
@@ -76,9 +76,9 @@ Eden.AST.When.prototype.subscribeDynamic = function(position, dependency, scope)
 		var trigs = [this];
 		this.base.triggers[dependency] = trigs;
 	}*/
-	var p = this;
-	while (p.parent) p = p.parent;
-	this.addTrigger(p.base, dependency, scope);
+	//var p = this;
+	//while (p.parent) p = p.parent;
+	eden.project.addTrigger(this, dependency, scope);
 	return eden.root.lookup(dependency);
 }
 
@@ -156,7 +156,7 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 	//if (this.active) return;
 	//this.active = true;
 	this.executed = 1;
-	//this.compile(base);
+	if (!this.compiled) this.compile(base);
 
 	//console.log("Exec When: " + base.getSource(this));
 
@@ -178,9 +178,9 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 		//if (scope.first()) {
 			while (true) {
 				var cscope = scope.clone();
-				if (this.compiled.call(this, eden.root,cscope)) {
-					//sscripts.push(new Eden.AST.ScopedScript(this.statement.statements, cscope));
-					console.log("RANGE WHEN:", cscope);
+				if (this.compiled.call(this, eden.root,scope)) {
+					sscripts.push(new Eden.AST.ScopedScript(this.statement.statements, cscope));
+					//console.log("RANGE WHEN:", scope);
 				} else {
 					this.executed = 2;
 				}
