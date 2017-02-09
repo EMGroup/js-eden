@@ -528,7 +528,6 @@
 		var nostackSym = view(name, 'nostack');
 		if (!nostackSym.value()) diag.get(0).parentNode.className += " ui-front";
 		else diag.get(0).parentNode.className += " ui-back";
-		console.log("ADDING UI FRONT");
 		return viewData;
 	};
 
@@ -538,7 +537,8 @@
 	 */
 	EdenUI.prototype.closeView = function (name) {
 		var me = this;
-		if (this.viewInstances[name].confirmClose) {
+		// TODO If we want to keep this dialog, make it work with latest jquery
+		/*if (this.viewInstances[name].confirmClose) {
 			this.modalDialog(
 				"Window Close Action",
 				"<p>Removing this window from the work space will cause any unsaved changes associated with it to be lost.  You may need to reload the construal if you wish to see this window again.</p> \
@@ -559,11 +559,12 @@
 				}
 			);
 			return false;
-		} else {
-			this.destroyView(name, true);
+		} else {*/
+			this.hideView(name);
+			//this.destroyView(name, true);
 			edenUI.eden.root.collectGarbage();
 			return true;
-		}
+		//}
 	}
 
 	EdenUI.prototype.destroyAllViews = function() {
