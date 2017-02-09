@@ -196,7 +196,8 @@ EdenUI.MenuBar = function() {
 		if (edenUI.viewInstances[name].confirmClose) {
 			hideMenu();
 		}
-		edenUI.closeView(name);
+		//edenUI.closeView(name);
+		edenUI.destroyView(name);
 		existingViewsInstructions();
 	}
 	
