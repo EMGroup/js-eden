@@ -19,7 +19,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 	document.body.appendChild(this.obscurer.get(0));
 
 	Eden.DB.getMeta(projectid, function(meta) {
-		console.log("DETAILS META", meta);
+		//console.log("DETAILS META", meta);
 
 		if (meta[0].image !== null) {
 			var img = $('<img class="projectdetails-thumb" src="'+meta[0].image+'"></img>');
@@ -31,7 +31,26 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 		var descbox = document.createElement("div");
 		descbox.className = "markdown";
 		var sdown = new showdown.Converter();
-		var desc = (meta2 && meta2.description) ? meta2.description.replace(/\s(#[a-zA-Z0-9]+)/g, ' <span class="markdown-hashtag">$1</span>') : "";
+		var desc = (meta2 && meta2.description) ? meta2.description.replace(/\@author[^\n]*/g, "").replace(/\s(#[a-zA-Z0-9]+)/g, ' <span class="markdown-hashtag">$1</span>') : "";
+
+		var owner = meta[0].ownername;
+		if (meta2 && meta2.description) {
+			var doxy = new Eden.AST.DoxyComment(meta2.description, 0, 0);
+			var authors = doxy.getProperty("author");
+			if (authors && authors.length > 0) {
+				owner = authors[0] + ((authors.length > 1) ? " et al." : "");
+				if (authors.length > 1) {
+					desc += "\n\n__Authors:__";
+					for (var i=0; i<authors.length; i++) {
+						desc += " "+authors[i];
+						if (i < authors.length-1) desc += ",";
+					}
+				}
+			} else {
+				owner = meta[0].ownername;
+			}
+		}
+
 		var res = sdown.makeHtml(desc);
 		descbox.innerHTML = res;
 		me.dialog.get(0).appendChild(descbox);
@@ -40,7 +59,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 		var astars = (meta[0].overallRating !== null) ? meta[0].overallRating / meta[0].numRatings : 0;
 
 		var details = $('<div class="projectdetails">\
-			<span class="projectdetails-rateavg">'+astars.toFixed(1)+'</span><span><span class="projectdetails-label">by:</span><span class="projectdetails-value">'+meta[0].ownername+'</span></span>\
+			<span class="projectdetails-rateavg">'+astars.toFixed(1)+'</span><span><span class="projectdetails-label">by:</span><span class="projectdetails-value">'+owner+'</span></span>\
 			<span>, <span class="projectdetails-value">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span></span>\
 		</div>');
 
@@ -119,7 +138,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 
 		me.dialog.append(buttons);
 		
-		Eden.DB.search(":parent("+projectid+")", function(forks) {
+		Eden.DB.search(":parent("+projectid+")", 1, 1, function(forks) {
 			if (forks.length > 0) {
 				var forksbox = document.createElement("div");
 				forksbox.className = "projectdetails-forks";
@@ -141,28 +160,32 @@ EdenUI.ProjectDetails.prototype.remove = function() {
 }
 
 EdenUI.ProjectDetails.searchProjects = function(output, query, count, cb, newtab) {
+	var maxres = (count) ? count : 7;
+	var page = 1;
+
+	output.on("click",".more",function(e) {
+		output.find(".more").remove();
+		page++;
+		//EdenUI.ProjectDetails.searchProjects(output, pub, projects, maxres + 6);
+		Eden.DB.search(query, page, maxres, function(data) {
+			EdenUI.ProjectDetails._searchProjects(query, output, !query.startsWith(":me"), data , maxres, page, newtab);
+		});
+		e.stopPropagation();
+	});
+
 	if (!query) query = "";
-	Eden.DB.search(query, function(data) {
-		EdenUI.ProjectDetails._searchProjects(output, !query.startsWith(":me"), data , count, newtab);
+	Eden.DB.search(query, 1, maxres, function(data) {
+		EdenUI.ProjectDetails._searchProjects(query, output, !query.startsWith(":me"), data , maxres, page, newtab);
 		if (cb) cb(data);
 	});
 }
 
-EdenUI.ProjectDetails._searchProjects = function(output, pub, projects, count, newtab) {
-	var maxres = (count) ? count : 6;
+EdenUI.ProjectDetails._searchProjects = function(query, output, pub, projects, count, page, newtab) {
+	var maxres = (count) ? count : 7;
 
 	if (projects === undefined) return;
 
 	for (var i=0; i<projects.length; i++) {
-		if (i == maxres) {
-			output.append($('<div class="cadence-plisting-entry more noselect"><div class="cadence-plisting-icon more">&#xf103;</div></div>'));
-			output.on("click",".more",function(e) {
-				output.html("");
-				EdenUI.ProjectDetails._searchProjects(output, pub, projects, maxres + 6);
-			});
-			break;
-		}
-
 		var meta = projects[i];
 		var t = meta.date.split(/[- :]/);
 		var title = meta.title;
@@ -170,10 +193,19 @@ EdenUI.ProjectDetails._searchProjects = function(output, pub, projects, count, n
 		//var tags = meta.tags;
 
 		//if (meta.hidden) continue;
+		//console.log("PROJ DETAILS META", meta);
+		var metameta = (meta.projectMetaData !== null) ? JSON.parse(meta.projectMetaData) : undefined;
 
 		var subtitle;
 		if (pub) {
-			subtitle = meta.ownername;
+			if (metameta && metameta.description) {
+				var doxy = new Eden.AST.DoxyComment(metameta.description, 0, 0);
+				var authors = doxy.getProperty("author");
+				if (authors && authors.length > 0) subtitle = authors[0];
+				else subtitle = meta.ownername;
+			} else {
+				subtitle = meta.ownername;
+			}
 		} else {
 			subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
 		}
@@ -211,6 +243,10 @@ EdenUI.ProjectDetails._searchProjects = function(output, pub, projects, count, n
 				p.childNodes[j].className = "projectdetails-star" + ((j >= astarsf) ? "" : " average");
 			}
 		}
+	}
+
+	if (projects.length == maxres) {
+		output.append($('<div class="cadence-plisting-entry more noselect"><div class="cadence-plisting-icon more">&#xf103;</div></div>'));
 	}
 }
 
