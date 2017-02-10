@@ -70,59 +70,19 @@ See LICENSE.txt
 	</style>
 		<style type="text/css">
 
-		div.jseden-dialog-plisting {
-			box-sizing: border-box;
-			padding-top: 20px;
-			/*padding-bottom:30px;*/
-			padding-left: 50px;
-			padding-right: 50px;
-			/*border: 1px solid #eee;*/
-			width: 100%;
-			height: 100%;
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			justify-content: center;
-			overflow-y: auto;
-		}
-
-		div.jseden-project-cat {
-			font-size: 16pt;
-			font-family: "Source Sans Pro",Arial,sans-serif;
-			color: #eee;
-			font-weight: bold;
-			/*background: #416d77;*/
-			padding: 10px 30px;
-			border-bottom: 1px solid #eee;
-		}
-
-		hr.jseden-project-cat {
-			border: 1px solid #b5b5f5;
-		}
+		
 
 		div#loadoptions {
 			position: relative;
 			top: 55px;
 		}
 
-		div.cadence-plisting-entry {
-			width: 200px;
-			height: 170px;
-			margin: 15px;
-			background-repeat: no-repeat;
-			cursor: pointer;
-			color: #132023;
-			background: white;
-			border: 1px solid #777;
-			padding: 15px;
-			box-shadow: 10px 10px 10px #111;
-			border-radius: 6px;
-		}
+		
 
 		div.project-content {
 			position: relative;
 			margin: 20px auto;
-			max-width: 900px;
+			max-width: 1100px;
 			width: 80%;
 		}
 
@@ -147,106 +107,6 @@ See LICENSE.txt
 			margin-right: 10px;
 		}
 
-		div.cadence-plisting-entry.special {
-			height: 80px;
-			width: 120px;
-			background: none;
-			border: none;
-			box-shadow: none;
-			margin-top: 5px;
-			margin-bottom: 5px;
-		}
-
-		div.cadence-plisting-entry.more {
-			height: 60px;
-			width: 150px;
-			background: transparent;
-			border: none;
-			margin-top: 10px;
-			box-shadow: none;
-		}
-
-		div.cadence-plisting-icon {
-			border-bottom: 1px solid #ddd;
-			font-family: "FontAwesome";
-			font-size: 60px;
-			/*background: #d0f0f5;*/
-			cursor: pointer;
-			text-align: center;
-			padding-top: 10px;
-			padding-bottom: 10px;
-			height: 95px;
-		}
-
-		div.cadence-plisting-img {
-			border-bottom: 1px solid #ddd;
-			background: white;
-			cursor: pointer;
-			text-align: center;
-			/*height: 112;*/
-			overflow: hidden;
-			display: flex;
-		}
-
-		div.cadence-plisting-icon.special {
-			background: none;
-			height: 40px;
-			font-size: 60px;
-			border: none;
-			color: white;
-			text-shadow: 10px 10px 10px #111;
-		}
-
-		div.cadence-plisting-icon.more {
-			background: transparent;
-			height: 40px;
-			font-size: 40px;
-			color: #eee;
-			border: none;
-			font-weight: bold;
-		}
-
-
-		div.cadence-plisting-title {
-			font-weight: bold;
-			font-family: "Source Sans Pro",Arial,sans-serif;
-			font-size: 14px;
-			line-height: 16px;
-			padding-left: 2px;
-			margin-top: 8px;
-		}
-
-		div.cadence-plisting-subtitle {
-			font-family: "Source Sans Pro",Arial,sans-serif;
-			font-size: 12px;
-			line-height: 16px;
-			padding-left: 2px;
-			color: #666;
-		}
-
-		div.cadence-plisting-entry:hover {
-			color: #29454B;
-		}
-
-		div.cadence-plisting-entry:hover .cadence-plisting-icon {
-			border-color: #222;
-			/*background-color: white;*/
-		}
-
-		div.cadence-plisting-entry.special:hover .cadence-plisting-icon {
-			background-color: none;
-			color: #ddd;
-		}
-
-		div.cadence-plisting-entry.more:hover .cadence-plisting-icon {
-			color: white;
-			background: transparent;
-		}
-
-		div.cadence-plisting-entry:hover .cadence-plisting-img {
-			border-color: #222;
-			background-color: white;
-		}
 
 		div.importdialog {
 			position: absolute;
@@ -615,7 +475,7 @@ See LICENSE.txt
 
 			function displayProjects(id, query, cb) {
 				var plist = lopts.find("#jseden-"+id+"-projects");
-				EdenUI.ProjectDetails.searchProjects(plist, query, 6, cb);
+				EdenUI.ProjectDetails.searchProjects(plist, query, 7, cb);
 			}
 
 			if (Eden.DB.isConnected()) {
@@ -638,6 +498,8 @@ See LICENSE.txt
 				} else {
 					displayProjects("featured", "#featured");
 					displayProjects("recent");
+					displayProjects("starter", "#starter");
+					displayProjects("ref", "#documentation");
 				}
 			} else {
 				$("#project-browser").html('<div class="jseden-project-cat">Offline Examples:</div><div id="jseden-public-projects" class="jseden-dialog-plisting"></div>');
@@ -697,6 +559,12 @@ See LICENSE.txt
 			</div>
 			<div class="jseden-project-cat">Recent:</div>
 			<div id="jseden-recent-projects" class="jseden-dialog-plisting">
+			</div>
+			<div class="jseden-project-cat">Reference:</div>
+			<div id="jseden-ref-projects" class="jseden-dialog-plisting">
+			</div>
+			<div class="jseden-project-cat">Starter:</div>
+			<div id="jseden-starter-projects" class="jseden-dialog-plisting">
 			</div>
 			<div class="jseden-project-cat">Your Projects:</div>
 			<div id="jseden-private-projects" class="jseden-dialog-plisting">

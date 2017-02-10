@@ -308,10 +308,10 @@ Eden.DB.load = function(pid, vid, callback) {
 	} else if (callback) callback(undefined, "Disconnected");
 }
 
-Eden.DB.search = function(q, callback) {
+Eden.DB.search = function(q, pagenum, pagecount, callback) {
 	var path = this.remoteURL+"/project/";
-	if (q == "") path += "search?limit=20";
-	else path += "search?limit=20&query="+encodeURIComponent(q);
+	if (q == "") path += "search?limit="+pagecount+"&offset="+((pagenum-1)*pagecount);
+	else path += "search?limit="+pagecount+"&offset="+((pagenum-1)*pagecount)+"&query="+encodeURIComponent(q);
 
 	//console.log("PATH",path)
 
