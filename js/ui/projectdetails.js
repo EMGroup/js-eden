@@ -47,7 +47,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 					}
 				}
 			} else {
-				owner = meta.ownername;
+				owner = meta[0].ownername;
 			}
 		}
 
