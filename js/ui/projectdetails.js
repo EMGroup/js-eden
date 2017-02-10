@@ -47,7 +47,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 					}
 				}
 			} else {
-				owner = meta.ownername;
+				owner = meta[0].ownername;
 			}
 		}
 
@@ -138,7 +138,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 
 		me.dialog.append(buttons);
 		
-		Eden.DB.search(":parent("+projectid+")", function(forks) {
+		Eden.DB.search(":parent("+projectid+")", 1, 1, function(forks) {
 			if (forks.length > 0) {
 				var forksbox = document.createElement("div");
 				forksbox.className = "projectdetails-forks";
@@ -160,28 +160,32 @@ EdenUI.ProjectDetails.prototype.remove = function() {
 }
 
 EdenUI.ProjectDetails.searchProjects = function(output, query, count, cb, newtab) {
+	var maxres = (count) ? count : 7;
+	var page = 1;
+
+	output.on("click",".more",function(e) {
+		output.find(".more").remove();
+		page++;
+		//EdenUI.ProjectDetails.searchProjects(output, pub, projects, maxres + 6);
+		Eden.DB.search(query, page, maxres, function(data) {
+			EdenUI.ProjectDetails._searchProjects(query, output, !query.startsWith(":me"), data , maxres, page, newtab);
+		});
+		e.stopPropagation();
+	});
+
 	if (!query) query = "";
-	Eden.DB.search(query, function(data) {
-		EdenUI.ProjectDetails._searchProjects(output, !query.startsWith(":me"), data , count, newtab);
+	Eden.DB.search(query, 1, maxres, function(data) {
+		EdenUI.ProjectDetails._searchProjects(query, output, !query.startsWith(":me"), data , maxres, page, newtab);
 		if (cb) cb(data);
 	});
 }
 
-EdenUI.ProjectDetails._searchProjects = function(output, pub, projects, count, newtab) {
-	var maxres = (count) ? count : 6;
+EdenUI.ProjectDetails._searchProjects = function(query, output, pub, projects, count, page, newtab) {
+	var maxres = (count) ? count : 7;
 
 	if (projects === undefined) return;
 
 	for (var i=0; i<projects.length; i++) {
-		if (i == maxres) {
-			output.append($('<div class="cadence-plisting-entry more noselect"><div class="cadence-plisting-icon more">&#xf103;</div></div>'));
-			output.on("click",".more",function(e) {
-				output.html("");
-				EdenUI.ProjectDetails._searchProjects(output, pub, projects, maxres + 6);
-			});
-			break;
-		}
-
 		var meta = projects[i];
 		var t = meta.date.split(/[- :]/);
 		var title = meta.title;
@@ -239,6 +243,10 @@ EdenUI.ProjectDetails._searchProjects = function(output, pub, projects, count, n
 				p.childNodes[j].className = "projectdetails-star" + ((j >= astarsf) ? "" : " average");
 			}
 		}
+	}
+
+	if (projects.length == maxres) {
+		output.append($('<div class="cadence-plisting-entry more noselect"><div class="cadence-plisting-icon more">&#xf103;</div></div>'));
 	}
 }
 
