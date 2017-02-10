@@ -118,6 +118,15 @@ var allKnownProjects = {};
 var projectRatings = {};
 var projectRatingsCount = {};
 
+const ERROR_SQL = -1;
+const ERROR_UNAUTHENTICATED = 1;
+const ERROR_INVALID_PROJECTID_FORMAT = 9;
+const ERROR_NO_EXISTING_PROJECT = 5;
+const ERROR_USER_NOT_OWNER = 6;
+const ERROR_NO_PROJECTID = 7;
+const ERROR_PROJECT_NOT_MATCHED = 10;
+
+
 passportUsers.setupPassport(passport,db);
 edenUI = {};
 eden = {};
@@ -325,7 +334,7 @@ function logErrors(err,req,res,next){
 app.post('/project/add', ensureAuthenticated, function(req, res){
 	
 	if(typeof req.user == "undefined")
-		return res.json({error: 1, description: "Unauthenticated"});
+		return res.json({error: ERROR_UNAUTHENTICATED, description: "Unauthenticated"});
 	var projectID = req.body.projectID;
 	
 	if(projectID == undefined || projectID == null || projectID == ""){
@@ -336,7 +345,7 @@ app.post('/project/add', ensureAuthenticated, function(req, res){
 			addProjectVersion(req, res, lastID);
 		});
 	}else if(isNaN(projectID)){
-		res.json({error: 9, description: "Invalid projectID format"});
+		res.json({error: ERROR_INVALID_PROJECTID_FORMAT, description: "Invalid projectID format"});
 	}else{
 		db.run("BEGIN TRANSACTION");
 		checkOwner(req,res,function(){
@@ -364,13 +373,13 @@ function checkOwner(req,res,callback){
 	checkStmt.all(qValues,function(err,rows){
 		if(rows.length == 0){
 			db.run("ROLLBACK");
-			res.json({error:5, description: "No existing project"});
+			res.json({error: ERROR_NO_EXISTING_PROJECT, description: "No existing project"});
 		}else{
 			if(rows[0].owner == req.user.id){
 				callback();
 			}else{
 				db.run("ROLLBACK");
-				res.json({error:6, description: "User does not own this project"});
+				res.json({error: ERROR_USER_NOT_OWNER, description: "User does not own this project"});
 			}
 		}
 	});
@@ -412,12 +421,12 @@ function updateProject(req,res,callback){
 		db.run(deleteStr,tagObject,function(err){
 			if(err){
 				db.run("ROLLBACK");
-				res.json({error: -1, description: "SQL Error", err:err});
+				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
 			}else
 				updateTags(req,req.body.projectID,function(err){
 					if(err){
 						db.run("ROLLBACK");
-						res.json({error: -1, description: "SQL Error", err:err})
+						res.json({error: ERROR_SQL, description: "SQL Error", err:err})
 					}
 					log("Updating project " + updateStr);
 					db.run(updateStr,updateValues,callback);
@@ -464,13 +473,13 @@ function createProject(req, res, callback){
 			function(err){
 		if(err){
 			db.run("ROLLBACK");
-			res.json({error: -1, description: "SQL Error", err:err})
+			res.json({error: ERROR_SQL, description: "SQL Error", err:err})
 		}else{
 			var lastProjectID = this.lastID;
 			updateTags(req,lastProjectID,function(err){
 				if(err){
 					db.run("ROLLBACK");
-					res.json({error: -1, description: "SQL Error", err:err})
+					res.json({error: ERROR_SQL, description: "SQL Error", err:err})
 				}else
 					callback(req, res, lastProjectID);
 			});
@@ -480,14 +489,14 @@ function createProject(req, res, callback){
 		var downloadsSQL = "UPDATE projectstats SET forks = forks + 1 WHERE projectID = ?;";
 		db.run(downloadsSQL,req.body.parentProject,function(err){
 			if(err){
-				res.json({error: -1, description: "SQL Error", err: err})
+				res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 				return;
 			}
 			if(this.changes == 0){
 				var insDownloadsSQL = "INSERT INTO projectstats VALUES (?,0,1,0)";
 				db.run(insDownloadsSQL,req.body.parentProject,function(err){
 					if(err){
-						res.json({error: -1, description: "SQL Error", err: err})
+						res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 						return;
 					}
 					console.log("INSERTED projectstats");
@@ -550,7 +559,7 @@ function runAddVersion(addVersionStmt, listed, params,res){
 			db.run(updateListedVersion,upParams,function(err){
 				if(err){
 					db.run("ROLLBACK");
-					res.json({error: -1, description: "SQL Error", err:err})
+					res.json({error: ERROR_SQL, description: "SQL Error", err:err})
 				}else{
 					db.run("END");
 					log("Created version " + lastSaveID + " of project " + projectID);
@@ -618,21 +627,21 @@ app.get('/project/get', function(req,res){
 			ratingsUser = req.user.id;
 		db.get(metadataQuery,ratingsUser,req.query.projectID,function(err,metaRow){
 			if(err){
-				res.json({error: -1, description: "SQL Error", err: err});
+				res.json({error: ERROR_SQL, description: "SQL Error", err: err});
 				return;
 			}
 			
 			var downloadsSQL = "UPDATE projectstats SET downloads = downloads + 1 WHERE projectID = ?;";
 			db.run(downloadsSQL,req.query.projectID,function(err){
 				if(err){
-					res.json({error: -1, description: "SQL Error", err: err})
+					res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 					return;
 				}
 				if(this.changes == 0){
 					var insDownloadsSQL = "INSERT INTO projectstats VALUES (?,1,0,0)";
 					db.run(insDownloadsSQL,req.query.projectID,function(err){
 						if(err){
-							res.json({error: -1, description: "SQL Error", err: err})
+							res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 							return;
 						}
 						console.log("INSERTED projectstats");
@@ -659,6 +668,7 @@ app.get('/project/get', function(req,res){
 				var getProjectStmt = db.prepare("select saveID,date FROM view_latestVersion WHERE projectID = ?;");
 				getProjectStmt.all(req.query.projectID,function(err,rows){
 					var row = rows[0];
+					if(row != undefined){
 					db.serialize(function(){
 						getFullVersion(row.saveID,req.query.projectID, metaRow, function(ret){
 							var source = ret.source;
@@ -670,11 +680,14 @@ app.get('/project/get', function(req,res){
 							}
 						});
 					});
+					}else{
+						res.json({error: ERROR_PROJECT_NOT_MATCHED, description: "No matching project", err: err});
+					}
 				});
 			}
 		});
 	}else{
-		res.json({error: 7, description: "projectID must be defined" });
+		res.json({error: ERROR_NO_PROJECTID, description: "projectID must be defined" });
 	}
 });
 
@@ -744,14 +757,14 @@ app.post('/project/rate', function(req,res){
 	delete projectRatings[req.body.projectID];
 	db.run(rateSQL,starRating,projectID,userID,function(err){
 		if(err){
-			res.json({error: -1, description: "SQL Error", err: err})
+			res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 			return;
 		}
 		if(this.changes == 0){
 			var insRateSQL = "INSERT INTO projectratings VALUES (?,?,?);";
 			db.run(insRateSQL,projectID,userID,starRating,function(err){
 				if(err){
-					res.json({error: -1, description: "SQL Error", err: err})
+					res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 					return;
 				}
 				res.json({status: "INSERTED"});
@@ -854,7 +867,7 @@ app.get('/project/search', function(req, res){
 
 	listProjectStmt.all(criteriaVals,function(err,rows){
 		if(err){
-			res.json({error: -1, description: "SQL Error", err: err})
+			res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 			return;
 		}
 		for(var i = 0; i < rows.length; i++){
@@ -897,7 +910,7 @@ function processNextRating(projectRows, unknownRatings,i,res){
 		var projectID = unknownRatings[i];
 		db.get(getRatingsStmt,projectID,function(err,row){
 			if(err){
-				res.json({error: -1, description: "SQL Error", err:err});
+				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
 			}
 			projectRatings[projectID] = row.s;
 			projectRatingsCount[projectID] = row.c;
@@ -912,10 +925,10 @@ app.post('/project/remove',ensureAuthenticated, function(req,res){
 	var delStatement = "DELETE FROM projects WHERE projectID = ? AND owner = ?";
 	db.run(delStatement,projectID, userID,function(err){
 		if(err){
-			res.json({error: -1, description: "SQL Error", err:err});
+			res.json({error: ERROR_SQL, description: "SQL Error", err:err});
 		}
 		if(this.changes == 0)
-			res.json({error: 10, description: "Matching project not found"});
+			res.json({error: ERROR_PROJECT_NOT_MATCHED, description: "Matching project not found"});
 		if(this.changes > 0)
 			res.json({status: "deleted", changes: this.changes});
 	});
