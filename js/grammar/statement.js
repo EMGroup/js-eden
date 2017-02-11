@@ -220,7 +220,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							}
 							this.stream.skip();
 							this.stream.line++;
-						} while (this.stream.peek() == 35); // && this.stream.peek2() == 33);
+						} while (this.stream.peek() == 35 && this.stream.peek2() != 35);
 
 						if (isdoxy) {					
 							var doxy2 = new Eden.AST.DoxyComment(this.stream.code.substring(start2, this.stream.position-1).trim(), startline2, this.stream.line);
