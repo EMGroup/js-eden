@@ -213,14 +213,14 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						//console.log("HASH COM",this.stream.peek());
 
 						do {
-							this.stream.skip();
+							//this.stream.skip();
 							this.stream.skipLine();
 							if (!this.stream.valid()) {
 								this.errors.push(new Eden.SyntaxError(this,Eden.SyntaxError.NEWLINE));
 							}
 							this.stream.skip();
 							this.stream.line++;
-						} while (this.stream.peek() == 35); // && this.stream.peek2() == 33);
+						} while (this.stream.peek() == 35 && this.stream.peek2() != 35);
 
 						if (isdoxy) {					
 							var doxy2 = new Eden.AST.DoxyComment(this.stream.code.substring(start2, this.stream.position-1).trim(), startline2, this.stream.line);
@@ -231,7 +231,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 								if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
 							}
 
-							if (this.lastStatement && this.lastStatement.type != "dummy" && this.lastStatement.doxyComment === undefined && this.lastStatementEndline == startline2-1) {
+							if (this.lastStatement && this.lastStatement.doxyComment === undefined && (this.lastStatEndline == startline2-1 || this.lastStatEndline == startline2)) {
 								this.lastStatement.setDoxyComment(doxy2);
 							} else {
 								this.lastDoxyComment.push(doxy2);
@@ -370,8 +370,10 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	stat.stamp = this.stamp;
 	stat.numlines = endline - curline - 1;
 	stat.setSource(start, end,this.stream.code.substring(start,end));
-	this.lastStatement = stat;
-	this.lastStatEndline = endline;
+	if (stat.type != "dummy") {
+		this.lastStatement = stat;
+		this.lastStatEndline = endline;
+	}
 
 	return stat;
 };
