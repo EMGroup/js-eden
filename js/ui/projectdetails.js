@@ -46,6 +46,9 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 						if (i < authors.length-1) desc += ",";
 					}
 				}
+				if (authors[0] != meta[0].ownername) {
+					desc += "\n\n__Published by:__ "+meta[0].ownername;
+				}
 			} else {
 				owner = meta[0].ownername;
 			}
