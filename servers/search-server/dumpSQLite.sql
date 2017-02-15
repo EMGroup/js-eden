@@ -48,6 +48,19 @@ CREATE TABLE tags (
 	foreign key(projectID) REFERENCES projects(projectID)
 );
 
+CREATE TABLE comments(
+	"commentID" INTEGER PRIMARY KEY,
+	"projectID" INTEGER NOT NULL,
+	"versionID" INTEGER NOT NULL,
+	"date" INTEGER NOT NULL DEFAULT (current_timestamp),
+	"author" INTEGER,
+	"public" INTEGER NOT NULL,
+	"comment" TEXT NOT NULL
+);
+CREATE UNIQUE INDEX "commentID" on comments(commentID ASC);
+CREATE INDEX "comments_projectID" on comments(projectID ASC);
+CREATE INDEX "comments_date" on comments(date ASC);
+
 CREATE VIEW view_latestVersion AS
 select saveID,date,projectid FROM (SELECT max(saveID) as maxsaveID from projectversions 
 group by projectID) as maxv, projectversions where maxsaveID = projectversions.saveID;
@@ -68,4 +81,6 @@ CREATE INDEX "date" on projectversions (date ASC);
 CREATE INDEX "projectDate" on projectversions (projectID ASC, date ASC);
 CREATE INDEX "tags_tag" on tags (tag ASC);
 CREATE INDEX "projectTags" on tags (projectID ASC);
+
+
 COMMIT;
