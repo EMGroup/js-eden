@@ -36,9 +36,13 @@ EdenUI.Feedback = function() {
 	function changeVis(sym, val) {
 		if (val) {
 			me.dialog.style.display = "initial";
+			me.clear();
 			me.updateComments("");
+			me.interval = setInterval(function() { me.updateComments(""); },5000);
 		} else {
 			me.dialog.style.display = "none";
+			clearInterval(me.interval);
+			me.interval = undefined;
 		}
 	}
 	visSym.addJSObserver("feedback", changeVis);
@@ -67,15 +71,35 @@ EdenUI.Feedback = function() {
 		markdown.setValue("");
 		me.updateComments("");
 	});
+
+	this.cache = [];
+
+	setInterval(function() { me.updateTimes(); }, 20000);
+}
+
+
+EdenUI.Feedback.prototype.clear = function() {
+	this.cache = [];
+	while (this.results.lastChild) this.results.removeChild(this.results.lastChild);
+}
+
+EdenUI.Feedback.prototype.updateTimes = function() {
+	for (var i=0; i<this.results.childNodes.length; i++) {
+		var node = this.results.childNodes[i].childNodes[0].childNodes[1];
+		var date = node.getAttribute("data-date");
+		var t = date.split(/[- :]/);
+		node.textContent = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
+	}
 }
 
 
 EdenUI.Feedback.prototype.updateComments = function(q) {
 	var me = this;
 	var sdown = new showdown.Converter();
-	while (this.results.lastChild) this.results.removeChild(this.results.lastChild);
 
-	Eden.DB.searchComments(eden.project, q, 1, 10, function(data) {
+	var last = (this.cache.length>0) ? this.cache[0].commentID : undefined;
+
+	Eden.DB.searchComments(eden.project, q, 1, 10, last, function(data) {
 		if (data) {
 			for (var i=0; i<data.length; i++) {
 				var ele = document.createElement("div");
@@ -83,7 +107,7 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				var t = data[i].date.split(/[- :]/);
 
 				heading.className = "feedback-header";
-				heading.innerHTML = '<span class="feedback-author">'+data[i].name+'</span><span class="feedback-date">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+				heading.innerHTML = '<span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" data-date="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
 				ele.appendChild(heading);
 				var mk = document.createElement("div");
 				mk.style.padding = "0";
@@ -94,6 +118,8 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				//ele.textContent = data[i].comment;
 				mk.innerHTML = sdown.makeHtml(data[i].comment);
 				me.results.insertBefore(ele, me.results.firstChild);
+
+				me.cache.splice(0,0,data[i]);
 			}
 		}
 	});

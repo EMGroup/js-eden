@@ -71,9 +71,10 @@ span.feedback-close {
 }
 
 div.feedback-result {
-	margin: 10px;
+	margin: 15px;
 	font: 10pt "Source Sans Pro",UILanguageFont,Arial,sans-serif;
-	border-bottom: 1px solid #ddd;
+	margin-bottom: 20px;
+	border-bottom: 1px solid #eee;
 }
 
 div.feedback-result .markdown {
@@ -82,12 +83,12 @@ div.feedback-result .markdown {
 
 span.feedback-author {
 	font-weight: bold;
-	color: #222;
+	color: #666;
 	margin-right: 10px;
 }
 
 span.feedback-date {
-	color: #222;
+	color: #666;
 }
 
 div.feedback-input {
