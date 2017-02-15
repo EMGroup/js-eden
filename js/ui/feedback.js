@@ -11,7 +11,7 @@ EdenUI.Feedback = function() {
 
 	var title = document.createElement("div");
 	title.className = "feedback-title";
-	title.innerHTML = '<span class="feedback-icon2">&#xf0e6;</span><span class="feedback-title-text">Comments</span>';
+	title.innerHTML = '<span class="feedback-icon2">&#xf0e6;</span><span class="feedback-title-text">Comments</span><span class="feedback-close">&#xf00d;</span>';
 	this.dialog.appendChild(title);
 
 	var visSym = eden.root.lookup("jseden_feedback_visible");
@@ -21,6 +21,13 @@ EdenUI.Feedback = function() {
 	icon.addEventListener("click", function(e) {
 		if (visSym.definition === undefined) {
 			visSym.assign(true, eden.root.scope, Symbol.hciAgent);
+		}
+	});
+
+	var close = title.childNodes[2];
+	close.addEventListener("click", function(e) {
+		if (visSym.definition === undefined) {
+			visSym.assign(false, eden.root.scope, Symbol.hciAgent);
 		}
 	});
 
@@ -44,14 +51,29 @@ EdenUI.Feedback = function() {
 	this.dialog.appendChild(mkele);
 	var buttons = document.createElement("div");
 	buttons.className = "feedback-buttons";
-	buttons.innerHTML = '<button class="script-button">Comment</button>';
+	//buttons.innerHTML = '<button class="script-button">Comment</button>';
 	this.dialog.appendChild(buttons);
+
+	this.results = document.createElement("div");
+	this.dialog.appendChild(this.results);
+
+	var postbut = document.createElement("button");
+	postbut.className = "script-button";
+	postbut.textContent = "Comment";
+	buttons.appendChild(postbut);
+	postbut.addEventListener("click", function() {
+		//console.log("COMMENT", markdown.intextarea.value);
+		Eden.DB.postComment(eden.project, markdown.intextarea.value);
+		markdown.setValue("");
+		me.updateComments("");
+	});
 }
 
 
 EdenUI.Feedback.prototype.updateComments = function(q) {
 	var me = this;
 	var sdown = new showdown.Converter();
+	while (this.results.lastChild) this.results.removeChild(this.results.lastChild);
 
 	Eden.DB.searchComments(eden.project, q, 1, 10, function(data) {
 		if (data) {
@@ -61,7 +83,7 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				var t = data[i].date.split(/[- :]/);
 
 				heading.className = "feedback-header";
-				heading.innerHTML = '<span class="feedback-author">'+data[i].author+'</span><span class="feedback-date">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+				heading.innerHTML = '<span class="feedback-author">'+data[i].name+'</span><span class="feedback-date">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
 				ele.appendChild(heading);
 				var mk = document.createElement("div");
 				mk.style.padding = "0";
@@ -71,7 +93,7 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				ele.className = "feedback-result";
 				//ele.textContent = data[i].comment;
 				mk.innerHTML = sdown.makeHtml(data[i].comment);
-				me.dialog.appendChild(ele);
+				me.results.insertBefore(ele, me.results.firstChild);
 			}
 		}
 	});

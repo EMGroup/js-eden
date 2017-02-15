@@ -459,13 +459,65 @@ Eden.DB.searchSelector = function(q, kind, callback) {
 	});
 }
 
-Eden.DB.postComment = function(project, text, priv) {
+var dummycomments = [{comment: "Hello World", author: "Nicolas Pope", date: "2017-02-15 10:13:06"},
+				{comment: "Another useless markdown comment", author: "Some One", date: "2017-02-15 09:13:06"}];
 
+Eden.DB.postComment = function(project, text, priv) {
+	if (!project) return;
+	$.ajax({
+		url: this.remoteURL+"/comment/post",
+		type: "post",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		data:{	projectID: project.id,
+				versionID: project.vid,
+				"public": (priv) ? 0 : 1,
+				comment: text
+		},
+		success: function(data){
+			if (data === null || data.error) {
+				console.error(data);
+				eden.error((data) ? data.description : "No response from server");
+				//if (callback) callback(false);
+			} else {
+				
+			}
+		},
+		error: function(a){
+			//console.error(a);
+			//eden.error(a);
+			Eden.DB.disconnect(true);
+			//if (callback) callback(false);
+		}
+	});
 }
 
 Eden.DB.searchComments = function(project, q, page, count, cb) {
-	if (cb) cb([{comment: "Hello World", author: "Nicolas Pope", date: "2017-02-15 10:13:06"},
-				{comment: "Another useless markdown comment", author: "Some One", date: "2017-02-15 09:13:06"}]);
+	if (!project) return;
+	//if (cb) cb(dummycomments);
+	$.ajax({
+		url: this.remoteURL+"/comment/search?projectID="+project.id,
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			if (data) {
+				cb(data);
+				return;
+			} else {
+				cb([]);
+			}
+		},
+		error: function(a){
+			//console.error(a);
+			cb([]);
+			//Eden.DB.disconnect(true);
+		}
+	});
 }
 
 Eden.DB.removeComment = function(commentid) {
