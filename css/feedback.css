@@ -1,0 +1,63 @@
+div.feedback-icon {
+	position: fixed;
+	z-index: 100000;
+	right: 20px;
+	bottom: 20px;
+	font-family: "FontAwesome";
+	font-size: 40pt;
+	color: white;
+	cursor: pointer;
+	opacity: 0.5;
+}
+
+div.feedback-icon:hover {
+	opacity: initial;
+}
+
+div.feedback-dialog {
+	position: fixed;
+	right: 20px;
+	bottom: 20px;
+	width: 400px;
+	top: 65px;
+	background: white;
+	z-index: 100001;
+	border-color: #888;
+	border-style: solid;
+	border-width: 0 1px 1px 1px;
+	box-shadow: 0 0 10px #4a6887;
+}
+
+div.feedback-result {
+	margin: 10px;
+	font: 10pt "Source Sans Pro",UILanguageFont,Arial,sans-serif;
+	border-bottom: 1px solid #ddd;
+}
+
+div.feedback-result .markdown {
+	font-size: 10pt;
+}
+
+span.feedback-author {
+	font-weight: bold;
+	color: #222;
+	margin-right: 10px;
+}
+
+span.feedback-date {
+	color: #222;
+}
+
+div.feedback-input {
+	position: relative;
+	height: 80px;
+	margin-top: 10px;
+	margin-bottom: 3px;
+}
+
+div.feedback-buttons {
+	text-align: right;
+	margin-bottom: 10px;
+	margin-right: 10px;
+}
+

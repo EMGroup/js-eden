@@ -19,7 +19,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 	document.body.appendChild(this.obscurer.get(0));
 
 	Eden.DB.getMeta(projectid, function(meta) {
-		//console.log("DETAILS META", meta);
+		console.log("DETAILS META", meta);
 
 		if (meta[0].image !== null) {
 			var img = $('<img class="projectdetails-thumb" src="'+meta[0].image+'"></img>');
