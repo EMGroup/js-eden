@@ -52,10 +52,16 @@ EdenUI.Feedback = function() {
 	var mkele = document.createElement("div");
 	mkele.className = "feedback-input";
 	mkele.appendChild(markdown.contents);
-	this.dialog.appendChild(mkele);
 	var buttons = document.createElement("div");
 	buttons.className = "feedback-buttons";
 	//buttons.innerHTML = '<button class="script-button">Comment</button>';
+
+	if (!Eden.DB.isLoggedIn()) {
+		mkele.style.display = "none";
+		buttons.style.display = "none";
+	}
+
+	this.dialog.appendChild(mkele);
 	this.dialog.appendChild(buttons);
 
 	this.results = document.createElement("div");
@@ -75,6 +81,13 @@ EdenUI.Feedback = function() {
 	this.cache = [];
 
 	setInterval(function() { me.updateTimes(); }, 20000);
+
+	Eden.DB.listenTo("login", this, function(name) {
+		if (name) {
+			mkele.style.display = "block";
+			buttons.style.display = "block";
+		}
+	});
 }
 
 

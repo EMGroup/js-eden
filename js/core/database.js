@@ -459,11 +459,9 @@ Eden.DB.searchSelector = function(q, kind, callback) {
 	});
 }
 
-var dummycomments = [{comment: "Hello World", author: "Nicolas Pope", date: "2017-02-15 10:13:06"},
-				{comment: "Another useless markdown comment", author: "Some One", date: "2017-02-15 09:13:06"}];
-
 Eden.DB.postComment = function(project, text, priv) {
 	if (!project) return;
+	if (!Eden.DB.isLoggedIn()) return;
 	$.ajax({
 		url: this.remoteURL+"/comment/post",
 		type: "post",
