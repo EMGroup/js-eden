@@ -494,11 +494,11 @@ Eden.DB.postComment = function(project, text, priv) {
 	});
 }
 
-Eden.DB.searchComments = function(project, q, page, count, cb) {
+Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 	if (!project) return;
 	//if (cb) cb(dummycomments);
 	$.ajax({
-		url: this.remoteURL+"/comment/search?projectID="+project.id,
+		url: this.remoteURL+"/comment/search?projectID="+project.id+((last) ? "&newerThan="+last : ""),
 		type: "get",
 		crossDomain: true,
 		xhrFields:{
