@@ -26,6 +26,38 @@ div.feedback-dialog {
 	border-style: solid;
 	border-width: 0 1px 1px 1px;
 	box-shadow: 0 0 10px #4a6887;
+	border-radius: 15px;
+}
+
+div.feedback-dialog:after {
+  content:"";
+  position:absolute;
+  top:16px;
+  left:-40px; /* value = - border-left-width - border-right-width */
+  bottom:auto;
+  border-width:15px 40px 0 0; /* vary these values to change the angle of the vertex */
+  border-color:transparent white;
+  border-style:solid;
+  display:block;
+  width:0;
+}
+
+div.feedback-title {
+	margin-top: 5px;
+	margin-left: 15px;
+}
+
+span.feedback-icon2 {
+	font-family: "FontAwesome";
+	font-size: 16pt;
+	color: #222;
+	margin-right: 10px;
+}
+
+span.feedback-title-text {
+	font: 12pt "Source Sans Pro",UILanguageFont,Arial,sans-serif;
+	font-weight: bold;
+	color: #222;
 }
 
 div.feedback-result {

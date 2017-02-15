@@ -9,6 +9,11 @@ EdenUI.Feedback = function() {
 	this.dialog.style.display = "none";
 	document.getElementById("jseden-views").appendChild(this.dialog);
 
+	var title = document.createElement("div");
+	title.className = "feedback-title";
+	title.innerHTML = '<span class="feedback-icon2">&#xf0e6;</span><span class="feedback-title-text">Comments</span>';
+	this.dialog.appendChild(title);
+
 	var visSym = eden.root.lookup("jseden_feedback_visible");
 	var widthSym = eden.root.lookup("jseden_feedback_width");
 	
@@ -60,6 +65,7 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				ele.appendChild(heading);
 				var mk = document.createElement("div");
 				mk.style.padding = "0";
+				mk.style.marginBottom = "3px";
 				mk.className = "markdown";
 				ele.appendChild(mk);
 				ele.className = "feedback-result";
