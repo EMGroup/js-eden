@@ -459,4 +459,17 @@ Eden.DB.searchSelector = function(q, kind, callback) {
 	});
 }
 
+Eden.DB.postComment = function(project, text, priv) {
+
+}
+
+Eden.DB.searchComments = function(project, q, page, count, cb) {
+	if (cb) cb([{comment: "Hello World"}]);
+}
+
+Eden.DB.removeComment = function(commentid) {
+
+}
+
+
 

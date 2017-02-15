@@ -377,7 +377,7 @@ EdenUI.Highlight.prototype.SELECTOR2 = function() {
 	} else if (this.token == "[") {
 		this.classes.push("selector");
 		this.mode = "SELECTOR_TYPES";
-	} else if (this.token == ";" || this.token == "=") {
+	} else if (this.token == ";" || this.token == "=" || this.token == "+=" || this.token == "//=") {
 		this.popLine();
 		this.classes.push("operator");
 		//this.mode = this.startmode;
