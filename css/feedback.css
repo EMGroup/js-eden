@@ -19,7 +19,7 @@ div.feedback-dialog {
 	right: 20px;
 	bottom: 20px;
 	width: 400px;
-	top: 65px;
+	top: 85px;
 	background: white;
 	z-index: 100001;
 	border-color: #888;
@@ -32,10 +32,11 @@ div.feedback-dialog {
 div.feedback-dialog:after {
   content:"";
   position:absolute;
-  top:16px;
-  left:-40px; /* value = - border-left-width - border-right-width */
+  top:-30px; /* value = - border-top-width - border-bottom-width */
+  right:50px; /* controls horizontal position */
   bottom:auto;
-  border-width:15px 40px 0 0; /* vary these values to change the angle of the vertex */
+  left:auto;
+  border-width:30px 20px 0 0; /* vary these values to change the angle of the vertex */
   border-color:transparent white;
   border-style:solid;
   display:block;
@@ -43,21 +44,30 @@ div.feedback-dialog:after {
 }
 
 div.feedback-title {
-	margin-top: 5px;
+	margin-top: 10px;
 	margin-left: 15px;
+	margin-right: 15px;
 }
 
 span.feedback-icon2 {
 	font-family: "FontAwesome";
-	font-size: 16pt;
-	color: #222;
+	font-size: 18pt;
+	color: #29454B;
 	margin-right: 10px;
 }
 
 span.feedback-title-text {
 	font: 12pt "Source Sans Pro",UILanguageFont,Arial,sans-serif;
 	font-weight: bold;
-	color: #222;
+	color: #29454B;
+}
+
+span.feedback-close {
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	color: black;
+	float: right;
+	cursor: pointer;
 }
 
 div.feedback-result {

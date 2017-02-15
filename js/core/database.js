@@ -459,13 +459,15 @@ Eden.DB.searchSelector = function(q, kind, callback) {
 	});
 }
 
-Eden.DB.postComment = function(project, text, priv) {
+var dummycomments = [{comment: "Hello World", author: "Nicolas Pope", date: "2017-02-15 10:13:06"},
+				{comment: "Another useless markdown comment", author: "Some One", date: "2017-02-15 09:13:06"}];
 
+Eden.DB.postComment = function(project, text, priv) {
+	dummycomments.push({comment: text, author: Eden.DB.username, date: (new Date()).toISOString()});
 }
 
 Eden.DB.searchComments = function(project, q, page, count, cb) {
-	if (cb) cb([{comment: "Hello World", author: "Nicolas Pope", date: "2017-02-15 10:13:06"},
-				{comment: "Another useless markdown comment", author: "Some One", date: "2017-02-15 09:13:06"}]);
+	if (cb) cb(dummycomments);
 }
 
 Eden.DB.removeComment = function(commentid) {
