@@ -83,7 +83,7 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				var t = data[i].date.split(/[- :]/);
 
 				heading.className = "feedback-header";
-				heading.innerHTML = '<span class="feedback-author">'+data[i].author+'</span><span class="feedback-date">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+				heading.innerHTML = '<span class="feedback-author">'+data[i].name+'</span><span class="feedback-date">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
 				ele.appendChild(heading);
 				var mk = document.createElement("div");
 				mk.style.padding = "0";
@@ -93,7 +93,7 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				ele.className = "feedback-result";
 				//ele.textContent = data[i].comment;
 				mk.innerHTML = sdown.makeHtml(data[i].comment);
-				me.results.appendChild(ele);
+				me.results.insertBefore(ele, me.results.firstChild);
 			}
 		}
 	});
