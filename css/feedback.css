@@ -28,3 +28,36 @@ div.feedback-dialog {
 	box-shadow: 0 0 10px #4a6887;
 }
 
+div.feedback-result {
+	margin: 10px;
+	font: 10pt "Source Sans Pro",UILanguageFont,Arial,sans-serif;
+	border-bottom: 1px solid #ddd;
+}
+
+div.feedback-result .markdown {
+	font-size: 10pt;
+}
+
+span.feedback-author {
+	font-weight: bold;
+	color: #222;
+	margin-right: 10px;
+}
+
+span.feedback-date {
+	color: #222;
+}
+
+div.feedback-input {
+	position: relative;
+	height: 80px;
+	margin-top: 10px;
+	margin-bottom: 3px;
+}
+
+div.feedback-buttons {
+	text-align: right;
+	margin-bottom: 10px;
+	margin-right: 10px;
+}
+

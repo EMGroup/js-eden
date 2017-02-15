@@ -464,7 +464,8 @@ Eden.DB.postComment = function(project, text, priv) {
 }
 
 Eden.DB.searchComments = function(project, q, page, count, cb) {
-	if (cb) cb([{comment: "Hello World"}]);
+	if (cb) cb([{comment: "Hello World", author: "Nicolas Pope", date: "2017-02-15 10:13:06"},
+				{comment: "Another useless markdown comment", author: "Some One", date: "2017-02-15 09:13:06"}]);
 }
 
 Eden.DB.removeComment = function(commentid) {
