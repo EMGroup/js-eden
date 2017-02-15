@@ -27,6 +27,7 @@ div.feedback-dialog {
 	border-width: 0 1px 1px 1px;
 	box-shadow: 0 0 10px #4a6887;
 	border-radius: 15px;
+	overflow: auto;
 }
 
 div.feedback-dialog:after {
@@ -75,6 +76,19 @@ div.feedback-result {
 	font: 10pt "Source Sans Pro",UILanguageFont,Arial,sans-serif;
 	margin-bottom: 20px;
 	border-bottom: 1px solid #eee;
+}
+
+div.feedback-result.newitem {
+  -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
+       -moz-animation: fadein 2s; /* Firefox < 16 */
+        -ms-animation: fadein 2s; /* Internet Explorer */
+         -o-animation: fadein 2s; /* Opera < 12.1 */
+            animation: fadein 2s;
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 div.feedback-result .markdown {
