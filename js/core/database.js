@@ -496,7 +496,7 @@ Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 	if (!project) return;
 	//if (cb) cb(dummycomments);
 	$.ajax({
-		url: this.remoteURL+"/comment/search?projectID="+project.id+((last) ? "&newerThan="+last : ""),
+		url: this.remoteURL+"/comment/search?projectID="+project.id+((last) ? "&newerThan="+last : "")+"&offset="+((page-1) * count)+"&limit="+count,
 		type: "get",
 		crossDomain: true,
 		xhrFields:{

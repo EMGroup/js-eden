@@ -113,7 +113,7 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 	var last = (this.cache.length>0) ? this.cache[0].commentID : undefined;
 	var firstnode = this.results.firstChild;
 
-	Eden.DB.searchComments(eden.project, q, 1, 10, last, function(data) {
+	Eden.DB.searchComments(eden.project, q, 1, 100, last, function(data) {
 		if (data) {
 			for (var i=0; i<data.length; i++) {
 				var ele = document.createElement("div");
