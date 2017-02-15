@@ -117,9 +117,9 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				ele.className = "feedback-result";
 				//ele.textContent = data[i].comment;
 				mk.innerHTML = sdown.makeHtml(data[i].comment);
-				me.results.insertBefore(ele, me.results.firstChild);
+				me.results.appendChild(ele);
 
-				me.cache.splice(0,0,data[i]);
+				me.cache.push(data[i]);
 			}
 		}
 	});
