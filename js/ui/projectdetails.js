@@ -154,7 +154,38 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 				}
 				me.dialog.get(0).insertBefore(forksbox,descbox.nextSibling.nextSibling);
 			}
+
+			Eden.DB.searchComments({id: projectid},"",1,3, undefined, function(data) {
+				var sdown = new showdown.Converter();
+
+				if (data.length > 0) {
+					var comtit = document.createElement("div");
+					comtit.style.borderTop = "1px solid #aaa";
+					comtit.style.height = "10px";
+					me.dialog.get(0).appendChild(comtit);
+				}
+
+				for (var i=0; i<data.length; i++) {
+					var ele = document.createElement("div");
+					var heading = document.createElement("div");
+					var t = data[i].date.split(/[- :]/);
+
+					heading.className = "feedback-header";
+					heading.innerHTML = '<span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" data-date="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+					ele.appendChild(heading);
+					var mk = document.createElement("div");
+					mk.style.padding = "0";
+					mk.style.marginBottom = "3px";
+					mk.className = "markdown";
+					ele.appendChild(mk);
+					ele.className = "feedback-result";
+					//ele.textContent = data[i].comment;
+					mk.innerHTML = sdown.makeHtml(data[i].comment);
+					me.dialog.get(0).appendChild(ele);
+				}
+			});
 		});
+
 	});
 }
 
