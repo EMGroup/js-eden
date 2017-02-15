@@ -321,7 +321,7 @@ var app = express();
 	  });
   });
   
-  app.get('/comment/search', ensureAuthenticated, function(req,res){
+  app.get('/comment/search', function(req,res){
 	  var stmtstr = "SELECT name,commentID,projectID,versionID,date,author,public,comment FROM comments,oauthusers WHERE projectID = @projectID AND public = 1";
 	  var criteriaObject = {};
 	  criteriaObject["@projectID"] = req.query.projectID;
@@ -345,35 +345,40 @@ var app = express();
 			  res.json({error: ERROR_SQL, description: "SQL Error", err:err});
 		  }else{
 
-			  stmtstr = "SELECT name,commentID,projectID,versionID,date,author,public,comment FROM comments,oauthusers WHERE projectID = @projectID AND public = 0 AND author = @author";
-			  criteriaObject = {};
-			  
-			  criteriaObject["@projectID"] = req.query.projectID;
-			  criteriaObject["@offset"] = 0;
-			  criteriaObject["@limit"] = 100;
-			  criteriaObject["@author"] = req.user.id;
+			  if(req.user){
+				  stmtstr = "SELECT name,commentID,projectID,versionID,date,author,public,comment FROM comments,oauthusers WHERE projectID = @projectID AND public = 0 AND author = @author";
+				  criteriaObject = {};
+				  
+				  criteriaObject["@projectID"] = req.query.projectID;
+				  criteriaObject["@offset"] = 0;
+				  criteriaObject["@limit"] = 100;
+				  criteriaObject["@author"] = req.user.id;
 
-			  if(req.query.newerThan){
-				  stmtstr += " AND date > (SELECT date from comments WHERE commentID = @newerThanComment)";
-				  criteriaObject["@newerThanComment"] = req.query.newerThan;
-			  }
-			  if(req.query.offset)
-				  criteriaObject["@offset"] = req.query.offset;
-			  if(req.query.limit)
-				  criteriaObject["@limit"] = req.query.limit;
-			  
-			  stmtstr += " AND author = userid LIMIT @limit OFFSET @offset";
-			  
-			  var privStmt = db.prepare(stmtstr);
-			  
-			  privStmt.all(criteriaObject, function(err,privRows){
-				  if(err){
-						res.json({error: ERROR_SQL, description: "SQL Error", err:err});
-				  }else{
-					  var mergedRows = rows.concat(privRows);
-					  res.json(mergedRows);
+				  if(req.query.newerThan){
+					  stmtstr += " AND date > (SELECT date from comments WHERE commentID = @newerThanComment)";
+					  criteriaObject["@newerThanComment"] = req.query.newerThan;
 				  }
-			  });
+				  if(req.query.offset)
+					  criteriaObject["@offset"] = req.query.offset;
+				  if(req.query.limit)
+					  criteriaObject["@limit"] = req.query.limit;
+				  
+				  stmtstr += " AND author = userid LIMIT @limit OFFSET @offset";
+				  
+				  var privStmt = db.prepare(stmtstr);
+				  
+				  privStmt.all(criteriaObject, function(err,privRows){
+					  if(err){
+							res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+					  }else{
+						  var mergedRows = rows.concat(privRows);
+						  res.json(mergedRows);
+					  }
+				  });
+			  }else{
+				  res.json(rows);
+			  }
+
 		  }		  
 	  });
   });
