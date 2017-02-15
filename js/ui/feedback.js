@@ -98,6 +98,7 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 	var sdown = new showdown.Converter();
 
 	var last = (this.cache.length>0) ? this.cache[0].commentID : undefined;
+	var firstnode = this.results.firstChild;
 
 	Eden.DB.searchComments(eden.project, q, 1, 10, last, function(data) {
 		if (data) {
@@ -114,13 +115,14 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				mk.style.marginBottom = "3px";
 				mk.className = "markdown";
 				ele.appendChild(mk);
-				ele.className = "feedback-result";
+				ele.className = "feedback-result" + ((last) ? " newitem" : "");
 				//ele.textContent = data[i].comment;
 				mk.innerHTML = sdown.makeHtml(data[i].comment);
-				me.results.appendChild(ele);
-
-				me.cache.push(data[i]);
+				if (firstnode) me.results.insertBefore(ele, firstnode);
+				else me.results.appendChild(ele);
 			}
 		}
+
+		me.cache = data.concat(me.cache);
 	});
 }
