@@ -125,6 +125,8 @@ const ERROR_NO_EXISTING_PROJECT = 5;
 const ERROR_USER_NOT_OWNER = 6;
 const ERROR_NO_PROJECTID = 7;
 const ERROR_PROJECT_NOT_MATCHED = 10;
+const ERROR_COMMENT_NOT_MATCHED = 11;
+const ERROR_INVALID_FORMAT = 12;
 
 
 passportUsers.setupPassport(passport,db);
@@ -281,6 +283,10 @@ var app = express();
   app.use(passport.session());
 
   app.get('/', function(req, res){
+	  res.redirect("index");
+  });
+  
+  app.get('/index',function(req,res){
 	  if(req.user !== undefined && req.user.id == null){
 		  res.render('registration', { user: req.user });
 //		  res.render('regclosed');
@@ -289,6 +295,89 @@ var app = express();
 	  }
   });
 
+  app.post('/comment/post', ensureAuthenticated, function(req,res){
+	  var stmt = db.prepare("INSERT INTO comments VALUES (NULL, ?, ?, current_timestamp, ?, ?, ?);");
+	  if(req.body.public != 0 && req.body.public != 1)
+		  res.json({error: ERROR_INVALID_FORMAT, description: "Invalid range for 'public'"})
+	  stmt.run(req.body.projectID,req.body.versionID,req.user.id, req.body.public, req.body.comment,function(err){
+		  if(err){
+				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+		  }else{
+			res.json({commentID: this.lastID});  
+		  }		  
+	  });
+  });
+  
+  app.post('/comment/delete', ensureAuthenticated, function(req,res){
+	  var stmt = db.prepare("DELETE FROM comments WHERE commentID = ? AND author = ?");
+	  stmt.run(req.body.commentID,req.user.id,function(err){
+			if(err){
+				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+			}
+			if(this.changes == 0)
+				res.json({error: ERROR_COMMENT_NOT_MATCHED, description: "Matching project not found"});
+			if(this.changes > 0)
+				res.json({status: "deleted", changes: this.changes});  
+	  });
+  });
+  
+  app.get('/comment/search', ensureAuthenticated, function(req,res){
+	  var stmtstr = "SELECT name,commentID,projectID,versionID,date,author,public,comment FROM comments,oauthusers WHERE projectID = @projectID AND public = 1";
+	  var criteriaObject = {};
+	  criteriaObject["@projectID"] = req.query.projectID;
+	  criteriaObject["@offset"] = 0;
+	  criteriaObject["@limit"] = 100;
+
+	  if(req.query.newerThan){
+		  stmtstr += " AND date > (SELECT date from comments WHERE commentID = @newerThanComment)";
+		  criteriaObject["@newerThanComment"] = req.query.newerThan;
+	  }
+	  if(req.query.offset)
+		  criteriaObject["@offset"] = req.query.offset;
+	  if(req.query.limit)
+		  criteriaObject["@limit"] = req.query.limit;
+	  
+	  stmtstr += " AND author = userid LIMIT @limit OFFSET @offset";
+	  var stmt = db.prepare(stmtstr);
+	  
+	  stmt.all(criteriaObject,function(err,rows){
+		  if(err){
+			  res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+		  }else{
+
+			  stmtstr = "SELECT name,commentID,projectID,versionID,date,author,public,comment FROM comments,oauthusers WHERE projectID = @projectID AND public = 0 AND author = @author";
+			  criteriaObject = {};
+			  
+			  criteriaObject["@projectID"] = req.query.projectID;
+			  criteriaObject["@offset"] = 0;
+			  criteriaObject["@limit"] = 100;
+			  criteriaObject["@author"] = req.user.id;
+
+			  if(req.query.newerThan){
+				  stmtstr += " AND date > (SELECT date from comments WHERE commentID = @newerThanComment)";
+				  criteriaObject["@newerThanComment"] = req.query.newerThan;
+			  }
+			  if(req.query.offset)
+				  criteriaObject["@offset"] = req.query.offset;
+			  if(req.query.limit)
+				  criteriaObject["@limit"] = req.query.limit;
+			  
+			  stmtstr += " AND author = userid LIMIT @limit OFFSET @offset";
+			  
+			  var privStmt = db.prepare(stmtstr);
+			  
+			  privStmt.all(criteriaObject, function(err,privRows){
+				  if(err){
+						res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+				  }else{
+					  var mergedRows = rows.concat(privRows);
+					  res.json(mergedRows);
+				  }
+			  });
+		  }		  
+	  });
+  });
+  
 app.post('/registration', function(req,res){
 	var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?)");
 	stmt.run(req.user.oauthcode, req.body.displayName, function(err){
