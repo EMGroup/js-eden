@@ -141,6 +141,7 @@ EdenUI.Notifications.prototype.notification = function(type, content) {
 
 		switch(type) {
 		case "net"		: icon = "&#xf0c1;"; break;
+		case "comment"	: icon = "&#xf075;"; break;
 		case "log"		: icon = "&#xf120;"; break;
 		case "warning"	: icon = "&#xf071;"; colour = "#f57900"; break;
 		case "info"		:

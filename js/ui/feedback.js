@@ -42,11 +42,28 @@ EdenUI.Feedback = function() {
 			me.odialog.style.display = "initial";
 			me.clear();
 			me.updateComments("");
-			me.interval = setInterval(function() { me.updateComments(""); },5000);
+			clearInterval(me.interval);
+			me.interval = setInterval(function() {
+				me.updateComments("");
+			},5000);
 		} else {
 			me.odialog.style.display = "none";
 			clearInterval(me.interval);
-			me.interval = undefined;
+			var last;
+			me.interval = setInterval(function() {
+				//me.updateComments("");
+				Eden.DB.searchComments(eden.project, "", 1, 10, last, function(data) {
+					if (last === undefined && eden.project && data.length > 0) {
+						last = data[0].commentID;
+						return;
+					}
+					for (var i=0; i<data.length; i++) {
+						edenUI.menu.notifications.notification("comment", "New comment by " + data[i].name);
+					}
+					if (data.length > 0) last = data[0].commentID;
+				});
+			},10000);
+			//me.interval = undefined;
 		}
 	}
 	visSym.addJSObserver("feedback", changeVis);
