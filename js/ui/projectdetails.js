@@ -152,7 +152,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 					forkentry.innerHTML = "Forked as \"" + forks[i].title + "\" by " + forks[i].ownername + " " + get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
 					forksbox.appendChild(forkentry);
 				}
-				me.dialog.get(0).insertBefore(forksbox,descbox.nextSibling.nextSibling);
+				me.dialog.get(0).insertBefore(forksbox,descbox.nextSibling);
 			}
 
 			Eden.DB.searchComments({id: projectid},"",1,3, undefined, function(data) {
