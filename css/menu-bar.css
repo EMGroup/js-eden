@@ -592,7 +592,7 @@ iframe.menubar-login-iframe {
 
 #projectoptions {
 	position: relative;
-	height: 150px;
+	min-height: 150px;
 }
 
 #projectoptions h3.ui-accordion-header {
