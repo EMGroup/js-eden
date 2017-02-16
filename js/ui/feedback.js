@@ -88,6 +88,14 @@ EdenUI.Feedback = function() {
 	this.results = document.createElement("div");
 	this.dialog.appendChild(this.results);
 
+	this.results.addEventListener("click", function(e) {
+		if (e.srcElement.className == "feedback-delete") {
+			console.log("delete", e.srcElement.getAttribute("data-id"));
+			Eden.DB.removeComment(e.srcElement.getAttribute("data-id"));
+			me.results.removeChild(e.srcElement.parentNode.parentNode);
+		}
+	});
+
 	var postbut = document.createElement("button");
 	postbut.className = "script-button";
 	postbut.textContent = "Comment";
@@ -142,7 +150,7 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				var t = data[i].date.split(/[- :]/);
 
 				heading.className = "feedback-header";
-				heading.innerHTML = '<span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" data-date="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+((data[i].author == Eden.DB.userid) ? '</span><span class="feedback-delete">&#xf00d;</span>' : '');
+				heading.innerHTML = '<span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" data-date="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+((data[i].author == Eden.DB.userid) ? '</span><span class="feedback-delete" data-id="'+data[i].commentID+'">&#xf00d;</span>' : '');
 				ele.appendChild(heading);
 				var mk = document.createElement("div");
 				mk.style.padding = "0";
