@@ -495,6 +495,7 @@ Eden.DB.postComment = function(project, text, priv) {
 Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 	if (!project) return;
 	//if (cb) cb(dummycomments);
+	if (Eden.DB.isConnected()) {
 	$.ajax({
 		url: this.remoteURL+"/comment/search?projectID="+project.id+((last) ? "&newerThan="+last : "")+"&offset="+((page-1) * count)+"&limit="+count,
 		type: "get",
@@ -516,10 +517,35 @@ Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 			//Eden.DB.disconnect(true);
 		}
 	});
+	}
 }
 
 Eden.DB.removeComment = function(commentid) {
-
+	if (!Eden.DB.isLoggedIn()) return;
+	$.ajax({
+		url: this.remoteURL+"/comment/delete",
+		type: "post",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		data:{	commentID: commentid },
+		success: function(data){
+			if (data === null || data.error) {
+				console.error(data);
+				eden.error((data) ? data.description : "No response from server");
+				//if (callback) callback(false);
+			} else {
+				
+			}
+		},
+		error: function(a){
+			//console.error(a);
+			//eden.error(a);
+			Eden.DB.disconnect(true);
+			//if (callback) callback(false);
+		}
+	});
 }
 
 
