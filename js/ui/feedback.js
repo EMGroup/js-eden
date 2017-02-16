@@ -4,10 +4,14 @@ EdenUI.Feedback = function() {
 	icon.innerHTML = "&#xf0e6;";
 	document.getElementById("jseden-views").appendChild(icon);
 
+	this.odialog = document.createElement("div");
+	this.odialog.className = "feedback-dialog";
+	this.odialog.style.display = "none";
+	document.getElementById("jseden-views").appendChild(this.odialog);
+
 	this.dialog = document.createElement("div");
-	this.dialog.className = "feedback-dialog";
-	this.dialog.style.display = "none";
-	document.getElementById("jseden-views").appendChild(this.dialog);
+	this.dialog.className = "feedback-scroller";
+	this.odialog.appendChild(this.dialog);
 
 	var title = document.createElement("div");
 	title.className = "feedback-title";
@@ -35,12 +39,12 @@ EdenUI.Feedback = function() {
 
 	function changeVis(sym, val) {
 		if (val) {
-			me.dialog.style.display = "initial";
+			me.odialog.style.display = "initial";
 			me.clear();
 			me.updateComments("");
 			me.interval = setInterval(function() { me.updateComments(""); },5000);
 		} else {
-			me.dialog.style.display = "none";
+			me.odialog.style.display = "none";
 			clearInterval(me.interval);
 			me.interval = undefined;
 		}
@@ -121,7 +125,7 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				var t = data[i].date.split(/[- :]/);
 
 				heading.className = "feedback-header";
-				heading.innerHTML = '<span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" data-date="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+				heading.innerHTML = '<span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" data-date="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+((data[i].author == Eden.DB.userid) ? '</span><span class="feedback-delete">&#xf00d;</span>' : '');
 				ele.appendChild(heading);
 				var mk = document.createElement("div");
 				mk.style.padding = "0";

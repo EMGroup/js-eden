@@ -27,7 +27,32 @@ div.feedback-dialog {
 	border-width: 0 1px 1px 1px;
 	box-shadow: 0 0 10px #4a6887;
 	border-radius: 15px;
+}
+
+div.feedback-scroller {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
 	overflow: auto;
+}
+
+div.feedback-scroller::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+ 
+div.feedback-scroller::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 10px;
+}
+
+div.feedback-scroller::-webkit-scrollbar-track {
+  background: #ddd;
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 div.feedback-dialog:after {
@@ -110,6 +135,18 @@ div.feedback-input {
 	/*height: 80px;*/
 	margin-top: 10px;
 	margin-bottom: 3px;
+}
+
+span.feedback-delete {
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	color: #ddd;
+	cursor: pointer;
+	float: right;
+}
+
+span.feedback-delete:hover {
+	color: #666;
 }
 
 div.feedback-buttons {
