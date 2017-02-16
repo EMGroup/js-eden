@@ -93,6 +93,9 @@ EdenUI.Feedback = function() {
 			console.log("delete", e.srcElement.getAttribute("data-id"));
 			Eden.DB.removeComment(e.srcElement.getAttribute("data-id"));
 			me.results.removeChild(e.srcElement.parentNode.parentNode);
+		} else if (e.srcElement.className == "eden-hl-play") {
+			console.log("PLAY COMMENT", e.srcElement.getAttribute("data-src"));
+			eden.execute2(e.srcElement.getAttribute("data-src"));
 		}
 	});
 
@@ -162,6 +165,12 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 				mk.innerHTML = sdown.makeHtml(data[i].comment);
 				if (firstnode) me.results.insertBefore(ele, firstnode);
 				else me.results.appendChild(ele);
+
+				$(mk).find("code").each(function(i, block) {
+					if (block.parentNode.nodeName == "PRE") {
+						block.innerHTML = EdenUI.Highlight.html(block.textContent, false, true);
+					}
+				});
 			}
 		}
 

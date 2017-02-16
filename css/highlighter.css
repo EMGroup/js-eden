@@ -360,3 +360,14 @@ div.eden-comment-blockquote {
 	white-space: normal;
 }
 
+div.eden-hl-play {
+	color: #33bb33;
+	text-shadow: 2px 2px 6px #aaa;
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	height: 100%;
+	vertical-align: middle;
+	float: left;
+	cursor: pointer;
+}
+
