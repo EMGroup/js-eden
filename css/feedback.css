@@ -107,7 +107,7 @@ span.feedback-date {
 
 div.feedback-input {
 	position: relative;
-	height: 80px;
+	/*height: 80px;*/
 	margin-top: 10px;
 	margin-bottom: 3px;
 }
