@@ -335,7 +335,7 @@ Scope.prototype.first = function() {
 Scope.prototype.mergeCache = function(prevcache) {
 	var diff = this.range;
 
-	if (!this.range) {
+	/*if (!this.range) {
 		for (var i=0; i<this.overrides.length; i++) {
 			var over = this.overrides[i];
 			//console.log("MERGE CACHE",over.name,prevcache[over.name],this.cache[over.name]);
@@ -345,19 +345,19 @@ Scope.prototype.mergeCache = function(prevcache) {
 				break;
 			} 
 		}
-	}
+	}*/
 
 	// TODO If all overrides are the same, use the original cache?
 
-	if (diff) {
+	//if (diff) {
 		this.cache = {};
 		for (var o in prevcache) {
 			//if (prevcache[o].up_to_date) // TODO Check this works in all cache, ie. backticks
 			this.cache[o] = new ScopeCache(false, undefined, this);
 		}
-	} else {
-		this.cache = prevcache;
-	}
+	//} else {
+	//	this.cache = prevcache;
+	//}
 
 	//this.cache = prevcache;
 }
