@@ -78,15 +78,23 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		content.find(".symbollist-search-box-outer > .symbollist-edit").click(function(){
 			var editorViewName = "edit_" + edenName;
-			var allVals = ["## Selection: " + searchBoxElem.value];
+			/*var allVals = ["## Selection: " + searchBoxElem.value];
 			var symbol;
 			for(var symbolname in symbollist.symbols){
 				symbol = edenUI.eden.root.lookup(symbolname);
 				allVals.push(symbol);
 				allVals.push("");
+			}*/
+
+			if (searchBoxElem.value.startsWith("select: ")) {
+				edenUI.createView(editorViewName, "ScriptInput", undefined); //.update(allVals);
+				var tabs = eden.root.lookup("view_"+editorViewName+"_tabs").value();
+				if (!Array.isArray(tabs)) tabs = [];
+				tabs.push(searchBoxElem.value.substring(8));
+				eden.root.lookup("view_"+editorViewName+"_tabs").assign(tabs, eden.root.scope, Symbol.hciAgent);
+				eden.root.lookup("view_"+editorViewName+"_current").assign(tabs.length-1, eden.root.scope, Symbol.hciAgent);
+				//edenUI.eden.root.lookup("view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
 			}
-			edenUI.createView(editorViewName, "ScriptInput", undefined).update(allVals);
-			edenUI.eden.root.lookup("view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
 		});
 
 		//Show different placeholder text to indicate the search syntax being used.
