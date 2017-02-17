@@ -5,9 +5,9 @@ EdenUI.Explorer = function() {
 <div class=\"explore-tabs\">\
 	<div class=\"explore-tab-container\">\
 		<div class=\"explore-tab explore-tab-current\" data-name="state">State</div>\
-		<div class=\"explore-tab explore-tab-notcurrent\" data-name="scripts">Scripts</div>\
-		<div class=\"explore-tab explore-tab-notcurrent\" data-name="palette">Palette</div>\
-	</div>\
+		'+ //<div class=\"explore-tab explore-tab-notcurrent\" data-name="scripts">Scripts</div>
+		 //<div class=\"explore-tab explore-tab-notcurrent\" data-name="palette">Palette</div>
+'	</div>\
 </div>\
 <div class="explore-state">\
 </div>\
@@ -39,7 +39,7 @@ EdenUI.Explorer = function() {
 	// Make the console...
 	this.console = new EdenUI.ScriptBox(this.consoleele.get(0), {nobuttons: true});
 	this.state = new EdenUI.ExplorerState(this.expstate);
-	this.scripts = new EdenUI.ExplorerScripts(this.expscripts);
+	//this.scripts = new EdenUI.ExplorerScripts(this.expscripts);
 
 	this.element.on("click", ".clear-button", function(e) {
 		me.console.clear();
