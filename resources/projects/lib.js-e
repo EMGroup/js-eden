@@ -1309,6 +1309,16 @@ proc goto {
 	${{ Eden.Selectors.goto(q); }}$;
 }
 
+#! Add a comment to the project. The comment can be markdown formatted.
+# @param text The text content of the comment.
+# @param priv Is this comment private and therefore hidden?
+proc postComment {
+	para text,priv;
+	${{
+	Eden.DB.postComment(eden.project, text, priv);
+	}}$;
+}
+
 proc showProjects {
 	para id, q;
 	${{

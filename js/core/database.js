@@ -459,11 +459,11 @@ Eden.DB.searchSelector = function(q, kind, callback) {
 	});
 }
 
-var dummycomments = [{comment: "Hello World", author: "Nicolas Pope", date: "2017-02-15 10:13:06"},
-				{comment: "Another useless markdown comment", author: "Some One", date: "2017-02-15 09:13:06"}];
-
 Eden.DB.postComment = function(project, text, priv) {
-	if (!project) return;
+	//if (!project) return;
+	var pid = (project) ? project.id : -1;
+	var vid = (project) ? project.vid : -1;
+	if (!Eden.DB.isLoggedIn()) return;
 	$.ajax({
 		url: this.remoteURL+"/comment/post",
 		type: "post",
@@ -471,8 +471,8 @@ Eden.DB.postComment = function(project, text, priv) {
 		xhrFields:{
 			withCredentials: true
 		},
-		data:{	projectID: project.id,
-				versionID: project.vid,
+		data:{	projectID: pid,
+				versionID: vid,
 				"public": (priv) ? 0 : 1,
 				comment: text
 		},
@@ -494,11 +494,13 @@ Eden.DB.postComment = function(project, text, priv) {
 	});
 }
 
-Eden.DB.searchComments = function(project, q, page, count, cb) {
-	if (!project) return;
+Eden.DB.searchComments = function(project, q, page, count, last, cb) {
+	//if (!project) return;
+	var pid = (project) ? project.id : -1;
 	//if (cb) cb(dummycomments);
+	if (Eden.DB.isConnected()) {
 	$.ajax({
-		url: this.remoteURL+"/comment/search?projectID="+project.id,
+		url: this.remoteURL+"/comment/search?projectID="+pid+((last) ? "&newerThan="+last : "")+"&offset="+((page-1) * count)+"&limit="+count,
 		type: "get",
 		crossDomain: true,
 		xhrFields:{
@@ -518,10 +520,35 @@ Eden.DB.searchComments = function(project, q, page, count, cb) {
 			//Eden.DB.disconnect(true);
 		}
 	});
+	}
 }
 
 Eden.DB.removeComment = function(commentid) {
-
+	if (!Eden.DB.isLoggedIn()) return;
+	$.ajax({
+		url: this.remoteURL+"/comment/delete",
+		type: "post",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		data:{	commentID: commentid },
+		success: function(data){
+			if (data === null || data.error) {
+				console.error(data);
+				eden.error((data) ? data.description : "No response from server");
+				//if (callback) callback(false);
+			} else {
+				
+			}
+		},
+		error: function(a){
+			//console.error(a);
+			//eden.error(a);
+			Eden.DB.disconnect(true);
+			//if (callback) callback(false);
+		}
+	});
 }
 
 

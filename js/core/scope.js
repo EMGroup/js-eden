@@ -333,17 +333,31 @@ Scope.prototype.first = function() {
 }
 
 Scope.prototype.mergeCache = function(prevcache) {
-	//for (var i=0; i<this.overrides.length; i++) {
-	//	var over = this.overrides[i];
-		//console.log("MERGE CACHE",over.name,prevcache[over.name],this.cache[over.name]);
-	//	prevcache[over.name] = this.cache[over.name];
-	//}
+	var diff = this.range;
 
-	this.cache = {};
-	for (var o in prevcache) {
-		//if (prevcache[o].up_to_date) // TODO Check this works in all cache, ie. backticks
-		this.cache[o] = new ScopeCache(false, undefined, this);
-	}
+	/*if (!this.range) {
+		for (var i=0; i<this.overrides.length; i++) {
+			var over = this.overrides[i];
+			//console.log("MERGE CACHE",over.name,prevcache[over.name],this.cache[over.name]);
+		//	prevcache[over.name] = this.cache[over.name];
+			if (over.current != prevcache[over.name].value) {
+				diff = true;
+				break;
+			} 
+		}
+	}*/
+
+	// TODO If all overrides are the same, use the original cache?
+
+	//if (diff) {
+		this.cache = {};
+		for (var o in prevcache) {
+			//if (prevcache[o].up_to_date) // TODO Check this works in all cache, ie. backticks
+			this.cache[o] = new ScopeCache(false, undefined, this);
+		}
+	//} else {
+	//	this.cache = prevcache;
+	//}
 
 	//this.cache = prevcache;
 }

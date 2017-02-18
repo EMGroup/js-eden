@@ -101,9 +101,9 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 			//}
 		} else {
 			if (type == "assignment" || type == "definition") {
-				html = '<p><button class="script-button script-goto">View</button><button class="script-button">Watch</button><button class="script-button">More</button></p>';
+				html = '<p><button class="script-button script-goto">View</button>'; //<button class="script-button">Watch</button><button class="script-button">More</button></p>';
 			} else {
-				html = '<p><button class="script-button script-goto">View</button><button class="script-button">More</button></p>';
+				html = '<p><button class="script-button script-goto">View</button>'; //<button class="script-button">More</button></p>';
 			}
 		}
 	} else { html = ''; }

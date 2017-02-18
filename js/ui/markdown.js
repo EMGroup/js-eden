@@ -95,7 +95,8 @@ EdenUI.Markdown.styles = {
 		"comment-query": "eden-comment-query",
 		"block-comment": "eden-blockcomment",
 		"comment-ul": "eden-comment-ul",
-		"comment-blockquote": "eden-comment-blockquote"
+		"comment-blockquote": "eden-comment-blockquote",
+		"script": "eden-script"
 	}
 
 EdenUI.Markdown.prototype.getLineNumber = function() {

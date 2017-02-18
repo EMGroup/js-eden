@@ -29,6 +29,32 @@ div.feedback-dialog {
 	border-radius: 15px;
 }
 
+div.feedback-scroller {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: auto;
+}
+
+div.feedback-scroller::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+ 
+div.feedback-scroller::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 10px;
+}
+
+div.feedback-scroller::-webkit-scrollbar-track {
+  background: #ddd;
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 div.feedback-dialog:after {
   content:"";
   position:absolute;
@@ -71,9 +97,23 @@ span.feedback-close {
 }
 
 div.feedback-result {
-	margin: 10px;
+	margin: 15px;
 	font: 10pt "Source Sans Pro",UILanguageFont,Arial,sans-serif;
-	border-bottom: 1px solid #ddd;
+	margin-bottom: 20px;
+	border-bottom: 1px solid #eee;
+}
+
+div.feedback-result.newitem {
+  -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
+       -moz-animation: fadein 2s; /* Firefox < 16 */
+        -ms-animation: fadein 2s; /* Internet Explorer */
+         -o-animation: fadein 2s; /* Opera < 12.1 */
+            animation: fadein 2s;
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 div.feedback-result .markdown {
@@ -82,19 +122,31 @@ div.feedback-result .markdown {
 
 span.feedback-author {
 	font-weight: bold;
-	color: #222;
+	color: #666;
 	margin-right: 10px;
 }
 
 span.feedback-date {
-	color: #222;
+	color: #666;
 }
 
 div.feedback-input {
 	position: relative;
-	height: 80px;
+	/*height: 80px;*/
 	margin-top: 10px;
 	margin-bottom: 3px;
+}
+
+span.feedback-delete {
+	font-family: "FontAwesome";
+	font-size: 14pt;
+	color: #ddd;
+	cursor: pointer;
+	float: right;
+}
+
+span.feedback-delete:hover {
+	color: #666;
 }
 
 div.feedback-buttons {

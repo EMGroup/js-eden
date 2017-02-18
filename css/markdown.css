@@ -28,11 +28,11 @@ span.markdown-hashtag {
 
 div.markdown-inputhider {
 	overflow: auto;
-	position: absolute;
+	/*position: absolute;
 	left: 0;
 	right: 0;
 	top: 0;
-	bottom: 0;
+	bottom: 0;*/
 	/*background: #e5e5e5;*/
 	/*border-radius: 6px;*/
 	/*background: rgba(229,229,229,0.8);*/
@@ -48,11 +48,11 @@ div.markdown-inputhider {
 	-o-tab-size: 4;
 	tab-size: 4;
 	/*margin: 5px;*/
-	position: absolute;
+	/*position: absolute;
 	top: 0;
 	bottom: 0;
 	left: 0;
-	right: 0;
+	right: 0;*/
 	border-color: #719ECE;
     /*box-shadow: 0 0 10px #719ECE;*/
 	color: #2b4957;/*#233b46;*/
@@ -76,7 +76,7 @@ div.markdown-outputcontent {
 	padding: 10px;
 	cursor: text;
 	outline: none;
-	font: 10pt Roboto Mono,monospace;
+	font: 10pt "Source Sans Pro",UILanguageFont,Arial,sans-serif;
 	white-space: pre;
 	/*overflow: auto;*/
 	/*background: #f5f5f5;*/
@@ -84,6 +84,7 @@ div.markdown-outputcontent {
 	/*background: rgba(255,255,255,0.95);
 	box-shadow: 0 0 8px #aaa;*/
 	/*height: 130px;*/
+	min-height: 80px;
 }
 
 span.markdown-comment-hidden {
@@ -92,6 +93,7 @@ span.markdown-comment-hidden {
 
 div.markdown-comment-line {
 	display: inline-block;
+	white-space: pre-wrap;
 }
 
 span.markdown-tag {

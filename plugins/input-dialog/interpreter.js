@@ -420,8 +420,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					html += '<span class="editname"><input type="text" class="editname" placeholder="Enter a name..."></input></span>';
 				
 				} else if (frag) {
-					html += '<button class="script-button script-changes" title="Show recent changes"><span class="explorer-control-icon">&#xf044;</span>Edits</button>';
-					html += '<button class="script-button script-details" title="Display or edit script properties"><span class="explorer-control-icon">&#xf013;</span>Details</button>';
+					//html += '<button class="script-button script-changes" title="Show recent changes"><span class="explorer-control-icon">&#xf044;</span>Edits</button>';
+					//html += '<button class="script-button script-details" title="Display or edit script properties"><span class="explorer-control-icon">&#xf013;</span>Details</button>';
 				}
 
 				$controls.html(html);

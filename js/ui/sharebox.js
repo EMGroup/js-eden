@@ -216,9 +216,9 @@ EdenUI.Sharebox.prototype.update = function() {
 
 	if (Eden.DB.isLoggedIn()) {
 		if (eden.project.authorid != Eden.DB.userid && eden.project.authorid != -1) {
-			me.sharebox.find("#projectuploadbox").html('<div id="projectthumb"></div><div style="margin-top: 40px; float: left"><input id="listpublic" type="checkbox" checked>List publically</input></div><input id="thumbfile" type="file"></input><div class="sharebox-save-buttons"><button class="sharebox-button fork">Fork</button><span class="downloadurl"></span></div>'); //<button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');
+			me.sharebox.find("#projectuploadbox").html('<div id="projectthumb"></div><div style="margin-top: 40px; float: left"><input id="listpublic" type="checkbox">List publically</input></div>Thumbnail: <input id="thumbfile" type="file"></input><div class="sharebox-save-buttons"><button class="sharebox-button fork">Fork</button><span class="downloadurl"></span></div>'); //<button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');
 		} else {
-			me.sharebox.find("#projectuploadbox").html('<div id="projectthumb"></div><div style="margin-top: 40px; float: left"><input id="listpublic" type="checkbox" checked>List publically</input></div><input id="thumbfile" type="file"></input><div class="sharebox-save-buttons"><button class="sharebox-button upload">Save</button><button class="sharebox-button fork">Fork</button><span class="downloadurl"></span></div>'); //<button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');
+			me.sharebox.find("#projectuploadbox").html('<div id="projectthumb"></div><div style="margin-top: 40px; float: left"><input id="listpublic" type="checkbox">List publically</input></div><input id="thumbfile" type="file"></input><div class="sharebox-save-buttons"><button class="sharebox-button upload">Save</button><button class="sharebox-button fork">Fork</button><span class="downloadurl"></span></div>'); //<button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');
 		}		
 		me.sharebox.find("#projectoptions").show();
 	} else {

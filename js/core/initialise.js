@@ -100,7 +100,7 @@ function Construit(options,callback) {
 		"Canvas2D",
 		"DependencyMap",
 		"HTMLContent",
-		"ObservablePalette",
+		//"ObservablePalette",
 		"PluginManager",
 		"ScriptInput",
 		"SymbolLookUpTable",

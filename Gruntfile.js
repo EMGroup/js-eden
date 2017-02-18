@@ -55,6 +55,7 @@ module.exports = function (grunt) {
 					'css/scriptbox.css',
 					'css/markdown.css',
 					'css/projectdetails.css',
+					'css/feedback.css',
 					'plugins/canvas/canvas.css',
 					'plugins/page/page.css',
 					'plugins/symbol-viewer/symbol-viewer.css',
@@ -220,6 +221,7 @@ module.exports = function (grunt) {
 					'./js/ui/explorer-script.js',
 					'./js/ui/markdown.js',
 					'./js/ui/projectdetails.js',
+					'./js/ui/feedback.js'
 				],
 				'./plugins/jseden-plugins.min.js': [
 					'./js/util/css.js',

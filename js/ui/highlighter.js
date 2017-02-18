@@ -766,7 +766,7 @@
 		else return this.highlightOpt(hline, position, options); 
 	};
 
-	EdenUI.Highlight.html = function(str, single) {
+	EdenUI.Highlight.html = function(str, single, play) {
 		var dummy = document.createElement("div");
 		var hlighter = new EdenUI.Highlight(dummy);
 		hlighter.ast = {stream: new EdenStream(str)};
@@ -778,7 +778,9 @@
 			for (var i=0; i<dummy.childNodes.length; i++) {
 				res += dummy.childNodes[i].innerHTML;
 			}
-			return res;
+
+			if (play) return '<div style="display: flex; align-items: center;"><div class="eden-hl-play" data-src="'+str+'">&#xf04b;</div><div>'+res+"</div></div>";
+			else return res;
 		}
 	}
 }(typeof window !== 'undefined' ? window : global));
