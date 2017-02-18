@@ -53,7 +53,7 @@ EdenUI.Feedback = function() {
 			me.interval = setInterval(function() {
 				//me.updateComments("");
 				Eden.DB.searchComments(eden.project, "", 1, 10, last, function(data) {
-					if (last === undefined && eden.project && data.length > 0) {
+					if (last === undefined && data.length > 0) {
 						last = data[0].commentID;
 						return;
 					}
