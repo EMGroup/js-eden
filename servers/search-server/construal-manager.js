@@ -297,9 +297,9 @@ var app = express();
 
   app.post('/comment/post', ensureAuthenticated, function(req,res){
 	  var stmt = db.prepare("INSERT INTO comments VALUES (NULL, ?, ?, current_timestamp, ?, ?, ?);");
-	  if(req.body.public != 0 && req.body.public != 1)
-		  res.json({error: ERROR_INVALID_FORMAT, description: "Invalid range for 'public'"})
-	  stmt.run(req.body.projectID,req.body.versionID,req.user.id, req.body.public, req.body.comment,function(err){
+	  if(req.body.publiclyVisible != 0 && req.body.publiclyVisible != 1)
+		  res.json({error: ERROR_INVALID_FORMAT, description: "Invalid range for 'publiclyVisible'"})
+	  stmt.run(req.body.projectID,req.body.versionID,req.user.id, req.body.publiclyVisible, req.body.comment,function(err){
 		  if(err){
 				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
 		  }else{
@@ -337,7 +337,7 @@ var app = express();
 	  if(req.query.limit)
 		  criteriaObject["@limit"] = req.query.limit;
 	  
-	  stmtstr += " AND author = userid LIMIT @limit OFFSET @offset";
+	  stmtstr += " AND author = userid ORDER BY date DESC LIMIT @limit OFFSET @offset";
 	  var stmt = db.prepare(stmtstr);
 	  
 	  stmt.all(criteriaObject,function(err,rows){
