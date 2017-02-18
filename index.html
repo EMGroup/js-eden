@@ -178,16 +178,35 @@ See LICENSE.txt
 			var lopts = $("#loadoptions");
 
 			function updateSearch() {
-				var plist = lopts.find("#jseden-featured-projects");
+				var pbrowser = lopts.find("#project-browser");
 
-				//console.log("Load projects: " + path);
+				if (searchstr != "") {
+					pbrowser.get(0).style.display = "none";
+					var plist = pbrowser.get(0).previousSibling;
+					//console.log(plist);
+					if (plist === null || plist.nodeName == "#text" || plist.getAttribute("id") != "jseden-project-search") {
+						var pliste = document.createElement("div");
+						pliste.setAttribute("id", "jseden-project-search");
+						pbrowser.get(0).parentNode.insertBefore(pliste, pbrowser.get(0));
+						plist = pliste;
+						pliste.className = "jseden-dialog-plisting";
+					}
 
-				Eden.DB.search(searchstr, 1, 16, function(data) {
-					console.log("SEARCH",searchstr,data);
-					var pliste = plist.get(0);
-					while (pliste.lastChild) pliste.removeChild(pliste.lastChild);
-					EdenUI.ProjectDetails._searchProjects(plist, true, data);
-				});
+					//console.log("Load projects: " + path);
+
+					Eden.DB.search(searchstr, 1, 16, function(data) {
+						//console.log("SEARCH",searchstr,data,plist);
+						//var pliste = plist.get(0);
+						while (plist.lastChild) plist.removeChild(plist.lastChild);
+						EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 6, 1, false);
+					});
+				} else {
+					pbrowser.get(0).style.display = "block";
+					var plist = pbrowser.get(0).previousSibling;
+					if (plist !== null && plist.nodeName != "#text" && plist.getAttribute("id") == "jseden-project-search") {
+						pbrowser.get(0).parentNode.removeChild(plist);
+					}
+				}
 			}
 
 			Eden.Project.listenTo("load", this, function() {
@@ -299,11 +318,12 @@ See LICENSE.txt
 					//content[0].removeChild(content[0].firstChild);
 					var newblock = $('<div class="jseden-project-cat">'+q+':</div>');
 					var newres = $('<div id="jseden-custom-projects" class="jseden-dialog-plisting">');
+					content.html("");
 					content.prepend(newres);
 					content.prepend(newblock);
 					EdenUI.ProjectDetails.searchProjects(newres, q, 6);
-					displayProjects("featured", "#featured");
-					displayProjects("recent");
+					//displayProjects("featured", "#featured");
+					//displayProjects("recent");
 				} else {
 					displayProjects("featured", "#featured");
 					displayProjects("recent");
