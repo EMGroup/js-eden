@@ -460,7 +460,9 @@ Eden.DB.searchSelector = function(q, kind, callback) {
 }
 
 Eden.DB.postComment = function(project, text, priv) {
-	if (!project) return;
+	//if (!project) return;
+	var pid = (project) ? project.id : -1;
+	var vid = (project) ? project.vid : -1;
 	if (!Eden.DB.isLoggedIn()) return;
 	$.ajax({
 		url: this.remoteURL+"/comment/post",
@@ -469,8 +471,8 @@ Eden.DB.postComment = function(project, text, priv) {
 		xhrFields:{
 			withCredentials: true
 		},
-		data:{	projectID: project.id,
-				versionID: project.vid,
+		data:{	projectID: pid,
+				versionID: vid,
 				"public": (priv) ? 0 : 1,
 				comment: text
 		},
@@ -493,11 +495,12 @@ Eden.DB.postComment = function(project, text, priv) {
 }
 
 Eden.DB.searchComments = function(project, q, page, count, last, cb) {
-	if (!project) return;
+	//if (!project) return;
+	var pid = (project) ? project.id : -1;
 	//if (cb) cb(dummycomments);
 	if (Eden.DB.isConnected()) {
 	$.ajax({
-		url: this.remoteURL+"/comment/search?projectID="+project.id+((last) ? "&newerThan="+last : "")+"&offset="+((page-1) * count)+"&limit="+count,
+		url: this.remoteURL+"/comment/search?projectID="+pid+((last) ? "&newerThan="+last : "")+"&offset="+((page-1) * count)+"&limit="+count,
 		type: "get",
 		crossDomain: true,
 		xhrFields:{
