@@ -473,7 +473,7 @@ Eden.DB.postComment = function(project, text, priv) {
 		},
 		data:{	projectID: pid,
 				versionID: vid,
-				"public": (priv) ? 0 : 1,
+				publiclyVisible: (priv) ? 0 : 1,
 				comment: text
 		},
 		success: function(data){
