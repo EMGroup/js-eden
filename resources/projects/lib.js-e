@@ -3504,17 +3504,17 @@ action notifications {
 }
 
 action defaults {
-#jseden_project_title = "Construit!";
+#jseden_project_title = "CONSTRUIT";
 /** Maker mode @oracle @handle */
 jseden_maker = false;
 /** Display (or hide) menu bar search box. @handle */
-jseden_menu_showsearch is jseden_project_title != "Construit!";
+jseden_menu_showsearch is jseden_project_title != "CONSTRUIT";
 /** Display (or hide) menu bar share project button. @handle */
-jseden_menu_showshare is jseden_project_title != "Construit!";
+jseden_menu_showshare is jseden_project_title != "CONSTRUIT";
 /** Display (or hide) menu bar create views button. @handle */
-jseden_menu_showcreate is jseden_project_title != "Construit!";
+jseden_menu_showcreate is jseden_project_title != "CONSTRUIT";
 /** Display (or hide) menu bar existing views button. @handle */
-jseden_menu_showexisting is jseden_project_title != "Construit!";
+jseden_menu_showexisting is jseden_project_title != "CONSTRUIT";
 /** Display (or hide) menu bar settings button. @handle */
 jseden_menu_showsettings = false;
 /** Display (or hide) menu bar help button. @handle */
