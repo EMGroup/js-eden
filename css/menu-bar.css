@@ -256,14 +256,14 @@ a#eden-logo {
 }
 
 div.jseden-title {
-	font-size: 16pt;
+	font-size: 18pt;
 	font-weight: bold;
 	position: absolute;
-	top: 5px;
+	top: 10px;
 	left: 105px;
 	color: white;
 	box-sizing: border-box;
-	border: 1px solid #132023;
+	border: 1px solid #29454B;
 	border-radius: 3px;
 	padding-left: 5px;
 	padding-right: 5px;
