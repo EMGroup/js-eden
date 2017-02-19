@@ -283,7 +283,12 @@ var app = express();
   app.use(passport.session());
 
   app.get('/', function(req, res){
-	  res.redirect("index");
+	  if(req.user !== undefined && req.user.id == null){
+		  res.render('registration', { user: req.user });
+//		  res.render('regclosed');
+	  }else{
+		  res.render('index', { user: req.user });
+	  }
   });
   
   app.get('/index',function(req,res){
@@ -903,12 +908,16 @@ app.get('/project/search', function(req, res){
 
 	if(req.query.query){		
 		var selectorAST = Eden.Selectors.parse(req.query.query);
-		if(selectorAST.type == "intersection"){	
-			for(var i = 0; i < selectorAST.children.length; i++){
-				processSelectorNode(selectorAST.children[i],criteria,criteriaVals, tagCriteria, i);
+		if(selectorAST !== undefined){
+			if(selectorAST.type == "intersection"){	
+				for(var i = 0; i < selectorAST.children.length; i++){
+					processSelectorNode(selectorAST.children[i],criteria,criteriaVals, tagCriteria, i);
+				}
+			}else{
+				processSelectorNode(selectorAST,criteria,criteriaVals, tagCriteria, 0);
 			}
 		}else{
-			processSelectorNode(selectorAST,criteria,criteriaVals, tagCriteria, 0);
+			res.json({error: ERROR_INVALID_FORMAT,description:"Invalid selector query"});
 		}
 	}
 	
