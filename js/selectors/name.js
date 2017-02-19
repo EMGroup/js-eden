@@ -2,7 +2,7 @@ Eden.Selectors.NameNode = function(name) {
 	this.type = "name";
 	this.name = name;
 	this.options = undefined;
-	this.isreg = name.indexOf("*") != -1;
+	this.isreg = name.charAt(0) == "/" || name.indexOf("*") != -1;
 	this.local = false;
 }
 
