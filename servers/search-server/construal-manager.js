@@ -917,7 +917,8 @@ app.get('/project/search', function(req, res){
 				processSelectorNode(selectorAST,criteria,criteriaVals, tagCriteria, 0);
 			}
 		}else{
-			res.json({error: ERROR_INVALID_FORMAT,description:"Invalid selector query"});
+			res.json([]);
+			return;
 		}
 	}
 	
