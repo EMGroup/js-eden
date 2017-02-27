@@ -161,7 +161,7 @@ module.exports.setupPassport = function(passport,database){
 				  					}
 				  				});
 				  				var mailOptions = {
-				  				    from: 'construit@warwick.ac.uk', // sender address
+				  				    from: config.SENDEREMAIL, // sender address
 				  				    to: username, // list of receivers
 				  				    subject: 'CONSTRUIT Login Details', // Subject line
 				  				    text: 'Thanks for supplying your email address to CONSTRUIT.\n' +
