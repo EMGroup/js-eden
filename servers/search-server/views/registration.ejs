@@ -11,7 +11,7 @@ function validateForm(){
 </script>
 </head>
 <body>
-<form method="POST" name="checkName" action='registration' onsubmit="return validateForm()">
+<form method="POST" name="checkName" action='<%= baseurl %>/registration' onsubmit="return validateForm()">
 <p>Please choose a display name:</p>
 <p>Name: <input type="text" name="displayName" value='<%= user.displayName %>'></p>
 <input type="submit" value="Submit">
