@@ -128,7 +128,6 @@ const ERROR_PROJECT_NOT_MATCHED = 10;
 const ERROR_COMMENT_NOT_MATCHED = 11;
 const ERROR_INVALID_FORMAT = 12;
 
-
 passportUsers.setupPassport(passport,db);
 edenUI = {};
 eden = {};
@@ -139,7 +138,7 @@ eden.root.symbols = {};
 //var doxy = require(config.JSEDENPATH + "js/doxycomments.js");
 
 var vstmtStr = "select projects.projectID as projectID,view_listedVersion.saveID as saveID,title,minimisedTitle,ifnull(group_concat(tag, \" \"),\"\") as tags, view_listedVersion.date as date," +
-		" name as authorname from view_listedVersion, projects, oauthusers left join tags on projects.projectID = tags.projectID where " +
+ 		" name as authorname from view_listedVersion, projects, oauthusers left join tags on projects.projectID = tags.projectID where " +
 		"projects.projectID = view_listedVersion.projectID and owner = oauthusers.userid";
 
 var vstmt = db.prepare(vstmtStr + " group by projects.projectid");
@@ -253,7 +252,7 @@ Eden.Selectors.PropertyNode.prototype.construct = function() {
 	return Eden.Index.getAll();
 }
 
-
+var flash = require('connect-flash');
 var app = express();
 
 // configure Express
@@ -263,6 +262,7 @@ var app = express();
   app.use(bodyParser.urlencoded({limit: '5mb'}));
   app.use(express.static("static"));
   app.use(logErrors);
+  app.use(flash());
   
   app.use(function(req, res, next) {
 	  var allowedOrigins = ["http://localhost:8000","http://127.0.0.1:8000","http://emgroup.github.io","http://jseden.dcs.warwick.ac.uk"];
@@ -284,20 +284,23 @@ var app = express();
 
   app.get('/', function(req, res){
 	  if(req.user !== undefined && req.user.id == null){
-		  res.render('registration', { user: req.user });
+		  res.render('registration', { user: req.user, baseurl: config.BASEURL});
 //		  res.render('regclosed');
 	  }else{
-		  res.render('index', { user: req.user });
+		  res.render('index', { user: req.user, baseurl: config.BASEURL });
+	  }
+  });
+  app.get('/index',function(req,res){
+	  if(req.user !== undefined && req.user.id == null){
+		  res.render('registration', { user: req.user, baseurl: config.BASEURL });
+//		  res.render('regclosed');
+	  }else{
+		  res.render('index', { user: req.user, baseurl: config.BASEURL });
 	  }
   });
   
-  app.get('/index',function(req,res){
-	  if(req.user !== undefined && req.user.id == null){
-		  res.render('registration', { user: req.user });
-//		  res.render('regclosed');
-	  }else{
-		  res.render('index', { user: req.user });
-	  }
+  app.get('/join',function(req,res){
+	  res.render('joincommunity', { user: req.user, baseurl: config.BASEURL });
   });
 
   app.post('/comment/post', ensureAuthenticated, function(req,res){
@@ -397,11 +400,11 @@ app.post('/registration', function(req,res){
 });
 
 app.get('/account', ensureAuthenticated, function(req, res){
-  res.render('account', { user: req.user });
+  res.render('account', { user: req.user, baseurl: config.BASEURL });
 });
 
 app.get('/login', function(req, res){
-  res.render('login', { user: req.user });
+  res.render('login', { user: req.user, baseurl: config.BASEURL, message: req.flash('loginMessage') });
 });
 
 function logErrors(err,req,res,next){
@@ -937,7 +940,7 @@ app.get('/project/search', function(req, res){
 	
 	var tagConditionStr = "";
 	if(tagCriteria.length > 0){
-		tagConditionStr = " WHERE " + tagCriteria.join(" AND ");
+		tagConditionStr = "\n WHERE " + tagCriteria.join(" AND \n");
 	}
 	
 	var targetTable;
@@ -1093,6 +1096,17 @@ app.get('/auth/google', passport.authenticate('google', { scope: ['https://www.g
 app.get('/auth/twitter', passport.authenticate('twitter'));
 
 app.get('/auth/facebook', passport.authenticate('facebook'));
+
+
+app.post('/auth/locallogin',passport.authenticate('local-login',
+		{failureRedirect: '/auth/locallogin'}),
+		function(req,res){res.redirect('/');}
+);
+
+app.post('/auth/localsignup',passport.authenticate('local-signup',
+		{failureRedirect: '/login'}),
+		function(req,res){res.redirect('/');}
+);
 
 // GET /auth/google/callback
 //   Use passport.authenticate() as route middleware to authenticate the

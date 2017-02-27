@@ -1,9 +1,183 @@
+<html>
+<head>
+<title>Login</title>
+<link rel="stylesheet" type="text/css" href="http://jseden.dcs.warwick.ac.uk/latest-master/css/eden.css">
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="http://jseden.dcs.warwick.ac.uk/lib/bootstrap-social/bootstrap-social.css">
+<link rel="stylesheet" type="text/css" href="http://jseden.dcs.warwick.ac.uk/latest-master/css/font-awesome.min.css">
+<style>
+.maintext {
+    background-repeat: no-repeat;
+    width: 70%;
+    margin-left:auto;
+    margin-right:auto;
+   	margin-top:auto;
+    margin-bottom:auto;
+    cursor: pointer;
+    color: #132023;
+    background: white;
+    border: 1px solid #777;
+    padding: 15px;
+    box-shadow: 10px 10px 10px #111;
+    border-radius: 6px;
+}
+.jseden-title {
+    font-size: 16pt;
+    font-family: "Source Sans Pro",Arial,sans-serif;
+    color: #eee;
+    font-weight: bold;
+    /* background: #416d77; */
+    padding: 10px 30px;
+    border-bottom: 1px solid #eee;
+}
+.headers{
+		
+}
+.headers span{
+	position:relative;
+	left: 0;
+}
+.headers a{
+	list-style-type: none;
+	display: inline-block;
+	width: 50%;
+}
+.localauthmethod{
+	clear: both;
+}
+.btn-social{
+	max-width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
 
+.btn-construitcreate{
+    color: #fff;
+    background-color: #4B2945;
+    border-color: rgba(0,0,0,0.2);
+}
 
-<div style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; text-align: center"><a href="auth/google" target="_blank"><img style="margin-bottom: 15px" border="0" src="http://emgroup.github.io/js-eden/images/btn_google_signin_light_normal_web.png"></img></a><br/>
-<a href="auth/twitter" target="_blank"><img border="0" src="http://emgroup.github.io/js-eden/images/sign-in-with-twitter-link.png"></img></a>
-<br>
-<br>
-<a href="auth/facebook" target="_blank">Sign in with Facebook</a>
+.btn-construitcreate:hover{
+    color: #fff;
+    font-weight: bold;
+    background-color: #4B2945;
+    border-color: rgba(0,0,0,0.2);
+}
 
+.btn-construitlogin{
+    color: #fff;
+    background-color: #29454B;
+    border-color: rgba(0,0,0,0.2);
+}
+
+.btn-social:hover{
+    color: #fff;
+    font-weight: bold;
+}
+body{
+	background: white;
+}
+form{display:width: 100%;}
+label { display: block; float: left; width: 40%; text-align: right}
+input { width: 50%; }
+
+.fa-signIn-CONSTRUIT:before,.fa-signIn-CONSTRUIT-f:before{
+	content: "\f090";
+}
+
+.fa-create-CONSTRUIT:before,.fa-create-CONSTRUIT-f:before{
+	content: "\f067";
+}
+
+</style>
+<script
+  src="https://code.jquery.com/jquery-1.12.4.min.js"
+  integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+  crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<script>
+   function openPopup(url) {
+      var newWindow = window.open(url, 'name', 'height=600,width=450');
+      if (window.focus) {
+        newWindow.focus();
+      }
+    }
+    $(document).ready(function(){
+    	$(".localauthmethod").hide();
+    	$("#showLogin").click(function(){
+    		$(".loginLocal").show();
+    		$(".signUpLocal").hide();
+    		$(".oauthLoginButtons").hide();
+    	});
+    	$("#showSignup").click(function(){
+    		$(".signUpLocal").show();
+    		$(".loginLocal").hide();
+    		$(".oauthLoginButtons").hide();
+    	});
+    });
+
+    function resetLoginPage(){
+   		$(".oauthLoginButtons").show();
+		$(".loginLocal,.signUpLocal").hide();
+    }
+</script>
+</head>
+<body>
+<div style="background: white; text-align: center; margin-left: auto; margin-right: auto; height: 300px;">
+
+<div class="oauthLoginButtons">
+<a href="javascript:openPopup('<%= baseurl %>/auth/google');" class="btn btn-block btn-social btn-google">
+    <span class="fa fa-google"></span> Sign in with Google
+</a>
+<a href="javascript:openPopup('<%= baseurl %>/auth/twitter');" class="btn btn-block btn-social btn-twitter">
+    <span class="fa fa-twitter"></span> Sign in with Twitter
+</a>
+<a href="javascript:openPopup('<%= baseurl %>/auth/facebook');" class="btn btn-block btn-social btn-facebook">
+    <span class="fa fa-facebook"></span> Sign in with Facebook
+</a>
+
+<div style="width: 100%; height: 17px; border-bottom: 2px dotted black; text-align: center">
+  <span style="font-size: 20px; background-color: #ffffff; padding: 0 10px;">
+	or
+  </span>
 </div>
+<br>
+
+<a class="btn btn-block btn-social btn-construitcreate" id="showSignup">
+    <span class="fa fa-create-CONSTRUIT"></span>Create CONSTRUIT Account
+</a>
+<a class="btn btn-block btn-social btn-construitlogin" id="showLogin">
+    <span class="fa fa-signIn-CONSTRUIT"></span>Sign in with CONSTRUIT Account
+</a>
+</div>
+
+<div class="localauthmethod loginLocal">
+<h3>Login with CONSTRUIT Account</h3>
+<p><%= message %></p>
+<form method="post" action="<%= baseurl %>/auth/locallogin">
+<p><label for="username">Email:&nbsp;</label><input type="text" name="username"></p>
+<p><label for="password">Password:&nbsp;</label><input type="password" name="password"></p>
+<br>
+<input type="submit">
+</form>
+</div>
+<div class="localauthmethod signUpLocal">
+<h3>Create CONSTRUIT Account</h3>
+<p>Please note this website does not currently use HTTPS, so please choose a password that you don't use on any other website. 
+We strongly recommend you use one of the <a href="javascript:resetLoginPage()">other sign in options</a> if possible.</p>
+<p><%= message %></p>
+<form method="post" action="<%= baseurl %>/auth/localsignup">
+<!--<p><label for="displayname">Display Name:&nbsp;</label><input type="text" name="displayname"></p>-->
+<p><label for="username">Email:&nbsp;</label><input type="text" name="username"></p>
+<p><label for="password">Password:&nbsp;</label><input type="password" name="password"></p>
+<p><label for="password2">Retype Password:&nbsp;</label><input type="password" name="password2"></p>
+<input type="submit">
+</form>
+</div>
+</div>
+
+
+</body>
+</html>

@@ -11,14 +11,14 @@
 <% } %>
 		<% if (!user) { %>
 			<p>
-			<a href="">Home</a> | 
-			<a href="login">Log In</a>
+			<a href="<%= baseurl %>">Home</a> | 
+			<a href="<%= baseurl %>/login">Log In</a>
 			</p>
 		<% } else { %>
 			<p>
-			<a href="">Home</a> | 
-			<a href="account">Account</a> | 
-			<a href="logout">Log Out</a>
+			<a href="<%= baseurl %>">Home</a> | 
+			<a href="<%= baseurl %>/account">Account</a> | 
+			<a href="<%= baseurl %>/logout">Log Out</a>
 			</p>
 		<% } %>
 </body>

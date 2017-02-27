@@ -5,7 +5,7 @@ EdenUI.MenuBar = function() {
 	this.itemViews = {};
 
 	var obscurer = $('<div id=\"menubar-obscurer\" class=\"login-subdialog modal\" style=\"display: block;\"></div>');
-	obscurer.html("<div class=\"modal-content\" style=\"width: 290px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"250\" height=\"200\" class=\"menubar-login-iframe\"></iframe><br/><button class=\"jseden button-cancel\">Cancel</button></div>");
+	obscurer.html("<div class=\"modal-content\" style=\"width: 550px; height: 400px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"540px\" height=\"80%\" class=\"menubar-login-iframe\"></iframe><br/><button class=\"jseden button-cancel\">Cancel</button></div>");
 	obscurer.hide();
 
 	eden.execute2("views_number_created = 0;", Symbol.defaultAgent);
@@ -22,7 +22,7 @@ EdenUI.MenuBar = function() {
 	var usercontext = new EdenUI.ContextMenu(loginButton.get(0));
 	usercontext.addItem("&#xf08b;","Log out", function() { return Eden.DB.isLoggedIn(); }, function() {
 		Eden.DB.logOut(function() {
-			$("#menubar-login").html('<a href="'+Eden.DB.remoteURL+'/login" target="logintarget"><span class="icon">&#xf090;</span>Login</a>');
+			$("#menubar-login").html('<span class="icon">&#xf090;</span>Login');
 		}); 
 	});
 
@@ -45,7 +45,7 @@ EdenUI.MenuBar = function() {
 	});
 
 	Eden.DB.listenTo("connected", this, function(url) {
-		$("#menubar-login").html('<a href="'+url+'/login" target="logintarget"><span class="icon">&#xf090;</span>Login</a>');
+		$("#menubar-login").html('<span class="icon">&#xf090;</span>Login');
 	});
 
 	Eden.DB.listenTo("disconnected", this, function() {
@@ -70,6 +70,7 @@ EdenUI.MenuBar = function() {
 		if (Eden.DB.isConnected() && !Eden.DB.isLoggedIn()) {
 			obscurer.show();
 			$(document.body).append(obscurer);
+			obscurer.find("iframe").attr('src',Eden.DB.remoteURL + "/login");
 			obscurer.on("click", ".button-cancel", function() {
 				obscurer.remove();
 			});
