@@ -1,0 +1,122 @@
+<html>
+<head>
+<title>Join the Community</title>
+<link rel="stylesheet" type="text/css" href="http://jseden.dcs.warwick.ac.uk/latest-master/css/eden.css">
+<style>
+.maintext {
+    background-repeat: no-repeat;
+    width: 70%;
+    margin-left:auto;
+    margin-right:auto;
+   	margin-top:auto;
+    margin-bottom:auto;
+    color: #132023;
+    background: white;
+    border: 1px solid #777;
+    padding: 15px;
+    box-shadow: 10px 10px 10px #111;
+    border-radius: 6px;
+    font-family: "Source Sans Pro",Arial,sans-serif
+}
+.jseden-title {
+    font-size: 16pt;
+    font-family: "Source Sans Pro",Arial,sans-serif;
+    color: #eee;
+    font-weight: bold;
+    /* background: #416d77; */
+    padding: 10px 30px;
+    border-bottom: 1px solid #eee;
+}
+input:checked+label{ font-weight: bold; }{
+	font-weight: bold;
+}
+ul{
+list-style-type:none;
+-webkit-touch-callout: none; /* iOS Safari */
+-webkit-user-select: none; /* Safari */
+-khtml-user-select: none; /* Konqueror HTML */
+-moz-user-select: none; /* Firefox */
+-ms-user-select: none; /* Internet Explorer/Edge */
+user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+</style>
+<script>
+$(document).ready(function(){
+$("#password").val(generatePassword());
+});
+function generatePassword()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 8; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
+</script>
+</head>
+<body>
+<div class="maintext">
+<img src="http://jseden.dcs.warwick.ac.uk/latest-master/images/construit_logo_2.png">
+<h1>Join the CONSTRUIT 2017 Interest Group</h1>
+
+<p>The CONSTRUIT! project promotes <b>making construals</b> as a new digital skill for creating interactive open educational resources (OERs). 
+The rationale for studying construals is that it can be seen (indeed, construed!) as bringing a new vision, and a new technology, 
+to a well-established pedagogical tradition: that of <i>learning through making things-to-think-with</i>. In the course of the project, 
+we have identified several communities with a strong interest in this topic from whom we have much to learn and to whom we in turn may have much to offer. 
+They include students, teachers, learning technologists and researchers interested both in broad pedagogical approaches, such as constructionist, 
+experiential, inquiry-based and collaborative learning, and in more specific areas of application, such as computer science education, 
+the psychology of programming, educational robotics and interactive technologies and games. In these communities, three themes set out in the 
+Call for the forthcoming CONSTRUIT 2017 conference are represented: <strong>principles and practices for making things-to-think-with; open educational resources 
+(OERs) based on things-to-think-with; learning-through-making in the broader educational context</strong>.</p> 
+<form action="<%= baseurl %>/auth/localsignup" method="post">
+<h2>Principles and practice of making things-to-think-with</h2>
+<ul><li>
+<input type="checkbox" name="check1" id="check1"/>
+<label for="check1">
+Construals as objects/things-to-think-with<label>
+</li>
+<li>
+<input type="checkbox" name="check2" id="check2"/>
+<label for="check2">
+Environments that support learning-through-making</li>
+<li><input type="checkbox" name="check3" id="check3"/>
+<label for="check3">Understanding making in relation to programming and computational thinking</li></ul>
+<h2>Open educational resources for the classroom</h2>
+<ul><li><input type="checkbox" id="check4" name="check4" />
+<label for="check4">Primary, secondary and tertiary education</label></li>
+<li><input type="checkbox" id="check5" name="check5"/>
+<label for="check5">Science: e.g. Computing, Mathematics, Educational Robotics</label></li>
+<li><input type="checkbox" name="check6" id="check6"/>
+<label for="check6">Humanities: e.g. Languages, History, Music</label></li></ul>
+<h2>Open educational resources beyond the classroom</h2>
+<ul><li><input type="checkbox" name="check7" id="check7"/>
+<label for="check7">Subject areas: engineering, software development, experimental science, history of science, astronomy</label></li>
+<li><input type="checkbox" name="check8" id="check8"/>
+<label for="check8">Applications: mechanism, musical instruments, geometric modelling, design, geographical information systems</label></li>
+<li><input type="checkbox" name="check9" id="check9"/>
+<label for="check9">Management: spreadsheets, timetabling, financial modelling</label></li></ul>
+<h2>The broader educational context / perspective</h2>
+<ul><li><input type="checkbox" name="check10" id="check10"/>
+<label for="check10">Pedagogy: experiential learning, inquiry-based learning, conceptual modelling</label></li>
+<li><input type="checkbox" name="check11" id="check11"/>
+<label for="check11">Integrating making and modelling into the school curriculum</label></li>
+<li><input type="checkbox" name="check12" id="check12"/>
+<label for="check12">Pedagogical characteristics of construals</label></li></ul>
+<label for="yourowninterests">Other ideas</label>
+<input type="text" name="yourowninterests">
+
+<p>
+With each of these topics we shall associate exemplars by way of construal-related resources created in the online “environment for making construals” (MCE). 
+Developing and refining such exemplars is ongoing work-in-progress to which all are invited to contribute through joining the CONSTRUIT 2017 Interest Group.
+</p>
+<p>Please type in your email address</p>
+Email: <input type="text" name="username">
+<input type="hidden" value="abcdef" id="password" name="password">
+<input type="submit">
+</form>
+</div>
+</body>
+</html>

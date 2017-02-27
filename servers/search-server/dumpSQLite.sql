@@ -82,5 +82,13 @@ CREATE INDEX "projectDate" on projectversions (projectID ASC, date ASC);
 CREATE INDEX "tags_tag" on tags (tag ASC);
 CREATE INDEX "projectTags" on tags (projectID ASC);
 
+CREATE TABLE localusers(
+	"localuserID" INTEGER PRIMARY KEY,
+	"emailaddress" TEXT NOT NULL,
+	"hashedPassword" TEXT NOT NULL
+);
+
+CREATE UNIQUE INDEX "localuserID" ON localusers (localuserID);
+CREATE UNIQUE INDEX "emailaddress" ON localusers (emailaddress);
 
 COMMIT;
