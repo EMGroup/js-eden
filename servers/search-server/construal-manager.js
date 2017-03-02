@@ -170,6 +170,7 @@ generateTimeStamp = function(str) {
 }
 
 function getFullVersion(version, projectID, meta, callback){
+	
 	var versionStmt = db.prepare("SELECT fullsource, forwardPatch,parentDiff,date FROM projectversions WHERE saveID = ? AND projectID = ?");
 	versionStmt.each(version,projectID, function(err,row){
 		if(row.fullsource == null){
@@ -740,76 +741,88 @@ app.get('/project/get', function(req,res){
 	//If 'to' undefined but from is defined, get diff from 'from' to latest version.
 
 	if(req.query.projectID){
-		var metadataQuery =  "SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date, stars as myrating FROM "
-			+ "(SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date, " +
-				' publicVersion, parentProject, projectMetaData,	stars, (" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers, view_latestVersion left outer join tags'
-					+ ' on projects.projectID = tags.projectID LEFT OUTER JOIN projectratings ON projectratings.projectID = projects.projectID' +
-					' AND projectratings.userID = ? WHERE owner = oauthusers.userid AND view_latestVersion.projectID = projects.projectID'
-					+ ' AND projects.projectID = ? group by projects.projectID)';
-		var ratingsUser = -1;
-		if(req.user != undefined)
-			ratingsUser = req.user.id;
-		db.get(metadataQuery,ratingsUser,req.query.projectID,function(err,metaRow){
-			if(err){
-				res.json({error: ERROR_SQL, description: "SQL Error", err: err});
-				return;
-			}
+		var ownerStmt = "SELECT projectID FROM projects WHERE owner = ? AND projectID = ?";
+		var userID = -1;
+		if(req.user != undefined){
+			userID = req.user.id;
+		}
+		db.get(ownerStmt, userID, req.query.projectID,function(ownererr,ownerrow){
+			var targetTable = "view_listedVersion";
+			if(ownerrow != undefined && (ownerrow.projectID == req.query.projectID))
+				targetTable = "view_latestVersion";
 			
-			var downloadsSQL = "UPDATE projectstats SET downloads = downloads + 1 WHERE projectID = ?;";
-			db.run(downloadsSQL,req.query.projectID,function(err){
+			var metadataQuery =  "SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date, stars as myrating FROM "
+				+ "(SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date, " +
+					' publicVersion, parentProject, projectMetaData,	stars, (" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers ' + 
+					'left outer join ' + targetTable + ' on ' + targetTable + '.projectID = projects.projectID left outer join tags'
+						+ ' on projects.projectID = tags.projectID LEFT OUTER JOIN projectratings ON projectratings.projectID = projects.projectID' +
+						' AND projectratings.userID = ? WHERE owner = oauthusers.userid AND projects.projectID = ? group by projects.projectID)';
+			var ratingsUser = -1;
+			if(req.user != undefined)
+				ratingsUser = req.user.id;
+			db.get(metadataQuery,ratingsUser,req.query.projectID,function(err,metaRow){
 				if(err){
-					res.json({error: ERROR_SQL, description: "SQL Error", err: err})
+					res.json({error: ERROR_SQL, description: "SQL Error", err: err});
 					return;
 				}
-				if(this.changes == 0){
-					var insDownloadsSQL = "INSERT INTO projectstats VALUES (?,1,0,0)";
-					db.run(insDownloadsSQL,req.query.projectID,function(err){
-						if(err){
-							res.json({error: ERROR_SQL, description: "SQL Error", err: err})
-							return;
-						}
-						console.log("INSERTED projectstats");
-					});
-				}else{
-					console.log("UPDATED projectstats");
-				}
-			});
-			
-			if(req.query.to){
-				db.serialize(function(){
-					getFullVersion(req.query.to,req.query.projectID, metaRow, function(ret){
-						var source = ret.source;
-						var date = ret.date;
-						if(req.query.from){
-							sendDiff(req.query.from,source,req.query.projectID,res,metaRow);
-						}else{
-							var srcRow = {saveID: req.query.to, projectID: req.query.projectID,source:source, date:date, meta: metaRow};
-							res.json(Object.assign(srcRow,metaRow));
-						}
-					});
+				
+				var downloadsSQL = "UPDATE projectstats SET downloads = downloads + 1 WHERE projectID = ?;";
+				db.run(downloadsSQL,req.query.projectID,function(err){
+					if(err){
+						res.json({error: ERROR_SQL, description: "SQL Error", err: err})
+						return;
+					}
+					if(this.changes == 0){
+						var insDownloadsSQL = "INSERT INTO projectstats VALUES (?,1,0,0)";
+						db.run(insDownloadsSQL,req.query.projectID,function(err){
+							if(err){
+								res.json({error: ERROR_SQL, description: "SQL Error", err: err})
+								return;
+							}
+							console.log("INSERTED projectstats");
+						});
+					}else{
+						console.log("UPDATED projectstats");
+					}
 				});
-			}else{
-				var getProjectStmt = db.prepare("select saveID,date FROM view_latestVersion WHERE projectID = ?;");
-				getProjectStmt.all(req.query.projectID,function(err,rows){
-					var row = rows[0];
-					if(row != undefined){
+				
+				if(req.query.to){
 					db.serialize(function(){
-						getFullVersion(row.saveID,req.query.projectID, metaRow, function(ret){
+						getFullVersion(req.query.to,req.query.projectID, metaRow, function(ret){
 							var source = ret.source;
+							var date = ret.date;
 							if(req.query.from){
-								sendDiff(req.query.from,source,req.query.projectID,saveID,res,metaRow);
+								sendDiff(req.query.from,source,req.query.projectID,res,metaRow);
 							}else{
-								var srcRow = {saveID: row.saveID, date: row.date, projectID: req.query.projectID,source: source, meta: metaRow};
+								var srcRow = {saveID: req.query.to, projectID: req.query.projectID,source:source, date:date, meta: metaRow};
 								res.json(Object.assign(srcRow,metaRow));
 							}
 						});
 					});
-					}else{
-						res.json({error: ERROR_PROJECT_NOT_MATCHED, description: "No matching project", err: err});
-					}
-				});
-			}
+				}else{
+					var getProjectStmt = db.prepare("select saveID,date FROM "+targetTable+" WHERE projectID = ?;");
+					getProjectStmt.all(req.query.projectID,function(err,rows){
+						var row = rows[0];
+						if(row != undefined){
+						db.serialize(function(){
+							getFullVersion(row.saveID,req.query.projectID, metaRow, function(ret){
+								var source = ret.source;
+								if(req.query.from){
+									sendDiff(req.query.from,source,req.query.projectID,saveID,res,metaRow);
+								}else{
+									var srcRow = {saveID: row.saveID, date: row.date, projectID: req.query.projectID,source: source, meta: metaRow};
+									res.json(Object.assign(srcRow,metaRow));
+								}
+							});
+						});
+						}else{
+							res.json({error: ERROR_PROJECT_NOT_MATCHED, description: "No matching project", err: err});
+						}
+					});
+				}
+			});
 		});
+	
 	}else{
 		res.json({error: ERROR_NO_PROJECTID, description: "projectID must be defined" });
 	}
