@@ -3,7 +3,8 @@ BEGIN TRANSACTION;
 CREATE TABLE "oauthusers" (
     "userid" INTEGER PRIMARY KEY NOT NULL,
     "oauthstring" TEXT NOT NULL,
-    "name" TEXT
+    "name" TEXT,
+    "status" TEXT
 );
 CREATE TABLE projectversions (
     "saveID" INTEGER NOT NULL PRIMARY KEY,
@@ -28,7 +29,7 @@ CREATE TABLE projectratings(
 	"projectID" INTEGER NOT NULL,
 	"userID" INTEGER NOT NULL,
 	"stars" INTEGER NOT NULL
-)
+);
 
 CREATE TABLE projects (
     "projectID" INTEGER PRIMARY KEY,

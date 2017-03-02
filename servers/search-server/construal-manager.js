@@ -284,19 +284,33 @@ var app = express();
 
   app.get('/', function(req, res){
 	  if(req.user !== undefined && req.user.id == null){
-		  res.render('registration', { user: req.user, baseurl: config.BASEURL});
-//		  res.render('regclosed');
+		  res.render('registration', { user: req.user, baseurl: config.BASEURL});  
+	  }else if(req.user !== undefined && req.user.status == "localunregistered"){
+		  res.render('editprofile', { user: req.user, baseurl: config.BASEURL});
 	  }else{
 		  res.render('index', { user: req.user, baseurl: config.BASEURL });
 	  }
   });
   app.get('/index',function(req,res){
 	  if(req.user !== undefined && req.user.id == null){
-		  res.render('registration', { user: req.user, baseurl: config.BASEURL });
-//		  res.render('regclosed');
+		  res.render('registration', { user: req.user, baseurl: config.BASEURL});  
+	  }else if(req.user !== undefined && req.user.status == "localunregistered"){
+		  res.render('editprofile', { user: req.user, baseurl: config.BASEURL});
 	  }else{
 		  res.render('index', { user: req.user, baseurl: config.BASEURL });
 	  }
+  });
+  
+  app.post("/updateprofile",ensureAuthenticated, function(req,res){
+	  var displayName = req.body.displayName;
+	  var stmt = db.prepare("UPDATE oauthusers SET name = ?, status = \"registered\" WHERE oauthstring = ?");
+	  stmt.run(req.body.displayName, req.user.oauthstring,function(err){
+		  if(err){
+				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+		  }else{
+				res.redirect(config.BASEURL);
+		  }
+	  });
   });
   
   app.get('/join',function(req,res){
@@ -391,10 +405,18 @@ var app = express();
 	  });
   });
   
-app.post('/registration', function(req,res){
-	var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?)");
-	stmt.run(req.user.oauthcode, req.body.displayName, function(err){
-		req.user.id = this.lastID;
+  function registerUser(req, oauthcode,displayName,status,callback){
+	  var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?, ?)");
+		stmt.run(oauthcode, displayName, status,function(err){
+			req.user.id = this.lastID;
+			if(callback){
+				callback();
+			}
+		});  
+  }
+
+  app.post('/registration', function(req,res){
+	registerUser(req,req.user.oauthcode, req.body.displayName,"registered",function(){
 		res.redirect(config.BASEURL);
 	});
 });
@@ -1105,7 +1127,14 @@ app.post('/auth/locallogin',passport.authenticate('local-login',
 
 app.post('/auth/localsignup',passport.authenticate('local-signup',
 		{failureRedirect: '/login'}),
-		function(req,res){res.redirect('/');}
+		function(req,res){
+	if(req.flash('signUpMessage') == "form"){
+		res.render('joined');
+		req.logout();
+	}else{
+		res.redirect('/');
+	}
+	}
 );
 
 // GET /auth/google/callback
