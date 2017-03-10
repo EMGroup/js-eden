@@ -251,7 +251,7 @@ See LICENSE.txt
 			})
 			.on("click","#plist-login", function() {
 				if (Eden.DB.isConnected()) {
-					lopts.find("#jseden-private-projects").html("<div style=\"background: white; padding: 10px; border-radius: 5px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" src=\""+Eden.DB.remoteURL+"/login"+"\" name=\"logintarget\" width=\"250\" height=\"200\" class=\"menubar-login-iframe\"></iframe></div>");
+					lopts.find("#jseden-private-projects").html("<div style=\"background: white; padding: 10px; border-radius: 5px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" src=\""+Eden.DB.remoteURL+"/login"+"\" name=\"logintarget\" width=\"550\" height=\"400\" class=\"menubar-login-iframe\"></iframe></div>");
 				}
 			})
 			.on("keyup",".search", function(e) {
