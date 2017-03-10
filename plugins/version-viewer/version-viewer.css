@@ -1,0 +1,26 @@
+.versionviewer-outer table {
+  border-collapse: collapse;
+    width:100%;
+}
+
+/*.versionviewer-outer table td, .versionviewer-outer table th {
+  border: 1px solid black;
+}
+.versionviewer-outer table tr:first-child th {
+  border-top: 0;
+}
+.versionviewer-outer table tr:last-child td {
+  border-bottom: 0;
+}
+.versionviewer-outer table tr td:first-child,
+.versionviewer-outer table tr th:first-child {
+  border-left: 0;
+}
+.versionviewer-outer table tr td:last-child,
+.versionviewer-outer table tr th:last-child {
+  border-right: 0;
+}*/
+.versionviewer-outer table tr td{
+  text-align: center;
+  border: 1px solid black;
+}
