@@ -105,7 +105,8 @@ function Construit(options,callback) {
 		"ScriptInput",
 		"SymbolLookUpTable",
 		"SymbolViewer",
-		"Debugger"
+		"Debugger",
+		"VersionViewer"
 	];
 
 	//imports.push("lib/notifications");
