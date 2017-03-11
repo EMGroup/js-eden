@@ -108,7 +108,7 @@ EdenUI.plugins.VersionViewer = function (edenUI, success) {
 	}
 
 	// Add views supported by this plugin.
-	edenUI.views["VersionList"] = {dialog: this.createVersionListDialog, title: "Version List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
+	edenUI.views["VersionList"] = {dialog: this.createVersionListDialog, title: "Version List", category: edenUI.viewCategories.history, menuPriority: 1};
 
 	//$(document).tooltip();
 	eden.root.lookup("plugins_VersionViewer_loaded").assign(true, eden.root.scope);
