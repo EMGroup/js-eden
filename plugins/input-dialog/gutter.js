@@ -527,6 +527,13 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 			this.lines[i].errored = true;
 			doupdate = true;
 		} else {
+			if (ast.errors.length > 0 && ast.errors[0].line == i+1) {
+				this.lines[i].errored = true;
+				className += " error";
+				content = "&#xf06a";
+				title = ast.errors[0].messageText();
+			}
+
 			if (this.lines[i].errored) {
 				doupdate = true;
 				this.lines[i].errored = false;
