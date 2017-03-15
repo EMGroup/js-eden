@@ -494,6 +494,7 @@ EdenUI.MenuBar = function() {
 	eden.root.lookup("jseden_project_title").addJSObserver("menubar", function(sym, value) {
 		if (sym.origin && sym.origin !== Symbol.hciAgent) {
 			$(".jseden-title").get(0).textContent = value;
+			document.title = value;
 		}
 		try {
 			if (window.localStorage) {
