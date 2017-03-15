@@ -74,8 +74,8 @@ WindowHighlighter.prototype.stopHighlight = function (dialogName, unminimize) {
 			scrollX = this.lastDialogLeft;
 			needsScrolling = true;
 		}
-		if (this.lastDialogTop + this.lastDialogHeight > scrollY + window.innerHeight) {
-			scrollY = this.lastDialogTop + this.lastDialogHeight - window.innerHeight + edenUI.scrollBarSize2 + edenUI.bottomBarHeight;
+		if (this.lastDialogTop + this.lastDialogHeight > scrollY + window.innerHeight - edenUI.menuBarHeight) {
+			scrollY = this.lastDialogTop + this.lastDialogHeight - window.innerHeight - edenUI.menuBarHeight + edenUI.scrollBarSize2 + edenUI.bottomBarHeight;
 			needsScrolling = true;
 		} else if (this.lastDialogTop < scrollY) {
 			scrollY = this.lastDialogTop - edenUI.menuBarHeight;
