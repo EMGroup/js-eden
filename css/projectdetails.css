@@ -214,3 +214,13 @@ div.cadence-plisting-entry.special {
 			background-color: white;
 		}
 
+		div.cadence-plisting-entry.locked:after {
+			font-family: "FontAwesome";
+			font-size: 20pt;
+			color: gold;
+			content: '\f023';
+			float: right;
+			position: relative;
+			top: -10px;
+		}
+

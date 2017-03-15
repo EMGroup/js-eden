@@ -258,10 +258,10 @@ Eden.DB.save = function(project, ispublic, callback) {
 	}
 }
 
-Eden.DB.getVersions = function(path, callback) {
+Eden.DB.getVersions = function(pid, callback) {
 	if (Eden.DB.isConnected()) {
 		$.ajax({
-			url: Eden.DB.remoteURL+"/agent/versions?path="+path,
+			url: Eden.DB.remoteURL+"/project/versions?projectID="+pid,
 			type: "get",
 			crossDomain: true,
 			xhrFields:{
