@@ -225,6 +225,7 @@ EdenUI.ProjectDetails._searchProjects = function(query, output, pub, projects, c
 		var title = meta.title;
 		var thumb = meta.image;
 		//var tags = meta.tags;
+		var locked = false;
 
 		//if (meta.hidden) continue;
 		//console.log("PROJ DETAILS META", meta);
@@ -242,14 +243,17 @@ EdenUI.ProjectDetails._searchProjects = function(query, output, pub, projects, c
 			}
 		} else {
 			subtitle = get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000);
+			if (meta.publicVersion === null) {
+				locked = true;
+			}
 		}
 
 		var ele;
 		//Eden.DB.getMeta(path+"/"+x,function(path,meta) {
 		if (thumb !== null) {
-			ele = $('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>');
+			ele = $('<div class="cadence-plisting-entry project noselect'+((locked)?' locked':'')+'" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>');
 		} else {
-			ele = $('<div class="cadence-plisting-entry project noselect" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>');
+			ele = $('<div class="cadence-plisting-entry project noselect'+((locked)?' locked':'')+'" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>');
 			//console.log(Eden.DB.meta[path+"/"+x]);
 		}
 		output.append(ele);
