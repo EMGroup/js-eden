@@ -4,10 +4,10 @@ html {
 }
 
 body {
-	background-color: #132023; /*#29454B;*/
+	background-color: #eee; /*#132023; #29454B;*/
 	/*background-image: linear-gradient(#29454B, black);*/
-	background-image: linear-gradient(to right, #18282b 1px, transparent 1px), linear-gradient(to bottom, #18282b 1px, transparent 1px);
-  	background-size:20px 20px;
+	/*background-image: linear-gradient(to right, #18282b 1px, transparent 1px), linear-gradient(to bottom, #18282b 1px, transparent 1px);
+  	background-size:20px 20px;*/
 	margin: 0px;
 	width: 100%;
 	min-height: 100%;
