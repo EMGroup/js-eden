@@ -74,6 +74,8 @@ EdenUI.Sharebox = function(element) {
 				yStart = 0;
 			}
 
+			console.log("Re-render image as " + xStart + ", " + yStart + ", " + renderableWidth + ", " + renderableHeight);
+
 			ctx.drawImage(img, xStart, yStart, renderableWidth, renderableHeight);
 			var png = tcanvas.toDataURL("image/png");
 			me.thumbdata = png;

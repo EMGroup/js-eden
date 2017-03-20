@@ -88,11 +88,11 @@ div.jseden-dialog-plisting {
 		div.jseden-project-cat {
 			font-size: 16pt;
 			font-family: "Source Sans Pro",Arial,sans-serif;
-			color: #eee;
+			color: #222;
 			font-weight: bold;
 			/*background: #416d77;*/
 			padding: 0 30px;
-			border-bottom: 1px solid #eee;
+			border-bottom: 1px solid #bbb;
 		}
 
 		hr.jseden-project-cat {
@@ -107,9 +107,9 @@ div.cadence-plisting-entry {
 			cursor: pointer;
 			color: #132023;
 			background: white;
-			border: 1px solid #777;
+			border: 1px solid #bbb;
 			padding: 10px;
-			box-shadow: 10px 10px 10px #111;
+			/*box-shadow: 10px 10px 10px #bbb;*/
 			border-radius: 6px;
 		}
 
@@ -159,8 +159,8 @@ div.cadence-plisting-entry.special {
 			height: 40px;
 			font-size: 60px;
 			border: none;
-			color: white;
-			text-shadow: 10px 10px 10px #111;
+			color: #222;
+			/*text-shadow: 10px 10px 10px #111;*/
 		}
 
 		div.cadence-plisting-icon.more {
@@ -201,7 +201,7 @@ div.cadence-plisting-entry.special {
 
 		div.cadence-plisting-entry.special:hover .cadence-plisting-icon {
 			background-color: none;
-			color: #ddd;
+			color: #aaa;
 		}
 
 		div.cadence-plisting-entry.more:hover .cadence-plisting-icon {
