@@ -125,12 +125,14 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 				// TODO More meta
 				// rebuild doxy comment
 				eden.project.ast.script.doxyComment = eden.project.ast.doxyFromOrigin();
-				eden.project.start();
+				eden.project.start(function() {
+					Eden.Project.emit("load", [me]);
+				});
 
 				var url = "?load="+eden.project.id+"&vid="+eden.project.vid + ((readPassword) ? "&r=" + readPassword : "");
 				window.history.pushState({id: eden.project.id, vid: eden.project.vid},"",url);
 
-				Eden.Project.emit("load", [me]);
+				//Eden.Project.emit("load", [me]);
 			}
 			if (cb) cb(eden.project);
 		});
@@ -139,7 +141,7 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 	if (cb) cb();
 }
 
-Eden.Project.prototype.start = function() {
+Eden.Project.prototype.start = function(cb) {
 	var me = this;
 
 	this.ast.execute(this, function() {
@@ -168,6 +170,8 @@ Eden.Project.prototype.start = function() {
 
 		eden.root.parent = me.ast.script;
 		me.ast.scripts["ACTIVE"] = eden.root;
+
+		if (cb) cb();
 	});
 }
 

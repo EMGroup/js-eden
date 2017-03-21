@@ -610,6 +610,10 @@ See LICENSE.txt
 				$("#welcometext").get(0).style.display = "block";
 				//displayProjects(true);
 			});
+
+			Eden.Project.listenTo("load", this, function() {
+				$(".loadmodal").hide();
+			});
 		}
 	});
 </script>
