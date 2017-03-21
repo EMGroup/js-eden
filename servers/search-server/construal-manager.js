@@ -896,7 +896,7 @@ function processSelectorNode(t, criteria, criteriaVals, i){
 	if(t.type == "property"){
 		switch(t.name){
 		case ".id":
-			criteria.push("projects.projectID = @projectID" + i);
+			criteria.push("projectID = @projectID" + i);
 			criteriaVals["@projectID" + i] = t.value;
 			break;
 		case ".title":
@@ -1021,10 +1021,8 @@ app.get('/project/search', function(req, res){
 		criteriaVals["@offset"] = req.query.offset;
 
 	var tmpCriteria = ["AND"];
-	if(req.query.query){
-		console.log("Query is ", req.query.query);
+	if(req.query.query && req.query.query != " "){
 		var selectorAST = Eden.Selectors.parse(req.query.query.trim());
-		console.log("Selector is ", selectorAST);
 		if(selectorAST !== undefined){
 			if(selectorAST.type == "intersection"){
 				for(var i = 0; i < selectorAST.children.length; i++){
