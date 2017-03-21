@@ -124,6 +124,22 @@ div.projectsearchouter:before {
 	top: 3px;
 }
 
+select.projectsort {
+	margin-left: 40px;
+	position: relative;
+	/*top: -3px;*/
+	background: #ddd;
+	outline: none;
+	border: 1px solid #ccc;
+	padding: 2px;
+}
+
+button.script-button.projectmore {
+	margin-left: 20px;
+	position: relative;
+	/*top: -3px;*/
+}
+
 
 div.cadence-plisting-entry {
 			width: 200px;
