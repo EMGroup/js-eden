@@ -125,7 +125,8 @@ input.obs-watch-check {
 	border-bottom-right-radius: 6px;
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;*/
-	box-shadow: 10px 10px 10px #111;
+	box-shadow: 10px 10px 10px #444;
+	border-radius: 10px;
     padding: 20px;
     /*border: 1px solid #888;*/
     max-width: 800px; /* Could be more or less, depending on screen size */

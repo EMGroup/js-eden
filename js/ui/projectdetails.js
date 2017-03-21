@@ -141,7 +141,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 
 		me.dialog.append(buttons);
 		
-		Eden.DB.search(":parent("+projectid+")", 1, 1, function(forks) {
+		Eden.DB.search(":parent("+projectid+")", 1, 1, undefined, function(forks) {
 			if (forks.length > 0) {
 				var forksbox = document.createElement("div");
 				forksbox.className = "projectdetails-forks";
@@ -201,14 +201,14 @@ EdenUI.ProjectDetails.searchProjects = function(output, query, count, cb, newtab
 		output.find(".more").remove();
 		page++;
 		//EdenUI.ProjectDetails.searchProjects(output, pub, projects, maxres + 6);
-		Eden.DB.search(query, page, maxres, function(data) {
+		Eden.DB.search(query, page, maxres, undefined, function(data) {
 			EdenUI.ProjectDetails._searchProjects(query, output, !query.startsWith(":me"), data , maxres, page, newtab);
 		});
 		e.stopPropagation();
 	});
 
 	if (!query) query = "";
-	Eden.DB.search(query, 1, maxres, function(data) {
+	Eden.DB.search(query, 1, maxres, undefined, function(data) {
 		EdenUI.ProjectDetails._searchProjects(query, output, !query.startsWith(":me"), data , maxres, page, newtab);
 		if (cb) cb(data);
 	});

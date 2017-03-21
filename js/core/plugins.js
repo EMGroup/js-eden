@@ -54,9 +54,15 @@
 
 	EdenUI.prototype.createEmbedded = function(name, type) {
 		if (this.embeddedInstances[name]) return this.embeddedInstances[name];
-		var eview = edenUI.views[type].embed(name, name, "");
-		this.embeddedInstances[name] = eview;
-		return eview;
+		var eview;
+		if (edenUI.views[type].embed) eview = edenUI.views[type].embed(name, name, "");
+		else if (edenUI.views[type].embedded) eview = edenUI.views[type].embedded(name, name, "");
+		if (eview) {
+			this.embeddedInstances[name] = eview;
+			return eview;
+		} else {
+			return;
+		}
 	}
 
 	/**
