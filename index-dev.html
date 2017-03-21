@@ -382,13 +382,14 @@ See LICENSE.txt
 			function updateSearch() {
 				var pbrowser = lopts.find("#project-browser");
 
-				if (searchstr != "") {
+				//if (searchstr != "") {
 					pbrowser.get(0).style.display = "none";
 					var plist = pbrowser.get(0).previousSibling;
 					//console.log(plist);
 					if (plist === null || plist.nodeName == "#text" || plist.getAttribute("id") != "jseden-project-search") {
 						var pliste = document.createElement("div");
 						pliste.setAttribute("id", "jseden-project-search");
+						pliste.style.height = "initial";
 						pbrowser.get(0).parentNode.insertBefore(pliste, pbrowser.get(0));
 						plist = pliste;
 						pliste.className = "jseden-dialog-plisting";
@@ -396,19 +397,52 @@ See LICENSE.txt
 
 					//console.log("Load projects: " + path);
 
-					Eden.DB.search(searchstr, 1, 16, function(data) {
+					Eden.DB.search(searchstr, 1, 50, undefined, function(data) {
 						//console.log("SEARCH",searchstr,data,plist);
 						//var pliste = plist.get(0);
 						while (plist.lastChild) plist.removeChild(plist.lastChild);
-						EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 16, 1, false);
+						EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 50, 1, false);
 					});
-				} else {
+				/*} else {
 					pbrowser.get(0).style.display = "block";
 					var plist = pbrowser.get(0).previousSibling;
 					if (plist !== null && plist.nodeName != "#text" && plist.getAttribute("id") == "jseden-project-search") {
 						pbrowser.get(0).parentNode.removeChild(plist);
 					}
-				}
+				}*/
+			}
+
+			function updateSearch2(searchstr, sortby, plist) {
+				//var pbrowser = lopts.find("#project-browser");
+
+				//if (searchstr != "") {
+					//pbrowser.get(0).style.display = "none";
+					//var plist = pbrowser.get(0).previousSibling;
+					//console.log(plist);
+					//if (plist === null || plist.nodeName == "#text" || plist.getAttribute("id") != "jseden-project-search") {
+						//var pliste = document.createElement("div");
+					//	pliste.setAttribute("id", "jseden-project-search");
+					//	pliste.style.height = "initial";
+					//	pbrowser.get(0).parentNode.insertBefore(pliste, pbrowser.get(0));
+					//	plist = pliste;
+					//	pliste.className = "jseden-dialog-plisting";
+					//}
+
+					//console.log("Load projects: " + path);
+
+					Eden.DB.search(searchstr, 1, 10, sortby, function(data) {
+						//console.log("SEARCH",searchstr,data,plist);
+						//var pliste = plist.get(0);
+						while (plist.lastChild) plist.removeChild(plist.lastChild);
+						EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 10, 1, false);
+					});
+				/*} else {
+					pbrowser.get(0).style.display = "block";
+					var plist = pbrowser.get(0).previousSibling;
+					if (plist !== null && plist.nodeName != "#text" && plist.getAttribute("id") == "jseden-project-search") {
+						pbrowser.get(0).parentNode.removeChild(plist);
+					}
+				}*/
 			}
 
 			Eden.Project.listenTo("load", this, function() {
@@ -457,8 +491,36 @@ See LICENSE.txt
 				}
 			})
 			.on("keyup",".search", function(e) {
-				searchstr = e.currentTarget.value;
-				updateSearch();
+				var filter = e.currentTarget.parentNode.parentNode.getAttribute("data-filter");
+				var sortby = e.currentTarget.parentNode.nextElementSibling.value;
+				//console.log("Sort by " + sortby);
+
+				switch(sortby) {
+				case "Popular": sortby = "downloads"; break;
+				case "Rating": sortby = "rating"; break;
+				default: sortby = "";
+				}
+
+				//console.log("FILTER: " + filter);
+				//searchstr = e.currentTarget.value;
+				updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling);
+				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
+			})
+			.on("change", ".projectsort", function(e) {
+				var filter = e.currentTarget.parentNode.getAttribute("data-filter");
+				var sortby = e.currentTarget.value;
+				//console.log("Sort by " + sortby);
+
+				switch(sortby) {
+				case "Popular": sortby = "downloads"; break;
+				case "Rating": sortby = "rating"; break;
+				default: sortby = "";
+				}
+
+				//console.log("FILTER: " + filter);
+				//searchstr = e.currentTarget.value;
+				updateSearch2(filter, sortby, e.currentTarget.parentNode.nextElementSibling);
+				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
 			})
 			.on("click",".projectmore", function(e) {
 				var filter = e.currentTarget.parentNode.getAttribute("data-filter");
@@ -590,19 +652,19 @@ See LICENSE.txt
 			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
 		</div>
 		<div id="project-browser">
-			<div class="jseden-project-cat" data-filter="#featured">Featured:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search featured..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option></select><button class="script-button projectmore">See More</button></div>
+			<div class="jseden-project-cat" data-filter="#featured">Featured:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search featured..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-featured-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat" data-filter="#starter">Starter:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search starter..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option></select><button class="script-button projectmore">See More</button></div>
+			<div class="jseden-project-cat" data-filter="#starter">Starter:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search starter..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-starter-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat" data-filter="@nop">Recent:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search recent..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option></select><button class="script-button projectmore">See More</button></div>
+			<div class="jseden-project-cat" data-filter="">Recent:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search recent..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-recent-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat" data-filter="#documentation">Reference:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search reference..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option></select><button class="script-button projectmore">See More</button></div>
+			<div class="jseden-project-cat" data-filter="#documentation">Reference:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search reference..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-ref-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat" data-filter=":me">Your Projects:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option></select><button class="script-button projectmore">See More</button></div>
+			<div class="jseden-project-cat" data-filter=":me">Your Projects:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-private-projects" class="jseden-dialog-plisting">
 				<div id="plist-login" class="cadence-plisting-login"><span class="cadence-plisting-loginicon">&#xf090;</span>Login</div>
 			</div>
