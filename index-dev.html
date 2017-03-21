@@ -385,67 +385,35 @@ See LICENSE.txt
 			function updateSearch() {
 				var pbrowser = lopts.find("#project-browser");
 
-				//if (searchstr != "") {
-					pbrowser.get(0).style.display = "none";
-					var plist = pbrowser.get(0).previousSibling;
-					//console.log(plist);
-					if (plist === null || plist.nodeName == "#text" || plist.getAttribute("id") != "jseden-project-search") {
-						var pliste = document.createElement("div");
-						pliste.setAttribute("id", "jseden-project-search");
-						pliste.style.height = "initial";
-						pbrowser.get(0).parentNode.insertBefore(pliste, pbrowser.get(0));
-						plist = pliste;
-						pliste.className = "jseden-dialog-plisting";
-					}
+				pbrowser.get(0).style.display = "none";
+				var plist = pbrowser.get(0).previousSibling;
+				//console.log(plist);
+				if (plist === null || plist.nodeName == "#text" || plist.getAttribute("id") != "jseden-project-search") {
+					var pliste = document.createElement("div");
+					pliste.setAttribute("id", "jseden-project-search");
+					pliste.style.height = "initial";
+					pbrowser.get(0).parentNode.insertBefore(pliste, pbrowser.get(0));
+					plist = pliste;
+					pliste.className = "jseden-dialog-plisting";
+				}
 
-					//console.log("Load projects: " + path);
+				//console.log("Load projects: " + path);
 
-					Eden.DB.search(searchstr, 1, 50, undefined, function(data) {
-						//console.log("SEARCH",searchstr,data,plist);
-						//var pliste = plist.get(0);
-						while (plist.lastChild) plist.removeChild(plist.lastChild);
-						EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 50, 1, false);
-					});
-				/*} else {
-					pbrowser.get(0).style.display = "block";
-					var plist = pbrowser.get(0).previousSibling;
-					if (plist !== null && plist.nodeName != "#text" && plist.getAttribute("id") == "jseden-project-search") {
-						pbrowser.get(0).parentNode.removeChild(plist);
-					}
-				}*/
+				Eden.DB.search(searchstr, 1, 50, undefined, function(data) {
+					//console.log("SEARCH",searchstr,data,plist);
+					//var pliste = plist.get(0);
+					while (plist.lastChild) plist.removeChild(plist.lastChild);
+					EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 50, 1, false);
+				});
 			}
 
 			function updateSearch2(searchstr, sortby, plist) {
-				//var pbrowser = lopts.find("#project-browser");
-
-				//if (searchstr != "") {
-					//pbrowser.get(0).style.display = "none";
-					//var plist = pbrowser.get(0).previousSibling;
-					//console.log(plist);
-					//if (plist === null || plist.nodeName == "#text" || plist.getAttribute("id") != "jseden-project-search") {
-						//var pliste = document.createElement("div");
-					//	pliste.setAttribute("id", "jseden-project-search");
-					//	pliste.style.height = "initial";
-					//	pbrowser.get(0).parentNode.insertBefore(pliste, pbrowser.get(0));
-					//	plist = pliste;
-					//	pliste.className = "jseden-dialog-plisting";
-					//}
-
-					//console.log("Load projects: " + path);
-
-					Eden.DB.search(searchstr, 1, 10, sortby, function(data) {
-						//console.log("SEARCH",searchstr,data,plist);
-						//var pliste = plist.get(0);
-						while (plist.lastChild) plist.removeChild(plist.lastChild);
-						EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 10, 1, false);
-					});
-				/*} else {
-					pbrowser.get(0).style.display = "block";
-					var plist = pbrowser.get(0).previousSibling;
-					if (plist !== null && plist.nodeName != "#text" && plist.getAttribute("id") == "jseden-project-search") {
-						pbrowser.get(0).parentNode.removeChild(plist);
-					}
-				}*/
+				Eden.DB.search(searchstr, 1, 10, sortby, function(data) {
+					//console.log("SEARCH",searchstr,data,plist);
+					//var pliste = plist.get(0);
+					while (plist.lastChild) plist.removeChild(plist.lastChild);
+					EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 10, 1, false);
+				});
 			}
 
 			Eden.Project.listenTo("load", this, function() {
@@ -531,25 +499,6 @@ See LICENSE.txt
 				searchstr = filter;
 				updateSearch();
 			});
-
-			/*.on("click",".project",function(e) {
-				var pid = e.currentTarget.getAttribute("data-pid");
-				//var tag = parseInt(e.currentTarget.getAttribute("data-tag"));
-				console.log("Load project: " + pid); // + "@"+tag);
-				//lopts.css("display","none");
-				//$(".loadmodal").show();
-				//$(".loadmessage").html("Loading " + "" + "...");
-
-				//Eden.load(path,tag,function() {
-
-				//Eden.Project.load(pid, undefined, function() {
-				//	$(".loadmodal").hide();
-				//});
-
-				projectdetails = new EdenUI.ProjectDetails(pid);
-
-				//});
-			});*/
 
 			function setLoadObserver() {
 				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
