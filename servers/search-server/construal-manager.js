@@ -987,8 +987,8 @@ app.get('/project/search', function(req, res){
 	var criteriaVals = {};
 	
 	var paramObj = {};
-	criteriaVals["@limit"] = 10;
-	if(req.query.limit && (req.query.limit < 50))
+	criteriaVals["@limit"] = 50;
+	if(req.query.limit && (req.query.limit <= 50))
 		criteriaVals["@limit"] = req.query.limit;
 	criteriaVals["@offset"] = 0;
 	if(req.query.offset)
@@ -1036,6 +1036,14 @@ app.get('/project/search', function(req, res){
 			listedOnly = true;
 	}
 	
+	var orderString = " order by date desc ";
+	if(req.query.by){
+		if(req.query.by == "downloads")
+			orderString = " order by downloads desc ";
+		if(req.query.by == "rating")
+			orderString = " order by avgStars desc "
+	}
+	
 	if(req.user == null)
 		criteriaVals["@ratingsUser"] = -1;
 	else
@@ -1043,17 +1051,18 @@ app.get('/project/search', function(req, res){
 		
 	if(mineOnly){
 		if(req.user == null) return res.json([]);
-		listQueryStr = getListQueryStr("view_latestVersion") + ' AND owner = @owner' + conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
+		listQueryStr = getListQueryStr("view_latestVersion") + ' AND owner = @owner' + conditionStr + ' group by projects.projectID)' + tagConditionStr + orderString + 'LIMIT @limit OFFSET @offset';
 		criteriaVals["@owner"] = req.user.id;
 	}else if(listedOnly){
-		listQueryStr = getListQueryStr("view_listedVersion") + conditionStr + ' group by projects.projectID)' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
+		listQueryStr = getListQueryStr("view_listedVersion") + conditionStr + ' group by projects.projectID)' + tagConditionStr + orderString + 'LIMIT @limit OFFSET @offset';
 	}else{
 		listQueryStr = getListQueryStr("view_latestVersion") + ' AND owner = @owner';
 		criteriaVals["@owner"] = req.user.id;
 		listQueryStr += conditionStr + ' group by projects.projectID)' + tagConditionStr;
-		listQueryStr += " UNION " + getListQueryStr("view_listedVersion") + conditionStr + ' group by projects.projectID) ' + tagConditionStr + ' order by date desc LIMIT @limit OFFSET @offset';
+		listQueryStr += " UNION " + getListQueryStr("view_listedVersion") + conditionStr + ' group by projects.projectID) ' + tagConditionStr + orderString + 'LIMIT @limit OFFSET @offset';
 	}
 
+	
 	var listProjectStmt = db.prepare(listQueryStr);
 	var unknownRatings = [];
 
@@ -1080,11 +1089,7 @@ app.get('/project/search', function(req, res){
 				unknownRatings.push(projectID);
 			}
 		}
-		if(unknownRatings.length == 0){
-			res.json(rows);
-		}else{
-			processNextRating(rows,unknownRatings,0,res);
-		}
+		processNextRating(rows,unknownRatings,0,res);
 	});
 });
 
@@ -1106,7 +1111,18 @@ function processNextRating(projectRows, unknownRatings,i,res){
 			}
 			projectRatings[projectID] = row.s;
 			projectRatingsCount[projectID] = row.c;
-			processNextRating(projectRows,unknownRatings,i+1,res);
+			var overallRating = Number(row.s / row.c).toFixed(1);
+			
+			if(isNaN(overallRating))
+				overallRating = null;
+			
+			var updateStarsStmt = "UPDATE projectstats SET avgStars = ? WHERE projectID = ?";
+			db.run(updateStarsStmt, overallRating, projectID, function(err){
+				if(err){
+					res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+				}
+				processNextRating(projectRows,unknownRatings,i+1,res);
+			});
 		});
 	}
 }
@@ -1127,8 +1143,8 @@ app.post('/project/remove',ensureAuthenticated, function(req,res){
 });
 
 function getListQueryStr(targetTable){
-	return 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date, downloads,forks, myrating FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
-		+ ' publicVersion, parentProject, projectMetaData,	projectratings.stars as myrating, downloads,forks, (" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
+	return 'SELECT projectID, title, minimisedTitle, image, owner, ownername, publicVersion, parentProject, projectMetaData, tags, date, downloads,forks, myrating, avgStars FROM (SELECT projects.projectID, title, minimisedTitle, image, owner, name as ownername, date,' 
+		+ ' publicVersion, parentProject, projectMetaData,	projectratings.stars as myrating, projectStats.avgStars, downloads,forks, (" " || group_concat(tag, " ") || " " ) as tags FROM projects,oauthusers,' + targetTable + ' left outer join tags'
 		+ ' on projects.projectID = tags.projectID LEFT OUTER JOIN projectstats ON projectstats.projectID = projects.projectID LEFT OUTER JOIN projectratings ON projectratings.projectID = projects.projectID AND projectratings.userID = @ratingsUser WHERE owner = oauthusers.userid AND '+targetTable+'.projectID = projects.projectID ';	
 }
 
