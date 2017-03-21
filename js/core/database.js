@@ -281,10 +281,14 @@ Eden.DB.getVersions = function(pid, callback) {
 }
 
 
-Eden.DB.load = function(pid, vid, callback) {
+Eden.DB.load = function(pid, vid, readPassword, callback) {
+	if(arguments.length == 3){
+		callback = readPassword;
+		readPassword = undefined;
+	}
 	if (Eden.DB.isConnected()) {
 		$.ajax({
-			url: Eden.DB.remoteURL+"/project/get?projectID="+pid+ ((vid) ? "&to="+vid : ""),
+			url: Eden.DB.remoteURL+"/project/get?projectID="+pid+ ((vid) ? "&to="+vid : "") + ((readPassword) ? "&readPassword="+readPassword : ""),
 			type: "get",
 			crossDomain: true,
 			xhrFields:{

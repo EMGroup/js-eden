@@ -75,6 +75,9 @@ function Construit(options,callback) {
 	//var imports = URLUtil.getArrayParameterByName("import");
 	var restore = URLUtil.getParameterByName("restore");
 	var vid = URLUtil.getParameterByName("vid");
+	var readPassword = URLUtil.getParameterByName("r");
+	var writePassword = URLUtil.getParameterByName("w");
+	
 	var master = URLUtil.getParameterByName("master");
 	var myid = URLUtil.getParameterByName("id");
 	var query = URLUtil.getParameterByName("q");
@@ -274,7 +277,7 @@ function Construit(options,callback) {
 								if (mode !== null && mode != "") {
 									eden.root.lookup("jseden_project_mode").assign(mode, eden.root.scope, Symbol.defaultAgent);
 								}
-								Eden.Project.load(parseInt(load),(vid === null || vid == "") ? undefined : parseInt(vid),function(){ doneLoading(true); });
+								Eden.Project.load(parseInt(load),(vid === null || vid == "") ? undefined : parseInt(vid),(readPassword === null || readPassword == "") ? undefined : readPassword,function(){ doneLoading(true); });
 							} else if (restore != "") {
 								if (mode !== null && mode != "") {
 									eden.root.lookup("jseden_project_mode").assign(mode, eden.root.scope, Symbol.defaultAgent);
