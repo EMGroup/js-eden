@@ -892,7 +892,7 @@ function sendDiff(fromID,toSource,projectID,toID,res,metaRow){
 	});
 }
 
-function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
+function processSelectorNode(t, criteria, criteriaVals, i){
 	if(t.type == "property"){
 		switch(t.name){
 		case ".id":
@@ -900,8 +900,8 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 			criteriaVals["@projectID" + i] = t.value;
 			break;
 		case ".title":
-			criteria.push("title LIKE @title" + i);
-			criteriaVals["@title" + i] = t.param.replace("*","%");
+			riteria.push("title LIKE @title" + i);
+			criteriaVals["@title" + i] = t.param.replace(/\*/g,"%");
 			break;
 		case ":me":
 			criteriaVals["@mineOnly"] = true;
@@ -911,8 +911,10 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 //			criteriaVals["@otherAuthor"] = 
 			break;
 		case ".name":
+			if(t.param === undefined)
+				return;
 			criteria.push("minimisedTitle LIKE @minimisedTitle" + i);
-			criteriaVals["@minimisedTitle" + i] = t.param.replace("*","%");
+			criteriaVals["@minimisedTitle" + i] = t.param.replace(/\*/g,"%");
 			break;
 		case ".parent":
 		case ":parent":
@@ -925,16 +927,40 @@ function processSelectorNode(t, criteria, criteriaVals,tagCriteria, i){
 		}
 	}
 	if(t.type == "tag"){
-		tagCriteria.push("tags like @tag" + i);
-		criteriaVals["@tag" + i] = "% " + t.tag.replace("*","%").substring(1) + " %";				
+		if(t.tag === undefined)
+			return;
+		criteria.push("tags like @tag" + i);
+		criteriaVals["@tag" + i] = "% " + t.tag.replace(/\*/g,"%").substring(1) + " %";				
 	}
 	if(t.type == "name"){
-		criteria.push("minimisedTitle LIKE @minimisedTitle" + i);
-		criteriaVals["@minimisedTitle" + i] = t.name.replace("*","%");		
+		if(t.name === undefined)
+			return;
+		var tmpCriteria = ["OR"];
+		tmpCriteria.push("minimisedTitle LIKE @minimisedTitle" + i);
+		tmpCriteria.push("tags like @minimisedTitleTag" + i);
+		criteria.push(tmpCriteria);
+		criteriaVals["@minimisedTitle" + i] = t.name.replace(/\*/g,"%");
+		criteriaVals["@minimisedTitleTag" + i] = "% " + t.name.replace(/\*/g,"%") + " %";
 	}
-		
 }
 
+function parseCriteria(arr){
+	if(!Array.isArray(arr) || arr.length == 1){
+		if(arr == "AND" || arr == "OR")
+			return "";
+		return arr;
+	}
+	if(arr.length == 2)
+		return parseCriteria(arr[1]);
+	var connectionType = arr[0];
+
+	arr.shift();
+	var tmpArr = [];
+	for(j = 0; j < arr.length; j++){
+		tmpArr.push(parseCriteria(arr[j]));
+	}
+	return "(" + tmpArr.join(" " + connectionType + " ") + ")";
+}
 
 app.post('/project/rate', function(req,res){
 	var userID = req.user.id;
@@ -994,15 +1020,18 @@ app.get('/project/search', function(req, res){
 	if(req.query.offset)
 		criteriaVals["@offset"] = req.query.offset;
 
-	if(req.query.query){		
-		var selectorAST = Eden.Selectors.parse(req.query.query);
+	var tmpCriteria = ["AND"];
+	if(req.query.query){
+		console.log("Query is ", req.query.query);
+		var selectorAST = Eden.Selectors.parse(req.query.query.trim());
+		console.log("Selector is ", selectorAST);
 		if(selectorAST !== undefined){
-			if(selectorAST.type == "intersection"){	
+			if(selectorAST.type == "intersection"){
 				for(var i = 0; i < selectorAST.children.length; i++){
-					processSelectorNode(selectorAST.children[i],criteria,criteriaVals, tagCriteria, i);
+					processSelectorNode(selectorAST.children[i],tmpCriteria,criteriaVals, i);
 				}
 			}else{
-				processSelectorNode(selectorAST,criteria,criteriaVals, tagCriteria, 0);
+				processSelectorNode(selectorAST,tmpCriteria,criteriaVals, 0);
 			}
 		}else{
 			res.json([]);
@@ -1019,13 +1048,12 @@ app.get('/project/search', function(req, res){
 		delete criteriaVals["@listedOnly"];
 	
 	var conditionStr = "";
-	if(criteria.length > 0){
-		conditionStr = " AND " + criteria.join(" AND ");
-	}
 	
 	var tagConditionStr = "";
-	if(tagCriteria.length > 0){
-		tagConditionStr = "\n WHERE " + tagCriteria.join(" AND \n");
+	if(tmpCriteria.length > 0){
+		var tmpCStr = parseCriteria(tmpCriteria);
+		if(tmpCStr.length > 0)
+			tagConditionStr = "\n WHERE " + tmpCStr;
 	}
 	
 	var targetTable;
@@ -1062,12 +1090,13 @@ app.get('/project/search', function(req, res){
 		listQueryStr += " UNION " + getListQueryStr("view_listedVersion") + conditionStr + ' group by projects.projectID) ' + tagConditionStr + orderString + 'LIMIT @limit OFFSET @offset';
 	}
 
-	
+	//console.log(listQueryStr);
 	var listProjectStmt = db.prepare(listQueryStr);
 	var unknownRatings = [];
 
 	listProjectStmt.all(criteriaVals,function(err,rows){
 		if(err){
+			console.error(err);
 			res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 			return;
 		}
