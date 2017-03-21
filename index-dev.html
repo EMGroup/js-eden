@@ -400,7 +400,7 @@ See LICENSE.txt
 						//console.log("SEARCH",searchstr,data,plist);
 						//var pliste = plist.get(0);
 						while (plist.lastChild) plist.removeChild(plist.lastChild);
-						EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 10, 1, false);
+						EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 16, 1, false);
 					});
 				} else {
 					pbrowser.get(0).style.display = "block";
@@ -458,6 +458,12 @@ See LICENSE.txt
 			})
 			.on("keyup",".search", function(e) {
 				searchstr = e.currentTarget.value;
+				updateSearch();
+			})
+			.on("click",".projectmore", function(e) {
+				var filter = e.currentTarget.parentNode.getAttribute("data-filter");
+				console.log("FILTER: " + filter);
+				searchstr = filter;
 				updateSearch();
 			});
 
@@ -584,19 +590,19 @@ See LICENSE.txt
 			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
 		</div>
 		<div id="project-browser">
-			<div class="jseden-project-cat">Featured:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search featured..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option></select><button class="script-button projectmore">See More</button></div>
+			<div class="jseden-project-cat" data-filter="#featured">Featured:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search featured..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-featured-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat">Starter:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search starter..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option></select><button class="script-button projectmore">See More</button></div>
+			<div class="jseden-project-cat" data-filter="#starter">Starter:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search starter..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-starter-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat">Recent:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search recent..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option></select><button class="script-button projectmore">See More</button></div>
+			<div class="jseden-project-cat" data-filter="@nop">Recent:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search recent..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-recent-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat">Reference:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search reference..."></input><select class="projectsort"><option>Popular</option><option>Recent</option></select><button class="script-button projectmore">See More</button></div></div>
+			<div class="jseden-project-cat" data-filter="#documentation">Reference:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search reference..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-ref-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat">Your Projects:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input><select class="projectsort"><option>Recent</option><option>Popular</option></select><button class="script-button projectmore">See More</button></div></div>
+			<div class="jseden-project-cat" data-filter=":me">Your Projects:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-private-projects" class="jseden-dialog-plisting">
 				<div id="plist-login" class="cadence-plisting-login"><span class="cadence-plisting-loginicon">&#xf090;</span>Login</div>
 			</div>
