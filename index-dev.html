@@ -83,10 +83,10 @@ See LICENSE.txt
 
 		div.project-content {
 			position: relative;
-			left: 200px;
-			width: calc(100% - 400px);
+			left: 220px;
+			width: calc(100% - 440px);
 			font-family: "Source Sans Pro",Arial,sans-serif;
-			font-size: 12pt;
+			font-size: 13pt;
 			line-height: 150%;
 		}
 
@@ -574,9 +574,9 @@ See LICENSE.txt
 
 
 
-			function displayProjects(id, query, cb) {
+			function displayProjects(id, query, sortby, cb) {
 				var plist = lopts.find("#jseden-"+id+"-projects");
-				EdenUI.ProjectDetails.searchProjects(plist, query, 10, cb);
+				EdenUI.ProjectDetails.searchProjects(plist, query, 10, cb, false, sortby);
 			}
 
 			if (Eden.DB.isConnected()) {
@@ -598,10 +598,10 @@ See LICENSE.txt
 					//displayProjects("featured", "#featured");
 					//displayProjects("recent");
 				} else {
-					displayProjects("featured", "#featured");
+					displayProjects("featured", "#featured", "downloads");
 					displayProjects("recent");
-					displayProjects("starter", "#starter");
-					displayProjects("ref", "#documentation");
+					displayProjects("starter", "#starter", "downloads");
+					displayProjects("ref", "#documentation", "downloads");
 				}
 
 				if (Eden.DB.isLoggedIn() == false) {
@@ -624,6 +624,7 @@ See LICENSE.txt
 				displayProjects("private",":me");
 
 				$("#welcometext").get(0).style.display = "none";
+				$("#privateprojects").get(0).style.display = "block";
 			});
 
 			Eden.DB.listenTo("logout", this, function() {
@@ -657,7 +658,7 @@ See LICENSE.txt
 <div id="loadoptions" class="" style="display: none;">
 	<div class="project-content" style="padding: 20px 0;">
 		<div style="display: none;" id="welcometext">
-		<video width="400" height="300" controls style="margin: 20px; float: right;">
+		<video width="400" height="300" controls style="margin: 10px 100px; float: right;">
 		  <source src="http://jseden.dcs.warwick.ac.uk/resources/PGA-CONSTRUIT-PlanExample.m4v">
 		Your browser does not support the video tag.
 		</video>
@@ -665,7 +666,7 @@ See LICENSE.txt
 	<p>
 A Construal is a kind of animated story.  It may be a story about a phenomenon (e.g. the solar system), a problem (e.g. penny rolling), or just an everyday experience (e.g. using a lift, or shopping), or many other kinds of thing - a game, a puzzle, something in history or a complicated theory.  Unless it's a very simple story (e.g. the Dog construal, or Whack-a-Mole) it will be split up into sections.
 
-		<p><a href="">For Teachers</a> <a href="">For Students</a></p>
+		<p><a href="http://edumotiva.eu/construit2017/">Conference 2017</a> | <a href="">For Teachers</a> | <a href="">For Students</a> | <a href="http://construit.org">Erasmus+ Project</a></p>
 		</div>
 		<div class="jseden-dialog-plisting" style="padding: 10px; height: 80px;">
 			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
@@ -673,6 +674,11 @@ A Construal is a kind of animated story.  It may be a story about a phenomenon (
 			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
 		</div>
 		<div id="project-browser" style="clear: right;">
+			<div id="privateprojects" style="display: none">
+			<div class="jseden-project-cat" data-filter=":me">Your Projects:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
+			<div id="jseden-private-projects" class="jseden-dialog-plisting">
+			</div>
+			</div>
 			<div class="jseden-project-cat" data-filter="#featured">Featured:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search featured..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-featured-projects" class="jseden-dialog-plisting">
 			</div>
@@ -684,10 +690,6 @@ A Construal is a kind of animated story.  It may be a story about a phenomenon (
 			</div>
 			<div class="jseden-project-cat" data-filter="#documentation">Reference:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search reference..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-ref-projects" class="jseden-dialog-plisting">
-			</div>
-			<div class="jseden-project-cat" data-filter=":me">Your Projects:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
-			<div id="jseden-private-projects" class="jseden-dialog-plisting">
-				<div id="plist-login" class="cadence-plisting-login"><span class="cadence-plisting-loginicon">&#xf090;</span>Login</div>
 			</div>
 		</div>
 	</div>
