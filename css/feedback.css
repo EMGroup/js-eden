@@ -5,7 +5,7 @@ div.feedback-icon {
 	bottom: 20px;
 	font-family: "FontAwesome";
 	font-size: 40pt;
-	color: white;
+	/*color: white;*/
 	cursor: pointer;
 	opacity: 0.5;
 }

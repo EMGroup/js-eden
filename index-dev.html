@@ -83,9 +83,8 @@ See LICENSE.txt
 
 		div.project-content {
 			position: relative;
-			margin: 20px auto;
-			max-width: 1100px;
-			width: 80%;
+			left: 200px;
+			width: calc(100% - 250px);
 		}
 
 		div.cadence-plisting-login {
@@ -144,17 +143,25 @@ See LICENSE.txt
 
 		input.projectsearch {
 			width: 300px;
-			background: #132023;
-			color: white;
+			background: #eee;
+			color: #222;
 			font-size: 10pt;
-			padding: 8px;
+			padding: 4px;
 			padding-left: 40px;
-			border: 2px solid #eee;
+			border: 1px solid #bbb;
+		}
+
+		input.projectsearch:hover {
+			background: white;
+		}
+
+		input.projectsearch:focus {
+			background: white;
 		}
 
 		div.projectsearch:before {
 			color: white;
-			font-size: 16pt;
+			font-size: 14pt;
 			/*left: -285px;*/
 			top: 3px;
 		}
@@ -393,7 +400,7 @@ See LICENSE.txt
 						//console.log("SEARCH",searchstr,data,plist);
 						//var pliste = plist.get(0);
 						while (plist.lastChild) plist.removeChild(plist.lastChild);
-						EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 6, 1, false);
+						EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 10, 1, false);
 					});
 				} else {
 					pbrowser.get(0).style.display = "block";
@@ -498,7 +505,7 @@ See LICENSE.txt
 
 			function displayProjects(id, query, cb) {
 				var plist = lopts.find("#jseden-"+id+"-projects");
-				EdenUI.ProjectDetails.searchProjects(plist, query, 8, cb);
+				EdenUI.ProjectDetails.searchProjects(plist, query, 10, cb);
 			}
 
 			if (Eden.DB.isConnected()) {
@@ -516,7 +523,7 @@ See LICENSE.txt
 					content.html("");
 					content.prepend(newres);
 					content.prepend(newblock);
-					EdenUI.ProjectDetails.searchProjects(newres, q, 6);
+					EdenUI.ProjectDetails.searchProjects(newres, q, 10);
 					//displayProjects("featured", "#featured");
 					//displayProjects("recent");
 				} else {
@@ -571,26 +578,25 @@ See LICENSE.txt
 
 <div id="loadoptions" class="" style="display: none;">
 	<div class="project-content" style="padding: 20px 0;">
-		<div class="searchouter projectsearch"><input type="text" class="search projectsearch" placeholder="Search projects..."></input></div>
-		<div class="jseden-dialog-plisting" style="padding: 10px">
+		<div class="jseden-dialog-plisting" style="padding: 10px; height: 100px;">
 			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
 			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special">&#xf07c;</div></div>
 			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
 		</div>
 		<div id="project-browser">
-			<div class="jseden-project-cat">Featured:</div>
+			<div class="jseden-project-cat">Featured:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search featured..."></input></div><select><option>Popular</option><option>Recent</option></select></div>
 			<div id="jseden-featured-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat">Starter:</div>
+			<div class="jseden-project-cat">Starter:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search starter..."></input></div></div>
 			<div id="jseden-starter-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat">Recent:</div>
+			<div class="jseden-project-cat">Recent:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search recent..."></input></div></div>
 			<div id="jseden-recent-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat">Reference:</div>
+			<div class="jseden-project-cat">Reference:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search reference..."></input></div></div>
 			<div id="jseden-ref-projects" class="jseden-dialog-plisting">
 			</div>
-			<div class="jseden-project-cat">Your Projects:</div>
+			<div class="jseden-project-cat">Your Projects:<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div></div>
 			<div id="jseden-private-projects" class="jseden-dialog-plisting">
 				<div id="plist-login" class="cadence-plisting-login"><span class="cadence-plisting-loginicon">&#xf090;</span>Login</div>
 			</div>
