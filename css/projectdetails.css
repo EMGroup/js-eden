@@ -70,46 +70,87 @@ img.projectdetails-thumb {
 
 div.jseden-dialog-plisting {
 			box-sizing: border-box;
-			padding-top: 20px;
-			/*padding-bottom:30px;*/
 			padding-left: 30px;
 			padding-right: 30px;
 			margin-bottom: 5px;
 			/*border: 1px solid #eee;*/
 			width: 100%;
-			height: 100%;
+			height: 200px;
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
-			justify-content: center;
-			overflow-y: auto;
+			overflow: hidden;
 		}
 
 		div.jseden-project-cat {
 			font-size: 16pt;
 			font-family: "Source Sans Pro",Arial,sans-serif;
 			color: #222;
-			font-weight: bold;
+			/*font-weight: bold;*/
 			/*background: #416d77;*/
-			padding: 0 30px;
-			border-bottom: 1px solid #bbb;
+			padding: 0 35px;
+			/*border-bottom: 1px solid #bbb;*/
+			margin-top: 40px;
 		}
 
 		hr.jseden-project-cat {
 			border: 1px solid #b5b5f5;
 		}
 
+div.projectsearchouter {
+	display: inline-block;
+	margin-left: 30px;
+	margin-right: 5px;
+	/*margin-top: 5px*/;
+	/*z-index: 2001;*/
+	position: relative;
+	top: -5px;
+}
+
+div.projectsearchouter:before {
+	/*text-shadow: 0px 0px 2px black;*/
+	font-family: "FontAwesome";
+	/*opacity: 0.8;*/
+	content: "\f002";
+	position: relative;
+	left: 30px;
+	background: none;
+	margin-top: 0;
+	/*z-index: 2001;*/
+	z-index: 2;
+	color: #bbb;
+	font-size: 14pt;
+	/*left: -285px;*/
+	top: 3px;
+}
+
+select.projectsort {
+	margin-left: 40px;
+	position: relative;
+	/*top: -3px;*/
+	background: #ddd;
+	outline: none;
+	border: 1px solid #ccc;
+	padding: 2px;
+}
+
+button.script-button.projectmore {
+	margin-left: 20px;
+	position: relative;
+	/*top: -3px;*/
+}
+
+
 div.cadence-plisting-entry {
 			width: 200px;
 			height: 170px;
-			margin: 10px;
+			margin: 6px;
 			background-repeat: no-repeat;
 			cursor: pointer;
 			color: #132023;
 			background: white;
-			border: 1px solid #bbb;
 			padding: 10px;
-			/*box-shadow: 10px 10px 10px #bbb;*/
+			box-shadow: 2px 2px 6px #aaa;
 			border-radius: 6px;
 		}
 
@@ -125,7 +166,7 @@ div.cadence-plisting-entry.special {
 
 		div.cadence-plisting-entry.more {
 			height: 60px;
-			width: 150px;
+			width: 50px;
 			background: transparent;
 			border: none;
 			margin-top: 10px;
@@ -167,7 +208,7 @@ div.cadence-plisting-entry.special {
 			background: transparent;
 			height: 40px;
 			font-size: 40px;
-			color: #eee;
+			color: #888;
 			border: none;
 			font-weight: bold;
 		}
@@ -205,7 +246,7 @@ div.cadence-plisting-entry.special {
 		}
 
 		div.cadence-plisting-entry.more:hover .cadence-plisting-icon {
-			color: white;
+			color: #222;
 			background: transparent;
 		}
 

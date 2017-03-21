@@ -1284,6 +1284,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 		var viewdata = {
 		code_entry: code_entry,
+		contents: code_entry,
 		destroy: function () {
 				delete canvases[canvasName];
 				delete contents[canvasName];
