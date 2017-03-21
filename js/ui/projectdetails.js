@@ -193,7 +193,7 @@ EdenUI.ProjectDetails.prototype.remove = function() {
 	document.body.removeChild(this.obscurer.get(0));
 }
 
-EdenUI.ProjectDetails.searchProjects = function(output, query, count, cb, newtab) {
+EdenUI.ProjectDetails.searchProjects = function(output, query, count, cb, newtab, sortby) {
 	var maxres = (count) ? count : 7;
 	var page = 1;
 
@@ -201,14 +201,14 @@ EdenUI.ProjectDetails.searchProjects = function(output, query, count, cb, newtab
 		output.find(".more").remove();
 		page++;
 		//EdenUI.ProjectDetails.searchProjects(output, pub, projects, maxres + 6);
-		Eden.DB.search(query, page, maxres, undefined, function(data) {
+		Eden.DB.search(query, page, maxres, sortby, function(data) {
 			EdenUI.ProjectDetails._searchProjects(query, output, !query.startsWith(":me"), data , maxres, page, newtab);
 		});
 		e.stopPropagation();
 	});
 
 	if (!query) query = "";
-	Eden.DB.search(query, 1, maxres, undefined, function(data) {
+	Eden.DB.search(query, 1, maxres, sortby, function(data) {
 		EdenUI.ProjectDetails._searchProjects(query, output, !query.startsWith(":me"), data , maxres, page, newtab);
 		if (cb) cb(data);
 	});
