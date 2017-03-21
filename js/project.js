@@ -128,7 +128,7 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 				eden.project.start();
 
 				var url = "?load="+eden.project.id+"&vid="+eden.project.vid + ((readPassword) ? "&r=" + readPassword : "");
-				window.history.replaceState({id: eden.project.id, vid: eden.project.vid},"",url);
+				window.history.pushState({id: eden.project.id, vid: eden.project.vid},"",url);
 
 				Eden.Project.emit("load", [me]);
 			}

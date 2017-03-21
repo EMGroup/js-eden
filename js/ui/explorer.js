@@ -75,7 +75,7 @@ EdenUI.Explorer = function() {
 		if (!val) {
 			me.element.hide();
 			me.capture = false;
-			me.clear();
+			//me.clear();
 		} else if (eden.root.lookup("jseden_explorer_visible").value()) {
 			me.element.show();
 		}
