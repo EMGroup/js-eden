@@ -85,8 +85,14 @@ Eden.Project.search = function(q, cb) {
 
 }
 
-Eden.Project.load = function(pid, vid, cb) {
+Eden.Project.load = function(pid, vid, readPassword, cb) {
 	var me = this;
+	
+	if(arguments.length == 3){
+		cb = readPassword;
+		readPassword = undefined;
+	}
+	
 	//Eden.DB.getMeta(pid, function(metaA) {
 	//	if (metaA.length == 0) {
 	//		if (cb) cb();
@@ -96,7 +102,7 @@ Eden.Project.load = function(pid, vid, cb) {
 	//	var meta = metaA[0];
 	//	console.log("META",meta);
 
-		Eden.DB.load(pid, vid, function(data) {
+		Eden.DB.load(pid, vid, readPassword, function(data) {
 			if (data) {
 				var meta = data;
 				eden.project = new Eden.Project(pid, meta.minimisedTitle, data.source);
@@ -121,7 +127,7 @@ Eden.Project.load = function(pid, vid, cb) {
 				eden.project.ast.script.doxyComment = eden.project.ast.doxyFromOrigin();
 				eden.project.start();
 
-				var url = "?load="+eden.project.id+"&vid="+eden.project.vid;
+				var url = "?load="+eden.project.id+"&vid="+eden.project.vid + ((readPassword) ? "&r=" + readPassword : "");
 				window.history.replaceState({id: eden.project.id, vid: eden.project.vid},"",url);
 
 				Eden.Project.emit("load", [me]);
