@@ -169,6 +169,44 @@ See LICENSE.txt
 			top: 3px;
 		}
 
+		div#welcometext {
+			text-align: justify;
+		}
+
+		button.welcomesignin {
+			font-size: 16pt;
+			font-weight: bold;
+			height: initial;
+			padding: 5px 10px;
+			background-color: #4B2945;
+			border-radius: 20px;
+			display: inline;
+			margin: 0;
+		}
+
+		div.welcomelinks {
+			border-radius: 20px;
+			border: 1px solid #ccc;
+			background: white;
+			box-sizing: border-box;
+			display: inline-block;
+		}
+
+		div.welcomelinks a {
+			display: inline-block;
+			height: 100%;
+			padding: 0 10px;
+			border-right: 1px solid #ddd;
+		}
+
+		div.welcomelinks a:last-child {
+			border:right: none;
+		}
+
+		div.welcomelinks a:hover {
+			/*background: #ddd;*/
+		}
+
 	</style>
 </head>
 <body>
@@ -642,12 +680,12 @@ See LICENSE.txt
 		  <source src="http://jseden.dcs.warwick.ac.uk/resources/PGA-CONSTRUIT-PlanExample.m4v">
 		Your browser does not support the video tag.
 		</video>
-		<h1>Welcome</h1>
+		<div style="overflow: hidden;"><h1>Welcome</h1>
 	<p>
 A Construal is a kind of animated story.  It may be a story about a phenomenon (e.g. the solar system), a problem (e.g. penny rolling), or just an everyday experience (e.g. using a lift, or shopping), or many other kinds of thing - a game, a puzzle, something in history or a complicated theory.  Unless it's a very simple story (e.g. the Dog construal, or Whack-a-Mole) it will be split up into sections.
-		<br><button class="script-button" style="font-size: 16pt; font-weight: bold; height: initial; padding: 5px 10px;" onclick="edenUI.menu.showLogin();">Sign-in</button>
-		<p><a href="http://edumotiva.eu/construit2017/">Conference 2017</a> | <a href="">For Teachers</a> | <a href="">For Students</a> | <a href="http://construit.org">Erasmus+ Project</a></p>
-		</div>
+		<div style="text-align: center;"><div class="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();">Sign-in</button>
+		<a href="http://edumotiva.eu/construit2017/">Conference 2017</a><a href="">For Teachers</a><a href="">For Students</a><a href="http://construit.org">Erasmus+ Project</a>
+		</div></div></div></div>
 		<div class="jseden-dialog-plisting" style="padding: 10px; height: 80px;">
 			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
 			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special">&#xf07c;</div></div>
