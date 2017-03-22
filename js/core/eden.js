@@ -605,7 +605,6 @@
 	Eden.reset = function() {
 		edenUI.destroyAllViews();
 		eden.reset();
-		Eden.Agent.removeAll();
 		// Reset plugins!
 	}
 
