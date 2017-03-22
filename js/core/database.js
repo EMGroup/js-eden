@@ -241,6 +241,7 @@ Eden.DB.save = function(project, ispublic, callback) {
 					//meta.updateVersion(data.saveID, data.tag, meta.title, meta.name, meta.date);
 					project.id = data.projectID;
 					project.vid = data.saveID;
+					project.readPassword = data.readPassword;
 					if (callback) callback(true);
 				}
 			},

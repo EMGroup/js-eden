@@ -56,6 +56,7 @@ div.menubar-sharebox-content .projecturl {
 	margin-bottom: 10px;
 	width: 90%;
 	overflow-x: auto;
+	user-select: text;
 }
 
 div.menubar-sharebox-content .projecttags {
