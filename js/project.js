@@ -102,6 +102,8 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 	//	var meta = metaA[0];
 	//	console.log("META",meta);
 
+		Eden.Project.emit("loading", [me]);
+
 		Eden.DB.load(pid, vid, readPassword, function(data) {
 			if (data) {
 				var meta = data;
