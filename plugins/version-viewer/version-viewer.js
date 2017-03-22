@@ -62,8 +62,6 @@ EdenUI.plugins.VersionViewer = function (edenUI, success) {
 		var updateVersionList = function(){
 			var loadNum = URLUtil.getParameterByName("load");
 			$.get(Eden.DB.remoteURL + "/project/versions",{projectID: loadNum},function(data){
-				console.log(data);
-				debugger;
 				var listTable = content.find(".version-viewer-list").html("");
 				var row = $("<tr><th>Vid</th><th>Date</th><th>ParentDiff</th></tr>");
 				listTable.append(row);
@@ -101,11 +99,6 @@ EdenUI.plugins.VersionViewer = function (edenUI, success) {
 	this.createVersionListDialog = function (name, mtitle) {
 		return me.createDialog(name,mtitle,"all");
 	};
-
-
-	this.isCreationPending = function (name) {
-		return name in symbol_create_queue;
-	}
 
 	// Add views supported by this plugin.
 	edenUI.views["VersionList"] = {dialog: this.createVersionListDialog, title: "Version List", category: edenUI.viewCategories.history, menuPriority: 1};
