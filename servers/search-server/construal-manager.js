@@ -502,6 +502,7 @@ function checkOwner(req,res,callback){
 			res.json({error: ERROR_NO_EXISTING_PROJECT, description: "No existing project"});
 		}else{
 			if(rows[0].owner == req.user.id || (req.body.writePassword == rows[0].writePassword && rows[0].writePassword != null)){
+				req.body.writePassword = rows[0].writePassword;
 				callback();
 			}else{
 				db.run("ROLLBACK");
