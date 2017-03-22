@@ -118,6 +118,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 		buttons.on("click",".openproject", function() {
 			me.remove();
 			if (!me.newtab) {
+				$(".loadmodal").show();
 				Eden.Project.load(projectid);
 			} else {
 				window.open(window.location.origin + window.location.pathname + "?load="+projectid);

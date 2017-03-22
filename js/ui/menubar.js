@@ -5,7 +5,7 @@ EdenUI.MenuBar = function() {
 	this.itemViews = {};
 
 	var obscurer = $('<div id=\"menubar-obscurer\" class=\"login-subdialog modal\" style=\"display: block;\"></div>');
-	obscurer.html("<div class=\"modal-content\" style=\"width: 550px; height: 400px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"540px\" height=\"80%\" class=\"menubar-login-iframe\"></iframe><br/><button class=\"jseden button-cancel\">Cancel</button></div>");
+	obscurer.html("<div class=\"modal-content\" style=\"width: 550px; height: 400px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"540px\" height=\"300px\" class=\"menubar-login-iframe\"></iframe><button class=\"jseden button-cancel\">Cancel</button></div>");
 	obscurer.hide();
 
 	eden.execute2("views_number_created = 0;", Symbol.defaultAgent);
@@ -65,8 +65,14 @@ EdenUI.MenuBar = function() {
 
 	////////////////////////////////////////////////////////////////////////////
 
+	var me = this;
+
 
 	$("#menubar-login").click(function() {
+		me.showLogin();
+	});
+
+	this.showLogin = function() {
 		if (Eden.DB.isConnected() && !Eden.DB.isLoggedIn()) {
 			obscurer.show();
 			$(document.body).append(obscurer);
@@ -77,9 +83,7 @@ EdenUI.MenuBar = function() {
 		} else if (Eden.DB.isConnected() && Eden.DB.isLoggedIn()) {
 			
 		}
-	});
-
-	var me = this;
+	}
 
 	if (mobilecheck()) {
 		var ctx = new EdenUI.ContextMenu(this.element.find(".mobilemore").get(0));

@@ -407,16 +407,17 @@ See LICENSE.txt
 				});
 			}
 
-			function updateSearch2(searchstr, sortby, plist) {
-				Eden.DB.search(searchstr, 1, 10, sortby, function(data) {
+			function updateSearch2(searchstr, sortby, plist, count) {
+				if (count === undefined) count = 10;
+				Eden.DB.search(searchstr, 1, count, sortby, function(data) {
 					//console.log("SEARCH",searchstr,data,plist);
 					//var pliste = plist.get(0);
 					while (plist.lastChild) plist.removeChild(plist.lastChild);
-					EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 10, 1, false);
+					EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, count, 1, false);
 				});
 			}
 
-			Eden.Project.listenTo("load", this, function() {
+			Eden.Project.listenTo("loading", this, function() {
 				lopts.css("display","none");
 			});
 
@@ -479,8 +480,12 @@ See LICENSE.txt
 			})
 			.on("change", ".projectsort", function(e) {
 				var filter = e.currentTarget.parentNode.getAttribute("data-filter");
+				var count = e.currentTarget.parentNode.getAttribute("data-count");
 				var sortby = e.currentTarget.value;
 				//console.log("Sort by " + sortby);
+
+				if (count === null || count == "") count = 10
+				else if (typeof count == "string") count = parseInt(count);
 
 				switch(sortby) {
 				case "Popular": sortby = "downloads"; break;
@@ -490,7 +495,7 @@ See LICENSE.txt
 
 				//console.log("FILTER: " + filter);
 				//searchstr = e.currentTarget.value;
-				updateSearch2(filter + " " + e.currentTarget.previousElementSibling.firstChild.value, sortby, e.currentTarget.parentNode.nextElementSibling);
+				updateSearch2(filter + " " + e.currentTarget.previousElementSibling.firstChild.value, sortby, e.currentTarget.parentNode.nextElementSibling, count);
 				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
 			})
 			.on("click",".projectmore", function(e) {
@@ -506,12 +511,12 @@ See LICENSE.txt
 				//var welcometext = $("#welcometext");
 				//welcometext.get(0).style.display = "none";
 				//content[0].removeChild(content[0].firstChild);
-				var newblock = $('<div class="jseden-project-cat tmpitem" data-filter="'+searchstr+'">'+searchstr+':<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select></div>');
+				var newblock = $('<div class="jseden-project-cat tmpitem" data-count="50" data-filter="'+searchstr+'">'+searchstr+'<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select></div>');
 				var newres = $('<div id="jseden-custom-projects" style="height: initial;" class="jseden-dialog-plisting tmpitem">');
 				//content.html("");
 				content.prepend(newres);
 				content.prepend(newblock);
-				EdenUI.ProjectDetails.searchProjects(newres, searchstr, 50);
+				EdenUI.ProjectDetails.searchProjects(newres, searchstr, 50, undefined, false, "downloads");
 
 				window.history.pushState({query: searchstr},"","?q="+encodeURIComponent(searchstr));
 			});
@@ -528,7 +533,7 @@ See LICENSE.txt
 			setLoadObserver();
 
 			window.addEventListener("popstate", function(e) {
-				if (!e.state) {
+				if (!e.state || !e.state.id) {
 					if (eden.project) window.location.reload();
 					else {
 						setLoadObserver();
@@ -610,6 +615,10 @@ See LICENSE.txt
 				$("#welcometext").get(0).style.display = "block";
 				//displayProjects(true);
 			});
+
+			Eden.Project.listenTo("load", this, function() {
+				$(".loadmodal").hide();
+			});
 		}
 	});
 </script>
@@ -636,7 +645,7 @@ See LICENSE.txt
 		<h1>Welcome</h1>
 	<p>
 A Construal is a kind of animated story.  It may be a story about a phenomenon (e.g. the solar system), a problem (e.g. penny rolling), or just an everyday experience (e.g. using a lift, or shopping), or many other kinds of thing - a game, a puzzle, something in history or a complicated theory.  Unless it's a very simple story (e.g. the Dog construal, or Whack-a-Mole) it will be split up into sections.
-
+		<br><button class="script-button" style="font-size: 16pt; font-weight: bold; height: initial; padding: 5px 10px;" onclick="edenUI.menu.showLogin();">Sign-in</button>
 		<p><a href="http://edumotiva.eu/construit2017/">Conference 2017</a> | <a href="">For Teachers</a> | <a href="">For Students</a> | <a href="http://construit.org">Erasmus+ Project</a></p>
 		</div>
 		<div class="jseden-dialog-plisting" style="padding: 10px; height: 80px;">
