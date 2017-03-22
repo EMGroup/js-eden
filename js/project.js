@@ -13,6 +13,7 @@ Eden.Project = function(id, name, source) {
 	this.triggers = {};
 	this.thumb = undefined;
 	this.desc = undefined;
+	this.readPassword = undefined;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
 	}

@@ -1,0 +1,47 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.12.1.min.css">
+	<link rel="stylesheet" type="text/css" href="css/jseden.css">
+	<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="css/eden.css">
+	<link rel="stylesheet" type="text/css" href="css/menu-bar.css">
+
+	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery-ui-1.12.1.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.dialogextend.min.js"></script>
+	<script src="js/lib/jquery.color.js"></script>
+	<script src="js/lib/jquery.hotkeys.js"></script>
+	<script src="js/lib/json2.js"></script>
+	<script src="js/lib/diff_match_patch.js"></script>
+	<script src="js/lib/showdown.min.js"></script>
+	<script src="js/util/misc.js"></script>
+	<script src="js/core/eden.js"></script>
+	<script src="js/core/context.js"></script>
+	<script src="js/core/scope.js"></script>
+	<script src="js/core/symbol.js"></script>
+	<script src="js/project.js"></script>
+	<script src="js/core/window-highlighter.js"></script>
+	<script src="js/core/database.js"></script>
+	<script src="js/core/plugins.js"></script>
+	<script src="js/util/url.js"></script>
+	<script src="js/language/lang.js"></script>
+	<script src="js/core/initialise.js"></script>
+	<script src="js/ui/menubar.js"></script>
+	<script src="js/ui/contextmenu.js"></script>
+	<script src="js/peer.js"></script>
+	<script src="js/ui/notifications.js"></script>
+</head>
+
+<body>
+<script type="text/javascript">
+	var projects;
+
+	$(".loadmodal").show();
+	Construit({noload: true}, function(loaded) {
+		eden.root.lookup("jseden_project_title").assign("About Construit", eden.root.scope, Symbol.localJSAgent);
+	});
+</script>
+</body>
+</html>

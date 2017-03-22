@@ -8,7 +8,7 @@ EdenUI.MenuBar = function() {
 	obscurer.html("<div class=\"modal-content\" style=\"width: 550px; height: 400px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"540px\" height=\"300px\" class=\"menubar-login-iframe\"></iframe><button class=\"jseden button-cancel\">Cancel</button></div>");
 	obscurer.hide();
 
-	eden.execute2("views_number_created = 0;", Symbol.defaultAgent);
+	if (Eden.AST) eden.execute2("views_number_created = 0;", Symbol.defaultAgent);
 
 	// The menu bar, title and buttons...
 	//<div class="jseden-subtitle">by Some Author</div>
@@ -96,18 +96,20 @@ EdenUI.MenuBar = function() {
 		});
 	}
 
-	this.sharebox = new EdenUI.Sharebox(this.element.find("#menubar-mainitem-sharebox"));
-	this.element.on("click", ".menubar-button.share", function(e) {
-		if (e.currentTarget === e.target) me.sharebox.update();
-	});
+	if (Eden.AST) {
+		this.sharebox = new EdenUI.Sharebox(this.element.find("#menubar-mainitem-sharebox"));
+		this.element.on("click", ".menubar-button.share", function(e) {
+			if (e.currentTarget === e.target) me.sharebox.update();
+		});
 
-	this.searchbox = new EdenUI.SearchBox(this.element.find("#menubar-searchresults"));
-	this.element.on("keyup", ".search", function(e) {
-		me.searchbox.updateSearch(e.currentTarget.value);
-	});
-	this.element.on("focus", ".search", function(e) {
-		me.searchbox.updateSearch(e.currentTarget.value);
-	});
+		this.searchbox = new EdenUI.SearchBox(this.element.find("#menubar-searchresults"));
+		this.element.on("keyup", ".search", function(e) {
+			me.searchbox.updateSearch(e.currentTarget.value);
+		});
+		this.element.on("focus", ".search", function(e) {
+			me.searchbox.updateSearch(e.currentTarget.value);
+		});
+	}
 
 	var menuShowing = false;
 	var currentMenu = undefined;
@@ -131,7 +133,7 @@ EdenUI.MenuBar = function() {
 
 	$(document.body).on('mousedown', function () {
 		hideMenu();
-		me.searchbox.element.hide();
+		if (me.searchbox) me.searchbox.element.hide();
 		//if (name == "sharebox") me.sharebox.hide();
 	});
 
@@ -155,7 +157,7 @@ EdenUI.MenuBar = function() {
 			//hideMenu();
 			showMenu(name);
 		}
-		me.searchbox.element.hide();
+		if (me.searchbox) me.searchbox.element.hide();
 		e.stopPropagation();
 	});
 	this.element.on("mouseenter", ".menubar-button.main", function(e) {
