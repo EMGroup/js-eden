@@ -5,7 +5,7 @@ EdenUI.MenuBar = function() {
 	this.itemViews = {};
 
 	var obscurer = $('<div id=\"menubar-obscurer\" class=\"login-subdialog modal\" style=\"display: block;\"></div>');
-	obscurer.html("<div class=\"modal-content\" style=\"width: 550px; height: 400px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"540px\" height=\"300px\" class=\"menubar-login-iframe\"></iframe><button class=\"jseden button-cancel\">Cancel</button></div>");
+	obscurer.html("<div class=\"modal-content\" style=\"width: 550px; height: 400px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Sign-in</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"540px\" height=\"300px\" class=\"menubar-login-iframe\"></iframe><button class=\"jseden button-cancel\">Cancel</button></div>");
 	obscurer.hide();
 
 	if (Eden.AST) eden.execute2("views_number_created = 0;", Symbol.defaultAgent);
@@ -45,7 +45,7 @@ EdenUI.MenuBar = function() {
 	});
 
 	Eden.DB.listenTo("connected", this, function(url) {
-		$("#menubar-login").html('<span class="icon">&#xf090;</span>Login');
+		$("#menubar-login").html('<span class="icon">&#xf090;</span>Sign-in');
 	});
 
 	Eden.DB.listenTo("disconnected", this, function() {
