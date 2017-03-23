@@ -174,7 +174,7 @@ See LICENSE.txt
 		}
 
 		button.welcomesignin {
-			font-size: 16pt;
+			font-size: 14pt;
 			font-weight: bold;
 			height: initial;
 			padding: 5px 10px;
@@ -182,6 +182,11 @@ See LICENSE.txt
 			border-radius: 20px;
 			display: inline;
 			margin: 0;
+		}
+
+		button.welcomesignin span.icon {
+			font-family: "FontAwesome";
+			margin-right: 8px;
 		}
 
 		div.welcomelinks {
@@ -192,6 +197,7 @@ See LICENSE.txt
 			display: inline-block;
 			margin-top: 20px;
 			margin-bottom: 20px;
+			font-size: 12pt;
 		}
 
 		div.welcomelinks a {
@@ -207,6 +213,10 @@ See LICENSE.txt
 
 		div.welcomelinks a:hover {
 			/*background: #ddd;*/
+		}
+
+		div#project-browser {
+			margin-top: 70px;
 		}
 
 	</style>
@@ -640,6 +650,7 @@ See LICENSE.txt
 
 				$("#welcometext").get(0).style.display = "none";
 				$("#privateprojects").get(0).style.display = "block";
+				$("#projectbuttons").get(0).style.display = "block";
 			});
 
 			Eden.DB.listenTo("logout", this, function() {
@@ -682,20 +693,19 @@ See LICENSE.txt
 		  <source src="http://jseden.dcs.warwick.ac.uk/resources/PGA-CONSTRUIT-PlanExample.m4v">
 		Your browser does not support the video tag.
 		</video>
-		<div><h1>Welcome</h1>
+		<div><img src="images/construit_logo_3.png"></img>
 	<p>
-Our CONSTRUIT environment allows you to construct interactive objects-to-think-with that we have termed
-construals.
-A <i>construal</i> is a kind of animated story.  It may be a story about a phenomenon (e.g. the solar system),
+Our CONSTRUIT site allows you to construct interactive <i>objects-to-think-with</i> that we have termed
+<i>construals</i>, a kind of animated story.  It may be a story about a phenomenon (e.g. the solar system),
 a problem (e.g. penny rolling), or just an everyday experience (e.g. using a lift, or shopping),
-or many other kinds of thing - a game, a puzzle, something in history or a complicated theory. The construction and presentation
-of these stories helps you to gain an understanding of the subject. Unlike traditional programming though, observability,
-change and adaptability come before formality. We have chosen our principles and constructs to achieve this freedom
-without losing power of expression.</p>
-		<div style="text-align: center;"><a href="about.html">Read More</a><br><div class="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();">Sign-in</button>
+or perhaps a game, a puzzle, something in history or a complicated theory. Making and presenting
+these stories helps to gain an understanding of a subject.</p><p>Unlike programming, observability and adaptability
+are more vital than formality, so we have chosen our principles and constructs carefully to achieve this freedom
+without losing power of expression. Sign-in to start modifying and creating construals for free.</p>
+		<div style="text-align: center;"><a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/construit/conference/draftcall/moreaboutconstruals/">Read More</a><br><div class="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-in</button>
 		<a href="http://edumotiva.eu/construit2017/">Conference 2017</a><a href="teachers.html">For Teachers</a><a href="students.html">For Students</a><a href="http://construit.org">Erasmus+ Project</a>
 		</div></div></div></div>
-		<div class="jseden-dialog-plisting" style="padding: 10px; height: 80px;">
+		<div id="projectbuttons" class="jseden-dialog-plisting" style="padding: 10px; height: 80px; display: none;">
 			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
 			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special">&#xf07c;</div></div>
 			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
