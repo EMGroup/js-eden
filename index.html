@@ -222,6 +222,12 @@ See LICENSE.txt
 <script type="text/javascript">
 	var projects;
 
+	function changePage(name) {
+		$.get(name, function(data) {
+			$("#welcometext").html(data);
+		}, "text");
+	}
+
 	$(".loadmodal").show();
 	Construit(undefined, function(loaded) {
 		// Place to record projects by tag.
@@ -493,21 +499,22 @@ See LICENSE.txt
 	<div class="project-content" style="padding: 20px 0;">
 		<div id="defaultcontent">
 		<div style="display: none;" id="welcometext">
-		<video width="400" height="300" controls style="margin: 10px 100px; float: right;">
+		<!--video width="400" height="300" controls style="margin: 10px 100px; float: right;">
 		  <source src="http://jseden.dcs.warwick.ac.uk/resources/PGA-CONSTRUIT-PlanExample.m4v">
 		Your browser does not support the video tag.
-		</video>
+		</video--><div style="margin: 10px 100px; float: right; width: 400px; height: 300px; border: 1px solid #bbb; box-sizing: border-box; color: #bbb; padding: 10px;">
+			Demonstration videos coming soon...</div>
 		<div><h1>Welcome</h1>
 	<p>
-Our CONSTRUIT site allows you to construct interactive <i>objects-to-think-with</i> that we have termed
+Our CONSTRUIT site enables you to construct interactive <i>objects-to-think-with</i> that we have termed
 <i>construals</i>, a kind of animated story.  It may be a story about a phenomenon (e.g. the solar system),
 a problem (e.g. penny rolling), or just an everyday experience (e.g. using a lift, or shopping),
 or perhaps a game, a puzzle, something in history or a complicated theory. Making and presenting
-these stories helps to gain an understanding of a subject.</p><p>Unlike programming, observability and adaptability
+these stories helps to gain an understanding of a subject.</p><p>Unlike normal programming, observability and adaptability
 are more vital than formality, so we have chosen our principles and constructs carefully to achieve this freedom
-without losing power of expression.</p><p>Watch the demonstration videos and sign-in to start modifying and creating construals for free.</p>
+without losing power of expression by over simplifying.</p><p>Watch the demonstration videos and sign-in to start modifying or creating construals for free.</p>
 		<div style="text-align: center;"><a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/construit/conference/draftcall/moreaboutconstruals/">Read More</a><br><div class="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-in</button>
-		<a href="http://edumotiva.eu/construit2017/">Conference 2017</a><a href="teachers.html">For Teachers</a><a href="students.html">For Students</a><a href="http://construit.org">Erasmus+ Project</a>
+		<a href="http://edumotiva.eu/construit2017/">Conference 2017</a><a href="javascript:changePage('teachers.html');">For Teachers</a><a href="javascript:changePage('students.html');">For Students</a><a href="http://construit.org">Erasmus+ Project</a>
 		</div></div></div></div>
 		<div id="projectbuttons" class="jseden-dialog-plisting" style="padding: 10px; height: 80px; display: none;">
 			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
