@@ -558,5 +558,30 @@ Eden.DB.removeComment = function(commentid) {
 	});
 }
 
+Eden.DB.follow = function(pid, cb) {
+	if (!Eden.DB.isLoggedIn()) return;
+	$.ajax({
+		url: this.remoteURL+"/social/followproject?projectID="+pid,
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			if (data === null || data.error) {
+				console.error(data);
+				eden.error((data) ? data.description : "No response from server");
+				if (cb) cb(false);
+			} else {
+				if (cb) cb(true);
+			}
+		},
+		error: function(a){
+			Eden.DB.disconnect(true);
+			if (cb) cb(false);
+		}
+	});
+}
+
 
 
