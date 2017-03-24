@@ -112,7 +112,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 		if (meta[0].owner == Eden.DB.userid) {
 			buttons = $('<div class="projectdetails-buttons"><button class="openproject script-button"><span class="explorer-control-icon">&#xf04b;</span>Open</button><button class="restoreproject script-button"><span class="explorer-control-icon">&#xf040;</span>Maker</button><button class="deleteproject script-button"><span class="explorer-control-icon">&#xf00d;</span>Delete</button><br></div>');
 		} else {
-			 buttons = $('<div class="projectdetails-buttons"><button class="openproject script-button"><span class="explorer-control-icon">&#xf04b;</span>Open</button><button class="restoreproject script-button"><span class="explorer-control-icon">&#xf040;</span>Maker</button><br></div>');
+			 buttons = $('<div class="projectdetails-buttons"><button class="openproject script-button"><span class="explorer-control-icon">&#xf04b;</span>Open</button><button class="restoreproject script-button"><span class="explorer-control-icon">&#xf040;</span>Maker</button><button class="followproject script-button" style="float: right"><span class="explorer-control-icon">&#xf09e;</span>Follow</button><br></div>');
 		}
 
 		buttons.on("click",".openproject", function() {
@@ -136,6 +136,12 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 			me.remove();
 			eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
 			Eden.Project.load(projectid);
+		});
+
+		buttons.on("click",".followproject", function(e) {
+			Eden.DB.follow(projectid, function(stat) {
+				if (stat) e.currentTarget.parentNode.removeChild(e.currentTarget);
+			});
 		});
 
 		buttons.append($('<iframe src="https://www.facebook.com/plugins/like.php?href='+encodeURIComponent(window.location.href+"?load="+projectid)+'&width=350&layout=standard&action=like&size=small&show_faces=false&share=true&height=80&appId=1447073055317881" width="300" height="20" style="border:none;overflow:hidden;margin-left:5px;margin-top:5px;" scrolling="no" frameborder="0" allowTransparency="true"></iframe>'));
