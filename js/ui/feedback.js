@@ -77,9 +77,17 @@ EdenUI.Feedback = function() {
 	buttons.className = "feedback-buttons";
 	//buttons.innerHTML = '<button class="script-button">Comment</button>';
 
+	var signinmsg = document.createElement("div");
+	signinmsg.textContent = "Sign-in to post a comment...";
+	signinmsg.style.display = "none";
+	signinmsg.className = "feedback-signinmsg";
+	this.dialog.appendChild(signinmsg);
+
 	if (!Eden.DB.isLoggedIn()) {
 		mkele.style.display = "none";
 		buttons.style.display = "none";
+		signinmsg.style.display = "block";
+	} else {
 	}
 
 	this.dialog.appendChild(mkele);
@@ -118,6 +126,7 @@ EdenUI.Feedback = function() {
 		if (name) {
 			mkele.style.display = "block";
 			buttons.style.display = "block";
+			signinmsg.style.display = "none";
 		}
 	});
 }

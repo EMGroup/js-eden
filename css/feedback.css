@@ -155,3 +155,8 @@ div.feedback-buttons {
 	margin-right: 10px;
 }
 
+div.feedback-signinmsg {
+	padding: 20px;
+	color: #444;
+}
+
