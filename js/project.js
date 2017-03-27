@@ -13,6 +13,7 @@ Eden.Project = function(id, name, source) {
 	this.triggers = {};
 	this.thumb = undefined;
 	this.desc = undefined;
+	this.readPassword = undefined;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
 	}
@@ -69,12 +70,17 @@ Eden.Project.init = function() {
 }
 
 Eden.Project.newFromExisting = function(name, cb) {
+	var me = this;
+	Eden.Project.emit("loading", [me]);
+
 	if (Eden.Project.local[name]) {
 		$.get(Eden.Project.local[name].file, function(data) {
 			eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
 			eden.project = new Eden.Project(undefined, name, data);
-			eden.project.start();
-			if (cb) cb(eden.project);
+			eden.project.start(function () {
+				Eden.Project.emit("load", [me]);
+				if (cb) cb(eden.project);
+			});
 		}, "text");
 	} else {
 		

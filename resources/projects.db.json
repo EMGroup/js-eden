@@ -8,7 +8,11 @@
 	"NewProject": {
 		"title": "New Project",
 		"file": "resources/projects/newproject.js-e",
-		"author": "EM Group",
-		"tags": ["new","project","blank"]
+		"author": "Construit Team",
+		"tags": ["new","project","blank"],
+		"listed": true,
+		"image": null,
+		"description": "# New Project\nA blank project with no content",
+		"rating": "0"
 	}
 }

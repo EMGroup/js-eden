@@ -212,7 +212,7 @@ Button.prototype.draw = function (context) {
 		var fillcolour = this.fillcolour;
 		if (style.backgroundColor != fillcolour) {
 			if (fillcolour === undefined) {
-				style.backgroundColor = "ButtonFace";
+				style.backgroundColor = "";
 			} else {
 				style.backgroundColor = fillcolour;
 			}
@@ -220,7 +220,7 @@ Button.prototype.draw = function (context) {
 		var textcolour = this.textcolour;
 		if (style.color != textcolour) {
 			if (textcolour === undefined) {
-				style.color = "ButtonText";
+				style.color = "";
 			} else {
 				style.color = textcolour;
 			}

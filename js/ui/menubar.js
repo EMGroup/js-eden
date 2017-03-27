@@ -5,14 +5,14 @@ EdenUI.MenuBar = function() {
 	this.itemViews = {};
 
 	var obscurer = $('<div id=\"menubar-obscurer\" class=\"login-subdialog modal\" style=\"display: block;\"></div>');
-	obscurer.html("<div class=\"modal-content\" style=\"width: 550px; height: 400px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"540px\" height=\"300px\" class=\"menubar-login-iframe\"></iframe><button class=\"jseden button-cancel\">Cancel</button></div>");
+	obscurer.html("<div class=\"modal-content\" style=\"width: 550px; height: 400px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Sign-in</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"540px\" height=\"300px\" class=\"menubar-login-iframe\"></iframe><button class=\"jseden button-cancel\">Cancel</button></div>");
 	obscurer.hide();
 
-	eden.execute2("views_number_created = 0;", Symbol.defaultAgent);
+	if (Eden.AST) eden.execute2("views_number_created = 0;", Symbol.defaultAgent);
 
 	// The menu bar, title and buttons...
 	//<div class="jseden-subtitle">by Some Author</div>
-	this.element = $('<div id="menubar-main" class="no-print"><a id="eden-logo" href="'+window.location.pathname+'" target="_blank" style="display: block"></a><div contenteditable class="jseden-title" title="Rename project">CONSTRUIT</div>'+((!mobilecheck()) ? '<div id="menubar-login"><span class="icon">&#xf05e;</span>Not Connected</div><div class="menubar-buttons"><div class="menubar-button enabled main share" data-obs="sharebox" title="Save or share" style="display: none;">&#xf1e0;<div id="menubar-mainitem-sharebox" class="menubar-menu"></div></div><div class="menubar-button enabled main create" data-obs="views" title="Create Views" style="display: none;">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div><div class="menubar-button enabled main existing" data-obs="existing" title="Existing" style="display: none;">&#xf2d2;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div><div class="menubar-button enabled main settings" data-obs="options" title="Options" style="display: none;">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div><div class="menubar-button enabled main help" data-obs="help" title="Help" style="display: none;">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div><div class="menubar-button enabled main notifications" data-obs="notifications" title="Notifications">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div><div class="menubar-button enabled main maker" data-obs="maker" title="Maker Mode">&#xf0ad;</div></div><div class="searchouter menusearch" style="display: none;"><input type="text" class="search menusearch" placeholder="Search..." spellcheck="false"></input><div id="menubar-searchresults"></div></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
+	this.element = $('<div id="menubar-main" class="no-print"><a id="eden-logo" href="'+window.location.pathname+'" target="_blank" style="display: block"></a><div class="jseden-title" title="Rename project"></div>'+((!mobilecheck()) ? '<div id="menubar-login"><span class="icon">&#xf05e;</span>Not Connected</div><div class="menubar-buttons"><div class="menubar-button enabled main share" data-obs="sharebox" title="Save or share" style="display: none;">&#xf1e0;<div id="menubar-mainitem-sharebox" class="menubar-menu"></div></div><div class="menubar-button enabled main create" data-obs="views" title="Create Views" style="display: none;">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div><div class="menubar-button enabled main existing" data-obs="existing" title="Existing" style="display: none;">&#xf2d2;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div><div class="menubar-button enabled main settings" data-obs="options" title="Options" style="display: none;">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div><div class="menubar-button enabled main help" data-obs="help" title="Help" style="display: none;">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div><div class="menubar-button enabled main notifications" data-obs="notifications" title="Notifications">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div><div class="menubar-button enabled main maker" data-obs="maker" title="Maker Mode">&#xf0ad;</div></div><div class="searchouter menusearch" style="display: none;"><input type="text" class="search menusearch" placeholder="Search..." spellcheck="false"></input><div id="menubar-searchresults"></div></div>' : '<div class="menubar-mobilebuttons"><button class="scriptview-button enabled mobilemore">&#xf078;</button></div>')+'</div>');
 	$(document.body).append(this.element);
 
 	// Login Button
@@ -45,7 +45,7 @@ EdenUI.MenuBar = function() {
 	});
 
 	Eden.DB.listenTo("connected", this, function(url) {
-		$("#menubar-login").html('<span class="icon">&#xf090;</span>Login');
+		$("#menubar-login").html('<span class="icon">&#xf090;</span>Sign-in');
 	});
 
 	Eden.DB.listenTo("disconnected", this, function() {
@@ -96,18 +96,20 @@ EdenUI.MenuBar = function() {
 		});
 	}
 
-	this.sharebox = new EdenUI.Sharebox(this.element.find("#menubar-mainitem-sharebox"));
-	this.element.on("click", ".menubar-button.share", function(e) {
-		if (e.currentTarget === e.target) me.sharebox.update();
-	});
+	if (Eden.AST) {
+		this.sharebox = new EdenUI.Sharebox(this.element.find("#menubar-mainitem-sharebox"));
+		this.element.on("click", ".menubar-button.share", function(e) {
+			if (e.currentTarget === e.target) me.sharebox.update();
+		});
 
-	this.searchbox = new EdenUI.SearchBox(this.element.find("#menubar-searchresults"));
-	this.element.on("keyup", ".search", function(e) {
-		me.searchbox.updateSearch(e.currentTarget.value);
-	});
-	this.element.on("focus", ".search", function(e) {
-		me.searchbox.updateSearch(e.currentTarget.value);
-	});
+		this.searchbox = new EdenUI.SearchBox(this.element.find("#menubar-searchresults"));
+		this.element.on("keyup", ".search", function(e) {
+			me.searchbox.updateSearch(e.currentTarget.value);
+		});
+		this.element.on("focus", ".search", function(e) {
+			me.searchbox.updateSearch(e.currentTarget.value);
+		});
+	}
 
 	var menuShowing = false;
 	var currentMenu = undefined;
@@ -131,7 +133,7 @@ EdenUI.MenuBar = function() {
 
 	$(document.body).on('mousedown', function () {
 		hideMenu();
-		me.searchbox.element.hide();
+		if (me.searchbox) me.searchbox.element.hide();
 		//if (name == "sharebox") me.sharebox.hide();
 	});
 
@@ -155,7 +157,7 @@ EdenUI.MenuBar = function() {
 			//hideMenu();
 			showMenu(name);
 		}
-		me.searchbox.element.hide();
+		if (me.searchbox) me.searchbox.element.hide();
 		e.stopPropagation();
 	});
 	this.element.on("mouseenter", ".menubar-button.main", function(e) {
@@ -497,7 +499,9 @@ EdenUI.MenuBar = function() {
 
 	eden.root.lookup("jseden_project_title").addJSObserver("menubar", function(sym, value) {
 		if (sym.origin && sym.origin !== Symbol.hciAgent) {
-			$(".jseden-title").get(0).textContent = value;
+			var title = $(".jseden-title").get(0);
+			title.contentEditable = true;
+			title.textContent = value;
 			document.title = value;
 		}
 		try {

@@ -120,7 +120,7 @@ div.canvas-dialog .ui-dialog-titlebar {
 	padding: 2px;
 	padding-left: 10px;
 	padding-right: 10px;
-	height: 24px;
+	/*height: 24px;*/
 	cursor: pointer;
 	color: white;
 	text-shadow: 0 3px 3px black;

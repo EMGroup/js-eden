@@ -79,48 +79,50 @@ EdenUI.Notifications = function(element, jewel) {
 		}
 	}
 
-	Eden.Fragment.listenTo("error", undefined, errhandler);
-	eden.listenTo("error", undefined, errhandler);
+	if (Eden.Fragment) {
+		Eden.Fragment.listenTo("error", undefined, errhandler);
+		eden.listenTo("error", undefined, errhandler);
 
-	Eden.Fragment.listenTo("warning", undefined, function(agent,err) {
-		if (err) {
-			var msg = ((err.type == "runtime")?"Runtime warning" : "Syntax warning") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
-			var htmlmsg = "<a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?(err.line+1):"") + "</a> " + err.messageText();
+		Eden.Fragment.listenTo("warning", undefined, function(agent,err) {
+			if (err) {
+				var msg = ((err.type == "runtime")?"Runtime warning" : "Syntax warning") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
+				var htmlmsg = "<a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?(err.line+1):"") + "</a> " + err.messageText();
 
-			if (!(agent.owned && err.type == "syntax")) {
-				//console.error(msg);
+				if (!(agent.owned && err.type == "syntax")) {
+					//console.error(msg);
 
-				//edenUI.showMessage("error", htmlmsg);
-				var formattedError = $("<pre class=\"error-item\">"+
-					htmlmsg +
-					"</pre>\n\n");
-				formattedError.on('click', function() {
-					var details = "";
-					if (err.statement && (err.statement.type == "definition" || err.statement.type == "assignment")) {
-						details += "    <b>Symbol:</b> " + err.statement.lvalue.name + "\n";
-					}
-					if (err.lastsymbol) {
-						details += "    <b>Related Symbol:</b> " + err.lastsymbol + "\n";
-					}
-					if (String(err.extra).search("SyntaxError") >= 0) {
-						details += "    <b>JavaScript:</b> " + err.javascriptSource() + "\n";
-						formattedError.html(htmlmsg + "\n" + details);
-					} else {
-						details += "    <b>Source:</b> <div class='error-source'</div>\n";
-						formattedError.html(htmlmsg + "\n" + details);
-						if (err.statement) {
-							var ast = new Eden.AST(err.edenSource(), undefined, Symbol.jsAgent);
-							var hl = new EdenUI.Highlight(formattedError.find(".error-source").get(0));
-							hl.highlight(ast, -1, -1);
+					//edenUI.showMessage("error", htmlmsg);
+					var formattedError = $("<pre class=\"error-item\">"+
+						htmlmsg +
+						"</pre>\n\n");
+					formattedError.on('click', function() {
+						var details = "";
+						if (err.statement && (err.statement.type == "definition" || err.statement.type == "assignment")) {
+							details += "    <b>Symbol:</b> " + err.statement.lvalue.name + "\n";
 						}
-					}
-					//formattedError.html(htmlmsg + "\n\t" + details);
-				});
+						if (err.lastsymbol) {
+							details += "    <b>Related Symbol:</b> " + err.lastsymbol + "\n";
+						}
+						if (String(err.extra).search("SyntaxError") >= 0) {
+							details += "    <b>JavaScript:</b> " + err.javascriptSource() + "\n";
+							formattedError.html(htmlmsg + "\n" + details);
+						} else {
+							details += "    <b>Source:</b> <div class='error-source'</div>\n";
+							formattedError.html(htmlmsg + "\n" + details);
+							if (err.statement) {
+								var ast = new Eden.AST(err.edenSource(), undefined, Symbol.jsAgent);
+								var hl = new EdenUI.Highlight(formattedError.find(".error-source").get(0));
+								hl.highlight(ast, -1, -1);
+							}
+						}
+						//formattedError.html(htmlmsg + "\n\t" + details);
+					});
 
-				me.notification("warning", formattedError);
+					me.notification("warning", formattedError);
+				}
 			}
-		}
-	});
+		});
+	}
 
 	Eden.DB.listenTo("disconnected", this, function() {
 		me.notification("info", $('<div class="notification-content">Disconnected from project server</div>'));

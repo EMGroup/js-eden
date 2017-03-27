@@ -56,6 +56,7 @@ div.menubar-sharebox-content .projecturl {
 	margin-bottom: 10px;
 	width: 90%;
 	overflow-x: auto;
+	user-select: text;
 }
 
 div.menubar-sharebox-content .projecttags {
@@ -247,20 +248,32 @@ div.menubar-button:hover {
 
 a#eden-logo {
 	position: absolute;
-	top: 8px;
-	left: 40px;
-	background-image: url('../images/em-logo3.png');
+	/*top: 8px;*/
+	left: 30px;
+	background-image: url('../images/construit_logo_4.png');
 	background-repeat: no-repeat;
-	width: 50px;
-	height: 30px;
+	width: 150px;
+	height: 40px;
 }
 
 div.jseden-title {
 	font-size: 18pt;
 	font-weight: bold;
 	position: absolute;
+	top: 0;
+	left: 190px;
+	color: white;
+	box-sizing: border-box;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+div.jseden-title[contenteditable] {
+	font-size: 18pt;
+	font-weight: bold;
+	position: absolute;
 	top: 10px;
-	left: 105px;
+	left: 200px;
 	color: white;
 	box-sizing: border-box;
 	border: 1px solid #29454B;
@@ -269,7 +282,7 @@ div.jseden-title {
 	padding-right: 5px;
 }
 
-div.jseden-title:hover {
+div.jseden-title[contenteditable]:hover {
 	border: 1px solid #aaa;
 }
 

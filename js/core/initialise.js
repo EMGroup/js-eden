@@ -226,10 +226,13 @@ function Construit(options,callback) {
 				// Only now can the menu bar and UI be properly created.
 				if (menuBar) {
 					edenUI.menu = new EdenUI.MenuBar();
-					eden.execute2("jseden_project_subtitle is \"Version \" // jseden_version_name;", Symbol.defaultAgent);
+					//eden.execute2("jseden_project_subtitle is \"Version \" // jseden_version_name;", Symbol.defaultAgent);
 				}
-				edenUI.feedback = new EdenUI.Feedback();
-				edenUI.explorer = new EdenUI.Explorer();
+
+				if (!options || !options.noload) {
+					edenUI.feedback = new EdenUI.Feedback();
+					edenUI.explorer = new EdenUI.Explorer();
+				}
 				callback();
 			});
 		}
@@ -268,33 +271,40 @@ function Construit(options,callback) {
 
 
 		loadLanguage(lang, function() {
-			loadPlugins(plugins, function () {
-					$.getJSON('config.json', function (config) {
-						rt.config = config;
+			if (options && options.noload) {
+				Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
+					console.log("DONE LOADING");
+					doneLoading(true);
+				});
+			} else {
+				loadPlugins(plugins, function () {
+						$.getJSON('config.json', function (config) {
+							rt.config = config;
 
-						Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
-							if (load != "") {
-								if (mode !== null && mode != "") {
-									eden.root.lookup("jseden_project_mode").assign(mode, eden.root.scope, Symbol.defaultAgent);
+							Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
+								if (load != "") {
+									if (mode !== null && mode != "") {
+										eden.root.lookup("jseden_project_mode").assign(mode, eden.root.scope, Symbol.defaultAgent);
+									}
+									Eden.Project.load(parseInt(load),(vid === null || vid == "") ? undefined : parseInt(vid),(readPassword === null || readPassword == "") ? undefined : readPassword,function(){ doneLoading(true); });
+								} else if (restore != "") {
+									if (mode !== null && mode != "") {
+										eden.root.lookup("jseden_project_mode").assign(mode, eden.root.scope, Symbol.defaultAgent);
+									}
+									Eden.project.restore();
+									doneLoading(true);
+								} else {
+									// Background load library...
+									//Eden.Agent.importAgent("lib","default", [], function() {});
+									doneLoading(false);
 								}
-								Eden.Project.load(parseInt(load),(vid === null || vid == "") ? undefined : parseInt(vid),(readPassword === null || readPassword == "") ? undefined : readPassword,function(){ doneLoading(true); });
-							} else if (restore != "") {
-								if (mode !== null && mode != "") {
-									eden.root.lookup("jseden_project_mode").assign(mode, eden.root.scope, Symbol.defaultAgent);
-								}
-								Eden.project.restore();
-								doneLoading(true);
-							} else {
-								// Background load library...
-								//Eden.Agent.importAgent("lib","default", [], function() {});
-								doneLoading(false);
-							}
+							});
+							Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
+
 						});
-						Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
-
-					});
-				//});
-			});
+					//});
+				});
+			}
 		});
 	});
 }
