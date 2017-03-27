@@ -1,0 +1,148 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.12.1.min.css">
+	<link rel="stylesheet" type="text/css" href="css/jseden.css">
+	<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="css/eden.css">
+	<link rel="stylesheet" type="text/css" href="css/menu-bar.css">
+	<link rel="stylesheet" type="text/css" href="css/feedback.css">
+
+	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery-ui-1.12.1.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.dialogextend.min.js"></script>
+	<script src="js/lib/jquery.color.js"></script>
+	<script src="js/lib/jquery.hotkeys.js"></script>
+	<script src="js/lib/json2.js"></script>
+	<script src="js/lib/diff_match_patch.js"></script>
+	<script src="js/lib/showdown.min.js"></script>
+	<script src="js/util/misc.js"></script>
+	<script src="js/core/eden.js"></script>
+	<script src="js/core/context.js"></script>
+	<script src="js/core/scope.js"></script>
+	<script src="js/core/symbol.js"></script>
+	<script src="js/project.js"></script>
+	<script src="js/core/window-highlighter.js"></script>
+	<script src="js/core/database.js"></script>
+	<script src="js/core/plugins.js"></script>
+	<script src="js/util/url.js"></script>
+	<script src="js/language/lang.js"></script>
+	<script src="js/core/initialise.js"></script>
+	<script src="js/ui/menubar.js"></script>
+	<script src="js/ui/contextmenu.js"></script>
+	<script src="js/peer.js"></script>
+	<script src="js/ui/notifications.js"></script>
+
+	<style>
+		div#admincontent {
+			position: relative;
+			top: 80px;
+			margin: 0 auto;
+			width: 80%;
+		}
+
+		a.feedback-title {
+			font-weight: bold;
+			margin-right: 10px;
+		}
+
+		div#commentactivity {
+			float: left;
+			width: 400px;
+		}
+
+		div.project-result {
+			padding: 5px;
+		}
+
+		a.projectlink {
+			margin-right: 10px;
+		}
+	</style>
+</head>
+
+<body>
+<script type="text/javascript">
+	var projects;
+
+	$(".loadmodal").show();
+	Construit({noload: true}, function(loaded) {
+		eden.root.lookup("jseden_project_title").assign("Management Page", eden.root.scope, Symbol.localJSAgent);
+
+		Eden.DB.adminCommentActivity(undefined, 0, function(data) {
+			var comresults = document.getElementById("commentlog");
+			var sdown = new showdown.Converter();
+
+			console.log("COMMENT DATA", data);
+			if (!data) return;
+			for (var i=0; i<data.length; i++) {
+				var ele = document.createElement("div");
+				var heading = document.createElement("div");
+				var t = data[i].date.split(/[- :]/);
+				var last = false;
+
+				heading.className = "feedback-header";
+				heading.innerHTML = '<a href="index.html?load='+data[i].projectID+'" target="_blank" class="feedback-title">'+data[i].title+'</a><span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" data-date="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+((data[i].author == Eden.DB.userid) ? '</span><span class="feedback-delete" data-id="'+data[i].commentID+'">&#xf00d;</span>' : '');
+				ele.appendChild(heading);
+				var mk = document.createElement("div");
+				mk.style.padding = "0";
+				mk.style.marginBottom = "3px";
+				mk.className = "markdown";
+				ele.appendChild(mk);
+				ele.className = "feedback-result" + ((last) ? " newitem" : "");
+				//ele.textContent = data[i].comment;
+				mk.innerHTML = sdown.makeHtml(data[i].comment);
+				//if (firstnode) comresults.insertBefore(ele, firstnode);
+				comresults.appendChild(ele);
+
+				$(mk).find("code").each(function(i, block) {
+					if (block.parentNode.nodeName == "PRE") {
+						block.innerHTML = EdenUI.Highlight.html(block.textContent, false, true);
+					}
+				});
+			}
+		});
+
+		Eden.DB.adminProjectActivity(undefined, 0, function(data) {
+			var proresults = document.getElementById("projectlog");
+
+			console.log("PROJET DATA", data);
+			if (!data) return;
+			
+			for (var i=0; i<data.length; i++) {
+				var ele = document.createElement("div");
+				ele.className = "project-result";
+				var t = data[i].date.split(/[- :]/);
+
+				ele.innerHTML = '<a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'">'+data[i].title+'</a><span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" data-date="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+				proresults.appendChild(ele);
+			}
+		});
+	});
+</script>
+
+<div id="admincontent">
+
+<div id="commentactivity">
+<h2>Comment Activity</h2>
+<div id="commentlog"></div>
+</div>
+
+<div id="projectactivity">
+<h2>Project Activity</h2>
+<div id="projectlog"></div>
+</div>
+
+<div id="managecategories">
+<h2>Front-page Categories</h2>
+</div>
+
+<div id="managepages">
+<h1>Page Contents</h1>
+</div>
+
+</div>
+
+</body>
+</html>

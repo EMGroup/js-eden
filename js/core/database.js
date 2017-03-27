@@ -583,5 +583,57 @@ Eden.DB.follow = function(pid, cb) {
 	});
 }
 
+//----- ADMIN ------
+
+Eden.DB.adminCommentActivity = function(newerthan, offset, cb) {
+	if (!Eden.DB.isLoggedIn()) return;
+	$.ajax({
+		url: this.remoteURL+"/comment/activity?limit=10&offset="+offset+((newerthan) ? "&newerThan="+newerthan : ""),
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			if (data === null || data.error) {
+				console.error(data);
+				eden.error((data) ? data.description : "No response from server");
+				if (cb) cb(false);
+			} else {
+				if (cb) cb(data);
+			}
+		},
+		error: function(a){
+			Eden.DB.disconnect(true);
+			if (cb) cb(false);
+		}
+	});
+}
+
+Eden.DB.adminProjectActivity = function(newerthan, offset, cb) {
+	if (!Eden.DB.isLoggedIn()) return;
+	$.ajax({
+		url: this.remoteURL+"/project/activity?limit=10&offset="+offset+((newerthan) ? "&newerThan="+newerthan : ""),
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			if (data === null || data.error) {
+				console.error(data);
+				eden.error((data) ? data.description : "No response from server");
+				if (cb) cb(false);
+			} else {
+				if (cb) cb(data);
+			}
+		},
+		error: function(a){
+			Eden.DB.disconnect(true);
+			if (cb) cb(false);
+		}
+	});
+}
+
 
 
