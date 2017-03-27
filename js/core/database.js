@@ -163,7 +163,7 @@ Eden.DB.disconnect = function(retry) {
 	}
 
 	if (retry) {
-		Eden.DB.retrycount++;
+		if (Eden.DB.retrycount < 12) Eden.DB.retrycount++;
 		// Use exponential backoff retries
 		setTimeout(function() {
 			// Allow for repositories to be removed

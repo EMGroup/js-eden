@@ -639,7 +639,16 @@ See LICENSE.txt
 					$("#welcometext").get(0).style.display = "block";
 				}
 			} else {
-				$("#project-browser").html('<div class="jseden-project-cat">Offline Examples:</div><div id="jseden-public-projects" class="jseden-dialog-plisting"></div>');
+				$("#welcometext").get(0).style.display = "block";
+				$("#project-browser").html('<p>Construal store: <span style="color:red; font-weight: bold;">offline</span>. Our server is undergoing maintenance, try again later or look at the selected examples below.</p><div class="jseden-project-cat">Examples:</div><div id="jseden-offline-projects" class="jseden-dialog-plisting"></div>');
+				var plist = lopts.find("#jseden-offline-projects");
+
+				var projects = [];
+				for (var x in Eden.Project.local) {
+					Eden.Project.local[x].name = x;
+					if (Eden.Project.local[x].listed) projects.push(Eden.Project.local[x]);
+				}
+				EdenUI.ProjectDetails.localProjects(plist, projects, false);
 			}
 
 			Eden.DB.listenTo("login", this, function(name) {
