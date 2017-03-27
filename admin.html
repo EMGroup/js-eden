@@ -36,10 +36,7 @@
 
 	<style>
 		div#admincontent {
-			position: relative;
-			top: 80px;
-			margin: 0 auto;
-			width: 80%;
+			
 		}
 
 		a.feedback-title {
@@ -47,9 +44,65 @@
 			margin-right: 10px;
 		}
 
+		div.feedback-links a {
+			margin-left: 15px;
+		}
+
 		div#commentactivity {
-			float: left;
+			position: absolute;
+			top: 80px;
+			bottom: 20px;
+			left: 150px;
 			width: 400px;
+			padding: 0;
+			border: 1px solid #bbb;
+			border-radius: 6px;
+			background: white;
+			overflow: hidden;
+		}
+
+		h2 {
+			font-size: 14pt;
+			background: #ddd;
+			padding-left: 10px;
+			line-height: 30px;
+			margin: 0;
+			height: 30px;
+		}
+
+		div#projectactivity {
+			position: absolute;
+			top: 80px;
+			height: 400px;
+			left: 600px;
+			width: 400px;
+			padding: 0;
+			border: 1px solid #bbb;
+			border-radius: 6px;
+			background: white;
+			overflow: hidden;
+		}
+
+		div#commentlog {
+			padding: 5px;
+			overflow-y: auto;
+			box-sizing: border-box;
+			position: absolute;
+			bottom: 0;
+			top: 30px;
+			left: 0;
+			right: 0;
+		}
+
+		div#projectlog {
+			padding: 5px;
+			overflow-y: auto;
+			box-sizing: border-box;
+			position: absolute;
+			bottom: 0;
+			top: 30px;
+			left: 0;
+			right: 0;
 		}
 
 		div.project-result {
@@ -83,7 +136,7 @@
 				var last = false;
 
 				heading.className = "feedback-header";
-				heading.innerHTML = '<a href="index.html?load='+data[i].projectID+'" target="_blank" class="feedback-title">'+data[i].title+'</a><span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" data-date="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+((data[i].author == Eden.DB.userid) ? '</span><span class="feedback-delete" data-id="'+data[i].commentID+'">&#xf00d;</span>' : '');
+				heading.innerHTML = '<a href="index.html?load='+data[i].projectID+'" target="_blank" class="feedback-title">'+data[i].title+'</a><span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" data-date="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
 				ele.appendChild(heading);
 				var mk = document.createElement("div");
 				mk.style.padding = "0";
@@ -94,6 +147,12 @@
 				//ele.textContent = data[i].comment;
 				mk.innerHTML = sdown.makeHtml(data[i].comment);
 				//if (firstnode) comresults.insertBefore(ele, firstnode);
+
+				var links = document.createElement("div");
+				links.className = "feedback-links";
+				links.innerHTML = '<a href="">Reply</a><a href="">Delete</a>';
+				ele.appendChild(links);
+
 				comresults.appendChild(ele);
 
 				$(mk).find("code").each(function(i, block) {
@@ -115,7 +174,7 @@
 				ele.className = "project-result";
 				var t = data[i].date.split(/[- :]/);
 
-				ele.innerHTML = '<a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'">'+data[i].title+'</a><span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" data-date="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+				ele.innerHTML = '<a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'">'+data[i].title+'</a><span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" title="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
 				proresults.appendChild(ele);
 			}
 		});

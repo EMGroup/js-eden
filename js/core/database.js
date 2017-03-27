@@ -191,6 +191,7 @@ Eden.DB.getLoginName = function(callback) {
 				Eden.DB.connected = true;
 				if (data == null || data.error) {
 					Eden.DB.username = undefined;
+					//Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 					callback();
 				} else {
 					Eden.DB.username = data.name;
@@ -199,10 +200,11 @@ Eden.DB.getLoginName = function(callback) {
 					callback(Eden.DB.username);
 				}
 			},
-			error: function(a){
+			error: function(a, status, err){
 				//console.error(a);
 				//eden.error(a);
 				Eden.DB.disconnect(true);
+				//Eden.DB.handleError(a,status,err);
 				callback(undefined);
 			}
 		});
@@ -234,7 +236,7 @@ Eden.DB.save = function(project, ispublic, callback) {
 			success: function(data){
 				if (data === null || data.error) {
 					console.error(data);
-					eden.error((data) ? data.description : "No response from server");
+					Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 					if (callback) callback(false);
 				} else {
 					console.log("Saved", data);
@@ -245,10 +247,10 @@ Eden.DB.save = function(project, ispublic, callback) {
 					if (callback) callback(true);
 				}
 			},
-			error: function(a){
+			error: function(a,status,err){
 				//console.error(a);
 				//eden.error(a);
-				Eden.DB.disconnect(true);
+				Eden.DB.handleError(a,status,err);
 				if (callback) callback(false);
 			}
 		});
@@ -300,13 +302,14 @@ Eden.DB.load = function(pid, vid, readPassword, callback) {
 					callback(undefined, "No such version");
 					console.error("No such version " + vid + " for " + pid);
 					console.log(data);
+					Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				} else {
 					callback(data);
 				}
 			},
-			error: function(a){
+			error: function(a,status,err){
 				//console.error(a);
-				Eden.DB.disconnect(true);
+				Eden.DB.handleError(a,status,err);
 				callback(undefined, "Disconnected");
 			}
 		});
@@ -332,7 +335,7 @@ Eden.DB.search = function(q, pagenum, pagecount, sortby, callback) {
 		success: function(data){
 			if (data && data.error) {
 				console.error(data);
-				eden.error((data) ? data.description : "No response from server");
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				callback(undefined);
 				return;
 			} else if (data) {
@@ -342,9 +345,9 @@ Eden.DB.search = function(q, pagenum, pagecount, sortby, callback) {
 				callback(undefined);
 			}
 		},
-		error: function(a){
+		error: function(a,status,err){
 			//console.error(a);
-			Eden.DB.disconnect(true);
+			Eden.DB.handleError(a,status,err);
 			callback(undefined);
 		}
 	});
@@ -364,7 +367,7 @@ Eden.DB.getMeta = function(id, callback) {
 		success: function(data){
 			if (data && data.error) {
 				console.error(data);
-				eden.error((data) ? data.description : "No response from server");
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				callback(undefined);
 				return;
 			} else if (data) {
@@ -374,9 +377,9 @@ Eden.DB.getMeta = function(id, callback) {
 				callback(undefined);
 			}
 		},
-		error: function(a){
+		error: function(a,status,err){
 			//console.error(a);
-			Eden.DB.disconnect(true);
+			Eden.DB.handleError(a,status,err);
 		}
 	});
 }
@@ -394,7 +397,7 @@ Eden.DB.remove = function(projectid, callback) {
 		success: function(data){
 			if (data === null || data.error) {
 				console.error(data);
-				eden.error((data) ? data.description : "No response from server");
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				if (callback) callback(false);
 			} else {
 				console.log("Removed", data);
@@ -404,10 +407,10 @@ Eden.DB.remove = function(projectid, callback) {
 				if (callback) callback(true);
 			}
 		},
-		error: function(a){
+		error: function(a,status,err){
 			//console.error(a);
 			//eden.error(a);
-			Eden.DB.disconnect(true);
+			Eden.DB.handleError(a,status,err);
 			if (callback) callback(false);
 		}
 	});
@@ -427,16 +430,16 @@ Eden.DB.rate = function(projectid, stars) {
 		success: function(data){
 			if (data === null || data.error) {
 				console.error(data);
-				eden.error((data) ? data.description : "No response from server");
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				//if (callback) callback(false);
 			} else {
 				
 			}
 		},
-		error: function(a){
+		error: function(a,status,err){
 			//console.error(a);
 			//eden.error(a);
-			Eden.DB.disconnect(true);
+			Eden.DB.handleError(a,status,err);
 			//if (callback) callback(false);
 		}
 	});
@@ -451,16 +454,20 @@ Eden.DB.searchSelector = function(q, kind, callback) {
 			withCredentials: true
 		},
 		success: function(data){
-			if (data) {
+			if (data === null || data.error) {
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
+				callback([]);			
+			} if (data) {
 				callback(data);
 				return;
 			} else {
 				callback([]);
 			}
 		},
-		error: function(a){
+		error: function(a,status,err){
 			//console.error(a);
 			callback([]);
+			Eden.DB.handleError(a,status,err);
 			//Eden.DB.disconnect(true);
 		}
 	});
@@ -486,16 +493,16 @@ Eden.DB.postComment = function(project, text, priv) {
 		success: function(data){
 			if (data === null || data.error) {
 				console.error(data);
-				eden.error((data) ? data.description : "No response from server");
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				//if (callback) callback(false);
 			} else {
 				
 			}
 		},
-		error: function(a){
+		error: function(a,status,err){
 			//console.error(a);
 			//eden.error(a);
-			Eden.DB.disconnect(true);
+			Eden.DB.handleError(a,status,err);
 			//if (callback) callback(false);
 		}
 	});
@@ -521,9 +528,10 @@ Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 				cb([]);
 			}
 		},
-		error: function(a){
+		error: function(a,status,err){
 			//console.error(a);
 			cb([]);
+			Eden.DB.handleError(a,status,err);
 			//Eden.DB.disconnect(true);
 		}
 	});
@@ -543,16 +551,16 @@ Eden.DB.removeComment = function(commentid) {
 		success: function(data){
 			if (data === null || data.error) {
 				console.error(data);
-				eden.error((data) ? data.description : "No response from server");
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				//if (callback) callback(false);
 			} else {
 				
 			}
 		},
-		error: function(a){
+		error: function(a,status,err){
 			//console.error(a);
 			//eden.error(a);
-			Eden.DB.disconnect(true);
+			Eden.DB.handleError(a,status,err);
 			//if (callback) callback(false);
 		}
 	});
@@ -570,14 +578,14 @@ Eden.DB.follow = function(pid, cb) {
 		success: function(data){
 			if (data === null || data.error) {
 				console.error(data);
-				eden.error((data) ? data.description : "No response from server");
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				if (cb) cb(false);
 			} else {
 				if (cb) cb(true);
 			}
 		},
-		error: function(a){
-			Eden.DB.disconnect(true);
+		error: function(a,status,err){
+			Eden.DB.handleError(a,status,err);
 			if (cb) cb(false);
 		}
 	});
@@ -597,23 +605,39 @@ Eden.DB.adminCommentActivity = function(newerthan, offset, cb) {
 		success: function(data){
 			if (data === null || data.error) {
 				console.error(data);
-				eden.error((data) ? data.description : "No response from server");
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				if (cb) cb(false);
 			} else {
 				if (cb) cb(data);
 			}
 		},
-		error: function(a){
-			Eden.DB.disconnect(true);
+		error: function(a, status, err){
+			Eden.DB.handleError(a,status,err);
 			if (cb) cb(false);
 		}
 	});
 }
 
+Eden.DB.handleError = function(a, status, err) {
+	console.log("DB ERROR",status,err);
+	if (status == "error" && !err) {
+		Eden.DB.disconnect(true);
+		Eden.DB.emit("error", ["Not connected to construal cloud"]);
+	} else if (status == "error") {
+		Eden.DB.emit("error", [err]);
+	} else if (status == "timeout") {
+		Eden.DB.emit("error", ["Network timeout"]);
+		Eden.disconnect(true);
+	} else {
+		Eden.DB.emit("error", "Unknown network error");
+		Eden.disconnect(true);
+	}
+}
+
 Eden.DB.adminProjectActivity = function(newerthan, offset, cb) {
 	if (!Eden.DB.isLoggedIn()) return;
 	$.ajax({
-		url: this.remoteURL+"/project/activity?limit=10&offset="+offset+((newerthan) ? "&newerThan="+newerthan : ""),
+		url: this.remoteURL+"/project/activity?limit=15&offset="+offset+((newerthan) ? "&newerThan="+newerthan : ""),
 		type: "get",
 		crossDomain: true,
 		xhrFields:{
@@ -622,14 +646,16 @@ Eden.DB.adminProjectActivity = function(newerthan, offset, cb) {
 		success: function(data){
 			if (data === null || data.error) {
 				console.error(data);
-				eden.error((data) ? data.description : "No response from server");
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				if (cb) cb(false);
 			} else {
 				if (cb) cb(data);
 			}
 		},
-		error: function(a){
-			Eden.DB.disconnect(true);
+		error: function(a,status,err){
+			//console.log("DB Error",a,status,err);
+			//Eden.DB.disconnect(true);
+			Eden.DB.handleError(a,status,err);
 			if (cb) cb(false);
 		}
 	});
