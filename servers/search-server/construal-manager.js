@@ -171,7 +171,7 @@ generateTimeStamp = function(str) {
 }
 
 function getFullVersion(version, projectID, meta, callback){
-	
+	logErrorTime("Inside getFullVersion");
 	var versionStmt = db.prepare("SELECT fullsource, forwardPatch,parentDiff,date FROM projectversions WHERE saveID = ? AND projectID = ?");
 	versionStmt.each(version,projectID, function(err,row){
 		if(row.fullsource == null){
@@ -191,6 +191,7 @@ function getFullVersion(version, projectID, meta, callback){
 }
 
 function initASTDB(){
+	logErrorTime("InitASTDB");
 	vstmt.all(function(err,rows){
 		if(err){
 			console.log("Error: " + err);
@@ -210,7 +211,6 @@ function initASTDB(){
 
 function reindexProject(projectID){
 	log("Reindexing projectID: " + projectID);
-	
 	var myVStmt = db.prepare(vstmtStr + " and projects.projectID = @projectID");
 	
 	var params = {};
@@ -285,6 +285,7 @@ var app = express();
   app.use(passport.session());
 
   app.get('/', function(req, res){
+	  logErrorTime("Getting root");
 	  if(req.user !== undefined && req.user.id == null){
 		  res.render('registration', { user: req.user, baseurl: config.BASEURL});  
 	  }else if(req.user !== undefined && req.user.status == "localunregistered"){
@@ -294,6 +295,7 @@ var app = express();
 	  }
   });
   app.get('/index',function(req,res){
+	  logErrorTime("Getting root");
 	  if(req.user !== undefined && req.user.id == null){
 		  res.render('registration', { user: req.user, baseurl: config.BASEURL});  
 	  }else if(req.user !== undefined && req.user.status == "localunregistered"){
@@ -304,6 +306,7 @@ var app = express();
   });
   
   app.post("/updateprofile",ensureAuthenticated, function(req,res){
+	  logErrorTime("update Profile");
 	  var displayName = req.body.displayName;
 	  var stmt = db.prepare("UPDATE oauthusers SET name = ?, status = \"registered\" WHERE oauthstring = ?");
 	  stmt.run(req.body.displayName, req.user.oauthstring,function(err){
@@ -316,10 +319,12 @@ var app = express();
   });
   
   app.get('/join',function(req,res){
+	  logErrorTime("Join");
 	  res.render('joincommunity', { user: req.user, baseurl: config.BASEURL });
   });
 
   app.post('/comment/post', ensureAuthenticated, function(req,res){
+	  logErrorTime("Comment post");
 	  var stmt = db.prepare("INSERT INTO comments VALUES (NULL, ?, ?, current_timestamp, ?, ?, ?);");
 	  if(req.body.publiclyVisible != 0 && req.body.publiclyVisible != 1)
 		  res.json({error: ERROR_INVALID_FORMAT, description: "Invalid range for 'publiclyVisible'"})
@@ -333,6 +338,7 @@ var app = express();
   });
   
   app.post('/comment/delete', ensureAuthenticated, function(req,res){
+	  logErrorTime("comment delete");
 	  var stmt = db.prepare("DELETE FROM comments WHERE commentID = ? AND author = ?");
 	  stmt.run(req.body.commentID,req.user.id,function(err){
 			if(err){
@@ -346,6 +352,7 @@ var app = express();
   });
   
   app.get('/comment/search', function(req,res){
+	  logErrorTime("Comment search");
 	  var stmtstr = "SELECT name,commentID,projectID,versionID,date,author,public,comment FROM comments,oauthusers WHERE projectID = @projectID AND public = 1";
 	  var criteriaObject = {};
 	  criteriaObject["@projectID"] = req.query.projectID;
@@ -431,7 +438,12 @@ app.get('/login', function(req, res){
   res.render('login', { user: req.user, baseurl: config.BASEURL, message: req.flash('loginMessage') });
 });
 
+function logErrorTime(str){
+	console.error(new Date().toISOString() + ": " + str);
+}
+
 function logErrors(err,req,res,next){
+	console.error(new Date().toISOString() + ": " + str);
 	console.error(err.stack);
 	res.status(500);
 	res.json({"error": "Error"});
@@ -458,7 +470,7 @@ function logErrors(err,req,res,next){
  * 
  */
 app.post('/project/add', ensureAuthenticated, function(req, res){
-	
+	logErrorTime("Adding project");
 	if(typeof req.user == "undefined")
 		return res.json({error: ERROR_UNAUTHENTICATED, description: "Unauthenticated"});
 	var projectID = req.body.projectID;
@@ -493,6 +505,7 @@ function log(str){
 }
 
 function checkOwner(req,res,callback){
+	logErrorTime("checking Owner");
 	var checkStmt = db.prepare("SELECT owner,writePassword FROM projects WHERE projectID = @projectID");
 	var qValues = {};
 	qValues["@projectID"] = req.body.projectID;
@@ -617,14 +630,14 @@ function createProject(req, res, callback){
 		var downloadsSQL = "UPDATE projectstats SET forks = forks + 1 WHERE projectID = ?;";
 		db.run(downloadsSQL,req.body.parentProject,function(err){
 			if(err){
-				res.json({error: ERROR_SQL, description: "SQL Error", err: err})
+				logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 				return;
 			}
 			if(this.changes == 0){
-				var insDownloadsSQL = "INSERT INTO projectstats VALUES (?,0,1,0)";
+				var insDownloadsSQL = "INSERT INTO projectstats VALUES (?,0,1,0,0)";
 				db.run(insDownloadsSQL,req.body.parentProject,function(err){
 					if(err){
-						res.json({error: ERROR_SQL, description: "SQL Error", err: err})
+						logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 						return;
 					}
 					console.log("INSERTED projectstats");
@@ -637,7 +650,7 @@ function createProject(req, res, callback){
 }
 
 function addProjectVersion(req, res, projectID){
-	var addVersionStmt = db.prepare("INSERT INTO projectversions values (NULL,@projectID,@source,@pForward,@pBackward,current_timestamp,@from,@readPassword)");
+	var addVersionStmt = db.prepare("INSERT INTO projectversions values (NULL,@projectID,@source,@pForward,@pBackward,current_timestamp,@from,@readPassword,@author)");
 	var pTextForward = null;
 	var pTextBackward = null;
 	var listed = false;
@@ -648,6 +661,10 @@ function addProjectVersion(req, res, projectID){
 		readPassword = parseInt(Math.random() * 100000000000000000).toString(36);
 	}
 	var params = {};
+	params["@author"] = req.user.id;
+	params["@projectID"] = projectID;
+	params["@readPassword"] = readPassword;
+
 	if(req.body.from){
 		db.serialize(function(){
 		getFullVersion(req.body.from, projectID, [],function(ret){
@@ -659,22 +676,18 @@ function addProjectVersion(req, res, projectID){
 			var d = dmp.diff_main(req.body.source,baseSrc,false);
 			var p = dmp.patch_make(req.body.source,baseSrc,d);
 			pTextBackward = dmp.patch_toText(p);
-			params["@projectID"] = projectID;
 			params["@source"] = null;
 			params["@pForward"] = pTextForward;
 			params["@pBackward"] = pTextBackward;
 			params["@from"] = req.body.from;
-			params["@readPassword"] = readPassword;
 			runAddVersion(addVersionStmt, listed,params,req,res);
 		});
 		});
 	}else{
-		params["@projectID"] = projectID;
 		params["@source"] = req.body.source;
 		params["@pForward"] = null;
 		params["@pBackward"] = null;
 		params["@from"] = null;
-		params["@readPassword"] = readPassword;
 		runAddVersion(addVersionStmt, listed,params,req,res);
 	}
 }
@@ -709,6 +722,7 @@ function runAddVersion(addVersionStmt, listed, params,req,res){
 }
 
 app.get('/code/search', function(req, res){
+	logErrorTime("Code search");
 		var sast = Eden.Selectors.parse(req.query.selector);
 		if (sast.local) {
 			res.json([]);
@@ -728,7 +742,7 @@ function getMaxReadableSaveID(projectID, user, res, callback){
 			"AND projectversions.projectID = ? AND (readPassword is NULL OR projects.owner = ?)");
 	getMaxSaveIDStmt.get(projectID, user,function(err,row){
 		if(err){
-			res.json({error: ERROR_SQL, description: "SQL Error", err: err});
+			logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err});
 			return;
 		}
 		if(row == undefined)
@@ -741,14 +755,17 @@ function getVersionInfo(saveID,projectID,userID, readPassword, res, callback){
 	var getVersionInfoStmt = db.prepare("SELECT date, readPassword, owner FROM projectversions, projects WHERE projectversions.projectid = projects.projectid and saveID = ?");
 	getVersionInfoStmt.get(saveID,function(err,row){
 		if(err){
-			res.json({error: ERROR_SQL, description: "SQL Error", err: err});
+			logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err});
 			return;
 		}
-		if(row.owner == userID || row.readPassword == null || row.readPassword == readPassword){
+		if(row && row.owner == userID || row.readPassword == null || row.readPassword == readPassword){
 			console.log("Allowing because row.owner = ", row.owner, " and userID = ", userID, " and row.readPassword = ", row.readPassword, " and readPassword = ", readPassword);
 			callback(saveID, projectID, row.date);
 		}else{
-			res.json({error: ERROR_USER_NOT_OWNER, description: "No permissions"});
+			if(row)
+				res.json({error: ERROR_USER_NOT_OWNER, description: "No permissions"});
+			else
+				res.json({error: ERROR_PROJECT_NOT_MATCHED, description: "No matching saveID"});
 		}
 	});
 
@@ -761,7 +778,7 @@ function getProjectMetaData(projectID, userID, res,callback){
 		+ 'projectratings.projectID = projects.projectID AND projectratings.userID = ? WHERE owner = oauthusers.userid AND projects.projectID = ?');
 	metadataQuery.get(userID,projectID,function(err,row){
 		if(err){
-			res.json({error: ERROR_SQL, description: "SQL Error", err: err});
+			logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err});
 			return;
 		}else{
 			callback(row);
@@ -773,14 +790,14 @@ function increaseProjectDownloadStat(req,res){
 	var downloadsSQL = "UPDATE projectstats SET downloads = downloads + 1 WHERE projectID = ?;";
 	db.run(downloadsSQL,req.query.projectID,function(err){
 		if(err){
-			res.json({error: ERROR_SQL, description: "SQL Error", err: err})
+			logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 			return;
 		}
 		if(this.changes == 0){
-			var insDownloadsSQL = "INSERT INTO projectstats VALUES (?,1,0,0)";
+			var insDownloadsSQL = "INSERT INTO projectstats VALUES (?,1,0,0,0)";
 			db.run(insDownloadsSQL,req.query.projectID,function(err){
 				if(err){
-					res.json({error: ERROR_SQL, description: "SQL Error", err: err})
+					logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 					return;
 				}
 				console.log("INSERTED projectstats");
@@ -811,6 +828,7 @@ function increaseProjectDownloadStat(req,res){
 **/
 
 app.get('/project/get', function(req,res){
+	logErrorTime("Project get");
 	//ProjectID must be defined
 	//Request should have 'from' and 'to', which gives the diff between the two versions
 	//If both undefined, get full snapshot of latest version (with no diffs)
@@ -964,6 +982,7 @@ function parseCriteria(arr){
 }
 
 app.post('/project/rate', function(req,res){
+	logErrorTime("Rating project");
 	var userID = req.user.id;
 	var starRating = req.body.stars;
 	var projectID = req.body.projectID;
@@ -971,14 +990,14 @@ app.post('/project/rate', function(req,res){
 	delete projectRatings[req.body.projectID];
 	db.run(rateSQL,starRating,projectID,userID,function(err){
 		if(err){
-			res.json({error: ERROR_SQL, description: "SQL Error", err: err})
+			logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 			return;
 		}
 		if(this.changes == 0){
 			var insRateSQL = "INSERT INTO projectratings VALUES (?,?,?);";
 			db.run(insRateSQL,projectID,userID,starRating,function(err){
 				if(err){
-					res.json({error: ERROR_SQL, description: "SQL Error", err: err})
+					logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 					return;
 				}
 				res.json({status: "INSERTED"});
@@ -1009,6 +1028,7 @@ app.post('/project/rate', function(req,res){
 **/
 
 app.get('/project/search', function(req, res){
+	logErrorTime("Project search");
 	var criteria = [];
 	var tagCriteria = [];
 	var criteriaVals = {};
@@ -1095,8 +1115,7 @@ app.get('/project/search', function(req, res){
 
 	listProjectStmt.all(criteriaVals,function(err,rows){
 		if(err){
-			console.error(err);
-			res.json({error: ERROR_SQL, description: "SQL Error", err: err})
+			logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err})
 			return;
 		}
 		for(var i = 0; i < rows.length; i++){
@@ -1134,7 +1153,7 @@ function processNextRating(projectRows, unknownRatings,i,res){
 		var getRatingsStmt = "SELECT count(1) as c,sum(stars) as s FROM projectratings WHERE projectID = ?";
 		var projectID = unknownRatings[i];
 		db.get(getRatingsStmt,projectID,function(err,row){
-			if(err){
+			if(err || row === undefined){
 				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
 			}
 			projectRatings[projectID] = row.s;
@@ -1156,6 +1175,7 @@ function processNextRating(projectRows, unknownRatings,i,res){
 }
 
 app.post('/project/remove',ensureAuthenticated, function(req,res){
+	logErrorTime("Removing project");
 	var projectID = req.body.projectID;
 	var userID = req.user.id;
 	var delStatement = "DELETE FROM projects WHERE projectID = ? AND owner = ?";
@@ -1193,9 +1213,14 @@ function getListQueryStr(targetTable){
  */
 
 app.get('/project/versions', function(req, res){
+	logErrorTime("Project versions");
 	if(req.query.projectID !== undefined){
-		var listProjectIDStmt = db.prepare("select projectid, saveID, date, parentDiff from projectversions where projectid = ?;");
+		var listProjectIDStmt = db.prepare("select projectid, saveID, date, parentDiff,author,name from projectversions left join oauthusers ON author = userid where projectid = ?;");
 		listProjectIDStmt.all(req.query.projectID,function(err,rows){
+			for(var i = 0; i < rows.length; i++){
+				if(rows[i].author === undefined || rows[i].author == null)
+					rows[i].name = "[Me]";
+			}
 			res.json(rows);
 		});
 	}else if(req.query.userID !== undefined){
@@ -1228,7 +1253,7 @@ app.get('/auth/facebook', passport.authenticate('facebook'));
 
 
 app.post('/auth/locallogin',passport.authenticate('local-login',
-		{failureRedirect: config.BASEURL + '/auth/locallogin'}),
+		{failureRedirect: config.BASEURL + '/login'}),
 		function(req,res){res.redirect(config.BASEURL + '/');}
 );
 
@@ -1273,6 +1298,58 @@ app.get('/logout', function(req, res){
   req.logout();
   res.redirect(config.BASEURL);
 });
+
+/*
+app.get('/social/activity', function(req, res){
+	/*	var activityStmt = db.prepare("select ;");
+		listProjectStmt.all(criteriaVals,function(err,rows){
+			
+		});
+	});*/
+
+app.get('/social/projects', function(req, res){
+	logErrorTime("Social projects");
+		var activityStmt = db.prepare("select * from view_projectfollows where follower = ? order by date desc limit 20");
+		activityStmt.all(req.user.id,function(err,rows){
+			if(err){
+				console.log("Error: " + err);
+				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+			}else{
+				res.json(rows);
+			}
+		});
+});
+
+app.get('/social/comments', function(req, res){
+	logErrorTime("Social comments");
+	var activityStmt = db.prepare("select * from view_projectfollows where follower = ? order by date desc limit 20");
+	activityStmt.all(req.user.id,function(err,rows){
+		if(err){
+			console.log("Error: " + err);
+			res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+		}else{
+			res.json(rows);
+		}
+	});
+});
+
+app.get('/social/followproject', function(req,res){
+	logErrorTime("Social followproject");
+	var followProjectStmt = db.prepare("INSERT INTO followprojects VALUES (?, ?)");
+	followProjectStmt.run(req.query.projectID, req.user.id,function(err){
+		if(err){
+			if(err.errno != 19){
+				console.log("Error: " + err);
+				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+			}else{
+				res.json({status: "ALREADY FOLLOWED"});
+			}
+		}else{
+			res.json({status: "OK"});
+		}
+	});
+});
+
 
 app.listen(config.PORT);
 
