@@ -852,8 +852,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			gridSpacingSym.assign(20, root.scope, agent);
 		}
 		gridSpacingSym.addJSObserver("refreshView", redraw);
-
-		jqCanvas.on("mousedown", function(e) {
+				
+		function mouseDown(e){
 			var followMouse = root.lookup("mouseFollow").value();
 			root.beginAutocalcOff();
 			mouseInfo.insideCanvas = true;
@@ -940,8 +940,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				root.lookup("mouseDownZone").assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
 			}
 			root.endAutocalcOff();
+			
+		}
 
-		}).on("mouseup",function(e) {
+		jqCanvas.on("mousedown",mouseDown);
+		
+		jqCanvas.on("mouseup",function(e) {
 			var followMouse = root.lookup("mouseFollow").value();
 			root.beginAutocalcOff();
 			mouseInfo.insideCanvas = true;
@@ -1003,6 +1007,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			root.endAutocalcOff();
 
 		}).on("contextmenu", function (e) {
+			if(navigator.platform.toUpperCase().indexOf('MAC')>=0){
+				if(e.ctrlKey){
+					e.button = 2;
+					mouseDown(e);
+				}
+			}
 			if (!root.lookup("mouseContextMenuEnabled").value()) {
 				e.preventDefault();
 				e.stopPropagation();
