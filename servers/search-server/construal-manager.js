@@ -416,7 +416,7 @@ var app = express();
   });
 
 	app.get('/comment/activity', function(req,res){
-	  if (req.user.id != 2) {
+	  if (req.user.admin != 1) {
 		 res.json({error: ERROR_NOTADMIN, description: "Must be admin to see comment activity"});
 		 return;
 	  }
@@ -839,6 +839,37 @@ function increaseProjectDownloadStat(req,res){
 		}
 	});
 }
+
+app.get('/project/activity', function(req,res){
+	  if (req.user.admin != 1) {
+		 res.json({error: ERROR_NOTADMIN, description: "Must be admin to see project activity"});
+		 return;
+	  }
+	  var stmtstr = "SELECT name,saveID,projectversions.projectID,date,title FROM projectversions,oauthusers,projects WHERE oauthusers.userid = projects.owner AND projectversions.projectID = projects.projectID";
+	  var criteriaObject = {};
+	  criteriaObject["@offset"] = 0;
+	  criteriaObject["@limit"] = 100;
+
+	  if(req.query.newerThan){
+		  stmtstr += " AND date > (SELECT date from projectversions WHERE saveID = @newerThanVersion)";
+		  criteriaObject["@newerThanVersion"] = req.query.newerThan;
+	  }
+	  if(req.query.offset)
+		  criteriaObject["@offset"] = req.query.offset;
+	  if(req.query.limit)
+		  criteriaObject["@limit"] = req.query.limit;
+	  
+	  stmtstr += " ORDER BY date DESC LIMIT @limit OFFSET @offset";
+	  var stmt = db.prepare(stmtstr);
+	  
+	  stmt.all(criteriaObject,function(err,rows){
+		  if(err){
+			  res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+		  }else{
+			res.json(rows);
+		  }		  
+	  });
+  });
 
 /**
 * Title: Project Get

@@ -1,0 +1,220 @@
+/**
+ * @title Start Your Model
+ */
+action start {/* Enter some script here */
+import Layouts > book;
+do book;
+
+pages = ["stage1","stage2","stage3", "stage4",
+		"stage5","stage6","stage7"];}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+do :project > start;
+
+action ACTIVE {
+jseden_project_title = "Solar System";
+views_number_created = 0;
+jseden_feedback_width = 420;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+jseden_version_major = 2;
+jseden_version_minor = 1;
+jseden_version_patch = 2;
+jseden_version_commit = NaN;
+jseden_version_name = "v2.1.2";
+jseden_version_sha = "0a723b83f48906cb39ef7fed9187b428e2af5b63";
+mousePosition = Point(910.091743119266, 0);
+mouseView = "bookpic";
+mouseZone = @;
+mouseVelocity = Point(0, 0);
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+plugins_html_loaded = true;
+jseden_pm_connected = true;
+jseden_project_name = "SolarSystem";
+jseden_project_thumb = "data:image/png;base64,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";
+jseden_project_author = "Nicolas Pope";
+views_list = ["bookpic"];
+jseden_fragment_changed = "stage1";
+pages = ["stage1","stage2","stage3", "stage4",
+		"stage5","stage6","stage7"];
+view_bookpic_visibility = "visible";
+view_bookpic_title = "Canvas bookpic";
+view_bookpic_content is bookpic;
+view_bookpic_type = "Canvas2D";
+view_bookscript2_query is jseden_script_query;
+}
+
+action stage1 {
+
+
+##Making a Solar System Model
+#The first things a construal of a solar system should have is a *sun* and an *earth*. These can be added to a `picture` observable using \[ and \].
+
+picture is [sun, earth];
+#! A list of things to draw, containing the sun and earth
+
+#... but we don't see anything yet because we don't know what `sun` or `earth` are.
+
+#> **Note: **Move the mouse to the left of `picture` to see a *play* button, click this to activate that line of script. Otherwise it is just text.
+
+###Center of the solar system
+#Set up some observables for the centre of the solar system on the screen. This will be used as the position of the sun and everything is relative to this.
+
+originX = 300;	#!The horizontal centre of the solar system
+originY = 230;	#!The vertical centre of the solar system
+tick = 0;		#!Current time
+
+###The sun
+#Make a yellow circle for the sun. A circle has 3 properties here, an X position, a Y position, a size (radius) and a colour name.
+
+sun is Circle(originX, originY, 30, "gold");
+}action stage2 {
+
+##Earth
+#Calculate where the earth should be relative to the sun. The `tick` observable corresponds to time which will make it orbit in a circle around the `sun`. Start with some properties before making the *earth* itself.
+
+earthDistance = 150;#!How far the earth is from the sun in pixels.
+
+#Use trigonometry to know what the X and Y components should be for that distance.
+
+earthX is originX + sin(tick) * earthDistance;
+#!Horizontal location of the earth on the screen
+#			:arrow-right: Currently ?(stage2>earthX)
+earthY is originY + cos(tick) * earthDistance;
+#!Vertical location of the earth on the screen
+#			:arrow-right: Currently ?(stage2>earthY)
+
+#Finally make a green circle at that position to represent the earth: 
+earth is Circle(earthX, earthY, 10, "green");
+
+#Test the rotation by changing the value of `tick` below: 
+tick = 148;
+
+
+
+#> **Tip: **Hold down the mouse on the play button to make *live*. Changing the number will then immediately update the value of `tick`.
+}action stage3 {
+##Add Three More Planets
+
+picture is [sun, earth, mercury, venus, mars];
+
+#The remaining planets can have their distance given relative to earths distance from the sun. These relative values are known as *astronomical units* where for *earth* they are all 1. These next observables contain the correct relative values for *Mercury*, *Venus* and *Mars* taken from [wikipedia](https://en.wikipedia.org/wiki/Astronomical_unit#Examples).
+
+mercury_distance = 0.39;#!AU distance of Mercury from the Sun
+venus_distance = 0.72;	#!AU distance of Venus from the Sun
+mars_distance = 1.52;	#!AU distance of Mars from the Sun
+
+#Similarly, orbital speed can be given relative to earths orbit. A number less than 1 means it takes less than 1 year to go around the sun.
+
+mercury_speed = 0.24;	#!Speed of Mercury as fraction of Earth year
+venus_speed = 0.62;		#!Speed of Venus as fraction of Earth year
+mars_speed = 1.9;		#!Speed of Mars as fraction of Earth year
+
+###Mercury
+#Calculate Mercurys position using the above information.
+mercuryX is originX + sin(tick/mercury_speed) *
+				earthDistance * mercury_distance;
+mercuryY is originY + cos(tick/mercury_speed) *
+				earthDistance * mercury_distance;
+
+#Make a blue circle for *Mercury*
+mercury_colour is "blue";
+mercury is Circle(mercuryX, mercuryY, 5, mercury_colour);
+}action stage4 {
+
+
+
+##Copying Mercury
+#For *Venus* and *Mars* you could copy the text and change the names yourself. Or, you can ask the system to do this for you using the `with` command.
+
+#!The planet Venus based upon Mercury
+venus is mercury with
+	mercury_distance is venus_distance,
+	mercury_speed is venus_speed,
+	mercury_colour is "pink";
+
+#!The planet Mars based upon Mercury
+mars is mercury with
+	mercury_distance is mars_distance,
+	mercury_speed is mars_speed,
+	mercury_colour is "red";
+
+#This saves you having to repeat the formula for X and Y again and is a useful technique later when things get more complicated.
+
+#And again test the motion by changing tick...
+
+tick = 164;
+
+}action stage5 {
+
+
+
+
+
+#<span style="font-size:18pt">It seems the three new planets have the same size.</span>
+
+#<span style="font-size:18pt;">Can you fix this below\?</span>
+
+
+mercury is Circle(mercuryX, mercuryY, 5, mercury_colour);
+
+venus is mercury with
+	mercury_distance is venus_distance,
+	mercury_speed is venus_speed,
+	mercury_colour is "pink";
+
+mars is mercury with
+	mercury_distance is mars_distance,
+	mercury_speed is mars_speed,
+	mercury_colour is "red";
+}action stage6 {
+
+
+
+
+
+##Making it Move
+#Changing the value of `tick` will make the planets orbit the sun, but this can be done automatically using a clock.
+
+do lib > clocks;
+setedenclock(&tick, 30);
+
+#The **do** finds a *clocks* script inside a *lib* script and runs it. This enables the use of the clock. These scripts are either a part of this environment or come from other peoples projects.
+
+#The `setedenclock` function says to add 1 to tick every 30 milliseconds...
+
+#		:arrow-right: `tick` is currently **?(ACTIVE>tick)**
+}action stage7 {
+
+
+
+##Show the Motion of Mercury
+
+###Mercury Trace
+#Display a memory of where Mercury has been as a trace of small circles
+
+mercurysmall is Circle(mercuryX, mercuryY, 1, "blue");
+mercurytrace is mercurysmall with tick is (tick-memory)..tick;
+
+memory = 260;
+picture is [sun, earth, venus, mercury, mars]// mercurytrace;
+
+
+###Make Earth the Centre of the Solar System
+#Mercurys motion in the sky as observed from Earth is interesting, to see this in our Construal we need to make Earth the centre of the model and have the Sun rotate around us. This shows the mysterious motion of Mercury.
+
+earthX is book_width/4;
+earthY is book_height/2;
+originX is earthX - sin(earthSpeed*tick) * earthDistance;
+originY is earthY - cos(earthSpeed*tick) * earthDistance;
+
+earthSpeed = 1;}

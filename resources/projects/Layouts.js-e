@@ -1,0 +1,256 @@
+/**
+ * @title Start Your Model
+ */
+action start {/* Enter some script here */
+}
+
+do lib:unexecuted;
+/* do :project > ACTIVE;*/
+do :project > start;
+
+action ACTIVE {
+jseden_project_title = "Layouts";
+jseden_version_major = 2;
+jseden_version_minor = 1;
+jseden_version_patch = 2;
+jseden_version_commit = NaN;
+jseden_version_name = "v2.1.2";
+jseden_version_sha = "0a723b83f48906cb39ef7fed9187b428e2af5b63";
+views_number_created = 0;
+jseden_feedback_width = 420;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+mouseVelocity = Point(0, 0);
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+plugins_html_loaded = true;
+jseden_pm_connected = true;
+jseden_project_name = "Layouts";
+jseden_project_thumb = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAABwCAYAAABbwT+GAAAC70lEQVR4Xu3VsRGAQAwEMei/6KcBINj0RO7A8u9wn3PO5SNA4FXgFoiXQeBbQCBeB4EfAYF4HgQE4g0QaAL+IM3N1IiAQEYObc0mIJDmZmpEQCAjh7ZmExBIczM1IiCQkUNbswkIpLmZGhEQyMihrdkEBNLcTI0ICGTk0NZsAgJpbqZGBAQycmhrNgGBNDdTIwICGTm0NZuAQJqbqREBgYwc2ppNQCDNzdSIgEBGDm3NJiCQ5mZqREAgI4e2ZhMQSHMzNSIgkJFDW7MJCKS5mRoREMjIoa3ZBATS3EyNCAhk5NDWbAICaW6mRgQEMnJoazYBgTQ3UyMCAhk5tDWbgECam6kRAYGMHNqaTUAgzc3UiIBARg5tzSYgkOZmakRAICOHtmYTEEhzMzUiIJCRQ1uzCQikuZkaERDIyKGt2QQE0txMjQgIZOTQ1mwCAmlupkYEBDJyaGs2AYE0N1MjAgIZObQ1m4BAmpupEQGBjBzamk1AIM3N1IiAQEYObc0mIJDmZmpEQCAjh7ZmExBIczM1IiCQkUNbswkIpLmZGhEQyMihrdkEBNLcTI0ICGTk0NZsAgJpbqZGBAQycmhrNgGBNDdTIwICGTm0NZuAQJqbqREBgYwc2ppNQCDNzdSIgEBGDm3NJiCQ5mZqREAgI4e2ZhMQSHMzNSIgkJFDW7MJCKS5mRoREMjIoa3ZBATS3EyNCAhk5NDWbAICaW6mRgQEMnJoazYBgTQ3UyMCAhk5tDWbgECam6kRAYGMHNqaTUAgzc3UiIBARg5tzSYgkOZmakRAICOHtmYTEEhzMzUiIJCRQ1uzCQikuZkaERDIyKGt2QQE0txMjQgIZOTQ1mwCAmlupkYEBDJyaGs2AYE0N1MjAgIZObQ1m4BAmpupEQGBjBzamk1AIM3N1IiAQEYObc0mIJDmZmpEQCAjh7ZmExBIczM1IiCQkUNbswkIpLmZGhEQyMihrdkEBNLcTI0ICGTk0NZsAgJpbqZGBB7vc77AjFHYpQAAAABJRU5ErkJggg==";
+jseden_project_author = "Nicolas Pope";
+}
+
+action presentation {##Presentation Layout
+#This script will create a powerpoint style layout where you specify *slide_max*, *slideno*, *slide1*, *slide2*...
+# #presentation #slide #slides #layout #powerpoint #present
+
+#!The fixed vertical resolution of the slide. Use `slide_resolution is view_slidepic_height;` to get a 1 to 1. #slide #size
+slide_resolution = 720;
+#!The fixed aspect ratio of the slide. #slide #ratio #aspect
+slide_aspect_ratio is 16/9 if (!slide_fullscreen) else screenWidth/(screenHeight+45);
+#!Calculated as a fixed aspect ratio from the `slide_resolution`. #slide #width
+slide_width is slide_resolution * slide_aspect_ratio;
+#!Same as slide resolution #slide #height
+slide_height is slide_resolution;
+#!Current slide number, incremented/decremented by the buttons #slide #current #number
+slideno = 1;
+#!The number of slides available #slide
+slide_max = 1;
+#!The first slide... create one of these picture lists for each slide. #slide #picture #content
+slide1 = [];
+#!Show or hide the slide control buttons #slide #buttons #next #previous #fullscreen
+slide_showbuttons = true;
+
+
+###Internal Workings
+createCanvas("slidepic");
+slide_remaining_y is screenHeight+45;
+slide_remaining_x is screenWidth - jseden_explorer_width if (!slide_fullscreen) else screenWidth;
+slide_padding is 100 if (!slide_fullscreen) else 0;
+slide_ratio is slide_remaining_x / slide_remaining_y;
+view_slidepic_height is slide_remaining_y - slide_padding if (slide_ratio >= slide_aspect_ratio) else (slide_remaining_x - slide_padding) / slide_aspect_ratio;
+view_slidepic_width is slide_remaining_x - slide_padding if (slide_ratio <= slide_aspect_ratio) else (slide_remaining_y - slide_padding) * slide_aspect_ratio;
+view_slidepic_y is (slide_remaining_y / 2) - (view_slidepic_height / 2) - 22 if (!slide_fullscreen) else 0;
+view_slidepic_x is (slide_remaining_x / 2) - (view_slidepic_width / 2) if (!slide_fullscreen) else 0;
+view_slidepic_lock = true;
+view_slidepic_zoom is view_slidepic_height / slide_resolution;
+
+/* Prevent scrolling of body */
+${{ $('#jseden-views').css("overflow","hidden"); }}$
+
+slide_buttons is Div(<<END
+<style>.slidebuttons { z-index: 2; opacity: 0.5; } .slidebuttons:hover { opacity: initial; }</style>
+<div class="slidebuttons">
+<button onclick="javascript:eden.execute('slide_fullscreen = !slide_fullscreen;'); edenUI.fullscreen('slidepic', 'slide_fullscreen');">Fullscreen</button>
+END + (<<END
+<button data-jseden="slideno--;">Previous</button>
+END if (slideno > 1) else "<button class=\"disabled\">Previous</button>") + (<<END
+<button data-jseden="slideno++;">Next</button></div>
+END if (slideno < slide_max) else "<button class=\"disabled\">Next</button>"), 10, slide_resolution - 45);
+
+slidepic is (slide{slideno} if (slide{slideno} != @) else []) // ([slide_buttons] if (slide_showbuttons) else []);
+
+jseden_menu_showcreate = true;
+jseden_menu_showexisting = true;
+
+slide_fullscreen = false;
+}action page {page_resolution = 1080;
+page_width is page_resolution / 1.414;
+page_height is page_resolution;
+page_showbuttons = true;
+page_zoom = 1.5;
+
+createCanvas("pagepic");
+page_remaining_y is (screenHeight+45)*page_zoom;
+page_remaining_x is screenWidth - jseden_explorer_width if (!page_fullscreen) else screenWidth;
+page_padding is 100 if (!page_fullscreen) else 0;
+page_ratio is page_remaining_y / page_remaining_x;
+view_pagepic_height is page_remaining_y - page_padding if (page_ratio <= 1.414) else (page_remaining_x - page_padding) * 1.414;
+view_pagepic_width is page_remaining_x - page_padding if (page_ratio >= 1.414) else (page_remaining_y - page_padding) / 1.414;
+view_pagepic_y is (page_remaining_y / 2) - (view_pagepic_height / 2) - 22;
+view_pagepic_x is (page_remaining_x / 2) - (view_pagepic_width / 2);
+view_pagepic_lock = true;
+view_pagepic_zoom is view_pagepic_height / page_resolution;
+#view_pagepic_offset is Point(page_margin,page_margin);
+#view_pagepic_canvas_right is page_width-2*page_margin;
+#view_pagepic_canvas_bottom is page_height-2*page_margin;
+
+pageno = 1;
+page_max is pages#;
+pages = ["page"];
+
+page_button_prev is Div(<<END
+<style>
+button.prevbut.disabled { background: none; color: #bbb }
+button.prevbut { opacity: 0.2; border: none; margin: 0; background: none; font-family: 'FontAwesome'; font-size: 60pt; color: black; }
+button.prevbut:hover { opacity: initial; background: none; } </style>
+END // (<<END
+<button class="prevbut" data-jseden="pageno--;">&#xf104;</button>
+END if (pageno > 1) else <<END
+<button class="prevbut disabled">&#xf104;</button>
+END), 10, page_height/2-30, 50, 90);
+
+page_button_next is Div(<<END
+<style>
+button.nextbut.disabled { background: none; color: #bbb }
+button.nextbut { opacity: 0.2; border: none; margin: 0; background: none; font-family: 'FontAwesome'; font-size: 60pt; color: black; }
+button.nextbut:hover { opacity: initial; background: none; } </style>
+END // (<<END
+<button class="nextbut" data-jseden="pageno++;">&#xf105;</button>
+END if (pageno < pages#) else <<END
+<button class="nextbut disabled">&#xf105;</button>
+END), page_width-60, page_height/2-30, 50, 90);
+
+page_button_zoom is Div(<<END
+<style>
+button.zoombut { opacity: 0.2; text-shadow: none; border: none; margin: 0; background: none; font-family: 'FontAwesome'; font-size: 20pt; color: black; }
+button.zoombut:hover { opacity: initial; background: none; } </style>
+<button class="zoombut" data-jseden="page_zoom += 0.2;">&#xf067;</button>
+<button class="zoombut" data-jseden="page_zoom -= 0.2;">&#xf068;</button>
+END, 20, 20, 180, 50);
+
+view_pagebuttons_content is "";
+
+page_view is View("pagescript1", "ScriptInput",
+			page_margin, page_margin, page_width-2*page_margin, page_height-2*page_margin);
+view_pagescript1_showtabs = false;
+view_pagescript1_showbuttons = false;
+view_pagescript1_tabs is [pages[pageno]];
+view_pagescript1_current = 0;
+page_margin = 50;
+page_margin_rect is Rectangle(page_margin,page_margin,page_width-2*page_margin,page_height-2*page_margin,"white","#eee");
+
+pagepic is [page_view,picture,page_button_prev,page_button_next,page_button_zoom];
+
+jseden_menu_showcreate = true;
+jseden_menu_showexisting = true;
+
+page_fullscreen = false;
+}action book {## Book Layout
+# This script will create a book style layout where you specify spread_max, spreadno, ...
+# #presentation #slide #slides #layout #powerpoint #present
+
+#!The fixed vertical resolution of the slide. Use slide_resolution is view_slidepic_height; to get a 1 to 1. #slide #size
+book_resolution = 720;
+#!The fixed aspect ratio of the slide. #slide #ratio #aspect
+book_aspect_ratio is 16/9 if (!book_fullscreen) else screenWidth/(screenHeight+45);
+#!Calculated as a fixed aspect ratio from the slide_resolution. #slide #width
+book_width is book_resolution * book_aspect_ratio;
+#!Same as slide resolution #slide #height
+book_height is book_resolution;
+#!Current slide number, incremented/decremented by the buttons #slide #current #number
+pageno = 1;
+#!The number of slides available #slide
+page_max is pages#;
+picture is [];
+#!Show or hide the slide control buttons #slide #buttons #next #previous #fullscreen
+book_showbuttons = true;
+#! Choose a layout, can be *left*, *right* or *both*. If left or right a picture is added to the other side.
+book_style = "right";
+#! A list of script names for each page.
+pages = [];
+#! Set the middle dividing position of the book, defaults to the middle.
+book_divider is book_width/2;
+#!Distance from the top of the page
+book_offset_top = 0;
+#!Distance from the bottom of the page
+book_offset_bottom = 0;
+#!Distance from the left hand edge of the page
+book_offset_left = 0;
+#!Distance from the right hand edge of the page
+book_offset_right = 0;
+
+
+###Internal Workings
+view_bookpic_nostack = true;
+createCanvas("bookpic");
+book_remaining_y is screenHeight+45;
+book_remaining_x is screenWidth - jseden_explorer_width - (jseden_feedback_width if jseden_feedback_visible else 0) if (!book_fullscreen) else screenWidth;
+book_padding is 100 if (!book_fullscreen) else 0;
+book_ratio is book_remaining_x / book_remaining_y;
+view_bookpic_height is book_remaining_y - book_padding if (book_ratio >= book_aspect_ratio) else (book_remaining_x - book_padding) / book_aspect_ratio;
+view_bookpic_width is book_remaining_x - book_padding if (book_ratio <= book_aspect_ratio) else (book_remaining_y - book_padding) * book_aspect_ratio;
+view_bookpic_y is (book_remaining_y / 2) - (view_bookpic_height / 2) - 22 if (!book_fullscreen) else 0;
+view_bookpic_x is (book_remaining_x / 2) - (view_bookpic_width / 2) if (!book_fullscreen) else 0;
+view_bookpic_lock = true;
+view_bookpic_zoom is view_bookpic_height / book_resolution;
+
+/* Prevent scrolling of body */
+${{ $('#jseden-views').css("overflow","hidden"); }}$
+
+book_buttons is Div(<<END
+<style>.slidebuttons { z-index: 2; opacity: 0.5; } .slidebuttons:hover { opacity: initial; }</style>
+<div class="slidebuttons">
+<button onclick="javascript:eden.execute('book_fullscreen = !book_fullscreen;'); edenUI.fullscreen('bookpic', 'book_fullscreen');"><span class="explorer-control-icon">&#xf2d0;</span>Fullscreen</button>
+END + (<<END
+<button data-jseden="pageno--;"><span class="explorer-control-icon">&#xf104;</span>Previous</button>
+END if (pageno > 1) else "<button class=\"disabled\"><span class=\"explorer-control-icon\">&#xf104;</span>Previous</button>") + (<<END
+<button data-jseden="pageno++;">Next<span class="explorer-control-icon" style="margin-left: 5px; margin-right: 0">&#xf105;</span></button></div>
+END if (pageno < page_max) else "<button class=\"disabled\">Next<span class=\"explorer-control-icon\" style=\"margin-left: 5px; margin-right: 0\">&#xf105;</span></button>"), 10, book_resolution - 45);
+
+book_newpagebutton is Div(<<END
+<style>button.newpagebut{ font-size: 20pt; font-family: "FontAwesome"; border-radius: 35px; height: 35px; opacity: 0.5}
+button.newpagebut:hover{ opacity: initial; }</style>
+<button class="newpagebut" data-jseden='?(:project)[innersource] += "action page"+str(pages#+1)+" {}"; append pages,"page"+str(pages#+1); pageno++;'>&#xf067;</button>
+END, book_width - 60, book_height - 50, 50,50);
+
+book_view_left is View("bookscript1", "ScriptInput",
+			book_offset_left, book_offset_top, book_divider-book_offset_left, book_resolution-book_offset_top-book_offset_bottom) if (book_style == "left" || book_style == "both") else @;
+book_view_right is View("bookscript2", "ScriptInput",
+			book_divider, book_offset_top, book_width-book_divider-book_offset_right, book_resolution-book_offset_top-book_offset_bottom) if (book_style == "right" || book_style == "both") else @;
+
+bookpic is ([book_view_left, picture] if (book_style=="left")
+			else [picture, book_view_right] if (book_style=="right")
+			else [book_view_left, book_view_right]) // ([book_buttons,book_newpagebutton if (pageno >= pages#) else @] if (book_showbuttons) else []);
+
+view_bookscript1_showtabs = false;
+view_bookscript1_showbuttons = false;
+view_bookscript1_tabs is [pages[pageno]];
+view_bookscript1_current = 0;
+
+view_bookscript2_showtabs = false;
+view_bookscript2_showbuttons = false;
+view_bookscript2_tabs is [pages[pageno+1 if (book_style == "both") else pageno]];
+view_bookscript2_current = 0;
+
+jseden_menu_showcreate = true;
+jseden_menu_showexisting = true;
+
+book_fullscreen = false;}
