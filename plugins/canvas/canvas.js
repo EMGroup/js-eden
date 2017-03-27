@@ -951,6 +951,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			mouseInfo.insideCanvas = true;
 
 			var buttonName;
+			if(navigator.platform.toUpperCase().indexOf('MAC')>=0){
+				if(e.ctrlKey){
+					e.button = 2;
+				}
+			}
 			switch (e.button) {
 				case 0:
 					mouseInfo.leftButton = false;
