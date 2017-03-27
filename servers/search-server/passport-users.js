@@ -69,8 +69,8 @@ module.exports.setupPassport = function(passport,database){
 		if(obj.id == null){
 			return done(null, obj);
 		}else{
-			db.get('SELECT userid, oauthstring, name, status FROM oauthusers WHERE userid = ?', obj.id, function(err, row){
-				user = {displayName: row.name, id: row.userid, oauthstring: row.oauthstring, status: row.status};
+			db.get('SELECT userid, oauthstring, name, status, isAdmin FROM oauthusers WHERE userid = ?', obj.id, function(err, row){
+				user = {displayName: row.name, id: row.userid, oauthstring: row.oauthstring, status: row.status, admin: row.isAdmin};
 				return done(null, user);
 			});
 		}
@@ -100,7 +100,7 @@ module.exports.setupPassport = function(passport,database){
 	  },
 	  function(token, tokenSecret, profile, done) {
 		  process.nextTick(function () {
-			  console.log(profile);
+//			  console.log(profile);
 			  return done(null,profile);
 		    });
 	  }
@@ -122,7 +122,7 @@ module.exports.setupPassport = function(passport,database){
 			  function(req,username, password, done) {
 				  	process.nextTick(function () {
 				  		Users.findByEmail(username, function(userobject){
-				  			if(bcrypt.compareSync(password,userobject.passwordhash)){
+				  			if(userobject && bcrypt.compareSync(password,userobject.passwordhash)){
 				  				var thisUser = {};
 				  				thisUser.email = username;
 				  				thisUser.provider = "local";
@@ -146,7 +146,7 @@ module.exports.setupPassport = function(passport,database){
 				}
 				  	process.nextTick(function () {
 				  		Users.findByEmail(username,function(userobject){
-				  			console.log("Userobject", userobject);
+				  			//console.log("Userobject", userobject);
 				  			if(userobject == false){
 				  				var newUser ={};
 				  				newUser.email = username;
@@ -154,35 +154,11 @@ module.exports.setupPassport = function(passport,database){
 				  				Users.addUser(username,password,function(userid){
 				  					if(userid){
 				  						newUser.id = userid;
-						  				var mailOptions = {
-							  				    from: config.SENDEREMAIL, // sender address
-							  				    to: username, // list of receivers
-							  				    subject: 'CONSTRUIT Login Details', // Subject line
-							  				    text: 'Thanks for supplying your email address to CONSTRUIT.\n' +
-							  				    'A new account has been created for you at: http://jseden.dcs.warwick.ac.uk/construit-v2.0/ with a username of ' +username+ ' and password ' + password + '.\nRegards,\n\nThe CONSTRUIT Team', // plain text body
-							  				};
-											if(req.query.origin == "form"){
-												console.log(mailOptions);
-/*												transporter.sendMail(mailOptions, (error, info) => {
-							  				    	if (error) {
-							  				        	return console.log(error);
-							  				    	}
-							  				    	console.log('Message %s sent: %s', info.messageId, info.response);
-							  					});*/
-											}
-											var status = "registered";
-										  	if(req.query.origin == "form"){
-										  		displayName = "NewUser" + newUser.id;
-										  		status = "localunregistered";
-										  	}
-										  	passport.registerUser(req, "local:" + newUser.id,displayName,status,function(newUserID){
-										  		user = {displayName: displayName, id: newUser.id, provider: "local", oauthstring: "local:" + newUser.id};
-										  		if(req.query.origin == "form"){
-										  			return done(null, user,req.flash('signUpMessage', 'form'));
-										  		}else{
-										  			return done(null, user);
-										  		}
-											});
+										var status = "registered";
+									  	passport.registerUser(req, "local:" + newUser.id,displayName,status,function(newUserID){
+									  		user = {displayName: displayName, id: newUser.id, provider: "local", oauthstring: "local:" + newUser.id};
+									  		return done(null, user);
+										});
 				  					}else{
 				  						return done(null,false,req.flash('signUpMessage','Error creating account'));
 				  					}
