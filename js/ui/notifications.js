@@ -127,6 +127,10 @@ EdenUI.Notifications = function(element, jewel) {
 	Eden.DB.listenTo("disconnected", this, function() {
 		me.notification("info", $('<div class="notification-content">Disconnected from project server</div>'));
 	});
+
+	Eden.DB.listenTo("error", this, function(msg) {
+		me.notification("error", $('<div class="notification-content">'+msg+'</div>'));
+	});
 }
 
 EdenUI.Notifications.prototype.notification = function(type, content) {
