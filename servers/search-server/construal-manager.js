@@ -790,7 +790,7 @@ function getVersionInfo(saveID,projectID,userID, readPassword, res, callback){
 			logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err});
 			return;
 		}
-		if(row && row.owner == userID || row.readPassword == null || row.readPassword == readPassword){
+		if(row && (row.owner == userID || row.readPassword == null || row.readPassword == readPassword)){
 			console.log("Allowing because row.owner = ", row.owner, " and userID = ", userID, " and row.readPassword = ", row.readPassword, " and readPassword = ", readPassword);
 			callback(saveID, projectID, row.date);
 		}else{
