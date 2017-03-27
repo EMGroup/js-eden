@@ -695,6 +695,7 @@ function parse($TEXT, options) {
         html5_comments : true,
         bare_returns   : false,
         shebang        : true,
+        cli            : false,
     });
 
     var S = {
@@ -1456,7 +1457,7 @@ function parse($TEXT, options) {
 
     function make_unary(ctor, op, expr) {
         if ((op == "++" || op == "--") && !is_assignable(expr))
-            croak("Invalid use of " + op + " operator");
+            croak("Invalid use of " + op + " operator", null, ctor === AST_UnaryPrefix ? expr.start.col - 1 : null);
         return new ctor({ operator: op, expression: expr });
     };
 
@@ -1501,6 +1502,7 @@ function parse($TEXT, options) {
     };
 
     function is_assignable(expr) {
+        if (options.cli) return true;
         return expr instanceof AST_PropAccess || expr instanceof AST_SymbolRef;
     };
 

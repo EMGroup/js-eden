@@ -295,3 +295,63 @@ EdenUI.ProjectDetails._searchProjects = function(query, output, pub, projects, c
 	}
 }
 
+EdenUI.ProjectDetails.localProjects = function(output, projects, newtab) {
+	if (projects === undefined) return;
+
+	for (var i=0; i<projects.length; i++) {
+		var meta = projects[i];
+		//var t = meta.date.split(/[- :]/);
+		var title = meta.title;
+		var thumb = meta.image;
+		//var tags = meta.tags;
+		var locked = false;
+
+		var subtitle;
+		if (meta.description) {
+			var doxy = new Eden.AST.DoxyComment(meta.description, 0, 0);
+			var authors = doxy.getProperty("author");
+			if (authors && authors.length > 0) subtitle = authors[0];
+			else subtitle = meta.author;
+		} else {
+			subtitle = meta.author;
+		}
+	
+		var ele;
+		//Eden.DB.getMeta(path+"/"+x,function(path,meta) {
+		if (thumb !== null) {
+			ele = $('<div class="cadence-plisting-entry project noselect" data-path="'+(meta.name)+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>');
+		} else {
+			ele = $('<div class="cadence-plisting-entry project noselect" data-path="'+(meta.name)+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>');
+			//console.log(Eden.DB.meta[path+"/"+x]);
+		}
+		output.append(ele);
+		//});
+
+		ele.click(function(e) {
+			var path = e.currentTarget.getAttribute("data-path");
+			console.log("Load project: " + path); // + "@"+tag);
+			Eden.Project.newFromExisting(path, function() {});
+		});
+
+		var astars = meta.rating;
+		if (astars) {
+			var rating = $('<div class="projectdetails-ratingsmall">\
+	<span class="projectdetails-star">&#xf005;</span>\
+	<span class="projectdetails-star">&#xf005;</span>\
+	<span class="projectdetails-star">&#xf005;</span>\
+	<span class="projectdetails-star">&#xf005;</span>\
+	<span class="projectdetails-star">&#xf005;</span>\
+	</div>');
+			ele.append(rating);
+			var p=rating.get(0);
+			if (astars) {
+				var astarsf = Math.floor(astars);
+				for (var j=0; j<5; j++) {
+					p.childNodes[j].className = "projectdetails-star" + ((j >= astarsf) ? "" : " average");
+				}
+			}
+		}
+	}
+}
+
+

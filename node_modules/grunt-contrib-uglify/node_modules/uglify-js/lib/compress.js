@@ -592,9 +592,10 @@ merge(Compressor.prototype, {
                     // Restrict var replacement to constants if side effects encountered.
                     if (side_effects_encountered |= lvalues_encountered) continue;
 
+                    var value_has_side_effects = var_decl.value.has_side_effects(compressor);
                     // Non-constant single use vars can only be replaced in same scope.
                     if (ref.scope !== self) {
-                        side_effects_encountered |= var_decl.value.has_side_effects(compressor);
+                        side_effects_encountered |= value_has_side_effects;
                         continue;
                     }
 
@@ -620,6 +621,7 @@ merge(Compressor.prototype, {
                                 || (parent instanceof AST_If          && node !== parent.condition)
                                 || (parent instanceof AST_Conditional && node !== parent.condition)
                                 || (node instanceof AST_SymbolRef
+                                    && value_has_side_effects
                                     && !are_references_in_scope(node.definition(), self))
                                 || (parent instanceof AST_Binary
                                     && (parent.operator == "&&" || parent.operator == "||")
@@ -1959,6 +1961,9 @@ merge(Compressor.prototype, {
                             return in_list ? MAP.splice(body) : make_node(AST_BlockStatement, node, {
                                 body: body
                             });
+                        } else if (is_empty(node.init)) {
+                            node.init = null;
+                            return node;
                         }
                     }
                     if (node instanceof AST_Scope && node !== self)
@@ -2932,7 +2937,12 @@ merge(Compressor.prototype, {
                         return car;
                     }
                     if (cdr instanceof AST_Binary && !(cdr instanceof AST_Assign)) {
-                        field = cdr.left.is_constant() ? "right" : "left";
+                        if (cdr.left.is_constant()) {
+                            if (cdr.operator == "||" || cdr.operator == "&&") break;
+                            field = "right";
+                        } else {
+                            field = "left";
+                        }
                     } else if (cdr instanceof AST_Call
                         || cdr instanceof AST_Unary && cdr.operator != "++" && cdr.operator != "--") {
                         field = "expression";
@@ -3284,6 +3294,7 @@ merge(Compressor.prototype, {
                         left: self.left,
                         right: self.right.expression
                     });
+                    break;
                 }
                 // -a + b => b - a
                 if (self.left instanceof AST_UnaryPrefix
@@ -3295,6 +3306,7 @@ merge(Compressor.prototype, {
                         left: self.right,
                         right: self.left.expression
                     });
+                    break;
                 }
               case "*":
                 associative = compressor.option("unsafe_math");
@@ -3543,19 +3555,17 @@ merge(Compressor.prototype, {
         }
         var consequent = self.consequent;
         var alternative = self.alternative;
+        // if (foo) exp = something; else exp = something_else;
+        //                   |
+        //                   v
+        // exp = foo ? something : something_else;
         if (consequent instanceof AST_Assign
             && alternative instanceof AST_Assign
             && consequent.operator == alternative.operator
             && consequent.left.equivalent_to(alternative.left)
-            && (!consequent.left.has_side_effects(compressor)
-                || !self.condition.has_side_effects(compressor))
-           ) {
-            /*
-             * Stuff like this:
-             * if (foo) exp = something; else exp = something_else;
-             * ==>
-             * exp = foo ? something : something_else;
-             */
+            && (!self.condition.has_side_effects(compressor)
+                || consequent.operator == "="
+                    && !consequent.left.has_side_effects(compressor))) {
             return make_node(AST_Assign, self, {
                 operator: consequent.operator,
                 left: consequent.left,
