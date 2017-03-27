@@ -191,7 +191,7 @@ Eden.DB.getLoginName = function(callback) {
 				Eden.DB.connected = true;
 				if (data == null || data.error) {
 					Eden.DB.username = undefined;
-					Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
+					//Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 					callback();
 				} else {
 					Eden.DB.username = data.name;
