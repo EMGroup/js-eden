@@ -662,4 +662,31 @@ Eden.DB.adminProjectActivity = function(newerthan, offset, cb) {
 }
 
 
+Eden.DB.getPopularTags = function(tag, cb) {
+	//if (!Eden.DB.isLoggedIn()) return;
+	$.ajax({
+		url: this.remoteURL+"/project/tags?tag="+tag,
+		type: "get",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		success: function(data){
+			if (data === null || data.error) {
+				console.error(data);
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
+				if (cb) cb(false);
+			} else {
+				if (cb) cb(data);
+			}
+		},
+		error: function(a,status,err){
+			//console.log("DB Error",a,status,err);
+			//Eden.DB.disconnect(true);
+			Eden.DB.handleError(a,status,err);
+			if (cb) cb(false);
+		}
+	});
+}
+
 
