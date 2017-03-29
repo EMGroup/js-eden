@@ -540,7 +540,23 @@ See LICENSE.txt
 
 				//console.log("FILTER: " + filter);
 				//searchstr = e.currentTarget.value;
-				updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling);
+				updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling.nextElementSibling);
+				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
+			})
+			.on("change",".search", function(e) {
+				var filter = e.currentTarget.parentNode.parentNode.getAttribute("data-filter");
+				var sortby = e.currentTarget.parentNode.nextElementSibling.value;
+				//console.log("Sort by " + sortby);
+
+				switch(sortby) {
+				case "Popular": sortby = "downloads"; break;
+				case "Rating": sortby = "rating"; break;
+				default: sortby = "";
+				}
+
+				//console.log("FILTER: " + filter);
+				//searchstr = e.currentTarget.value;
+				updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling.nextElementSibling);
 				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
 			})
 			.on("change", ".projectsort", function(e) {
@@ -625,7 +641,7 @@ See LICENSE.txt
 						var html = "";
 						var count = (tags.length > 20) ? 20 : tags.length;
 						for (var i=0; i<count; i++) {
-							html += '<a href="">'+tags[i]+'</a>';
+							html += '<a href="#" onclick="this.parentNode.previousSibling.childNodes[1].childNodes[0].value = \''+tags[i]+'\'; return false;">'+tags[i]+'</a>';
 						}
 						poptags.innerHTML = html;
 					});

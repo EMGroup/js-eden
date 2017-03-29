@@ -403,6 +403,7 @@ EdenUI.Highlight.prototype.applyAttribute = function(ele, name, val) {
 							break;
 	case "class":			this.applyClasses(ele, val.split(" "));
 							break;
+	default:				ele.style[name] = val;
 	}
 }
 
@@ -770,7 +771,9 @@ EdenUI.Highlight.prototype.validHTMLTags = {
 	"span": true,
 	"a": true,
 	"img": true,
-	"input": true
+	"input": true,
+	"table": true,
+	"textarea": true
 }
 
 EdenUI.Highlight.prototype.COMMENT_HTML = function() {
