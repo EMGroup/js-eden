@@ -577,19 +577,8 @@ Eden.Selectors.query = function(s, o, options, cb) {
 		if (pathix == -1) pathix = s.length;
 		var path = s.substring(0,pathix).trim();
 
-		// Look for local projects
-		if (Eden.Project.local && Eden.Project.local[path]) {
-			$.get(Eden.Project.local[path].file, function(data) {
-				var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
-				Eden.Selectors.cache[path] = res[0];
-				//Eden.Index.update(res[0]);
-				statements = res;
-				statements = Eden.Selectors.unique(sast.filter(statements));
-				res = Eden.Selectors.processResults(statements, o);
-				cb(res);
-			}, "text");
-		// Or check for URL
-		} else if (path.startsWith("plugins")) {
+		// check for URL
+		if (path.startsWith("plugins")) {
 			var urlparts = s.split(">");
 			var url = "";
 			for (var i=0; i<urlparts.length; i++) {
@@ -655,11 +644,37 @@ Eden.Selectors.query = function(s, o, options, cb) {
 
 						}
 					} 
+					cb(statements);
+
+				} else if (stats === undefined || stats.length == 0) {
+					if (Eden.Project.local && Eden.Project.local[path]) {
+						$.get(Eden.Project.local[path].file, function(data) {
+							var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
+							Eden.Selectors.cache[path] = res[0];
+							//Eden.Index.update(res[0]);
+							statements = res;
+							statements = Eden.Selectors.unique(sast.filter(statements));
+							res = Eden.Selectors.processResults(statements, o);
+							cb(res);
+						}, "text");
+					} else {
+						cb(statements);
+					}
 				} else {
 					statements.push.apply(statements,stats);
+					cb(statements);
 				}
-				cb(statements);
 			});
+		} else if (Eden.Project.local && Eden.Project.local[path]) {
+			$.get(Eden.Project.local[path].file, function(data) {
+				var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
+				Eden.Selectors.cache[path] = res[0];
+				//Eden.Index.update(res[0]);
+				statements = res;
+				statements = Eden.Selectors.unique(sast.filter(statements));
+				res = Eden.Selectors.processResults(statements, o);
+				cb(res);
+			}, "text");
 		} else {
 			cb([]);
 		}
