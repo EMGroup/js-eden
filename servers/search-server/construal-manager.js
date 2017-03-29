@@ -840,6 +840,50 @@ function increaseProjectDownloadStat(req,res){
 	});
 }
 
+
+app.get('/project/tags', function(req,res){
+	  var stmtstr = "SELECT projectID,tag FROM tags WHERE tag LIKE @tagname";
+	  var criteriaObject = {};
+	  criteriaObject["@offset"] = 0;
+	  criteriaObject["@limit"] = 100;
+	  criteriaObject["@tagname"] = "%"+req.query.tag+"%";
+
+
+	  /*if(req.query.offset)
+		  criteriaObject["@offset"] = req.query.offset;
+	  if(req.query.limit)
+		  criteriaObject["@limit"] = req.query.limit;*/
+	  
+	  stmtstr += " LIMIT @limit OFFSET @offset";
+	  var stmt = db.prepare(stmtstr);
+
+      var tags = {};
+	  
+	  stmt.all(criteriaObject,function(err,rows){
+		  if(err){
+			  res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+		  }else{
+			//res.json(rows);
+			for (var i=0; i<rows.length; i++) {
+				var tmp = rows[i].tag.split(" ");
+				for (var j=0; j<tmp.length; j++) {
+					if (tmp[j] == req.query.tag) continue;
+					if (tags[tmp[j]] === undefined) tags[tmp[j]] = 1;
+					else tags[tmp[j]]++;
+				}
+			}
+
+			var sorted = [];
+			for (var x in tags) sorted.push(x);
+			sorted.sort(function(a,b) {
+				return tags[b] - tags[a];
+			});
+
+			res.json(sorted);
+		  }		  
+	  });
+  });
+
 app.get('/project/activity', function(req,res){
 	  if (req.user.admin != 1) {
 		 res.json({error: ERROR_NOTADMIN, description: "Must be admin to see project activity"});
