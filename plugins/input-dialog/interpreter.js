@@ -914,6 +914,17 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 
+		function onInputChange(e) {
+			//console.log("BUTTON",e);
+			var script = e.currentTarget.getAttribute("name");
+			if (script && script != "") {
+				//script = script.replace(/\\/g,"");
+				//eden.execute2(script, {name: "execute"});
+				eden.root.lookup(script).assign(e.currentTarget.value, eden.root.scope, Symbol.hciAgent);
+			}
+			//e.stopPropogation();
+		}
+
 
 		$controls
 		.on('keyup', 'input.editname', onNameChange)
@@ -927,6 +938,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		// Set the event handlers
 		$dialogContents
 		.on('click', 'button,.executable,a', onButtonClick)
+		.on('input', 'textarea,input', onInputChange)
 		.on('click', '.close', onTabClose)
 		.on('click', '.agent-tab-more', onBrowse)
 		.on('click', '.browse-entry', onBrowseClick)

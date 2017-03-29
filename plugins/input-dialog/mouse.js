@@ -21,6 +21,8 @@ EdenUI.ScriptArea.Mouse = function(sa) {
 	 * the highlighted output instead.
 	 */
 	function onOutputMouseUp(e) {
+		console.log(e.target.nodeName);
+		if (e.target.nodeName == "INPUT" || e.target.nodeName == "textarea") return;
 		sa.hideInfoBox();
 		//hideMenu();
 		//console.log(e);

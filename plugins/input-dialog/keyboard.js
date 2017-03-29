@@ -98,6 +98,7 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 	 * text is selected that needs replacing.
 	 */
 	function onOutputKeyDown(e) {
+		if (e.target.nodeName == "INPUT" || e.target.nodeName == "textarea") return;
 		if (!(e.shiftKey && (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 35 || e.keyCode == 36))) {	
 			if (e.key != "Control" && e.key != "Shift" && e.key != "c") sa.focusText();
 		}// else if (!e.ctrlKey && ) {
@@ -119,6 +120,7 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 
 
 	function onOutputKeyUp(e) {
+		if (e.target.nodeName == "INPUT" || e.target.nodeName == "textarea") return;
 		if (e.keyCode == 17 || e.keyCode == 91 || e.keyCode == 92) {
 			sa.disableGotoMode();
 		}
