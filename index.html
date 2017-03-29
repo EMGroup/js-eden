@@ -200,6 +200,15 @@ See LICENSE.txt
 		div#project-browser {
 			margin-top: 70px;
 		}
+
+		div.popular-tags {
+			font-size: 8pt;
+			margin-left: 35px;
+		}
+
+		div.popular-tags a {
+			margin-right: 5px;
+		}
 	</style>
 
 	<script type="text/javascript" src="js/lib/jquery.dialogextend.min.js"></script>
@@ -407,7 +416,33 @@ See LICENSE.txt
 				}
 			});
 
+			function addCategory(name, title, filter, sortby) {
+				var browser = $("#project-browser").get(0);
+				var cat = document.createElement("div");
+				cat.className = "jseden-project-cat";
+				cat.setAttribute("data-filter",filter);
+				cat.innerHTML = title+'<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search '+name+'..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button>';
+				var poptags = document.createElement("div");
+				poptags.className = "popular-tags";
+				if (filter) {
+					Eden.DB.getPopularTags(filter.replace("#",""), function(tags) {
+						var html = "";
+						var count = (tags.length > 20) ? 20 : tags.length;
+						for (var i=0; i<count; i++) {
+							html += '<a href="">'+tags[i]+'</a>';
+						}
+						poptags.innerHTML = html;
+					});
+				}
+				var cont = document.createElement("div");
+				cont.className = "jseden-dialog-plisting";
+				cont.id = "jseden-"+name+"-projects";
+				browser.appendChild(cat);
+				browser.appendChild(poptags);
+				browser.appendChild(cont);
 
+				displayProjects(name, filter, sortby);
+			}
 
 			function displayProjects(id, query, sortby, cb) {
 				var plist = lopts.find("#jseden-"+id+"-projects");
@@ -433,10 +468,13 @@ See LICENSE.txt
 					//displayProjects("featured", "#featured");
 					//displayProjects("recent");
 				} else {
-					displayProjects("featured", "#featured", "downloads");
-					displayProjects("recent");
-					displayProjects("starter", "#starter", "downloads");
-					displayProjects("ref", "#documentation", "downloads");
+					addCategory("featured", "Featured Construals", "#featured", "downloads");
+					addCategory("starter", "Starter Examples", "#starter", "downloads");
+					addCategory("recent", "All Construals", undefined, undefined);
+					addCategory("ref", "Reference", "#documentation", "downloads");
+					addCategory("conf", "Construit 2017", "#construit2017", "downloads");
+					addCategory("games", "Games", "#game", "downloads");
+					addCategory("oers", "Educational Resources", "#OERs", "downloads");
 				}
 
 				if (Eden.DB.isLoggedIn() == false) {
@@ -535,18 +573,6 @@ without losing power of expression by oversimplifying.</p><p>Watch the demonstra
 			<div class="jseden-project-cat" data-filter=":me">Your Projects<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-private-projects" class="jseden-dialog-plisting">
 			</div>
-			</div>
-			<div class="jseden-project-cat" data-filter="#featured">Featured Construals<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search featured..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
-			<div id="jseden-featured-projects" class="jseden-dialog-plisting">
-			</div>
-			<div class="jseden-project-cat" data-filter="#starter">Starter Examples<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search starter..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
-			<div id="jseden-starter-projects" class="jseden-dialog-plisting">
-			</div>
-			<div class="jseden-project-cat" data-filter="">Recent Construals<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search recent..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
-			<div id="jseden-recent-projects" class="jseden-dialog-plisting">
-			</div>
-			<div class="jseden-project-cat" data-filter="#documentation">Reference<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search reference..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
-			<div id="jseden-ref-projects" class="jseden-dialog-plisting">
 			</div>
 		</div>
 		</div>

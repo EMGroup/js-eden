@@ -219,6 +219,15 @@ See LICENSE.txt
 			margin-top: 70px;
 		}
 
+		div.popular-tags {
+			font-size: 8pt;
+			margin-left: 35px;
+		}
+
+		div.popular-tags a {
+			margin-right: 5px;
+		}
+
 	</style>
 </head>
 <body>
@@ -609,10 +618,23 @@ See LICENSE.txt
 				cat.className = "jseden-project-cat";
 				cat.setAttribute("data-filter",filter);
 				cat.innerHTML = title+'<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search '+name+'..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button>';
+				var poptags = document.createElement("div");
+				poptags.className = "popular-tags";
+				if (filter) {
+					Eden.DB.getPopularTags(filter.replace("#",""), function(tags) {
+						var html = "";
+						var count = (tags.length > 20) ? 20 : tags.length;
+						for (var i=0; i<count; i++) {
+							html += '<a href="">'+tags[i]+'</a>';
+						}
+						poptags.innerHTML = html;
+					});
+				}
 				var cont = document.createElement("div");
 				cont.className = "jseden-dialog-plisting";
 				cont.id = "jseden-"+name+"-projects";
 				browser.appendChild(cat);
+				browser.appendChild(poptags);
 				browser.appendChild(cont);
 
 				displayProjects(name, filter, sortby);
