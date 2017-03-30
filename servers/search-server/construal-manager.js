@@ -889,7 +889,7 @@ app.get('/project/activity', function(req,res){
 		 res.json({error: ERROR_NOTADMIN, description: "Must be admin to see project activity"});
 		 return;
 	  }
-	  var stmtstr = "SELECT name,saveID,projectversions.projectID,date,title FROM projectversions,oauthusers,projects WHERE oauthusers.userid = projects.owner AND projectversions.projectID = projects.projectID";
+	  var stmtstr = "SELECT name,saveID,projectversions.projectID,date,title,readPassword FROM projectversions,oauthusers,projects WHERE oauthusers.userid = projects.owner AND projectversions.projectID = projects.projectID";
 	  var criteriaObject = {};
 	  criteriaObject["@offset"] = 0;
 	  criteriaObject["@limit"] = 100;
