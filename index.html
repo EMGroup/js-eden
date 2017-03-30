@@ -429,7 +429,7 @@ See LICENSE.txt
 						var html = "";
 						var count = (tags.length > 20) ? 20 : tags.length;
 						for (var i=0; i<count; i++) {
-							html += '<a href="">'+tags[i]+'</a>';
+							html += '<a href="#" onclick="this.parentNode.previousSibling.childNodes[1].childNodes[0].value = \''+tags[i]+'\'; return false;">'+tags[i]+'</a>';
 						}
 						poptags.innerHTML = html;
 					});
