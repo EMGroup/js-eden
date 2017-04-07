@@ -510,7 +510,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	}
 
 	this.setFillStyle = function (context, style) {
-		if (style instanceof EdenUI.plugins.Canvas2D.FillStyle) {
+		if (style instanceof CanvasImage) {
+			var pat = context.createPattern(style.image,"repeat");
+			context.fillStyle = pat;
+		} else if (style instanceof EdenUI.plugins.Canvas2D.FillStyle) {
 			context.fillStyle = style.getColour(context);
 		} else {
 			context.fillStyle = style;

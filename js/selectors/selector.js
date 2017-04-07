@@ -846,6 +846,11 @@ Eden.Selectors.assign = function(selector, attributes, values) {
 										res[i].prefix = "action "+vals[j]+" {";
 										res[i].name = vals[j];
 										Eden.Index.update(res[i]);
+									} else if (res[i].type == "assignment" || res[i].type=="definition") {
+										Eden.Index.remove(res[i]);
+										res[i].lvalue.name = vals[j];
+										res[i].source = res[i].source.replace(/\w*/, vals[j]);
+										Eden.Index.update(res[i]);
 									} break;
 			default: console.error("Cannot modify property '"+attribs[j]+"'");
 			}
