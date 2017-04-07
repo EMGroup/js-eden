@@ -78,12 +78,12 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 # geometric shapes.  Taints the canvas if url is located on another domain.
 #
 # ##Examples
-# * [Scaling an Image](CanvasExamples > scaling)
-# * [Using OpenClipart](CanvasExamples > openclipart)
-# * [Rotating an Image](CanvasExamples > rotateimage)
-# * [Keyframe Animation](CanvasExamples > keyframeimage)
-# * [Sprites](CanvasExamples > sprites)
-# * [Upload an Image](CanvasExamples > uploadimage)
+# * [Scaling an Image](@external CanvasExamples > scaledimage)
+# * [Using OpenClipart](@external CanvasExamples > openclipart)
+# * [Rotating an Image](@external CanvasExamples > rotateimage)
+# * [Keyframe Animation](@external CanvasExamples > keyframeimage)
+# * [Sprites](@external CanvasExamples > sprites)
+# * [Upload an Image](@external CanvasExamples > uploadimage)
 #
 #   @param [name]
 #   @param x X-coordinate
