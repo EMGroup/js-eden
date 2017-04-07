@@ -62,20 +62,23 @@ Eden.AST.DoxyComment.prototype.stripped = function() {
 	var res = "";
 
 	for (var i=0; i<lines.length; i++) {
-		if (lines[i].charAt(0) == "#") lines[i] = lines[i].slice(1).trim();
-		lines[i] = lines[i].trim();
+		if (lines[i].charAt(0) == "#") lines[i] = lines[i].slice(1); //.trim();
+		else if (lines[i].trim().charAt(0) == "*") lines[i] = lines[i].trim().slice(1).trim();
+		//lines[i] = lines[i].trim();
 		if (lines[i] == "") {
 			res += "\n";
 			continue;
 		}
-		if (lines[i].charAt(0) == "*") lines[i] = lines[i].slice(1).trim();
-		if (lines[i].charAt(0) == "@") {
-			var spaceix = lines[i].indexOf(" ");
+		
+		var trimmed = lines[i].trim();
+
+		if (trimmed.charAt(0) == "@") {
+			var spaceix = trimmed.indexOf(" ");
 			if (spaceix == -1) {
-				controls[lines[i]] = true;
+				controls[trimmed] = true;
 			} else {
-				var cont = lines[i].substring(0,spaceix);
-				var details = lines[i].substring(spaceix+1,lines[i].length);
+				var cont = trimmed.substring(0,spaceix);
+				var details = trimmed.substring(spaceix+1,trimmed.length);
 				//console.log("Parsed control:",cont,details);
 
 				if (controls[cont] === undefined) controls[cont] = [];
@@ -92,6 +95,8 @@ Eden.AST.DoxyComment.prototype.stripped = function() {
 				if (words[j].charAt(0) == "#") {
 					tags[words[j]] = true;
 				}
+			} else {
+				res += " ";
 			}
 		}
 		//res = res.trim();
@@ -113,7 +118,7 @@ Eden.AST.DoxyComment.prototype.brief = function() {
 }
 
 Eden.AST.DoxyComment.prototype.pretty = function() {
-	var s = this.stripped().replace(/\s(#[a-zA-Z0-9]+)/g, ' <span class="markdown-hashtag">$1</span>');
+	var s = this.stripped(); //.replace(/\s(#[a-zA-Z0-9]+)/g, ' <span class="markdown-hashtag">$1</span>');
 	var paras = this.controls["@param"];
 	/*var res = "<p>";
 	for (var i=0; i<s.length; i++) {
@@ -121,8 +126,10 @@ Eden.AST.DoxyComment.prototype.pretty = function() {
 		else res += s[i];
 	}
 	res += "</p>";*/
-	var sdown = new showdown.Converter();
-	var res = sdown.makeHtml(s);
+	//var sdown = new showdown.Converter();
+	//var res = sdown.makeHtml(s);
+
+	var res = EdenUI.Markdown.html(s);
 
 	if (paras && paras.length > 0) {
 		res += '<div class="doxy-parameters">Parameters:';

@@ -6,14 +6,15 @@
  * See LICENSE.txt
  */
 
-#Debugging flags.
+## Core Functions
+
+#! Debugging flags.
 debug = ${{ {jsExceptions: edenUI.getOptionValue("developer") == "true" } }}$;
 
-#Version
+#! Current version of the environment
 jseden_version is jseden_version_major*10000000+jseden_version_minor*100000+jseden_version_patch*1000+jseden_version_commit;
 
-#MISSING FUNCTIONS
-
+#! Force the maintainer to update dependencies
 proc eager {
 	if (autocalc == 0) {
 		autocalc = 1;
@@ -21,6 +22,7 @@ proc eager {
 	};
 };
 
+#! Get the current time in seconds from epoch.
 func time {
   ${{
   var now = new Date();
@@ -37,9 +39,11 @@ proc writeln {
 	append jseden_notifications,["log", msg];
 }
 
+#! Call a function with arguments given as a list.
 #Raises an error if fewer or greater than two arguments are given.
 #Returns undefined if either argument is undefined.
-#tkeden returns strange strings beginning with the word "usage" in these situations.
+# @param function A function to be called.
+# @param parameters A list of parameters to pass.
 func apply {
 	${{
 		if (arguments.length != 2) {
@@ -57,6 +61,8 @@ func apply {
 	}}$;
 }
 
+#! Forget a particular observable.
+# @param observable A string or pointer for the observable to delete.
 func forget {
 	${{
 		if (arguments.length != 1) {
@@ -105,7 +111,7 @@ func forget {
 	}}$;
 };
 
-#Forgets all symbols whose names match a given regular expression or that are explicitly provided
+#!Forgets all symbols whose names match a given regular expression or that are explicitly provided
 #as a list.  The optional second argument determines if the search is case sensitive.  The optional
 #third argument determines if the user will be prompted to confirm the deletions and the optional
 #forth parameter determines if system-defined symbols matching the search criteria will
@@ -375,11 +381,16 @@ func forgetAll {
 	}}$;
 }
 
+#! Generate an error notification.
+# @param msg Message to give with error.
 proc error {
 	para msg;
 	append jseden_notifications,["error",msg];
 }
 
+#! Get the name of a symbol pointer.
+# @param pointer Pointer to a symbol.
+# @return String name of symbol.
 func nameof {
 	${{
 		if (arguments.length != 1) {
@@ -431,9 +442,9 @@ proc todo {
 	
 	code = code // ";";
 	
-	after (0) {
+	/*after (0) {*/
 		execute(code);
-	}
+	/*}*/
 }
 
 proc touch {
@@ -471,6 +482,7 @@ func doDefault {
 	}
 }
 
+/*
 proc arrangeWindows {
 	para windowOrder;
 	auto name, i, sumSym;
@@ -489,62 +501,30 @@ proc arrangeWindows {
 	execute(sumSym // " = 0;");
 	for (i = 1; i <= windowOrder#; i++) {
 		name = windowOrder[i];
-		/*
-		if (`"view_"//name//"_position"` != @) {
-			continue;
-		}
-		`"view_"//name//"_x"` = curr_x;
-		`"view_"//name//"_y"` = 0;
-		curr_x += `"view_"//name//"_width"` + 27;
-		*/
 		execute("view_" // name // "_x = " // sumSym // ";");
 		execute("view_" // name // "_y = 0;");
 		execute(sumSym // " += view_" // name // "_width + 27;");
 	}
 	forget(sumSym);
-}
+}*/
 
-# Temporary: Include using the new parser.
-func include2 {
-	para file;
-	${{ edenUI.eden.include2(arguments[0]) }}$;
-}
-
+#! Use `execute` instead.
 func execute2 {
 	para script;
 	${{ edenUI.eden.execute2(arguments[0]) }}$;
 }
 
-func agentFromFile {
-	para name, file, exec;
-	${{ edenUI.eden.agentFromFile(arguments[0],arguments[1],arguments[2]) }}$;
-}
-
 #Autocalc compatibility
 autocalc = 1;
 
-#Include the rest of the library
 
 action type {
-/**
- * @title Type Checking
- * Copyright (c) 2014, Empirical Modelling Group
- * All rights reserved.
- *
- * See LICENSE.txt
- *
- * Functions for casting between types, determining the type to which a value
- * belongs, etc.
- */
+## Type casting functions
 
-#=============================================================================
-#Type casting functions.
-
-/**
- * Convert some value into a character.
- *   @param value The source value.
- * #library #type #character
- */
+#! Convert some value into a character.
+#  @param value The source value.
+#
+#  #library #type #character #typecast #convert
 func char {
 	${{
 		if (arguments.length != 1) {
@@ -564,32 +544,28 @@ func char {
 	}}$;
 }
 
-/**
- * Casts a value to an int.
- *
- * Improvements (over the previously built-in function of the same name):
- *
- * Strings that don't begin with a digit now return the character code of the
- * first and only character if the string is exactly one character long and zero
- * otherwise.  Previously NaN was returned.
- *
- * Boolean values are converted into 1 and 0.
- *
- * Values belonging to types other than numbers, strings and Booleans result in
- * undefined being returned instead of NaN.
- *
- * Continuing discrepancies with tkeden:
- *
- * Because JavaScript doesn't have a separate character type distinct from
- * strings, applying this function to a numeral returns a number in the range
- * 0-9 (favouring the string interpretation) and not the ASCII character code
- * (the character interpretation).  So int('A') is 65 but int('0') is 0, not 48.
- *
- * Pointer values result in undefined being returned because there is no way to
- * get JavaScript to reveal the memory address of a variable.
- *    @param value The original value.
- * #library #types #number
- */
+
+#! Casts a value to an int.
+#
+# Strings that don't begin with a digit return the character code of the
+# first and only character if the string is exactly one character long and zero
+# otherwise.
+#
+# Boolean values are converted into 1 and 0.
+#
+# Values belonging to types other than numbers, strings and Booleans result in
+# undefined being returned instead of NaN.
+#
+# Because JavaScript doesn't have a separate character type distinct from
+# strings, applying this function to a numeral returns a number in the range
+# 0-9 (favouring the string interpretation) and not the ASCII character code
+# (the character interpretation).  So int('A') is 65 but int('0') is 0, not 48.
+#
+# Pointer values result in undefined being returned because there is no way to
+# get JavaScript to reveal the memory address of a variable.
+#    @param value The original value.
+#
+# #library #types #number #convert #integer #typecast
 func int {
 	${{
 		if (arguments.length != 1) {
@@ -620,13 +596,14 @@ func int {
 	}}$;
 }
 
-/**
- * `int('0')` incorrectly gives 0 instead of 48.  This complementary function
- * (a JS-EDEN specific addition) always gives the Unicode character code,
- * including for numerals.  Unlike int() this function raises an error if its
- * argument is not a single character.
- * #library #types
- */
+#! Get the unicode number for a character.
+# `int('0')` incorrectly gives 0 instead of 48.  This complementary function
+# always gives the Unicode character code,
+# including for numerals.  Unlike `int()` this function raises an error if its
+# argument is not a single character.
+#  @param value Character string to get number for.
+#
+# #library #types #character #code #unicode
 func charCode {
 	${{
 		if (arguments.length != 1) {
@@ -649,11 +626,9 @@ func charCode {
 	}}$;
 }
 
-/**
- * Convert a value of any type to a string.
- *   @param value The original value to convert.
- * #library #types #string
- */
+#! Convert a value of any type to a string.
+#   @param value The original value to convert.
+# #library #types #string #typecast #convert
 func str {
 	para v;
 	auto argc;
@@ -673,8 +648,9 @@ func str {
 	}
 }
 
-#=============================================================================
-#Type testing functions.
+#---
+
+##Type testing functions.
 
 /**
  * `type(expr)` Determines the type of an expression.
