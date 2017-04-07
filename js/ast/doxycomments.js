@@ -62,7 +62,10 @@ Eden.AST.DoxyComment.prototype.stripped = function() {
 	var res = "";
 
 	for (var i=0; i<lines.length; i++) {
-		if (lines[i].charAt(0) == "#") lines[i] = lines[i].slice(1); //.trim();
+		if (lines[i].charAt(0) == "#") {
+			lines[i] = lines[i].slice(1); //.trim();
+			if (lines[i].charAt(0) == " ") lines[i] = lines[i].slice(1);
+		}
 		else if (lines[i].trim().charAt(0) == "*") lines[i] = lines[i].trim().slice(1).trim();
 		//lines[i] = lines[i].trim();
 		if (lines[i] == "") {
@@ -86,6 +89,7 @@ Eden.AST.DoxyComment.prototype.stripped = function() {
 			}
 
 			lines[i] = "";
+			continue;
 		}
 
 		var words = lines[i].split(/[ \t]+/);

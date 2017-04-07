@@ -207,11 +207,13 @@ EdenUI.Markdown.html = function(str, single, play) {
 		});
 
 		EdenUI.Markdown.styles["hidden-comment"] = "eden-comment-hidden";
+		EdenUI.Markdown.styles["script-line"] = "markdown-comment-line2";
 
 		hlighter.ast = {stream: new EdenStream(str)};
 		hlighter.highlight(hlighter.ast,-1,-1,undefined);
 
 		EdenUI.Markdown.styles["hidden-comment"] = "markdown-comment-hidden";
+		EdenUI.Markdown.styles["script-line"] = "markdown-comment-line";
 
 		if (single) {
 			return dummy.childNodes[0].innerHTML;

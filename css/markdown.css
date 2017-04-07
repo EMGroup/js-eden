@@ -92,6 +92,11 @@ span.markdown-comment-hidden {
 }
 
 div.markdown-comment-line {
+	display: inline-block;
+	white-space: pre-wrap;
+}
+
+div.markdown-comment-line2 {
 	/*display: inline-block;*/
 	white-space: pre-wrap;
 }
