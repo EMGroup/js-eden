@@ -626,6 +626,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 						//} else {
 							//console.log("Get Outersource", stats[i][0]);
 							script = Eden.AST.parseStatement(stats[i][0], {remote: true});
+							//console.log("External AST", script);
 							var origin = Eden.AST.originFromDoxy(script.doxyComment);
 							origin.remote = true;
 							script.base.origin = origin;

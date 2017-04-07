@@ -282,6 +282,10 @@ span.eden-observable.select {
 	background-color: #bbb;
 }
 
+span.eden-notexist {
+	border-bottom: 1px dashed red;
+}
+
 div.outputcontent.inspect span.eden-observable {
 	cursor: pointer;
 }

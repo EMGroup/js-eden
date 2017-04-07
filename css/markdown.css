@@ -96,6 +96,11 @@ div.markdown-comment-line {
 	white-space: pre-wrap;
 }
 
+div.markdown-comment-line2 {
+	/*display: inline-block;*/
+	white-space: pre-wrap;
+}
+
 span.markdown-tag {
 	font-style: normal;
 	color: #3557d9;

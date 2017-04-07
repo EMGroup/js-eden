@@ -49,9 +49,19 @@ EdenUI.Markdown = function(initial) {
 EdenUI.Highlight.prototype.MARKDOWN = function() {
 	if (this.token == "#" && (this.stream.position-2 <= 0 || this.stream.code.charAt(this.stream.position-2) == "\n"))	{
 		//if (this.prevtoken == "INVALID") {
-			this.classes += this.styles["hidden-comment"];
+			this.classes.push("hidden-comment");
 			//this.lineelement.className = "eden-comment-line";
 			this.mode = "SECTION_TITLE";
+			this.lineelement.className = this.styles["comment-line"];
+		//} else {
+		//	this.classes += this.styles["comment"];
+		//	this.mode = "COMMENT";
+		//}
+	} else if (this.token == "##" && (this.stream.position-3 <= 0 || this.stream.code.charAt(this.stream.position-3) == "\n"))	{
+		//if (this.prevtoken == "INVALID") {
+			this.classes.push("hidden-comment");
+			//this.lineelement.className = "eden-comment-line";
+			this.mode = "SECTION_TITLE2";
 			this.lineelement.className = this.styles["comment-line"];
 		//} else {
 		//	this.classes += this.styles["comment"];
@@ -173,5 +183,49 @@ EdenUI.Markdown.prototype.setCaretToFakeCaret = function() {
 	// Finally, delete the fake caret
 	$(this.outdiv).remove(".fake-caret");
 }
+
+EdenUI.Markdown.html = function(str, single, play) {
+		var dummy = document.createElement("div");
+		var hlighter = new EdenUI.Highlight(dummy, {
+			start: "MARKDOWN",
+			styles: EdenUI.Markdown.styles,
+			clearmodes: {
+				"SECTION_TITLE": true,
+				"SECTION_TITLE2": true,
+				"SECTION_TITLE_H1": true,
+				"SECTION_TITLE_H2": true,
+				"COMMENT_BOLD": true,
+				"COMMENT_CODE": true,
+				"COMMENT_ICON":	true,
+				"COMMENT_EMPH": true,
+				"COMMENT_ITALIC": true,
+				"END_COMMENT_TAG": true,
+				"COMMENT_TAG": true,
+				"COMMENT_LINK": true,
+				"COMMENT_LINK_END": true
+			}
+		});
+
+		EdenUI.Markdown.styles["hidden-comment"] = "eden-comment-hidden";
+		EdenUI.Markdown.styles["script-line"] = "markdown-comment-line2";
+
+		hlighter.ast = {stream: new EdenStream(str)};
+		hlighter.highlight(hlighter.ast,-1,-1,undefined);
+
+		EdenUI.Markdown.styles["hidden-comment"] = "markdown-comment-hidden";
+		EdenUI.Markdown.styles["script-line"] = "markdown-comment-line";
+
+		if (single) {
+			return dummy.childNodes[0].innerHTML;
+		} else {
+			var res = "";
+			for (var i=0; i<dummy.childNodes.length; i++) {
+				res += dummy.childNodes[i].innerHTML;
+			}
+
+			if (play) return '<div style="display: flex; align-items: center;"><div class="eden-hl-play" data-src="'+str+'">&#xf04b;</div><div>'+res+"</div></div>";
+			else return res;
+		}
+	}
 
 

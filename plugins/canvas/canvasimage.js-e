@@ -1,9 +1,10 @@
-## Copyright (c) 2013, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
 
-##Taints the canvas if the file is located on another domain.
+#Taints the canvas if the file is located on another domain.
 
 ${{
 CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoothed, file) {
@@ -73,23 +74,30 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 };
 }}$;
 
-/**
- * Creates an image element for display on the canvas together with the
- * geometric shapes.  Taints the canvas if url is located on another domain.
- *   @param [name]
- *   @param x X-coordinate
- *   @param y Y-coordinate
- *   @param [width] Width in pixels
- *   @param [height] Height in pixels
- *   @param [clip_left]
- *   @param [clip_top]
- *   @param [clip_right]
- *   @param [clip_bottom]
- *   @param [smoothed]
- *   @param url Source file for the image
- *   #canvas
- *   #library
- */
+#! Creates an image element for display on the canvas together with the
+# geometric shapes.  Taints the canvas if url is located on another domain.
+#
+# ##Examples
+# * [Scaling an Image](CanvasExamples > scaling)
+# * [Using OpenClipart](CanvasExamples > openclipart)
+# * [Rotating an Image](CanvasExamples > rotateimage)
+# * [Keyframe Animation](CanvasExamples > keyframeimage)
+# * [Sprites](CanvasExamples > sprites)
+# * [Upload an Image](CanvasExamples > uploadimage)
+#
+#   @param [name]
+#   @param x X-coordinate
+#   @param y Y-coordinate
+#   @param [width] Width in pixels
+#   @param [height] Height in pixels
+#   @param [clip_left]
+#   @param [clip_top]
+#   @param [clip_right]
+#   @param [clip_bottom]
+#   @param [smoothed]
+#   @param url Source file for the image
+#
+#   #canvas #library
 func Image {
 	${{
 		var numArgs = arguments.length;

@@ -104,7 +104,8 @@
 		"block-comment": "eden-blockcomment",
 		"comment-ul": "eden-comment-ul",
 		"comment-blockquote": "eden-comment-blockquote",
-		"script": "eden-script"
+		"script": "eden-script",
+		"notexist": "eden-notexist"
 	}
 
 	EdenUI.Highlight.prototype.pushLine = function() {
