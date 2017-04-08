@@ -50,7 +50,9 @@ Eden.AST.DoxyComment.prototype.getControls = function() {
 }
 
 Eden.AST.DoxyComment.prototype.getProperty = function(name) {
-	return this.getControls()["@"+name];
+	var ctrls = this.getControls();
+	if (ctrls) return ctrls["@"+name];
+	else return undefined;
 }
 
 Eden.AST.DoxyComment.prototype.stripped = function() {
