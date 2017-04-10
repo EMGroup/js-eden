@@ -944,13 +944,13 @@ div.menubar-search-rescontrols span {
 }
 
 div.doxy-parameters {
-	padding-left: 20px;
-	font-weight: bold;
-	margin-top: 5px;
+	font-size: 12pt;
+	margin-top: 10px;
 }
 
 div.doxy-parameter {
 	display: flex;
+	font-size: 10pt;
 	justify-content: flex-start;
 }
 

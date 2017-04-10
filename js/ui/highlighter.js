@@ -64,6 +64,7 @@
 		this.clearmodes = (options && options.clearmodes) ? options.clearmodes : EdenUI.Highlight.lineclearmode;
 		this.mode = this.startmode;
 		this.incomment = false;
+		this.brline = (options && options.brline);
 
 		this.styleExtensions = {};
 
@@ -510,6 +511,7 @@
 		}
 
 		this.mode_at_line[this.line] = this.mode;
+
 		return line;
 	}
 
@@ -564,6 +566,9 @@
 				//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
 				//curtop += (options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20;
 				this.line++;
+				if (line === undefined && this.brline) {
+					line = document.createElement("br");
+				}
 				if (line !== undefined) {
 					lineelement.appendChild(line);
 					//if (line.className == " eden-section-line") lineelement.className += " eden-section-line";
@@ -605,6 +610,7 @@
 
 		lineerror = (linestart <= this.errstart) && (stream.position >= this.errend);
 
+		if (line === undefined && this.brline) line = document.createElement("br");
 		if (line !== undefined) {
 			var lineelement = document.createElement('div');
 			lineelement.className = "eden-line";

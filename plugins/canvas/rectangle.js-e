@@ -17,19 +17,23 @@ Rectangle = function(x, y, width, height, fillcolour, outlinecolour, drawingOpti
 }
 }}$;
 
-/**
- * Creates a rectangle that can be displayed on a canvas
- * @param x X-coordinate for top left
- * @param y Y-coordinate for top left
- * @param width
- * @param height
- * @param [fill_colour
- * @param [outline_colour]] Colour of the rectangle outline in HTML form
- * @param [drawing_options] List of drawing options
- * 
- * #canvas #rectangle #drawingoptions
- */
-func Rectangle { ${{
+#! Creates a rectangle that can be coloured and displayed on a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
+#
+# ##Usage Example
+#  `Rectangle(x,y,width,height);`
+#  `Rectangle(x,y,w,h, "green", "black", Object("lineWidth", 5));`
+#
+# @param x X-coordinate for top left
+# @param y Y-coordinate for top left
+# @param width
+# @param height
+# @param [fill_colour
+# @param [outline_colour]] Colour of the rectangle outline in HTML form
+# @param [drawing_options] List of drawing options
+# 
+#  #canvas #rectangle #drawingoptions #square #box #shape #draw
+func Rectangle {
+${{
 	var x = arguments[0];
 	var y = arguments[1];
 	var width = arguments[2];

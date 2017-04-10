@@ -113,16 +113,7 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 		html += "<b>Path:</b> " + path + "<br>";
 		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(value);
 		html += "</p>";
-	} else*/ if (active) {
-		html += "<p>";
-		html += "<b>Path:</b> " + path + "<br>";
-		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(value);
-		html += "</p>";
-	} else {
-		html += "<p>";
-		html += "<b>Path:</b> " + path;
-		html += "</p>";
-	}
+	} else*/
 
 	if (comment) {
 		//var tags = ast.doxyComment.getHashTags();
@@ -133,6 +124,17 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 		if (stripped && stripped.length > 0) {
 			html += stripped;
 		}
+	}
+
+	if (active) {
+		html += "<p>";
+		html += "<span style='color: #666;'><b>Path:</b> " + path + "</span><br>";
+		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(value);
+		html += "</p>";
+	} else {
+		html += "<p>";
+		html += "<span style='color: #666;'><b>Path:</b> " + path + "</span>";
+		html += "</p>";
 	}
 
 	docele.innerHTML = html;

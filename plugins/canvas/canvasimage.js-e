@@ -77,6 +77,10 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 #! Creates an image element for display on the canvas together with the
 # geometric shapes.  Taints the canvas if url is located on another domain.
 #
+# ##Usage Example
+#   `Image(x, y, url);`
+#	`Image(x, y, width, height, url);`
+#
 # ##Examples
 # * [Scaling an Image](@external CanvasExamples > scaledimage)
 # * [Using OpenClipart](@external CanvasExamples > openclipart)
@@ -97,7 +101,7 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 #   @param [smoothed]
 #   @param url Source file for the image
 #
-#   #canvas #library
+#   #canvas #library #picture #photo #photograph #draw
 func Image {
 	${{
 		var numArgs = arguments.length;

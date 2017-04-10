@@ -85,19 +85,21 @@ Text.cssRegExp = new RegExp(
 
 }}$;
 
-/**
- * Create a drawable text object for a canvas
- * 
- * @param text Text string to display
- * @param x X-coordinate
- * @param y Y-coordinate
- * @param [size] Size in pixels, or can be specified as a string with a unit (e.g., "30pt", "2em", etc.)
- * @param [fill_colour Text colour in HTML form
- * @param [outline_colour]]
- * @param [options] Options, in string or object format
- * 
- * #canvas #text
- */
+#! Create a drawable text object for a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more font and style options.
+# 
+# ##Usage Example
+#  `Text("Message", x, y);`
+#  `Text("Hello", x, y, 20, "red");`
+#
+# @param text Text string to display
+# @param x X-coordinate
+# @param y Y-coordinate
+# @param [size] Size in pixels, or can be specified as a string with a unit (e.g., "30pt", "2em", etc.)
+# @param [fill_colour Text colour in HTML form
+# @param [outline_colour]]
+# @param [options] Options, in string or object format
+# 
+#  #canvas #text #label #draw
 func Text {
 	${{
 		var text = arguments[0];

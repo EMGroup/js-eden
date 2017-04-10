@@ -3,21 +3,21 @@
 ##
 ## See LICENSE.txt
 
-/**
- * Creates a Button
- * 
- * 
- * @param [name] Name to be used for the _click and _clicked observable
- * @param label Label to be displayed
- * @param [imageURL] Image to be displayed on the button
- * @param x
- * @param y
- * @param [width]
- * @param [height]
- * @param [enabled]
- * 
- * #canvas #button
- */
+#! Creates a clickable Button in your canvas. If you give the button a name then you can use observables with that name and _click or _clicked to respond to button presses.
+#
+# ##Usage Example
+#  `Button("mybutton", "Label", x, y);`
+#
+# @param name Name to be used for the _click and _clicked observable
+# @param label Label to be displayed
+# @param [imageURL] Image to be displayed on the button
+# @param x
+# @param y
+# @param [width] Default fits the size of the label
+# @param [height] Default fits the size of the label
+# @param [enabled]
+# 
+#  #canvas #button
 func Button {
 ${{
 	var argsProcessed, arg, argType;

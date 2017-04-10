@@ -15,17 +15,20 @@ Polygon = function(vertices, fillcolour, outlinecolour, drawingOptions, centreY)
 }
 }}$;
 
-/**
- * Creates a Polygon object for display on a canvas
- * @param points List of coordinates in the form {x, y} from the top left corner of the canvas
- * @param [fill_colour Colour of the polygon (fill) in HTML form
- * @param [outline_colour]]
- * @param [drawing_options] List of drawing options
- * 
- * #canvas #polygon #drawingoptions
- */
-
-func Polygon { ${{
+#! Creates a Polygon object for display on a canvas. You give a list of points and it will draw lines between them and then, optionally, fill the area inside. It will automatically join the last point to the first to close the shape. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
+#
+# ##Usage Example
+#   `Polygon(pointslist, "green", "black");`
+#	`Polygon([Point(10,10),Point(20,20),Point(10,20)]);`
+#
+# @param points List of coordinates in the form {x, y} from the top left corner of the canvas
+# @param [fill_colour Colour of the polygon (fill) in HTML form
+# @param [outline_colour]]
+# @param [drawing_options] List of drawing options
+# 
+#  #canvas #polygon #drawingoptions #shape #area #triangle #octagon #hexagon #pentagon #poly #draw
+func Polygon {
+${{
 	var vertices = arguments[0];
 	if (vertices[0].x != vertices[vertices.length - 1].x || vertices[0].y != vertices[vertices.length - 1].y) {
 		vertices.push(vertices[0]);
