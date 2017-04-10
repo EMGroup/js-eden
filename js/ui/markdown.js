@@ -37,7 +37,8 @@ EdenUI.Markdown = function(initial) {
 			"COMMENT_TAG": true,
 			"COMMENT_LINK": true,
 			"COMMENT_LINK_END": true
-		}
+		},
+		brline: true
 	});
 
 	var keyboard = new EdenUI.ScriptArea.Keyboard(this);
@@ -203,7 +204,8 @@ EdenUI.Markdown.html = function(str, single, play) {
 				"COMMENT_TAG": true,
 				"COMMENT_LINK": true,
 				"COMMENT_LINK_END": true
-			}
+			},
+			brline: true
 		});
 
 		EdenUI.Markdown.styles["hidden-comment"] = "eden-comment-hidden";

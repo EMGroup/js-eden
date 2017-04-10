@@ -106,14 +106,14 @@ span.markdown-tag {
 	color: #3557d9;
 }
 
-div.markdown-comment-h1 {
-	color: #666;
+.markdown-comment-h1 {
+	color: #222;
 	font: 14pt Arial,Helvetica,sans-serif;
 	font-weight: bold;
 }
 
-div.markdown-comment-h2 {
-	color: #666;
+.markdown-comment-h2 {
+	color: #222;
 	font: 12pt Arial,Helvetica,sans-serif;
 }
 

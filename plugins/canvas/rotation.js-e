@@ -120,6 +120,16 @@ ${{
 
 }}$;
 
+func Rotate {
+	para item, angle;
+	
+	${{
+		if (item instanceof CanvasImage) {
+			return new Rotation(angle, new Point(item.dx + item.dWidth/2, item.dy + item.dHeight/2), new Point(item.dx,item.dy), 0, undefined, [item]);
+		}
+	}}$;
+}
+
 func CombinedRotation {
 	${{
 		if (arguments[0] instanceof Folder) {

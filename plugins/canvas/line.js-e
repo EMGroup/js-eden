@@ -49,19 +49,22 @@ Line = function(x1, y1, x2, y2, colours, drawingOptions) {
 }
 }}$;
 
-/**
- * Create a drawable line for display on the canvas
- * @param x1 Start x-position
- * @param y1 Start y-position
- * @param x2 End x-position
- * @param y2 End y-position
- * @param [colour(s)] A HTML colour value for the whole line or a list of HTML colour values to create a gradient
- * @param [drawing_options] list of drawing options
- * 
- * #canvas #line #drawingoptions
- */
-
-func Line { ${{
+#! Create a drawable line for display on the canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more styling options.
+#
+# ##Usage Example
+#  `Line(startx, starty, endx, endy, "green");`
+#  `Line(x1,y1,x2,y2,"red",Object("lineWidth", 10));`
+#
+# @param x1 Start x-position
+# @param y1 Start y-position
+# @param x2 End x-position
+# @param y2 End y-position
+# @param [colour(s)] A HTML colour value for the whole line or a list of HTML colour values to create a gradient
+# @param [drawing_options] list of drawing options
+# 
+#  #canvas #line #drawingoptions #draw
+func Line {
+${{
 	var x1 = arguments[0];
 	var y1 = arguments[1];
 	var x2 = arguments[2];
