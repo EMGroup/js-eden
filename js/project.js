@@ -304,7 +304,7 @@ Eden.Project.prototype.setDescription = function(text) {
 }*/
 
 Eden.Project.prototype.registerAgent = function(when) {
-	console.log("REGISTER WHEN", when.id, when);
+	//console.log("REGISTER WHEN", when.id, when);
 	for (var x in when.dependencies) {
 		//if (this.triggers[x] === undefined) this.triggers[x] = [];
 		//this.triggers[x].push({statement: when, scope: eden.root.scope});

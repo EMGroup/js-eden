@@ -26,7 +26,7 @@ Eden.AST.Modify.prototype.left = function(lvalue) {
 };
 
 Eden.AST.Modify.prototype.generate = function(ctx, scope) {
-	var lval = this.lvalue.generate(ctx);
+	var lval = this.lvalue.generate(ctx,scope);
 	var result = lval;
 
 	if (this.lvalue.islocal == false) result = scope+".assign("+lval+","+scope+".value("+lval+")";
