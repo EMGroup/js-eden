@@ -6,17 +6,17 @@ Eden.AST.Local = function(name) {
 }
 
 Eden.AST.Local.prototype.assign = function(value, scope) {
-	console.log("LOCAL ASSIGN",this.name,value,scope);
+	//console.log("LOCAL ASSIGN",this.name,value,scope);
 	this.cvalue = value;
 }
 
 Eden.AST.Local.prototype.define = function(def, agent, deps) {
-	console.log("LOCAL DEFINE", def);
+	//console.log("LOCAL DEFINE", def);
 	this.definition = def;
 }
 
 Eden.AST.Local.prototype.value = function(scope) {
-	console.log("LOCAL SCOPE", this.name, scope, this.cvalue);
+	//console.log("LOCAL SCOPE", this.name, scope, this.cvalue);
 	if (this.definition) {
 		return this.definition.call(this, scope.context, scope);
 	} else {
