@@ -447,7 +447,7 @@ var app = express();
   });
   
   function registerUser(req, oauthcode,displayName,status,callback){
-	  var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?, ?)");
+	  var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?, ?,0)");
 		stmt.run(oauthcode, displayName, status,function(err){
 			req.user.id = this.lastID;
 			if(callback){
