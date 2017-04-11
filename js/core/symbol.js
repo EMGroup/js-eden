@@ -666,7 +666,7 @@ Symbol.prototype.fireJSObservers = function () {
  */
 Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire, fullexpire) {
 	//console.log("Expire",this.name,this.has_evaled,fullexpire);
-	if (this.has_evaled || fullexpire) {
+	if (this.has_evaled || (fullexpire && this.needsGlobalNotify != Symbol.EXPIRED)) {
 
 		for (var observer_name in this.observers) {
 			actions_to_fire[observer_name] = this.observers[observer_name];
@@ -766,7 +766,7 @@ Symbol.prototype.assertNotDependentOn = function (name, path) {
  */
 Symbol.prototype.addSubscriber = function (name, symbol) {
 	this.garbage = false;
-	this.assertNotDependentOn(name);
+	//this.assertNotDependentOn(name);
 	this.subscribers[name] = symbol;
 };
 

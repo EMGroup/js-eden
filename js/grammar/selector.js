@@ -33,7 +33,7 @@ Eden.AST.prototype.pAGENTPATH = function() {
 Eden.AST.prototype.pCODESELECTOR = function() {
 	var expr = undefined;
 
-	if (this.token == "OBSERVABLE" || Language.keywords[this.token]) {
+	if (this.token == "OBSERVABLE" || (Language.keywords[this.token] && this.token != "with")) {
 		expr = new Eden.AST.Literal("STRING", this.data.value);
 		this.next();
 	} else if (this.token == ":" || this.token == ".") {

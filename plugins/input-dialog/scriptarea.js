@@ -363,8 +363,6 @@ EdenUI.ScriptArea.prototype.makeNumbersDrag = function() {
 
 	/* Number dragging code, but only if live */
 	if (!this.readonly) {
-		console.log("MAKE NUMBERS DRAG");
-
 		$(this.outdiv).find('.eden-number').draggable({
 			helper: function(e) { return $("<div class='eden-drag-helper'></div>"); },
 			axis: 'x',

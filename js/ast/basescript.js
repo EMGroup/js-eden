@@ -152,7 +152,6 @@ Eden.AST.BaseScript.addIndex = function() {
 }
 
 Eden.AST.BaseScript.removeIndex = function() {
-	console.log("Remove Index", this);
 	if (!this.indexed) return;
 	for (var i=0; i<this.statements.length; i++) {
 		if (this.statements[i].type != "dummy") this.statements[i].removeIndex();

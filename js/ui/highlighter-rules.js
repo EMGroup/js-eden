@@ -304,6 +304,8 @@ EdenUI.Highlight.prototype.START = function() {
 							this.classes.push("constant");
 						} else if (edenSpecials[this.stream.data.value]) {
 							this.classes.push("special");
+						} else if (this.stream.data.value.charAt(0) == "$") {
+							this.classes.push("parameter");
 						} else {
 							this.classes.push("observable");
 							if (!Eden.Index.name_index.hasOwnProperty(this.stream.data.value) && !eden.root.symbols.hasOwnProperty(this.stream.data.value)) {

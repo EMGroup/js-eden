@@ -67,22 +67,36 @@ Eden.AST.prototype.pSCOPEPATTERN = function() {
  *   observable in EXPRESSION SCOPE'''
  *   observable = EXPRESSION SCOPE'''
  */
-Eden.AST.prototype.pSCOPE_P = function() {
-	var obs = this.pSCOPEPATTERN();
+Eden.AST.prototype.pSCOPE_P = function(count) {
 	var isin = false;
-	if (obs.errors.length > 0) {
-		var scope = new Eden.AST.Scope();
-		scope.addOverride(obs, undefined, undefined, undefined, false);
-		return scope;
+	var peek = this.peekNext(1);
+	var obs;
+	if (count === undefined) count = 1;
+
+	if (peek != "is" && peek != "=" && peek != "in") {
+		obs = new Eden.AST.ScopePattern();
+		obs.setObservable("$"+count);
+		count++;
+		console.log("AUTO NAME", count, peek);
+	} else {
+		obs = this.pSCOPEPATTERN();
+
+		if (obs.errors.length > 0) {
+			var scope = new Eden.AST.Scope();
+			scope.addOverride(obs, undefined, undefined, undefined, false);
+			return scope;
+		}
+
+		if (this.token != "is" && this.token != "=" && this.token != "in") {
+			var scope = new Eden.AST.Scope();
+			scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
+			return scope;
+		}
+		if (this.token == "in") isin = true;
+		this.next();
 	}
 
-	if (this.token != "is" && this.token != "=" && this.token != "in") {
-		var scope = new Eden.AST.Scope();
-		scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
-		return scope;
-	}
-	if (this.token == "in") isin = true;
-	this.next();
+	
 	var expression = this.pEXPRESSION();
 	if (expression.errors.length > 0) {
 		var scope = new Eden.AST.Scope();
@@ -113,7 +127,7 @@ Eden.AST.prototype.pSCOPE_P = function() {
 		}
 	}
 
-	var scope = this.pSCOPE_PP();
+	var scope = this.pSCOPE_PP(count);
 	scope.addOverride(obs, expression, exp2, exp3, isin);
 	return scope;
 }
@@ -124,10 +138,10 @@ Eden.AST.prototype.pSCOPE_P = function() {
  * Scope Prime Prime Production
  * SCOPE'' -> , SCOPE' | epsilon
  */
-Eden.AST.prototype.pSCOPE_PP = function() {
+Eden.AST.prototype.pSCOPE_PP = function(count) {
 	if (this.token == ",") {
 		this.next();
-		return this.pSCOPE_P();
+		return this.pSCOPE_P(count);
 	} else {
 		return new Eden.AST.Scope();
 	}

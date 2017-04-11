@@ -340,8 +340,6 @@ EdenScriptGutter.prototype.executeSelected = function() {
 
 	var agent = {name: "*Gutter"};
 
-	console.log("EXE SEL",this.ast);
-
 	for (var i=0; i<this.lines.length; i++) {
 		if (this.lines[i].selected) {
 			var stat = this.ast.getStatementByLine(i);

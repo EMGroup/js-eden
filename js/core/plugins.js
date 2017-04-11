@@ -839,7 +839,6 @@
 		var newWidth = widthSym.value();
 		var heightSym = view(name, 'height');
 		var newHeight = heightSym.value() + this.titleBarHeight;
-		console.log("NEW HEIGHT: ",newHeight, heightSym.value());
 		var locked = view(name, 'lock');
 		var tbarheight = (locked) ? 0 : this.titleBarHeight;
 		var right = left + newWidth + this.scrollBarSize + this.dialogBorderWidth;

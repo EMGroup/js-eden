@@ -23,7 +23,7 @@ EdenUI.ExplorerState = function(element) {
 	this.todo = {};
 	this.filter = undefined;
 
-	eden.root.addGlobal(function(sym, kind) {
+	this.listener = function(sym, kind) {
 		//if (!me.capture) return;
 		//if (Object.keys(sym.dependencies).length > 0) return;
 		var name = sym.name;
@@ -61,7 +61,7 @@ EdenUI.ExplorerState = function(element) {
 				}
 			}, me.delay2);
 		}
-	});
+	}
 
 	this.controls.on("click", ".clear", function(e) {
 		var clrsym = eden.root.lookup("jseden_explorer_clear");
@@ -213,6 +213,14 @@ EdenUI.ExplorerState = function(element) {
 			me.clear();
 		}
 	});
+}
+
+EdenUI.ExplorerState.prototype.show = function() {
+	eden.root.addGlobal(this.listener);
+}
+
+EdenUI.ExplorerState.prototype.hide = function() {
+	eden.root.removeGlobal(this.listener);
 }
 
 EdenUI.ExplorerState.prototype.triggerUpdate = function() {

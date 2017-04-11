@@ -3,6 +3,7 @@
  * PRIMARY -> observable {\{ EXPRESSION \}} PRIMARY' | ` EXPRESSION ` PRIMARY'
  */
 Eden.AST.prototype.pPRIMARY = function() {
+
 	// Backticks on RHS
 	if (this.token == "`") {
 		this.next();
@@ -29,7 +30,7 @@ Eden.AST.prototype.pPRIMARY = function() {
 
 		primary.setBackticks(btick);
 		primary.setObservable("__BACKTICKS__");
-		return primary;
+		return primary;	
 	// Plain observable
 	} else if (this.token == "OBSERVABLE") {
 		var primary;

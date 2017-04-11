@@ -109,12 +109,13 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 	// We have a backticks expression? Use that instead...
 	if (this.observable == "__BACKTICKS__") {
 		var id = 0;
-		console.log("CTX",ctx);
+		//console.log("CTX",ctx);
 		// Need to give each backtick a unique number in a given context.
 		if (ctx && ctx.backtickCount !== undefined) {
 			id = ctx.backtickCount;
 			ctx.backtickCount++;
 		}
+
 		// A dynamic dependency must be added if we are in a definition
 		if (ctx && ctx.type == "definition") {
 			res = "this.subscribeDynamic(btick++," + this.backtick.generate(ctx, scope,{bound: false, usevar: options.usevar})+")";
