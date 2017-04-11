@@ -40,7 +40,7 @@ Eden.AST.prototype.pFACTOR = function() {
 		}
 		return expression;
 	// Action parameters (DEPRECATED!)
-	} else if (this.token == "$") {
+	/*} else if (this.token == "$") {
 		this.next();
 		var index = 0;
 
@@ -56,7 +56,7 @@ Eden.AST.prototype.pFACTOR = function() {
 
 		index = this.data.value
 		this.next();
-		return new Eden.AST.Parameter(index);
+		return new Eden.AST.Parameter(index);*/
 	// Make a list literal
 	} else if (this.token == "[") {
 		this.next();

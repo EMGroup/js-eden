@@ -193,7 +193,7 @@ EdenStream.prototype.skipLine = function() {
  * Check if a character matches [a-zA-Z0-9_] or unicode...
  */
 EdenStream.prototype.isAlphaNumeric = function(ch) {
-	return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == 95) || (ch >= 128); //(ch >= 0xc0);
+	return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == 95) || (ch >= 128 || ch == 36); //(ch >= 0xc0);
 };
 
 
@@ -374,7 +374,7 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 					this.skip(); this.skip();
 					return "${{";
 				}
-				return "$";
+				break;
 	case 37	:	return "%";
 	case 38	:	if (this.peek() == 38) { this.skip(); return "&&"; }
 				if (this.peek() == 61) { this.skip(); return "&="; }
