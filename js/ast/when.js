@@ -14,6 +14,7 @@ Eden.AST.When = function() {
 	this.statement = undefined;
 	this.enabled = false;
 	this.statements = [];
+	this.retrigger = false;
 };
 
 Eden.AST.registerContext(Eden.AST.When);
@@ -136,13 +137,12 @@ Eden.AST.When.prototype.compile = function(base) {
 }
 
 Eden.AST.When.prototype.trigger = function() {
-	//console.trace("TRIGGER", this.name, scope);
 	var scope = eden.root.scope;
-	var base = eden.project.ast; //console.error("No trigger base for when",this);
+	var base = eden.project.ast;
 	if (this.active == false) {
 		this.active = true;
 		var res = this.executeReal(this, base, (scope) ? scope : eden.root.scope);
-		//console.log(res);
+
 		if (res && (eden.peer === undefined || eden.peer.authoriseWhen(this))) {
 			var me = this;
 			base.executeStatements(res, -1, this, function() {
@@ -156,7 +156,6 @@ Eden.AST.When.prototype.trigger = function() {
 			this.active = false;
 		}
 	} else {
-	//	console.log("WHEN ACTIVE TRIG");
 		this.retrigger = true;
 	}
 }

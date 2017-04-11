@@ -30,7 +30,7 @@ EdenUI.Explorer = function() {
 	this.element.resizable({
 		handles: "w",
 		stop: function(event, ui) {
-			console.log("RESIZESTOP",ui);
+			//console.log("RESIZESTOP",ui);
 			eden.root.lookup("jseden_explorer_width").assign(ui.element[0].clientWidth+2, eden.root.scope, Symbol.localJSAgent);
 		}
 	});
@@ -69,15 +69,20 @@ EdenUI.Explorer = function() {
 	if (!expVal) {
 		this.enabled = false;
 		this.element.hide();
+		me.state.hide();
+	} else {
+		me.state.show();
 	}
 	expSym.addJSObserver("explorer", function(sym, val) {
 		me.enabled = val;
 		if (!val) {
 			me.element.hide();
+			me.state.hide();
 			me.capture = false;
 			//me.clear();
 		} else if (eden.root.lookup("jseden_explorer_visible").value()) {
 			me.element.show();
+			me.state.show();
 		}
 	});
 
@@ -85,16 +90,21 @@ EdenUI.Explorer = function() {
 	var visVal = visSym.value();
 	if (!visVal) {
 		this.element.hide();
+		me.state.hide();
+	} else {
+		me.state.show();
 	}
 	visSym.addJSObserver("explorer", function(sym, val) {
-		console.log("VISIBLE");
+		//console.log("VISIBLE");
 		if (val && me.enabled) {
 			me.element.show();
+			me.state.show();
 			eden.root.lookup("jseden_explorer_width").assign(me.element.get(0).clientWidth+2, eden.root.scope, Symbol.localJSAgent);
 		} else {
 			me.element.hide();
 			me.state.capture = false;
 			me.state.clear();
+			me.state.hide();
 			eden.root.lookup("jseden_explorer_width").assign(0, eden.root.scope, Symbol.localJSAgent);
 		}
 	});
