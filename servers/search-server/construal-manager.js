@@ -1347,6 +1347,33 @@ app.get('/user/details', function(req, res){
 	res.json(u);
 });
 
+app.get('/user/list', function(req,res){
+	  if (req.user.admin != 1) {
+		 res.json({error: ERROR_NOTADMIN, description: "Must be admin to see a user list"});
+		 return;
+	  }
+	  var stmtstr = "SELECT userID, name FROM oauthusers";
+	  var criteriaObject = {};
+	  criteriaObject["@offset"] = 0;
+	  criteriaObject["@limit"] = 100;
+
+	  if(req.query.offset)
+		  criteriaObject["@offset"] = req.query.offset;
+	  if(req.query.limit)
+		  criteriaObject["@limit"] = req.query.limit;
+	  
+	  stmtstr += " ORDER BY userID DESC LIMIT @limit OFFSET @offset";
+	  var stmt = db.prepare(stmtstr);
+	  
+	  stmt.all(criteriaObject,function(err,rows){
+		  if(err){
+			  res.json({error: ERROR_SQL, description: "SQL Error", err:err});
+		  }else{
+			res.json(rows);
+		  }		  
+	  });
+  });
+
 // GET /auth/google
 //   Use passport.authenticate() as route middleware to authenticate the
 //   request.  The first step in Google authentication will involve
