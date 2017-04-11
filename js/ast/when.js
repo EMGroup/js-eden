@@ -18,7 +18,7 @@ Eden.AST.When = function() {
 
 Eden.AST.registerContext(Eden.AST.When);
 
-Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
+/*Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
 	var trigs = base.triggers[d];
 	if (trigs) {
 		for (var i=0; i<trigs.length; i++) if (trigs[i].statement === this) return;
@@ -27,7 +27,7 @@ Eden.AST.When.prototype.addTrigger = function(base, d, scope) {
 		trigs = [{base: base, statement: this, scope: scope}];
 		base.triggers[d] = trigs;
 	}
-}
+}*/
 
 Eden.AST.When.prototype.getSource = function() {
 	if (!this.statement) {
@@ -135,20 +135,29 @@ Eden.AST.When.prototype.compile = function(base) {
 	return "";
 }
 
-Eden.AST.When.prototype.trigger = function(base, scope) {
+Eden.AST.When.prototype.trigger = function() {
 	//console.trace("TRIGGER", this.name, scope);
-	if (base === undefined) console.error("No trigger base for when",this);
+	var scope = eden.root.scope;
+	var base = eden.project.ast; //console.error("No trigger base for when",this);
 	if (this.active == false) {
 		this.active = true;
 		var res = this.executeReal(this, base, (scope) ? scope : eden.root.scope);
 		//console.log(res);
 		if (res && (eden.peer === undefined || eden.peer.authoriseWhen(this))) {
-			base.executeStatements(res, -1, this, undefined, this);
+			var me = this;
+			base.executeStatements(res, -1, this, function() {
+				me.active = false;
+				if (me.retrigger) {
+					me.retrigger = false;
+					setTimeout(function(){me.trigger();},0);
+				}
+			}, this);
 		} else {
 			this.active = false;
 		}
 	} else {
-		//this.retrigger = true;
+	//	console.log("WHEN ACTIVE TRIG");
+		this.retrigger = true;
 	}
 }
 

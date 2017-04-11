@@ -10,7 +10,7 @@ Eden.Project = function(id, name, source) {
 	this.id = id;
 	this.vid = undefined;
 	this.parentid = undefined;
-	this.triggers = {};
+	//this.triggers = {};
 	this.thumb = undefined;
 	this.desc = undefined;
 	this.readPassword = undefined;
@@ -53,7 +53,7 @@ Eden.Project.init = function() {
 	}, "json");
 
 	// Watch to trigger whens
-	eden.root.addGlobal(function(sym, create) {
+	/*eden.root.addGlobal(function(sym, create) {
 		if (eden.project === undefined) return;
 		//if (me.ast && me.executed && me.ast.script.errors.length == 0) {
 			var whens = eden.project.triggers[sym.name];
@@ -66,7 +66,7 @@ Eden.Project.init = function() {
 				//me.clearExecutedState();
 			}
 		//}
-	});
+	});*/
 }
 
 Eden.Project.newFromExisting = function(name, cb) {
@@ -297,24 +297,25 @@ Eden.Project.prototype.setDescription = function(text) {
 	this.tags = tmpdoxy.getHashTags().map(function(e) { return e.substring(1); });
 }
 
-Eden.Project.prototype.addTrigger = function(when, d, scope) {
+/*Eden.Project.prototype.addTrigger = function(when, d, scope) {
 	console.log("Add When Trigger",d);
 	if (this.triggers[d] === undefined) this.triggers[d] = [];
 	this.triggers[d].push({statement: when, scope: scope});
-}
+}*/
 
 Eden.Project.prototype.registerAgent = function(when) {
-	console.log("REGISTER WHEN", when);
+	console.log("REGISTER WHEN", when.id, when);
 	for (var x in when.dependencies) {
-		if (this.triggers[x] === undefined) this.triggers[x] = [];
-		this.triggers[x].push({statement: when, scope: eden.root.scope});
+		//if (this.triggers[x] === undefined) this.triggers[x] = [];
+		//this.triggers[x].push({statement: when, scope: eden.root.scope});
+		eden.root.lookup(x).addObserver(when.id, when);
 	}
 }
 
 Eden.Project.prototype.removeAgent = function(when) {
-	console.log("REMOVE WHEN", when);
+	//console.log("REMOVE WHEN", when);
 	for (var x in when.dependencies) {
-		var t = this.triggers[x];
+		/*var t = this.triggers[x];
 		if (t) {
 			for (var i=0;i<t.length; i++) {
 				if (t[i].statement === when) {
@@ -322,7 +323,8 @@ Eden.Project.prototype.removeAgent = function(when) {
 					break;
 				}
 			}
-		}
+		}*/
+		eden.root.lookup(x).removeObserver(when.id);
 	}
 }
 
