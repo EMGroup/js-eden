@@ -34,7 +34,7 @@ Circle = function(x, y, radius, fillcolour, outlinecolour, drawingOptions) {
 # @param [outlineColour] defaults to black
 # @param [drawingOptions] object of drawingOptions
 # 
-#  #canvas #circle
+#  #canvas #circle #shape #draw #library
 func Circle {
 ${{
 	var x = arguments[0];

@@ -21,7 +21,6 @@ EdenUI.ScriptArea.Mouse = function(sa) {
 	 * the highlighted output instead.
 	 */
 	function onOutputMouseUp(e) {
-		console.log(e.target.nodeName);
 		if (e.target.nodeName == "INPUT" || e.target.nodeName == "textarea") return;
 		sa.hideInfoBox();
 		//hideMenu();
@@ -37,7 +36,6 @@ EdenUI.ScriptArea.Mouse = function(sa) {
 			if (element.className == "eden-selector" || element.className == "eden-selector2") {
 				sa.disableGotoMode();
 				var path = element.parentNode.textContent;
-				console.log("PATH",path);
 				Eden.Selectors.goto(path);
 				// TODO Use global goto.
 				/*var tabs = tabsSym.value();

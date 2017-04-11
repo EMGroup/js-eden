@@ -24,18 +24,17 @@ Checkbox.prototype.hash = function () {
 };
 }}$;
 
-/*
- * Draw a checkbox
- * @param [name] Defaults to the name of the observable will be used
- * @param label
- * @param x x position
- * @param y y position
- * @param [tristate] If true, the checkbox will have three states; true, false, undefined. Defaults to false
- * @param [enabled] Defaults to true.
- * #canvas #checkbox
- */
-
-func Checkbox { ${{
+#! Make a clickable checkbox on the canvas. Give it a name and then an observable `name_checked` is set to true of false.
+#
+# @param [name]
+# @param label
+# @param x x position
+# @param y y position
+# @param [tristate] If true, the checkbox will have three states; true, false, undefined. Defaults to false
+# @param [enabled] Defaults to true.
+#  #canvas #checkbox #tick #box #tickbox #check #form
+func Checkbox {
+${{
 	var argsProcessed;
 
 	var name;
