@@ -172,7 +172,7 @@ module.exports.setupPassport = function(passport,database){
 				));
 	
 	passport.registerUser = function(req, oauthcode,displayName,status,callback){
-		  var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?,?)");
+		  var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?,?,0)");
 			stmt.run(oauthcode, displayName, status,function(err){
 				if(callback){
 					callback(this.lastID);
