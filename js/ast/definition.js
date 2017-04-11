@@ -110,7 +110,6 @@ Eden.AST.Definition.prototype.generate = function(ctx,scope) {
 Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	//console.log("RHS = " + rhs);
-	var source = base.getSource(this);
 	var sym = this.lvalue.getSymbol(ctx,base,scope);
 	var rhs;
 
@@ -120,10 +119,10 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 	//if (eden.peer) eden.peer.broadcast(source);
 
-	if (this.doxyComment) {
-		//eden.dictionary[this.lvalue.name] = this.doxyComment;
-		eden.updateDictionary(this.lvalue.name, this.doxyComment);
-	}
+	//if (this.doxyComment) {
+	//	//eden.dictionary[this.lvalue.name] = this.doxyComment;
+	//	eden.updateDictionary(this.lvalue.name, this.doxyComment);
+	//}
 
 	try {
 		if (this.lvalue.hasListIndices()) {
@@ -135,6 +134,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			for (var d in this.dependencies) {
 				deps.push(d);
 			}
+			var source = base.getSource(this);
 			sym.addExtension(this.lvalue.generateIdStr(), eval(rhs), source, undefined, deps);
 		} else {
 			rhs = "("+this.generateDef(ctx)+")";
