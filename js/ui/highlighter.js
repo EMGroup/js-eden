@@ -80,6 +80,7 @@
 		"number": "eden-number",
 		"string": "eden-string",
 		"constant": "eden-constant",
+		"parameter": "eden-parameter",
 		"keyword": "eden-keyword",
 		"javascript": "eden-javascript",
 		"selector": "eden-selector",
