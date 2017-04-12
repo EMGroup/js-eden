@@ -73,7 +73,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}
 	};
 
-	this.thumbnail = function(cb) {
+	/*this.thumbnail = function(cb) {
 		var canvas = canvases["picture"];
 		if (canvas === undefined) {
 			for (var x in canvases) {
@@ -146,7 +146,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			//document.querySelector('#png-container').innerHTML = '<img src="'+png+'"/>';
 		//};
 		//img.src = url;
-	}
+	}*/
 
 	this.drawPicture = function(viewName) {
 		var canvas = canvases[viewName];
@@ -169,7 +169,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var pictureObsName = "view_" + viewName + "_content";
 					var pictureSym = root.lookup(pictureObsName);
 					var picture = pictureSym.value();
-					var context = canvas.getContext('2d');
+					var context = canvas.getContext('experimental-webgl');
 					var content = contents[viewName];
 					var contentindex = 0;
 					if (content === undefined) {
@@ -181,10 +181,19 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					if (backgroundColour === undefined) {
 						backgroundColour = "white";
 					}
-					context.setTransform(1, 0, 0, 1, 0, 0);
-					me.setFillStyle(context, backgroundColour);
+					//context.setTransform(1, 0, 0, 1, 0, 0);
+					//me.setFillStyle(context, backgroundColour);
 					content.style.backgroundColor = backgroundColour;
-					context.fillRect(0, 0, canvas.width, canvas.height);
+					//context.fillRect(0, 0, canvas.width, canvas.height);
+
+					var mvMatrix = mat4.create();
+ 					var pMatrix = mat4.create();
+					context.viewport(0, 0, context.viewportWidth, context.viewportHeight);
+					context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);	
+
+					mat4.perspective(45, context.viewportWidth / context.viewportHeight, 0.1, 100.0, pMatrix);
+					context.uniformMatrix4fv(canvas.shader.pMatrixUniform, false, pMatrix);
+					mat4.identity(mvMatrix);
 
 					var hash;
 					for (hash in previousElements) {
@@ -220,7 +229,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 								context.translate(origin.x, -originY);								
 								origin = new Point(origin.x, originY);
 							} else {
-								context.translate(origin.x, origin.y);
+								//context.translate(origin.x, origin.y);
 							}
 						} else {
 							origin = new Point(0, 0);
@@ -277,12 +286,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 									// if already existing hash, no need to draw, just set the elements
 									item.elements = existingEl;
 								} else {
-									context.save();
+									//context.save();
 									try {
 										var visible = me.configureContext(context, absScale, zoom, item.drawingOptions);
 										// expect draw() method to set .elements
 										if (visible) {
-											item.draw(context, scale, viewName);
+											console.log("MATRIX",mvMatrix);
+											item.draw(context, scale, viewName, mvMatrix, canvas.shader);
 										}
 									} catch (e) {
 										if (item !== undefined) {
@@ -293,7 +303,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 											//}
 										}
 									}
-									context.restore();
+									//context.restore();
 								}
 
 								if (item.elements !== undefined) {
@@ -391,7 +401,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 								obsName = match[1];
 							}
 						}
-						context.save();
+						/*context.save();
 						context.font = "18px sans-serif";
 						context.fillStyle = "black";
 						context.textAlign = "center";
@@ -406,7 +416,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 							canvas.width / 2,
 							canvas.height / 2 + 30
 						);
-						context.restore();
+						context.restore();*/
 					}
 					cleanupCanvas(content, previousElements);
 					canvasNameToElements[viewName] = nextElements;
@@ -677,6 +687,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			canvas.drawingQueued = false;
 			canvas.drawingInProgress = false;
 			canvas.rescale = false;
+
+			EdenUI.plugins.Canvas2D.initGL(canvas);
 		} else {
 			code_entry = $("#" + name + "-canvascontent");
 			jqCanvas = code_entry.find(".canvashtml-canvas");

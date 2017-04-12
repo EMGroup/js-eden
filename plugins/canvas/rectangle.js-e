@@ -15,6 +15,23 @@ Rectangle = function(x, y, width, height, fillcolour, outlinecolour, drawingOpti
 	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Rectangle");
 	this.obsName = root.currentObservableName();
 }
+
+Rectangle.createBuffer = function(gl) {
+	Rectangle.buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, Rectangle.buffer);
+    vertices = [
+         1.0,  1.0,  0.0,
+        -1.0,  1.0,  0.0,
+         1.0, -1.0,  0.0,
+        -1.0, -1.0,  0.0
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    Rectangle.buffer.itemSize = 3;
+    Rectangle.buffer.numItems = 4;
+
+	console.log("RECT BUFFER CREATED");
+}
+
 }}$;
 
 #! Creates a rectangle that can be coloured and displayed on a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
@@ -61,8 +78,8 @@ ${{
 
 ${{
 
-Rectangle.prototype.draw = function (context, scale) {
-	var lineWidth;
+Rectangle.prototype.draw = function (context, scale, viewname, mvMatrix, shader) {
+	/*var lineWidth;
 	if (this.outlinecolour !== undefined) {
 		lineWidth = context.lineWidth;
 		if (this.drawingOptions !== undefined) {
@@ -85,7 +102,16 @@ Rectangle.prototype.draw = function (context, scale) {
 	if (this.outlinecolour !== undefined) {
 		context.strokeStyle = this.outlinecolour;
 		context.strokeRect(this.x + lineWidth / 2, y + lineWidth / 2, this.width - lineWidth, this.height - lineWidth);
-	}
+	}*/
+
+	console.log("SHADER", shader);
+
+	//mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]);
+	//mat4.translate(mvMatrix, [3.0, 0.0, 0.0]);
+	context.bindBuffer(context.ARRAY_BUFFER, Rectangle.buffer);
+    context.vertexAttribPointer(shader.vertexPositionAttribute, Rectangle.buffer.itemSize, context.FLOAT, false, 0, 0);
+	context.uniformMatrix4fv(shader.mvMatrixUniform, false, mvMatrix);
+	context.drawArrays(context.TRIANGLE_STRIP, 0, Rectangle.buffer.numItems);
 };
 
 Rectangle.prototype.isHit = function (context, scale, x, y) {
