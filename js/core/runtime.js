@@ -15,6 +15,12 @@ Point.prototype.toString = function(p) {
 };
 Point.prototype.getEdenCode = Point.prototype.toString;
 
+Point3D = function(x,y,z) { this.x = x; this.y = y; this.z = z; }
+Point3D.prototype.toString = function(p) {
+  return "Point3D::(" + Eden.edenCodeForValue(this.x, undefined, p) + ", " + Eden.edenCodeForValue(this.y, undefined, p) + ")";
+};
+Point3D.prototype.getEdenCode = Point.prototype.toString;
+
 // functions to act in the same way as EDEN operators
 var rt = {
 	index: function (ix) {

@@ -48,6 +48,8 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 	this.loaded = false;
 	
 	var me = this;
+
+	 this.texture = undefined;
 	
 	this.image.onload = function() {
 		if (me.sWidth === undefined) {
@@ -155,9 +157,43 @@ func Image {
 }
 
 ${{
+function isPowerOf2(value) {
+  return (value & (value - 1)) == 0;
+};
+
+
 CanvasImage.prototype.draw = function(context, scale, viewName) {
 	if (this.loaded) {
-		var smoothed = this.smoothed;
+
+		if (!this.texture) {
+			this.texture = context.createTexture();
+			context.bindTexture(context.TEXTURE_2D, this.texture);
+			context.pixelStorei(context.UNPACK_FLIP_Y_WEBGL, true);
+			context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, context.RGBA, context.UNSIGNED_BYTE, this.image);
+
+			if (isPowerOf2(this.image.width) && isPowerOf2(this.image.height)) {
+				// the dimensions are power of 2 so generate mips and turn on 
+				// tri-linear filtering.
+				context.generateMipmap(context.TEXTURE_2D);
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR_MIPMAP_LINEAR);
+			  } else {
+				// at least one of the dimensions is not a power of 2 so set the filtering
+				// so WebGL will render it.
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR);
+			  }
+
+			console.log("IMAGE TEXTURE MADE");
+
+			//context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
+			//context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
+			//context.bindTexture(context.TEXTURE_2D, null);
+		} else {
+			context.bindTexture(context.TEXTURE_2D, this.texture);
+		}
+
+		/*var smoothed = this.smoothed;
 		context.mozImageSmoothingEnabled = smoothed;
 		context.msImageSmoothingEnabled = smoothed;
 		context.imageSmoothingEnabled = smoothed;
@@ -174,7 +210,9 @@ CanvasImage.prototype.draw = function(context, scale, viewName) {
 				this.flippedImage = buffer;
 			}
 			context.drawImage(this.flippedImage, this.dx, this.dy - this.dHeight);
-		}
+		}*/
+
+
 	} else {
 		this.canvasesToRepaint[viewName] = true;
 	}

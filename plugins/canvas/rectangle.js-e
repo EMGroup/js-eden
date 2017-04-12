@@ -4,13 +4,14 @@
 ## See LICENSE.txt
 
 ${{
-Rectangle = function(x, y, z, width, height, fillcolour, outlinecolour, drawingOptions) {
-	this.x = x;
-	this.y = y;
-	this.z = z;
-	this.width = width;
-	this.height = height;
-	this.fillcolour = (fillcolour) ? fillcolour : "white";
+Rectangle = function(pos, scale, rot, fillcolour, outlinecolour, drawingOptions) {
+	this.x = pos.x;
+	this.y = pos.y;
+	this.z = pos.z;
+	this.width = scale.x;
+	this.height = scale.y;
+	this.rotation = rot;
+	this.colour = (fillcolour) ? fillcolour : "white";
 	this.outlinecolour = outlinecolour;
 	this.drawingOptions = drawingOptions;
 	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Rectangle");
@@ -76,36 +77,21 @@ ${{
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		outlinecolour = "black";
 	}
-	return new Rectangle(x, y, -5.0, width, height, fillcolour, outlinecolour, drawingOptions);
+	return new Rectangle(new Point3D(x, y, -5.0), new Point2D(width, height), undefined, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
-func Rectangle3D {
-${{
-	var x = arguments[0];
-	var y = arguments[1];
-	var z = arguments[2];
-	var width = arguments[3];
-	var height = arguments[4];
-	var fillcolour, outlinecolour, drawingOptions;
-	var lastArg = arguments[arguments.length - 1];
-	var processUpTo;
-	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
-		drawingOptions = lastArg;
-		processUpTo = arguments.length - 2;
-	} else {
-		processUpTo = arguments.length - 1;
-	}
-	if (processUpTo >= 5) {
-		fillcolour = arguments[5];
-		if (processUpTo == 6) {
-			outlinecolour = arguments[6];
-		}
-	}
-	if (fillcolour === undefined && outlinecolour === undefined) {
-		outlinecolour = "black";
-	}
-	return new Rectangle(x, y, z, width, height, fillcolour, outlinecolour, drawingOptions);
-}}$; };
+Rectangle3D is ${{ (new Rectangle(
+	scope.value("$1"),
+	scope.value("$2"),
+	scope.value("rotation"),
+	scope.value("fill"),
+	scope.value("outline"))) }}$ ::
+		$1=$1,
+		$2=$2,
+		rotation=rotation,
+		fill = fill if fill!=@ else "white",
+		outline = "black";
+
 
 ${{
 
@@ -138,25 +124,56 @@ Rectangle.prototype.draw = function (context, scale, viewname, mvMatrix, shader,
 	var scale = vec3.create();
 	vec3.set(scale, this.width, this.height, 1.0);
 	mat4.scale(mvMatrix,mvMatrix,scale);
+
 	var translation = vec3.create();
 	vec3.set (translation, this.x, this.y, this.z);
 	mat4.translate(mvMatrix,mvMatrix,translation);
 
-	context.bindBuffer(context.ARRAY_BUFFER, Rectangle.colourbuffer);
+	if (this.rotation) {
+		var rot = vec3.create();
+		if (this.rotation.x) {
+			vec3.set(rot, 1, 0, 0);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.x * Math.PI / 180, rot);
+		}
+		if (this.rotation.y) {
+			vec3.set(rot, 0, 1, 0);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.y * Math.PI / 180, rot);
+		}
+		if (this.rotation.z) {
+			vec3.set(rot, 0, 0, 1);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.z * Math.PI / 180, rot);
+		}
+	}
 
-	var colorobj = jQuery.Color( this.fillcolour );
-	var r = colorobj.red();
-	var g = colorobj.green();
-	var b = colorobj.blue();
-	console.log("COLOURS", r, g, b);
+	if (this.colour instanceof CanvasImage && this.colour.texture) {
+		context.bindBuffer(context.ARRAY_BUFFER, Cube.textbuffer);
+    	context.vertexAttribPointer(shader.textureCoordAttribute, Cube.textbuffer.itemSize, context.FLOAT, false, 0, 0);
+		context.activeTexture(context.TEXTURE0);
+   		context.bindTexture(context.TEXTURE_2D, this.colour.texture);
+    	context.uniform1i(shader.samplerUniform, 0);
+	} else {
+		if (!this.texture) {
+			var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
+			var r = colorobj.red();
+			var g = colorobj.green();
+			var b = colorobj.blue();
 
-    colors = [];
-    for (var i=0; i < 4; i++) {
-      colors = colors.concat([r/255, g/255, b/255, 1.0]);
-    }
-    context.bufferData(context.ARRAY_BUFFER, new Float32Array(colors), context.STATIC_DRAW);
-	context.vertexAttribPointer(shader.vertexColorAttribute, Rectangle.colourbuffer.itemSize, context.FLOAT, false, 0, 0);
-
+			this.texture = context.createTexture();
+			context.bindBuffer(context.ARRAY_BUFFER, Cube.textbuffer);
+    		context.vertexAttribPointer(shader.textureCoordAttribute, Cube.textbuffer.itemSize, context.FLOAT, false, 0, 0);
+			context.activeTexture(context.TEXTURE0);
+			context.bindTexture(context.TEXTURE_2D, this.texture);
+			context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
+						  new Uint8Array([r, g, b, 255]));
+			context.uniform1i(shader.samplerUniform, 0);
+		} else {
+			context.bindBuffer(context.ARRAY_BUFFER, Cube.textbuffer);
+			context.vertexAttribPointer(shader.textureCoordAttribute, Cube.textbuffer.itemSize, context.FLOAT, false, 0, 0);
+			context.activeTexture(context.TEXTURE0);
+	   		context.bindTexture(context.TEXTURE_2D, this.colour.texture);
+			context.uniform1i(shader.samplerUniform, 0);
+		}
+	}
 	context.bindBuffer(context.ARRAY_BUFFER, Rectangle.buffer);
     context.vertexAttribPointer(shader.vertexPositionAttribute, Rectangle.buffer.itemSize, context.FLOAT, false, 0, 0);
 	//context.uniformMatrix4fv(shader.pMatrixUniform, false, pMatrix);

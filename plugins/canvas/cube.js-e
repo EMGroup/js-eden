@@ -1,0 +1,255 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+Cube = function(pos, scale, rot, colour, drawingOptions) {
+	this.x = pos.x;
+	this.y = pos.y;
+	this.z = pos.z;
+	this.width = scale.x;
+	this.height = scale.y;
+	this.depth = scale.z;
+	this.rotation = rot;
+	this.colour = (colour) ? colour : "silver";
+	this.drawingOptions = drawingOptions;
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Cube");
+	this.obsName = root.currentObservableName();
+
+	this.texture = undefined;
+}
+
+Cube.createBuffer = function(gl) {
+	Cube.buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, Cube.buffer);
+    vertices = [
+            // Front face
+            -1.0, -1.0,  1.0,
+             1.0, -1.0,  1.0,
+             1.0,  1.0,  1.0,
+            -1.0,  1.0,  1.0,
+
+            // Back face
+            -1.0, -1.0, -1.0,
+            -1.0,  1.0, -1.0,
+             1.0,  1.0, -1.0,
+             1.0, -1.0, -1.0,
+
+            // Top face
+            -1.0,  1.0, -1.0,
+            -1.0,  1.0,  1.0,
+             1.0,  1.0,  1.0,
+             1.0,  1.0, -1.0,
+
+            // Bottom face
+            -1.0, -1.0, -1.0,
+             1.0, -1.0, -1.0,
+             1.0, -1.0,  1.0,
+            -1.0, -1.0,  1.0,
+
+            // Right face
+             1.0, -1.0, -1.0,
+             1.0,  1.0, -1.0,
+             1.0,  1.0,  1.0,
+             1.0, -1.0,  1.0,
+
+            // Left face
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0,  1.0,
+            -1.0,  1.0,  1.0,
+            -1.0,  1.0, -1.0,
+        ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    Cube.buffer.itemSize = 3;
+    Cube.buffer.numItems = 24;
+
+	Cube.textbuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, Cube.textbuffer);
+    var textureCoords = [
+      // Front face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Back face
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+      0.0, 0.0,
+
+      // Top face
+      0.0, 1.0,
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+
+      // Bottom face
+      1.0, 1.0,
+      0.0, 1.0,
+      0.0, 0.0,
+      1.0, 0.0,
+
+      // Right face
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+      0.0, 0.0,
+
+      // Left face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
+    Cube.textbuffer.itemSize = 2;
+    Cube.textbuffer.numItems = 24;
+
+	 Cube.indexbuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Cube.indexbuffer);
+        var cubeVertexIndices = [
+            0, 1, 2,      0, 2, 3,    // Front face
+            4, 5, 6,      4, 6, 7,    // Back face
+            8, 9, 10,     8, 10, 11,  // Top face
+            12, 13, 14,   12, 14, 15, // Bottom face
+            16, 17, 18,   16, 18, 19, // Right face
+            20, 21, 22,   20, 22, 23  // Left face
+        ];
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+        Cube.indexbuffer.itemSize = 1;
+        Cube.indexbuffer.numItems = 36;
+
+	Cube.colourbuffer = gl.createBuffer();
+	Cube.colourbuffer.itemSize = 4;
+	Cube.colourbuffer.numItems = 24;
+}
+
+}}$;
+
+#! Creates a cube that can be coloured and displayed on a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
+#
+# ##Usage Example
+#  `Cube::(Point3D::(x,y,z),Point(width,height));`
+# 
+#  #canvas #rectangle #drawingoptions #square #box #shape #draw
+Cube is ${{ (new Cube(
+	scope.value("$1"),
+	scope.value("$2"),
+	scope.value("rotation"),
+	scope.value("colour"))) }}$ ::
+		$1=$1,
+		$2=$2,
+		rotation=rotation,
+		colour = colour if colour!=@ else "black";
+
+
+${{
+
+Cube.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
+	var translation = vec3.create();
+	vec3.set (translation, this.x, this.y, this.z);
+	mat4.translate(mvMatrix,mvMatrix,translation);
+
+	if (this.rotation) {
+		var rot = vec3.create();
+		if (this.rotation.x) {
+			vec3.set(rot, 1, 0, 0);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.x * Math.PI / 180, rot);
+		}
+		if (this.rotation.y) {
+			vec3.set(rot, 0, 1, 0);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.y * Math.PI / 180, rot);
+		}
+		if (this.rotation.z) {
+			vec3.set(rot, 0, 0, 1);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.z * Math.PI / 180, rot);
+		}
+	}
+
+var scale = vec3.create();
+	vec3.set(scale, this.width, this.height, this.depth);
+	mat4.scale(mvMatrix,mvMatrix,scale);
+
+	if (this.colour instanceof CanvasImage) {
+		context.bindBuffer(context.ARRAY_BUFFER, Cube.textbuffer);
+    	context.vertexAttribPointer(shader.textureCoordAttribute, Cube.textbuffer.itemSize, context.FLOAT, false, 0, 0);
+		context.activeTexture(context.TEXTURE0);
+
+		if (this.colour.loaded) {
+			//console.log("LOADED TEXTURE");
+			this.colour.draw(context,scale,viewname,mvMatrix, shader);
+		} else {
+			this.colour.draw(context,scale,viewname,mvMatrix, shader);
+			if (!this.texture) {
+				this.texture = context.createTexture();
+				context.bindTexture(context.TEXTURE_2D, this.texture);
+				context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
+							  new Uint8Array([100, 100, 100, 255]));
+			} else {
+				context.bindTexture(context.TEXTURE_2D, this.texture);
+			}
+		}
+    	context.uniform1i(shader.samplerUniform, 0);
+	} else {
+		if (!this.texture) {
+			var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
+			var r = colorobj.red();
+			var g = colorobj.green();
+			var b = colorobj.blue();
+
+			this.texture = context.createTexture();
+			context.bindBuffer(context.ARRAY_BUFFER, Cube.textbuffer);
+    		context.vertexAttribPointer(shader.textureCoordAttribute, Cube.textbuffer.itemSize, context.FLOAT, false, 0, 0);
+			context.activeTexture(context.TEXTURE0);
+			context.bindTexture(context.TEXTURE_2D, this.texture);
+			context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
+						  new Uint8Array([r, g, b, 255]));
+			context.uniform1i(shader.samplerUniform, 0);
+		} else {
+			context.bindBuffer(context.ARRAY_BUFFER, Cube.textbuffer);
+			context.vertexAttribPointer(shader.textureCoordAttribute, Cube.textbuffer.itemSize, context.FLOAT, false, 0, 0);
+			context.activeTexture(context.TEXTURE0);
+	   		context.bindTexture(context.TEXTURE_2D, this.texture);
+			context.uniform1i(shader.samplerUniform, 0);
+		}
+	}
+
+	context.bindBuffer(context.ARRAY_BUFFER, Cube.buffer);
+    context.vertexAttribPointer(shader.vertexPositionAttribute, Cube.buffer.itemSize, context.FLOAT, false, 0, 0);
+
+	context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, Cube.indexbuffer);
+
+	//context.uniformMatrix4fv(shader.pMatrixUniform, false, pMatrix);
+	context.uniformMatrix4fv(shader.mvMatrixUniform, false, mvMatrix);
+	context.drawElements(context.TRIANGLES, Cube.indexbuffer.numItems, context.UNSIGNED_SHORT, 0);
+};
+
+Cube.prototype.isHit = function (context, scale, x, y) {
+	return x >= this.x && x < this.x + this.width && y >= this.y && y < this.y + this.height;
+}
+
+Cube.prototype.toString = function() {
+	var s = "Cube::(" + Eden.edenCodeForValues(this.x, this.y, this.width, this.height, this.fillcolour, this.outlinecolour);
+
+	if (this.drawingOptions !== undefined) {
+		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
+	}
+	
+	s = s + ")";
+	return s;
+};
+
+Cube.prototype.getEdenCode = Cube.prototype.toString;
+
+Cube.prototype.imageMapArea = function () {
+	return "shape=\"rect\" coords=\"" + this.x + "," + this.y + "," + (this.x + this.width) + "," +
+		(this.y + this.height) + "\"";
+}
+
+Cube.prototype.centre = function () {
+	return new Point(this.x + this.width / 2, this.y + this.height / 2);
+}
+
+}}$;

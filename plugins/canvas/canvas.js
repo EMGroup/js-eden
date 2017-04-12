@@ -292,6 +292,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 										// expect draw() method to set .elements
 										if (visible) {
 											//console.log("MATRIX",mvMatrix);
+											mat4.identity(mvMatrix);
 											item.draw(context, scale, viewName, mvMatrix, canvas.shader); //, pMatrix);
 										}
 									} catch (e) {
