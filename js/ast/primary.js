@@ -118,7 +118,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 
 		// A dynamic dependency must be added if we are in a definition
 		if (ctx && ctx.type == "definition") {
-			res = "this.subscribeDynamic(btick++," + this.backtick.generate(ctx, scope,{bound: false, usevar: options.usevar})+")";
+			res = "this.subscribeDynamic(btick++," + this.backtick.generate(ctx, scope,{bound: false, usevar: options.usevar})+", "+scope+")";
 		} else {
 			res = this.backtick.generate(ctx,scope, {bound: false, usevar: options.usevar});
 		}
