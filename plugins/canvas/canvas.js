@@ -181,6 +181,14 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					if (backgroundColour === undefined) {
 						backgroundColour = "white";
 					}
+					EdenUI.plugins.Canvas2D.setBackground(context, backgroundColour);
+
+					var ambientColour = root.lookup("view_" + viewName + "_ambient_colour").value();
+					if (ambientColour === undefined) {
+						ambientColour = "white";
+					}
+					EdenUI.plugins.Canvas2D.setAmbient(context, canvas.shader, ambientColour);
+
 					//context.setTransform(1, 0, 0, 1, 0, 0);
 					//me.setFillStyle(context, backgroundColour);
 					content.style.backgroundColor = backgroundColour;
@@ -194,6 +202,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					mat4.perspective(pMatrix, 45, canvas.width / canvas.height, 0.1, 100.0);
 					context.uniformMatrix4fv(canvas.shader.pMatrixUniform, false, pMatrix);
 					mat4.identity(mvMatrix);
+
+					context.uniform1i(canvas.shader.useLightingUniform, false);
 
 					var hash;
 					for (hash in previousElements) {

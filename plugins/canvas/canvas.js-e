@@ -482,6 +482,7 @@ do plugins > canvas > translation;
 do plugins > canvas > video;
 do plugins > canvas > view;
 do plugins > canvas > cube;
+do plugins > canvas > light;
 
 }
 }

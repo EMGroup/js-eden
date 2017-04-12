@@ -107,6 +107,49 @@ Cube.createBuffer = function(gl) {
     Cube.textbuffer.itemSize = 2;
     Cube.textbuffer.numItems = 24;
 
+	Cube.normalbuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, Cube.normalbuffer);
+    var vertexNormals = [
+      // Front face
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0,
+
+      // Back face
+       0.0,  0.0, -1.0,
+       0.0,  0.0, -1.0,
+       0.0,  0.0, -1.0,
+       0.0,  0.0, -1.0,
+
+      // Top face
+       0.0,  1.0,  0.0,
+       0.0,  1.0,  0.0,
+       0.0,  1.0,  0.0,
+       0.0,  1.0,  0.0,
+
+      // Bottom face
+       0.0, -1.0,  0.0,
+       0.0, -1.0,  0.0,
+       0.0, -1.0,  0.0,
+       0.0, -1.0,  0.0,
+
+      // Right face
+       1.0,  0.0,  0.0,
+       1.0,  0.0,  0.0,
+       1.0,  0.0,  0.0,
+       1.0,  0.0,  0.0,
+
+      // Left face
+      -1.0,  0.0,  0.0,
+      -1.0,  0.0,  0.0,
+      -1.0,  0.0,  0.0,
+      -1.0,  0.0,  0.0,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
+    Cube.normalbuffer.itemSize = 3;
+    Cube.normalbuffer.numItems = 24;
+
 	 Cube.indexbuffer = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Cube.indexbuffer);
         var cubeVertexIndices = [
@@ -168,6 +211,12 @@ Cube.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMat
 		}
 	}
 
+	var normalMatrix = mat3.create();
+    mat3.fromMat4(normalMatrix,mvMatrix);
+	mat3.invert(normalMatrix,normalMatrix);
+    mat3.transpose(normalMatrix,normalMatrix);
+    context.uniformMatrix3fv(shader.nMatrixUniform, false, normalMatrix);
+
 var scale = vec3.create();
 	vec3.set(scale, this.width, this.height, this.depth);
 	mat4.scale(mvMatrix,mvMatrix,scale);
@@ -218,6 +267,9 @@ var scale = vec3.create();
 
 	context.bindBuffer(context.ARRAY_BUFFER, Cube.buffer);
     context.vertexAttribPointer(shader.vertexPositionAttribute, Cube.buffer.itemSize, context.FLOAT, false, 0, 0);
+
+	context.bindBuffer(context.ARRAY_BUFFER, Cube.normalbuffer);
+    context.vertexAttribPointer(shader.vertexNormalAttribute, Cube.normalbuffer.itemSize, context.FLOAT, false, 0, 0);
 
 	context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, Cube.indexbuffer);
 

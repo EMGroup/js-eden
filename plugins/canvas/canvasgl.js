@@ -11,6 +11,39 @@ EdenUI.plugins.Canvas2D.initGL = function(canvas) {
 	Cube.createBuffer(gl);
 
 	canvas.shader = EdenUI.plugins.Canvas2D.initShaders(gl);
+
+	var colorobj = jQuery.Color( "#555" );
+			var r = colorobj.red() / 255;
+			var g = colorobj.green() / 255;
+			var b = colorobj.blue() / 255;
+
+	gl.uniform3f(
+        canvas.shader.ambientColorUniform,
+        r,
+        g,
+        b
+      );
+}
+
+EdenUI.plugins.Canvas2D.setBackground = function(gl, colour) {
+	var colorobj = jQuery.Color( colour );
+			var r = colorobj.red() / 255;
+			var g = colorobj.green() / 255;
+			var b = colorobj.blue() / 255;
+	gl.clearColor(r,g,b, 1.0);
+}
+
+EdenUI.plugins.Canvas2D.setAmbient = function(gl, shader, colour) {
+	var colorobj = jQuery.Color( colour );
+			var r = colorobj.red() / 255;
+			var g = colorobj.green() / 255;
+			var b = colorobj.blue() / 255;
+	gl.uniform3f(
+        shader.ambientColorUniform,
+        r,
+        g,
+        b
+      );
 }
 
 EdenUI.plugins.Canvas2D.getShader = function(gl, str, kind) {
@@ -38,23 +71,43 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
     var fragmentShader = EdenUI.plugins.Canvas2D.getShader(gl, `precision mediump float;
 
   varying vec2 vTextureCoord;
+  varying vec3 vLightWeighting;
 
   uniform sampler2D uSampler;
 
   void main(void) {
-    gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+     vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+     gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);
   }`, "fragment");
     var vertexShader = EdenUI.plugins.Canvas2D.getShader(gl, `attribute vec3 aVertexPosition;
+  attribute vec3 aVertexNormal;
   attribute vec2 aTextureCoord;
 
   uniform mat4 uMVMatrix;
   uniform mat4 uPMatrix;
+  uniform mat3 uNMatrix;
+
+  uniform vec3 uAmbientColor;
+
+  uniform vec3 uLightingDirection;
+  uniform vec3 uDirectionalColor;
+
+  uniform bool uUseLighting;
 
   varying vec2 vTextureCoord;
+  varying vec3 vLightWeighting;
 
   void main(void) {
     gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-	vTextureCoord = aTextureCoord;
+    vTextureCoord = aTextureCoord;
+
+    if (!uUseLighting) {
+      vLightWeighting = vec3(1.0, 1.0, 1.0);
+    } else {
+      vec3 transformedNormal = uNMatrix * aVertexNormal;
+      float directionalLightWeighting = max(dot(transformedNormal, uLightingDirection), 0.0);
+      vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;
+    }
   }`, "vertex");
 
     shaderProgram = gl.createProgram();
@@ -70,11 +123,19 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
 
 	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+	shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 	shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
     gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 	//shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
     //gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 	shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
     shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+	shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+        shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+        shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, "uUseLighting");
+        shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
+        shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
+        shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
 	return shaderProgram;
 }
