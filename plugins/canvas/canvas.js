@@ -188,10 +188,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 					var mvMatrix = mat4.create();
  					var pMatrix = mat4.create();
-					context.viewport(0, 0, context.viewportWidth, context.viewportHeight);
+					context.viewport(0, 0, canvas.width, canvas.height);
 					context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);	
 
-					mat4.perspective(45, context.viewportWidth / context.viewportHeight, 0.1, 100.0, pMatrix);
+					mat4.perspective(pMatrix, 45, canvas.width / canvas.height, 0.1, 100.0);
 					context.uniformMatrix4fv(canvas.shader.pMatrixUniform, false, pMatrix);
 					mat4.identity(mvMatrix);
 
@@ -291,8 +291,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 										var visible = me.configureContext(context, absScale, zoom, item.drawingOptions);
 										// expect draw() method to set .elements
 										if (visible) {
-											console.log("MATRIX",mvMatrix);
-											item.draw(context, scale, viewName, mvMatrix, canvas.shader);
+											//console.log("MATRIX",mvMatrix);
+											item.draw(context, scale, viewName, mvMatrix, canvas.shader); //, pMatrix);
 										}
 									} catch (e) {
 										if (item !== undefined) {

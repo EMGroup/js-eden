@@ -36,16 +36,22 @@ EdenUI.plugins.Canvas2D.getShader = function(gl, str, kind) {
 EdenUI.plugins.Canvas2D.initShaders = function(gl) {
     var fragmentShader = EdenUI.plugins.Canvas2D.getShader(gl, `precision mediump float;
 
+  varying vec4 vColor;
+
   void main(void) {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    gl_FragColor = vColor;
   }`, "fragment");
     var vertexShader = EdenUI.plugins.Canvas2D.getShader(gl, `attribute vec3 aVertexPosition;
+  attribute vec4 aVertexColor;
 
   uniform mat4 uMVMatrix;
   uniform mat4 uPMatrix;
 
+  varying vec4 vColor;
+
   void main(void) {
     gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    vColor = aVertexColor;
   }`, "vertex");
 
     shaderProgram = gl.createProgram();
@@ -61,6 +67,8 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
 
 	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+	shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+    gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 	shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
     shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 	return shaderProgram;

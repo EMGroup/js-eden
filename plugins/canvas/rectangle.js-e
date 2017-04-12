@@ -4,12 +4,13 @@
 ## See LICENSE.txt
 
 ${{
-Rectangle = function(x, y, width, height, fillcolour, outlinecolour, drawingOptions) {
+Rectangle = function(x, y, z, width, height, fillcolour, outlinecolour, drawingOptions) {
 	this.x = x;
 	this.y = y;
+	this.z = z;
 	this.width = width;
 	this.height = height;
-	this.fillcolour = fillcolour;
+	this.fillcolour = (fillcolour) ? fillcolour : "white";
 	this.outlinecolour = outlinecolour;
 	this.drawingOptions = drawingOptions;
 	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Rectangle");
@@ -29,7 +30,9 @@ Rectangle.createBuffer = function(gl) {
     Rectangle.buffer.itemSize = 3;
     Rectangle.buffer.numItems = 4;
 
-	console.log("RECT BUFFER CREATED");
+	Rectangle.colourbuffer = gl.createBuffer();
+	Rectangle.colourbuffer.itemSize = 4;
+	Rectangle.colourbuffer.numItems = 4;
 }
 
 }}$;
@@ -73,12 +76,40 @@ ${{
 	if (fillcolour === undefined && outlinecolour === undefined) {
 		outlinecolour = "black";
 	}
-	return new Rectangle(x, y, width, height, fillcolour, outlinecolour, drawingOptions);
+	return new Rectangle(x, y, -5.0, width, height, fillcolour, outlinecolour, drawingOptions);
+}}$; };
+
+func Rectangle3D {
+${{
+	var x = arguments[0];
+	var y = arguments[1];
+	var z = arguments[2];
+	var width = arguments[3];
+	var height = arguments[4];
+	var fillcolour, outlinecolour, drawingOptions;
+	var lastArg = arguments[arguments.length - 1];
+	var processUpTo;
+	if (lastArg !== undefined && (lastArg instanceof Object) && !(lastArg instanceof EdenUI.plugins.Canvas2D.FillStyle)) {
+		drawingOptions = lastArg;
+		processUpTo = arguments.length - 2;
+	} else {
+		processUpTo = arguments.length - 1;
+	}
+	if (processUpTo >= 5) {
+		fillcolour = arguments[5];
+		if (processUpTo == 6) {
+			outlinecolour = arguments[6];
+		}
+	}
+	if (fillcolour === undefined && outlinecolour === undefined) {
+		outlinecolour = "black";
+	}
+	return new Rectangle(x, y, z, width, height, fillcolour, outlinecolour, drawingOptions);
 }}$; };
 
 ${{
 
-Rectangle.prototype.draw = function (context, scale, viewname, mvMatrix, shader) {
+Rectangle.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
 	/*var lineWidth;
 	if (this.outlinecolour !== undefined) {
 		lineWidth = context.lineWidth;
@@ -104,12 +135,31 @@ Rectangle.prototype.draw = function (context, scale, viewname, mvMatrix, shader)
 		context.strokeRect(this.x + lineWidth / 2, y + lineWidth / 2, this.width - lineWidth, this.height - lineWidth);
 	}*/
 
-	console.log("SHADER", shader);
+	var scale = vec3.create();
+	vec3.set(scale, this.width, this.height, 1.0);
+	mat4.scale(mvMatrix,mvMatrix,scale);
+	var translation = vec3.create();
+	vec3.set (translation, this.x, this.y, this.z);
+	mat4.translate(mvMatrix,mvMatrix,translation);
 
-	//mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]);
-	//mat4.translate(mvMatrix, [3.0, 0.0, 0.0]);
+	context.bindBuffer(context.ARRAY_BUFFER, Rectangle.colourbuffer);
+
+	var colorobj = jQuery.Color( this.fillcolour );
+	var r = colorobj.red();
+	var g = colorobj.green();
+	var b = colorobj.blue();
+	console.log("COLOURS", r, g, b);
+
+    colors = [];
+    for (var i=0; i < 4; i++) {
+      colors = colors.concat([r/255, g/255, b/255, 1.0]);
+    }
+    context.bufferData(context.ARRAY_BUFFER, new Float32Array(colors), context.STATIC_DRAW);
+	context.vertexAttribPointer(shader.vertexColorAttribute, Rectangle.colourbuffer.itemSize, context.FLOAT, false, 0, 0);
+
 	context.bindBuffer(context.ARRAY_BUFFER, Rectangle.buffer);
     context.vertexAttribPointer(shader.vertexPositionAttribute, Rectangle.buffer.itemSize, context.FLOAT, false, 0, 0);
+	//context.uniformMatrix4fv(shader.pMatrixUniform, false, pMatrix);
 	context.uniformMatrix4fv(shader.mvMatrixUniform, false, mvMatrix);
 	context.drawArrays(context.TRIANGLE_STRIP, 0, Rectangle.buffer.numItems);
 };
