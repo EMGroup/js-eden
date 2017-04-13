@@ -109,9 +109,9 @@ shape_cube_textureCoords = [
       0.0, 1.0
     ];
 
-shape_cube_uvmap is UVMap::shape_cube_textureCoords;
+shape_cube_uvmap = UVMap::shape_cube_textureCoords;
 
-shape_cube_mesh is Mesh::(shape_cube_vertices, normals=shape_cube_normals, indices=shape_cube_indices, kind="triangles");
+shape_cube_mesh = Mesh::(shape_cube_vertices, normals=shape_cube_normals, indices=shape_cube_indices, kind="triangles");
 
 Cube is Shape::(shape_cube_mesh, $1, uvmap=uvmap if uvmap else shape_cube_uvmap);
 

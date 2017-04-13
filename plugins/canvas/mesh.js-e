@@ -6,6 +6,7 @@
 
 ${{
 Mesh = function(vertices, normals, indices, kind) {
+	console.log("CONSTRUCT MESH", vertices.length);
 	this.name = eden.root.currentObservableName();
 	this.vertices = vertices;
 	this.normals = normals;
@@ -18,6 +19,7 @@ Mesh = function(vertices, normals, indices, kind) {
 }
 
 Mesh.prototype.createBuffer = function(gl, viewName) {
+	console.log("MAKE BUFFER",this.name);
 	this.vbufs[viewName] = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbufs[viewName]);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW);

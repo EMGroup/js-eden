@@ -1,0 +1,48 @@
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+shape_sphere_longitudes = 30;
+shape_sphere_latitudes = 30;
+shape_sphere_theta is lat * 180 / shape_sphere_latitudes;
+shape_sphere_phi is longi * 360 / shape_sphere_longitudes;
+shape_sphere_cosphi is cos(shape_sphere_phi);
+shape_sphere_sinphi is sin(shape_sphere_phi);
+shape_sphere_costheta is cos(shape_sphere_theta);
+shape_sphere_sintheta is sin(shape_sphere_theta);
+shape_sphere_x is shape_sphere_cosphi * shape_sphere_sintheta;
+shape_sphere_y is shape_sphere_costheta;
+shape_sphere_z is shape_sphere_sinphi * shape_sphere_sintheta;
+shape_sphere_u is 1 - (longi / shape_sphere_longitudes);
+shape_sphere_v is 1 - (lat / shape_sphere_latitudes);
+
+test_lib_load = sin != @;
+
+shape_sphere_first is (lat * (shape_sphere_longitudes + 1)) + longi;
+shape_sphere_second is shape_sphere_first + shape_sphere_longitudes + 1;
+
+shape_sphere_vertices is concat(
+	([shape_sphere_x, shape_sphere_y, shape_sphere_z]::lat in 0..shape_sphere_latitudes, longi in 0..shape_sphere_longitudes)
+);
+
+shape_sphere_normals is concat(
+	([shape_sphere_x, shape_sphere_y, shape_sphere_z]::lat in 0..shape_sphere_latitudes, longi in 0..shape_sphere_longitudes)
+);
+
+shape_sphere_texCoords is concat(
+	([shape_sphere_u, shape_sphere_v]::lat in 0..shape_sphere_latitudes, longi in 0..shape_sphere_longitudes)
+);
+
+shape_sphere_indices is concat(
+	([shape_sphere_first, shape_sphere_second, shape_sphere_first+1, shape_sphere_second,
+		shape_sphere_second+1,shape_sphere_first+1]::lat in 0..shape_sphere_latitudes-1, longi in 0..shape_sphere_longitudes-1)
+);
+
+shape_sphere_uvmap = UVMap::shape_sphere_texCoords;
+
+shape_sphere_mesh = Mesh::(shape_sphere_vertices, normals=shape_sphere_normals, indices=shape_sphere_indices, kind="triangles");
+
+Sphere is Shape::(shape_sphere_mesh, $1, uvmap=uvmap if uvmap else shape_sphere_uvmap);
+

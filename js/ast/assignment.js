@@ -122,6 +122,7 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 	rhs += "return result.value;";
 	rhs += "})";
 
+	this.rhs = rhs;
 	this.compiled = eval(rhs);
 }
 
@@ -129,6 +130,8 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	if (this.expression === undefined) return;
 	this.executed = 1;
 	this.compile(ctx);
+	if (scope === undefined) scope = eden.root.scope;
+	if (this.lvalue.name == "shape_sphere_mesh") console.log("SPHERE SCOPE", scope);
 
 	if (this.doxyComment) {
 		//eden.dictionary[this.lvalue.name] = this.doxyComment;
@@ -149,6 +152,7 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 				sym.listAssign(value, scope, this, false, complist);
 			} else {
 				value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
+				if (value === undefined) console.log("BAD ASSIGN", this.lvalue.name, this.rhs);
 				sym.assign(value,(this.lvalue.islocal) ? undefined : scope, this);
 			}
 
@@ -176,6 +180,8 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		this.errors.push(err);
 		if (agentobj) eden.emit("error", [agentobj,err]);
 		else console.log(err.prettyPrint());
+
+		console.log("ASSIGN SOURCE",this.rhs);
 	}
 };
 

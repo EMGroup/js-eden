@@ -452,6 +452,7 @@ Point2D is ${{ new Point(scope.value("$1"),scope.value("$2")) }}$
 
 RGB is "rgb("//$1//","//$2//","//$3//")";
 
+do lib:unexecuted;
 do plugins > canvas > arc;
 do plugins > canvas > arrowhead;
 do plugins > canvas > button;
@@ -495,6 +496,7 @@ do plugins > canvas > uvmap;
 do plugins > canvas > shape;
 do plugins > canvas > cube;
 do plugins > canvas > plane;
+do plugins > canvas > sphere;
 do plugins > canvas > light;
 
 }

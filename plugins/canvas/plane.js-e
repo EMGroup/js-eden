@@ -29,9 +29,9 @@ shape_plane_textureCoords = [
       0.0, 1.0
     ];
 
-shape_plane_uvmap is UVMap::shape_plane_textureCoords;
+shape_plane_uvmap = UVMap::shape_plane_textureCoords;
 
-shape_plane_mesh is Mesh::(shape_plane_vertices, normals=shape_plane_normals, indices=shape_plane_indices, kind="triangles");
+shape_plane_mesh = Mesh::(shape_plane_vertices, normals=shape_plane_normals, indices=shape_plane_indices, kind="triangles");
 
 Plane is Shape::(shape_plane_mesh, $1, uvmap=uvmap if uvmap else shape_plane_uvmap);
 
