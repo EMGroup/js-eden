@@ -1,0 +1,102 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+
+${{
+Shape = function(mesh, pos, scale, rot, material, uvmap) {
+	this.mesh = mesh;
+	this.position = pos;
+	this.scale = scale;
+	this.rotation = rot;
+	this.material = (material) ? material : "orange";
+	this.obsName = root.currentObservableName();
+	this.uvmap = uvmap;
+
+	this.texture = undefined;
+}
+
+}}$;
+
+Shape is ${{ (new Shape(scope.value("$1"), scope.value("$2"), scope.value("scale"), scope.value("rotation"), scope.value("material"), scope.value("uvmap"))) }}$ ::
+	$1=$1, $2=$2, scale=scale, rotation=rotation, material=material,uvmap=uvmap;
+
+
+${{
+
+Shape.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
+	var translation = vec3.create();
+	vec3.set (translation, this.position.x, this.position.y, this.position.z);
+	mat4.translate(mvMatrix,mvMatrix,translation);
+
+	if (this.rotation) {
+		var rot = vec3.create();
+		if (this.rotation.x) {
+			vec3.set(rot, 1, 0, 0);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.x * Math.PI / 180, rot);
+		}
+		if (this.rotation.y) {
+			vec3.set(rot, 0, 1, 0);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.y * Math.PI / 180, rot);
+		}
+		if (this.rotation.z) {
+			vec3.set(rot, 0, 0, 1);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.z * Math.PI / 180, rot);
+		}
+	}
+
+	var scale = vec3.create();
+	vec3.set(scale, this.scale.x, this.scale.y, this.scale.z);
+	mat4.scale(mvMatrix,mvMatrix,scale);
+
+	if (this.material instanceof Texture) {
+		if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
+
+		context.activeTexture(context.TEXTURE0);
+
+		if (this.material.loaded) {
+			//console.log("LOADED TEXTURE");
+			this.material.bind(context,viewname, shader);
+		} else {
+			this.material.bind(context,viewname, shader);
+
+			if (!this.texture) {
+				this.texture = context.createTexture();
+				context.bindTexture(context.TEXTURE_2D, this.texture);
+				context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
+							  new Uint8Array([100, 100, 100, 255]));
+			} else {
+				context.bindTexture(context.TEXTURE_2D, this.texture);
+			}
+		}
+    	context.uniform1i(shader.samplerUniform, 0);
+	} else {
+		if (!this.texture) {
+			var colorobj = jQuery.Color( (typeof this.material == "string") ? this.material : "orange" );
+			var r = colorobj.red();
+			var g = colorobj.green();
+			var b = colorobj.blue();
+
+			this.texture = context.createTexture();
+
+			if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
+
+			context.activeTexture(context.TEXTURE0);
+			context.bindTexture(context.TEXTURE_2D, this.texture);
+			context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
+						  new Uint8Array([r, g, b, 255]));
+			context.uniform1i(shader.samplerUniform, 0);
+		} else {
+			if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
+
+			context.activeTexture(context.TEXTURE0);
+	   		context.bindTexture(context.TEXTURE_2D, this.texture);
+			context.uniform1i(shader.samplerUniform, 0);
+		}
+	}
+
+	this.mesh.draw(context, viewname, mvMatrix, shader);
+};
+
+}}$;

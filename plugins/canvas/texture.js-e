@@ -1,0 +1,78 @@
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+#Taints the canvas if the file is located on another domain.
+
+${{
+Texture = function (file, clamp, mipmap, nearest, format, glow) {
+	this.clamp = clamp;
+	this.mipmap = mipmap;
+	this.nearest = nearest;
+	this.format = format;
+	this.glow = glow;
+	this.image = new Image();
+	//this.image.setAttribute("crossorigin","anonymous");	
+	this.canvasesToRepaint = {};
+	this.loaded = false;
+	
+	var me = this;
+
+	this.texture = undefined;
+	
+	this.image.onload = function() {
+		me.loaded = true;
+		for (var viewName in me.canvasesToRepaint) {
+			edenUI.plugins.Canvas2D.drawPicture(viewName);
+		}
+	}
+	this.image.src = file;
+};
+}}$;
+
+Texture is ${{ (new Texture(scope.value("$1"),scope.value("clamp"),scope.value("mipmap"),scope.value("nearest"),scope.value("format"),scope.value("glow"))) }}$
+	:: $1=$1, clamp=clamp if clamp!=@ else true, mipmap=mipmap if mipmap!=@ else true, nearest=nearest, format=format if format!=@ else "rgba", glow=glow;
+
+${{
+function isPowerOf2(value) {
+  return (value & (value - 1)) == 0;
+};
+
+
+Texture.prototype.bind = function(context, viewName, shader) {
+	if (this.loaded) {
+		if (!this.texture) {
+			this.texture = context.createTexture();
+			context.bindTexture(context.TEXTURE_2D, this.texture);
+			context.pixelStorei(context.UNPACK_FLIP_Y_WEBGL, true);
+			context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, context.RGBA, context.UNSIGNED_BYTE, this.image);
+
+			if (isPowerOf2(this.image.width) && isPowerOf2(this.image.height)) { // && this.mipmap) {
+				// the dimensions are power of 2 so generate mips and turn on 
+				// tri-linear filtering.
+				context.generateMipmap(context.TEXTURE_2D);
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR_MIPMAP_LINEAR);
+			  } else {
+				// at least one of the dimensions is not a power of 2 so set the filtering
+				// so WebGL will render it.
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR);
+			  }
+
+			console.log("IMAGE TEXTURE MADE");
+
+			//context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
+			//context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
+			//context.bindTexture(context.TEXTURE_2D, null);
+		} else {
+			context.bindTexture(context.TEXTURE_2D, this.texture);
+		}
+	} else {
+		this.canvasesToRepaint[viewName] = true;
+	}
+};
+
+}}$;

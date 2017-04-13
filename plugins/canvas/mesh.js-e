@@ -1,0 +1,86 @@
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+${{
+Mesh = function(vertices, normals, indices, kind) {
+	this.name = eden.root.currentObservableName();
+	this.vertices = vertices;
+	this.normals = normals;
+	this.indices = indices;
+	this.kind = kind;
+
+	this.vbufs = {};
+	this.nbufs = {};
+	this.ibufs = {};
+}
+
+Mesh.prototype.createBuffer = function(gl, viewName) {
+	this.vbufs[viewName] = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbufs[viewName]);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW);
+    this.vbufs[viewName].itemSize = 3;
+    this.vbufs[viewName].numItems = this.vertices.length / 3;
+
+	this.nbufs[viewName] = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.nbufs[viewName]);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.normals), gl.STATIC_DRAW);
+    this.nbufs[viewName].itemSize = 3;
+    this.nbufs[viewName].numItems = this.normals.length / 3;
+
+	if (this.indices) {
+		this.ibufs[viewName] = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibufs[viewName]);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
+		this.ibufs[viewName].itemSize = 1;
+		this.ibufs[viewName].numItems = this.indices.length;
+	}
+}
+
+}}$;
+
+Mesh is ${{ (new Mesh(scope.value("$1"),scope.value("normals"),scope.value("indices"),scope.value("kind"))) }}$ ::
+	$1=$1, normals=normals, indices=indices, kind=kind if kind!=@ else "triangles";
+
+
+${{
+
+Mesh.prototype.draw = function (context, viewName, mvMatrix, shader) {
+	if (!this.vbufs[viewName]) {
+		this.createBuffer(context, viewName);
+	}
+
+	context.bindBuffer(context.ARRAY_BUFFER, this.vbufs[viewName]);
+    context.vertexAttribPointer(shader.vertexPositionAttribute, this.vbufs[viewName].itemSize, context.FLOAT, false, 0, 0);
+
+	context.bindBuffer(context.ARRAY_BUFFER, this.nbufs[viewName]);
+    context.vertexAttribPointer(shader.vertexNormalAttribute, this.nbufs[viewName].itemSize, context.FLOAT, false, 0, 0);
+
+	if (this.indices) {
+		context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, this.ibufs[viewName]);
+	}
+
+	// Actually set the transform into the shader
+	context.uniformMatrix4fv(shader.mvMatrixUniform, false, mvMatrix);
+
+	// Calculate the normals transform and set that into shader
+	var normalMatrix = mat3.create();
+    mat3.fromMat4(normalMatrix,mvMatrix);
+	mat3.invert(normalMatrix,normalMatrix);
+    mat3.transpose(normalMatrix,normalMatrix);
+    context.uniformMatrix3fv(shader.nMatrixUniform, false, normalMatrix);
+
+	// Do the actual draw...
+	if (this.indices) {
+		switch (this.kind) {
+		case "triangles":	context.drawElements(context.TRIANGLES, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
+		case "lines":	context.drawElements(context.LINES, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
+		}
+	} else {
+		
+	}
+};
+
+}}$;

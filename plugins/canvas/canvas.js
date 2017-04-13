@@ -176,6 +176,25 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						//View has been destroyed.
 						return;
 					}
+
+					var camx = 0.0;
+					var camy = 0.0;
+					var camz = 0.0;
+					var campitch = 0.0;
+					var camyaw = 0.0;
+
+					var campos = root.lookup("view_"+viewName+"_camera_position").value();
+					var camrot = root.lookup("view_"+viewName+"_camera_angle").value();
+					if (campos) {
+						camx = campos.x;
+						camy = campos.y;
+						camz = campos.z;
+						//console.log("campos",campos);
+					}
+					if (camrot) {
+						campitch = camrot.x;
+						camyaw = camrot.y;
+					}
 				  
 					var backgroundColour = root.lookup("view_" + viewName + "_background_colour").value();
 					if (backgroundColour === undefined) {
@@ -199,9 +218,25 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					context.viewport(0, 0, canvas.width, canvas.height);
 					context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);	
 
-					mat4.perspective(pMatrix, 45, canvas.width / canvas.height, 0.1, 100.0);
+					if (root.lookup("view_"+viewName+"_camera_orthographic").value()) {
+						mat4.ortho(pMatrix, -1.0, 1.0, -(canvas.height/canvas.width), (canvas.height/canvas.width), 0.1, 100.0);
+					} else {
+						var fov = root.lookup("view_"+viewName+"_camera_fov").value();
+						if (!fov) fov = 45;
+						mat4.perspective(pMatrix, fov, canvas.width / canvas.height, 0.1, 100.0);
+					}
 					context.uniformMatrix4fv(canvas.shader.pMatrixUniform, false, pMatrix);
 					mat4.identity(mvMatrix);
+
+					// Camera rotations
+					var rot = vec3.create();
+					vec3.set(rot, 1, 0, 0);
+					mat4.rotate(mvMatrix, mvMatrix, -campitch * Math.PI / 180, rot);
+					vec3.set(rot, 0, 1, 0);
+					mat4.rotate(mvMatrix, mvMatrix, -camyaw * Math.PI / 180, rot);
+					var translation = vec3.create();
+					vec3.set (translation, -camx, -camy, -camz);
+					mat4.translate(mvMatrix, mvMatrix,translation);
 
 					context.uniform1i(canvas.shader.useLightingUniform, false);
 
@@ -227,7 +262,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 							invertedYAxis = true;
 						} else {
 							if (combinedScale != 1) {
-								context.scale(combinedScale, combinedScale);
+								//context.scale(combinedScale, combinedScale);
 							}
 							absScale = scale;
 							invertedYAxis = false;
@@ -302,8 +337,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 										// expect draw() method to set .elements
 										if (visible) {
 											//console.log("MATRIX",mvMatrix);
-											mat4.identity(mvMatrix);
-											item.draw(context, scale, viewName, mvMatrix, canvas.shader); //, pMatrix);
+											var tmpmat = mat4.clone(mvMatrix);
+											item.draw(context, scale, viewName, tmpmat, canvas.shader); //, pMatrix);
 										}
 									} catch (e) {
 										if (item !== undefined) {
@@ -746,6 +781,10 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		  backgroundColourSym.assign("white", root.scope, agent);
 		}
 		backgroundColourSym.addJSObserver("refreshView", redraw);
+		root.lookup("view_"+canvasName+"_camera_position").addJSObserver("refreshView", redraw);
+		root.lookup("view_"+canvasName+"_camera_angle").addJSObserver("refreshView", redraw);
+		root.lookup("view_"+canvasName+"_camera_orthographic").addJSObserver("refreshView", redraw);
+		root.lookup("view_"+canvasName+"_ambient_colour").addJSObserver("refreshView", redraw);
 
 		//Events triggered by changes to the various sizing observables.
 		var scaleSym = root.lookup("view_" + canvasName + "_scale");

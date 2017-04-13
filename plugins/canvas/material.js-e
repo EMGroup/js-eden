@@ -4,11 +4,11 @@
 ## See LICENSE.txt
 
 ${{
-Light = function(direction, colour) {
-	this.x = direction.x;
-	this.y = direction.y;
-	this.z = direction.z;
-	this.colour = (colour) ? colour : "white";
+Material = function(texture,colour,toff,tscale) {
+	this.texture = texture;
+	this.colour = colour;
+	this.toff = toff;
+	this.tscale = tscale;
 }
 
 }}$;

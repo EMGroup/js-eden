@@ -45,7 +45,24 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 		}
 	}
 	//res += "]);\n";
-	res += this.script.generate(this, "scope") + "}); })";
+
+	var subscript = this.script.generate(this, "scope");
+
+	// Generate array of all scopes used in this definition (if any).
+	if (this.scopes.length > 0) {
+		res += "\tvar _scopes = [];\n";
+		for (var i=0; i<this.scopes.length; i++) {
+			res += "\t_scopes.push(" + this.scopes[i];
+			res += ");\n";
+			//result += "_scopes["+i+"].rebuild();\n";
+			// TODO Figure out how to do this optimisation without massive memory copies.
+			res += "if (this.def_scope) { _scopes["+i+"].mergeCache(this.def_scope["+i+"].cache); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
+		}
+
+		//result += "this.def_scope = _scopes;\n";
+	}
+
+	res += subscript + "}); })";
 	return res;
 }
 

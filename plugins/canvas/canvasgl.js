@@ -6,10 +6,6 @@ EdenUI.plugins.Canvas2D.initGL = function(canvas) {
 	gl.viewportWidth = canvas.width;
 	gl.viewportHeight = canvas.height;
 
-	// Build rectangle shape...
-	Rectangle.createBuffer(gl);
-	Cube.createBuffer(gl);
-
 	canvas.shader = EdenUI.plugins.Canvas2D.initShaders(gl);
 
 	var colorobj = jQuery.Color( "#555" );
@@ -77,7 +73,11 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
 
   void main(void) {
      vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-     gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);
+		//if (vTextureCoord.s < 0.01 || vTextureCoord.t < 0.01 || vTextureCoord.s > 0.99 || vTextureCoord.t > 0.99) {
+		//	gl_FragColor = vec4(0.945,0.49,0,1);
+		//} else {
+     		gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);
+		//}
   }`, "fragment");
     var vertexShader = EdenUI.plugins.Canvas2D.getShader(gl, `attribute vec3 aVertexPosition;
   attribute vec3 aVertexNormal;
@@ -126,7 +126,7 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
 	shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
     gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 	shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
-    gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+   	gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 	//shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
     //gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 	shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");

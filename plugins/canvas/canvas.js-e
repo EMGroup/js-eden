@@ -444,6 +444,14 @@ func observablesAt {
 	return obsList;
 }
 
+Point3D is ${{ new Point3D(scope.value("$1"), scope.value("$2"), scope.value("$3")) }}$
+	:: $1=$1,$2=$2,$3=$3;
+
+Point2D is ${{ new Point(scope.value("$1"),scope.value("$2")) }}$
+	:: $1=$1, $2=$2;
+
+RGB is "rgb("//$1//","//$2//","//$3//")";
+
 do plugins > canvas > arc;
 do plugins > canvas > arrowhead;
 do plugins > canvas > button;
@@ -481,7 +489,12 @@ do plugins > canvas > textbox;
 do plugins > canvas > translation;
 do plugins > canvas > video;
 do plugins > canvas > view;
+do plugins > canvas > texture;
+do plugins > canvas > mesh;
+do plugins > canvas > uvmap;
+do plugins > canvas > shape;
 do plugins > canvas > cube;
+do plugins > canvas > plane;
 do plugins > canvas > light;
 
 }

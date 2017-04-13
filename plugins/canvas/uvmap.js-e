@@ -1,0 +1,41 @@
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+${{
+UVMap = function(texCoords) {
+	this.name = eden.root.currentObservableName();
+	this.texCoords = texCoords;
+	//this.off = off;
+	//this.scale = scale;
+
+	this.tbufs = {};
+}
+
+UVMap.prototype.createBuffer = function(gl, viewName) {
+	this.tbufs[viewName] = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.tbufs[viewName]);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCoords), gl.STATIC_DRAW);
+    this.tbufs[viewName].itemSize = 2;
+    this.tbufs[viewName].numItems = this.texCoords.length / 2;
+}
+
+}}$;
+
+UVMap is ${{ (new UVMap(scope.value("$1"))) }}$ :: $1=$1;
+
+
+${{
+
+UVMap.prototype.bind = function (context, viewName, mvMatrix, shader) {
+	if (!this.tbufs[viewName]) {
+		this.createBuffer(context, viewName);
+	}
+
+	context.bindBuffer(context.ARRAY_BUFFER, this.tbufs[viewName]);
+	context.vertexAttribPointer(shader.textureCoordAttribute, this.tbufs[viewName].itemSize, context.FLOAT, false, 0, 0);
+};
+
+}}$;
