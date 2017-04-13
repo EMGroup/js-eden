@@ -1,0 +1,66 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+SpotLight = function(position, colour) {
+	this.x = position.x;
+	this.y = position.y;
+	this.z = position.z;
+	this.colour = (colour) ? colour : "white";
+}
+
+}}$;
+
+SpotLight is ${{ (new SpotLight(
+	scope.value("$1"),
+	scope.value("$2"))) }}$ ::
+		$1=$1,
+		$2=$2;
+
+${{
+
+SpotLight.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
+	 context.uniform1i(shader.useLightingUniform, true);
+
+	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
+			var r = colorobj.red() / 255;
+			var g = colorobj.green() / 255;
+			var b = colorobj.blue() / 255;
+
+	context.uniform3f(
+        shader.pointLightingColorUniform,
+        r,
+        g,
+        b
+      );
+
+	var lightingPos = vec3.create();
+	vec3.set(lightingPos,this.x,this.y,this.z);
+	vec3.transformMat4(lightingPos, lightingPos, mvMatrix);
+	context.uniform3fv(shader.pointLightingLocationUniform, lightingPos);
+
+	/*context.uniform3f(
+        shader.pointLightingLocationUniform,
+        this.x,
+        this.y,
+        this.z
+      );*/
+
+	/*var normalMatrix = mat3.create();
+    mat3.fromMat4(normalMatrix,mvMatrix);
+	mat3.invert(normalMatrix,normalMatrix);
+    mat3.transpose(normalMatrix,normalMatrix);
+
+	var lightingDirection = vec3.create();
+	vec3.set(lightingDirection,this.x,this.y,this.z);
+	vec3.transformMat3(lightingDirection, lightingDirection, normalMatrix);
+      var adjustedLD = vec3.create();
+      vec3.normalize(adjustedLD,lightingDirection);
+      vec3.scale(adjustedLD,adjustedLD, -1);
+      context.uniform3fv(shader.lightingDirectionUniform, adjustedLD);*/
+};
+
+
+}}$;

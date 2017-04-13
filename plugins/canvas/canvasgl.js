@@ -91,6 +91,8 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
 
   uniform vec3 uLightingDirection;
   uniform vec3 uDirectionalColor;
+  uniform vec3 uPointLightingLocation;
+  uniform vec3 uPointLightingColor;
 
   uniform bool uUseLighting;
 
@@ -98,15 +100,19 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
   varying vec3 vLightWeighting;
 
   void main(void) {
-    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    vec4 mvPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+    gl_Position = uPMatrix * mvPosition;
+
     vTextureCoord = aTextureCoord;
 
     if (!uUseLighting) {
       vLightWeighting = vec3(1.0, 1.0, 1.0);
     } else {
+      vec3 lightDirection = normalize(uPointLightingLocation - mvPosition.xyz);
       vec3 transformedNormal = uNMatrix * aVertexNormal;
       float directionalLightWeighting = max(dot(transformedNormal, uLightingDirection), 0.0);
-      vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;
+      float pointLightWeighting = max(dot(transformedNormal, lightDirection), 0.0);
+      vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting + uPointLightingColor * pointLightWeighting;
     }
   }`, "vertex");
 
@@ -137,5 +143,7 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
         shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
         shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
         shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
+		shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, "uPointLightingLocation");
+        shaderProgram.pointLightingColorUniform = gl.getUniformLocation(shaderProgram, "uPointLightingColor");
 	return shaderProgram;
 }
