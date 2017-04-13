@@ -116,6 +116,73 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
     }
   }`, "vertex");
 
+
+
+
+	// Per fragment lighting
+	fragmentShader = EdenUI.plugins.Canvas2D.getShader(gl, `
+	precision mediump float;
+
+  varying vec2 vTextureCoord;
+  varying vec3 vTransformedNormal;
+  varying vec4 vPosition;
+
+  uniform bool uUseLighting;
+  uniform bool uUseTextures;
+
+  uniform vec3 uAmbientColor;
+
+  uniform vec3 uPointLightingLocation;
+  uniform vec3 uPointLightingColor;
+
+  uniform sampler2D uSampler;
+
+  void main(void) {
+    vec3 lightWeighting;
+    if (!uUseLighting) {
+      lightWeighting = vec3(1.0, 1.0, 1.0);
+    } else {
+      vec3 lightDirection = normalize(uPointLightingLocation - vPosition.xyz);
+
+      float directionalLightWeighting = max(dot(normalize(vTransformedNormal), lightDirection), 0.0);
+      lightWeighting = uAmbientColor + uPointLightingColor * directionalLightWeighting;
+    }
+
+    vec4 fragmentColor;
+    //if (uUseTextures) {
+      fragmentColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    //} else {
+    //  fragmentColor = vec4(1.0, 1.0, 1.0, 1.0);
+    //}
+    gl_FragColor = vec4(fragmentColor.rgb * lightWeighting, fragmentColor.a);
+  }
+`,"fragment");
+
+	vertexShader = EdenUI.plugins.Canvas2D.getShader(gl,`
+	attribute vec3 aVertexPosition;
+  attribute vec3 aVertexNormal;
+  attribute vec2 aTextureCoord;
+
+  uniform mat4 uMVMatrix;
+  uniform mat4 uPMatrix;
+  uniform mat3 uNMatrix;
+
+  varying vec2 vTextureCoord;
+  varying vec3 vTransformedNormal;
+  varying vec4 vPosition;
+
+  void main(void) {
+    vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+    gl_Position = uPMatrix * vPosition;
+    vTextureCoord = aTextureCoord;
+    vTransformedNormal = uNMatrix * aVertexNormal;
+  }
+`,"vertex");
+
+
+
+
+
     shaderProgram = gl.createProgram();
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
