@@ -79,6 +79,7 @@ Mesh.prototype.draw = function (context, viewName, mvMatrix, shader) {
 		switch (this.kind) {
 		case "triangles":	context.drawElements(context.TRIANGLES, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
 		case "lines":	context.drawElements(context.LINES, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
+		case "lineloop": context.drawElements(context.LINE_LOOP, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
 		}
 	} else {
 		

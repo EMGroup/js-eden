@@ -1,0 +1,158 @@
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+
+${{
+Line3D = function(start, end, colour, width) {
+	this.start = start;
+	this.end = end;
+	this.colour = (colour)?colour:"black";
+	this.width = (width)?width:2;
+
+	this.vbufs = {};
+	this.nbufs = {};
+	this.mbufs = {};
+	this.ibufs = {};
+}
+
+Line3D.makeShader = function(gl, viewname) {
+	// Per fragment lighting
+	var fragmentShader = EdenUI.plugins.Canvas2D.getShader(gl, `
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+uniform vec3 color;
+uniform float inner;
+varying float edge;
+
+const vec3 color2 = vec3(0.8);
+
+void main() {
+  float v = 1.0 - abs(edge);
+  v = smoothstep(0.65, 0.7, v*inner); 
+  gl_FragColor = mix(vec4(color, 1.0), vec4(0.0), v);
+}
+`,"fragment");
+
+	var vertexShader = EdenUI.plugins.Canvas2D.getShader(gl,`
+attribute vec2 position;
+attribute vec2 normal;
+attribute float miter; 
+uniform mat4 projection;
+uniform mat4 modelview;
+uniform float thickness;
+varying float edge;
+
+void main() {
+  edge = sign(miter);
+  vec2 pointPos = position.xy + vec2(normal * thickness/2.0 * miter);
+  gl_Position = projection * modelview * vec4(pointPos, 0.0, 1.0);
+  gl_PointSize = 1.0;
+}
+`,"vertex");
+
+
+    shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+      alert("Could not initialise shaders");
+    }
+
+    gl.useProgram(shaderProgram);
+
+	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "position");
+    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+	shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
+    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+	shaderProgram.miterAttribute = gl.getAttribLocation(shaderProgram, "miter");
+   	gl.enableVertexAttribArray(shaderProgram.miterAttribute);
+
+	shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "projection");
+    shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "modelview");
+	shaderProgram.thicknessUniform = gl.getUniformLocation(shaderProgram, "thickness");
+	shaderProgram.innerUniform = gl.getUniformLocation(shaderProgram, "inner");
+	shaderProgram.colourUniform = gl.getUniformLocation(shaderProgram, "color");
+	Line3D.shaders[viewname] = shaderProgram;
+	return shaderProgram;
+}
+
+Line3D.shaders = {};
+
+}}$;
+
+#! Draw a line in 3D space. #library
+Line3D is ${{ (new Line3D(scope.value("$1"), scope.value("$2"), scope.value("colour"), scope.value("width"))) }}$ ::
+	$1=$1, $2=$2, colour=colour, width=width;
+
+
+${{
+
+Line3D.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
+	var lineshader = Line3D.shaders[viewname];
+	if (!lineshader) lineshader = Line3D.makeShader(context, viewname);
+	context.useProgram(lineshader);
+
+	// Actually set the transform into the shader
+	context.uniformMatrix4fv(lineshader.mvMatrixUniform, false, mvMatrix);
+	context.uniformMatrix4fv(lineshader.pMatrixUniform, false, pMatrix);
+	context.uniform1f(lineshader.thicknessUniform, this.width);
+	context.uniform1f(lineshader.innerUniform, 0);
+
+	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
+			var r = colorobj.red() / 255;
+			var g = colorobj.green() / 255;
+			var b = colorobj.blue() / 255;
+
+	context.uniform3f(
+        lineshader.colourUniform,
+        r,
+        g,
+        b
+      );
+
+
+	if (this.vbufs[viewname] === undefined) {
+		this.vbufs[viewname] = context.createBuffer();
+		this.nbufs[viewname] = context.createBuffer();
+		this.mbufs[viewname] = context.createBuffer();
+		this.ibufs[viewname] = context.createBuffer();
+	}
+
+	var vertices = [
+		this.start.x, this.start.y,
+		this.end.x, this.end.y,
+		this.start.x, this.start.y,
+		this.end.x, this.end.y
+	];
+
+	var dx = this.end.x - this.start.x;
+	var dy = this.end.y - this.start.y;
+	var normals = [-dy,dx,dy,-dx,-dy,dx,dy,-dx];
+
+	var miters = [1,1,-1,-1];
+	var indices = [0,1,3,1,2,0];
+
+	context.bindBuffer(context.ARRAY_BUFFER, this.vbufs[viewname]);
+	context.bufferData(context.ARRAY_BUFFER, new Float32Array(vertices), context.DYNAMIC_DRAW);
+	context.vertexAttribPointer(lineshader.vertexPositionAttribute, 2, context.FLOAT, false, 0, 0);
+	context.bindBuffer(context.ARRAY_BUFFER, this.nbufs[viewname]);
+	context.bufferData(context.ARRAY_BUFFER, new Float32Array(normals), context.DYNAMIC_DRAW);
+	context.vertexAttribPointer(lineshader.vertexNormalAttribute, 2, context.FLOAT, false, 0, 0);
+	context.bindBuffer(context.ARRAY_BUFFER, this.mbufs[viewname]);
+	context.bufferData(context.ARRAY_BUFFER, new Float32Array(miters), context.DYNAMIC_DRAW);
+	context.vertexAttribPointer(lineshader.miterAttribute, 1, context.FLOAT, false, 0, 0);
+	context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, this.ibufs[viewname]);
+	context.bufferData(context.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), context.DYNAMIC_DRAW);
+
+	context.drawElements(context.TRIANGLES, 6, context.UNSIGNED_SHORT, 0);
+
+	context.useProgram(shader);
+};
+
+}}$;

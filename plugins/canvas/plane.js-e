@@ -33,5 +33,6 @@ shape_plane_uvmap = UVMap::shape_plane_textureCoords;
 
 shape_plane_mesh = Mesh::(shape_plane_vertices, normals=shape_plane_normals, indices=shape_plane_indices, kind="triangles");
 
+#! A 2D rectangular plane in 3D space. #library
 Plane is Shape::(shape_plane_mesh, $1, uvmap=uvmap if uvmap else shape_plane_uvmap);
 

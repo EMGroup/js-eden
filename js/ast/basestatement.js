@@ -24,6 +24,14 @@ Eden.AST.BaseStatement.setDoxyComment = function(doxy) {
 		} else {
 			this.tags = this.tags.concat(doxy.getHashTags());
 		}
+
+		if (doxy.hasTag("#library")) { // && this.type == "definition") {
+			if (this.type == "function") {
+				edenFunctions[this.name] = true;
+			} else if (this.type == "definition") {
+				edenFunctions[this.lvalue.name] = true;
+			}
+		}
 	}
 }
 

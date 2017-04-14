@@ -44,5 +44,6 @@ shape_sphere_uvmap = UVMap::shape_sphere_texCoords;
 
 shape_sphere_mesh = Mesh::(shape_sphere_vertices, normals=shape_sphere_normals, indices=shape_sphere_indices, kind="triangles");
 
+#! Create a Sphere #library
 Sphere is Shape::(shape_sphere_mesh, $1, uvmap=uvmap if uvmap else shape_sphere_uvmap);
 

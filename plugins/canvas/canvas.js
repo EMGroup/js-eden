@@ -338,7 +338,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 										if (visible) {
 											//console.log("MATRIX",mvMatrix);
 											var tmpmat = mat4.clone(mvMatrix);
-											item.draw(context, scale, viewName, tmpmat, canvas.shader); //, pMatrix);
+											item.draw(context, scale, viewName, tmpmat, canvas.shader, pMatrix); //, pMatrix);
 										}
 									} catch (e) {
 										if (item !== undefined) {

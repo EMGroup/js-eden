@@ -24,6 +24,7 @@ UVMap.prototype.createBuffer = function(gl, viewName) {
 
 }}$;
 
+#! Make a texture coordinate map #library
 UVMap is ${{ (new UVMap(scope.value("$1"))) }}$ :: $1=$1;
 
 

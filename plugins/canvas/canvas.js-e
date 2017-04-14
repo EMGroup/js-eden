@@ -444,6 +444,7 @@ func observablesAt {
 	return obsList;
 }
 
+#! A 3D point containing x, y and z. #library
 Point3D is ${{ new Point3D(scope.value("$1"), scope.value("$2"), scope.value("$3")) }}$
 	:: $1=$1,$2=$2,$3=$3;
 
@@ -499,6 +500,7 @@ do plugins > canvas > plane;
 do plugins > canvas > sphere;
 do plugins > canvas > light;
 do plugins > canvas > spotlight;
+do plugins > canvas > line3d;
 
 }
 }
