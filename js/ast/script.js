@@ -199,7 +199,7 @@ Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
 	return filtered;
 }
 
-Eden.AST.Script.prototype.generate = function(ctx, scope) {
+Eden.AST.Script.prototype.generate = function(ctx, scope, options) {
 	var result = "{\n";
 	for (var i = 0; i < this.statements.length; i++) {
 		result = result + this.statements[i].generate(ctx, scope, {bound: false});

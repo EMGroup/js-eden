@@ -5,7 +5,7 @@
 
 
 ${{
-Shape = function(mesh, pos, scale, rot, material, uvmap) {
+Shape = function(mesh, pos, scale, rot, material, uvmap, ortho) {
 	this.mesh = mesh;
 	this.position = pos;
 	this.scale = scale;
@@ -13,19 +13,24 @@ Shape = function(mesh, pos, scale, rot, material, uvmap) {
 	this.material = (material) ? material : "orange";
 	this.obsName = root.currentObservableName();
 	this.uvmap = uvmap;
+	this.ortho = ortho;
 
 	this.texture = undefined;
 }
 
 }}$;
 
-Shape is ${{ (new Shape(scope.value("$1"), scope.value("$2"), scope.value("scale"), scope.value("rotation"), scope.value("material"), scope.value("uvmap"))) }}$ ::
+Shape is ${{ (new Shape(scope.value("$1"), scope.value("$2"), scope.value("scale"), scope.value("rotation"), scope.value("material"), scope.value("uvmap"),scope.value("ortho"))) }}$ ::
 	$1=$1, $2=$2, scale=scale, rotation=rotation, material=material,uvmap=uvmap;
 
 
 ${{
 
-Shape.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
+Shape.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix, canvas) {
+	if (this.ortho) {
+		mat4.identity(mvMatrix);
+	}
+
 	var translation = vec3.create();
 	vec3.set (translation, this.position.x, this.position.y, this.position.z);
 	mat4.translate(mvMatrix,mvMatrix,translation);
@@ -96,7 +101,13 @@ Shape.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMa
 		}
 	}
 
-	this.mesh.draw(context, viewname, mvMatrix, shader);
+	if (this.ortho) {
+		context.uniformMatrix4fv(shader.pMatrixUniform, false, canvas.oMatrix);
+		this.mesh.draw(context, viewname, mvMatrix, shader);
+		context.uniformMatrix4fv(shader.pMatrixUniform, false, canvas.pMatrix);
+	} else {
+		this.mesh.draw(context, viewname, mvMatrix, shader);
+	}
 };
 
 }}$;

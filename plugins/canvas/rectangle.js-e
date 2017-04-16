@@ -22,7 +22,11 @@ ortho_aspect = 9/16;
 # @param [drawing_options] List of drawing options
 # 
 #  #canvas #rectangle #drawingoptions #square #box #shape #draw
-Rectangle is Plane::(Point3D::(($1 / (ortho_factor/2)) - 1.0,((-$2) / (ortho_factor/2)) + (ortho_aspect),-2.0),scale=Point3D::($3/ortho_factor,$4/ortho_factor,0.1),material=$5);
+Rectangle is Plane::(Point3D::(($1 / (ortho_factor/2)) - 1.0,((-$2) / (ortho_factor/2)) + (ortho_aspect),-2.0),scale=Point3D::($3/ortho_factor,$4/ortho_factor,0.1),material=$5,ortho=true);
 
+/*func Rectangle {
+	para x,y,width,height,fill,outline;
+	return Plane::(Point3D::((x / (ortho_factor/2)) - 1.0,((-y) / (ortho_factor/2)) + (ortho_aspect),-2.0),scale=Point3D::(width/ortho_factor,height/ortho_factor,0.1),material=fill,ortho=true);
+}*/
 
 

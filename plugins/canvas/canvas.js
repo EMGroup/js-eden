@@ -215,17 +215,23 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 					var mvMatrix = mat4.create();
  					var pMatrix = mat4.create();
+					var oMatrix = mat4.create();
 					context.viewport(0, 0, canvas.width, canvas.height);
 					context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);	
 
+					mat4.ortho(oMatrix, -1.0, 1.0, -(canvas.height/canvas.width), (canvas.height/canvas.width), 0.1, 100.0);
+					var fov = root.lookup("view_"+viewName+"_camera_fov").value();
+					if (!fov) fov = 45;
+					mat4.perspective(pMatrix, fov, canvas.width / canvas.height, 0.1, 100.0);
+
 					if (root.lookup("view_"+viewName+"_camera_orthographic").value()) {
-						mat4.ortho(pMatrix, -1.0, 1.0, -(canvas.height/canvas.width), (canvas.height/canvas.width), 0.1, 100.0);
-					} else {
-						var fov = root.lookup("view_"+viewName+"_camera_fov").value();
-						if (!fov) fov = 45;
-						mat4.perspective(pMatrix, fov, canvas.width / canvas.height, 0.1, 100.0);
+						pMatrix = oMatrix;
 					}
 					context.uniformMatrix4fv(canvas.shader.pMatrixUniform, false, pMatrix);
+
+					canvas.oMatrix = oMatrix;
+					canvas.pMatrix = pMatrix;
+
 					mat4.identity(mvMatrix);
 
 					// Camera rotations
@@ -338,7 +344,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 										if (visible) {
 											//console.log("MATRIX",mvMatrix);
 											var tmpmat = mat4.clone(mvMatrix);
-											item.draw(context, scale, viewName, tmpmat, canvas.shader, pMatrix); //, pMatrix);
+											item.draw(context, scale, viewName, tmpmat, canvas.shader, pMatrix, canvas); //, pMatrix);
 										}
 									} catch (e) {
 										if (item !== undefined) {

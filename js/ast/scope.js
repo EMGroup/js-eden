@@ -66,7 +66,7 @@ Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2, exp3, isin) {
 	}
 }
 
-Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
+Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 	var res;
 
 	//if (ctx.scopes.length > 0) {
@@ -81,16 +81,16 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 		var startstr;
 		// TODO Don't use main range
 		if (this.range) {
-			startstr = over.start.generate(ctx,scope,{bound: false});
+			startstr = over.start.generate(ctx,scope,{inline: (options)?options.inline:false, bound: false});
 		} else {
-			startstr = over.start.generate(ctx,scope,{bound: over.start.type == "primary" || over.start.type == "scope"});
+			startstr = over.start.generate(ctx,scope,{inline: (options)?options.inline:false, bound: over.start.type == "primary" || over.start.type == "scope"});
 		}
 		res += "new ScopeOverride(\""+o+"\", " + startstr;
 		if (over.end) {
-			var endstr = this.overrides[o].end.generate(ctx,scope, {bound: false});
+			var endstr = this.overrides[o].end.generate(ctx,scope, {inline: (options)?options.inline:false, bound: false});
 
 			if (over.increment) {
-				var incstr = over.increment.generate(ctx,scope, {bound: false});
+				var incstr = over.increment.generate(ctx,scope, {inline: (options)?options.inline:false, bound: false});
 				res += ", " + endstr + ", " + incstr + "),";
 			} else {
 				res += ", " + endstr + "),";
@@ -107,36 +107,45 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 }
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
-	// Add the scope generation string the the array of scopes in this context
-	ctx.scopes.push(this.generateConstructor(ctx,scope));
-	if (this.range) {
-		var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
-		var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"].clone()",options);
-		var res = "(function() {\n";
-		res += scopename + ".range = false;\n";
-		res += "var results = [];\n";
-		res += "var scoperesults = [];\n";
-		res += "while(true) {\n";
-		res += "var val = "+express;
-		if (options.bound) {
-			//res += ".value";
-			res += ";\n\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
-		}
-		res += ";\n";
-		res += "if (val !== undefined) results.push(val);\n";
-		res += "if ("+scopename+".next() == false) break;\n";
-		res += "}\n"+scopename+".range = true;\n";
-
-		if (options.bound) {
-			res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");}).call(this)";
-			//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
+	if (options && options.inline) {
+		if (this.range) {
+			// TODO
 		} else {
-			res += "return results;}).call(this)";
+			// Return the expression using the newly generated scope.
+			return this.expression.generate(ctx,"("+this.generateConstructor(ctx,scope,options)+")", options);
 		}
-		return res;
 	} else {
-		// Return the expression using the newly generated scope.
-		return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
+		// Add the scope generation string the the array of scopes in this context
+		ctx.scopes.push(this.generateConstructor(ctx,scope));
+		if (this.range) {
+			var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
+			var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"].clone()",options);
+			var res = "(function() {\n";
+			res += scopename + ".range = false;\n";
+			res += "var results = [];\n";
+			res += "var scoperesults = [];\n";
+			res += "while(true) {\n";
+			res += "var val = "+express;
+			if (options.bound) {
+				//res += ".value";
+				res += ";\n\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
+			}
+			res += ";\n";
+			res += "if (val !== undefined) results.push(val);\n";
+			res += "if ("+scopename+".next() == false) break;\n";
+			res += "}\n"+scopename+".range = true;\n";
+
+			if (options.bound) {
+				res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");}).call(this)";
+				//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
+			} else {
+				res += "return results;}).call(this)";
+			}
+			return res;
+		} else {
+			// Return the expression using the newly generated scope.
+			return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
+		}
 	}
 }
 
