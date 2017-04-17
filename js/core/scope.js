@@ -111,6 +111,15 @@ Scope.prototype.clear = function() {
 	}
 }
 
+Scope.prototype.resetCache = function() {
+	for (var o in this.cache) {
+		//if (this.cache[o].up_to_date)
+			this.cache[o].up_to_date = this.cache[o].override;
+		//else
+		//	delete this.cache[o];
+	}
+}
+
 Scope.prototype.rebuild = function() {
 	if (this.cache !== undefined) return;
 	//console.log("REBUILD");
@@ -202,11 +211,12 @@ Scope.prototype.lookup = function(name) {
 
 Scope.prototype.value = function(name) {
 	var symcache = this.cache[name];
-	if (symcache) {
+	if (symcache !== undefined) {
 		if (symcache.up_to_date) return symcache.value;
 		return this.context.lookup(name).value(this);
 	}
-	return this.context.lookup(name).value(this.parent);
+	return (this.parent)?this.parent.value(name):undefined;
+	//return this.context.lookup(name).value(this.parent);
 }
 
 Scope.prototype.assign = function(name, value, agent) {

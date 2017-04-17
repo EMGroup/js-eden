@@ -24,10 +24,10 @@ EdenUI.Sharebox = function(element) {
 	this.sharebox.on("change", "#thumbfile", function(e) {
 		var thumb = me.sharebox.find("#projectthumb");
 		var thumbinput = $("#thumbfile");
-		thumb.html("");
+		thumb.html("<img></img>");
 		var fileinput = thumbinput.get(0);
 		var file = fileinput.files[0];
-		console.log("THUMB FILE",file);
+		//console.log("THUMB FILE",file);
 		var reader = new FileReader();
 		reader.onload = function(e) {
 			//Eden.loadFromString(e.target.result);
@@ -36,52 +36,55 @@ EdenUI.Sharebox = function(element) {
 			tcanvas.setAttribute("height","112");
 			var ctx = tcanvas.getContext("2d");
 			var img = new Image();
+
+			img.onload = function() {
+			
+				var imgwidth = img.width;
+				var imgheight = img.height;
+				var canwidth = 200;
+				var canheight = 112;
+
+				var imageAspectRatio = imgwidth / imgheight;
+				var canvasAspectRatio = canwidth / canheight;
+				var renderableHeight, renderableWidth, xStart, yStart;
+
+				// If image's aspect ratio is less than canvas's we fit on height
+				// and place the image centrally along width
+				if(imageAspectRatio < canvasAspectRatio) {
+					renderableHeight = canheight;
+					renderableWidth = imgwidth * (renderableHeight / imgheight);
+					xStart = (canwidth - renderableWidth) / 2;
+					yStart = 0;
+				}
+
+				// If image's aspect ratio is greater than canvas's we fit on width
+				// and place the image centrally along height
+				else if(imageAspectRatio > canvasAspectRatio) {
+					renderableWidth = canwidth
+					renderableHeight = imgheight * (renderableWidth / imgwidth);
+					xStart = 0;
+					yStart = (canheight - renderableHeight) / 2;
+				}
+
+				// Happy path - keep aspect ratio
+				else {
+					renderableHeight = canheight;
+					renderableWidth = canwidth;
+					xStart = 0;
+					yStart = 0;
+				}
+
+				//console.log("Re-render image as " + xStart + ", " + yStart + ", " + renderableWidth + ", " + renderableHeight);
+
+				ctx.drawImage(img, xStart, yStart, renderableWidth, renderableHeight);
+				var png = tcanvas.toDataURL("image/png");
+				me.thumbdata = png;
+				//var thumbimg = $("<img></img>");
+				//thumb.append(thumbimg);
+				thumb.get(0).childNodes[0].src = png;
+			}
+
 			img.src = e.target.result;
-
-
-			var imgwidth = img.width;
-			var imgheight = img.height;
-			var canwidth = 200;
-			var canheight = 112;
-
-			var imageAspectRatio = imgwidth / imgheight;
-			var canvasAspectRatio = canwidth / canheight;
-			var renderableHeight, renderableWidth, xStart, yStart;
-
-			// If image's aspect ratio is less than canvas's we fit on height
-			// and place the image centrally along width
-			if(imageAspectRatio < canvasAspectRatio) {
-				renderableHeight = canheight;
-				renderableWidth = imgwidth * (renderableHeight / imgheight);
-				xStart = (canwidth - renderableWidth) / 2;
-				yStart = 0;
-			}
-
-			// If image's aspect ratio is greater than canvas's we fit on width
-			// and place the image centrally along height
-			else if(imageAspectRatio > canvasAspectRatio) {
-				renderableWidth = canwidth
-				renderableHeight = imgheight * (renderableWidth / imgwidth);
-				xStart = 0;
-				yStart = (canheight - renderableHeight) / 2;
-			}
-
-			// Happy path - keep aspect ratio
-			else {
-				renderableHeight = canheight;
-				renderableWidth = canwidth;
-				xStart = 0;
-				yStart = 0;
-			}
-
-			console.log("Re-render image as " + xStart + ", " + yStart + ", " + renderableWidth + ", " + renderableHeight);
-
-			ctx.drawImage(img, xStart, yStart, renderableWidth, renderableHeight);
-			var png = tcanvas.toDataURL("image/png");
-			me.thumbdata = png;
-			var thumbimg = $("<img></img>");
-			thumb.append(thumbimg);
-			thumbimg.get(0).src = png;
 		};
 		reader.readAsDataURL(file);
 	});
