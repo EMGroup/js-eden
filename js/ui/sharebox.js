@@ -27,7 +27,7 @@ EdenUI.Sharebox = function(element) {
 		thumb.html("<img></img>");
 		var fileinput = thumbinput.get(0);
 		var file = fileinput.files[0];
-		console.log("THUMB FILE",file);
+		//console.log("THUMB FILE",file);
 		var reader = new FileReader();
 		reader.onload = function(e) {
 			//Eden.loadFromString(e.target.result);
@@ -74,7 +74,7 @@ EdenUI.Sharebox = function(element) {
 					yStart = 0;
 				}
 
-				console.log("Re-render image as " + xStart + ", " + yStart + ", " + renderableWidth + ", " + renderableHeight);
+				//console.log("Re-render image as " + xStart + ", " + yStart + ", " + renderableWidth + ", " + renderableHeight);
 
 				ctx.drawImage(img, xStart, yStart, renderableWidth, renderableHeight);
 				var png = tcanvas.toDataURL("image/png");

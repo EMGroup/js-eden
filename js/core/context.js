@@ -82,6 +82,7 @@ function Folder(name, parent, root) {
 
 	this.needsExpire = [];
 	this.needsTrigger = {};
+	this.firetimer = undefined;
 	this.needsGlobalNotify = [];
 	this.globalNotifyIndex = 0;
 	
@@ -341,7 +342,13 @@ Folder.prototype.expireSymbol = function (sym) {
 
 Folder.prototype.triggerSymbol = function (sym) {
 	this.needsTrigger[sym.name] = sym;
-	this.expireAndFireActions();
+	if (this.firetimer === undefined) {
+		var me = this;
+		this.firetimer = setTimeout(function(){
+			this.firetimer = undefined;
+			me.expireAndFireActions();
+		}, 0);
+	}
 }
 
 Folder.prototype.expireAndFireActions = function () {
@@ -366,7 +373,7 @@ Folder.prototype.expireAndFireActions = function () {
 	for (var i = 0; i < symbolNamesArray.length; i++) {
 		// force re-eval
 		var sym = this.symbols[symbolNamesArray[i]];
-		sym.evaluateIfDependenciesExist();
+		//sym.evaluateIfDependenciesExist();
 		sym.needsGlobalNotify = Symbol.EXPIRED;
 		symbolsToForce.push(sym);
 	}

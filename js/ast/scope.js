@@ -83,7 +83,7 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 		if (this.range) {
 			startstr = over.start.generate(ctx,scope,{bound: false});
 		} else {
-			startstr = over.start.generate(ctx,scope,{bound: over.start.type == "primary" || over.start.type == "scope"});
+			startstr = over.start.generate(ctx,scope,{bound: false}); //over.start.type == "primary" || over.start.type == "scope"});
 		}
 		res += "new ScopeOverride(\""+o+"\", " + startstr;
 		if (over.end) {
@@ -106,34 +106,91 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 	return res;
 }
 
+Eden.AST.Scope.prototype._generate_plain_range = function(ctx, options) {
+	var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
+	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"].clone()",options);
+	var res = "(function() {\n";
+	res += scopename + ".range = false;\n";
+	res += "var results = [];\n";
+	res += "var scoperesults = [];\n";
+	res += "while(true) {\n";
+	res += "var val = "+express;
+	if (options.bound) {
+		//res += ".value";
+		res += ";\n\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
+	}
+	res += ";\n";
+	res += "if (val !== undefined) results.push(val);\n";
+	res += "if ("+scopename+".next() == false) break;\n";
+	res += "}\n"+scopename+".range = true;\n";
+
+	if (options.bound) {
+		res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");}).call(this)";
+		//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
+	} else {
+		res += "return results;}).call(this)";
+	}
+	return res;
+}
+
+Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex) {
+	console.log("LOOP RANGE INDEX", rangeindex);
+	var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
+	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]",{bound: false});
+	var res = "(function() {\n";
+	res += scopename + ".range = false;\n";
+	res += "var looper = " + scopename + ".overrides["+rangeindex[0]+"];\n";
+	res += "var ix = 0;\n";
+	res += "var results = new Array(looper.end - looper.start + 1);\n";
+	//res += "var scoperesults = new Array(looper.end - looper.start + 1);;\n";
+	res += "for (var i=looper.start; i<=looper.end; i++) {\n";
+	res += "\t"+scopename + ".resetCache();\n";
+	res += "\tlooper.current = i;\n";
+	res += "\t"+scopename + ".refresh();\n";
+	res += "\tvar val = "+express;
+	//if (options.bound) {
+		//res += ".value";
+	//	res += ";\n\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
+	//}
+	res += ";\n";
+	res += "\tif (val !== undefined) results[ix++] = val;\n";
+	//res += "if ("+scopename+".next() == false) break;\n";
+	res += "}\n"+scopename+".range = true;\n";
+	res += "results.length = ix;\n";
+
+	if (options.bound) {
+		res += "return new BoundValue(results,"+scopename+");}).call(this)";
+		//res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");}).call(this)";
+		//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
+	} else {
+		res += "return results;}).call(this)";
+	}
+	return res;
+}
+
 Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 	// Add the scope generation string the the array of scopes in this context
 	ctx.scopes.push(this.generateConstructor(ctx,scope));
 	if (this.range) {
-		var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
-		var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"].clone()",options);
-		var res = "(function() {\n";
-		res += scopename + ".range = false;\n";
-		res += "var results = [];\n";
-		res += "var scoperesults = [];\n";
-		res += "while(true) {\n";
-		res += "var val = "+express;
-		if (options.bound) {
-			//res += ".value";
-			res += ";\n\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
+		// Check for any isin
+		var isin = false;
+		var rangeindex = [];
+		var i = 0;
+		for (var x in this.overrides) {
+			if (this.overrides[x].end) {
+				rangeindex.push(i);
+			} else {
+				if (this.overrides[x].isin) isin = true;
+				break;
+			}
+			i++;
 		}
-		res += ";\n";
-		res += "if (val !== undefined) results.push(val);\n";
-		res += "if ("+scopename+".next() == false) break;\n";
-		res += "}\n"+scopename+".range = true;\n";
 
-		if (options.bound) {
-			res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");}).call(this)";
-			//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
+		if (isin || rangeindex.length != 1) {
+			return this._generate_plain_range(ctx,options);
 		} else {
-			res += "return results;}).call(this)";
+			return this._generate_loop_opti(ctx,options,rangeindex);
 		}
-		return res;
 	} else {
 		// Return the expression using the newly generated scope.
 		return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
