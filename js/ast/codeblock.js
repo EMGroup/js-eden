@@ -46,7 +46,12 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 	}
 	//res += "]);\n";
 
+	this.scopes = [];
 	var subscript = this.script.generate(this, "scope");
+	if (this.scopes.length > 0) {
+		console.log("scopes",this.scopes);
+		res += "var _scopes = [];\n";
+	}
 
 	res += subscript + "}); })";
 	return res;

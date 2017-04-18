@@ -193,8 +193,8 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 		}
 	} else {
 		// Add the scope generation string the the array of scopes in this context
-		ctx.scopes.push(this.generateConstructor(ctx,scope));
-		if (this.range) {
+		//ctx.scopes.push(this.generateConstructor(ctx,scope));
+		/*if (this.range) {
 			var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
 			var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"].clone()",options);
 			var res = "(function() {\n";
@@ -219,10 +219,10 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 				res += "return results;}).call(this)";
 			}
 			return res;
-		} else {
+		} else {*/
 			// Return the expression using the newly generated scope.
 			return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
-		}
+		//}
 	}
 }
 
