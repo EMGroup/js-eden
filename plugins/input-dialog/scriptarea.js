@@ -465,18 +465,18 @@ EdenUI.ScriptArea.prototype.gotoLine = function(line) {
  * TODO Fix for new scroll elements
  */
 EdenUI.ScriptArea.prototype.checkScroll = function() {
-	return;
+	//return;
 	// Get the cursor
 	var el = $(this.outdiv.childNodes[this.currentlineno-1]).find(".fake-caret").get(0);
 	if (el === undefined) return;
-	var area = $codearea.get(0);
+	var area = this.contents.parentNode;
 
 	// How far from left or right?
 	var distleft = el.offsetLeft - area.scrollLeft + 25;
 	var distright = area.clientWidth + area.scrollLeft - el.offsetLeft - 25;
 
 	// Need to find the current line element
-	while (el.parentNode != outdiv) el = el.parentNode;
+	while (el.parentNode != this.outdiv) el = el.parentNode;
 
 	// How far is this line from the top or bottom
 	var disttop = el.offsetTop - area.scrollTop + 15;
