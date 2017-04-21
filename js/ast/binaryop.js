@@ -19,7 +19,7 @@ Eden.AST.BinaryOp.prototype.setRight = function(right) {
 }
 
 Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
-	var opts = {bound: false, usevar: options.usevar};
+	var opts = {bound: false, usevar: options.usevar, fulllocal: options.fulllocal};
 	var left = this.l.generate(ctx, scope, opts);
 	var right = this.r.generate(ctx, scope, opts);
 	var opstr;

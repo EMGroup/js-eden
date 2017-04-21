@@ -132,30 +132,47 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 	if (this.extras.length == 0) {
 		// No extras so check what kind of value is wanted
 		// Value only, scope only or both.
-		if (!options.bound) {
-			res = scope+".value("+res+")";
+		if (options && options.fulllocal) {
+			res = "obs_"+this.observable;
 		} else {
-			if (options.scopeonly) {
-				res = scope+".scope("+res+")";
+			if (!options.bound) {
+				res = scope+".value("+res+")";
 			} else {
-				res = scope+".boundValue("+res+")";
+				if (options.scopeonly) {
+					res = scope+".scope("+res+")";
+				} else {
+					res = scope+".boundValue("+res+")";
+				}
 			}
 		}
 	} else {
-		// List indices and function calls only work on values not scopes.
-		res = scope+".value("+res+")";
+		if (options && options.fulllocal) {
+			res = "obs_"+this.observable;
 
-		// Generate each extra
-		for (var i=0; i<this.extras.length; i++) {
-			res += this.extras[i].generate(ctx, scope,{bound: false, usevar: options.usevar});
+			// Generate each extra
+			for (var i=0; i<this.extras.length; i++) {
+				res += this.extras[i].generate(ctx, undefined,{bound: false, fulllocal: true});
+			}
+
+			if (options.bound) {
+				res = "new BoundValue("+res+",scope)";
+			}
+		} else {
+			// List indices and function calls only work on values not scopes.
+			res = scope+".value("+res+")";
+
+			// Generate each extra
+			for (var i=0; i<this.extras.length; i++) {
+				res += this.extras[i].generate(ctx, scope,{bound: false, usevar: options.usevar});
+			}
+
+			// If a bound value is requested, then generate a new/fake one.
+			if (options.bound) {
+				res = "new BoundValue("+res+","+scope+")";
+			}
+
+			// TODO Might be a scopeonly request
 		}
-
-		// If a bound value is requested, then generate a new/fake one.
-		if (options.bound) {
-			res = "new BoundValue("+res+","+scope+")";
-		}
-
-		// TODO Might be a scopeonly request
 	}
 
 	return res;

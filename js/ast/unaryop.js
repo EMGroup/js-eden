@@ -10,7 +10,7 @@ Eden.AST.UnaryOp = function(op, right) {
 Eden.AST.UnaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
-	var r = this.r.generate(ctx, scope, {bound: false, usevar: options.usevar});
+	var r = this.r.generate(ctx, scope, {bound: false, usevar: options.usevar, fulllocal: options.fulllocal});
 	var res;	
 
 	if (this.op == "!") {

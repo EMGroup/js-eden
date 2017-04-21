@@ -133,35 +133,117 @@ Eden.AST.Scope.prototype._generate_plain_range = function(ctx, options) {
 	return res;
 }
 
+Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
+	var express = this.expression.generate(ctx,undefined,{bound: false, fulllocal: true});
+	var res = "(function() {\n";
+	var reruns = "";
+	var loopers = [];
+
+	res += "var ix = 0;\n";
+	res += "var length = 0;\n";
+
+	var me = this;
+	var visited = {};
+
+	function importdefs(deps) {
+		for (var x in deps) {
+			if (me.overrides[x] || visited[x]) continue;
+			var sym = eden.root.lookup(x);
+			if (sym.definition && sym.origin && sym.origin.type == "definition") {
+				importdefs(sym.dependencies);
+				if (visited[x]) continue;
+				reruns += "obs_"+x + " = " + sym.origin.expression.generate(ctx, undefined, {bound: false, fulllocal: true}) + ";\n";	
+			}
+			visited[x] = true;
+			res += "var obs_"+x+" = eden.root.lookup(\""+x+"\").value(scope);\n";
+			//}
+		}
+	}
+
+	importdefs(ctx.dependencies);
+
+	for (var x in this.overrides) {
+		if (this.overrides[x].range == false) {
+			res += "var obs_"+x+" = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res += ";\n";
+		} else {
+			res += "var obs_"+x+"_start = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res += ";\n";
+			res += "var obs_"+x+"_end = "+this.overrides[x].end.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res += ";\n";
+			res += "length += obs_" + x + "_end - obs_"+x+"_start + 1;\n";
+			loopers.push(x);
+		}
+	}
+
+	res += "var results = new Array(length);\n";
+
+	for (var i=0; i<loopers.length; i++) {
+		res += "for (var obs_"+loopers[i]+" = obs_"+loopers[i]+"_start; obs_"+loopers[i]+"<=obs_"+loopers[i]+"_end; obs_"+loopers[i]+"++) {\n";
+	}
+
+	res += reruns;
+	res += "var res = "+express+";\n";
+	res += "if (res !== undefined) results[ix++] = res;\n";
+
+	for (var i=0; i<loopers.length; i++) {
+		res += "}\n";
+	}
+
+	res += "results.length = ix;\n";
+	res += "console.log('length',ix);\n";
+	if (options.bound) {
+		res += "return new BoundValue(results,scope);}).call(this)";
+	} else {
+		res += "return results;}).call(this)";
+	}
+
+	console.log("FUNC OPTI",res);
+	return res;
+}
+
 Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex) {
-	console.log("LOOP RANGE INDEX", rangeindex);
+	//console.log("LOOP RANGE INDEX", rangeindex);
 	var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
 	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]",{bound: false});
 	var res = "(function() {\n";
 	res += scopename + ".range = false;\n";
-	res += "var looper = " + scopename + ".overrides["+rangeindex[0]+"];\n";
 	res += "var ix = 0;\n";
-	res += "var results = new Array(looper.end - looper.start + 1);\n";
-	//res += "var scoperesults = new Array(looper.end - looper.start + 1);;\n";
-	res += "for (var i=looper.start; i<=looper.end; i++) {\n";
-	res += "\t"+scopename + ".resetCache();\n";
-	res += "\tlooper.current = i;\n";
-	res += "\t"+scopename + ".refresh();\n";
-	res += "\tvar val = "+express;
-	//if (options.bound) {
-		//res += ".value";
-	//	res += ";\n\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
-	//}
-	res += ";\n";
-	res += "\tif (val !== undefined) results[ix++] = val;\n";
-	//res += "if ("+scopename+".next() == false) break;\n";
-	res += "}\n"+scopename+".range = true;\n";
+	res += "var length = 0;\n";
+
+	for (var i=0; i<rangeindex.length; i++) {
+		res += "var looper"+i+" = " + scopename + ".overrides["+rangeindex[i]+"];\n";
+		res += "length += looper"+i+".end - looper"+i+".start + 1;\n";
+	}
+
+	res += "var results = new Array(length);\n";
+
+	for (var i=0; i<rangeindex.length; i++) {
+		//res += "var scoperesults = new Array(looper.end - looper.start + 1);;\n";
+		res += "for (var i"+i+"=looper"+i+".start; i"+i+"<=looper"+i+".end; i"+i+"++) {\n";
+		res += "\tlooper"+i+".current = i"+i+";\n";
+	}
+
+
+		res += "\t"+scopename + ".resetCache();\n";
+		res += "\t"+scopename + ".refresh();\n";
+		res += "\tvar val = "+express;
+
+		res += ";\n";
+		res += "\tif (val !== undefined) results[ix++] = val;\n";
+		//res += "if ("+scopename+".next() == false) break;\n";
+
+	for (var i=0; i<rangeindex.length; i++) {
+		res += "}\n";
+	}
+
+	res += scopename+".range = true;\n";
+
+
 	res += "results.length = ix;\n";
 
 	if (options.bound) {
 		res += "return new BoundValue(results,"+scopename+");}).call(this)";
-		//res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");}).call(this)";
-		//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
 	} else {
 		res += "return results;}).call(this)";
 	}
@@ -186,10 +268,11 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 			i++;
 		}
 
-		if (isin || rangeindex.length != 1) {
+		if (isin || rangeindex.length == 0) {
 			return this._generate_plain_range(ctx,options);
 		} else {
-			return this._generate_loop_opti(ctx,options,rangeindex);
+			if (rangeindex.length > 1) return this._generate_func_opti(ctx,options);
+			else return this._generate_loop_opti(ctx,options,rangeindex);
 		}
 	} else {
 		// Add the scope generation string the the array of scopes in this context
