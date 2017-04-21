@@ -11,6 +11,8 @@ Eden.AST.Scope = function() {
 	this.overrides = {};
 	this.expression = undefined; // = new Eden.AST.Primary();
 	this.mergeoptimised = false;
+	this.exprnum = 0;
+	this.exprs = {};
 }
 
 Eden.AST.Scope.prototype.error = Eden.AST.fnEdenASTerror;
@@ -139,13 +141,24 @@ Eden.AST.Scope.prototype._generate_plain_range = function(ctx, options) {
 /**
  * Take large expressions and split them into smaller ones.
  */
-Eden.AST.Scope.split_expressions = function(expr) {
+Eden.AST.Scope.prototype.split_expression = function(ctx, expr) {
 	// Check expression size and split or not
 	// If split, generate two new observables.
+	var expr1 = "expr_"+this.exprnum++;
+	var expr2 = "expr_"+this.exprnum++;
+	var expr1_ctx = {dependencies: {}, name: expr1};
+	var expr2_ctx = {dependencies: {}, name: expr2};
+	expr1_ctx.source = expr.l.generate(expr1_ctx, undefined, {bound: false, fulllocal: true});
+	expr2_ctx.source = expr.r.generate(expr2_ctx, undefined, {bound: false, fulllocal: true});
+	//this.exprs["expr_"+this.exprnum++] = expr1 + " " + expr.op + " " + expr2;
+	//console.log("SPLIT",expr1_ctx,expr2_ctx);
+	return [expr1 + " " + expr.op + " " + expr2, expr1_ctx, expr2_ctx];
 }
 
 Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	this.mergeoptimised = true;
+	this.exprs = {};
+	this.exprnum = 0;
 
 	var express = this.expression.generate(ctx,undefined,{bound: false, fulllocal: true});
 	var res = "(function() {\n";
@@ -170,22 +183,53 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 			if (me.overrides[x] || visited[x]) continue;
 			var sym = eden.root.lookup(x);
 			if (sym.definition && sym.origin && sym.origin.type == "definition") {
-				looplevel[x] = importdefs(sym.dependencies);
-				// Update the max level of these dependencies
-				if (looplevel[x] > level) level = looplevel[x];
-				// It may now have been visted?
-				if (visited[x]) continue;
+				// Generate here to also get dependencies... could be done another way.
+				var expr = sym.origin.expression;
 
-				// Append the expression to the correct loop level
-				loopreruns[looplevel[x]] += "obs_"+x + " = " + sym.origin.expression.generate(ctx, undefined, {bound: false, fulllocal: true}) + ";\n";	
+				if (expr.type == "binaryop" && expr.getSize() >= 8) {
+					var exprs = me.split_expression(ctx,expr);
+					loopreruns[loopreruns.length-1] += "var obs_"+x+" = " + exprs[0] + ";\n";
+					//if (looplevel[x] == 0) loopreruns[0] += "var ";
+					//else loopreruns[0] += "var obs_"+x+";\n";
+					for (var j=1; j<exprs.length; j++) {
+						looplevel[exprs[j].name] = importdefs(exprs[j].dependencies);
+						// Update the max level of these dependencies
+						if (looplevel[exprs[j].name] > level) level = looplevel[exprs[j].name];
+						// It may now have been visted?
+						//if (visited[x]) continue;
+
+						// Append the expression to the correct loop level
+						loopreruns[looplevel[exprs[j].name]] += "var "+ exprs[j].name +" = " + exprs[j].source + ";\n";
+					}
+				} else {
+					var src = expr.generate({dependencies: {}}, undefined, {bound: false, fulllocal: true});
+					looplevel[x] = importdefs(sym.dependencies);
+					// Update the max level of these dependencies
+					if (looplevel[x] > level) level = looplevel[x];
+					// It may now have been visted?
+					if (visited[x]) continue;
+
+					// Append the expression to the correct loop level
+					if (looplevel[x] == 0) loopreruns[0] += "var ";
+					else loopreruns[0] += "var obs_"+x+";\n";
+					loopreruns[looplevel[x]] += "obs_"+x + " = " + src + ";\n";
+				}
+			} else {
+				switch (x) {
+				case "maxn" : loopreruns[0] += "var obs_"+x+" = Math.max;\n"; break;
+				case "minn" : loopreruns[0] += "var obs_"+x+" = Math.min;\n"; break;
+				default: loopreruns[0] += "var obs_"+x+" = eden.root.lookup(\""+x+"\").value(scope);\n";
+				}
 			}
 			visited[x] = true;
 
-			switch (x) {
+			//if (ctx.dependencies[x]) {
+			/*switch (x) {
 			case "maxn" : res += "var obs_"+x+" = Math.max;\n"; break;
 			case "minn" : res += "var obs_"+x+" = Math.min;\n"; break;
 			default: res += "var obs_"+x+" = eden.root.lookup(\""+x+"\").value(scope);\n";
-			}
+			}*/
+			//}
 		}
 		return level;
 	}
@@ -211,12 +255,12 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 		loopreruns.push("");
 	}
 	importdefs(ctx.dependencies);
+
+	res += loopreruns[0];
 	res += res2;
 
 	res += "var results = new Array();\n";
 	res += "console.time('scopefuncopti');\n";
-
-	res += loopreruns[0];
 
 	for (var i=0; i<loopers.length; i++) {
 		res += "for (var obs_"+loopers[i]+" = obs_"+loopers[i]+"_start; obs_"+loopers[i]+"<=obs_"+loopers[i]+"_end; obs_"+loopers[i]+"++) {\n";
@@ -240,6 +284,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	}
 
 	console.log("FUNC OPTI",res);
+	console.log("FUNC EXPRS",this.exprs);
 	//console.log("FUNC LEVEL",looplevel);
 	return res;
 }

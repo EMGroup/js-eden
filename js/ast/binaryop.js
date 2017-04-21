@@ -18,6 +18,13 @@ Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	if (right && right.warning) this.warning = right.warning;
 }
 
+Eden.AST.BinaryOp.prototype.getSize = function() {
+	var size = 1;
+	if (this.l.type == "binaryop") size += this.l.getSize();
+	if (this.r.type == "binaryop") size += this.r.getSize();
+	return size;
+}
+
 Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	var opts = {bound: false, usevar: options.usevar, fulllocal: options.fulllocal};
 	var left = this.l.generate(ctx, scope, opts);
