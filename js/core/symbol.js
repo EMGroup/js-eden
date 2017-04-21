@@ -22,6 +22,7 @@ function Symbol(context, name) {
 
 	this.definition = undefined;
 	this.def_scope = undefined;
+	this.fullexp = false;
 	this.extend = undefined;
 	this.needsGlobalNotify = 0;
 	this.has_evaled = false;
@@ -229,6 +230,10 @@ Symbol.prototype.evaluate = function (scope, cache) {
 		this.has_evaled = true;
 		//NOTE: Don't do copy here, be clever about it.
 		//cache.value = copy(this.definition(this.context, scope));
+		if (this.fullexp && this.origin && this.origin.needsRebuild()) {
+			this.origin.rebuild(this);
+			this.fullexp = false;
+		}
 		cache.value = this.definition.call(this,this.context, scope, cache);
 
 		// Post process with all extensions
@@ -685,6 +690,7 @@ Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to
 			if (fullexpire) {
 				//console.log("FULL EXPIRE",this.name);
 				this.def_scope = undefined;
+				this.fullexp = true;
 			} else {
 				//console.log("NORMAL EXPIRE",this.name);
 			}

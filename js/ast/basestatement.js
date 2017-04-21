@@ -16,6 +16,8 @@ Eden.AST.BaseStatement = function() {
 	this.tags = undefined;
 }
 
+Eden.AST.BaseStatement.needsRebuild = function() { return false; }
+
 Eden.AST.BaseStatement.setDoxyComment = function(doxy) {
 	this.doxyComment = doxy;
 	if (doxy) {

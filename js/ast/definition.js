@@ -107,6 +107,13 @@ Eden.AST.Definition.prototype.generate = function(ctx,scope) {
 	}
 };
 
+Eden.AST.Definition.prototype.rebuild = function(sym) {
+	this.dependencies = [];
+	console.log("Rebuilt " + sym.name);
+	var rhs = "("+this.generateDef(this)+")";
+	sym.definition = eval(rhs);
+}
+
 Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	//console.log("RHS = " + rhs);
@@ -164,4 +171,9 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 }
 
 Eden.AST.registerStatement(Eden.AST.Definition);
+
+Eden.AST.Definition.prototype.needsRebuild = function() {
+	if (this.expression && this.expression.type == "scope") return this.expression.needsRebuild();
+	else false;
+}
 

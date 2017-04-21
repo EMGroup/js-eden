@@ -3143,6 +3143,20 @@ func max {
 	return maxSoFar;
 }
 
+/** A special high-performance max function */
+func maxn {
+	${{
+	return Math.max.apply(Math, arguments);
+	}}$
+}
+
+/** A special high-performance min function */
+func minn {
+	${{
+	return Math.min.apply(Math, arguments);
+	}}$
+}
+
 /**
  *  Find the minimum value for the given arguments (or a list).
  *

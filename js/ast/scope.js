@@ -10,9 +10,12 @@ Eden.AST.Scope = function() {
 	this.range = false;
 	this.overrides = {};
 	this.expression = undefined; // = new Eden.AST.Primary();
+	this.mergeoptimised = false;
 }
 
 Eden.AST.Scope.prototype.error = Eden.AST.fnEdenASTerror;
+
+Eden.AST.Scope.prototype.needsRebuild = function() { return this.mergeoptimised; }
 
 Eden.AST.Scope.prototype.prepend = function(extra) {
 	this.primary.prepend(extra);
@@ -134,6 +137,8 @@ Eden.AST.Scope.prototype._generate_plain_range = function(ctx, options) {
 }
 
 Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
+	this.mergeoptimised = true;
+
 	var express = this.expression.generate(ctx,undefined,{bound: false, fulllocal: true});
 	var res = "(function() {\n";
 	var reruns = "";
@@ -155,8 +160,12 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 				reruns += "obs_"+x + " = " + sym.origin.expression.generate(ctx, undefined, {bound: false, fulllocal: true}) + ";\n";	
 			}
 			visited[x] = true;
-			res += "var obs_"+x+" = eden.root.lookup(\""+x+"\").value(scope);\n";
-			//}
+
+			switch (x) {
+			case "maxn" : res += "var obs_"+x+" = Math.max;\n"; break;
+			case "minn" : res += "var obs_"+x+" = Math.min;\n"; break;
+			default: res += "var obs_"+x+" = eden.root.lookup(\""+x+"\").value(scope);\n";
+			}
 		}
 	}
 
@@ -176,7 +185,8 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 		}
 	}
 
-	res += "var results = new Array(length);\n";
+	res += "var results = new Array();\n";
+	res += "console.time('scopefuncopti');\n";
 
 	for (var i=0; i<loopers.length; i++) {
 		res += "for (var obs_"+loopers[i]+" = obs_"+loopers[i]+"_start; obs_"+loopers[i]+"<=obs_"+loopers[i]+"_end; obs_"+loopers[i]+"++) {\n";
@@ -191,7 +201,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	}
 
 	res += "results.length = ix;\n";
-	res += "console.log('length',ix);\n";
+	res += "console.timeEnd('scopefuncopti');\n";
 	if (options.bound) {
 		res += "return new BoundValue(results,scope);}).call(this)";
 	} else {
