@@ -41,7 +41,8 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 		for (var i=0; i<this.params.list.length; i++) {
 			//res += "new ScopeOverride(\"" + this.params.list[i] + "\", arguments["+(i)+"])";
 			//if (i != this.params.list.length-1) res += ",";
-			res += "var " + this.params.list[i] + " = edenCopy(arguments["+i+"]);\n";
+			// TODO Compile time check that parameters are not assigned to!!!
+			res += "var " + this.params.list[i] + " = arguments["+i+"];\n";
 		}
 	}
 	//res += "]);\n";

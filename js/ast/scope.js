@@ -136,6 +136,14 @@ Eden.AST.Scope.prototype._generate_plain_range = function(ctx, options) {
 	return res;
 }
 
+/**
+ * Take large expressions and split them into smaller ones.
+ */
+Eden.AST.Scope.split_expressions = function(expr) {
+	// Check expression size and split or not
+	// If split, generate two new observables.
+}
+
 Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	this.mergeoptimised = true;
 
@@ -143,21 +151,33 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	var res = "(function() {\n";
 	var reruns = "";
 	var loopers = [];
+	var loopers2 = {};
 
 	res += "var ix = 0;\n";
 	res += "var length = 0;\n";
 
 	var me = this;
 	var visited = {};
+	var looplevel = {};
+	var loopreruns = [];
 
 	function importdefs(deps) {
+		var level = 0;
 		for (var x in deps) {
+			// Record loop level...
+			if (looplevel.hasOwnProperty(x) && looplevel[x] > level) level = looplevel[x];
+
 			if (me.overrides[x] || visited[x]) continue;
 			var sym = eden.root.lookup(x);
 			if (sym.definition && sym.origin && sym.origin.type == "definition") {
-				importdefs(sym.dependencies);
+				looplevel[x] = importdefs(sym.dependencies);
+				// Update the max level of these dependencies
+				if (looplevel[x] > level) level = looplevel[x];
+				// It may now have been visted?
 				if (visited[x]) continue;
-				reruns += "obs_"+x + " = " + sym.origin.expression.generate(ctx, undefined, {bound: false, fulllocal: true}) + ";\n";	
+
+				// Append the expression to the correct loop level
+				loopreruns[looplevel[x]] += "obs_"+x + " = " + sym.origin.expression.generate(ctx, undefined, {bound: false, fulllocal: true}) + ";\n";	
 			}
 			visited[x] = true;
 
@@ -167,32 +187,43 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 			default: res += "var obs_"+x+" = eden.root.lookup(\""+x+"\").value(scope);\n";
 			}
 		}
+		return level;
 	}
 
-	importdefs(ctx.dependencies);
-
+	var res2 = "";
 	for (var x in this.overrides) {
 		if (this.overrides[x].range == false) {
-			res += "var obs_"+x+" = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
-			res += ";\n";
+			res2 += "var obs_"+x+" = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += ";\n";
 		} else {
-			res += "var obs_"+x+"_start = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
-			res += ";\n";
-			res += "var obs_"+x+"_end = "+this.overrides[x].end.generate(ctx,undefined,{bound: false, fulllocal: true});
-			res += ";\n";
-			res += "length += obs_" + x + "_end - obs_"+x+"_start + 1;\n";
+			res2 += "var obs_"+x+"_start = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += ";\n";
+			res2 += "var obs_"+x+"_end = "+this.overrides[x].end.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += ";\n";
+			res2 += "length += obs_" + x + "_end - obs_"+x+"_start + 1;\n";
 			loopers.push(x);
 		}
 	}
 
+	loopreruns[0] = "";
+	for (var i=0; i<loopers.length; i++) {
+		looplevel[loopers[i]] = i+1;
+		loopreruns.push("");
+	}
+	importdefs(ctx.dependencies);
+	res += res2;
+
 	res += "var results = new Array();\n";
 	res += "console.time('scopefuncopti');\n";
 
+	res += loopreruns[0];
+
 	for (var i=0; i<loopers.length; i++) {
 		res += "for (var obs_"+loopers[i]+" = obs_"+loopers[i]+"_start; obs_"+loopers[i]+"<=obs_"+loopers[i]+"_end; obs_"+loopers[i]+"++) {\n";
+		res += loopreruns[i+1];
 	}
 
-	res += reruns;
+	//res += reruns;
 	res += "var res = "+express+";\n";
 	res += "if (res !== undefined) results[ix++] = res;\n";
 
@@ -209,6 +240,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	}
 
 	console.log("FUNC OPTI",res);
+	//console.log("FUNC LEVEL",looplevel);
 	return res;
 }
 

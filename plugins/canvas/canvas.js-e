@@ -501,6 +501,7 @@ do plugins > canvas > sphere;
 do plugins > canvas > light;
 do plugins > canvas > spotlight;
 do plugins > canvas > line3d;
+do plugins > canvas > isosurface;
 
 }
 }

@@ -23,11 +23,11 @@ Point3D.prototype.getEdenCode = Point.prototype.toString;
 
 Point3D.normal = function(a,b,c) {
 	var v1 = vec3.create();
-	vec3.set(v1,a.x,a.y,a.z);
+	vec3.set(v1,a[0],a[1],a[2]);
 	var v2 = vec3.create();
-	vec3.set(v2,b.x,b.y,b.z);
+	vec3.set(v2,b[0],b[1],b[2]);
 	var v3 = vec3.create();
-	vec3.set(v3,c.x,c.y,c.z);
+	vec3.set(v3,c[0],c[1],c[2]);
 	var norm = vec3.create();
 	vec3.subtract(v2,v1,v2);
 	vec3.subtract(v3,v1,v3);
