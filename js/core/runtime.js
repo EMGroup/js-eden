@@ -21,6 +21,20 @@ Point3D.prototype.toString = function(p) {
 };
 Point3D.prototype.getEdenCode = Point.prototype.toString;
 
+Point3D.normal = function(a,b,c) {
+	var v1 = vec3.create();
+	vec3.set(v1,a.x,a.y,a.z);
+	var v2 = vec3.create();
+	vec3.set(v2,b.x,b.y,b.z);
+	var v3 = vec3.create();
+	vec3.set(v3,c.x,c.y,c.z);
+	var norm = vec3.create();
+	vec3.subtract(v2,v1,v2);
+	vec3.subtract(v3,v1,v3);
+	vec3.cross(norm, v2,v3);
+	return new Point3D(norm[0],norm[1],norm[2]);
+}
+
 // functions to act in the same way as EDEN operators
 var rt = {
 	index: function (ix) {

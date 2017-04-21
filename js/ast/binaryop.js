@@ -26,10 +26,10 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 
 	switch(this.op) {
 	case "//"	: opstr = "concat"; break;
-	case "+"	: opstr = "add"; break;
+	/*case "+"	: opstr = "add"; break;
 	case "-"	: opstr = "subtract"; break;
 	case "/"	: opstr = "divide"; break;
-	case "*"	: opstr = "multiply"; break;
+	case "*"	: opstr = "multiply"; break;*/
 	case "=="	: opstr = "equal"; break;
 	case "%"	: opstr = "mod"; break;
 	case "^"	: opstr = "pow"; break;
