@@ -144,17 +144,33 @@ Eden.AST.Scope.prototype._generate_plain_range = function(ctx, options) {
  * Take large expressions and split them into smaller ones.
  */
 Eden.AST.Scope.prototype.split_expression = function(ctx, expr) {
-	// Check expression size and split or not
-	// If split, generate two new observables.
-	var expr1 = "expr_"+this.exprnum++;
-	var expr2 = "expr_"+this.exprnum++;
-	var expr1_ctx = {dependencies: {}, name: expr1};
-	var expr2_ctx = {dependencies: {}, name: expr2};
-	expr1_ctx.source = expr.l.generate(expr1_ctx, undefined, {bound: false, fulllocal: true});
-	expr2_ctx.source = expr.r.generate(expr2_ctx, undefined, {bound: false, fulllocal: true});
-	//this.exprs["expr_"+this.exprnum++] = expr1 + " " + expr.op + " " + expr2;
-	//console.log("SPLIT",expr1_ctx,expr2_ctx);
-	return [expr1 + " " + expr.op + " " + expr2, expr1_ctx, expr2_ctx];
+	var expr1 = "";
+	var expr2 = "";
+	var contexts = [];
+
+	if (expr.l.type == "binaryop" && expr.l.getSize() >= 6) {
+		var res = this.split_expression(ctx, expr.l);
+		expr1 = "("+res[0]+")";
+		for (var i=1;i<res.length;i++) contexts.push(res[i]);
+	} else {
+		expr1 = "expr_"+this.exprnum++;
+		var expr1_ctx = {dependencies: {}, name: expr1};
+		expr1_ctx.source = expr.l.generate(expr1_ctx, undefined, {bound: false, fulllocal: true});
+		contexts.push(expr1_ctx);
+	}
+
+	if (expr.r.type == "binaryop" && expr.r.getSize() >= 6) {
+		var res = this.split_expression(ctx, expr.r);
+		expr2 = "("+res[0]+")";
+		for (var i=1;i<res.length;i++) contexts.push(res[i]);
+	} else {
+		expr2 = "expr_"+this.exprnum++;
+		var expr2_ctx = {dependencies: {}, name: expr2};
+		expr2_ctx.source = expr.r.generate(expr2_ctx, undefined, {bound: false, fulllocal: true});
+		contexts.push(expr2_ctx);
+	}
+
+	return [expr1 + " " + expr.op + " " + expr2].concat(contexts);
 }
 
 Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
@@ -389,7 +405,7 @@ Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 	var constructor = this.generateConstructor(ctx,scope,options);
-	// Add the scope generation string the the array of scopes in this context
+	// Are we required to do a full optimisation? Some outer scope is needing it
 	if (options.fulllocal) {
 		//if (this.compiled) return this.compiled;
 		var optifunc = this._generate_func_opti(ctx,options);
@@ -405,6 +421,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 		res += ")";
 		this.compiled = res;
 		return res;
+	// Its a range, so do some sort of optimisation.
 	} else if (this.range) {
 		// Check for any isin
 		var isin = false;
@@ -421,16 +438,18 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 		}
 
 		if (isin || rangeindex.length == 0) {
+			// Fall back, unoptimised if its a list iteration instead of a loop
 			ctx.scopes.push(constructor);
 			return this._generate_plain_range(ctx,options);
 		} else {
+			// More than one range loop results in full compilation
 			if (rangeindex.length > 1) {
 				//if (this.compiled) return this.compiled;
 				var optifunc = this._generate_func_opti(ctx,options);
 				var name = "sFunc_"+randomString(6);
 				if (!eden.s) eden.s = {};
 				eden.s[name] = eval(optifunc.source);
-				console.log("Context",ctx);
+				//console.log("Context",ctx);
 				var res = "eden.s." + name + "(";
 				for (var i=0; i<optifunc.params.length; i++) {
 					res += "eden.root.lookup(\""+optifunc.params[i]+"\").value(scope)";
@@ -439,44 +458,16 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 				res += ")";
 				this.compiled = res;
 				return res;
+			// Otherwise, do a partial optimise using a for loop.
 			} else {
 				ctx.scopes.push(constructor);
 				return this._generate_loop_opti(ctx,options,rangeindex);
 			}
 		}
 	} else {
-		// Add the scope generation string the the array of scopes in this context
-		//ctx.scopes.push(this.generateConstructor(ctx,scope));
-		/*if (this.range) {
-			var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
-			var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"].clone()",options);
-			var res = "(function() {\n";
-			res += scopename + ".range = false;\n";
-			res += "var results = [];\n";
-			res += "var scoperesults = [];\n";
-			res += "while(true) {\n";
-			res += "var val = "+express;
-			if (options.bound) {
-				//res += ".value";
-				res += ";\n\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
-			}
-			res += ";\n";
-			res += "if (val !== undefined) results.push(val);\n";
-			res += "if ("+scopename+".next() == false) break;\n";
-			res += "}\n"+scopename+".range = true;\n";
-
-			if (options.bound) {
-				res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");}).call(this)";
-				//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
-			} else {
-				res += "return results;}).call(this)";
-			}
-			return res;
-		} else {*/
-			// Return the expression using the newly generated scope.
-			ctx.scopes.push(constructor);
-			return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
-		//}
+		// Unoptimised scoping...
+		ctx.scopes.push(constructor);
+		return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
 	}
 }
 

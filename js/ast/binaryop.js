@@ -44,7 +44,10 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	}
 
 	var res;
-	if (opstr != "RAW") {
+	// Weirdly this is slower than using rt.pow in Chrome (but not Firefox)!?
+	//if (opstr == "pow") {
+	//	res = "Math.pow(("+left+"),("+right+"))";
+	 if (opstr != "RAW") {
 		res = "rt."+opstr+"(("+left+"),("+right+"))";
 	} else {
 		res = "(" + left + ") " + this.op + " (" + right + ")";

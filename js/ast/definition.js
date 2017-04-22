@@ -59,11 +59,11 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		result += "\tif (cache) cache.scope = result.scope;\n";
 
 		// Make sure to copy a value if its an ungenerated one.
-		if (this.scopes.length == 0) {
-			result += "\treturn edenCopy(result.value);\n}";
-		} else {
+		//if (this.scopes.length == 0) {
+		//	result += "\treturn edenCopy(result.value);\n}";
+		//} else {
 			result += "\treturn result.value;\n}";
-		}
+		//}
 	} else {
 		result += "\tif (cache) cache.scope = scope;\n";
 		result += "\treturn " + express + ";\n}";

@@ -60,24 +60,24 @@ Eden.AST.Assignment.prototype.left = function(lvalue) {
 	}
 };
 
-Eden.AST.Assignment.prototype.generate = function(ctx,scope) {
+Eden.AST.Assignment.prototype.generate = function(ctx,scope,options) {
 	var result = this.lvalue.generate(ctx, scope);
 
 	if (this.lvalue.islocal) {
 		result += " = ";
-		result += this.expression.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+		result += this.expression.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr", fulllocal: (options)?options.fulllocal:false});
 		result += ";\n";
 		return result;
 	} else if (this.lvalue.hasListIndices()) {
 		result = scope+".listAssign("+result+",";
-		result += this.expression.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+		result += this.expression.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr", fulllocal: (options)?options.fulllocal:false});
 		result += ", Symbol.localJSAgent, false, ";
 		result += this.lvalue.generateCompList(ctx, scope);
 		result += ");\n";
 		return result;
 	} else {
 		result = scope+".assign("+result+",";
-		result += this.expression.generate(ctx, scope,{bound: false, usevar: ctx.type == "scriptexpr"});
+		result += this.expression.generate(ctx, scope,{bound: false, usevar: ctx.type == "scriptexpr", fulllocal: (options)?options.fulllocal:false});
 		result += ", Symbol.localJSAgent);\n"
 		return result;
 	}
