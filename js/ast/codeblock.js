@@ -58,7 +58,11 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 	}
 
 	for (var x in this.dependencies) {
-		res += "var obs_"+x+ " = eden.root.lookup(\""+x+"\").value();\n";
+		res += "var obs_"+x+" = ";
+		switch(x) {
+		case "sqrt": res += "Math.sqrt;\n"; break
+		default: res += "eden.root.lookup(\""+x+"\").value();\n";
+		}
 	}
 
 	res += subscript + "}); })";

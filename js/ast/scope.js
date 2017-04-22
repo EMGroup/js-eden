@@ -190,6 +190,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	var visited = {};
 	var looplevel = {};
 	var loopreruns = [];
+	var duplicates = {};
 
 	function importdefs(deps) {
 		var level = 0;
@@ -215,6 +216,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 					if (looplevel[x] == 0) loopreruns[0] += "var ";
 					else loopreruns[0] += "var obs_"+x+";\n";
 					loopreruns[looplevel[x]] += "obs_"+x + " = " + src + ";\n";
+				// Check if this expression needs to be split up...
 				} else if (expr.type == "binaryop" && expr.getSize() >= 8) {
 					var exprs = me.split_expression(ctx,expr);
 					//if (looplevel[x] == 0) loopreruns[0] += "var ";
@@ -227,7 +229,15 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 						//if (visited[x]) continue;
 
 						// Append the expression to the correct loop level
-						loopreruns[looplevel[exprs[j].name]] += "var "+ exprs[j].name +" = " + exprs[j].source + ";\n";
+						var hash = hashCode(exprs[j].source);
+						// TODO This should check for hash collisions just in case!
+						if (duplicates.hasOwnProperty(hash)) {
+							console.log("DUPLICATE", exprs[j].source);
+							loopreruns[looplevel[exprs[j].name]] += "var "+exprs[j].name + " = " + duplicates[hash] + ";\n";
+						} else {
+							loopreruns[looplevel[exprs[j].name]] += "var "+ exprs[j].name +" = " + exprs[j].source + ";\n";
+							duplicates[hash] = exprs[j].name;
+						}
 					}
 					loopreruns[loopreruns.length-1] += "var obs_"+x+" = " + exprs[0] + ";\n";
 				} else {
@@ -245,14 +255,9 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 				}
 			} else {
 				switch (x) {
+				case "sqrt" : loopreruns[0] += "var obs_"+x+" = Math.sqrt;\n"; break;
 				case "maxn" : loopreruns[0] += "var obs_"+x+" = Math.max;\n"; break;
 				case "minn" : loopreruns[0] += "var obs_"+x+" = Math.min;\n"; break;
-				default: //loopreruns[0] += "var obs_"+x+" = eden.root.lookup(\""+x+"\").value(scope);\n";
-				}
-
-				switch (x) {
-				case "maxn" :
-				case "minn" : break;
 				default: params.push(x);
 				}
 			}
