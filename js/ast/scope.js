@@ -143,29 +143,29 @@ Eden.AST.Scope.prototype._generate_plain_range = function(ctx, options) {
 /**
  * Take large expressions and split them into smaller ones.
  */
-Eden.AST.Scope.prototype.split_expression = function(ctx, expr) {
+Eden.AST.Scope.prototype.split_expression = function(ctx, expr, mathreplace) {
 	var expr1 = "";
 	var expr2 = "";
 	var contexts = [];
 
 	if (expr.l.type == "binaryop" && expr.l.getSize() >= 6) {
-		var res = this.split_expression(ctx, expr.l);
+		var res = this.split_expression(ctx, expr.l, mathreplace);
 		expr1 = "("+res[0]+")";
 		for (var i=1;i<res.length;i++) contexts.push(res[i]);
 	} else {
 		expr1 = "expr_"+this.exprnum++;
-		var expr1_ctx = {dependencies: {}, name: expr1};
+		var expr1_ctx = {dependencies: {}, name: expr1, mathreplace: mathreplace};
 		expr1_ctx.source = expr.l.generate(expr1_ctx, undefined, {bound: false, fulllocal: true});
 		contexts.push(expr1_ctx);
 	}
 
 	if (expr.r.type == "binaryop" && expr.r.getSize() >= 6) {
-		var res = this.split_expression(ctx, expr.r);
+		var res = this.split_expression(ctx, expr.r, mathreplace);
 		expr2 = "("+res[0]+")";
 		for (var i=1;i<res.length;i++) contexts.push(res[i]);
 	} else {
 		expr2 = "expr_"+this.exprnum++;
-		var expr2_ctx = {dependencies: {}, name: expr2};
+		var expr2_ctx = {dependencies: {}, name: expr2, mathreplace: mathreplace};
 		expr2_ctx.source = expr.r.generate(expr2_ctx, undefined, {bound: false, fulllocal: true});
 		contexts.push(expr2_ctx);
 	}
@@ -307,7 +307,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	// Only generate an array result if there are any loops
 	if (loopers.length > 0) {
 		res = "var ix = 0;\nvar length = 0;\n" + res;
-		res += "var results = new Array();\n";
+		res += "var results = new Array(length);\n";
 		res += "console.time('scopefuncopti');\n";
 	}
 
@@ -356,6 +356,211 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	
 
 	console.log("FUNC OPTI",res);
+	//console.log("FUNC LEVEL",looplevel);
+	return {source: res, params: params};
+}
+
+Eden.AST.Scope.prototype._generate_GPU_opti = function(ctx, options) {
+	this.mergeoptimised = true;
+	this.exprs = {};
+	this.exprnum = 0;
+
+	var exprctx = {dependencies: {}, mathreplace: true};
+	var express = this.expression.generate(exprctx,undefined,{bound: false, fulllocal: true});
+	var res = "";
+	var reruns = "";
+	var loopers = [];
+	var loopers2 = {};
+	var params = [];
+
+	var me = this;
+	var visited = {};
+	var looplevel = {};
+	var loopreruns = [];
+	var duplicates = {};
+	var kernelparams = [];
+
+	function importdefs(deps) {
+		var level = 0;
+		for (var x in deps) {
+			// Record loop level...
+			if (looplevel.hasOwnProperty(x) && looplevel[x] > level) level = looplevel[x];
+
+			if (me.overrides[x] || visited[x]) continue;
+			var sym = eden.root.lookup(x);
+			if (sym.definition && sym.origin && sym.origin.type == "definition") {
+				// Generate here to also get dependencies... could be done another way.
+				var expr = sym.origin.expression;
+
+				if (expr.type == "scope") {
+					var src = expr.generate({dependencies: {}, mathreplace: true}, undefined, {bound: false, fulllocal: true});
+					looplevel[x] = importdefs(expr.params);
+					// Update the max level of these dependencies
+					if (looplevel[x] > level) level = looplevel[x];
+					// It may now have been visted?
+					if (visited[x]) continue;
+
+					// Append the expression to the correct loop level
+					if (looplevel[x] == 0) {
+						kernelparams.push(x);
+					} else loopreruns[0] += "var obs_"+x+";\n";
+					loopreruns[looplevel[x]] += "var obs_"+x + " = " + src + ";\n";
+				// Check if this expression needs to be split up...
+				} else if (expr.type == "binaryop" && expr.getSize() >= 8) {
+					var exprs = me.split_expression(ctx,expr, true);
+					//if (looplevel[x] == 0) loopreruns[0] += "var ";
+					//else loopreruns[0] += "var obs_"+x+";\n";
+					for (var j=1; j<exprs.length; j++) {
+						looplevel[exprs[j].name] = importdefs(exprs[j].dependencies);
+						// Update the max level of these dependencies
+						if (looplevel[exprs[j].name] > level) level = looplevel[exprs[j].name];
+						// It may now have been visted?
+						//if (visited[x]) continue;
+
+						// Append the expression to the correct loop level
+						var hash = hashCode(exprs[j].source);
+						// TODO This should check for hash collisions just in case!
+						if (duplicates.hasOwnProperty(hash)) {
+							console.log("DUPLICATE", exprs[j].source);
+							loopreruns[looplevel[exprs[j].name]] += "var "+exprs[j].name + " = " + duplicates[hash] + ";\n";
+						} else {
+							loopreruns[looplevel[exprs[j].name]] += "var "+ exprs[j].name +" = " + exprs[j].source + ";\n";
+							duplicates[hash] = exprs[j].name;
+						}
+					}
+					loopreruns[loopreruns.length-1] += "var obs_"+x+" = " + exprs[0] + ";\n";
+				} else {
+					var src = expr.generate({dependencies: {}, mathreplace: true}, undefined, {bound: false, fulllocal: true});
+					looplevel[x] = importdefs(sym.dependencies);
+					// Update the max level of these dependencies
+					if (looplevel[x] > level) level = looplevel[x];
+					// It may now have been visted?
+					if (visited[x]) continue;
+
+					// Append the expression to the correct loop level
+					//if (looplevel[x] == 0) loopreruns[0] += "var ";
+					//else loopreruns[0] += "var obs_"+x+";\n";
+					loopreruns[looplevel[x]] += "var obs_"+x + " = " + src + ";\n";
+				}
+			} else {
+				switch (x) {
+				case "sqrt" : loopreruns[0] += "var obs_"+x+" = Math.sqrt;\n"; break;
+				case "maxn" : loopreruns[0] += "var obs_"+x+" = Math.max;\n"; break;
+				case "minn" : loopreruns[0] += "var obs_"+x+" = Math.min;\n"; break;
+				default: params.push(x); kernelparams.push(x);
+				}
+			}
+			visited[x] = true;
+
+			//if (ctx.dependencies[x]) {
+			/*switch (x) {
+			case "maxn" : res += "var obs_"+x+" = Math.max;\n"; break;
+			case "minn" : res += "var obs_"+x+" = Math.min;\n"; break;
+			default: res += "var obs_"+x+" = eden.root.lookup(\""+x+"\").value(scope);\n";
+			}*/
+			//}
+		}
+		return level;
+	}
+
+	var res2 = "";
+	for (var x in this.overrides) {
+		if (this.overrides[x].end === undefined) {
+			res2 += "var obs_"+x+" = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += ";\n";
+		} else {
+			res2 += "var obs_"+x+"_start = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += ";\n";
+			res2 += "var obs_"+x+"_end = "+this.overrides[x].end.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += ";\n";
+			res2 += "length += obs_" + x + "_end - obs_"+x+"_start + 1;\n";
+			loopers.push(x);
+		}
+	}
+
+	loopreruns[0] = "";
+	for (var i=0; i<loopers.length; i++) {
+		looplevel[loopers[i]] = i+1;
+		loopreruns.push("");
+	}
+	importdefs(ctx.dependencies);
+	res += loopreruns[0];
+	loopreruns[0] = "";
+	res += res2;
+	importdefs(exprctx.dependencies);
+	res += loopreruns[0];
+
+	res += "var obs_width = obs_"+loopers[0]+"_end - obs_"+loopers[0]+"_start;\n";
+	res += "var obs_height = obs_"+loopers[1]+"_end - obs_"+loopers[1]+"_start;\n";
+	res += "var obs_depth = obs_"+loopers[2]+"_end - obs_"+loopers[2]+"_start;\n";
+
+	// Merge dependencies
+	for (var x in exprctx.dependencies) ctx.dependencies[x] = true;
+
+	kernelparams.push("width");
+	kernelparams.push("height");
+
+	res += "var gpu = new GPU();\n";
+	res += "var sfunc = gpu.createKernel(function(";
+	for (var i=0; i<kernelparams.length; i++) {
+		res += "obs_"+kernelparams[i];
+		if (i < kernelparams.length-1) res += ", ";
+	}
+	res += ") {\n";
+
+	if (loopers.length == 3) {
+		res += "var index = this.thread.x;\n";
+		res += "var obs_"+loopers[2]+" = index / (obs_width*obs_height);\n";
+		res += "index -= obs_"+loopers[2]+" * obs_width * obs_height;\n";
+		res += "var obs_"+loopers[1]+" = index / obs_width;\n";
+		res += "index -= obs_"+loopers[1]+" * obs_width;\n";
+		res += "var obs_"+loopers[0]+" = index;\n";
+	}
+
+	for (var i=0; i<loopers.length; i++) {
+		//res += "for (var obs_"+loopers[i]+" = obs_"+loopers[i]+"_start; obs_"+loopers[i]+"<=obs_"+loopers[i]+"_end; obs_"+loopers[i]+"++) {\n";
+		//res += "var obs_"+loopers[i]+" = this.thread.x / dy"+ ((i==0)?"x":(i==1)?"y":"z")+";\n";
+		res += loopreruns[i+1];
+	}
+
+	res += "return "+express+";\n";
+
+	res += "}).dimensions([length]).floatTextures(true).floatOutput(true);\n";
+
+	//res += "]);\n";
+	res += "console.time('scopeGPU');\n";
+	res += "for (var i=0; i<100; i++) {";
+	res += "var results = sfunc(";
+	for (var i=0; i<kernelparams.length; i++) {
+		res += "obs_"+kernelparams[i];
+		if (i < kernelparams.length-1) res += ", ";
+	}
+	res += ");\n";
+	res += "}\n";
+
+
+	res += "console.timeEnd('scopeGPU');\n";
+
+	if (options.bound) {
+		res += "return new BoundValue(results,scope);\n";
+	} else {
+		res += "return results;\n";
+	}
+
+	var pstring = "(function(";
+	this.params = {};
+	for (var i=0; i<params.length; i++) {
+		pstring += "obs_"+params[i];
+		if (i < params.length-1) pstring += ", ";
+		this.params[params[i]] = true;
+	}
+	pstring += ") {\n";
+	res = pstring + res + "})";
+	
+
+	console.log("GPU VERSION",res);
+	if (eden.gpu === undefined) eden.gpu = {};
+	eden.gpu["gFunc_"+randomString(6)] = eval(res);
 	//console.log("FUNC LEVEL",looplevel);
 	return {source: res, params: params};
 }
@@ -450,6 +655,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 			// More than one range loop results in full compilation
 			if (rangeindex.length > 1) {
 				//if (this.compiled) return this.compiled;
+				//this._generate_GPU_opti(ctx,options);
 				var optifunc = this._generate_func_opti(ctx,options);
 				var name = "sFunc_"+randomString(6);
 				if (!eden.s) eden.s = {};

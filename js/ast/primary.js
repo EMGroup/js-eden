@@ -49,13 +49,24 @@ Eden.AST.Primary.prototype.prepend = function(extra) {
  */
 Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 	var res;
+	var obs = this.observable;
+	var subed = false;
+
+	if (ctx.mathreplace) {
+		switch (this.observable) {
+		case "sqrt": obs = "Math.sqrt"; subed = true; break;
+		case "maxn": obs = "Math.max"; subed = true; break;
+		case "minn": obs = "Math.min"; subed = true; break;
+		case "floor": obs = "Math.floor"; subed = true; break;
+		}
+	} 
 
 	// Check if this primary is a local variable in this context.
 	if (ctx && ctx.locals) {
 		if (ctx.locals.type == "declarations") {
 			if (ctx.locals.list.indexOf(this.observable) != -1) {
 				//console.log("OUT OF DATE DECLARATIONS");
-				res = this.observable;
+				res = obs;
 				for (var i=0; i<this.extras.length; i++) {
 					res += this.extras[i].generate(ctx, scope, {bound: false});
 				}
@@ -65,17 +76,17 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 					return res;
 				}
 			}
-		} else if (ctx.locals.hasOwnProperty(this.observable)) {
+		} else if (ctx.locals.hasOwnProperty(obs)) {
 			//console.log("FOUND LOCAL",this.observable);
 			// Otherwise we need to eval the value and embed it
 			// TODO only if ctx is of type definition??
 			ctx.dirty = true;
 			if (options.usevar) {
-				res = this.observable;
+				res = obs;
 			} else if (options.indef) {
-				res = JSON.stringify(ctx.locals[this.observable].value()); //"ctx.locals[\""+this.observable+"\"]";
+				res = JSON.stringify(ctx.locals[obs].value()); //"ctx.locals[\""+this.observable+"\"]";
 			} else {
-				res = ctx.locals[this.observable].value();
+				res = ctx.locals[obs].value();
 			}
 			for (var i=0; i<this.extras.length; i++) {
 				res += this.extras[i].generate(ctx, scope, {bound: false});
@@ -91,9 +102,9 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 
 	// Check if this primary is a parameter in this context.
 	if (ctx && ctx.params) {
-		var ix = ctx.params.list.indexOf(this.observable);
+		var ix = ctx.params.list.indexOf(obs);
 		if (ix != -1) {
-			res = this.observable;
+			res = obs;
 			for (var i=0; i<this.extras.length; i++) {
 				res += this.extras[i].generate(ctx, scope, {bound: false});
 			}
@@ -107,7 +118,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 	}
 
 	// We have a backticks expression? Use that instead...
-	if (this.observable == "__BACKTICKS__") {
+	if (obs == "__BACKTICKS__") {
 		var id = 0;
 		//console.log("CTX",ctx);
 		// Need to give each backtick a unique number in a given context.
@@ -124,8 +135,8 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		}
 	} else {
 		// Record the use of this primary as a dependency
-		if (ctx && ctx.dependencies) ctx.dependencies[this.observable] = true;
-		res = "\""+this.observable+"\"";
+		if (ctx && ctx.dependencies) ctx.dependencies[obs] = true;
+		res = "\""+obs+"\"";
 	}
 
 	// Extras are the list indices or function calls
@@ -133,7 +144,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		// No extras so check what kind of value is wanted
 		// Value only, scope only or both.
 		if (options && options.fulllocal) {
-			res = "obs_"+this.observable;
+			res = (subed)?obs:"obs_"+obs;
 		} else {
 			if (!options.bound) {
 				res = scope+".value("+res+")";
@@ -147,7 +158,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		}
 	} else {
 		if (options && options.fulllocal) {
-			res = "obs_"+this.observable;
+			res = (subed)?obs:"obs_"+obs;
 
 			// Generate each extra
 			for (var i=0; i<this.extras.length; i++) {

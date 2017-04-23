@@ -45,9 +45,10 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 
 	var res;
 	// Weirdly this is slower than using rt.pow in Chrome (but not Firefox)!?
-	//if (opstr == "pow") {
-	//	res = "Math.pow(("+left+"),("+right+"))";
-	 if (opstr != "RAW") {
+	// Still need to do it if mathreplace is requested for GPU
+	if (ctx.mathreplace && opstr == "pow") {
+		res = "Math.pow(("+left+"),("+right+"))";
+	} else if (opstr != "RAW") {
 		res = "rt."+opstr+"(("+left+"),("+right+"))";
 	} else {
 		res = "(" + left + ") " + this.op + " (" + right + ")";
