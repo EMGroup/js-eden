@@ -337,6 +337,7 @@ Eden.AST.registerStatement = function(stat) {
 	stat.prototype.destroy = Eden.AST.BaseStatement.destroy;
 	stat.prototype.buildID = Eden.AST.BaseStatement.buildID;
 	stat.prototype.setDoxyComment = Eden.AST.BaseStatement.setDoxyComment;
+	stat.prototype.needsRebuild = Eden.AST.BaseStatement.needsRebuild;
 }
 
 Eden.AST.registerScript = function(stat) {

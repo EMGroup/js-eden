@@ -20,12 +20,12 @@ Eden.AST.FunctionCall.prototype.left = function(lvalue) {
 	}
 };
 
-Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
+Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
 	if (this.lvalue === undefined) {
 		var res = "(";
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
-				var express = this.params[i].generate(ctx, scope, {bound: false});
+				var express = this.params[i].generate(ctx, scope, {bound: false, fulllocal: (options)?options.fulllocal : false});
 				res += "("+express+")";
 				if (i != this.params.length-1) res += ",";
 			}

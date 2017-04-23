@@ -18,18 +18,25 @@ Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	if (right && right.warning) this.warning = right.warning;
 }
 
+Eden.AST.BinaryOp.prototype.getSize = function() {
+	var size = 1;
+	if (this.l.type == "binaryop") size += this.l.getSize();
+	if (this.r.type == "binaryop") size += this.r.getSize();
+	return size;
+}
+
 Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
-	var opts = {bound: false, usevar: options.usevar};
+	var opts = {bound: false, usevar: options.usevar, fulllocal: options.fulllocal};
 	var left = this.l.generate(ctx, scope, opts);
 	var right = this.r.generate(ctx, scope, opts);
 	var opstr;
 
 	switch(this.op) {
 	case "//"	: opstr = "concat"; break;
-	case "+"	: opstr = "add"; break;
+	/*case "+"	: opstr = "add"; break;
 	case "-"	: opstr = "subtract"; break;
 	case "/"	: opstr = "divide"; break;
-	case "*"	: opstr = "multiply"; break;
+	case "*"	: opstr = "multiply"; break;*/
 	case "=="	: opstr = "equal"; break;
 	case "%"	: opstr = "mod"; break;
 	case "^"	: opstr = "pow"; break;
@@ -37,7 +44,11 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	}
 
 	var res;
-	if (opstr != "RAW") {
+	// Weirdly this is slower than using rt.pow in Chrome (but not Firefox)!?
+	// Still need to do it if mathreplace is requested for GPU
+	if (ctx.mathreplace && opstr == "pow") {
+		res = "Math.pow(("+left+"),("+right+"))";
+	} else if (opstr != "RAW") {
 		res = "rt."+opstr+"(("+left+"),("+right+"))";
 	} else {
 		res = "(" + left + ") " + this.op + " (" + right + ")";

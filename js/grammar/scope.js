@@ -77,7 +77,7 @@ Eden.AST.prototype.pSCOPE_P = function(count) {
 		obs = new Eden.AST.ScopePattern();
 		obs.setObservable("$"+count);
 		count++;
-		console.log("AUTO NAME", count, peek);
+		//console.log("AUTO NAME", count, peek);
 	} else {
 		obs = this.pSCOPEPATTERN();
 

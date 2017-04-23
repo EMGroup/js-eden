@@ -18,7 +18,7 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 	case "LIST"		:	res = "[";
 						// Loop over each element and generate that also.
 						for (var i=0; i<this.value.length; i++) {
-							res += this.value[i].generate(ctx,scope, {bound: false});
+							res += this.value[i].generate(ctx,scope, {bound: false, fulllocal: options.fulllocal});
 							if (i != this.value.length-1) res += ",";
 						}
 						res += "]";

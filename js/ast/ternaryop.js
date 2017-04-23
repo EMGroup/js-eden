@@ -43,7 +43,7 @@ Eden.AST.TernaryOp.prototype.left = function(pleft) {
 };
 
 Eden.AST.TernaryOp.prototype.generate = function(ctx, scope, options) {
-	var cond = this.condition.generate(ctx, scope, {bound: false, usevar: options.usevar});
+	var cond = this.condition.generate(ctx, scope, {bound: false, usevar: options.usevar, fulllocal: options.fulllocal});
 	var first = this.first.generate(ctx, scope, options);
 	var second = this.second.generate(ctx, scope, options);
 

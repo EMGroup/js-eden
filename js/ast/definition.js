@@ -59,11 +59,11 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		result += "\tif (cache) cache.scope = result.scope;\n";
 
 		// Make sure to copy a value if its an ungenerated one.
-		if (this.scopes.length == 0) {
-			result += "\treturn edenCopy(result.value);\n}";
-		} else {
+		//if (this.scopes.length == 0) {
+		//	result += "\treturn edenCopy(result.value);\n}";
+		//} else {
 			result += "\treturn result.value;\n}";
-		}
+		//}
 	} else {
 		result += "\tif (cache) cache.scope = scope;\n";
 		result += "\treturn " + express + ";\n}";
@@ -106,6 +106,13 @@ Eden.AST.Definition.prototype.generate = function(ctx,scope) {
 		return result;
 	}
 };
+
+Eden.AST.Definition.prototype.rebuild = function(sym) {
+	this.dependencies = [];
+	console.log("Rebuilt " + sym.name);
+	var rhs = "("+this.generateDef(this)+")";
+	sym.definition = eval(rhs);
+}
 
 Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
@@ -164,4 +171,9 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 }
 
 Eden.AST.registerStatement(Eden.AST.Definition);
+
+Eden.AST.Definition.prototype.needsRebuild = function() {
+	if (this.expression && this.expression.type == "scope") return this.expression.needsRebuild();
+	else false;
+}
 

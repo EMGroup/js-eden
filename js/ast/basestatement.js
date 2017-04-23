@@ -16,6 +16,8 @@ Eden.AST.BaseStatement = function() {
 	this.tags = undefined;
 }
 
+Eden.AST.BaseStatement.needsRebuild = function() { return false; }
+
 Eden.AST.BaseStatement.setDoxyComment = function(doxy) {
 	this.doxyComment = doxy;
 	if (doxy) {
@@ -25,8 +27,8 @@ Eden.AST.BaseStatement.setDoxyComment = function(doxy) {
 			this.tags = this.tags.concat(doxy.getHashTags());
 		}
 
-		if (doxy.hasTag("#library")) {
-			if (this.type == "function" || this.type == "action") {
+		if (doxy.hasTag("#library")) { // && this.type == "definition") {
+			if (this.type == "function") {
 				edenFunctions[this.name] = true;
 			} else if (this.type == "definition") {
 				edenFunctions[this.lvalue.name] = true;
