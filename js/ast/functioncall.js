@@ -37,7 +37,7 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
 				res += ",";
-				var express = this.params[i].generate(ctx, scope,{bound: false});
+				var express = this.params[i].generate(ctx, scope,{bound: false, fulllocal: (options)?options.fulllocal : false});
 				res += "("+express+")";
 				//if (i != this.params.length-1) res += ",";
 			}

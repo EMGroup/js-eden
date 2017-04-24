@@ -192,13 +192,18 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	var loopreruns = [];
 	var duplicates = {};
 
-	function importdefs(deps) {
+	function importdefs(deps, excludeover) {
 		var level = 0;
 		for (var x in deps) {
 			// Record loop level...
 			if (looplevel.hasOwnProperty(x) && looplevel[x] > level) level = looplevel[x];
 
-			if (me.overrides[x] || visited[x]) continue;
+			// TODO Why did I remove the overrides check? If I do it breaks in some cases
+			// Because of overrides that depend on themselves on the right hand side?
+			// TODO Treat main expression dependencies and override dependencies differently.
+			if ((excludeover && me.overrides[x]) || visited[x]) continue;
+			//visited[x] = true;
+
 			var sym = eden.root.lookup(x);
 			if (sym.definition && sym.origin && sym.origin.type == "definition") {
 				// Generate here to also get dependencies... could be done another way.
@@ -206,7 +211,8 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 
 				if (expr.type == "scope") {
 					var src = expr.generate({dependencies: {}}, undefined, {bound: false, fulllocal: true});
-					looplevel[x] = importdefs(expr.params);
+					looplevel[x] = importdefs(expr.params, excludeover);
+					if (!excludeover) looplevel[x] = 0;
 					// Update the max level of these dependencies
 					if (looplevel[x] > level) level = looplevel[x];
 					// It may now have been visted?
@@ -222,7 +228,9 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 					//if (looplevel[x] == 0) loopreruns[0] += "var ";
 					//else loopreruns[0] += "var obs_"+x+";\n";
 					for (var j=1; j<exprs.length; j++) {
-						looplevel[exprs[j].name] = importdefs(exprs[j].dependencies);
+						looplevel[exprs[j].name] = importdefs(exprs[j].dependencies, excludeover);
+						if (!excludeover) looplevel[exprs[j].name] = 0;
+
 						// Update the max level of these dependencies
 						if (looplevel[exprs[j].name] > level) level = looplevel[exprs[j].name];
 						// It may now have been visted?
@@ -242,7 +250,8 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 					loopreruns[loopreruns.length-1] += "var obs_"+x+" = " + exprs[0] + ";\n";
 				} else {
 					var src = expr.generate({dependencies: {}}, undefined, {bound: false, fulllocal: true});
-					looplevel[x] = importdefs(sym.dependencies);
+					looplevel[x] = importdefs(sym.dependencies, excludeover);
+					if (!excludeover) looplevel[x] = 0;
 					// Update the max level of these dependencies
 					if (looplevel[x] > level) level = looplevel[x];
 					// It may now have been visted?
@@ -294,11 +303,12 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 		looplevel[loopers[i]] = i+1;
 		loopreruns.push("");
 	}
-	importdefs(ctx.dependencies);
+
+	importdefs(ctx.dependencies, false);
 	res += loopreruns[0];
 	loopreruns[0] = "";
 	res += res2;
-	importdefs(exprctx.dependencies);
+	importdefs(exprctx.dependencies, true);
 	res += loopreruns[0];
 
 	// Merge dependencies
@@ -308,7 +318,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	if (loopers.length > 0) {
 		res = "var ix = 0;\nvar length = 0;\n" + res;
 		res += "var results = new Array(length);\n";
-		res += "console.time('scopefuncopti');\n";
+		//res += "console.time('scopefuncopti');\n";
 	}
 
 	for (var i=0; i<loopers.length; i++) {
@@ -329,7 +339,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 
 	if (loopers.length > 0) {
 		res += "results.length = ix;\n";
-		res += "console.timeEnd('scopefuncopti');\n";
+		//res += "console.timeEnd('scopefuncopti');\n";
 
 		if (options.bound) {
 			res += "return new BoundValue(results,scope);\n";
@@ -653,7 +663,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 			return this._generate_plain_range(ctx,options);
 		} else {
 			// More than one range loop results in full compilation
-			if (rangeindex.length > 1) {
+			if (rangeindex.length > 0) {
 				//if (this.compiled) return this.compiled;
 				//this._generate_GPU_opti(ctx,options);
 				var optifunc = this._generate_func_opti(ctx,options);
