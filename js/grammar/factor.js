@@ -89,10 +89,12 @@ Eden.AST.prototype.pFACTOR = function() {
 		this.next();
 		return new Eden.AST.Literal("UNDEFINED", "@");
 	// Should NOT be encountered here anymore!!!?
-	} else if (this.token == "JAVASCRIPT") {
+	/*} else if (this.token == "JAVASCRIPT") {
 		var lit = new Eden.AST.Literal("JAVASCRIPT", this.data.value);
 		this.next();
-		return lit;
+		console.log("JAVASCRIPT LITERAL");
+
+		return lit;*/
 	// Numeric literal
 	} else if (this.token == "NUMBER") {
 		var lit = new Eden.AST.Literal("NUMBER", this.data.value);

@@ -30,6 +30,8 @@ Texture = function (file, clamp, mipmap, nearest, format, glow) {
 	}
 	this.image.src = file;
 };
+
+Texture.textures = {};
 }}$;
 
 #! Load a texture for a surface. #library

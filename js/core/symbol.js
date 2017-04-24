@@ -277,7 +277,7 @@ Symbol.prototype.evaluate = function (scope, cache) {
 			eden.emit("error", [this,e]);
 		}
 		//this.logError(e);
-		console.error(e);
+		console.error(this.name, e);
 		cache.value = undefined;
 		cache.up_to_date = true;
 	}

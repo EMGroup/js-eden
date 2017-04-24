@@ -4,8 +4,26 @@
  */
 Eden.AST.prototype.pPRIMARY = function() {
 
+	if (this.token == "JAVASCRIPT") {
+		// Parse the backticks expression
+		var btick = new Eden.AST.Literal("JAVASCRIPT", this.data.value);
+		if (btick.errors.length > 0) {
+			var primary = new Eden.AST.Primary();
+			primary.setBackticks(btick);
+			return primary;
+		}
+
+		this.next();
+
+		// Check for other components like '.' and '['.
+		var primary = this.pPRIMARY_P();
+		if (primary.errors.length > 0) return primary;
+
+		primary.setBackticks(btick);
+		primary.setObservable("__JAVASCRIPT__");
+		return primary;	
 	// Backticks on RHS
-	if (this.token == "`") {
+	} else if (this.token == "`") {
 		this.next();
 		// Parse the backticks expression
 		var btick = this.pEXPRESSION();

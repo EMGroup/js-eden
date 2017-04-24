@@ -20,9 +20,7 @@ Shape = function(mesh, pos, scale, rot, material, uvmap, ortho) {
 
 }}$;
 
-Shape is ${{ (new Shape(scope.value("$1"), scope.value("$2"), scope.value("scale"), scope.value("rotation"), scope.value("material"), scope.value("uvmap"),scope.value("ortho"))) }}$ ::
-	$1=$1, $2=$2, scale=scale, rotation=rotation, material=material,uvmap=uvmap;
-
+Shape is ${{ new Shape }}$ ($1, $2, scale, rotation, material, uvmap, ortho);
 
 ${{
 
@@ -51,9 +49,11 @@ Shape.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMa
 		}
 	}
 
-	var scale = vec3.create();
-	vec3.set(scale, this.scale.x, this.scale.y, this.scale.z);
-	mat4.scale(mvMatrix,mvMatrix,scale);
+	if (this.scale) {
+		var scale = vec3.create();
+		vec3.set(scale, this.scale.x, this.scale.y, this.scale.z);
+		mat4.scale(mvMatrix,mvMatrix,scale);
+	}
 
 	if (this.material instanceof Texture) {
 		if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
@@ -83,15 +83,23 @@ Shape.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMa
 			var g = colorobj.green();
 			var b = colorobj.blue();
 
-			this.texture = context.createTexture();
+			var rgbstr = "rgb("+r+","+g+","+b+")";
+			if (Texture.textures[rgbstr]) {
+				this.texture = Texture.textures[rgbstr];
+				context.activeTexture(context.TEXTURE0);
+				context.bindTexture(context.TEXTURE_2D, this.texture);
+			} else {
+				this.texture = context.createTexture();
+				Texture.textures[rgbstr] = this.texture;
 
-			if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
+				if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
 
-			context.activeTexture(context.TEXTURE0);
-			context.bindTexture(context.TEXTURE_2D, this.texture);
-			context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
-						  new Uint8Array([r, g, b, 255]));
-			context.uniform1i(shader.samplerUniform, 0);
+				context.activeTexture(context.TEXTURE0);
+				context.bindTexture(context.TEXTURE_2D, this.texture);
+				context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
+							  new Uint8Array([r, g, b, 255]));
+				context.uniform1i(shader.samplerUniform, 0);
+			}
 		} else {
 			if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
 

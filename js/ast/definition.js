@@ -46,10 +46,10 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 			result += ");\n";
 			//result += "_scopes["+i+"].rebuild();\n";
 			// TODO Figure out how to do this optimisation without massive memory copies.
-			result += "if (this.def_scope) { _scopes["+i+"].mergeCache(this.def_scope["+i+"].cache); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
+			result += "_scopes["+i+"].rebuild();\n";
 		}
 
-		result += "this.def_scope = _scopes;\n";
+		//result += "this.def_scope = _scopes;\n";
 	}
 
 	if (dobound) {
@@ -110,8 +110,12 @@ Eden.AST.Definition.prototype.generate = function(ctx,scope) {
 Eden.AST.Definition.prototype.rebuild = function(sym) {
 	this.dependencies = [];
 	console.log("Rebuilt " + sym.name);
+	try {
 	var rhs = "("+this.generateDef(this)+")";
 	sym.definition = eval(rhs);
+	} catch(e) {
+		console.error(this, e);
+	}
 }
 
 Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
