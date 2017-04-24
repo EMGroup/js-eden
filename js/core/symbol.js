@@ -277,7 +277,7 @@ Symbol.prototype.evaluate = function (scope, cache) {
 			eden.emit("error", [this,e]);
 		}
 		//this.logError(e);
-		//console.error(e);
+		console.error(e);
 		cache.value = undefined;
 		cache.up_to_date = true;
 	}
@@ -393,6 +393,7 @@ Symbol.prototype.getSource = function() {
  */
 Symbol.prototype.define = function (definition, origin, subscriptions, source) {
 	this.garbage = false;
+	this.fullexp = true;
 	this.definition = definition;
 	this.origin = origin;
 	this.needsGlobalNotify = Symbol.REDEFINED;

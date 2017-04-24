@@ -9,7 +9,7 @@ Eden.AST.Length.prototype.left = Eden.AST.fnEdenASTleft;
 Eden.AST.Length.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.Length.prototype.generate = function(ctx, scope, options) {
-	var left = this.l.generate(ctx, scope, {bound: false, usevar: options.usevar});
+	var left = this.l.generate(ctx, scope, {bound: false, usevar: options.usevar, fulllocal: options.fulllocal});
 
 	if (options.bound) {
 		return "new BoundValue(rt.length("+left+"), "+scope+")";
