@@ -375,7 +375,7 @@ Eden.AST.Scope.prototype._generate_GPU_opti = function(ctx, options) {
 	this.exprs = {};
 	this.exprnum = 0;
 
-	var exprctx = {dependencies: {}, mathreplace: true};
+	var exprctx = {dependencies: {}, mathreplace: true, scopes: []};
 	var express = this.expression.generate(exprctx,undefined,{bound: false, fulllocal: true});
 	var res = "";
 	var reruns = "";
@@ -624,7 +624,7 @@ Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex
 }
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
-	var constructor = (ctx) ? this.generateConstructor(ctx,scope,options) : "";
+	var constructor = this.generateConstructor(ctx,scope,options);
 	// Are we required to do a full optimisation? Some outer scope is needing it
 	if (options.fulllocal) {
 		//if (this.compiled) return this.compiled;
