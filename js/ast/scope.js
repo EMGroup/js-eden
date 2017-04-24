@@ -178,7 +178,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	this.exprs = {};
 	this.exprnum = 0;
 
-	var exprctx = {dependencies: {}};
+	var exprctx = {dependencies: {}, scopes: []};
 	var express = this.expression.generate(exprctx,undefined,{bound: false, fulllocal: true});
 	var res = "";
 	var reruns = "";
