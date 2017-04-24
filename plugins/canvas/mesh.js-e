@@ -43,8 +43,7 @@ Mesh.prototype.createBuffer = function(gl, viewName) {
 
 }}$;
 
-Mesh is ${{ (new Mesh(scope.value("$1"),scope.value("normals"),scope.value("indices"),scope.value("kind"))) }}$ ::
-	$1=$1, normals=normals, indices=indices, kind=kind if kind!=@ else "triangles";
+Mesh is ${{ new Mesh }}$ ($1,normals,indices,kind) :: kind=kind if kind!=@ else "triangles";
 
 
 ${{
