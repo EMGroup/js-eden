@@ -197,6 +197,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 		for (var x in deps) {
 			// Record loop level...
 			if (looplevel.hasOwnProperty(x) && looplevel[x] > level) level = looplevel[x];
+			//else if (me.overrides[x]) level = 1;
 
 			// TODO Why did I remove the overrides check? If I do it breaks in some cases
 			// Because of overrides that depend on themselves on the right hand side?
@@ -205,68 +206,92 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 			//visited[x] = true;
 
 			var sym = eden.root.lookup(x);
-			if (sym.definition && sym.origin && sym.origin.type == "definition") {
+			if (sym.origin && sym.origin.type == "function") {
+				loopreruns[1] += "const obs_"+x+" = eden.f.func_"+x+";\n";
+				//level = 1;
+			} else if (sym.definition && sym.origin && sym.origin.type == "definition") {
 				// Generate here to also get dependencies... could be done another way.
 				var expr = sym.origin.expression;
 
 				if (expr.type == "scope") {
 					var src = expr.generate({dependencies: {}, scopes: []}, undefined, {bound: false, fulllocal: true});
-					looplevel[x] = importdefs(expr.params, excludeover);
-					if (!excludeover) looplevel[x] = 0;
-					// Update the max level of these dependencies
-					if (looplevel[x] > level) level = looplevel[x];
-					// It may now have been visted?
-					if (visited[x]) continue;
 
-					// Append the expression to the correct loop level
-					if (looplevel[x] == 0) loopreruns[0] += "var ";
-					else loopreruns[0] += "var obs_"+x+";\n";
-					loopreruns[looplevel[x]] += "obs_"+x + " = " + src + ";\n";
+					// Dependencies not influenced by overrides can be parameters and not calculated
+					if (!excludeover) {
+						looplevel[x] = 0;
+					} else {
+						looplevel[x] = importdefs(expr.params, excludeover);
+
+						// Update the max level of these dependencies
+						if (looplevel[x] > level) level = looplevel[x];
+						// It may now have been visted?
+						if (visited[x]) continue;
+
+						// Append the expression to the correct loop level
+						if (looplevel[x] == 0) loopreruns[0] += "var ";
+						else loopreruns[1] += "var obs_"+x+";\n";
+						loopreruns[looplevel[x]] += "obs_"+x + " = " + src + ";\n";
+					}
+
+					if (looplevel[x] == 0) params.push(x);
+
 				// Check if this expression needs to be split up...
 				} else if (expr.type == "binaryop" && expr.getSize() >= 8) {
 					var exprs = me.split_expression(ctx,expr);
 					//if (looplevel[x] == 0) loopreruns[0] += "var ";
 					//else loopreruns[0] += "var obs_"+x+";\n";
 					for (var j=1; j<exprs.length; j++) {
-						looplevel[exprs[j].name] = importdefs(exprs[j].dependencies, excludeover);
-						if (!excludeover) looplevel[exprs[j].name] = 0;
 
-						// Update the max level of these dependencies
-						if (looplevel[exprs[j].name] > level) level = looplevel[exprs[j].name];
-						// It may now have been visted?
-						//if (visited[x]) continue;
-
-						// Append the expression to the correct loop level
-						var hash = hashCode(exprs[j].source);
-						// TODO This should check for hash collisions just in case!
-						if (duplicates.hasOwnProperty(hash)) {
-							console.log("DUPLICATE", exprs[j].source);
-							loopreruns[looplevel[exprs[j].name]] += "var "+exprs[j].name + " = " + duplicates[hash] + ";\n";
+						if (!excludeover) {
+							looplevel[exprs[j].name] = 0;
 						} else {
-							loopreruns[looplevel[exprs[j].name]] += "var "+ exprs[j].name +" = " + exprs[j].source + ";\n";
-							duplicates[hash] = exprs[j].name;
+							looplevel[exprs[j].name] = importdefs(exprs[j].dependencies, excludeover);
+
+							// Update the max level of these dependencies
+							if (looplevel[exprs[j].name] > level) level = looplevel[exprs[j].name];
+							// It may now have been visted?
+							//if (visited[x]) continue;
+
+							// Append the expression to the correct loop level
+							var hash = hashCode(exprs[j].source);
+							// TODO This should check for hash collisions just in case!
+							if (duplicates.hasOwnProperty(hash)) {
+								console.log("DUPLICATE", exprs[j].source);
+								loopreruns[looplevel[exprs[j].name]] += "var "+exprs[j].name + " = " + duplicates[hash] + ";\n";
+							} else {
+								loopreruns[looplevel[exprs[j].name]] += "var "+ exprs[j].name +" = " + exprs[j].source + ";\n";
+								duplicates[hash] = exprs[j].name;
+							}
 						}
+						if (looplevel[exprs[j].name] == 0) params.push(exprs[j].name);
 					}
 					loopreruns[loopreruns.length-1] += "var obs_"+x+" = " + exprs[0] + ";\n";
 				} else {
 					var src = expr.generate({dependencies: {}}, undefined, {bound: false, fulllocal: true});
-					looplevel[x] = importdefs(sym.dependencies, excludeover);
-					if (!excludeover) looplevel[x] = 0;
-					// Update the max level of these dependencies
-					if (looplevel[x] > level) level = looplevel[x];
-					// It may now have been visted?
-					if (visited[x]) continue;
 
-					// Append the expression to the correct loop level
-					if (looplevel[x] == 0) loopreruns[0] += "var ";
-					else loopreruns[0] += "var obs_"+x+";\n";
-					loopreruns[looplevel[x]] += "obs_"+x + " = " + src + ";\n";
+					if (!excludeover) {
+						looplevel[x] = 0;
+					} else {
+						looplevel[x] = importdefs(sym.dependencies, excludeover);
+
+						// Update the max level of these dependencies
+						if (looplevel[x] > level) level = looplevel[x];
+						// It may now have been visted?
+						if (visited[x]) continue;
+
+						// Append the expression to the correct loop level
+						if (looplevel[x] == 0) loopreruns[0] += "var ";
+						else loopreruns[1] += "var obs_"+x+";\n";
+						loopreruns[looplevel[x]] += "obs_"+x + " = " + src + ";\n";
+					}
+
+					if (looplevel[x] == 0) params.push(x);
 				}
 			} else {
 				switch (x) {
-				case "sqrt" : loopreruns[0] += "var obs_"+x+" = Math.sqrt;\n"; break;
-				case "maxn" : loopreruns[0] += "var obs_"+x+" = Math.max;\n"; break;
-				case "minn" : loopreruns[0] += "var obs_"+x+" = Math.min;\n"; break;
+				case "sqrt" : loopreruns[1] += "var obs_"+x+" = Math.sqrt;\n"; break;
+				case "maxn" : loopreruns[1] += "var obs_"+x+" = Math.max;\n"; break;
+				case "minn" : loopreruns[1] += "var obs_"+x+" = Math.min;\n"; break;
 				default: params.push(x);
 				}
 			}
@@ -286,12 +311,12 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	var res2 = "";
 	for (var x in this.overrides) {
 		if (this.overrides[x].end === undefined) {
-			res2 += "var obs_"+x+" = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += "const obs_"+x+" = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
 			res2 += ";\n";
 		} else {
-			res2 += "var obs_"+x+"_start = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += "const obs_"+x+"_start = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
 			res2 += ";\n";
-			res2 += "var obs_"+x+"_end = "+this.overrides[x].end.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += "const obs_"+x+"_end = "+this.overrides[x].end.generate(ctx,undefined,{bound: false, fulllocal: true});
 			res2 += ";\n";
 			res2 += "length += obs_" + x + "_end - obs_"+x+"_start + 1;\n";
 			loopers.push(x);
@@ -299,18 +324,30 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	}
 
 	loopreruns[0] = "";
+	loopreruns[1] = "";
 	for (var i=0; i<loopers.length; i++) {
-		looplevel[loopers[i]] = i+1;
+		//looplevel[loopers[i]] = i+2;
 		loopreruns.push("");
 	}
 
 	importdefs(ctx.dependencies, false);
-	res += loopreruns[0];
-	loopreruns[0] = "";
+	res += loopreruns[1];
+	loopreruns[1] = "";
 	res += res2;
 	visited = {};
+	looplevel = {};
+
+	for (var x in this.overrides) {
+		looplevel[x] = 1;
+	}
+	for (var i=0; i<loopers.length; i++) {
+		looplevel[loopers[i]] = i+2;
+		//loopreruns.push("");
+	}
+
 	importdefs(exprctx.dependencies, true);
-	res += loopreruns[0];
+	res += loopreruns[1];
+	//res += loopreruns[0];
 
 	// Merge dependencies
 	for (var x in exprctx.dependencies) ctx.dependencies[x] = true;
@@ -324,7 +361,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 
 	for (var i=0; i<loopers.length; i++) {
 		res += "for (var obs_"+loopers[i]+" = obs_"+loopers[i]+"_start; obs_"+loopers[i]+"<=obs_"+loopers[i]+"_end; obs_"+loopers[i]+"++) {\n";
-		res += loopreruns[i+1];
+		res += loopreruns[i+2];
 	}
 
 	res += "var res = "+express+";\n";

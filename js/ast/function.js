@@ -28,11 +28,13 @@ Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 		eden.updateDictionary(this.name, this.doxyComment);
 	}
 
-	var body = this.body.generate(ctx,"scope");
+	var body = this.body.generateInner(ctx,"scope");
 	var sym = eden.root.lookup(this.name);
 
 	try {
-		sym.define(eval(body), this,[]);
+		var func = eval(body);
+		sym.assign(func, scope, this);
+		eden.f["func_"+this.name] = func;
 	} catch(e) {
 		console.log("In function:", this.name);
 		console.error(e);
