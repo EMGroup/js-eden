@@ -294,13 +294,198 @@ EdenUI.triTable = new Int32Array([
 
 
 ${{
-Point3D.prototype.lerp = function(p2, mu) {
-	var dx = p2.x - this.x;
-	var dy = p2.y - this.y;
-	var dz = p2.z - this.z;
-	return new Point3D(this.x + dx*mu, this.y + dy*mu, this.z + dz * mu);
+
+var cube_vertices = [
+        [0,0,0]
+      , [1,0,0]
+      , [1,1,0]
+      , [0,1,0]
+      , [0,0,1]
+      , [1,0,1]
+      , [1,1,1]
+      , [0,1,1] ]
+  , tetra_list = [
+        [0,2,3,7]
+      , [0,6,2,7]
+      , [0,4,6,7]
+      , [0,6,1,2]
+      , [0,1,6,4]
+      , [5,6,1,4] ];
+
+marchingTetrahedra = function(size, values, bounds) {
+
+	var dims = [size,size,size];
+	var size2 = size*size;
+
+  if(!bounds) {
+    bounds = [[0,0,0], dims];
+  }
+   
+   var vertices = []
+    , faces = []
+    , n = 0
+    , grid = new Float32Array(8)
+    , edges = new Int32Array(12)
+    , x = [0,0,0];
+    
+  function interp(i0, i1) {
+    var g0 = grid[i0]
+      , g1 = grid[i1]
+      , p0 = cube_vertices[i0]
+      , p1 = cube_vertices[i1]
+      , v  = [x[0], x[1], x[2]]
+      , t = g0 - g1;
+    if(Math.abs(t) > 1e-6) {
+      t = g0 / t;
+    }
+    for(var i=0; i<3; ++i) {
+      v[i] = (v[i] + p0[i] + t * (p1[i] - p0[i])) / size * 24 - 12;
+    }
+    vertices.push(v[0],v[1],v[2]);
+    return vertices.length - 1;
+  }
+  
+  //March over the volume
+  for(x[2]=0; x[2]<dims[2]-1; ++x[2], n+=dims[0])
+  for(x[1]=0; x[1]<dims[1]-1; ++x[1], ++n)
+  for(x[0]=0; x[0]<dims[0]-1; ++x[0], ++n) {
+    //Read in cube  
+    // index of base point, and also adjacent points on cube
+		var p    = x[0] + size * x[1] + size2 * x[2],
+			px   = p   + 1,
+			py   = p   + size,
+			pxy  = py  + 1,
+			pz   = p   + size2,
+			pxz  = px  + size2,
+			pyz  = py  + size2,
+			pxyz = pxy + size2;
+		
+		// store scalar values corresponding to vertices
+		    grid[0] = values[ p    ],
+			grid[1] = values[ px   ],
+			grid[2] = values[ py   ],
+			grid[3] = values[ pxy  ],
+			grid[4] = values[ pz   ],
+			grid[5] = values[ pxz  ],
+			grid[6] = values[ pyz  ],
+			grid[7] = values[ pxyz ];
+    for(var i=0; i<tetra_list.length; ++i) {
+      var T = tetra_list[i]
+        , triindex = 0;
+      if (grid[T[0]] < 0) triindex |= 1;
+      if (grid[T[1]] < 0) triindex |= 2;
+      if (grid[T[2]] < 0) triindex |= 4;
+      if (grid[T[3]] < 0) triindex |= 8;
+      
+      //Handle each case
+      switch (triindex) {
+        case 0x00:
+        case 0x0F:
+        break;
+        case 0x0E:
+          faces.push(
+              interp(T[0], T[1])
+            , interp(T[0], T[3]) 
+            , interp(T[0], T[2]) );
+        break;
+        case 0x01:
+          faces.push(
+              interp(T[0], T[1])
+            , interp(T[0], T[2])
+            , interp(T[0], T[3])  );
+        break;
+        case 0x0D:
+          faces.push(
+              interp(T[1], T[0])
+            , interp(T[1], T[2]) 
+            , interp(T[1], T[3]) );
+        break;
+        case 0x02:
+          faces.push(
+              interp(T[1], T[0])
+            , interp(T[1], T[3])
+            , interp(T[1], T[2]) );
+        break;
+        case 0x0C:
+          faces.push(
+                interp(T[1], T[2])
+              , interp(T[1], T[3])
+              , interp(T[0], T[3])
+              , interp(T[0], T[2]) );
+        break;
+        case 0x03:
+          faces.push(
+                interp(T[1], T[2])
+              , interp(T[0], T[2])
+              , interp(T[0], T[3])
+              , interp(T[1], T[3]) );
+        break;
+        case 0x04:
+          faces.push(
+                interp(T[2], T[0])
+              , interp(T[2], T[1])
+              , interp(T[2], T[3]) );
+        break;
+        case 0x0B:
+          faces.push(
+                interp(T[2], T[0])
+              , interp(T[2], T[3]) 
+              , interp(T[2], T[1]) );
+        break;
+        case 0x05:
+          faces.push(
+                interp(T[0], T[1])
+              , interp(T[1], T[2])
+              , interp(T[2], T[3])
+              , interp(T[0], T[3]) );
+        break;
+        case 0x0A:
+          faces.push(
+                interp(T[0], T[1])
+              , interp(T[0], T[3])
+              , interp(T[2], T[3])
+              , interp(T[1], T[2]) );
+        break;
+        case 0x06:
+          faces.push(
+                interp(T[2], T[3])
+              , interp(T[0], T[2])
+              , interp(T[0], T[1])
+              , interp(T[1], T[3]) );
+        break;
+        case 0x09:
+          faces.push(
+                interp(T[2], T[3])
+              , interp(T[1], T[3])
+              , interp(T[0], T[1])
+              , interp(T[0], T[2]) );
+        break;
+        case 0x07:
+          faces.push(
+                interp(T[3], T[0])
+              , interp(T[3], T[1])
+              , interp(T[3], T[2]) );
+        break;
+        case 0x08:
+          faces.push(
+                interp(T[3], T[0])
+              , interp(T[3], T[2])
+              , interp(T[3], T[1]) );
+        break;
+      }
+    }
+  }
+  
+  return { positions: vertices, cells: faces };
 }
+
 }}$
+
+func IsoSurface2 {
+	para values,size,axisMin,asisRange;
+	${{ var tet = marchingTetrahedra(size, values);
+	return [tet.positions,tet.cells]; }}$;
+}
 
 func IsoSurface {
 	para values,size,axisMin,axisRange;
@@ -321,7 +506,7 @@ func IsoSurface {
 	var vertices = [];
 	var normals = [];
 
-	var delta = axisRange / (size - 1);
+	var delta = axisRange / (size);
 
 	/*for (var k = 0; k < size; k++)
 	for (var j = 0; j < size; j++)

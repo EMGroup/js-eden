@@ -77,6 +77,7 @@ Mesh.prototype.draw = function (context, viewName, mvMatrix, shader) {
 	if (this.indices) {
 		switch (this.kind) {
 		case "triangles":	context.drawElements(context.TRIANGLES, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
+		case "trianglestrip":	context.drawElements(context.TRIANGLE_STRIP, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
 		case "lines":	context.drawElements(context.LINES, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
 		case "lineloop": context.drawElements(context.LINE_LOOP, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
 		}
@@ -84,7 +85,9 @@ Mesh.prototype.draw = function (context, viewName, mvMatrix, shader) {
 		switch (this.kind) {
 		case "triangles":	context.drawArrays(context.TRIANGLES, 0, this.vbufs[viewName].numItems); break;
 		case "lines":	context.drawArrays(context.LINES, 0, this.vbufs[viewName].numItems); break;
-		case "lineloop": context.drawElements(context.LINE_LOOP, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
+		case "lineloop": context.drawArrays(context.LINE_LOOP, 0, this.vbufs[viewName].numItems); break;
+		case "linestrip": context.drawArrays(context.LINE_STRIP, 0, this.vbufs[viewName].numItems); break;
+		case "points": context.drawArrays(context.POINTS, 0, this.vbufs[viewName].numItems); break;
 		}
 	}
 };
