@@ -531,6 +531,33 @@
 		 * @public
 		*/
 		this.reportErrors = true;
+
+		this.workers = [];
+		this.workerlock = {};
+		var me = this;
+
+		//Make some web workers for scoping calculations...
+		for (var i=0; i<4; i++) {
+			this.workers[i] = new Worker('js/core/worker.js');
+			this.workers[i].onmessage = function(e) {
+				console.log("Worker:",e.data);
+				me.workerlock[e.data.observable] = false;
+				eden.root.symbols[e.data.observable].cache.value = e.data.data;
+				eden.root.symbols[e.data.observable].expireSubscribers();
+			}
+		}
+	}
+
+	Eden.prototype.workerRegister = function(name, source) {
+		for (var i=0; i<this.workers.length; i++) {
+			this.workers[i].postMessage({cmd: "register", name: name, source: source});
+		}
+	}
+
+	Eden.prototype.workerCall = function(observable, name, index, args) {
+		if (this.workerlock[observable]) return;
+		this.workerlock[observable] = true;
+		this.workers[index].postMessage({cmd: "call", name: name, args: args, observable: observable});
 	}
 
 	Eden.prototype.updateDictionary = function(name, comment, net) {
