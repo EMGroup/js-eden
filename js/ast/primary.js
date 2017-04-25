@@ -133,6 +133,19 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		} else {
 			res = this.backtick.generate(ctx,scope, {bound: false, usevar: options.usevar});
 		}
+
+		obs = res;
+		subed = true;
+	} else if (obs == "__JAVASCRIPT__") {
+		res = this.backtick.generate(ctx, scope, {bound: false});
+		// Generate each extra
+		for (var i=0; i<this.extras.length; i++) {
+			res += this.extras[i].generate(ctx, scope,{bound: false, usevar: options.usevar, fulllocal: options.fulllocal});
+		}
+		if (options.bound) {
+			res = "new BoundValue("+res+","+scope+")";
+		}
+		return res;
 	} else {
 		// Record the use of this primary as a dependency
 		if (ctx && ctx.dependencies) ctx.dependencies[obs] = true;

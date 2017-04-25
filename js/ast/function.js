@@ -30,7 +30,13 @@ Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 
 	var body = this.body.generate(ctx,"scope");
 	var sym = eden.root.lookup(this.name);
-	sym.define(eval(body), this,[]);
+
+	try {
+		sym.define(eval(body), this,[]);
+	} catch(e) {
+		console.log("In function:", this.name);
+		console.error(e);
+	}
 }
 
 Eden.AST.registerStatement(Eden.AST.Function);

@@ -178,7 +178,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	this.exprs = {};
 	this.exprnum = 0;
 
-	var exprctx = {dependencies: {}};
+	var exprctx = {dependencies: {}, scopes: []};
 	var express = this.expression.generate(exprctx,undefined,{bound: false, fulllocal: true});
 	var res = "";
 	var reruns = "";
@@ -210,7 +210,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 				var expr = sym.origin.expression;
 
 				if (expr.type == "scope") {
-					var src = expr.generate({dependencies: {}}, undefined, {bound: false, fulllocal: true});
+					var src = expr.generate({dependencies: {}, scopes: []}, undefined, {bound: false, fulllocal: true});
 					looplevel[x] = importdefs(expr.params, excludeover);
 					if (!excludeover) looplevel[x] = 0;
 					// Update the max level of these dependencies
@@ -230,6 +230,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 					for (var j=1; j<exprs.length; j++) {
 						looplevel[exprs[j].name] = importdefs(exprs[j].dependencies, excludeover);
 						if (!excludeover) looplevel[exprs[j].name] = 0;
+
 						// Update the max level of these dependencies
 						if (looplevel[exprs[j].name] > level) level = looplevel[exprs[j].name];
 						// It may now have been visted?
@@ -302,10 +303,12 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 		looplevel[loopers[i]] = i+1;
 		loopreruns.push("");
 	}
+
 	importdefs(ctx.dependencies, false);
 	res += loopreruns[0];
 	loopreruns[0] = "";
 	res += res2;
+	visited = {};
 	importdefs(exprctx.dependencies, true);
 	res += loopreruns[0];
 
@@ -373,7 +376,7 @@ Eden.AST.Scope.prototype._generate_GPU_opti = function(ctx, options) {
 	this.exprs = {};
 	this.exprnum = 0;
 
-	var exprctx = {dependencies: {}, mathreplace: true};
+	var exprctx = {dependencies: {}, mathreplace: true, scopes: []};
 	var express = this.expression.generate(exprctx,undefined,{bound: false, fulllocal: true});
 	var res = "";
 	var reruns = "";
@@ -622,9 +625,9 @@ Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex
 }
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
-	var constructor = this.generateConstructor(ctx,scope,options);
 	// Are we required to do a full optimisation? Some outer scope is needing it
 	if (options.fulllocal) {
+		//var constructor = this.generateConstructor(ctx,scope,options);
 		//if (this.compiled) return this.compiled;
 		var optifunc = this._generate_func_opti(ctx,options);
 		var name = "sFunc_"+randomString(6);
@@ -641,6 +644,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 		return res;
 	// Its a range, so do some sort of optimisation.
 	} else if (this.range) {
+		var constructor = this.generateConstructor(ctx,scope,options);
 		// Check for any isin
 		var isin = false;
 		var rangeindex = [];
@@ -685,6 +689,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 		}
 	} else {
 		// Unoptimised scoping...
+		var constructor = this.generateConstructor(ctx,scope,options);
 		ctx.scopes.push(constructor);
 		return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
 	}
