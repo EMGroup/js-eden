@@ -356,7 +356,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	if (loopers.length > 0) {
 		res = "var ix = 0;\nvar length = 0;\n" + res;
 		res += "var results = new Array(length);\n";
-		//res += "console.time('scopefuncopti');\n";
+		res += "console.time('scopefuncopti');\n";
 	}
 
 	for (var i=0; i<loopers.length; i++) {
@@ -377,7 +377,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 
 	if (loopers.length > 0) {
 		res += "results.length = ix;\n";
-		//res += "console.timeEnd('scopefuncopti');\n";
+		res += "console.timeEnd('scopefuncopti');\n";
 
 		if (options.bound) {
 			res += "return new BoundValue(results,scope);\n";
