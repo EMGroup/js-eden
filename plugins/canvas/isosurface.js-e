@@ -341,7 +341,7 @@ surfaceNets = function(size, values, axisMin, axisRange) {
 	var size2 = size*size;
 
   var bounds = [[axisMin,axisMin,axisMin],[axisMin+axisRange,axisMin+axisRange,axisMin+axisRange]];
-  
+  var delta = axisRange / size;
   var scale     = [0,0,0];
   var shift     = [0,0,0];
   for(var i=0; i<3; ++i) {
@@ -349,6 +349,7 @@ surfaceNets = function(size, values, axisMin, axisRange) {
     shift[i] = bounds[0][i];
   }
   
+  var normals = [];
   var vertices = []
     , faces = []
     , n = 0
@@ -432,8 +433,10 @@ surfaceNets = function(size, values, axisMin, axisRange) {
             , b = e1 & k;
           if(a !== b) {
             v[j] += a ? 1.0 - t : t;
+			//vn[j] += a ? 1.0 - t : t;
           } else {
             v[j] += a ? 1.0 : 0;
+			//vn[j] += a ? 1.0 : 0;
           }
         }
       }
@@ -447,7 +450,8 @@ surfaceNets = function(size, values, axisMin, axisRange) {
       //Add vertex to buffer, store pointer to vertex index in buffer
       buffer[m] = vertices.length/3;
       vertices.push(v[0],v[1],v[2]);
-      
+	  normals.push(0.0,0.0,0.0);
+
       //Now we need to add faces together, to do this we just loop over 3 basis components
       for(var i=0; i<3; ++i) {
         //The first three entries of the edge_mask count the crossings along the edge
@@ -479,10 +483,35 @@ surfaceNets = function(size, values, axisMin, axisRange) {
       }
     }
   }
+
+	// Compute vertex normals
+	for (var i=0; i<faces.length; i+=3) {
+		var A = vec3.create();
+		var B = vec3.create();
+		var C = vec3.create();
+		vec3.set(A, vertices[faces[i]*3], vertices[faces[i]*3+1], vertices[faces[i]*3+2]);
+		vec3.set(B, vertices[faces[i+1]*3], vertices[faces[i+1]*3+1], vertices[faces[i+1]*3+2]);
+		vec3.set(C, vertices[faces[i+2]*3], vertices[faces[i+2]*3+1], vertices[faces[i+2]*3+2]);
+		var p = vec3.create();
+		vec3.subtract(B, B, A);
+		vec3.subtract(C, C, A);
+		vec3.cross(p,B,C);
+		normals[faces[i]*3] += p[0];
+		normals[faces[i]*3] += p[0];
+		normals[faces[i]*3] += p[0];
+
+		normals[faces[i+1]*3+1] += p[1];
+		normals[faces[i+1]*3+1] += p[1];
+		normals[faces[i+1]*3+1] += p[1];
+
+		normals[faces[i+2]*3+2] += p[2];
+		normals[faces[i+2]*3+2] += p[2];
+		normals[faces[i+2]*3+2] += p[2];
+	}
   
   //All done!  Return the result
-	console.log("VERTS",vertices);
-  return { positions: vertices, indices: faces };
+	//console.log("VERTS",vertices);
+  return { positions: vertices, indices: faces, normals: normals };
 };
 
 }}$
@@ -490,7 +519,7 @@ surfaceNets = function(size, values, axisMin, axisRange) {
 func IsoSurface2 {
 	para values,size,axisMin,axisRange;
 	${{ var tet = surfaceNets(size, values,axisMin,axisRange);
-	return [tet.positions,tet.indices]; }}$;
+	return [tet.positions,tet.indices, tet.normals]; }}$;
 }
 
 func IsoSurface {
