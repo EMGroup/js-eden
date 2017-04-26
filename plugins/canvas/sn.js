@@ -10,6 +10,15 @@ function SNVertex(id, x,y,z) {
 	this.deleted = false;
 }
 
+SNVertex.prototype.removeFace = function(face) {
+	for (var i=0; i<this.faces.length; i++) {
+		if (this.faces[i] === face) {
+			this.faces.splice(i,1);
+			break;
+		}
+	}
+}
+
 SNVertex.prototype.addFace = function(face) {
 	for (var i=0; i<this.faces.length; i++) {
 		this.faces[i].addAdj(face);
@@ -29,6 +38,7 @@ SNVertex.computeEdgeCollapseCost = function(u,v) {
 	var sides = [];
 
 	for(var i=0;i<u.faces.length;i++) {
+		if (u.faces[i].deleted) continue;
 		if(u.faces[i].hasVertex(v)){
 			sides.push(u.faces[i]);
 		}
@@ -37,21 +47,26 @@ SNVertex.computeEdgeCollapseCost = function(u,v) {
 	// use the triangle facing most away from the sides
 	// to determine our curvature term
 	for(var i=0;i<u.faces.length;i++) {
-		var mincurv=1;
+		if (u.faces[i].deleted) continue;
+		var mincurv= 1;
 		for(var j=0;j < sides.length;j++) {
 			// use dot product of face normals.
-			if (u.faces[i] === sides[j]) continue;
+			if (u.faces[i] === sides[j] || sides[j].deleted || u.faces[i].deleted) continue;
 			var dotprod = vec3.dot(u.faces[i].normal, sides[j].normal);
 			mincurv = Math.min(mincurv,(1-dotprod)/2.0);
 		}
 		curvature = Math.max(curvature,mincurv);
 	}
+
+	//var dotp = vec3.dot(v.normal,u.normal);
+	//var curvature = (1-dotp)/2.0;
 	return edgelength * curvature;
 }
 
 SNVertex.prototype.adjacentVertices = function() {
 	var adj = {};
 	for (var i=0; i<this.faces.length; i++) {
+		if (this.faces[i].deleted) continue;
 		adj[this.faces[i].v1.id] = this.faces[i].v1;
 		adj[this.faces[i].v2.id] = this.faces[i].v2;
 		adj[this.faces[i].v3.id] = this.faces[i].v3;
@@ -92,6 +107,7 @@ function SNFace(id, v1,v2,v3) {
 	//this.n = vec3.create();
 	var norm = Point3D.normal(v1.vec,v2.vec,v3.vec);
 	this.normal = [norm.x,norm.y,norm.z];
+	vec3.normalize(this.normal,this.normal);
 	this.adj = [];
 	this.deleted = false;
 
@@ -109,17 +125,22 @@ SNFace.prototype.addAdj = function(face) {
 }
 
 SNFace.prototype.replace = function(va,vb) {
-	if (this.hasVertex(vb)) {
+	if (this.hasVertex(va) && this.hasVertex(vb)) {
 		this.deleted = true;
+		//this.v1.removeFace(this);
+		//this.v2.removeFace(this);
+		//this.v3.removeFace(this);
 		return;
 	}
 
 	if (this.v1 === va) this.v1 = vb;
 	else if (this.v2 === va) this.v2 = vb;
 	else if (this.v3 === va) this.v3 = vb;
+	else return;
 
 	var norm = Point3D.normal(this.v1.vec,this.v2.vec,this.v3.vec);
 	this.normal = [norm.x,norm.y,norm.z];
+	vec3.normalize(this.normal,this.normal);
 	vb.addFace(this);
 }
 
@@ -313,22 +334,34 @@ surfaceNets = function(size, values, axisMin, axisRange) {
     }
   }
 
+	console.log("We have " + faces.length + " faces");
+
 
 	// Remove edges/vertices below certain cost threshold.
 	//var vcount = faces.length
-	var costthresh = 0;
-	var remcount = 0;
+	var costthresh = 0.01;
+	var dfcount = 0;
+	var vfcount = 0;
 
-	/*for (var i=0; i<vertices.length; i++) {
-		if (vertices[i].computeEdgeCostAtVertex() <= costthresh) {
-			remcount++;
-			for (var j=0; j<vertices[i].faces.length; j++) {
-				vertices[i].faces[j].replace(vertices[i],vertices[i].collapse);
+	//while (vertices.length - vfcount > 10000) {
+	/*for (var k=0; k<2; k++) {
+		for (var i=0; i<vertices.length; i++) {
+			if (vertices[i].deleted) continue;
+			if (vertices[i].computeEdgeCostAtVertex() <= costthresh) {
+				vfcount++;
+				//if (vertices[i] === vertices[i].collapse) console.error("Collapsing self");
+				var len = vertices[i].collapse.faces.length;
+				for (var j=0; j<len; j++) {
+					if (vertices[i].collapse.faces[j].deleted) continue;
+					vertices[i].collapse.faces[j].replace(vertices[i].collapse,vertices[i]);
+				}
+				vertices[i].collapse.deleted = true;
 			}
-			vertices[i].deleted = true;
 		}
+		//costthresh += 0.01;
+		console.log("Removed " + vfcount + " vertices");
+		vfcount = 0;
 	}*/
-	console.log("Removed "+remcount+" vertices", faces);
 
 	// Repeat if still too many vertices... higher threshold.
 
@@ -337,33 +370,40 @@ surfaceNets = function(size, values, axisMin, axisRange) {
 	var glnorms = new Array();
 	var ix = 0;
 
+	// Normalise vertex normals
+	for (var i=0; i<vertices.length; i++) {
+		vec3.normalize(vertices[i].normal,vertices[i].normal);
+	}
+
 	for (var i=0; i<faces.length; i++) {
-		if (faces[i].deleted) continue;
-		if (faces[i].v1.deleted) console.error("Missing vertex");
-		if (faces[i].v2.deleted) console.error("Missing vertex");
-		if (faces[i].v3.deleted) console.error("Missing vertex");
+		if (faces[i].deleted) { dfcount++; continue; }
+		//if (faces[i].v1.deleted) continue;//console.error("Missing vertex");
+		//if (faces[i].v2.deleted) continue; //console.error("Missing vertex");
+		//if (faces[i].v3.deleted) continue; //console.error("Missing vertex");
 		glverts[ix] = faces[i].v1.vec[0];
 		glverts[ix+1] = faces[i].v1.vec[1];
 		glverts[ix+2] = faces[i].v1.vec[2];
-		glnorms[ix] = faces[i].normal[0]; //v1.normal[0];
-		glnorms[ix+1] = faces[i].normal[1]; //v1.normal[1];
-		glnorms[ix+2] = faces[i].normal[2]; //v1.normal[2];
+		glnorms[ix] = faces[i].normal[0];
+		glnorms[ix+1] = faces[i].normal[1];
+		glnorms[ix+2] = faces[i].normal[2];
 		ix += 3;
 		glverts[ix] = faces[i].v2.vec[0];
 		glverts[ix+1] = faces[i].v2.vec[1];
 		glverts[ix+2] = faces[i].v2.vec[2];
-		glnorms[ix] = faces[i].normal[0]; //v2.normal[0];
-		glnorms[ix+1] = faces[i].normal[1]; //v2.normal[1];
-		glnorms[ix+2] = faces[i].normal[2]; //v2.normal[2];
+		glnorms[ix] = faces[i].normal[0];
+		glnorms[ix+1] = faces[i].normal[1];
+		glnorms[ix+2] = faces[i].normal[2];
 		ix += 3;
 		glverts[ix] = faces[i].v3.vec[0];
 		glverts[ix+1] = faces[i].v3.vec[1];
 		glverts[ix+2] = faces[i].v3.vec[2];
-		glnorms[ix] = faces[i].normal[0]; //v3.normal[0];
-		glnorms[ix+1] = faces[i].normal[1]; //v3.normal[1];
-		glnorms[ix+2] = faces[i].normal[2]; //v3.normal[2];
+		glnorms[ix] = faces[i].normal[0];
+		glnorms[ix+1] = faces[i].normal[1];
+		glnorms[ix+2] = faces[i].normal[2];
 		ix += 3;
 	}
+
+	console.log("Removed "+dfcount+" faces", faces);
 
   
   //All done!  Return the result

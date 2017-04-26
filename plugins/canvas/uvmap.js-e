@@ -20,6 +20,8 @@ UVMap.prototype.createBuffer = function(gl, viewName) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCoords), gl.STATIC_DRAW);
     this.tbufs[viewName].itemSize = 2;
     this.tbufs[viewName].numItems = this.texCoords.length / 2;
+
+	console.log("UVMAP length = ", this.texCoords.length/2);
 }
 
 }}$;

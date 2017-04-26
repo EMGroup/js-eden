@@ -26,6 +26,8 @@ Mesh.prototype.createBuffer = function(gl, viewName) {
     this.vbufs[viewName].itemSize = 3;
     this.vbufs[viewName].numItems = this.vertices.length / 3;
 
+	console.log("Mesh has " + (this.vertices.length/2) + " vertices");
+
 	this.nbufs[viewName] = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.nbufs[viewName]);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.normals), gl.STATIC_DRAW);
