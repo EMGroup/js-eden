@@ -119,7 +119,7 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 	rhs += "var result = " + express + ";";
 	rhs += "if (cache) cache.scope = result.scope;";
 
-	rhs += "return result.value;";
+	rhs += "return edenCopy(result.value);";
 	rhs += "})";
 
 	this.rhs = rhs;

@@ -83,31 +83,39 @@ Shape.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMa
 			var g = colorobj.green();
 			var b = colorobj.blue();
 
+			//console.log("Making colour texture");
+
 			var rgbstr = "rgb("+r+","+g+","+b+")";
 			if (Texture.textures[rgbstr]) {
+				if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
 				this.texture = Texture.textures[rgbstr];
 				context.activeTexture(context.TEXTURE0);
 				context.bindTexture(context.TEXTURE_2D, this.texture);
+				//console.log("Reuse colour");
 			} else {
 				this.texture = context.createTexture();
 				Texture.textures[rgbstr] = this.texture;
 
 				if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
-
+				console.log("New colour being made");
 				context.activeTexture(context.TEXTURE0);
 				context.bindTexture(context.TEXTURE_2D, this.texture);
 				context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
 							  new Uint8Array([r, g, b, 255]));
 				context.uniform1i(shader.samplerUniform, 0);
+				console.log("New colour made");
 			}
 		} else {
 			if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
+			//console.log("UVMAP",this.uvmap.texCoords.length/2,this.mesh.vertices.length/3);
 
 			context.activeTexture(context.TEXTURE0);
 	   		context.bindTexture(context.TEXTURE_2D, this.texture);
 			context.uniform1i(shader.samplerUniform, 0);
 		}
 	}
+
+	//console.log("MESH DRAW",this.mesh.vertices.length/3);
 
 	if (this.ortho) {
 		context.uniformMatrix4fv(shader.pMatrixUniform, false, canvas.oMatrix);
