@@ -516,13 +516,13 @@ surfaceNets = function(size, values, axisMin, axisRange) {
 
 }}$
 
-func IsoSurface2 {
+func IsoSurfaceSN {
 	para values,size,axisMin,axisRange;
 	${{ var tet = surfaceNets(size, values,axisMin,axisRange);
-	return [tet.positions,tet.indices, tet.normals]; }}$;
+	return [tet.positions,tet.normals]; }}$;
 }
 
-func IsoSurface {
+func IsoSurfaceMC {
 	para values,size,axisMin,axisRange;
 
 	${{
