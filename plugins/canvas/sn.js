@@ -1,7 +1,7 @@
 function SNVertex(id, x,y,z) {
 	this.id = id;
-	this.vec = vec3.create();
-	vec3.set(this.vec, x, y, z);
+	this.vec = [x,y,z]; //vec3.create();
+	//vec3.set(this.vec, x, y, z);
 	this.faces = [];
 	this.normal = vec3.create();
 	vec3.set(this.normal,0.0,0.0,0.0);
@@ -90,7 +90,8 @@ function SNFace(id, v1,v2,v3) {
 	this.v2 = v2;
 	this.v3 = v3;
 	//this.n = vec3.create();
-	this.normal = Point3D.normal(v1.vec,v2.vec,v3.vec);
+	var norm = Point3D.normal(v1.vec,v2.vec,v3.vec);
+	this.normal = [norm.x,norm.y,norm.z];
 	this.adj = [];
 	this.deleted = false;
 
@@ -117,7 +118,8 @@ SNFace.prototype.replace = function(va,vb) {
 	else if (this.v2 === va) this.v2 = vb;
 	else if (this.v3 === va) this.v3 = vb;
 
-	this.normal = Point3D.normal(this.v1.vec,this.v2.vec,this.v3.vec);
+	var norm = Point3D.normal(this.v1.vec,this.v2.vec,this.v3.vec);
+	this.normal = [norm.x,norm.y,norm.z];
 	vb.addFace(this);
 }
 
@@ -343,21 +345,24 @@ surfaceNets = function(size, values, axisMin, axisRange) {
 		glverts[ix] = faces[i].v1.vec[0];
 		glverts[ix+1] = faces[i].v1.vec[1];
 		glverts[ix+2] = faces[i].v1.vec[2];
-		glnorms[ix++] = faces[i].normal[0]; //v1.normal[0];
-		glnorms[ix++] = faces[i].normal[1]; //v1.normal[1];
-		glnorms[ix++] = faces[i].normal[2]; //v1.normal[2];
+		glnorms[ix] = faces[i].normal[0]; //v1.normal[0];
+		glnorms[ix+1] = faces[i].normal[1]; //v1.normal[1];
+		glnorms[ix+2] = faces[i].normal[2]; //v1.normal[2];
+		ix += 3;
 		glverts[ix] = faces[i].v2.vec[0];
 		glverts[ix+1] = faces[i].v2.vec[1];
 		glverts[ix+2] = faces[i].v2.vec[2];
-		glnorms[ix++] = faces[i].normal[0]; //v2.normal[0];
-		glnorms[ix++] = faces[i].normal[1]; //v2.normal[1];
-		glnorms[ix++] = faces[i].normal[2]; //v2.normal[2];
+		glnorms[ix] = faces[i].normal[0]; //v2.normal[0];
+		glnorms[ix+1] = faces[i].normal[1]; //v2.normal[1];
+		glnorms[ix+2] = faces[i].normal[2]; //v2.normal[2];
+		ix += 3;
 		glverts[ix] = faces[i].v3.vec[0];
 		glverts[ix+1] = faces[i].v3.vec[1];
 		glverts[ix+2] = faces[i].v3.vec[2];
-		glnorms[ix++] = faces[i].normal[0]; //v3.normal[0];
-		glnorms[ix++] = faces[i].normal[1]; //v3.normal[1];
-		glnorms[ix++] = faces[i].normal[2]; //v3.normal[2];
+		glnorms[ix] = faces[i].normal[0]; //v3.normal[0];
+		glnorms[ix+1] = faces[i].normal[1]; //v3.normal[1];
+		glnorms[ix+2] = faces[i].normal[2]; //v3.normal[2];
+		ix += 3;
 	}
 
   
