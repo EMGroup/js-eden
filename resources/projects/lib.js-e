@@ -1979,7 +1979,7 @@ func concat {
 		}
 	} else {
 		separator = p1;
-		list = sublist(${{argments}}$, 2, argc);
+		list = sublist(${{arguments}}$, 2, argc);
 	}
 	
 	for (i = 1; i <= list#; i++) {

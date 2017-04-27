@@ -4,6 +4,8 @@ Eden.AST.Definition = function() {
 
 	this.expression = undefined;
 	this.lvalue = undefined;
+	this.name = "__";
+	this.dorebuild = false;
 };
 
 Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
@@ -21,18 +23,20 @@ Eden.AST.Definition.prototype.setExpression = function(expr) {
 
 Eden.AST.Definition.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
+	this.name = this.lvalue.name;
 	if (lvalue.errors.length > 0) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
 
 Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
+	//this.name = this.lvalue.name;
 	var dobound = false; //(this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";
 	var result = "function(context, scope, cache) {\n";
 	this.locals = (ctx) ? ctx.locals : undefined;
 	this.params = (ctx) ? ctx.params : undefined;
 	this.backtickCount = 0;
-	var express = this.expression.generate(this, "scope", {bound: dobound, indef: true});
+	var express = this.expression.generate(this, "scope", Eden.AST.MODE_DYNAMIC);
 
 	if (this.backtickCount > 0) {
 		result += "var btick = 0;\n";
@@ -52,22 +56,8 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		//result += "this.def_scope = _scopes;\n";
 	}
 
-	if (dobound) {
-		result += "\t var result = "+express+";\n";
-
-		// Save the resulting values scope binding into the cache entry.
-		result += "\tif (cache) cache.scope = result.scope;\n";
-
-		// Make sure to copy a value if its an ungenerated one.
-		//if (this.scopes.length == 0) {
-		//	result += "\treturn edenCopy(result.value);\n}";
-		//} else {
-			result += "\treturn result.value;\n}";
-		//}
-	} else {
-		result += "\tif (cache) cache.scope = scope;\n";
-		result += "\treturn " + express + ";\n}";
-	}
+	//result += "\tif (cache) cache.scope = scope;\n";
+	result += "\treturn " + express + ";\n}";
 
 	//console.log(result);
 	
@@ -86,7 +76,7 @@ Eden.AST.Definition.prototype.generate = function(ctx,scope) {
 		var clist = this.lvalue.generateIndexList(this, scope);
 		result += ".addExtension("+this.lvalue.generateIdStr()+", function(context, scope, value) {\n\tvalue";
 		result += clist + " = ";
-		result += this.expression.generate(this, "scope", {bound: false});
+		result += this.expression.generate(this, "scope", Eden.AST.MODE_DYNAMIC);
 
 		var deps = [];
 		for (var d in this.dependencies) {
@@ -108,14 +98,28 @@ Eden.AST.Definition.prototype.generate = function(ctx,scope) {
 };
 
 Eden.AST.Definition.prototype.rebuild = function(sym) {
-	this.dependencies = [];
+	this.dependencies = {};
 	console.log("Rebuilt " + sym.name);
+
+	this.dorebuild = true;
+
 	try {
-	var rhs = "("+this.generateDef(this)+")";
-	sym.definition = eval(rhs);
+		var rhs = "("+this.generateDef(this)+")";
+		sym.definition = eval(rhs);
+		sym.clearObservees();
+		sym.clearDependencies();
+
+		var deps = [];
+		for (var d in this.dependencies) {
+			deps.push(d);
+		}
+
+		sym.subscribe(deps);
 	} catch(e) {
 		console.error(this, e);
 	}
+
+	this.dorebuild = false;
 }
 
 Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
@@ -137,28 +141,29 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 	try {
 		if (this.lvalue.hasListIndices()) {
-			rhs = "(function(context,scope,value) { value";
+			/*rhs = "(function(context,scope,value) { value";
 			rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
-			rhs += this.expression.generate(this, "scope", {bound: false});
+			rhs += this.expression.generate(this, "scope", Eden.AST.MODE_DYNAMIC);
 			rhs += ";})";
 			var deps = [];
 			for (var d in this.dependencies) {
 				deps.push(d);
 			}
 			var source = base.getSource(this);
-			sym.addExtension(this.lvalue.generateIdStr(), eval(rhs), source, undefined, deps);
+			sym.addExtension(this.lvalue.generateIdStr(), eval(rhs), source, undefined, deps);*/
 		} else {
-			rhs = "("+this.generateDef(ctx)+")";
-			var deps = [];
-			for (var d in this.dependencies) {
-				deps.push(d);
-			}
+			//rhs = "("+this.generateDef(ctx)+")";
+			//var deps = [];
+			//for (var d in this.dependencies) {
+			//	deps.push(d);
+			//}
 			//sym.eden_definition = this.getSource();
 			//if (agent === undefined) {
 			//	console.trace("UNDEF AGENT: " + source);
 			//}
 			//console.log("DEF",rhs);
-			sym.define(eval(rhs), this, deps, rhs);
+			this.dorebuild = true;
+			sym.define(noop, this, []);
 		}
 	} catch(e) {
 		var err;
@@ -177,6 +182,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 Eden.AST.registerStatement(Eden.AST.Definition);
 
 Eden.AST.Definition.prototype.needsRebuild = function() {
+	if (this.dorebuild) return true;
 	if (this.expression && this.expression.type == "scope") return this.expression.needsRebuild();
 	else false;
 }

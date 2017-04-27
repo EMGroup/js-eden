@@ -10,9 +10,9 @@ Eden.AST.Return.prototype.setResult = function(result) {
 	this.errors.push.apply(this.errors, result.errors);
 }
 
-Eden.AST.Return.prototype.generate = function(ctx,scope) {
+Eden.AST.Return.prototype.generate = function(ctx,scope,mode) {
 	if (this.result) {
-		var res = this.result.generate(ctx, scope,{bound: false, usevar: ctx.type == "scriptexpr"});
+		var res = this.result.generate(ctx, scope,mode);
 		return "return " + res + ";\n";
 	} else {
 		return "return;\n";

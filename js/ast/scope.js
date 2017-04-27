@@ -173,18 +173,20 @@ Eden.AST.Scope.prototype.split_expression = function(ctx, expr, mathreplace) {
 	return [expr1 + " " + expr.op + " " + expr2].concat(contexts);
 }
 
-Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
+Eden.AST.Scope.prototype._generate_func_opti = function(ctx) {
 	this.mergeoptimised = true;
 	this.exprs = {};
 	this.exprnum = 0;
 
-	var exprctx = {dependencies: {}, scopes: []};
-	var express = this.expression.generate(exprctx,undefined,{bound: false, fulllocal: true});
+	var namesindex = {};
+	var exprctx = {name: ctx.name, dorebuild: ctx.dorebuild, dependencies: {}, scopes: [], names: namesindex, prefix: "o"};
+	var express = this.expression.generate(exprctx,undefined,Eden.AST.MODE_COMPILED);
 	var res = "";
 	var reruns = "";
 	var loopers = [];
 	var loopers2 = {};
-	var params = [];
+	var params = {};
+	var localctx = {name: ctx.name, dorebuild: ctx.dorebuild, dependencies: {}, scopes: [], names: namesindex, prefix: "o"};
 
 	var me = this;
 	var visited = {};
@@ -206,21 +208,26 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 			//visited[x] = true;
 
 			var sym = eden.root.lookup(x);
-			if (sym.origin && sym.origin.type == "function") {
+			/*if (sym.origin && sym.origin.type == "function") {
 				loopreruns[1] += "const obs_"+x+" = eden.f.func_"+x+";\n";
 				//level = 1;
-			} else if (sym.definition && sym.origin && sym.origin.type == "definition") {
+			} else */if (sym.definition && sym.origin && sym.origin.type == "definition") {
 				// Generate here to also get dependencies... could be done another way.
 				var expr = sym.origin.expression;
 
 				if (expr.type == "scope") {
-					var src = expr.generate({dependencies: {}, scopes: []}, undefined, {bound: false, fulllocal: true});
+					var scopectx = {dependencies: {}, dorebuild: ctx.dorebuild, name: ctx.name, scopes: [], names: namesindex, prefix: "o"};
+					var src = expr.generate(scopectx, undefined, Eden.AST.MODE_COMPILED);
 
 					// Dependencies not influenced by overrides can be parameters and not calculated
 					if (!excludeover) {
 						looplevel[x] = 0;
 					} else {
-						looplevel[x] = importdefs(expr.params, excludeover);
+						var pconv = {};
+						for (var i=0; i<expr.params.length; i++) {
+							pconv[expr.params[i]] = true;
+						}
+						looplevel[x] = importdefs(pconv, excludeover);
 
 						// Update the max level of these dependencies
 						if (looplevel[x] > level) level = looplevel[x];
@@ -228,15 +235,18 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 						if (visited[x]) continue;
 
 						// Append the expression to the correct loop level
-						if (looplevel[x] == 0) loopreruns[0] += "var ";
-						else loopreruns[1] += "var obs_"+x+";\n";
-						loopreruns[looplevel[x]] += "obs_"+x + " = " + src + ";\n";
+						if (looplevel[x] == 1) loopreruns[1] += "var ";
+						else loopreruns[1] += "var o"+x+";\n";
+						loopreruns[looplevel[x]] += "o"+x + " = " + src + ";\n";
 					}
 
-					if (looplevel[x] == 0) params.push(x);
+					if (looplevel[x] == 0) {
+						params[x] = true;
+						//if (ctx.dependencies) ctx.dependencies[x] = true;
+					}
 
 				// Check if this expression needs to be split up...
-				} else if (expr.type == "binaryop" && expr.getSize() >= 8) {
+				/*} else if (expr.type == "binaryop" && expr.getSize() >= 8) {
 					var exprs = me.split_expression(ctx,expr);
 					//if (looplevel[x] == 0) loopreruns[0] += "var ";
 					//else loopreruns[0] += "var obs_"+x+";\n";
@@ -263,16 +273,17 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 								duplicates[hash] = exprs[j].name;
 							}
 						}
-						if (looplevel[exprs[j].name] == 0) params.push(exprs[j].name);
+						if (looplevel[exprs[j].name] == 0) params[exprs[j].name] = true;
 					}
-					loopreruns[loopreruns.length-1] += "var obs_"+x+" = " + exprs[0] + ";\n";
+					loopreruns[loopreruns.length-1] += "var o"+x+" = " + exprs[0] + ";\n";*/
 				} else {
-					var src = expr.generate({dependencies: {}}, undefined, {bound: false, fulllocal: true});
+					var tmpctx = {name: ctx.name, dorebuild: ctx.dorebuild, dependencies: {}, names: namesindex, prefix: "o"};
+					var src = expr.generate(tmpctx, undefined, Eden.AST.MODE_COMPILED);
 
 					if (!excludeover) {
 						looplevel[x] = 0;
 					} else {
-						looplevel[x] = importdefs(sym.dependencies, excludeover);
+						looplevel[x] = importdefs(tmpctx.dependencies, excludeover);
 
 						// Update the max level of these dependencies
 						if (looplevel[x] > level) level = looplevel[x];
@@ -280,20 +291,25 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 						if (visited[x]) continue;
 
 						// Append the expression to the correct loop level
-						if (looplevel[x] == 0) loopreruns[0] += "var ";
-						else loopreruns[1] += "var obs_"+x+";\n";
-						loopreruns[looplevel[x]] += "obs_"+x + " = " + src + ";\n";
+						if (looplevel[x] == 1) loopreruns[1] += "var ";
+						else loopreruns[1] += "var o"+x+";\n";
+						loopreruns[looplevel[x]] += "o"+x + " = " + src + ";\n";
 					}
 
-					if (looplevel[x] == 0) params.push(x);
+					if (looplevel[x] == 0) {
+						params[x] = true;
+						//if (ctx.dependencies) ctx.dependencies[x] = true;
+					}
 				}
 			} else {
-				switch (x) {
+				/*switch (x) {
 				case "sqrt" : loopreruns[1] += "var obs_"+x+" = Math.sqrt;\n"; break;
 				case "maxn" : loopreruns[1] += "var obs_"+x+" = Math.max;\n"; break;
 				case "minn" : loopreruns[1] += "var obs_"+x+" = Math.min;\n"; break;
-				default: params.push(x);
-				}
+				default: params[x] = true;
+				}*/
+				params[x] = true;
+				//if (ctx.dependencies) ctx.dependencies[x] = true;
 			}
 			visited[x] = true;
 
@@ -311,14 +327,14 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	var res2 = "";
 	for (var x in this.overrides) {
 		if (this.overrides[x].end === undefined) {
-			res2 += "const obs_"+x+" = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += "var o"+x+" = "+this.overrides[x].start.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
 			res2 += ";\n";
 		} else {
-			res2 += "const obs_"+x+"_start = "+this.overrides[x].start.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += "const l"+x+"_start = "+this.overrides[x].start.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
 			res2 += ";\n";
-			res2 += "const obs_"+x+"_end = "+this.overrides[x].end.generate(ctx,undefined,{bound: false, fulllocal: true});
+			res2 += "const l"+x+"_end = "+this.overrides[x].end.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
 			res2 += ";\n";
-			res2 += "length += obs_" + x + "_end - obs_"+x+"_start + 1;\n";
+			res2 += "length += l" + x + "_end - l"+x+"_start + 1;\n";
 			loopers.push(x);
 		}
 	}
@@ -330,7 +346,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 		loopreruns.push("");
 	}
 
-	importdefs(ctx.dependencies, false);
+	importdefs(localctx.dependencies, false);
 	res += loopreruns[1];
 	loopreruns[1] = "";
 	res += res2;
@@ -350,7 +366,10 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	//res += loopreruns[0];
 
 	// Merge dependencies
-	for (var x in exprctx.dependencies) ctx.dependencies[x] = true;
+	if (ctx.dependencies) {
+		for (var x in localctx.dependencies) ctx.dependencies[x] = true;
+		for (var x in exprctx.dependencies) ctx.dependencies[x] = true;
+	}
 
 	// Only generate an array result if there are any loops
 	if (loopers.length > 0) {
@@ -360,7 +379,7 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	}
 
 	for (var i=0; i<loopers.length; i++) {
-		res += "for (var obs_"+loopers[i]+" = obs_"+loopers[i]+"_start; obs_"+loopers[i]+"<=obs_"+loopers[i]+"_end; obs_"+loopers[i]+"++) {\n";
+		res += "for (var o"+loopers[i]+" = l"+loopers[i]+"_start; o"+loopers[i]+"<=l"+loopers[i]+"_end; o"+loopers[i]+"++) {\n";
 		res += loopreruns[i+2];
 	}
 
@@ -378,32 +397,27 @@ Eden.AST.Scope.prototype._generate_func_opti = function(ctx, options) {
 	if (loopers.length > 0) {
 		res += "results.length = ix;\n";
 		res += "console.timeEnd('scopefuncopti');\n";
-
-		if (options.bound) {
-			res += "return new BoundValue(results,scope);\n";
-		} else {
-			res += "return results;\n";
-		}
+		res += "return results;\n";
 	} else {
-		if (options.bound) {
-			res += "return new BoundValue(res,scope);\n";
-		} else {
-			res += "return res;\n";
-		}
+		res += "return res;\n";
 	}
 
 	var pstring = "(function(";
-	this.params = {};
+	this.params = params;
+	params = [];
+	for (var x in this.params) {
+		params.push(x);
+	}
+	this.params = params;
 	for (var i=0; i<params.length; i++) {
-		pstring += "obs_"+params[i];
+		pstring += "o"+params[i];
 		if (i < params.length-1) pstring += ", ";
-		this.params[params[i]] = true;
 	}
 	pstring += ") {\n";
 	res = pstring + res + "})";
 	
 
-	console.log("FUNC OPTI",res);
+	console.log("FUNC OPTI "+this.compiled,res);
 	//console.log("FUNC LEVEL",looplevel);
 	return {source: res, params: params};
 }
@@ -427,6 +441,14 @@ Eden.AST.Scope.prototype._generate_GPU_opti = function(ctx, options) {
 	var loopreruns = [];
 	var duplicates = {};
 	var kernelparams = [];
+
+	// If something is already in names index then it must be a parameter...
+	if (ctx.names) {
+		for (var x in ctx.names) {
+			params[x] = true;
+			visited[x] = true;
+		}
+	}
 
 	function importdefs(deps) {
 		var level = 0;
@@ -613,10 +635,10 @@ Eden.AST.Scope.prototype._generate_GPU_opti = function(ctx, options) {
 	return {source: res, params: params};
 }
 
-Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex) {
+Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, rangeindex) {
 	//console.log("LOOP RANGE INDEX", rangeindex);
 	var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
-	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]",{bound: false});
+	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]",Eden.AST.MODE_DYNAMIC);
 	var res = "(function() {\n";
 	res += scopename + ".range = false;\n";
 	res += "var ix = 0;\n";
@@ -661,27 +683,39 @@ Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex
 	return res;
 }
 
-Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
+Eden.AST.Scope.prototype.generate = function(ctx, scope, mode) {
+	if (ctx.dorebuild && this.compiled) {
+		//delete eden.s[this.compiled];
+		//console.log("REMOVED SCOPECOMP",this.compiled);
+		// TODO Need to clean up if compilation fails.
+		this.compiled = undefined;
+	}
+
+	// Any scope will cause a dirty assignment
+	ctx.dirty = true;
+
 	// Are we required to do a full optimisation? Some outer scope is needing it
-	if (options.fulllocal) {
+	if (mode === Eden.AST.MODE_COMPILED) {
 		//var constructor = this.generateConstructor(ctx,scope,options);
-		//if (this.compiled) return this.compiled;
-		var optifunc = this._generate_func_opti(ctx,options);
-		var name = "sFunc_"+randomString(6);
-		if (!eden.s) eden.s = {};
-		eden.s[name] = eval(optifunc.source);
-		console.log("Context",ctx);
-		var res = "eden.s." + name + "(";
-		for (var i=0; i<optifunc.params.length; i++) {
-			res += "obs_"+optifunc.params[i];
-			if (i < optifunc.params.length - 1) res += ", ";
+		//if (!this.compiled) {
+			var name = "sFunc_"+ctx.name+randomString(6);
+			this.compiled = name;
+			var optifunc = this._generate_func_opti(ctx);
+			if (!eden.s) eden.s = {};
+			eden.s[name] = eval(optifunc.source);
+		//}
+		var res = "eden.s."+this.compiled + "(";
+
+		for (var i=0; i<this.params.length; i++) {
+			res += "o"+this.params[i];
+			if (i < this.params.length - 1) res += ", ";
 		}
 		res += ")";
-		this.compiled = res;
+		//this.compiled = res;
 		return res;
 	// Its a range, so do some sort of optimisation.
 	} else if (this.range) {
-		var constructor = this.generateConstructor(ctx,scope,options);
+		var constructor = this.generateConstructor(ctx,scope,mode);
 		// Check for any isin
 		var isin = false;
 		var rangeindex = [];
@@ -699,45 +733,64 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 		if (isin || rangeindex.length == 0) {
 			// Fall back, unoptimised if its a list iteration instead of a loop
 			ctx.scopes.push(constructor);
-			return this._generate_plain_range(ctx,options);
+			return this._generate_plain_range(ctx,mode);
 		} else {
 			// More than one range loop results in full compilation
 			if (rangeindex.length > 0) {
-				//if (this.compiled) return this.compiled;
-				//this._generate_GPU_opti(ctx,options);
-				var optifunc = this._generate_func_opti(ctx,options);
-				var name = "sFunc_"+randomString(6);
-				if (!eden.s) eden.s = {};
-				eden.s[name] = eval(optifunc.source);
-				//console.log("Context",ctx);
-				var res = "eden.s." + name + "(";
-				for (var i=0; i<optifunc.params.length; i++) {
-					res += "eden.root.lookup(\""+optifunc.params[i]+"\").value(scope)";
-					if (i < optifunc.params.length - 1) res += ", ";
+				//var constructor = this.generateConstructor(ctx,scope,options);
+				//if (!this.compiled) {
+					var name = "sFunc_"+ctx.name+randomString(6);
+					this.compiled = name;
+					var optifunc = this._generate_func_opti(ctx);
+					if (!eden.s) eden.s = {};
+					eden.s[name] = eval(optifunc.source);
+				//}
+				var res = "eden.s."+this.compiled + "(";
+
+				for (var i=0; i<this.params.length; i++) {
+					res += "eden.root.lookup(\""+this.params[i]+"\").value(scope)";
+					if (i < this.params.length - 1) res += ", ";
 				}
+
 				res += ")";
-				this.compiled = res;
 				return res;
 			// Otherwise, do a partial optimise using a for loop.
 			} else {
 				ctx.scopes.push(constructor);
-				return this._generate_loop_opti(ctx,options,rangeindex);
+				return this._generate_loop_opti(ctx,rangeindex);
 			}
 		}
 	} else {
 		// Unoptimised scoping...
-		var constructor = this.generateConstructor(ctx,scope,options);
+		/*var constructor = this.generateConstructor(ctx,scope,options);
 		ctx.scopes.push(constructor);
-		return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
+		return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);*/
+
+		//if (!this.compiled) {
+			var name = "sFunc_"+ctx.name+randomString(6);
+			this.compiled = name;
+			var optifunc = this._generate_func_opti(ctx);
+			if (!eden.s) eden.s = {};
+			eden.s[name] = eval(optifunc.source);
+		//}
+		var res = "eden.s."+this.compiled + "(";
+
+		for (var i=0; i<this.params.length; i++) {
+			res += "eden.root.lookup(\""+this.params[i]+"\").value(scope)";
+			if (i < this.params.length - 1) res += ", ";
+		}
+
+		res += ")";
+		return res;
 	}
 }
 
 Eden.AST.Scope.prototype.execute = function(ctx, base, scope) {
 	var context = {scopes: []};
-	var gen = this.generate(context, "scope",{bound: false});
+	var gen = this.generate(context, "scope",Eden.AST.MODE_DYNAMIC);
 	var rhs = "(function(context,scope) {\n";
 
-	if (context.scopes.length > 0) {
+	/*if (context.scopes.length > 0) {
 		rhs += "\tvar _scopes = [];\n";
 		for (var i=0; i<context.scopes.length; i++) {
 			rhs += "\t_scopes.push(" + context.scopes[i];
@@ -746,7 +799,7 @@ Eden.AST.Scope.prototype.execute = function(ctx, base, scope) {
 		}
 
 		rhs += "this.def_scope = _scopes;\n";
-	}
+	}*/
 
 	rhs += "return ";
 	rhs += gen;

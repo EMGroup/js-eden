@@ -87,8 +87,7 @@ Line3D.shaders = {};
 }}$;
 
 #! Draw a line in 3D space. #library
-Line3D is ${{ (new Line3D(scope.value("$1"), scope.value("$2"), scope.value("colour"), scope.value("width"))) }}$ ::
-	$1=$1, $2=$2, colour=colour, width=width;
+Line3D is ${{ new Line3D }}$ ($1, $2, colour, width);
 
 
 ${{

@@ -9,8 +9,8 @@ Eden.AST.UnaryOp = function(op, right) {
 }
 Eden.AST.UnaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
-Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
-	var r = this.r.generate(ctx, scope, {bound: false, usevar: options.usevar, fulllocal: options.fulllocal});
+Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, mode) {
+	var r = this.r.generate(ctx, scope, mode);
 	var res;	
 
 	if (this.op == "!") {
@@ -24,16 +24,12 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 		res = r + ".value("+scope+")";
 	}
 
-	if (options.bound) {
-		return "new BoundValue("+res+","+scope+")";
-	} else {
-		return res;
-	}
+	return res;
 }
 
 Eden.AST.UnaryOp.prototype.execute = function(ctx, base, scope) {
 	var rhs = "(function(context,scope) { return ";
-	rhs += this.generate(ctx, "scope", {bound: false});
+	rhs += this.generate(ctx, "scope", Eden.AST.MODE_DYNAMIC);
 	rhs += ";})";
 	return eval(rhs)(eden.root,scope);
 }

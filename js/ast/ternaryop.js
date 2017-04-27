@@ -42,17 +42,17 @@ Eden.AST.TernaryOp.prototype.left = function(pleft) {
 	if (pleft && pleft.warning) this.warning = pleft.warning;
 };
 
-Eden.AST.TernaryOp.prototype.generate = function(ctx, scope, options) {
-	var cond = this.condition.generate(ctx, scope, {bound: false, usevar: options.usevar, fulllocal: options.fulllocal});
-	var first = this.first.generate(ctx, scope, options);
-	var second = this.second.generate(ctx, scope, options);
+Eden.AST.TernaryOp.prototype.generate = function(ctx, scope, mode) {
+	var cond = this.condition.generate(ctx, scope, mode);
+	var first = this.first.generate(ctx, scope, mode);
+	var second = this.second.generate(ctx, scope, mode);
 
 	return "(("+cond+")?("+first+"):("+second+"))";
 }
 
 Eden.AST.TernaryOp.prototype.execute = function(ctx, base, scope) {
 	var rhs = "(function(context,scope) { return ";
-	rhs += this.generate(ctx, "scope",{bound: false});
+	rhs += this.generate(ctx, "scope",Eden.AST.MODE_DYNAMIC);
 	rhs += ";})";
 	return eval(rhs)(eden.root,scope);
 }

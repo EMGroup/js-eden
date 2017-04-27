@@ -4,6 +4,9 @@ Eden.AST.CodeBlock = function() {
 	this.params = undefined;
 	this.locals = undefined;
 	this.script = undefined;
+	this.name = "";
+	this.prefix = "o";
+	this.names = {};
 };
 
 Eden.AST.CodeBlock.prototype.setLocals = function(locals) {
@@ -34,6 +37,7 @@ Eden.AST.CodeBlock.prototype.generateInner = function(ctx) {
 			// TODO Compile time check that parameters are not assigned to!!!
 			res += this.params.list[i];
 			if (i < this.params.list.length-1) res += ", ";
+			this.names[this.params.list[i]] = this.params.list[i];
 		}
 	}
 	res += ") {\n";
@@ -43,21 +47,26 @@ Eden.AST.CodeBlock.prototype.generateInner = function(ctx) {
 			//res += "new ScopeOverride(\"" + this.locals.list[i] + "\", undefined)";
 			//if (i != this.locals.list.length-1) res += ",";
 			res += "var " + this.locals.list[i] + ";\n";
+			this.names[this.locals.list[i]] = this.locals.list[i];
 		}
 	}
 
 	this.scopes = [];
-	var subscript = this.script.generate(this, "scope", {fulllocal: true});
+	var subscript = this.script.generate(this, "scope", Eden.AST.MODE_COMPILED);
 	if (this.scopes.length > 0) {
 		//console.log("scopes",this.scopes);
 		res += "var _scopes = [];\n";
 	}
 
 	for (var x in this.dependencies) {
-		res += "var obs_"+x+" = ";
-		switch(x) {
-		case "sqrt": res += "Math.sqrt;\n"; break
-		default: res += "eden.root.lookup(\""+x+"\").value();\n";
+		if (this.names[x]) {
+
+		} else {
+			res += "var o"+x+" = ";
+			switch(x) {
+			case "sqrt": res += "Math.sqrt;\n"; break
+			default: res += "eden.root.lookup(\""+x+"\").value();\n";
+			}
 		}
 	}
 
@@ -66,6 +75,7 @@ Eden.AST.CodeBlock.prototype.generateInner = function(ctx) {
 }
 
 Eden.AST.CodeBlock.prototype.generate = function(ctx) {
+	this.name = ctx.name;
 	var res = "(function(context, scope) {\n";
 	//res += "var lscope = new Scope(context,pscope,[";
 	
@@ -79,6 +89,7 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 			// TODO Compile time check that parameters are not assigned to!!!
 			res += this.params.list[i];
 			if (i < this.params.list.length-1) res += ", ";
+			this.names[this.params.list[i]] = this.params.list[i];
 		}
 	}
 	res += ") {\n";
@@ -88,22 +99,21 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 			//res += "new ScopeOverride(\"" + this.locals.list[i] + "\", undefined)";
 			//if (i != this.locals.list.length-1) res += ",";
 			res += "var " + this.locals.list[i] + ";\n";
+			this.names[this.locals.list[i]] = this.locals.list[i];
 		}
 	}
 
 	this.scopes = [];
-	var subscript = this.script.generate(this, "scope", {fulllocal: true});
+	var subscript = this.script.generate(this, "scope", Eden.AST.MODE_COMPILED);
 	if (this.scopes.length > 0) {
 		//console.log("scopes",this.scopes);
 		res += "var _scopes = [];\n";
 	}
 
 	for (var x in this.dependencies) {
-		res += "var obs_"+x+" = ";
-		switch(x) {
-		case "sqrt": res += "Math.sqrt;\n"; break
-		default: res += "eden.root.lookup(\""+x+"\").value();\n";
-		}
+		if (this.names[x]) continue;
+		res += "var o"+x+" = ";
+		res += "eden.root.lookup(\""+x+"\").value();\n";
 	}
 
 	res += subscript + "}); })";

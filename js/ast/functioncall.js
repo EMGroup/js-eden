@@ -20,12 +20,12 @@ Eden.AST.FunctionCall.prototype.left = function(lvalue) {
 	}
 };
 
-Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
+Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, mode) {
 	if (this.lvalue === undefined) {
 		var res = "(";
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
-				var express = this.params[i].generate(ctx, scope, {bound: false, fulllocal: (options)?options.fulllocal : false});
+				var express = this.params[i].generate(ctx, scope, mode);
 				res += "("+express+")";
 				if (i != this.params.length-1) res += ",";
 			}
@@ -37,7 +37,7 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
 				res += ",";
-				var express = this.params[i].generate(ctx, scope,{bound: false, fulllocal: (options)?options.fulllocal : false});
+				var express = this.params[i].generate(ctx, scope,mode);
 				res += "("+express+")";
 				//if (i != this.params.length-1) res += ",";
 			}
@@ -48,7 +48,7 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
 
 Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
-	var func = "(function(context,scope) { return " + this.generate(ctx, "scope") + "; })";
+	var func = "(function(context,scope) { return " + this.generate(ctx, "scope", Eden.AST.MODE_DYNAMIC) + "; })";
 
 	try {
 		return eval(func).call(ctx,eden.root,scope);

@@ -199,11 +199,11 @@ Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
 	return filtered;
 }
 
-Eden.AST.Script.prototype.generate = function(ctx, scope, options) {
+Eden.AST.Script.prototype.generate = function(ctx, scope, mode) {
 	var result = "{\n";
 	var lastscope = ctx.scopes.length;
 	for (var i = 0; i < this.statements.length; i++) {
-		var stat = this.statements[i].generate(ctx, scope, {bound: false, fulllocal: (options)?options.fulllocal:false});
+		var stat = this.statements[i].generate(ctx, scope, mode);
 		if (ctx.scopes.length > lastscope) {
 			for (var j=lastscope; j<ctx.scopes.length; j++) {
 				result += "_scopes.push("+ctx.scopes[j]+");\n";

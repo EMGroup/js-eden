@@ -14,11 +14,7 @@ SpotLight = function(position, colour) {
 }}$;
 
 #! Create a spot light for a 3D scene #library
-SpotLight is ${{ (new SpotLight(
-	scope.value("$1"),
-	scope.value("$2"))) }}$ ::
-		$1=$1,
-		$2=$2;
+SpotLight is ${{ new SpotLight}}$ ($1,$2);
 
 ${{
 

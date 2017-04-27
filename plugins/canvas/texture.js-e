@@ -35,8 +35,7 @@ Texture.textures = {};
 }}$;
 
 #! Load a texture for a surface. #library
-Texture is ${{ (new Texture(scope.value("$1"),scope.value("clamp"),scope.value("mipmap"),scope.value("nearest"),scope.value("format"),scope.value("glow"))) }}$
-	:: $1=$1, clamp=clamp if clamp!=@ else true, mipmap=mipmap if mipmap!=@ else true, nearest=nearest, format=format if format!=@ else "rgba", glow=glow;
+Texture is ${{ new Texture }}$ ($1,clamp || true,mipmap || true, nearest,format || "rgba",glow);
 
 ${{
 function isPowerOf2(value) {

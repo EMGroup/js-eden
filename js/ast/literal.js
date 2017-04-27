@@ -10,7 +10,7 @@ Eden.AST.Literal = function(type, literal) {
 	this.value = literal;
 }
 
-Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
+Eden.AST.Literal.prototype.generate = function(ctx,scope, mode) {
 	var res;
 
 	switch (this.datatype) {
@@ -18,7 +18,7 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 	case "LIST"		:	res = "[";
 						// Loop over each element and generate that also.
 						for (var i=0; i<this.value.length; i++) {
-							res += this.value[i].generate(ctx,scope, {bound: false, fulllocal: options.fulllocal});
+							res += this.value[i].generate(ctx,scope, mode);
 							if (i != this.value.length-1) res += ",";
 						}
 						res += "]";
@@ -30,11 +30,7 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 	case "JAVASCRIPT"	: res = this.value; break;
 	}
 
-	if (options.bound) {
-		return "new BoundValue("+res+","+scope+")";
-	} else {
-		return res;
-	}
+	return res;
 }
 
 /**
@@ -48,7 +44,7 @@ Eden.AST.Literal.prototype.execute = function(ctx, base, scope) {
 	case "BOOLEAN"	:	return eval(this.value);
 	case "STRING"	:	return eval("\""+this.value+"\"");
 	case "LIST"		:	var rhs = "(function(context,scope) { return ";
-						rhs += this.generate(ctx, "scope", {bound: false});
+						rhs += this.generate(ctx, "scope", Eden.AST.MODE_DYNAMIC);
 						rhs += ";})";
 						return eval(rhs)(eden.root,scope);
 	case "JAVASCRIPT"	: return eval(this.value);

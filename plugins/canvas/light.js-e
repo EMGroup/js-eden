@@ -19,11 +19,7 @@ Light = function(direction, colour) {
 #  `Cube::(Point3D::(x,y,z),Point(width,height));`
 # 
 #  #canvas #rectangle #drawingoptions #square #box #shape #draw
-Light is ${{ (new Light(
-	scope.value("$1"),
-	scope.value("$2"))) }}$ ::
-		$1=$1,
-		$2=$2;
+Light is ${{ new Light }}$ ($1,$2);
 
 ${{
 

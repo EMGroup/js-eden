@@ -22,6 +22,7 @@ Eden.AST.Assignment = function(expression) {
 	this.dirty = false;
 	this.value = undefined;
 	this.compiled = undefined;
+	this.name = "";
 };
 
 /*Eden.AST.Assignment.prototype.patchOuter = function(node) {
@@ -55,29 +56,30 @@ Eden.AST.Assignment = function(expression) {
 
 Eden.AST.Assignment.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
+	this.name = this.lvalue.name;
 	if (lvalue.errors.length > 0) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 };
 
-Eden.AST.Assignment.prototype.generate = function(ctx,scope,options) {
+Eden.AST.Assignment.prototype.generate = function(ctx,scope,mode) {
 	var result = this.lvalue.generate(ctx, scope);
 
 	if (this.lvalue.islocal) {
 		result += " = ";
-		result += this.expression.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr", fulllocal: (options)?options.fulllocal:false});
+		result += this.expression.generate(ctx, scope, mode);
 		result += ";\n";
 		return result;
 	} else if (this.lvalue.hasListIndices()) {
 		result = scope+".listAssign("+result+",";
-		result += this.expression.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr", fulllocal: (options)?options.fulllocal:false});
+		result += this.expression.generate(ctx, scope, mode);
 		result += ", Symbol.localJSAgent, false, ";
 		result += this.lvalue.generateCompList(ctx, scope);
 		result += ");\n";
 		return result;
 	} else {
 		result = scope+".assign("+result+",";
-		result += this.expression.generate(ctx, scope,{bound: false, usevar: ctx.type == "scriptexpr", fulllocal: (options)?options.fulllocal:false});
+		result += this.expression.generate(ctx, scope,mode);
 		result += ", Symbol.localJSAgent);\n"
 		return result;
 	}
@@ -91,21 +93,26 @@ Eden.AST.Assignment.prototype.generate = function(ctx,scope,options) {
  */
 Eden.AST.Assignment.prototype.compile = function(ctx) {
 	if (this.compiled && !this.dirty) return;
+	console.log("Recompile assignment for "+this.lvalue.name);
 	this.dirty = false;
 
 	if (ctx) ctx.scopes = this.scopes;
 	else ctx = this;
 
+	//var oldrb = ctx.dorebuild;
+	//ctx.dorebuild = true;
 	var rhs = "(function(context,scope,cache,ctx) { \n";
-	var express = this.expression.generate(ctx, "scope", {bound: true});
+	var express = this.expression.generate(ctx, "scope", Eden.AST.MODE_DYNAMIC);
+	//ctx.dorebuild = oldrb;
 
 	if (ctx && ctx.dirty) {
+		console.log("Dirty Assignment for "+this.lvalue.name);
 		ctx.dirty = false;
 		this.dirty = true;
 	}
 
 	// Generate array of all scopes used in this definition (if any).
-	if (this.scopes.length > 0) {
+	/*if (this.scopes.length > 0) {
 		rhs += "\tvar _scopes = [];\n";
 		for (var i=0; i<this.scopes.length; i++) {
 			rhs += "\t_scopes.push(" + this.scopes[i];
@@ -114,12 +121,12 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 
 		rhs += "for(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\n";
 		//rhs += "if (this.def_scope) {\nfor (var i=0; i<_scopes.length; i++) {\n_scopes[i].cache = this.def_scope[i].cache;\n_scopes[i].reset();\n}\n} else {\nfor(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\nthis.def_scope = _scopes;\n}\n";
-	}
+	}*/
 
 	rhs += "var result = " + express + ";";
-	rhs += "if (cache) cache.scope = result.scope;";
+	//rhs += "if (cache) cache.scope = result.scope;";
 
-	rhs += "return edenCopy(result.value);";
+	rhs += "return edenCopy(result);";
 	rhs += "})";
 
 	this.rhs = rhs;
@@ -133,10 +140,10 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	if (scope === undefined) scope = eden.root.scope;
 	if (this.lvalue.name == "shape_sphere_mesh") console.log("SPHERE SCOPE", scope);
 
-	if (this.doxyComment) {
+	//if (this.doxyComment) {
 		//eden.dictionary[this.lvalue.name] = this.doxyComment;
-		eden.updateDictionary(this.lvalue.name, this.doxyComment);
-	}
+	//	eden.updateDictionary(this.lvalue.name, this.doxyComment);
+	//}
 
 	try {
 		//if (ctx && ctx.locals && ctx.locals.hasOwnProperty(this.lvalue.name)) {

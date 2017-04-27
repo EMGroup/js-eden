@@ -25,10 +25,10 @@ Eden.AST.BinaryOp.prototype.getSize = function() {
 	return size;
 }
 
-Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
-	var opts = {bound: false, usevar: options.usevar, fulllocal: options.fulllocal};
-	var left = this.l.generate(ctx, scope, opts);
-	var right = this.r.generate(ctx, scope, opts);
+Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, mode) {
+	//var opts = {bound: false, usevar: options.usevar, fulllocal: options.fulllocal};
+	var left = this.l.generate(ctx, scope, mode);
+	var right = this.r.generate(ctx, scope, mode);
 	var opstr;
 
 	switch(this.op) {
@@ -46,24 +46,20 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	var res;
 	// Weirdly this is slower than using rt.pow in Chrome (but not Firefox)!?
 	// Still need to do it if mathreplace is requested for GPU
-	if (ctx.mathreplace && opstr == "pow") {
+	/*if (ctx.mathreplace && opstr == "pow") {
 		res = "Math.pow(("+left+"),("+right+"))";
-	} else if (opstr != "RAW") {
+	} else */if (opstr != "RAW") {
 		res = "rt."+opstr+"(("+left+"),("+right+"))";
 	} else {
 		res = "(" + left + ") " + this.op + " (" + right + ")";
 	}
 
-	if (options.bound) {
-		return "new BoundValue("+res+", "+scope+")";
-	} else {
-		return res;
-	}
+	return res;
 }
 
 Eden.AST.BinaryOp.prototype.execute = function(ctx, base, scope) {
 	var rhs = "(function(context,scope) { return ";
-	rhs += this.generate(ctx, "scope",{bound: false});
+	rhs += this.generate(ctx, "scope",Eden.AST.MODE_DYNAMIC);
 	rhs += ";})";
 	return eval(rhs)(eden.root,scope);
 }
