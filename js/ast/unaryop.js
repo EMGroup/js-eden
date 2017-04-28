@@ -9,6 +9,10 @@ Eden.AST.UnaryOp = function(op, right) {
 }
 Eden.AST.UnaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
+Eden.AST.UnaryOp.prototype.getDependencies = function(out) {
+	this.r.getDependencies(out);
+}
+
 Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, mode) {
 	var r = this.r.generate(ctx, scope, mode);
 	var res;	

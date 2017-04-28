@@ -20,6 +20,12 @@ Eden.AST.FunctionCall.prototype.left = function(lvalue) {
 	}
 };
 
+Eden.AST.FunctionCall.prototype.getDependencies = function(out) {
+	for (var i=0; i<this.params.length; i++) {
+		this.params[i].getDependencies(out);
+	}
+}
+
 Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, mode) {
 	if (this.lvalue === undefined) {
 		var res = "(";

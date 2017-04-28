@@ -10,6 +10,14 @@ Eden.AST.Literal = function(type, literal) {
 	this.value = literal;
 }
 
+Eden.AST.Literal.prototype.getDependencies = function(out) {
+	if (this.datatype == "LIST") {
+		for (var i=0; i<this.value.length; i++) {
+			this.value[i].getDependencies(out);
+		}
+	}
+}
+
 Eden.AST.Literal.prototype.generate = function(ctx,scope, mode) {
 	var res;
 

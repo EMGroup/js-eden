@@ -118,6 +118,11 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 					var scopectx = {dependencies: {}, dorebuild: ctx.dorebuild, name: ctx.name, scopes: [], names: namesindex, prefix: "o"};
 					var src = expr.generateCustom(scopectx,Object.keys(visited));
 
+					// If the symbol is still in a noop state, add our dependencies to it...
+					//if (sym.definition === noop) {
+					//	sym.subscribe(Object.keys(scopectx.dependencies));
+					//}
+
 					// Dependencies not influenced by overrides can be parameters and not calculated
 					if (!excludeover) {
 						looplevel[x] = 0;
@@ -175,6 +180,11 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 					var tmpctx = {name: ctx.name, dorebuild: ctx.dorebuild, dependencies: {}, names: namesindex, prefix: "o"};
 					var src = expr.generate(tmpctx, undefined, Eden.AST.MODE_COMPILED);
 
+					// If the symbol is still in a noop state, add our dependencies to it...
+					//if (sym.definition === noop) {
+					//	sym.subscribe(Object.keys(tmpctx.dependencies));
+					//}
+
 					if (!excludeover) {
 						looplevel[x] = 0;
 					} else {
@@ -196,6 +206,16 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 						//if (ctx.dependencies) ctx.dependencies[x] = true;
 					}
 				}
+
+				// Record dependencies if the actual global version of this
+				// definition has never been used.
+				/*if (sym.definition === noop) {
+					var deps = [];
+					for (var d in expr.dependencies) {
+						deps.push(d);
+					}
+					sym.subscribe(deps);
+				}*/
 			} else {
 				/*switch (x) {
 				case "sqrt" : loopreruns[1] += "var obs_"+x+" = Math.sqrt;\n"; break;

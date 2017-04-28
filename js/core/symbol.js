@@ -230,8 +230,10 @@ Symbol.prototype.evaluate = function (scope, cache) {
 		this.has_evaled = true;
 		//NOTE: Don't do copy here, be clever about it.
 		//cache.value = copy(this.definition(this.context, scope));
-		if (this.fullexp && this.origin && this.origin.needsRebuild()) {
+		if (this.fullexp && this.origin && this.origin.type == "definition") {
 			this.origin.rebuild(this);
+			this.fullexp = false;
+		} else {
 			this.fullexp = false;
 		}
 		cache.value = this.definition.call(this,this.context, scope, cache);
@@ -673,6 +675,9 @@ Symbol.prototype.fireJSObservers = function () {
  */
 Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire, fullexpire) {
 	//console.log("Expire",this.name,this.has_evaled,fullexpire);
+
+	if (fullexpire && this.origin && this.origin.type == "definition") this.origin.expire();
+
 	if (this.has_evaled || (fullexpire && this.needsGlobalNotify != Symbol.EXPIRED)) {
 
 		for (var observer_name in this.observers) {

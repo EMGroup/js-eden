@@ -8,6 +8,10 @@ Eden.AST.Index = function() {
 	this.errors = [];
 }
 
+Eden.AST.Index.prototype.getDependencies = function(out) {
+	this.expression.getDependencies(out);
+}
+
 Eden.AST.Index.prototype.setExpression = function(express) {
 	this.expression = express;
 	// Bubble the errors

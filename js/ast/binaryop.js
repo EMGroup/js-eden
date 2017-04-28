@@ -12,6 +12,11 @@ Eden.AST.BinaryOp = function(op) {
 Eden.AST.BinaryOp.prototype.left = Eden.AST.fnEdenASTleft;
 Eden.AST.BinaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
+Eden.AST.BinaryOp.prototype.getDependencies = function(out) {
+	this.l.getDependencies(out);
+	this.r.getDependencies(out);
+}
+
 Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	this.r = right;
 	this.errors.push.apply(this.errors, right.errors);

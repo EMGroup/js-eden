@@ -9,6 +9,12 @@ Eden.AST.TernaryOp = function(op) {
 }
 Eden.AST.TernaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
+Eden.AST.TernaryOp.prototype.getDependencies = function(out) {
+	this.condition.getDependencies(out);
+	this.first.getDependencies(out);
+	this.second.getDependencies(out);
+}
+
 Eden.AST.TernaryOp.prototype.setFirst = function(first) {
 	this.first = first;
 	if (first.errors.length > 0) {

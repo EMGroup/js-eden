@@ -23,6 +23,15 @@ Eden.AST.Scope.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.Scope.prototype.needsRebuild = function() { return true; }
 
+Eden.AST.Scope.prototype.getDependencies = function(out) {
+	this.expression.getDependencies(out);
+	for (var x in this.overrides) {
+		var o = this.overrides[x];
+		if (o.start) o.start.getDependencies(out);
+		if (o.end) o.end.getDependencies(out);
+	}
+}
+
 Eden.AST.Scope.prototype.prepend = function(extra) {
 	this.primary.prepend(extra);
 }

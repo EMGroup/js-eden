@@ -35,6 +35,13 @@ Eden.AST.Primary.prototype.prepend = function(extra) {
 	}
 };
 
+Eden.AST.Primary.prototype.getDependencies = function(out) {
+	if (!this.observable.startsWith("__")) out[this.observable] = true;
+	for (var i=0; i<this.extras.length; i++) {
+		this.extras[i].getDependencies(out);
+	}
+}
+
 /**
  * The generate function for a primary must do many checks to determine what
  * kind of primary it is. It may be a parameter, a local variable using a

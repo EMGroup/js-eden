@@ -97,6 +97,12 @@ Eden.AST.Definition.prototype.generate = function(ctx,scope) {
 	}
 };
 
+Eden.AST.Definition.prototype.expire = function() {
+	if (this.expression.type == "scope") {
+		this.expression.cleanUp();
+	}
+}
+
 Eden.AST.Definition.prototype.rebuild = function(sym) {
 	this.dependencies = {};
 	console.log("Rebuilt " + sym.name);
@@ -106,7 +112,7 @@ Eden.AST.Definition.prototype.rebuild = function(sym) {
 	try {
 		var rhs = "("+this.generateDef(this)+")";
 		sym.definition = eval(rhs);
-		sym.clearObservees();
+		/*sym.clearObservees();
 		sym.clearDependencies();
 
 		var deps = [];
@@ -114,7 +120,7 @@ Eden.AST.Definition.prototype.rebuild = function(sym) {
 			deps.push(d);
 		}
 
-		sym.subscribe(deps);
+		sym.subscribe(deps);*/
 	} catch(e) {
 		console.error(this, e);
 	}
@@ -153,17 +159,19 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			sym.addExtension(this.lvalue.generateIdStr(), eval(rhs), source, undefined, deps);*/
 		} else {
 			//rhs = "("+this.generateDef(ctx)+")";
-			//var deps = [];
-			//for (var d in this.dependencies) {
-			//	deps.push(d);
-			//}
+			var deps = [];
+			var dependencies = {};
+			this.expression.getDependencies(dependencies);
+			for (var d in dependencies) {
+				deps.push(d);
+			}
 			//sym.eden_definition = this.getSource();
 			//if (agent === undefined) {
 			//	console.trace("UNDEF AGENT: " + source);
 			//}
 			//console.log("DEF",rhs);
 			this.dorebuild = true;
-			sym.define(noop, this, []);
+			sym.define(noop, this, deps);
 		}
 	} catch(e) {
 		var err;
