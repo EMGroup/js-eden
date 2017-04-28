@@ -459,7 +459,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, mode) {
 	// Any scope will cause a dirty assignment
 	ctx.dirty = true;
 
-	var transpile = this.findBySignature([],[]);
+	var transpile = this.findBySignature(ctx,[],[]);
 	// Make sure dependencies are carried forward.
 	if (ctx.dependencies) {
 		for (var x in transpile.uses) {

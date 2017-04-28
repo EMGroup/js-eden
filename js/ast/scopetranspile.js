@@ -93,40 +93,41 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 	var loopreruns = [];
 	var duplicates = {};
 
+	/* Loop over a set of observable names to import their expressions if they
+	 * have a definition. Do this recursively, and append the imported expression
+	 * to the correct loop level.
+	 */
 	function importdefs(deps, excludeover) {
 		var level = 0;
 		for (var x in deps) {
-			// Record loop level...
+			// Record loop level if this dependency is a looper
 			if (looplevel.hasOwnProperty(x) && looplevel[x] > level) level = looplevel[x];
-			//else if (me.overrides[x]) level = 1;
 
-			// TODO Why did I remove the overrides check? If I do it breaks in some cases
-			// Because of overrides that depend on themselves on the right hand side?
-			// TODO Treat main expression dependencies and override dependencies differently.
+			// Skip certain observables, including those already visited.
 			if ((excludeover && me.scope.overrides[x]) || visited[x]) continue;
-			//visited[x] = true;
 
 			var sym = eden.root.lookup(x);
-			/*if (sym.origin && sym.origin.type == "function") {
-				loopreruns[1] += "const obs_"+x+" = eden.f.func_"+x+";\n";
-				//level = 1;
-			} else */if (sym.definition && sym.origin && sym.origin.type == "definition") {
-				// Generate here to also get dependencies... could be done another way.
+
+			// Skip over functions as they are already referenced directly
+			if (sym.origin && sym.origin.type == "function") {
+				continue;
+			// Import a defined observables expression
+			} else if (sym.definition && sym.origin && sym.origin.type == "definition") {
 				var expr = sym.origin.expression;
 
+				// Nested scopes 
 				if (expr.type == "scope") {
+					// Dummy context to capture and ignore dependencies
 					var scopectx = {dependencies: {}, dorebuild: ctx.dorebuild, name: ctx.name, scopes: [], names: namesindex, prefix: "o"};
+					// The scope function must have particular observables as parameters,
+					// so find a matching signature or compile a new one.
 					var src = expr.generateCustom(scopectx,Object.keys(visited));
-
-					// If the symbol is still in a noop state, add our dependencies to it...
-					//if (sym.definition === noop) {
-					//	sym.subscribe(Object.keys(scopectx.dependencies));
-					//}
 
 					// Dependencies not influenced by overrides can be parameters and not calculated
 					if (!excludeover) {
 						looplevel[x] = 0;
 					} else {
+						// Bring in any other required dependencies of the scope
 						looplevel[x] = importdefs(src.params, excludeover);
 
 						// Update the max level of these dependencies
@@ -142,7 +143,6 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 
 					if (looplevel[x] == 0) {
 						params[x] = true;
-						//if (ctx.dependencies) ctx.dependencies[x] = true;
 					}
 
 				// Check if this expression needs to be split up...
@@ -217,34 +217,22 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 					sym.subscribe(deps);
 				}*/
 			} else {
-				/*switch (x) {
-				case "sqrt" : loopreruns[1] += "var obs_"+x+" = Math.sqrt;\n"; break;
-				case "maxn" : loopreruns[1] += "var obs_"+x+" = Math.max;\n"; break;
-				case "minn" : loopreruns[1] += "var obs_"+x+" = Math.min;\n"; break;
-				default: params[x] = true;
-				}*/
 				params[x] = true;
-				//if (ctx.dependencies) ctx.dependencies[x] = true;
 			}
-			visited[x] = true;
 
-			//if (ctx.dependencies[x]) {
-			/*switch (x) {
-			case "maxn" : res += "var obs_"+x+" = Math.max;\n"; break;
-			case "minn" : res += "var obs_"+x+" = Math.min;\n"; break;
-			default: res += "var obs_"+x+" = eden.root.lookup(\""+x+"\").value(scope);\n";
-			}*/
-			//}
+			visited[x] = true;
 		}
 		return level;
 	}
 
 	var res2 = "";
+	// Generate the override expressions and capture required dependencies
 	for (var x in this.scope.overrides) {
 		if (this.scope.overrides[x].end === undefined) {
 			res2 += "var o"+x+" = "+this.scope.overrides[x].start.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
 			res2 += ";\n";
 		} else {
+			// Also add loop start/end variables
 			res2 += "const l"+x+"_start = "+this.scope.overrides[x].start.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
 			res2 += ";\n";
 			res2 += "const l"+x+"_end = "+this.scope.overrides[x].end.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
@@ -261,10 +249,13 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 		loopreruns.push("");
 	}
 
+	// Import any override dependencies first, before appending override expressions
 	importdefs(localctx.dependencies, false);
 	res += loopreruns[1];
 	loopreruns[1] = "";
+	// Add override expressions
 	res += res2;
+	// Must reset visited because expression must operate in different context to overrides.
 	visited = {};
 	looplevel = {};
 
@@ -276,9 +267,9 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 		//loopreruns.push("");
 	}
 
+	// Import the expressions dependencies
 	importdefs(exprctx.dependencies, true);
 	res += loopreruns[1];
-	//res += loopreruns[0];
 
 	// Merge visted
 	for (var x in visited) {
@@ -298,22 +289,27 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 		res += "console.time('scopefuncopti');\n";
 	}
 
+	// Make the for loops if there are any
 	for (var i=0; i<loopers.length; i++) {
 		res += "for (var o"+loopers[i]+" = l"+loopers[i]+"_start; o"+loopers[i]+"<=l"+loopers[i]+"_end; o"+loopers[i]+"++) {\n";
 		res += loopreruns[i+2];
 	}
 
+	// Add the actual expression now
 	res += "var res = "+express+";\n";
 
+	// Looping must generate a list so need to push result
 	if (loopers.length > 0) {
 		res += "if (res !== undefined) results[ix++] = res;\n";
 	}
 
+	// Close for loops
 	for (var i=0; i<loopers.length; i++) {
 		res += "}\n";
 	}
 
 
+	// Return result(s).
 	if (loopers.length > 0) {
 		res += "results.length = ix;\n";
 		res += "console.timeEnd('scopefuncopti');\n";
@@ -322,12 +318,11 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 		res += "return res;\n";
 	}
 
+	// Generate a wrapping function with correct parameters
 	var pstring = "(function(";
-	//this.params = params;
 	params = [];
 	for (var x in this.params) {
 		params.push(x);
-		//if (ctx.dependencies) ctx.dependencies[x] = true;
 	}
 	this.paramsList = params;
 	for (var i=0; i<params.length; i++) {
@@ -339,8 +334,5 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 	
 
 	console.log("FUNC OPTI "+this.name,res);
-	//console.log("FUNC LEVEL",looplevel);
-	//return {source: res, params: params};
-
 	return res;
 }
