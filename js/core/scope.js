@@ -45,6 +45,8 @@ function Scope(context, parent, overrides, range, cause, nobuild) {
 	this.isolate = false;
 
 	if (!nobuild) this.rebuild();
+
+	console.trace("Scope Creation");
 }
 
 /**

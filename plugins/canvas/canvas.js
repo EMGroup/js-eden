@@ -213,10 +213,21 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					content.style.backgroundColor = backgroundColour;
 					//context.fillRect(0, 0, canvas.width, canvas.height);
 
+
+					var scale = root.lookup("view_" + viewName + "_scale").value();
+					if (typeof(scale) != "number") {
+						scale = 1;
+					}
+					var zoom = root.lookup("view_" + viewName + "_zoom").value();
+					if (typeof(zoom) != "number") {
+						zoom = 1;
+					}
+
+
 					var mvMatrix = mat4.create();
  					var pMatrix = mat4.create();
 					var oMatrix = mat4.create();
-					context.viewport(0, 0, canvas.width, canvas.height);
+					context.viewport(0, 0, (zoom > 1) ? canvas.width / zoom : canvas.width, (zoom > 1) ? canvas.height / zoom : canvas.height);
 					context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);	
 
 					mat4.ortho(oMatrix, -1.0, 1.0, -(canvas.height/canvas.width), (canvas.height/canvas.width), 0.1, 100.0);
@@ -251,14 +262,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						previousElements[hash][0].setAttribute("data-garbage", true);
 					}
 					if (Array.isArray(picture)) {
-						var scale = root.lookup("view_" + viewName + "_scale").value();
-						if (typeof(scale) != "number") {
-							scale = 1;
-						}
-						var zoom = root.lookup("view_" + viewName + "_zoom").value();
-						if (typeof(zoom) != "number") {
-							zoom = 1;
-						}
 						var combinedScale = scale * zoom;
 						var invertedYAxis, absScale;
 						if (scale < 0) {

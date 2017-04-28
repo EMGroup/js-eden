@@ -104,7 +104,7 @@ Eden.AST.When.prototype.generate = function() {
 
 Eden.AST.When.prototype.compile = function(base) {
 	var cond = "(function(context,scope) { try { return ";
-	cond += this.expression.generate(this, "scope",{bound: false});
+	cond += this.expression.generate(this, "scope",Eden.AST.MODE_DYNAMIC);
 	cond += "; } catch(e) {} })";
 	this.compiled = eval(cond);
 

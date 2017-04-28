@@ -25,8 +25,8 @@ Eden.AST.Modify.prototype.left = function(lvalue) {
 	}
 };
 
-Eden.AST.Modify.prototype.generate = function(ctx, scope) {
-	var lval = this.lvalue.generate(ctx,scope);
+Eden.AST.Modify.prototype.generate = function(ctx, scope, mode) {
+	var lval = this.lvalue.generate(ctx,scope, mode);
 	var result = lval;
 
 	if (this.lvalue.islocal == false) result = scope+".assign("+lval+","+scope+".value("+lval+")";
@@ -34,7 +34,7 @@ Eden.AST.Modify.prototype.generate = function(ctx, scope) {
 
 	var express;
 	if (this.expression) {
-		express = this.expression.generate(ctx,scope,{bound: false, usevar: ctx.type == "scriptexpr"});
+		express = this.expression.generate(ctx,scope,Eden.AST.MODE_DYNAMIC);
 	}
 
 	// TODO Convert to rt
@@ -112,7 +112,7 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 			sym.assign(newval, scope, this);
 		} else {
 			var rhs = "(function(context,scope) { return ";
-			rhs += this.expression.generate(ctx, "scope",{bound: false});
+			rhs += this.expression.generate(ctx, "scope",Eden.AST.MODE_DYNAMIC);
 			rhs += ";})";
 
 			//var scope = eden.root.scope;

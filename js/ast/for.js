@@ -41,18 +41,18 @@ Eden.AST.For.prototype.setStatement = function(statement) {
 	}
 }
 
-Eden.AST.For.prototype.generate = function(ctx,scope) {
+Eden.AST.For.prototype.generate = function(ctx,scope,mode) {
 	var res = "for (";
 	if (this.sstart) {
-		res += this.sstart.generate(ctx,scope) + " ";
+		res += this.sstart.generate(ctx,scope,mode) + " ";
 	} else res += "; ";
 	if (this.condition) {
-		res += this.condition.generate(ctx, "scope",{bound: false, usevar: ctx.type == "scriptexpr"}) + "; ";
+		res += this.condition.generate(ctx, "scope",Eden.AST.MODE_DYNAMIC) + "; ";
 	} else res += "; ";
-	var incer = this.inc.generate(ctx,scope);
+	var incer = this.inc.generate(ctx,scope,mode);
 	if (incer.charAt(incer.length-2) == ";") incer = incer.slice(0,-2);
 	res += incer + ")\n";
-	res += this.statement.generate(ctx,scope);
+	res += this.statement.generate(ctx,scope,mode);
 	return res;
 }
 
@@ -60,7 +60,7 @@ Eden.AST.For.prototype.getCondition = function(ctx) {
 	if (this.compiled && this.dirty == false) {
 		return this.compiled;
 	} else {
-		var express = this.condition.generate(ctx, "scope",{bound: false, usevar: ctx.type == "scriptexpr"});
+		var express = this.condition.generate(ctx, "scope",Eden.AST.MODE_DYNAMIC);
 		if (ctx.dirty) {
 			this.dirty = true;
 			ctx.dirty = false;

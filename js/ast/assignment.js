@@ -99,11 +99,11 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 	if (ctx) ctx.scopes = this.scopes;
 	else ctx = this;
 
-	//var oldrb = ctx.dorebuild;
-	//ctx.dorebuild = true;
+	var oldrb = ctx.dorebuild;
+	ctx.dorebuild = true;
 	var rhs = "(function(context,scope,cache,ctx) { \n";
 	var express = this.expression.generate(ctx, "scope", Eden.AST.MODE_DYNAMIC);
-	//ctx.dorebuild = oldrb;
+	ctx.dorebuild = oldrb;
 
 	if (ctx && ctx.dirty) {
 		console.log("Dirty Assignment for "+this.lvalue.name);
