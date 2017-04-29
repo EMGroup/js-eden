@@ -143,7 +143,7 @@ button.script-button.projectmore {
 
 
 div.cadence-plisting-entry {
-			width: 150px;
+			width: 120px;
 			height: 160px;
 			margin: 6px;
 			background-repeat: no-repeat;
@@ -183,7 +183,7 @@ div.cadence-plisting-entry.special {
 			text-align: center;
 			padding-top: 10px;
 			padding-bottom: 10px;
-			height: 95px;
+			height: 67px;
 		}
 
 		div.cadence-plisting-img {
@@ -194,8 +194,8 @@ div.cadence-plisting-entry.special {
 			/*height: 112;*/
 			overflow: hidden;
 			display: flex;
-			width: 150px;
-			height: 84px;
+			width: 120px;
+			height: 67px;
 		}
 
 		div.cadence-plisting-icon.special {
