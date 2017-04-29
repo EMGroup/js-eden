@@ -334,5 +334,6 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 	
 
 	console.log("FUNC OPTI "+this.name,res);
+
 	return res;
 }
