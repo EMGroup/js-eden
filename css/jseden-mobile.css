@@ -346,13 +346,13 @@ div.message-infotext:before {
 }
 
 div.loaddialog {
-	width: 350px;
+	width: 250px;
 	padding: 20px;
 	/*height: 150px;*/
 	background-color: none;
 	color: white;
 	font: bold 14px "Helvetica Neue", Sans-Serif;
-	margin-left: calc(50% - 175px);
+	margin-left: calc(50% - 125px);
 	top: 30%;
 	position: fixed;
 	text-align: center;
@@ -391,8 +391,8 @@ div.loadmessage {
 .mainloader,
 .mainloader:after {
   border-radius: 50%;
-  width: 8em;
-  height: 8em;
+  width: 4em;
+  height: 4em;
 }
 @-webkit-keyframes mainload8 {
   0% {
