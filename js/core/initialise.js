@@ -168,6 +168,9 @@ function Construit(options,callback) {
 		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
 		Eden.Project.init();
 
+		eden.ismobile = mobilecheck();
+		eden.root.lookup("jseden_mobile").assign(eden.ismobile, eden.root.scope, Symbol.defaultAgent);
+
 		// Put JS-EDEN version number or name in top-right corner.
 		$.ajax({
 			url: "version.json",
