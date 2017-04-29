@@ -85,8 +85,8 @@ See LICENSE.txt
 
 		div.project-content {
 			position: relative;
-			left: 20px;
-			width: calc(100% - 40px);
+			left: 5px;
+			width: calc(100% - 10px);
 			font-family: "Source Sans Pro",Arial,sans-serif;
 			font-size: 13pt;
 			line-height: 150%;
@@ -218,7 +218,7 @@ See LICENSE.txt
 		}
 
 		div#project-browser {
-			margin-top: 70px;
+			margin-top: 20px;
 		}
 
 		div.popular-tags {
@@ -643,7 +643,7 @@ See LICENSE.txt
 						var html = "";
 						var count = (tags.length > 20) ? 20 : tags.length;
 						for (var i=0; i<count; i++) {
-							html += '<a href="#" onclick="this.parentNode.previousSibling.childNodes[1].childNodes[0].value = \''+tags[i]+'\'; return false;">'+tags[i]+'</a>';
+							html += '<a href="#" onclick="this.parentNode.previousSibling.childNodes[1].childNodes[0].value = \''+tags[i]+'\'; return false;">'+tags[i]+'</a> ';
 						}
 						poptags.innerHTML = html;
 					});
@@ -729,7 +729,7 @@ See LICENSE.txt
 
 				//$("#welcometext").get(0).style.display = "none";
 				$("#privateprojects").get(0).style.display = "block";
-				$("#projectbuttons").get(0).style.display = "flex";
+				//$("#projectbuttons").get(0).style.display = "flex";
 			});
 
 			Eden.DB.listenTo("logout", this, function() {

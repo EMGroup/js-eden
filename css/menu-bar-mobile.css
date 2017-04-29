@@ -248,8 +248,8 @@ div.menubar-button:hover {
 
 a#eden-logo {
 	position: absolute;
-	/*top: 8px;*/
-	left: 30px;
+	top: -1px;
+	left: 10px;
 	background-image: url('../images/construit_logo_4.png');
 	background-repeat: no-repeat;
 	width: 150px;
