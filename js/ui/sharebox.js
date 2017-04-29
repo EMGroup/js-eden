@@ -217,7 +217,7 @@ EdenUI.Sharebox.prototype.update = function() {
 	var me = this;
 	if (me.title === undefined) me.title = $(document).find(".jseden-title").get(0);
 	//var title = me.element.find(".jseden-title").get(0).textContent;
-	var title = me.title.textContent;
+	var title = (me.title) ? me.title.textContent : eden.root.lookup("jseden_project_title").value();
 
 	if (Eden.DB.isLoggedIn()) {
 		if (eden.project.authorid != Eden.DB.userid && eden.project.authorid != -1) {

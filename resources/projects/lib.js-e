@@ -1162,6 +1162,8 @@ ${{
 	});
 }}$;
 
+jseden_mobile_rotate is jseden_mobile && screenWidth > screenHeight;
+
 ${{
 	showSymbols = function (type, searchStr, viewName, searchLang) {
 		if (arguments.length > 4) {

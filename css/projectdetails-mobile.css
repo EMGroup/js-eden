@@ -1,0 +1,268 @@
+div.projectdetails {
+	display: inline-block;
+	margin-left: 10px;
+	font-size: 10pt;
+	font-family: "Source Sans Pro",Arial,sans-serif;
+	color: #444;
+	justify-content: space-between;
+	line-height: 25px;
+	padding-bottom: 5px;
+}
+
+span.projectdetails-rateavg {
+	margin-right: 20px;
+	font-size: 14pt;
+	font-family: "Source Sans Pro",Arial,sans-serif;
+}
+
+div.projectdetails-rating {
+	display: inline-block;
+	margin-left: 20px;
+	font-size: 16pt;
+}
+
+div.projectdetails-ratingsmall {
+	display: inline-block;
+	font-size: 10pt;
+}
+
+span.projectdetails-star {
+	font-family: "FontAwesome";
+	margin-right: 5px;
+	cursor: pointer;
+	color: #ddd;
+}
+
+span.projectdetails-star.average {
+	color: #666;
+}
+
+span.projectdetails-star.selected {
+	color: gold;
+	text-shadow: 0 0 5px #222;
+}
+
+span.projectdetails-label {
+	font-weight: bold;
+	margin-right: 5px;
+}
+
+div.projectdetails-buttons {
+	clear: right;
+	margin: 0;
+	padding: 20px;
+	border-top: 1px solid #aaa;
+}
+
+div.projectdetails-forks {
+	margin: 20px;
+	padding: 5px;
+	border: 1px solid #aaa;
+	font: 11pt "Source Sans Pro",Arial,Helvetica,sans-serif;
+}
+
+img.projectdetails-thumb {
+	float: right;
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-bottom: 20px;
+}
+
+div.jseden-dialog-plisting {
+			box-sizing: border-box;
+			padding-left: 30px;
+			padding-right: 30px;
+			margin-bottom: 40px;
+			/*border: 1px solid #eee;*/
+			width: 100%;
+			height: 200px;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			overflow: hidden;
+		}
+
+		div.jseden-project-cat {
+			font-size: 16pt;
+			font-family: "Source Sans Pro",Arial,sans-serif;
+			color: #222;
+			/*font-weight: bold;*/
+			/*background: #416d77;*/
+			padding: 0 35px;
+			/*border-bottom: 1px solid #bbb;*/
+			margin-top: 10px;
+		}
+
+		hr.jseden-project-cat {
+			border: 1px solid #b5b5f5;
+		}
+
+div.projectsearchouter {
+	display: inline-block;
+	margin-left: 30px;
+	margin-right: 5px;
+	/*margin-top: 5px*/;
+	/*z-index: 2001;*/
+	position: relative;
+	top: -4px;
+}
+
+div.projectsearchouter:before {
+	/*text-shadow: 0px 0px 2px black;*/
+	font-family: "FontAwesome";
+	/*opacity: 0.8;*/
+	content: "\f002";
+	position: relative;
+	left: 30px;
+	background: none;
+	margin-top: 0;
+	/*z-index: 2001;*/
+	z-index: 2;
+	color: #bbb;
+	font-size: 14pt;
+	/*left: -285px;*/
+	top: 3px;
+}
+
+select.projectsort {
+	margin-left: 20px;
+	position: relative;
+	/*top: -3px;*/
+	background: #ddd;
+	outline: none;
+	border: 1px solid #ccc;
+	padding: 2px;
+	top: -2px;
+}
+
+button.script-button.projectmore {
+	margin-left: 20px;
+	position: relative;
+	top: -2px;
+}
+
+
+div.cadence-plisting-entry {
+			width: 200px;
+			height: 170px;
+			margin: 6px;
+			background-repeat: no-repeat;
+			cursor: pointer;
+			color: #132023;
+			background: white;
+			padding: 10px;
+			box-shadow: 2px 2px 6px #aaa;
+			border-radius: 3px;
+		}
+
+div.cadence-plisting-entry.special {
+			height: 60px;
+			width: 120px;
+			background: none;
+			border: none;
+			box-shadow: none;
+			margin-top: 5px;
+			margin-bottom: 5px;
+		}
+
+		div.cadence-plisting-entry.more {
+			height: 60px;
+			width: 50px;
+			background: transparent;
+			border: none;
+			margin-top: 10px;
+			box-shadow: none;
+		}
+
+		div.cadence-plisting-icon {
+			border-bottom: 1px solid #ddd;
+			font-family: "FontAwesome";
+			font-size: 60px;
+			/*background: #d0f0f5;*/
+			cursor: pointer;
+			text-align: center;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			height: 95px;
+		}
+
+		div.cadence-plisting-img {
+			border-bottom: 1px solid #ddd;
+			background: white;
+			cursor: pointer;
+			text-align: center;
+			/*height: 112;*/
+			overflow: hidden;
+			display: flex;
+		}
+
+		div.cadence-plisting-icon.special {
+			background: none;
+			height: 40px;
+			font-size: 40px;
+			border: none;
+			color: #222;
+			/*text-shadow: 10px 10px 10px #111;*/
+		}
+
+		div.cadence-plisting-icon.more {
+			background: transparent;
+			height: 40px;
+			font-size: 40px;
+			color: #888;
+			border: none;
+			font-weight: bold;
+		}
+
+
+		div.cadence-plisting-title {
+			font-weight: bold;
+			font-family: "Source Sans Pro",Arial,sans-serif;
+			font-size: 14px;
+			line-height: 16px;
+			padding-left: 2px;
+			margin-top: 8px;
+		}
+
+		div.cadence-plisting-subtitle {
+			font-family: "Source Sans Pro",Arial,sans-serif;
+			font-size: 12px;
+			line-height: 16px;
+			padding-left: 2px;
+			color: #666;
+		}
+
+		div.cadence-plisting-entry:hover {
+			color: #29454B;
+		}
+
+		div.cadence-plisting-entry:hover .cadence-plisting-icon {
+			border-color: #222;
+			/*background-color: white;*/
+		}
+
+		div.cadence-plisting-entry.special:hover .cadence-plisting-icon {
+			background-color: none;
+			color: #aaa;
+		}
+
+		div.cadence-plisting-entry.more:hover .cadence-plisting-icon {
+			color: #222;
+			background: transparent;
+		}
+
+		div.cadence-plisting-entry:hover .cadence-plisting-img {
+			border-color: #222;
+			background-color: white;
+		}
+
+		div.cadence-plisting-entry.locked:after {
+			font-family: "FontAwesome";
+			font-size: 20pt;
+			color: gold;
+			content: '\f023';
+			float: right;
+			position: relative;
+			top: -10px;
+		}
+
