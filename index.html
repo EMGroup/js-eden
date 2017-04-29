@@ -237,6 +237,8 @@ See LICENSE.txt
 		}, "text");
 	}
 
+	if (mobilecheck()) document.location = "mobile-dev.html";
+
 	$(".loadmodal").show();
 	Construit(undefined, function(loaded) {
 		// Place to record projects by tag.
