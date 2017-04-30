@@ -58,7 +58,7 @@ Eden.AST.Scope.Transpile.prototype.split_expression = function(ctx, expr, mathre
 Eden.AST.Scope.Transpile.prototype.build = function(ctx) {
 	var res = this.buildSource(ctx);
 	if (!eden.s) eden.s = {};
-	eden.s[this.name] = eval(res);
+	eden.s[this.name] = new Function(this.paramsList.map(function(x) { return "o"+x; }), res); //eval(res);
 }
 
 Eden.AST.Scope.Transpile.prototype.getSource = function() {
@@ -141,10 +141,6 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 						loopreruns[looplevel[x]] += "o"+x + " = " + src.getSource() + ";\n";
 					}
 
-					if (looplevel[x] == 0) {
-						params[x] = true;
-					}
-
 				// Check if this expression needs to be split up...
 				/*} else if (expr.type == "binaryop" && expr.getSize() >= 8) {
 					var exprs = me.split_expression(ctx,expr);
@@ -200,22 +196,12 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 						else loopreruns[1] += "var o"+x+";\n";
 						loopreruns[looplevel[x]] += "o"+x + " = " + src + ";\n";
 					}
-
-					if (looplevel[x] == 0) {
-						params[x] = true;
-						//if (ctx.dependencies) ctx.dependencies[x] = true;
-					}
 				}
 
-				// Record dependencies if the actual global version of this
-				// definition has never been used.
-				/*if (sym.definition === noop) {
-					var deps = [];
-					for (var d in expr.dependencies) {
-						deps.push(d);
-					}
-					sym.subscribe(deps);
-				}*/
+				if (looplevel[x] == 0) {
+					params[x] = true;
+					//loopreruns[1] += "var o"+x+" = eden.root.lookup(\""+x+"\").value();\n";
+				}
 			} else {
 				params[x] = true;
 			}
@@ -231,6 +217,7 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 		if (this.scope.overrides[x].end === undefined) {
 			res2 += "var o"+x+" = "+this.scope.overrides[x].start.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
 			res2 += ";\n";
+			//namesindex[x] = this.scope.overrides[x].start.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
 		} else {
 			// Also add loop start/end variables
 			res2 += "const l"+x+"_start = "+this.scope.overrides[x].start.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
@@ -319,18 +306,18 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 	}
 
 	// Generate a wrapping function with correct parameters
-	var pstring = "(function(";
+	//var pstring = "(function(";
 	params = [];
 	for (var x in this.params) {
 		params.push(x);
 	}
 	this.paramsList = params;
-	for (var i=0; i<params.length; i++) {
-		pstring += "o"+params[i];
-		if (i < params.length-1) pstring += ", ";
-	}
-	pstring += ") {\n";
-	res = pstring + res + "})";
+	//for (var i=0; i<params.length; i++) {
+	//	pstring += "o"+params[i];
+	//	if (i < params.length-1) pstring += ", ";
+	//}
+	//pstring += ") {\n";
+	//res = pstring + res + "})";
 	
 
 	console.log("FUNC OPTI "+this.name,res);
