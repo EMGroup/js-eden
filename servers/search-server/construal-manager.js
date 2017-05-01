@@ -6,6 +6,7 @@ var express = require('express')
  , methodOverride = require("method-override")
 , session = require("express-session");
 Eden = {};
+edenFunctions = {};
 var config = require("./config.js");
 
 var lex = require(config.JSEDENPATH + "js/lex.js");
@@ -1000,6 +1001,7 @@ app.get('/project/get', function(req,res){
 			});
 		});		
 	}
+	increaseProjectDownloadStat(req,res);
 	
 });
 
@@ -1089,7 +1091,6 @@ function parseCriteria(arr){
 }
 
 app.post('/project/rate', function(req,res){
-	logErrorTime("Rating project");
 	var userID = req.user.id;
 	var starRating = req.body.stars;
 	var projectID = req.body.projectID;
@@ -1101,7 +1102,7 @@ app.post('/project/rate', function(req,res){
 			return;
 		}
 		if(this.changes == 0){
-			var insRateSQL = "INSERT INTO projectratings VALUES (?,?,?);";
+			var insRateSQL = "INSERT INTO projectratings VALUES (?,?,?,NULL);";
 			db.run(insRateSQL,projectID,userID,starRating,function(err){
 				if(err){
 					logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err})
@@ -1346,33 +1347,6 @@ app.get('/user/details', function(req, res){
 	}
 	res.json(u);
 });
-
-app.get('/user/list', function(req,res){
-	  if (req.user.admin != 1) {
-		 res.json({error: ERROR_NOTADMIN, description: "Must be admin to see a user list"});
-		 return;
-	  }
-	  var stmtstr = "SELECT userID, name FROM oauthusers";
-	  var criteriaObject = {};
-	  criteriaObject["@offset"] = 0;
-	  criteriaObject["@limit"] = 100;
-
-	  if(req.query.offset)
-		  criteriaObject["@offset"] = req.query.offset;
-	  if(req.query.limit)
-		  criteriaObject["@limit"] = req.query.limit;
-	  
-	  stmtstr += " ORDER BY userID DESC LIMIT @limit OFFSET @offset";
-	  var stmt = db.prepare(stmtstr);
-	  
-	  stmt.all(criteriaObject,function(err,rows){
-		  if(err){
-			  res.json({error: ERROR_SQL, description: "SQL Error", err:err});
-		  }else{
-			res.json(rows);
-		  }		  
-	  });
-  });
 
 // GET /auth/google
 //   Use passport.authenticate() as route middleware to authenticate the
