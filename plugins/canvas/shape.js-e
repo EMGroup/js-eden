@@ -33,6 +33,13 @@ Shape.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMa
 	vec3.set (translation, this.position.x, this.position.y, this.position.z);
 	mat4.translate(mvMatrix,mvMatrix,translation);
 
+	if (this.scale) {
+		var scale = vec3.create();
+		vec3.set(scale, this.scale.x, this.scale.y, this.scale.z);
+		mat4.scale(mvMatrix,mvMatrix,scale);
+	}
+
+
 	if (this.rotation) {
 		var rot = vec3.create();
 		if (this.rotation.x) {
@@ -47,12 +54,6 @@ Shape.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMa
 			vec3.set(rot, 0, 0, 1);
 			mat4.rotate(mvMatrix, mvMatrix, this.rotation.z * Math.PI / 180, rot);
 		}
-	}
-
-	if (this.scale) {
-		var scale = vec3.create();
-		vec3.set(scale, this.scale.x, this.scale.y, this.scale.z);
-		mat4.scale(mvMatrix,mvMatrix,scale);
 	}
 
 	if (this.material instanceof Texture) {
