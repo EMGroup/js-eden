@@ -75,11 +75,12 @@ EdenUI.ExplorerState = function(element) {
 
 	this.results.on("click", ".explore-observable", function(e) {
 		var obs = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-obs");
-		if (e.ctrlKey || e.metaKey) {
+		//if (e.ctrlKey || e.metaKey) {
 			console.log("GOTO",obs);
-			edenUI.gotoCode("/"+obs);
+			//edenUI.gotoCode("/"+obs);
+			Eden.Selectors.goto(obs+":active");
 			e.stopPropagation();
-		} else {
+		/*} else {
 			var sym = eden.root.symbols[obs];
 			if (sym) {
 				if (sym.eden_definition) {
@@ -89,7 +90,7 @@ EdenUI.ExplorerState = function(element) {
 				}
 				me.console.focus();
 			}
-		}
+		}*/
 	});
 
 	this.results.on("click", ".explore-expand-value", function(e) {
@@ -101,6 +102,10 @@ EdenUI.ExplorerState = function(element) {
 	this.results.on("click", ".eden-path", function(e) {
 		var path = e.currentTarget.textContent;
 		edenUI.gotoCode(path,-1);
+	});
+
+	this.results.on("click", ".symvalue", function(e) {
+
 	});
 
 	this.results.on("click", ".explore-entry-icon", function(e) {
@@ -138,8 +143,10 @@ EdenUI.ExplorerState = function(element) {
 				if (!existing[x]) {
 					//node.append(me.makeEntry(x.slice(1), {}, false));
 					var sym2 = sym.dependencies[x];
+					var missing = !sym2;
+					var defined = (sym2 && sym2.definition);
 					var name = x;
-					var ele = $('<div class="explore-entry'+((false) ? " active":"")+'" data-obs="'+name+'"><div class="explore-entry-inner"><span><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> </span><div class="symvalue"></div></div></div>');
+					var ele = $('<div class="explore-entry'+((false) ? " active":"")+((missing) ? " missing":"")+((defined) ? " defined":"")+'" data-obs="'+name+'"><div class="explore-entry-inner"><span><span class="explore-entry-icon">'+((defined)?'&#xf067;':' ')+'</span><span class="explore-observable">'+name+'</span> </span><div class="symvalue"></div></div></div>');
 					var valele = ele.find(".symvalue").get(0);				
 					me.updateEntry(sym2, valele);	
 					if (me.index[name] === undefined) me.index[name] = [];
@@ -148,7 +155,7 @@ EdenUI.ExplorerState = function(element) {
 				}
 			}
 
-			$(node).append(me.makeAgentEntry(sym.last_modified_by));
+			//$(node).append(me.makeAgentEntry(sym.last_modified_by));
 		}
 	});
 
@@ -284,14 +291,14 @@ EdenUI.ExplorerState.prototype.updateEntry = function(sym, valelement, full) {
 	var value;
 	var html;
 
-	if (sym.eden_definition && sym.eden_definition.startsWith("func")) {
+	if (typeof svalue == "function") {
 		html = '<span class="eden-keyword">func</span>';
 	} else {
 		if (full) {
 			var ecode = Eden.edenCodeForValue(svalue, undefined, 2);
 			value = (ecode.length < EdenUI.Explorer.MAXHIGHLIGHTLENGTH) ? EdenUI.Highlight.html(ecode,true) : ecode;
 		} else {
-			if (Array.isArray(svalue)) {
+			if (Array.isArray(svalue) && svalue.length > 2) {
 				value = '[.. <span class="explore-expand-value">&#xf0fe;</span> ..]';
 			} else {
 				var ecode = Eden.edenCodeForValue(svalue, undefined, 2);
@@ -306,11 +313,16 @@ EdenUI.ExplorerState.prototype.updateEntry = function(sym, valelement, full) {
 
 EdenUI.ExplorerState.prototype.makeEntry = function(name, children, active) {
 	var sym = eden.root.symbols[name];
+	var missing = false;
+	var defined = false;
+	if (sym && sym.definition) defined = true;
+	if (!sym) missing = true;
 	//var svalue = sym.value();
 	//var value = (Array.isArray(svalue)) ? "[...]" : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
 	//var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
-	var ele = $('<div class="explore-entry'+((active) ? " active":"")+'" data-obs="'+name+'"><div class="explore-entry-inner"><span><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> </span><div class="symvalue"></div></div></div>');
+	var ele = $('<div class="explore-entry'+((active) ? " active":"")+((missing) ? " missing":"")+((defined) ? " defined":"")+'" data-obs="'+name+'"><div class="explore-entry-inner"><span><span class="explore-entry-icon">'+((defined)?'&#xf067;':' ')+'</span><span class="explore-observable">'+name+'</span> </span><div class="symvalue"></div></div></div>');
 	var valele = ele.find(".symvalue").get(0);
+	if (defined && sym.origin) ele.get(0).title = sym.origin.getSource();
 	this.updateEntry(sym, valele);
 	if (this.index[name] === undefined) this.index[name] = [];
 	this.index[name].push(valele);
