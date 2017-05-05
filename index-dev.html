@@ -177,9 +177,9 @@ See LICENSE.txt
 			background: white;
 			/*background: linear-gradient(to bottom, white 0%,#eee 21%,#ddd 49%,#eee 80%,white 100%);*/
 			padding: 40px 40px;
-			border-bottom: 1px solid #ddd;
+			/*border-bottom: 1px solid #ddd;*/
 			color: #444;
-			height: 450px;
+			height: 440px;
 		}
 
 		div#welcometext h1 {
@@ -190,7 +190,7 @@ See LICENSE.txt
 			/*font-family: 'Allerta Stencil', sans-serif;*/
 			position: absolute;
 			top: 150px;
-			left: 550px;
+			left: 540px;
 		}
 
 		div#welcomecontent {
@@ -277,8 +277,8 @@ See LICENSE.txt
 			font-size: 14pt;
 			font-weight: bold;
 			height: initial;
-			padding: 5px 10px;
-			background-color: #4B2945;
+			padding: 5px 20px;
+			background-color: #29454B;
 			border-radius: 20px;
 			display: inline;
 			margin: 0;
@@ -290,21 +290,22 @@ See LICENSE.txt
 		}
 
 		div.welcomelinks {
-			border-radius: 20px;
-			border: 1px solid #ccc;
+			border-top: 1px solid #ccc;
+			border-bottom: 1px solid #ccc;
+			width: 100%;
 			background: white;
 			box-sizing: border-box;
 			display: inline-block;
-			margin-top: 20px;
-			margin-bottom: 20px;
 			font-size: 12pt;
+			text-align: center;
 		}
 
 		div.welcomelinks a {
 			display: inline-block;
 			height: 100%;
-			padding: 0 10px;
+			padding: 0 20px;
 			border-right: 1px solid #ddd;
+			text-decoration: none;
 		}
 
 		div.welcomelinks a:last-child {
@@ -316,7 +317,8 @@ See LICENSE.txt
 		}
 
 		div#project-browser {
-			margin-top: 70px;
+			margin-top: 60px;
+			margin-left: 40px;
 		}
 
 		div.popular-tags {
@@ -336,7 +338,7 @@ See LICENSE.txt
 			position: absolute;
 			top: 45px;
 			right: 0;
-			height: 505px;
+			height: 495px;
 			box-sizing: border-box;
 			justify-content: space-between;
 		}
@@ -913,9 +915,10 @@ Live and intuitive paradigm using dependency and agency.<br>
 Free and open-source as part of an EU Erasmus+ Project.</div>
 		<div class="hexagon blue" style="left: 270px; top: 66px;">Construct interactive <em>objects to think with</em> called <b>construals</b></div>
 		<div class="hexagon orange" style="left: 158px; top: 260px; font-style: italic; font-size: 28pt; line-height: 40px;">Explore<br>Experiment<br>Extend</div>
-		<div style="text-align: center; display: none;"><a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/construit/conference/draftcall/moreaboutconstruals/">Read More</a><br><div class="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-in</button>
-		<a href="http://edumotiva.eu/construit2017/">Conference 2017</a><a href="javascript:changePage('teachers.html');">Teachers</a><a href="javascript:changePage('students.html');">Students</a><a href="javascript:changePage('lifelong.html');">Lifelong</a><a href="http://construit.org">Erasmus+ Project</a>
-		</div></div></div></div>
+		</div></div>
+		<div class="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-in</button>
+		<a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/construit/conference/draftcall/moreaboutconstruals/">Learn More</a><a href="http://edumotiva.eu/construit2017/">Conference 2017</a><a href="javascript:changePage('teachers.html');">Teachers</a><a href="javascript:changePage('students.html');">Students</a><a href="javascript:changePage('lifelong.html');">Lifelong</a><a href="http://construit.org">Erasmus+ Project</a>
+		</div>
 		<div id="projectbuttons" class="jseden-dialog-plisting" style="padding: 10px; height: 80px; display: none;">
 			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
 			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special">&#xf07c;</div></div>
