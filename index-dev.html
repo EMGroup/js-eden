@@ -450,6 +450,7 @@ See LICENSE.txt
 		if (!loaded) {
 			var q = URLUtil.getParameterByName("q");
 			var lopts = $("#loadoptions");
+			var catsearchtimeout = undefined;
 
 			function updateSearch() {
 				var pbrowser = lopts.find("#project-browser");
@@ -544,7 +545,16 @@ See LICENSE.txt
 
 				//console.log("FILTER: " + filter);
 				//searchstr = e.currentTarget.value;
-				updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling.nextElementSibling);
+
+				if (catsearchtimeout) {
+					clearTimeout(catsearchtimeout);
+				}
+
+				catsearchtimeout = setTimeout(function() {
+					updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling.nextElementSibling);
+					catsearchtimeout = undefined;
+				}, 200);
+
 				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
 			})
 			.on("change",".search", function(e) {
@@ -791,6 +801,7 @@ without losing power of expression by oversimplifying.</p><p>Watch the demonstra
 		<div id="project-browser" style="clear: right;">
 			<div id="privateprojects" style="display: none">
 			<div class="jseden-project-cat" data-filter=":me">Your Projects<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
+			<div></div>
 			<div id="jseden-private-projects" class="jseden-dialog-plisting">
 			</div>
 			</div>

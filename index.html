@@ -252,6 +252,7 @@ See LICENSE.txt
 		if (!loaded) {
 			var q = URLUtil.getParameterByName("q");
 			var lopts = $("#loadoptions");
+			var catsearchtimeout = undefined;
 
 			function updateSearch() {
 				var pbrowser = lopts.find("#project-browser");
@@ -346,6 +347,31 @@ See LICENSE.txt
 
 				//console.log("FILTER: " + filter);
 				//searchstr = e.currentTarget.value;
+
+				if (catsearchtimeout) {
+					clearTimeout(catsearchtimeout);
+				}
+
+				catsearchtimeout = setTimeout(function() {
+					updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling.nextElementSibling);
+					catsearchtimeout = undefined;
+				}, 200);
+
+				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
+			})
+			.on("change",".search", function(e) {
+				var filter = e.currentTarget.parentNode.parentNode.getAttribute("data-filter");
+				var sortby = e.currentTarget.parentNode.nextElementSibling.value;
+				//console.log("Sort by " + sortby);
+
+				switch(sortby) {
+				case "Popular": sortby = "downloads"; break;
+				case "Rating": sortby = "rating"; break;
+				default: sortby = "";
+				}
+
+				//console.log("FILTER: " + filter);
+				//searchstr = e.currentTarget.value;
 				updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling.nextElementSibling);
 				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
 			})
@@ -366,7 +392,7 @@ See LICENSE.txt
 
 				//console.log("FILTER: " + filter);
 				//searchstr = e.currentTarget.value;
-				updateSearch2(filter + " " + e.currentTarget.previousElementSibling.firstChild.value, sortby, e.currentTarget.parentNode.nextElementSibling.nextElementSibling, count);
+				updateSearch2(filter + " " + e.currentTarget.previousElementSibling.firstChild.value, sortby, e.currentTarget.parentNode.nextElementSibling, count);
 				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
 			})
 			.on("click",".projectmore", function(e) {
@@ -470,6 +496,14 @@ See LICENSE.txt
 					//displayProjects("featured", "#featured");
 					//displayProjects("recent");
 				} else {
+					/*displayProjects("featured", "#featured", "downloads");
+					displayProjects("recent");
+					displayProjects("starter", "#starter", "downloads");
+					displayProjects("ref", "#documentation", "downloads");
+					displayProjects("conf", "#construit2017", "downloads");
+					displayProjects("games", "#game", "downloads");
+					displayProjects("oers", "#OERs", "downloads");*/
+
 					addCategory("featured", "Featured Construals", "#featured", "downloads");
 					addCategory("starter", "Starter Examples", "#starter", "downloads");
 					addCategory("recent", "All Construals", "", undefined);
@@ -569,6 +603,7 @@ without losing power of expression by oversimplifying.</p><p>Watch the demonstra
 		<div id="project-browser" style="clear: right;">
 			<div id="privateprojects" style="display: none">
 			<div class="jseden-project-cat" data-filter=":me">Your Projects<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
+			<div></div>
 			<div id="jseden-private-projects" class="jseden-dialog-plisting">
 			</div>
 			</div>

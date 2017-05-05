@@ -3502,7 +3502,8 @@ jseden_pm_user = jseden_pm_user;
 /** Is the explorer panel accessible? */
 jseden_explorer_enabled = true;
 jseden_explorer_visible is jseden_maker;
-jseden_explorer_watch is querySelector(jseden_explorer_search,"symbol") if jseden_fragment_changed || jseden_fragment_executed else @;
+jseden_explorer_watch is (querySelector(jseden_explorer_search,"symbol") if jseden_explorer_search != @ && jseden_explorer_search != "" else
+	querySelector(".type(script).name:not(:remote,ACTIVE) >","symbol")) if (jseden_fragment_changed || jseden_fragment_executed) && jseden_explorer_visible else @;
 jseden_script_query = ".type(script).name:not(:remote,ACTIVE)";
 }
 

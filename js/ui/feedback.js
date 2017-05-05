@@ -2,6 +2,7 @@ EdenUI.Feedback = function() {
 	var icon = document.createElement("div");
 	icon.className = "feedback-icon noselect";
 	icon.innerHTML = "&#xf0e6;";
+	icon.title = "Comments";
 	document.getElementById("jseden-views").appendChild(icon);
 
 	this.odialog = document.createElement("div");
