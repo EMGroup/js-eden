@@ -11,6 +11,7 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options, valign, al
 	this.size = size;
 	this.fillcolour = fillcolour;
 	this.outlinecolour = outlinecolour;
+	this.elements = [];
 
 	var optionsType = typeof(options);
 	var css;
@@ -69,6 +70,8 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options, valign, al
 	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(options, "Text");
 	this.obsName = root.currentObservableName();
 }
+
+Text.elements = {};
 
 // RegExp groups: (valign) (align) (style) (size) (font)
 Text.cssRegExp = new RegExp(
@@ -173,50 +176,54 @@ func Text {
 
 ${{
 
-Text.prototype.draw = function (context, scale) {
+Text.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix, canvas, id) {
+	var ele = null;
 
-	if (scale != 1) {
-		var inverseScale = 1 / scale;
-		if (scale >= 0) {
-			context.scale(inverseScale, inverseScale);
+	if (!Text.elements[viewname]) Text.elements[viewname] = {};
+
+	if (!Text.elements[viewname][id]) {
+		ele = document.createElement("div");
+		Text.elements[viewname][id] = ele;
+		ele.style.position = "absolute";
+		ele.style.background = "transparent";
+		ele.style.padding = "0";
+	} else {
+		ele = Text.elements[viewname][id];
+	}
+
+	this.elements = [ele];
+
+	ele.textContent = this.text;
+	ele.style.top = this.y + "px";
+	ele.style.left = this.x + "px";
+	ele.style.fontSize = this.size+"px";
+};
+
+Text.prototype.scale = function (scale, zoom , origin) {
+	var style = this.elements[0].style;
+	style.left = Math.round((this.x + origin.x) * scale) + "px";
+	style.top = Math.round((this.y + origin.y) * scale) + "px";
+
+	if (this.width !== undefined) {
+		style.width = Math.round(this.width) + "px";
+	}
+	if (this.height !== undefined) {
+		style.height = Math.round(this.height) + "px";
+	}
+	/*if (this.fontSizeSpecified) {
+		style.fontSize = String(this.fontSizeNumber * zoom) + this.fontSizeUnits;
+	} else {
+		if (zoom == 1) {
+			style.fontSize = ""; //Could be specified by a CSS class.
 		} else {
-			context.scale(-inverseScale, inverseScale);
+			style.fontSize = zoom + "em";
 		}
-	}
-	context.font = this.css;
-	if (this.drawingOptions.valign) {
-		context.textBaseline = this.drawingOptions.valign;
-	} else {
-		context.textBaseline = "top";
-	}
-
-	var lineWidth;
-	if (this.outlinecolour !== undefined) {
-		lineWidth = context.lineWidth;
-	} else {
-		lineWidth = 0;
-	}
-
-	var x = (this.x + lineWidth / 2) * scale + 1;
-	var y = this.y * scale + 1;
-
-	var align = this.drawingOptions.align;
-	if (align) {
-		context.textAlign = align;
-		if (align == "center") {
-			x--;
-		}
-	}
-
-	if (this.fillcolour !== undefined) {
-		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
-		context.fillText(this.text, x, y);
-	}
-	if (this.outlinecolour !== undefined) {
-		context.lineWidth = lineWidth * scale;
-		context.strokeStyle = this.outlinecolour;
-		context.strokeText(this.text, x, y);	
-	}
+	}*/
+	//if (scale != this.cachedScale) {
+		style.transform = "scale("+zoom+")";
+	//}
+	this.cachedScale = scale;
+	//this.resize();
 };
 
 Text.prototype.isHit = function (context, scale, px, py) {

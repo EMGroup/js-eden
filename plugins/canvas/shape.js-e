@@ -24,7 +24,7 @@ Shape is ${{ new Shape }}$ ($1, $2, scale, rotation, material, uvmap, ortho);
 
 ${{
 
-Shape.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix, canvas) {
+Shape.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix, canvas, id) {
 	if (this.ortho) {
 		mat4.identity(mvMatrix);
 	}
