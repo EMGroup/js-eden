@@ -18,6 +18,7 @@ See LICENSE.txt
 	<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
 	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="css/eden.css">
 	<link rel="stylesheet" type="text/css" href="css/menu-bar.css">
 	<link rel="stylesheet" type="text/css" href="css/explorer.css">
@@ -78,15 +79,15 @@ See LICENSE.txt
 
 		div#loadoptions {
 			position: relative;
-			top: 55px;
+			/*top: 55px;*/
 		}
 
 		
 
 		div.project-content {
-			position: relative;
+			/*position: relative;
 			left: 220px;
-			width: calc(100% - 440px);
+			width: calc(100% - 440px);*/
 			font-family: "Source Sans Pro",Arial,sans-serif;
 			font-size: 13pt;
 			line-height: 150%;
@@ -173,6 +174,103 @@ See LICENSE.txt
 
 		div#welcometext {
 			text-align: justify;
+			background: white;
+			/*background: linear-gradient(to bottom, white 0%,#eee 21%,#ddd 49%,#eee 80%,white 100%);*/
+			padding: 40px 40px;
+			border-bottom: 1px solid #ddd;
+			color: #444;
+			height: 450px;
+		}
+
+		div#welcometext h1 {
+			color: black;
+		}
+
+		img#welcometitle {
+			/*font-family: 'Allerta Stencil', sans-serif;*/
+			position: absolute;
+			top: 150px;
+			left: 550px;
+		}
+
+		div#welcomecontent {
+			position: absolute;
+			top: 300px;
+			left: 550px;
+			color: #222;
+			font-size: 16pt;
+			line-height: 40px;
+			font-family: 'Open Sans Condensed', sans-serif;
+		}
+
+		.hexagon {
+		  position: absolute;
+		  width: 225px; 
+		  height: 129.90px;
+		  background-color: #62a0cd;
+		  margin: 64.95px 0;
+		  color: white;
+		  font-size: 20pt;
+		  /*line-height: 35px;*/
+		  padding: 0 10px;
+		  box-sizing: border-box;
+		  text-align: center;
+		}
+
+		.hexagon:before {
+		  bottom: 100%;
+		  border-bottom: 64.95px solid;
+		  left: 0;
+		}
+
+		.hexagon:after {
+		  top: 100%;
+		  width: 0;
+          left: 0;
+		  border-top: 64.95px solid;
+		}
+
+		.hexagon.blue {
+			background: #62a0cd;
+		}
+
+		.hexagon.blue:before {
+		  bottom: 100%;
+		  border-bottom: 64.95px solid #62a0cd;
+		  left: 0;
+		}
+
+		.hexagon.blue:after {
+		  top: 100%;
+		  width: 0;
+          left: 0;
+		  border-top: 64.95px solid #62a0cd;
+		}
+
+		.hexagon.orange {
+			background: #f7a547;
+		}
+
+		.hexagon.orange:before {
+		  bottom: 100%;
+		  border-bottom: 64.95px solid #f7a547;
+		  left: 0;
+		}
+
+		.hexagon.orange:after {
+		  top: 100%;
+		  width: 0;
+          left: 0;
+		  border-top: 64.95px solid #f7a547;
+		}
+
+		.hexagon:before,
+		.hexagon:after {
+		  content: "";
+		  position: absolute;
+		  width: 0;
+		  border-left: 112.5px solid transparent;
+		  border-right: 112.5px solid transparent;
 		}
 
 		button.welcomesignin {
@@ -228,6 +326,27 @@ See LICENSE.txt
 
 		div.popular-tags a {
 			margin-right: 5px;
+		}
+
+		div.videobox {
+			padding: 10px;
+			background: #888;
+			display: flex;
+			flex-direction: column;
+			position: absolute;
+			top: 45px;
+			right: 0;
+			height: 505px;
+			box-sizing: border-box;
+			justify-content: space-between;
+		}
+
+		div.videobox iframe {
+			margin-bottom: 10px;
+		}
+
+		div.videobox iframe:last-child {
+			margin-bottom: 0;
 		}
 
 	</style>
@@ -780,17 +899,21 @@ See LICENSE.txt
 	<div class="project-content" style="padding: 20px 0;">
 		<div id="defaultcontent">
 		<div style="display: none;" id="welcometext">
-		<iframe style="margin: 10px 100px; float: right;" width="560" height="315" src="https://www.youtube.com/embed/0i7lNddcXIc" frameborder="0" allowfullscreen></iframe>
-		<div><h1>Welcome</h1>
-	<p>
-Our CONSTRUIT site enables you to construct interactive <i>objects-to-think-with</i> that we have termed
-<i>construals</i>, a kind of animated story.  It may be a story about a phenomenon (e.g. the solar system),
-a problem (e.g. penny rolling), or just an everyday experience (e.g. using a lift, or shopping),
-or perhaps a game, a puzzle, something in history or a complicated theory. Making and presenting
-these stories helps to gain an understanding of a subject.</p><p>Unlike traditional programming, observability and adaptability
-are more vital than formality, so we have chosen our principles and constructs carefully to achieve this freedom
-without losing power of expression by oversimplifying.</p><p>Watch the demonstration videos and sign-in to start modifying or creating construals for free.</p>
-		<div style="text-align: center;"><a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/construit/conference/draftcall/moreaboutconstruals/">Read More</a><br><div class="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-in</button>
+		<div class="videobox">
+		<iframe width="260" height="146" src="https://www.youtube.com/embed/0i7lNddcXIc" frameborder="0" allowfullscreen></iframe>
+		<iframe width="260" height="146" src="https://www.youtube.com/embed/xa63K878zYc" frameborder="0" allowfullscreen></iframe>
+		<iframe width="260" height="146" src="https://www.youtube.com/embed/isRrihy40uE" frameborder="0" allowfullscreen></iframe>
+		</div>
+		<div>
+		<img src="images/hexsun.png" style="position: absolute; z-index: 2;">
+		<img src="images/construit_logo_2.png" width="400" id="welcometitle">
+		<div id="welcomecontent">Learn to digitally model the world, real or imaginary.<br>
+Adaptable artifacts and work environments for lessons.<br>
+Live and intuitive paradigm using dependency and agency.<br>
+Free and open-source as part of an EU Erasmus+ Project.</div>
+		<div class="hexagon blue" style="left: 270px; top: 66px;">Construct interactive <em>objects to think with</em> called <b>construals</b></div>
+		<div class="hexagon orange" style="left: 158px; top: 260px; font-style: italic; font-size: 28pt; line-height: 40px;">Explore<br>Experiment<br>Extend</div>
+		<div style="text-align: center; display: none;"><a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/construit/conference/draftcall/moreaboutconstruals/">Read More</a><br><div class="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-in</button>
 		<a href="http://edumotiva.eu/construit2017/">Conference 2017</a><a href="javascript:changePage('teachers.html');">Teachers</a><a href="javascript:changePage('students.html');">Students</a><a href="javascript:changePage('lifelong.html');">Lifelong</a><a href="http://construit.org">Erasmus+ Project</a>
 		</div></div></div></div>
 		<div id="projectbuttons" class="jseden-dialog-plisting" style="padding: 10px; height: 80px; display: none;">

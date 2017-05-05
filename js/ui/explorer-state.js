@@ -322,6 +322,7 @@ EdenUI.ExplorerState.prototype.makeEntry = function(name, children, active) {
 	//var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
 	var ele = $('<div class="explore-entry'+((active) ? " active":"")+((missing) ? " missing":"")+((defined) ? " defined":"")+'" data-obs="'+name+'"><div class="explore-entry-inner"><span><span class="explore-entry-icon">'+((defined)?'&#xf067;':' ')+'</span><span class="explore-observable">'+name+'</span> </span><div class="symvalue"></div></div></div>');
 	var valele = ele.find(".symvalue").get(0);
+	if (defined && sym.origin) ele.get(0).title = sym.origin.getSource();
 	this.updateEntry(sym, valele);
 	if (this.index[name] === undefined) this.index[name] = [];
 	this.index[name].push(valele);
