@@ -2,11 +2,11 @@ EdenUI.ExplorerState = function(element) {
 	var me = this;
 
 	this.outer = element;
-	this.controls = $('<div class="explore-controls">\
-		<button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>Capture</button>\
-		<button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>Clear</button>\
-		<span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="Filter..."></input></span>\
-	</div>');
+	this.controls = $(`<div class="explore-controls">
+		<button class="explorer-control capture"><span class="explorer-control-icon">&#xf111;</span>${Language.ui.explorer.capture}</button>
+		<button class="explorer-control clear"><span class="explorer-control-icon">&#xf05e;</span>${Language.ui.explorer.clear}</button>
+		<span class="explorerfilter"><input type="text" class="explorerfilter" placeholder="${Language.ui.explorer.filter}"></input></span>
+	</div>`);
 	this.results = $('<div class="explore-symbols"></div>');
 	this.outer.append(this.controls);
 	this.outer.append(this.results);
@@ -76,7 +76,7 @@ EdenUI.ExplorerState = function(element) {
 	this.results.on("click", ".explore-observable", function(e) {
 		var obs = e.currentTarget.parentNode.parentNode.parentNode.getAttribute("data-obs");
 		//if (e.ctrlKey || e.metaKey) {
-			console.log("GOTO",obs);
+			//console.log("GOTO",obs);
 			//edenUI.gotoCode("/"+obs);
 			Eden.Selectors.goto(obs+":active");
 			e.stopPropagation();

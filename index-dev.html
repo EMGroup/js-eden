@@ -829,13 +829,13 @@ See LICENSE.txt
 					displayProjects("games", "#game", "downloads");
 					displayProjects("oers", "#OERs", "downloads");*/
 
-					addCategory("featured", "Featured Construals", "#featured", "downloads");
-					addCategory("starter", "Starter Examples", "#starter", "downloads");
-					addCategory("recent", "All Construals", "", undefined);
-					addCategory("ref", "Reference", "#documentation", "downloads");
-					addCategory("conf", "Construit 2017", "#construit2017", "downloads");
-					addCategory("games", "Games", "#game", "downloads");
-					addCategory("oers", "Educational Resources", "#OERs", "downloads");
+					addCategory("featured", Language.ui.categories.featured, "#featured", "downloads");
+					addCategory("starter", Language.ui.categories.starter, "#starter", "downloads");
+					addCategory("recent", Language.ui.categories.all, "", undefined);
+					addCategory("ref", Language.ui.categories.ref, "#documentation", "downloads");
+					addCategory("conf", Language.ui.categories.construit2017, "#construit2017", "downloads");
+					addCategory("games", Language.ui.categories.games, "#game", "downloads");
+					addCategory("oers", Language.ui.categories.edres, "#OERs", "downloads");
 				}
 
 				if (Eden.DB.isLoggedIn()) {

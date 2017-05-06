@@ -341,57 +341,55 @@ Language.errors = [
 ];
 
 Language.ui = {
+	"tooltips": {
+		home_logo: "Home page in new tab",
+		notifications: "Notifications",
+		maker: "Maker Mode",
+		comments: "Comments",
+		save: "Save or Share",
+		create: "Create Views",
+		existing: "Existing",
+		clear: "Clear",
+		rename: "Rename project",
+		options: "Options",
+		help: "Help"
+	},
+	"links": {
+		learnmore: "Learn More",
+		conference2017: "Conference 2017",
+		teachers: "Teachers",
+		students: "Students",
+		lifelong: "Lifelong",
+		erasmus: "Erasmus+ Project"
+	},
+	"categories": {
+		featured: "Featured Construals",
+		starter: "Starter Examples",
+		all: "All Construals",
+		ref: "Reference",
+		construit2017: "Construit 2017",
+		games: "Games",
+		edres: "Educational Resources"
+	},
+	"welcome": {
+		
+	},
 	"input_window": {
-		title: "Script View",
-		description: "Provides the ability to type in definitional scripts using the keyboard, submit them for interpretation and recall the input history.",
-		success: "Yay!",
-		is_undef_because: "is undefined because",
-		is_undef: "is undefined",
-		are_undef: "are undefined",
-		uses: "uses",
-		which_undef: "which is undefined",
-		uses_undef: "uses the undefined observables",
-		show_tabs: "Show Tabs",
-		show_controls: "Show Controls",
-		browse_agents: "Browse Agents",
-		hide_agent: "Hide Agent",
-		view_history: "View History",
-		insert_temp: "Insert Template",
-		run: "Run (force)",
-		stop: "Stop",
-		clone: "Clone",
-		reload: "Reload",
-		upload: "Upload",
-		share: "Share",
-		hide: "Hide",
-		inspect: "Inspect",
-		rewind: "Rewind",
-		undo: "Undo",
-		redo: "Redo",
-		fast_forward: "Fast-Forward"
+		
 	},
 	"canvas": {
 		title: "Canvas Picture"
 	},
 	"menu_bar": {
-		title: "Menu Bar",
-		description: "Creates the menu bar.",
+		signin: "Sign-in",
+		search: "Search...",
 		opt_confirm: "Confirm closing environment",
 		opt_simple_search: "Simplified searching",
 		opt_hide: "Hide windows on minimize",
 		opt_collapse: "Collapse to title bar on double click",
 		opt_debug: "Debug JS-EDEN",
-		main_views: "New Window",
-		main_existing: "Existing Windows",
-		main_options: "Options",
-		comprehension: "Comprehension",
-		making_defs: "Making Definitions",
-		history: "History & State",
-		visualise: "Visualisation",
-		management: "Management",
-		version: "Version",
-		login: "Login",
-		notconnect: "Not Connected"
+		cancel: "Cancel",
+		notconnected: "Not Connected"
 	},
 	"search": {
 		disjunction: "or"
@@ -401,6 +399,53 @@ Language.ui = {
 		loading: "Loading...",
 		finished_loading: "JS-EDEN has finished loading.",
 		leaving: "Leaving this page will discard the current script. Your work will not be saved."
+	},
+	"notifications": {
+		no: "No notifications"
+	},
+	"details": {
+		open: "Open",
+		follow: "Follow",
+		maker: "Maker",
+		authors: "Authors",
+		published: "Published by",
+		by: "by"
+	},
+	"explorer": {
+		capture: "Capture",
+		clear: "Clear",
+		state: "State",
+		settings: "Settings",
+		filter: "Filter...",
+		input: "Script Input"
+	},
+	"views": {
+		agent: "Agent List",
+		functions: "Function List",
+		observables: "Observable List",
+		symbols: "Symbol List",
+		map: "Dependency Map",
+		lookup: "Symbol Look-Up Table",
+		script: "Script View",
+		version: "Version List",
+		debug: "Debugger",
+		canvas: "Canvas 2D",
+		html: "HTML Content",
+		plugin: "Plug-in Manager"
+	},
+	"viewcat": {
+		comprehension: "Comprehension",
+		making: "Making Definitions",
+		history: "History & State",
+		vis: "Visualisation",
+		management: "Management"
+	},
+	"sharebox": {
+		file: "File",
+		title: "Save and Share",
+		publically: "List publically",
+		save: "Save",
+		fork: "Fork"
 	}
 }
 

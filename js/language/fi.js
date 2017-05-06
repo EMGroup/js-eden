@@ -324,9 +324,39 @@ Language.errors = [
 ];
 
 Language.ui = {
+	"tooltips": {
+		home_logo: "Kotisivu uudessa välilehdessä",
+		notifications: "Ilmoitukset",
+		maker: "Maker-tila",
+		comments: "Kommentit",
+		save: "Tallenna tai jaa",
+		create: "Uusi ikkuna",
+		existing: "Avoimet ikkunat",
+		clear: "Tyhjentää",
+		rename: "Nimeä hanke uudelleen",
+		options: "Asetukset",
+		help: "Auta"
+	},
+	"links": {
+		learnmore: "Lisätietoja",
+		conference2017: "Conference 2017",
+		teachers: "Luokanopettajaa",
+		students: "Opiskelijat",
+		lifelong: "Elinikäinen",
+		erasmus: "Erasmus+ Project"
+	},
+	"categories": {
+		featured: "Esitetyt projektit",
+		starter: "Aloittajaesimerkkejä",
+		all: "Kaikki projektit",
+		ref: "Viite",
+		construit2017: "Construit 2017",
+		games: "Pelit",
+		edres: "Oppimateriaalit"
+	},
 	"input_window": {
-		title: "Skripti-ikkuna",
-		description: "Tarjoaa mahdollisuuden kirjoittaa  skriptejä, suorittaa niitä sekä selata aiemmin kirjoitettuja skriptejä",
+		title: "Skripti-ikkuna"
+		/*description: "Tarjoaa mahdollisuuden kirjoittaa  skriptejä, suorittaa niitä sekä selata aiemmin kirjoitettuja skriptejä",
 		success: "Jei jee!",
 		is_undef_because: "ei ole määritelty koska",
 		is_undef: "on määrittelemätön",
@@ -350,30 +380,22 @@ Language.ui = {
 		rewind: "Kelaa",
 		undo: "Peru",
 		redo: "Tee uudelleen",
-		fast_forward: "Pikakelaa eteenpäin"
+		fast_forward: "Pikakelaa eteenpäin"*/
 	},
 	"canvas": {
 		title: "Piirtopinta"
 	},
 	"menu_bar": {
-		title: "Valikko",
-		description: "Luo valikon",
 		opt_confirm: "Vahvista ympäristön sulkeminen",
 		opt_simple_search: "Yksinkertainen haku",
 		opt_hide: "Piilota ikkunat pienennettäessä",
 		opt_collapse: "Kutista ikkuna tuplaklikkaamalla",
 		opt_debug: "Debuggaa JS-EDENiä",
-		main_views: "Uusi ikkuna",
-		main_existing: "Avoimet ikkunat",
-		main_options: "Asetukset",
-		comprehension: "Työkalut",
-		making_defs: "Määritelmät",
-		history: "Historia & Tila",
-		visualise: "Visualisointi",
-		management: "Hallinta",
 		version: "Versio",
-		login: "Kirjaudu sisään",
-		notconnect: "Ei yhdistetty"
+		signin: "Kirjaudu sisään",
+		notconnected: "Ei yhdistetty",
+		search: "Search...",
+		cancel: "Cancel"
 	},
 	"search": {
 		disjunction: "tai"
@@ -383,6 +405,50 @@ Language.ui = {
 		loading: "Ladataan...",
 		finished_loading: "JS-EDENin lataus on valmis.",
 		leaving: "Sivun sulkeminen hävittää nykyiset määritelmät. Muutoksia ei tallenneta."
+	},
+	"details": {
+		open: "Open",
+		follow: "Follow",
+		maker: "Maker",
+		authors: "Authors",
+		published: "Published by",
+		by: "by"
+	},
+	"explorer": {
+		capture: "Kirjata",
+		clear: "Tyhjentää",
+		state: "Tila",
+		settings: "Asetukset",
+		filter: "Suodattaa...",
+		input: "Script-syöte"
+	},
+	"views": {
+		agent: "Agent List",
+		functions: "Function List",
+		observables: "Observable List",
+		symbols: "Symbol List",
+		map: "Dependency Map",
+		lookup: "Symbol Look-Up Table",
+		script: "Script View",
+		version: "Version List",
+		debug: "Debugger",
+		canvas: "Canvas 2D",
+		html: "HTML Content",
+		plugin: "Plug-in Manager"
+	},
+	"viewcat": {
+		comprehension: "Työkalut",
+		making: "Määritelmät",
+		history: "Historia & Tila",
+		vis: "Visualisointi",
+		management: "Hallinta"
+	},
+	"sharebox": {
+		file: "Tiedosto",
+		title: "Tallenna ja jaa",
+		publically: "Luettelo julkisesti",
+		save: "Tallentaa",
+		fork: "Haarautua"
 	}
 }
 
