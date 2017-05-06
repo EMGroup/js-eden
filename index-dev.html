@@ -289,7 +289,7 @@ See LICENSE.txt
 			margin-right: 8px;
 		}
 
-		div.welcomelinks {
+		div#welcomelinks {
 			border-top: 1px solid #ccc;
 			border-bottom: 1px solid #ccc;
 			width: 100%;
@@ -300,7 +300,7 @@ See LICENSE.txt
 			text-align: center;
 		}
 
-		div.welcomelinks a {
+		div#welcomelinks a {
 			display: inline-block;
 			height: 100%;
 			padding: 0 20px;
@@ -308,11 +308,11 @@ See LICENSE.txt
 			text-decoration: none;
 		}
 
-		div.welcomelinks a:last-child {
+		div#welcomelinks a:last-child {
 			border:right: none;
 		}
 
-		div.welcomelinks a:hover {
+		div#welcomelinks a:hover {
 			/*background: #ddd;*/
 		}
 
@@ -349,6 +349,10 @@ See LICENSE.txt
 
 		div.videobox iframe:last-child {
 			margin-bottom: 0;
+		}
+
+		div.jseden-project-cat.tmpitem {
+			margin-top: 50px;
 		}
 
 	</style>
@@ -768,9 +772,9 @@ See LICENSE.txt
 				var cat = document.createElement("div");
 				cat.className = "jseden-project-cat";
 				cat.setAttribute("data-filter",filter);
-				cat.innerHTML = title+'<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search '+name+'..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button>';
+				cat.innerHTML = title+'<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search '+name+'..."></input></div><button class="script-button projectmore">See More</button>';
 				var poptags = document.createElement("div");
-				poptags.className = "popular-tags";
+				/*poptags.className = "popular-tags";
 				if (filter) {
 					Eden.DB.getPopularTags(filter.replace("#",""), function(tags) {
 						var html = "";
@@ -780,7 +784,7 @@ See LICENSE.txt
 						}
 						poptags.innerHTML = html;
 					});
-				}
+				}*/
 				var cont = document.createElement("div");
 				cont.className = "jseden-dialog-plisting";
 				cont.id = "jseden-"+name+"-projects";
@@ -814,6 +818,8 @@ See LICENSE.txt
 					EdenUI.ProjectDetails.searchProjects(newres, q, 10);
 					//displayProjects("featured", "#featured");
 					//displayProjects("recent");
+					$("#welcometext").get(0).style.display = "none";
+					$("#welcomelinks").get(0).style.display = "none";
 				} else {
 					/*displayProjects("featured", "#featured", "downloads");
 					displayProjects("recent");
@@ -832,11 +838,12 @@ See LICENSE.txt
 					addCategory("oers", "Educational Resources", "#OERs", "downloads");
 				}
 
-				if (Eden.DB.isLoggedIn() == false) {
-					$("#welcometext").get(0).style.display = "block";
+				if (Eden.DB.isLoggedIn()) {
+					$("#welcometext").get(0).style.display = "none";
+					$("#welcomelinks").get(0).style.display = "none";
 				}
 			} else {
-				$("#welcometext").get(0).style.display = "block";
+				//$("#welcometext").get(0).style.display = "block";
 				$("#project-browser").html('<p>Construal store: <span style="color:red; font-weight: bold;">offline</span>. Our server is undergoing maintenance, try again later or look at the selected examples below.</p><div class="jseden-project-cat">Examples:</div><div id="jseden-offline-projects" class="jseden-dialog-plisting"></div>');
 				var plist = lopts.find("#jseden-offline-projects");
 
@@ -861,6 +868,7 @@ See LICENSE.txt
 				displayProjects("private",":me");
 
 				$("#welcometext").get(0).style.display = "none";
+				$("#welcomelinks").get(0).style.display = "none";
 				$("#privateprojects").get(0).style.display = "block";
 				$("#projectbuttons").get(0).style.display = "flex";
 			});
@@ -876,6 +884,9 @@ See LICENSE.txt
 				}
 
 				$("#welcometext").get(0).style.display = "block";
+				$("#welcomelinks").get(0).style.display = "block";
+				$("#privateprojects").get(0).style.display = "none";
+				$("#projectbuttons").get(0).style.display = "none";
 				//displayProjects(true);
 			});
 
@@ -900,7 +911,7 @@ See LICENSE.txt
 <div id="loadoptions" class="" style="display: none;">
 	<div class="project-content" style="padding: 20px 0;">
 		<div id="defaultcontent">
-		<div style="display: none;" id="welcometext">
+		<div id="welcometext">
 		<div class="videobox">
 		<iframe width="260" height="146" src="https://www.youtube.com/embed/0i7lNddcXIc" frameborder="0" allowfullscreen></iframe>
 		<iframe width="260" height="146" src="https://www.youtube.com/embed/xa63K878zYc" frameborder="0" allowfullscreen></iframe>
@@ -916,7 +927,7 @@ Free and open-source as part of an EU Erasmus+ Project.</div>
 		<div class="hexagon blue" style="left: 270px; top: 66px;">Construct interactive <em>objects to think with</em> called <b>construals</b></div>
 		<div class="hexagon orange" style="left: 158px; top: 260px; font-style: italic; font-size: 28pt; line-height: 40px;">Explore<br>Experiment<br>Extend</div>
 		</div></div>
-		<div class="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-in</button>
+		<div id="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-in</button>
 		<a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/construit/conference/draftcall/moreaboutconstruals/">Learn More</a><a href="http://edumotiva.eu/construit2017/">Conference 2017</a><a href="javascript:changePage('teachers.html');">Teachers</a><a href="javascript:changePage('students.html');">Students</a><a href="javascript:changePage('lifelong.html');">Lifelong</a><a href="http://construit.org">Erasmus+ Project</a>
 		</div>
 		<div id="projectbuttons" class="jseden-dialog-plisting" style="padding: 10px; height: 80px; display: none;">
