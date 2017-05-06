@@ -50,6 +50,7 @@ Eden.DB.logOut = function(cb) {
 			},
 			success: function(data){
 				Eden.DB.username = undefined;
+				Eden.DB.emit("logout", []);
 				if (cb) cb();
 
 				function loginLoop() {

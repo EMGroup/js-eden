@@ -15,7 +15,6 @@ EdenUI.MenuBar = function() {
 	// The menu bar, title and buttons...
 	//<div class="jseden-subtitle">by Some Author</div>
 
-
 	if (ismobile) {
 		this.element = $('<div id="menubar-main" class="no-print">\
 			<div class="menubar-buttons">\
@@ -53,7 +52,7 @@ EdenUI.MenuBar = function() {
 		var usercontext = new EdenUI.ContextMenu(loginButton.get(0));
 		usercontext.addItem("&#xf08b;","Log out", function() { return Eden.DB.isLoggedIn(); }, function() {
 			Eden.DB.logOut(function() {
-				$("#menubar-login").html('<span class="icon">&#xf090;</span>Login');
+				$("#menubar-login").html('<span class="icon">&#xf090;</span>Sign-in');
 			}); 
 		});
 	}
