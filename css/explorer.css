@@ -328,6 +328,31 @@ div.explore-state {
 	flex-grow: 2;
 }
 
+div.explore-settings {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 2;
+	background: #eee;
+	font-family: "Source Sans Pro",Arial,Helvetica,sans-serif;
+	padding: 0 20px;
+	overflow-y: auto;
+}
+
+div.explore-settings h1 {
+	color: #666;
+	font-size: 16pt;
+}
+
+div.explorer-settings-list {
+	display: flex;
+	flex-direction: column;
+	margin-left: 10px;
+}
+
+span.explorer-setting-label {
+	padding-right: 20px;
+}
+
 div.explore-script {
 	display: flex;
 	flex-direction: column;
