@@ -27,7 +27,7 @@ EdenUI.MenuBar = function() {
 			</div></div>');
 	} else {
 		this.element = $(`<div id="menubar-main" class="no-print">
-			<a id="eden-logo" title="${Language.ui.tooltips.home_logo}" href="'+window.location.pathname+'" target="_blank" style="display: block"></a>
+			<a id="eden-logo" title="${Language.ui.tooltips.home_logo}" href="${window.location.pathname}" target="_blank" style="display: block"></a>
 			<div class="jseden-title" title="${Language.ui.tooltips.rename}"></div>
 			<div id="menubar-login"><span class="icon">&#xf05e;</span>${Language.ui.menu_bar.notconnected}</div>
 			<div class="menubar-buttons">
