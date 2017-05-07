@@ -59,6 +59,7 @@ Eden.Selectors.PropertyNode = function(name, param) {
 			case "++":
 			case "--": this.param = "modify"; break;
 			}
+			this.value = this.param;
 		}
 	}
 }

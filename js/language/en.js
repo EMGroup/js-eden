@@ -375,7 +375,7 @@ Language.ui = {
 		
 	},
 	"input_window": {
-		
+		title: "Script View"
 	},
 	"canvas": {
 		title: "Canvas Picture"

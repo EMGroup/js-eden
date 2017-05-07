@@ -720,7 +720,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 		var backgroundColourSym = root.lookup("view_" + canvasName + "_background_colour");
 		if (backgroundColourSym.value() === undefined) {
-		  backgroundColourSym.assign("white", root.scope, agent);
+		  backgroundColourSym.assign("white", root.scope, Symbol.defaultAgent);
 		}
 		backgroundColourSym.addJSObserver("refreshView", redraw);
 
@@ -776,13 +776,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		} //end function
 		var scale = scaleSym.value();
 		if (scale === undefined) {
-		  scaleSym.assign(1, root.scope, agent);
+		  scaleSym.assign(1, root.scope, Symbol.defaultAgent);
 		  scale = 1;
 		}
 		scaleSym.addJSObserver("refreshView", resizeCanvas);
 		var zoom = zoomSym.value();
 		if (zoom === undefined) {
-		  zoomSym.assign(1, root.scope, agent);
+		  zoomSym.assign(1, root.scope, Symbol.defaultAgent);
 		  zoom = 1;
 		}
 		var zoomingQueued = false;
@@ -816,7 +816,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var offset = offsetSym.value();
 		var offsetX, offsetY;
 		if (!(offset instanceof Point)) {
-		  offsetSym.assign(new Point(0, 0), root.scope, agent);
+		  offsetSym.assign(new Point(0, 0), root.scope, Symbol.defaultAgent);
 		  offsetX = 0;
 		  offsetY = 0;
 		} else {
@@ -825,11 +825,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}
 		offsetSym.addJSObserver("refreshView", resizeCanvas);
 		if (widthSym.value() == undefined) {
-			widthSym.assign(undefined, root.scope, agent);
+			widthSym.assign(undefined, root.scope, Symbol.defaultAgent);
 		}
 		widthSym.addJSObserver("repaintView", resizeCanvas);
 		if (heightSym.value() == undefined) {
-			heightSym.assign(undefined, root.scope, agent);
+			heightSym.assign(undefined, root.scope, Symbol.defaultAgent);
 		}
 		heightSym.addJSObserver("repaintView", resizeCanvas);
 		var initialWidth = widthSym.value();
@@ -847,12 +847,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 		var gridVisibleSym = root.lookup("view_" + canvasName + "_grid_visible");
 		if (gridVisibleSym.value() === undefined) {
-			gridVisibleSym.assign(false, root.scope, agent);
+			gridVisibleSym.assign(false, root.scope, Symbol.defaultAgent);
 		}
 		gridVisibleSym.addJSObserver("refreshView", redraw);
 		var gridSpacingSym = root.lookup("view_" + canvasName + "_grid_spacing");
 		if (gridSpacingSym.value() === undefined) {
-			gridSpacingSym.assign(20, root.scope, agent);
+			gridSpacingSym.assign(20, root.scope, Symbol.defaultAgent);
 		}
 		gridSpacingSym.addJSObserver("refreshView", redraw);
 				
