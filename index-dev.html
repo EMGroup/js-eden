@@ -50,6 +50,7 @@ See LICENSE.txt
 	<link rel="stylesheet" type="text/css" href="plugins/observable-palette/observable-palette.css" />
 	<link rel="stylesheet" type="text/css" href="plugins/debugger/debugger.css" />
 	<link rel="stylesheet" type="text/css" media="print" href="css/print.css" />
+	<link rel="stylesheet" type="text/css" href="css/home.css">
 
 	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
 	<script type="text/javascript" src="js/lib/jquery-ui-1.12.1.min.js"></script>
@@ -72,289 +73,6 @@ See LICENSE.txt
 		.ui-dialog {
 			z-index: 9999;
 		}
-	</style>
-		<style type="text/css">
-
-		
-
-		div#loadoptions {
-			position: relative;
-			/*top: 55px;*/
-		}
-
-		
-
-		div.project-content {
-			/*position: relative;
-			left: 220px;
-			width: calc(100% - 440px);*/
-			font-family: "Source Sans Pro",Arial,sans-serif;
-			font-size: 13pt;
-			line-height: 150%;
-		}
-
-		div.cadence-plisting-login {
-			/*width: 200px;
-			height: 150px;*/
-			margin: 5px;
-			background: #f5f5f5;
-			cursor: pointer;
-			color: #424249;
-			font-size: 18pt;
-			font-weight: bold;
-			font-family: "Source Sans Pro",Arial,sans-serif;
-			text-align: center;
-			border: 1px solid #ddd;
-			padding: 10px 30px;
-			/*text-shadow: 0 0 5px silver;*/
-		}
-
-		span.cadence-plisting-loginicon {
-			font-family: "FontAwesome";
-			margin-right: 10px;
-		}
-
-
-		div.importdialog {
-			position: absolute;
-			top: 65px;
-			right: 150px;
-			width: 400px;
-			height: 200px;
-			background: #f5f5f5;
-			border-bottom-left-radius: 6px;
-			border-bottom-right-radius: 6px;
-			box-shadow: 0 0 15px #4a6887;
-			font-size: 12pt;
-			color: black;
-		}
-
-		span.importdialog-icon {
-			font-family: "FontAwesome";
-			margin-right: 20px;
-		}
-
-		div.importdialog-title {
-			font-size: 16pt;
-			font-weight: bold;
-			margin-top: 20px;
-			margin-left: 20px;
-			color: #666;
-		}
-
-		div.importdialog-content {
-			margin: 20px;
-			color: black;
-		}
-
-		input.projectsearch {
-			width: 200px;
-			background: #eee;
-			color: #222;
-			font-size: 10pt;
-			padding: 4px;
-			padding-left: 40px;
-			border: 1px solid #bbb;
-		}
-
-		input.projectsearch:hover {
-			background: white;
-		}
-
-		input.projectsearch:focus {
-			background: white;
-		}
-
-		div.projectsearch:before {
-			color: white;
-			font-size: 14pt;
-			/*left: -285px;*/
-			top: 3px;
-		}
-
-		div#welcometext {
-			text-align: justify;
-			background: white;
-			/*background: linear-gradient(to bottom, white 0%,#eee 21%,#ddd 49%,#eee 80%,white 100%);*/
-			padding: 40px 40px;
-			/*border-bottom: 1px solid #ddd;*/
-			color: #444;
-			height: 440px;
-		}
-
-		div#welcometext h1 {
-			color: black;
-		}
-
-		img#welcometitle {
-			/*font-family: 'Allerta Stencil', sans-serif;*/
-			position: absolute;
-			top: 150px;
-			left: 540px;
-		}
-
-		div#welcomecontent {
-			position: absolute;
-			top: 300px;
-			left: 550px;
-			color: #222;
-			font-size: 16pt;
-			line-height: 40px;
-			font-family: 'Open Sans Condensed', sans-serif;
-		}
-
-		.hexagon {
-		  position: absolute;
-		  width: 225px; 
-		  height: 129.90px;
-		  background-color: #62a0cd;
-		  margin: 64.95px 0;
-		  color: white;
-		  font-size: 20pt;
-		  /*line-height: 35px;*/
-		  padding: 0 10px;
-		  box-sizing: border-box;
-		  text-align: center;
-		}
-
-		.hexagon:before {
-		  bottom: 100%;
-		  border-bottom: 64.95px solid;
-		  left: 0;
-		}
-
-		.hexagon:after {
-		  top: 100%;
-		  width: 0;
-          left: 0;
-		  border-top: 64.95px solid;
-		}
-
-		.hexagon.blue {
-			background: #62a0cd;
-		}
-
-		.hexagon.blue:before {
-		  bottom: 100%;
-		  border-bottom: 64.95px solid #62a0cd;
-		  left: 0;
-		}
-
-		.hexagon.blue:after {
-		  top: 100%;
-		  width: 0;
-          left: 0;
-		  border-top: 64.95px solid #62a0cd;
-		}
-
-		.hexagon.orange {
-			background: #f7a547;
-		}
-
-		.hexagon.orange:before {
-		  bottom: 100%;
-		  border-bottom: 64.95px solid #f7a547;
-		  left: 0;
-		}
-
-		.hexagon.orange:after {
-		  top: 100%;
-		  width: 0;
-          left: 0;
-		  border-top: 64.95px solid #f7a547;
-		}
-
-		.hexagon:before,
-		.hexagon:after {
-		  content: "";
-		  position: absolute;
-		  width: 0;
-		  border-left: 112.5px solid transparent;
-		  border-right: 112.5px solid transparent;
-		}
-
-		button.welcomesignin {
-			font-size: 14pt;
-			font-weight: bold;
-			height: initial;
-			padding: 5px 20px;
-			background-color: #29454B;
-			border-radius: 20px;
-			display: inline;
-			margin: 0;
-		}
-
-		button.welcomesignin span.icon {
-			font-family: "FontAwesome";
-			margin-right: 8px;
-		}
-
-		div#welcomelinks {
-			border-top: 1px solid #ccc;
-			border-bottom: 1px solid #ccc;
-			width: 100%;
-			background: white;
-			box-sizing: border-box;
-			display: inline-block;
-			font-size: 12pt;
-			text-align: center;
-		}
-
-		div#welcomelinks a {
-			display: inline-block;
-			height: 100%;
-			padding: 0 20px;
-			border-right: 1px solid #ddd;
-			text-decoration: none;
-		}
-
-		div#welcomelinks a:last-child {
-			border:right: none;
-		}
-
-		div#welcomelinks a:hover {
-			/*background: #ddd;*/
-		}
-
-		div#project-browser {
-			margin-top: 60px;
-			margin-left: 40px;
-		}
-
-		div.popular-tags {
-			font-size: 8pt;
-			margin-left: 35px;
-		}
-
-		div.popular-tags a {
-			margin-right: 5px;
-		}
-
-		div.videobox {
-			padding: 10px;
-			background: #888;
-			display: flex;
-			flex-direction: column;
-			position: absolute;
-			top: 45px;
-			right: 0;
-			height: 495px;
-			box-sizing: border-box;
-			justify-content: space-between;
-		}
-
-		div.videobox iframe {
-			margin-bottom: 10px;
-		}
-
-		div.videobox iframe:last-child {
-			margin-bottom: 0;
-		}
-
-		div.jseden-project-cat.tmpitem {
-			margin-top: 50px;
-		}
-
 	</style>
 </head>
 <body>
@@ -769,6 +487,8 @@ See LICENSE.txt
 
 			function addCategory(name, title, filter, sortby) {
 				var browser = $("#project-browser").get(0);
+				var wrapper = document.createElement("div");
+				wrapper.className = "public-projects";
 				var cat = document.createElement("div");
 				cat.className = "jseden-project-cat";
 				cat.setAttribute("data-filter",filter);
@@ -788,9 +508,11 @@ See LICENSE.txt
 				var cont = document.createElement("div");
 				cont.className = "jseden-dialog-plisting";
 				cont.id = "jseden-"+name+"-projects";
-				browser.appendChild(cat);
-				browser.appendChild(poptags);
-				browser.appendChild(cont);
+				wrapper.appendChild(cat);
+				wrapper.appendChild(poptags);
+				wrapper.appendChild(cont);
+
+				browser.appendChild(wrapper);
 
 				displayProjects(name, filter, sortby);
 			}
@@ -870,7 +592,7 @@ See LICENSE.txt
 				$("#welcometext").get(0).style.display = "none";
 				$("#welcomelinks").get(0).style.display = "none";
 				$("#privateprojects").get(0).style.display = "block";
-				$("#projectbuttons").get(0).style.display = "flex";
+				//$("#projectbuttons").get(0).style.display = "flex";
 			});
 
 			Eden.DB.listenTo("logout", this, function() {
@@ -920,10 +642,10 @@ See LICENSE.txt
 		<div>
 		<img src="images/hexsun.png" style="position: absolute; z-index: 2;">
 		<img src="images/construit_logo_2.png" width="400" id="welcometitle">
-		<div id="welcomecontent">Learn to digitally model the world, real or imaginary.<br>
-Adaptable artifacts and work environments for lessons.<br>
-Live and intuitive paradigm using dependency and agency.<br>
-Free and open-source as part of an EU Erasmus+ Project.</div>
+		<div id="welcomecontent">Learn to digitally model the world, real or imaginary<br>
+Adaptable artefacts and work environments for lessons<br>
+Live and intuitive paradigm using dependency and agency<br>
+Free and open-source as part of an EU Erasmus+ Project</div>
 		<div class="hexagon blue" style="left: 270px; top: 66px;">Construct interactive <em>objects to think with</em> called <b>construals</b></div>
 		<div class="hexagon orange" style="left: 158px; top: 260px; font-style: italic; font-size: 28pt; line-height: 40px;">Explore<br>Experiment<br>Extend</div>
 		</div></div>
@@ -937,7 +659,7 @@ Free and open-source as part of an EU Erasmus+ Project.</div>
 		</div>
 		<div id="project-browser" style="clear: right;">
 			<div id="privateprojects" style="display: none">
-			<div class="jseden-project-cat" data-filter=":me">Your Projects<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
+			<div class="jseden-project-cat" data-filter=":me">Your Projects<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><button class="script-button projectmore">See More</button></div>
 			<div></div>
 			<div id="jseden-private-projects" class="jseden-dialog-plisting">
 			</div>
