@@ -1,26 +1,26 @@
 EdenUI.Explorer = function() {
 	var me = this;
 
-	this.element = $('<div class="explore-main">\
-<div class=\"explore-tabs\">\
-	<div class=\"explore-tab-container\">\
-		<div class=\"explore-tab explore-tab-current\" data-name="state">State</div>\
-		'+ //<div class=\"explore-tab explore-tab-notcurrent\" data-name="scripts">Scripts</div>
+	this.element = $(`<div class="explore-main">
+<div class=\"explore-tabs\">
+	<div class=\"explore-tab-container\">
+		<div class=\"explore-tab explore-tab-current\" data-name="state">${Language.ui.explorer.state}</div>
+		`+ //<div class=\"explore-tab explore-tab-notcurrent\" data-name="scripts">Scripts</div>
 		 //<div class=\"explore-tab explore-tab-notcurrent\" data-name="palette">Palette</div>
-'	</div>\
-</div>\
-<div class="explore-state">\
-</div>\
-<div class="explore-script" style="display: none">\
-</div>\
-<div class="explore-console">\
-	<div class="explore-console-buttons">\
-		<div style="margin-top: 4px; float: left;">Script Input</div>\
-		<button class="control-button clear-button control-enabled" style="float: right;">&#xf05e;</button>\
-	</div>\
-	<div class="explore-console-code"></div>\
-</div>\
-</div>');
+`	</div>
+</div>
+<div class="explore-state">
+</div>
+<div class="explore-script" style="display: none">
+</div>
+<div class="explore-console">
+	<div class="explore-console-buttons">
+		<div style="margin-top: 4px; float: left;">${Language.ui.explorer.input}</div>
+		<button class="control-button clear-button control-enabled" title="${Language.ui.tooltips.clear}" style="float: right;">&#xf05e;</button>
+	</div>
+	<div class="explore-console-code"></div>
+</div>
+</div>`);
 	$("#jseden-main").append(this.element);
 
 	this.consoleele = this.element.find(".explore-console-code");

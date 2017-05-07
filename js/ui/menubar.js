@@ -7,7 +7,7 @@ EdenUI.MenuBar = function() {
 	var ismobile = mobilecheck();
 
 	var obscurer = $('<div id=\"menubar-obscurer\" class=\"login-subdialog modal\" style=\"display: block;\"></div>');
-	obscurer.html("<div class=\"modal-content\" style=\"width: 550px; height: 400px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Sign-in</div><iframe frameborder=\"0\" name=\"logintarget\" width=\"540px\" height=\"300px\" class=\"menubar-login-iframe\"></iframe><button class=\"jseden button-cancel\">Cancel</button></div>");
+	obscurer.html(`<div class="modal-content" style="width: 550px; height: 400px;"><div class="menubar-sharebox-title"><span class="menubar-shareicon">&#xf090;</span>${Language.ui.menu_bar.signin}</div><iframe frameborder="0" name="logintarget" width="540px" height="300px" class="menubar-login-iframe"></iframe><button class="jseden button-cancel">${Language.ui.menu_bar.cancel}</button></div>`);
 	obscurer.hide();
 
 	if (Eden.AST) eden.execute2("views_number_created = 0;", Symbol.defaultAgent);
@@ -26,21 +26,21 @@ EdenUI.MenuBar = function() {
 				<div id="menubar-searchresults"></div>\
 			</div></div>');
 	} else {
-		this.element = $('<div id="menubar-main" class="no-print">\
-			<a id="eden-logo" title="Home page in new tab" href="'+window.location.pathname+'" target="_blank" style="display: block"></a>\
-			<div class="jseden-title" title="Rename project"></div>\
-			<div id="menubar-login"><span class="icon">&#xf05e;</span>Not Connected</div>\
-			<div class="menubar-buttons">\
-				<div class="menubar-button enabled main share" data-obs="sharebox" title="Save or share" style="display: none;">&#xf1e0;<div id="menubar-mainitem-sharebox" class="menubar-menu"></div></div>\
-				<div class="menubar-button enabled main create" data-obs="views" title="Create Views" style="display: none;">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div>\
-				<div class="menubar-button enabled main existing" data-obs="existing" title="Existing" style="display: none;">&#xf2d2;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div>\
-				<div class="menubar-button enabled main settings" data-obs="options" title="Options" style="display: none;">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div>\
-				<div class="menubar-button enabled main help" data-obs="help" title="Help" style="display: none;">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div>\
-				<div class="menubar-button enabled main notifications" data-obs="notifications" title="Notifications">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div>\
-				<div class="menubar-button enabled main maker" data-obs="maker" title="Maker Mode">&#xf0ad;</div></div>\
-			<div class="searchouter menusearch" style="display: none;"><input type="text" class="search menusearch" placeholder="Search..." spellcheck="false"></input>\
-				<div id="menubar-searchresults"></div>\
-			</div></div>');
+		this.element = $(`<div id="menubar-main" class="no-print">
+			<a id="eden-logo" title="${Language.ui.tooltips.home_logo}" href="'+window.location.pathname+'" target="_blank" style="display: block"></a>
+			<div class="jseden-title" title="${Language.ui.tooltips.rename}"></div>
+			<div id="menubar-login"><span class="icon">&#xf05e;</span>${Language.ui.menu_bar.notconnected}</div>
+			<div class="menubar-buttons">
+				<div class="menubar-button enabled main share" data-obs="sharebox" title="${Language.ui.tooltips.save}" style="display: none;">&#xf1e0;<div id="menubar-mainitem-sharebox" class="menubar-menu"></div></div>
+				<div class="menubar-button enabled main create" data-obs="views" title="${Language.ui.tooltips.create}" style="display: none;">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div>
+				<div class="menubar-button enabled main existing" data-obs="existing" title="${Language.ui.tooltips.existing}" style="display: none;">&#xf2d2;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div>
+				<div class="menubar-button enabled main settings" data-obs="options" title="${Language.ui.tooltips.options}" style="display: none;">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div>
+				<div class="menubar-button enabled main help" data-obs="help" title="${Language.ui.tooltips.help}" style="display: none;">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div>
+				<div class="menubar-button enabled main notifications" data-obs="notifications" title="${Language.ui.tooltips.notifications}">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div>
+				<div class="menubar-button enabled main maker" data-obs="maker" title="${Language.ui.tooltips.maker}">&#xf0ad;</div></div>
+			<div class="searchouter menusearch" style="display: none;"><input type="text" class="search menusearch" placeholder="${Language.ui.menu_bar.search}" spellcheck="false"></input>
+				<div id="menubar-searchresults"></div>
+			</div></div>`);
 	}
 	$(document.body).append(this.element);
 
@@ -91,7 +91,7 @@ EdenUI.MenuBar = function() {
 		if (ismobile) {
 
 		} else {
-			$("#menubar-login").html('<span class="icon">&#xf090;</span>Sign-in');
+			$("#menubar-login").html(`<span class="icon">&#xf090;</span>${Language.ui.menu_bar.signin}`);
 		}
 	});
 
@@ -99,7 +99,7 @@ EdenUI.MenuBar = function() {
 		if (ismobile) {
 
 		} else {
-			$("#menubar-login").html('<span class="icon">&#xf05e;</span>Not Connected');
+			$("#menubar-login").html(`<span class="icon">&#xf05e;</span>${Language.ui.menu_bar.notconnected}`);
 			//me.notification("info", $('<div class="notification-content">Disconnected</div>'));
 		}
 	});
