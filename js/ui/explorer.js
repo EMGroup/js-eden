@@ -16,6 +16,7 @@ EdenUI.Explorer = function() {
 <div class="explore-script" style="display: none">
 </div>
 <div class="explore-settings" style="display: none">
+	<div style="font-size: 8pt">Note: Many of these do not work yet.</div>
 	<h1>Project</h1>
 	<div id="explorerprojectsettings" class="explorer-settings-list"></div>
 	<h1>Menu Bar</h1>
