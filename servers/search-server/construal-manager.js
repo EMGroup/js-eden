@@ -1028,7 +1028,7 @@ function processSelectorNode(t, criteria, criteriaVals, i){
 			criteriaVals["@projectID" + i] = t.value;
 			break;
 		case ".title":
-			riteria.push("title LIKE @title" + i);
+			criteria.push("title LIKE @title" + i);
 			criteriaVals["@title" + i] = t.param.replace(/\*/g,"%");
 			break;
 		case ":me":
