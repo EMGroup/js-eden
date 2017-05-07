@@ -337,6 +337,10 @@ Language.ui = {
 		options: "Asetukset",
 		help: "Auta"
 	},
+	"comments": {
+		signin: "Kirjaudu sisään kirjoittaaksesi kommentin...",
+		comments: "Kommentit"
+	},
 	"links": {
 		learnmore: "Lisätietoja",
 		conference2017: "Conference 2017",
@@ -352,7 +356,8 @@ Language.ui = {
 		ref: "Viite",
 		construit2017: "Construit 2017",
 		games: "Pelit",
-		edres: "Oppimateriaalit"
+		edres: "Oppimateriaalit",
+		seemore: "Katso lisää"
 	},
 	"input_window": {
 		title: "Skripti-ikkuna"

@@ -3,6 +3,44 @@ div#loadoptions {
 			/*top: 55px;*/
 		}
 
+div#footer {
+	font-family: "Source Sans Pro",Arial,sans-serif;
+	font-size: 9pt;
+	color: #666;
+	background: white;
+	padding: 40px;
+	box-sizing: border-box;
+	margin-top: 30px;
+	display: flex;
+	justify-content: space-between;
+	align-content: center;
+	border-top: 1px solid #ddd;
+}
+
+div#footerfunding {
+	width: 250px;
+	text-align: right;
+}
+
+div#footerlinks {
+	font-size: 11pt;
+	color: #666;
+	width: 40%;
+	line-height: 150%;
+}
+
+div#footerlinks a {
+	text-decoration: none;
+	color: #666;
+}
+
+div#footerlinks a:visited {
+	color: #666;
+}
+
+div#footerlinks a:hover {
+	color: black;
+}
 		
 
 		div.project-content {

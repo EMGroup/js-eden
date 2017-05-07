@@ -354,6 +354,10 @@ Language.ui = {
 		options: "Options",
 		help: "Help"
 	},
+	"comments": {
+		signin: "Sign-in to post a comment...",
+		comments: "Comments"
+	},
 	"links": {
 		learnmore: "Learn More",
 		conference2017: "Conference 2017",
@@ -369,13 +373,15 @@ Language.ui = {
 		ref: "Reference",
 		construit2017: "Construit 2017",
 		games: "Games",
-		edres: "Educational Resources"
+		edres: "Educational Resources",
+		seemore: "See More"
 	},
 	"welcome": {
 		
 	},
 	"input_window": {
-		title: "Script View"
+		title: "Script View",
+		run: "Run"
 	},
 	"canvas": {
 		title: "Canvas Picture"
