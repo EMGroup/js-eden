@@ -72,15 +72,14 @@ div.jseden-dialog-plisting {
 			box-sizing: border-box;
 			padding-left: 30px;
 			padding-right: 30px;
-			/*margin-bottom: 40px;*/
+			margin-bottom: 40px;
 			/*border: 1px solid #eee;*/
 			width: 100%;
-			height: 200px;
+			/*height: 200px;*/
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
 			overflow: hidden;
-			justify-content: space-between;
 		}
 
 		div.jseden-project-cat {
@@ -89,7 +88,7 @@ div.jseden-dialog-plisting {
 			color: #222;
 			/*font-weight: bold;*/
 			/*background: #416d77;*/
-			padding: 0 35px;
+			padding: 0 15px;
 			/*border-bottom: 1px solid #bbb;*/
 			margin-top: 10px;
 		}
@@ -144,8 +143,8 @@ button.script-button.projectmore {
 
 
 div.cadence-plisting-entry {
-			width: 200px;
-			height: 170px;
+			width: 120px;
+			height: 160px;
 			margin: 6px;
 			background-repeat: no-repeat;
 			cursor: pointer;
@@ -184,7 +183,7 @@ div.cadence-plisting-entry.special {
 			text-align: center;
 			padding-top: 10px;
 			padding-bottom: 10px;
-			height: 95px;
+			height: 67px;
 		}
 
 		div.cadence-plisting-img {
@@ -195,6 +194,8 @@ div.cadence-plisting-entry.special {
 			/*height: 112;*/
 			overflow: hidden;
 			display: flex;
+			width: 120px;
+			height: 67px;
 		}
 
 		div.cadence-plisting-icon.special {

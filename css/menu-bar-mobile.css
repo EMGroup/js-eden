@@ -3,16 +3,16 @@
 	left: 0px;
 	right: 0px;
 	top: 0px;
-	height: 45px;
+	height: 40px;
 	background-color: #29454B; /*#132023;*/
 	color:	white;
 	font-size: 14px;
-	font-family: 'Source Sans Pro', 'arial', sans-serif;
-	padding-left: 20px;
+	font-family: 'arial';
+	padding-left: 5px;
 	/*padding-top: 4px;*/
-	padding-right: 20px;
-	z-index: 2147483646; /* One less than max so that fullscreen works */
-	box-shadow: 0 0 15px black; /*#4a6887*/
+	padding-right: 5px;
+	z-index: 2147483647;
+	/*box-shadow: 0 0 15px black;*/
 }
 
 div.menubar-sharebox {
@@ -84,10 +84,10 @@ div.menubar-buttons {
 	width: 300px;*/
 	display: inline-block;
 	float: right;
-	height: 45px;
-	line-height: 45px;
-	margin-right: 20px;
-	padding-right: 25px;
+	height: 40px;
+	line-height: 40px;
+	/*margin-right: 20px;
+	padding-right: 25px;*/
 	border-right: 1px solid #444;
 	border-left: 1px solid #444;
 	padding-left: 25px;
@@ -248,8 +248,8 @@ div.menubar-button:hover {
 
 a#eden-logo {
 	position: absolute;
-	/*top: 8px;*/
-	left: 30px;
+	top: -1px;
+	left: 10px;
 	background-image: url('../images/construit_logo_4.png');
 	background-repeat: no-repeat;
 	width: 150px;
@@ -272,7 +272,7 @@ div.jseden-title[contenteditable] {
 	font-size: 18pt;
 	font-weight: bold;
 	position: absolute;
-	top: 5px;
+	top: 10px;
 	left: 200px;
 	color: white;
 	box-sizing: border-box;
@@ -315,7 +315,7 @@ div.jseden-subtitle {
 	-ms-user-select: none;
 	display: none;
 	font-size: 14px;
-	font-family: 'Source Sans Pro', 'arial', sans-serif;
+	font-family: 'arial';
 }
 
 
@@ -357,7 +357,7 @@ div.jseden-subtitle {
 }
 
 .menubar-item-separator {
-	margin-top: 5px;
+	/*margin-top: 10px;*/
 	margin-bottom: 5px;
 	font-weight: bold;
 	border-top-color: #777;
@@ -401,11 +401,6 @@ div.jseden-subtitle {
 .menubar-nonselectable {
 	cursor: default;
 }
-
-.menubar-nonselectable:first-child .menubar-item-separator {
-	margin-top: 0;
-}
-
 
 .menubar-nonselectable.menubar-item:hover {
 	background-color: inherit;
@@ -547,7 +542,6 @@ div.jseden-subtitle {
 	height: 45px;
 	float: right;
 	line-height: 45px;
-	padding-right: 10px;
 }
 
 #menubar-login:hover {
@@ -758,7 +752,7 @@ span.error-icon {
 }
 
 input.menusearch {
-	width: 300px;
+	width: 200px;
 	background: #0f191b;
 	color: white;
 	font-size: 10pt;
@@ -782,17 +776,19 @@ div.menusearch {
 	/*position: absolute;
 	left: 300px;
 	top: 7px;*/
-	margin-top: 10px;
-	float: right;
-	margin-right: 40px;
-	width: 320px;
+	margin-top: 7px;
+	/*float: right;*/
+	margin-left: 5px;
+	/*margin-right: 30px;*/
+	width: 220px;
 }
 
 #menubar-mainitem-sharebox {
-	width: 500px;
-	left: -358px;
+	width: 90%;
+	left: 5%;
 	cursor: initial;
 	padding-top: 5px;
+	position: absolute;
 }
 
 #menubar-mainitem-sharebox.menubar-menu:before {
@@ -805,9 +801,9 @@ div.menusearch {
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	-ms-user-select: none;
-	position: relative;
+	position: absolute;
 	font-weight: normal;
-	left: -50px;
+	/*left: -50px;*/
 	margin-top: 11px;
 	/*padding: 6px;*/
 	background-color: white;
@@ -816,7 +812,7 @@ div.menusearch {
 	border-width: 0 1px 1px 1px;
 	box-shadow: 0 0 10px #4a6887;
 	color: black;
-	width: 500px;
+	width: 80%;
 	text-align: left;
 	/*overflow-y: auto;*/
 	line-height: initial;
@@ -834,7 +830,7 @@ div.menusearch {
   border-bottom: 12px solid white;
 	position: absolute;
 	top: -11px;
-	left: 200px;
+	left: 150px;
 	z-index: 2;
 }
 

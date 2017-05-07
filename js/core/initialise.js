@@ -159,14 +159,17 @@ function Construit(options,callback) {
 			invalidVersion("Your browser is not supported by JS-Eden, use Firefox or Chrome.");
 		}
 
-		document.addEventListener("touchstart", touchHandler, true);
-		document.addEventListener("touchmove", touchHandler, true);
-		document.addEventListener("touchend", touchHandler, true);
-		document.addEventListener("touchcancel", touchHandler, true);
+		//document.addEventListener("touchstart", touchHandler, true);
+		//document.addEventListener("touchmove", touchHandler, true);
+		//document.addEventListener("touchend", touchHandler, true);
+		//document.addEventListener("touchcancel", touchHandler, true);
 
 		edenUI = new EdenUI(eden);
 		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
 		Eden.Project.init();
+
+		eden.ismobile = mobilecheck();
+		eden.root.lookup("jseden_mobile").assign(eden.ismobile, eden.root.scope, Symbol.defaultAgent);
 
 		// Put JS-EDEN version number or name in top-right corner.
 		$.ajax({

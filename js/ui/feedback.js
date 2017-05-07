@@ -2,6 +2,7 @@ EdenUI.Feedback = function() {
 	var icon = document.createElement("div");
 	icon.className = "feedback-icon noselect";
 	icon.innerHTML = "&#xf0e6;";
+	icon.title = Language.ui.tooltips.comments;
 	document.getElementById("jseden-views").appendChild(icon);
 
 	this.odialog = document.createElement("div");
@@ -15,7 +16,7 @@ EdenUI.Feedback = function() {
 
 	var title = document.createElement("div");
 	title.className = "feedback-title";
-	title.innerHTML = '<span class="feedback-icon2">&#xf0e6;</span><span class="feedback-title-text">Comments</span><span class="feedback-close">&#xf00d;</span>';
+	title.innerHTML = `<span class="feedback-icon2">&#xf0e6;</span><span class="feedback-title-text">${Language.ui.comments.comments}</span><span class="feedback-close">&#xf00d;</span>`;
 	this.dialog.appendChild(title);
 
 	var visSym = eden.root.lookup("jseden_feedback_visible");
@@ -78,7 +79,7 @@ EdenUI.Feedback = function() {
 	//buttons.innerHTML = '<button class="script-button">Comment</button>';
 
 	var signinmsg = document.createElement("div");
-	signinmsg.textContent = "Sign-in to post a comment...";
+	signinmsg.textContent = Language.ui.comments.signin;
 	signinmsg.style.display = "none";
 	signinmsg.className = "feedback-signinmsg";
 	this.dialog.appendChild(signinmsg);

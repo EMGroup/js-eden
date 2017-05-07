@@ -1,31 +1,82 @@
 EdenUI.Explorer = function() {
 	var me = this;
 
-	this.element = $('<div class="explore-main">\
-<div class=\"explore-tabs\">\
-	<div class=\"explore-tab-container\">\
-		<div class=\"explore-tab explore-tab-current\" data-name="state">State</div>\
-		'+ //<div class=\"explore-tab explore-tab-notcurrent\" data-name="scripts">Scripts</div>
+	this.element = $(`<div class="explore-main">
+<div class=\"explore-tabs\">
+	<div class=\"explore-tab-container\">
+		<div class=\"explore-tab explore-tab-current\" data-name="state">${Language.ui.explorer.state}</div>
+		<div class="explore-tab explore-tab-notcurrent" data-name="scripts">Agents</div>
+		<div class="explore-tab explore-tab-notcurrent" data-name="settings">Settings</div>
+`+
 		 //<div class=\"explore-tab explore-tab-notcurrent\" data-name="palette">Palette</div>
-'	</div>\
-</div>\
-<div class="explore-state">\
-</div>\
-<div class="explore-script" style="display: none">\
-</div>\
-<div class="explore-console">\
-	<div class="explore-console-buttons">\
-		<div style="margin-top: 4px; float: left;">Script Input</div>\
-		<button class="control-button clear-button control-enabled" style="float: right;">&#xf05e;</button>\
-	</div>\
-	<div class="explore-console-code"></div>\
-</div>\
-</div>');
+`	</div>
+</div>
+<div class="explore-state">
+</div>
+<div class="explore-script" style="display: none">
+</div>
+<div class="explore-settings" style="display: none">
+	<div style="font-size: 8pt">Note: Many of these do not work yet.</div>
+	<h1>Project</h1>
+	<div id="explorerprojectsettings" class="explorer-settings-list"></div>
+	<h1>Menu Bar</h1>
+	<div id="explorermenusettings" class="explorer-settings-list"></div>
+	<h1>Search</h1>
+	<div id="explorersearchsettings" class="explorer-settings-list"></div>
+	<h1>Parser</h1>
+	<div id="explorerparsersettings" class="explorer-settings-list"></div>
+	<h1>Script Views</h1>
+	<div id="explorerscriptviewsettings" class="explorer-settings-list"></div>
+</div>
+<div class="explore-console">
+	<div class="explore-console-buttons">
+		<div style="margin-top: 4px; float: left;">${Language.ui.explorer.input}</div>
+		<button class="control-button clear-button control-enabled" title="${Language.ui.tooltips.clear}" style="float: right;">&#xf05e;</button>
+	</div>
+	<div class="explore-console-code"></div>
+</div>
+</div>`);
 	$("#jseden-main").append(this.element);
 
 	this.consoleele = this.element.find(".explore-console-code");
 	this.expscripts = this.element.find(".explore-script");
 	this.expstate = this.element.find(".explore-state");
+	this.expsettings = this.element.find(".explore-settings");
+
+	// Make the settings
+	var curset = this.expsettings.find('#explorerprojectsettings').get(0);
+	this.addSetting(curset, "jseden_project_nocomments", "Disable comments", "", "boolean");
+	this.addSetting(curset, "jseden_project_nocomments", "Disable forking", "", "boolean");
+
+	var curset = this.expsettings.find('#explorermenusettings').get(0);
+	this.addSetting(curset, "jseden_menu_visible", "Menu visible", "", "boolean");
+	this.addSetting(curset, "jseden_menu_showhelp", "Show Help", "", "boolean");
+	this.addSetting(curset, "jseden_menu_showsearch", "Show Search", "", "boolean");
+	this.addSetting(curset, "jseden_menu_showcreate", "Show Create Views", "", "boolean");
+	this.addSetting(curset, "jseden_menu_showexisting", "Show Existing", "", "boolean");
+	this.addSetting(curset, "jseden_menu_showshare", "Show Share", "", "boolean");
+	this.addSetting(curset, "jseden_explorer_enabled", "Allow Spanner Panel", "", "boolean");
+
+	curset = this.expsettings.find('#explorersearchsettings').get(0);
+	this.addSetting(curset, "jseden_search_history", "Include Historic", "", "boolean");
+	this.addSetting(curset, "jseden_search_external", "Always include external", "", "boolean");
+	this.addSetting(curset, "jseden_search_all", "Don't make unique", "", "boolean");
+	this.addSetting(curset, "jseden_search_nosort", "Don't sort by time", "", "boolean");
+
+	curset = this.expsettings.find('#explorerparsersettings').get(0);
+	this.addSetting(curset, "jseden_parser_strict", "Strict mode", "", "boolean");
+	this.addSetting(curset, "jseden_parser_noliterals", "No literals in expressions", "", "boolean");
+	this.addSetting(curset, "jseden_parser_noexprover", "No override expressions", "", "boolean");
+	this.addSetting(curset, "jseden_parser_warndeprecate", "Show deprecation warnings", "", "boolean");
+	this.addSetting(curset, "jseden_parser_errordeprecate", "Make deprecated an error", "", "boolean");
+
+	curset = this.expsettings.find('#explorerscriptviewsettings').get(0);
+	this.addSetting(curset, "jseden_script_query", "Default browse query", "", "text");
+	this.addSetting(curset, "jseden_script_buttons", "Show buttons", "", "boolean");
+	this.addSetting(curset, "jseden_script_highlighting", "Disable highlighting", "", "boolean");
+	this.addSetting(curset, "jseden_script_styling", "Disable comment styling", "", "boolean");
+	this.addSetting(curset, "jseden_script_hidecomments", "Hide all comments", "", "boolean");
+	this.addSetting(curset, "jseden_script_readonly", "All readonly", "", "boolean");
 
 	this.element.resizable({
 		handles: "w",
@@ -56,11 +107,17 @@ EdenUI.Explorer = function() {
 		if (name == "state") {
 			me.expstate.css("display","flex");
 			me.expscripts.css("display", "none");
+			me.expsettings.css("display","none");
 		} else if (name == "scripts") {
 			me.expstate.css("display","none");
 			me.expscripts.css("display","flex");
+			me.expsettings.css("display","none");
 		} else if (name == "palette") {
 
+		} else if (name == "settings") {
+			me.expstate.css("display","none");
+			me.expsettings.css("display","block");
+			me.expscripts.css("display", "none");
 		}
 	});	
 
@@ -120,6 +177,47 @@ EdenUI.Explorer = function() {
 	});
 	if (zoomVal === undefined) zoomSym.assign(1, eden.root.scope, Symbol.defaultAgent);
 
+}
+
+EdenUI.Explorer.prototype.addSetting = function(root, obs, plabel, tip, type) {
+	var outer = document.createElement("div");
+	outer.className = "explorer-setting";
+	outer.title = tip;
+	var label = document.createElement("span");
+	label.textContent = plabel;
+	label.className = "explorer-setting-label";
+	outer.appendChild(label);
+
+	var input = document.createElement("input");
+	var sym = eden.root.lookup(obs);
+	var val = sym.value();
+
+	switch(type) {
+	case "boolean":		input.setAttribute("type","checkbox"); break;
+	case "string":		input.setAttribute("type","text"); break;
+	}
+
+	input.onchange = function(e) {
+		if (type == "boolean") {
+			sym.assign(input.checked, eden.root.scope, Symbol.localJSAgent);
+		} else {
+			sym.assign(input.value, eden.root.scope, Symbol.localJSAgent);
+		}
+	}
+
+	function update(sym, value) {
+		if (sym.orign instanceof InternalAgent) return;
+		if (type == "boolean") {
+			input.checked = value;
+		} else {
+			input.value = value;
+		}
+	}
+	update(sym,val);
+	sym.addJSObserver("settings", update);
+
+	outer.appendChild(input);
+	root.appendChild(outer);
 }
 
 

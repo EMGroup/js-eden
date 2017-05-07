@@ -5,6 +5,8 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 	this.meta = undefined;
 	this.newtab = newtab;
 
+	var ismobile = mobilecheck();
+
 	// Create a modal obscurer.
 	this.obscurer = $('<div class=\"modal\" style=\"display: block;\"></div>');
 
@@ -13,7 +15,11 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 	});
 
 	// Create a centered dialog.
-	this.dialog = $('<div class="modal-content" style="width: 600px"></div>');
+	if (ismobile) {
+		this.dialog = $('<div class="modal-content"></div>');
+	} else {
+		this.dialog = $('<div class="modal-content" style="width: 600px"></div>');
+	}
 	this.obscurer.append(this.dialog);
 
 	document.body.appendChild(this.obscurer.get(0));
@@ -226,6 +232,8 @@ EdenUI.ProjectDetails._searchProjects = function(query, output, pub, projects, c
 
 	if (projects === undefined) return;
 
+	var imgwidth = (mobilecheck()) ? 120 : 200;
+
 	for (var i=0; i<projects.length; i++) {
 		var meta = projects[i];
 		var t = meta.date.split(/[- :]/);
@@ -258,7 +266,7 @@ EdenUI.ProjectDetails._searchProjects = function(query, output, pub, projects, c
 		var ele;
 		//Eden.DB.getMeta(path+"/"+x,function(path,meta) {
 		if (thumb !== null) {
-			ele = $('<div class="cadence-plisting-entry project noselect'+((locked)?' locked':'')+'" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-img"><img src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>');
+			ele = $('<div class="cadence-plisting-entry project noselect'+((locked)?' locked':'')+'" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-img"><img width="'+imgwidth+'" src="'+thumb+'"></img></div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>');
 		} else {
 			ele = $('<div class="cadence-plisting-entry project noselect'+((locked)?' locked':'')+'" data-pid="'+(meta.projectID)+'"><div class="cadence-plisting-icon">&#xf0c3;</div><div class="cadence-plisting-title">'+title+'</div><div class="cadence-plisting-subtitle">'+subtitle+'</div></div>');
 			//console.log(Eden.DB.meta[path+"/"+x]);

@@ -202,7 +202,8 @@ module.exports = function (grunt) {
 					'./js/fragment.js',
 					'./js/query.js',
 					'./js/generator.js',
-					'./js/peer.js'
+					'./js/peer.js',
+					'./js/core/engine.js'
 				],
 				'./js/ui/jseden-ui.min.js': [
 					'./js/ui/highlighter.js',

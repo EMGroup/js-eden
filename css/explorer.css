@@ -32,7 +32,8 @@ div.explore-symbols {
 	overflow-y: auto;
 	padding-left: 5px;
 	padding-top: 5px;
-	font-size: 10pt;
+	/*font-size: 10pt;*/
+	font-family: "Source Sans Pro",Arial,Helvetica,sans-serif;
 }
 
 div.explore-console {
@@ -102,6 +103,14 @@ div.explore-entry:after {
 	top: 2px;
 	width: 0px;
 	height: 100%;
+}
+
+div.explore-entry.missing {
+	opacity: 0.5;
+}
+
+div.explore-entry.defined {
+	color: #00a000;
 }
 
 div.explore-entry.active:after {
@@ -212,7 +221,7 @@ div.explore-entry-inner {
 }
 
 div.explore-entry-inner:hover {
-	background: #e5e5e5;
+	/*background: #e5e5e5;*/
 }
 
 div.symvalue {
@@ -225,8 +234,10 @@ div.symvalue {
 }
 
 div.symvalue:hover {
-	max-width: 400px;
-	white-space: pre-wrap;
+	/*max-width: 400px;
+	white-space: pre-wrap;*/
+	border: 1px solid #ddd;
+	box-sizing: border-box;
 }
 
 span.explore-expand-value {
@@ -315,6 +326,31 @@ div.explore-state {
 	display: flex;
 	flex-direction: column;
 	flex-grow: 2;
+}
+
+div.explore-settings {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 2;
+	background: #eee;
+	font-family: "Source Sans Pro",Arial,Helvetica,sans-serif;
+	padding: 0 20px;
+	overflow-y: auto;
+}
+
+div.explore-settings h1 {
+	color: #666;
+	font-size: 16pt;
+}
+
+div.explorer-settings-list {
+	display: flex;
+	flex-direction: column;
+	margin-left: 10px;
+}
+
+span.explorer-setting-label {
+	padding-right: 20px;
 }
 
 div.explore-script {

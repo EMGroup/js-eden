@@ -180,8 +180,6 @@ ${{
 # @param [filled] Whether to fill the arrowhead or just draw an outline. Defaults to true.
 # 
 #  #canvas #arrow #arrowhead #shape #arrow #library #draw
- */
-
 func Arrowhead {
 	${{
 		var argsProcessed;

@@ -153,8 +153,8 @@ Eden.AST.prototype.doxyFromOrigin = function() {
 }
 
 Eden.AST.originFromDoxy = function(doxy) {
-	if (doxy === undefined) return;
 	var norig = {};
+	if (doxy === undefined) return norig;
 
 	var ctrls = doxy.getControls();
 	if (ctrls["@title"]) norig.title = ctrls["@title"][0];
