@@ -7,7 +7,7 @@
 	background-color: #29454B; /*#132023;*/
 	color:	white;
 	font-size: 14px;
-	font-family: 'arial';
+	font-family: 'Source Sans Pro', 'arial', sans-serif;
 	padding-left: 20px;
 	/*padding-top: 4px;*/
 	padding-right: 20px;
@@ -272,7 +272,7 @@ div.jseden-title[contenteditable] {
 	font-size: 18pt;
 	font-weight: bold;
 	position: absolute;
-	top: 10px;
+	top: 5px;
 	left: 200px;
 	color: white;
 	box-sizing: border-box;
@@ -315,7 +315,7 @@ div.jseden-subtitle {
 	-ms-user-select: none;
 	display: none;
 	font-size: 14px;
-	font-family: 'arial';
+	font-family: 'Source Sans Pro', 'arial', sans-serif;
 }
 
 
@@ -357,7 +357,7 @@ div.jseden-subtitle {
 }
 
 .menubar-item-separator {
-	/*margin-top: 10px;*/
+	margin-top: 5px;
 	margin-bottom: 5px;
 	font-weight: bold;
 	border-top-color: #777;
@@ -401,6 +401,11 @@ div.jseden-subtitle {
 .menubar-nonselectable {
 	cursor: default;
 }
+
+.menubar-nonselectable:first-child .menubar-item-separator {
+	margin-top: 0;
+}
+
 
 .menubar-nonselectable.menubar-item:hover {
 	background-color: inherit;
@@ -542,6 +547,7 @@ div.jseden-subtitle {
 	height: 45px;
 	float: right;
 	line-height: 45px;
+	padding-right: 10px;
 }
 
 #menubar-login:hover {
