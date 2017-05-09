@@ -14,6 +14,7 @@ Eden.Project = function(id, name, source) {
 	this.thumb = undefined;
 	this.desc = undefined;
 	this.readPassword = undefined;
+	this.autosavetimeout = undefined;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
 	}
@@ -47,6 +48,10 @@ Eden.Project.init = function() {
 			Eden.Fragment.emit("aststatus", [eden.project.ast.script]);
 		}
 	});
+
+	//Eden.Fragment.listenTo("status", this, function() {
+	//	if (eden.project) eden.project.autosave();
+	//});
 
 	$.get("resources/projects.db.json", function(data) {
 		Eden.Project.local = data;
@@ -254,11 +259,24 @@ Eden.Project.prototype.restore = function() {
 }
 
 Eden.Project.prototype.autosave = function() {
-	Eden.DB.localSave(this);
+	if (this.autosavetimeout) {
+		return;
+	}
+
+	var me = this;
+	this.autosavetimeout = setTimeout(function() {
+		this.autosavetimeout = undefined;
+		Eden.DB.localSave(me);
+		console.log("Doing an autosave");
+	}, 10000);
 }
 
 Eden.Project.prototype.patch = function(oldast, newast) {
 
+}
+
+Eden.Project.prototype.localSave = function() {
+	Eden.DB.localSave(this);
 }
 
 Eden.Project.prototype.snapshot = function() {

@@ -90,6 +90,12 @@ EdenUI.Sharebox = function(element) {
 	});
 
 
+	this.sharebox.on("click",".local", function(e) {
+		Eden.DB.localSave(eden.project);
+		me.sharebox.hide();
+	});
+
+
 	this.sharebox.on("click",".upload", function(e) {
 		//var title = me.element.find(".jseden-title").get(0).textContent;
 		var title = me.title.textContent;
@@ -227,7 +233,7 @@ EdenUI.Sharebox.prototype.update = function() {
 		}		
 		me.sharebox.find("#projectoptions").show();
 	} else {
-		me.sharebox.find("#projectuploadbox").html('<div class="sharebox-save-buttons"><span class="downloadurl"></span></div>');
+		me.sharebox.find("#projectuploadbox").html('<div class="sharebox-save-buttons"><button class="sharebox-button local" title="Save in your browser for offline use">Local</button><span class="downloadurl"></span></div>');
 		me.sharebox.find("#projectoptions").hide();
 	}
 

@@ -329,16 +329,6 @@ Eden.DB.loadLocal = function(id) {
 		var desc = window.localStorage.getItem(prefix+"_desc");
 		var title = window.localStorage.getItem(prefix+"_title");
 		if (src && src != "") {
-			//eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
-			/*eden.project = new Eden.Project(id, title, src);
-			eden.project.vid = vid;
-			eden.project.author = author;
-			eden.project.name = name;
-			eden.project.authorid = authorid;
-			eden.project.thumb = thumb;
-			eden.project.desc = desc;
-			eden.project.start();*/
-
 			return {
 				source: src,
 				saveID: vid,
