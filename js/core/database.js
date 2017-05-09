@@ -214,7 +214,28 @@ Eden.DB.getLoginName = function(callback) {
 	}
 }
 
+Eden.DB.localSave = function(project) {
+	if (window.localStorage) {
+		var prefix = "project_"+project.id;
+		window.localStorage.setItem(prefix+"_project", project.generate());
+		window.localStorage.setItem(prefix+"_id", project.id);
+		window.localStorage.setItem(prefix+"_vid", project.vid);
+		window.localStorage.setItem(prefix+"_author", project.author);
+		window.localStorage.setItem(prefix+"_authorid", project.authorid);
+		window.localStorage.setItem(prefix+"_name", project.name);
+		window.localStorage.setItem(prefix+"_title", project.title);
+		window.localStorage.setItem(prefix+"_thumb", project.thumb);
+		window.localStorage.setItem(prefix+"_desc", project.desc);
+
+		var plist = JSON.parse(window.localStorage.getItem("project_list"));
+		plist[project.id] = true;
+		window.localStorage.setItem("project_list", JSON.stringify(plist));
+	}
+}
+
 Eden.DB.save = function(project, ispublic, callback) {
+	Eden.DB.localSave(project);
+
 	if (Eden.DB.isConnected()) {
 		$.ajax({
 			url: this.remoteURL+"/project/add",
@@ -256,9 +277,9 @@ Eden.DB.save = function(project, ispublic, callback) {
 			}
 		});
 	} else {
-		console.error("Cannot upload, not connected to server");
+		console.error("Cannot upload, not connected to server. Local save only.");
 		if (callback) callback(false);
-		eden.error("Cannot upload "+path+", not connected to server");
+		eden.error("Cannot upload "+path+", not connected to server. Local save only");
 	}
 }
 
@@ -281,6 +302,50 @@ Eden.DB.getVersions = function(pid, callback) {
 		});
 	} else {
 		callback(undefined);
+	}
+}
+
+
+Eden.DB.loadLocal = function(id) {
+	if (window.localStorage) {
+		var prefix = "project_"+id;
+		var src = window.localStorage.getItem(prefix+"_project");
+		var id = window.localStorage.getItem(prefix+"_id");
+		if (id == "undefined") id = undefined;
+		var vid = window.localStorage.getItem(prefix+"_vid");
+		if (vid == "undefined") vid = undefined;
+		var author = window.localStorage.getItem(prefix+"_author");
+		if (author == "undefined") author = undefined;
+		var authorid = window.localStorage.getItem(prefix+"_authorid");
+		var name = window.localStorage.getItem(prefix+"_name");
+		var thumb = window.localStorage.getItem(prefix+"_thumb");
+		if (thumb == "undefined") thumb = undefined;
+		var desc = window.localStorage.getItem(prefix+"_desc");
+		var title = window.localStorage.getItem(prefix+"_title");
+		if (src && src != "") {
+			//eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
+			eden.project = new Eden.Project(id, title, src);
+			eden.project.vid = vid;
+			eden.project.author = author;
+			eden.project.name = name;
+			eden.project.authorid = authorid;
+			eden.project.thumb = thumb;
+			eden.project.desc = desc;
+			eden.project.start();
+
+			return {
+				source: src,
+				saveID: vid,
+				title: title,
+				ownername: author,
+				owner: authorid,
+				image: thumb,
+				tags: "",
+				parentProject: null,
+				minimisedTitle: name,
+				projectMetaData: '{"description": "'+desc+'"}'
+			};
+		}
 	}
 }
 

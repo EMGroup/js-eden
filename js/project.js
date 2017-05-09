@@ -216,51 +216,12 @@ Eden.Project.prototype.save = function(pub, callback) {
 	Eden.DB.save(this, pub, callback);
 }
 
-Eden.Project.restore = function() {
-	if (window.localStorage) {
-		var src = window.localStorage.getItem("last_project");
-		var id = window.localStorage.getItem("last_id");
-		if (id == "undefined") id = undefined;
-		var vid = window.localStorage.getItem("last_vid");
-		if (vid == "undefined") vid = undefined;
-		var author = window.localStorage.getItem("last_author");
-		if (author == "undefined") author = undefined;
-		var authorid = window.localStorage.getItem("last_authorid");
-		var name = window.localStorage.getItem("last_name");
-		var thumb = window.localStorage.getItem("last_thumb");
-		if (thumb == "undefined") thumb = undefined;
-		var desc = window.localStorage.getItem("last_desc");
-		var title = window.localStorage.getItem("last_title");
-		if (src && src != "") {
-			eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
-			eden.project = new Eden.Project(id, title, src);
-			eden.project.vid = vid;
-			eden.project.author = author;
-			eden.project.name = name;
-			eden.project.authorid = authorid;
-			eden.project.thumb = thumb;
-			eden.project.desc = desc;
-			eden.project.start();
-		}
-	}
-}
-
 Eden.Project.prototype.restore = function() {
 	// Get local patches and do apply them...
 }
 
-Eden.Project.prototype.localSave = function() {
-	if (window.localStorage) {
-		window.localStorage.setItem("last_project", this.generate());
-		window.localStorage.setItem("last_id", this.id);
-		window.localStorage.setItem("last_vid", this.vid);
-		window.localStorage.setItem("last_author", this.author);
-		window.localStorage.setItem("last_authorid", this.authorid);
-		window.localStorage.setItem("last_name", this.name);
-		window.localStorage.setItem("last_title", this.title);
-		window.localStorage.setItem("last_thumb", this.thumb);
-		window.localStorage.setItem("last_desc", this.desc);
-	}
+Eden.Project.prototype.autosave = function() {
+	Eden.DB.localSave(this);
 }
 
 Eden.Project.prototype.patch = function(oldast, newast) {
