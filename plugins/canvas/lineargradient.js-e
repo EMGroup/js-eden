@@ -1,33 +1,29 @@
-## Copyright (c) 2015, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
+# Copyright (c) 2015, Empirical Modelling Group
+# All rights reserved.
+#
+# See LICENSE.txt
 
-##Example:
-/**
- * Creates a LinearGradient that can be used to colour shapes
- * @param x1 X-coordinate for start
- * @param y1 Y-coordinate for start
- * @param x2 X-coordinate for end
- * @param y2 Y-coordinate for end
- * @param [start_colour Start Colour
- * @param end_colour] End Colour
- * @param [extra_colour_stops] A list of two item lists.  The first element of each is a point along the gradient (0.0-1.0).  The second is the colour.
- * 
- * Usage example: 
- * 
- * ```
- * 	x = 50;
- * 	y = 50;
- * 	width = 400;
- * 	height = 250;
- * 	gradient is LinearGradient(x, y, x + width, y + height, "cyan", "blue");
- * 	rect is Rectangle(x, y, width, height, gradient);
- * 	picture is [rect];
- * ```
- * #canvas #colour #gradient #lineargradient
-*/
 
+#! Creates a LinearGradient that can be used to colour shapes.
+# @param x1 X-coordinate for start
+# @param y1 Y-coordinate for start
+# @param x2 X-coordinate for end
+# @param y2 Y-coordinate for end
+# @param [start_colour Start Colour
+# @param end_colour] End Colour
+# @param [extra_colour_stops] A list of two item lists.  The first element of each is a point along the gradient (0.0-1.0).  The second is the colour.
+# 
+# Usage example: 
+# 
+# 	`x = 50;`
+# 	`y = 50;`
+# 	`width = 400;`
+# 	`height = 250;`
+# 	`gradient is LinearGradient(x, y, x + width, y + height, "cyan", "blue");`
+# 	`rect is Rectangle(x, y, width, height, gradient);`
+# 	`picture is [rect];`
+#
+#  #canvas #colour #gradient #lineargradient #library
 func LinearGradient {
 	${{
 		var x1 = arguments[0];
