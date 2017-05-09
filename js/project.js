@@ -50,6 +50,35 @@ Eden.Project.init = function() {
 
 	$.get("resources/projects.db.json", function(data) {
 		Eden.Project.local = data;
+
+		// Also add local storage projects
+		var plist = JSON.parse(window.localStorage.getItem("project_list"));
+		if (plist !== null) {
+			for (var x in plist) {
+				var prefix = "project_"+x;
+				//var src = window.localStorage.getItem(prefix+"_project");
+				var id = window.localStorage.getItem(prefix+"_id");
+				if (id == "undefined") id = undefined;
+				var vid = window.localStorage.getItem(prefix+"_vid");
+				if (vid == "undefined") vid = undefined;
+				var author = window.localStorage.getItem(prefix+"_author");
+				if (author == "undefined") author = undefined;
+				var authorid = window.localStorage.getItem(prefix+"_authorid");
+				var name = window.localStorage.getItem(prefix+"_name");
+				var thumb = window.localStorage.getItem(prefix+"_thumb");
+				if (thumb == "undefined") thumb = undefined;
+				var desc = window.localStorage.getItem(prefix+"_desc");
+				var title = window.localStorage.getItem(prefix+"_title");
+
+				Eden.Project.local[name] = {
+					author: author,
+					listed: true,
+					title: title,
+					image: thumb,
+					id: id
+				};
+			}
+		}
 	}, "json");
 
 	// Watch to trigger whens
@@ -74,14 +103,18 @@ Eden.Project.newFromExisting = function(name, cb) {
 	Eden.Project.emit("loading", [me]);
 
 	if (Eden.Project.local[name]) {
-		$.get(Eden.Project.local[name].file, function(data) {
-			eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
-			eden.project = new Eden.Project(undefined, name, data);
-			eden.project.start(function () {
-				Eden.Project.emit("load", [me]);
-				if (cb) cb(eden.project);
-			});
-		}, "text");
+		if (Eden.Project.local[name].id) {
+			Eden.Project.load(Eden.Project.local[name].id, undefined, undefined, cb);
+		} else {
+			$.get(Eden.Project.local[name].file, function(data) {
+				eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
+				eden.project = new Eden.Project(undefined, name, data);
+				eden.project.start(function () {
+					Eden.Project.emit("load", [me]);
+					if (cb) cb(eden.project);
+				});
+			}, "text");
+		}
 	} else {
 		
 	}

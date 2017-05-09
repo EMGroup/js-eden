@@ -134,7 +134,7 @@ Eden.AST.Scope.prototype._generate_plain_range = function(ctx, options) {
 }
 
 Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex) {
-	console.log("LOOP RANGE INDEX", rangeindex);
+	//console.log("LOOP RANGE INDEX", rangeindex);
 	var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
 	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]",{bound: false});
 	var res = "(function() {\n";
