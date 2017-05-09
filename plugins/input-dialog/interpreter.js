@@ -99,6 +99,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var value = e.originalEvent.dataTransfer.getData("selector");
 		if (!value || value == "") {
 			console.log(e.originalEvent.dataTransfer.files);
+
+			// This should go somewhere else...
+			Eden.Project.loadFromFile(e.originalEvent.dataTransfer.files[0]);
+
 			e.preventDefault();
 			return;
 		}

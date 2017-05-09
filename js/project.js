@@ -103,6 +103,24 @@ Eden.Project.init = function() {
 	});*/
 }
 
+Eden.Project.loadFromFile = function(file) {
+	var filename = file.name;
+	filename = filename.substring(0,filename.lastIndexOf("."));
+	filename = filename.replace(/\([0-9]+\)/,"");
+	console.log("FILE",file);
+
+	Eden.Project.emit("loading", [this]);
+
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		//Eden.loadFromString(e.target.result);
+		eden.project = new Eden.Project(undefined, filename, e.target.result.replace(/\r/g,""));
+		eden.project.start();
+		//importfile.css("display","none");
+	};
+	reader.readAsText(file);
+}
+
 Eden.Project.newFromExisting = function(name, cb) {
 	var me = this;
 	Eden.Project.emit("loading", [me]);
