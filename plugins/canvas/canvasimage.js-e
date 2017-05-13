@@ -42,36 +42,63 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 	this.sy = sy1;
 	this.smoothed = smoothed;
 
-	this.image = new Image();
-	//this.image.setAttribute("crossorigin","anonymous");	
-	this.canvasesToRepaint = {};
-	this.loaded = false;
-	
-	var me = this;
-	
-	this.image.onload = function() {
-		if (me.sWidth === undefined) {
-			me.sWidth = me.image.width - me.sx;
-		}
-		if (me.sHeight === undefined) {
-			me.sHeight = me.image.height - me.sy;
-		}
-		if (me.dWidth === undefined && me.dHeight === undefined) {
-			me.dWidth = me.sWidth;
-			me.dHeight = me.sHeight;		
-		} else if (me.dWidth === undefined) {
-			me.dWidth = me.sWidth * me.dHeight / me.sHeight;
-		} else if (me.dHeight === undefined) {
-			me.dHeight = me.sHeight * me.dWidth / me.sWidth;
-		}
+	if (CanvasImage.cache[file]) {
+		this.image = CanvasImage.cache[file];
+		this.loaded = this.image.complete;
 
-		me.loaded = true;
-		for (var viewName in me.canvasesToRepaint) {
-			edenUI.plugins.Canvas2D.drawPicture(viewName);
+		var me = this;
+
+		if (this.loaded) {
+			if (me.sWidth === undefined) {
+				me.sWidth = me.image.width - me.sx;
+			}
+			if (me.sHeight === undefined) {
+				me.sHeight = me.image.height - me.sy;
+			}
+			if (me.dWidth === undefined && me.dHeight === undefined) {
+				me.dWidth = me.sWidth;
+				me.dHeight = me.sHeight;		
+			} else if (me.dWidth === undefined) {
+				me.dWidth = me.sWidth * me.dHeight / me.sHeight;
+			} else if (me.dHeight === undefined) {
+				me.dHeight = me.sHeight * me.dWidth / me.sWidth;
+			}
 		}
+	} else {
+		this.image = new Image();
+		//this.image.setAttribute("crossorigin","anonymous");	
+		this.canvasesToRepaint = {};
+		this.loaded = false;
+	
+		var me = this;
+	
+		this.image.onload = function() {
+			if (me.sWidth === undefined) {
+				me.sWidth = me.image.width - me.sx;
+			}
+			if (me.sHeight === undefined) {
+				me.sHeight = me.image.height - me.sy;
+			}
+			if (me.dWidth === undefined && me.dHeight === undefined) {
+				me.dWidth = me.sWidth;
+				me.dHeight = me.sHeight;		
+			} else if (me.dWidth === undefined) {
+				me.dWidth = me.sWidth * me.dHeight / me.sHeight;
+			} else if (me.dHeight === undefined) {
+				me.dHeight = me.sHeight * me.dWidth / me.sWidth;
+			}
+
+			me.loaded = true;
+			for (var viewName in me.canvasesToRepaint) {
+				edenUI.plugins.Canvas2D.drawPicture(viewName);
+			}
+		}
+		this.image.src = file;
+		CanvasImage.cache[file] = this.image;
 	}
-	this.image.src = file;
 };
+
+CanvasImage.cache = {};
 }}$;
 
 #! Creates an image element for display on the canvas together with the
