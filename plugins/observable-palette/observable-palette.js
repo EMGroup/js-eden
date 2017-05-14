@@ -122,7 +122,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			} else if (value == "string") {
 				initValue = "";
 			}
-			symbol.assign(initValue, Symbol.hciAgent, true);
+			symbol.assign(initValue, EdenSymbol.hciAgent, true);
 		}
 		typeList.on("change", changeType);
 
@@ -302,7 +302,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			var slider = sliderJQ[0];
 
 			sliderJQ.on("input", function (event) {
-				symbol.assign(parseFloat(slider.value), Symbol.hciAgent, true);
+				symbol.assign(parseFloat(slider.value), EdenSymbol.hciAgent, true);
 			});
 
 			var table = $('<table class="observable-palette-number-controls"></table>');
@@ -326,7 +326,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 					slider.min = minStr;
 					var value = symbol.value();
 					if (min >= 0 && value < min) {
-						symbol.assign(min, Symbol.hciAgent, true);
+						symbol.assign(min, EdenSymbol.hciAgent, true);
 					}
 				}
 			});
@@ -359,7 +359,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 					maxElem.value = newMax;
 					var value = symbol.value();
 					if (value < min) {
-						symbol.assign(min, Symbol.hciAgent, true);
+						symbol.assign(min, EdenSymbol.hciAgent, true);
 					}
 				}
 			});
@@ -378,7 +378,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 				var valueStr = event.target.value;
 				if (valueStr != "") {
 					slider.value = valueStr;
-					symbol.assign(parseFloat(valueStr), Symbol.hciAgent, true);
+					symbol.assign(parseFloat(valueStr), EdenSymbol.hciAgent, true);
 				}
 			});
 			valueInput.on("focus", function (event) {
@@ -388,7 +388,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			valueInput.on("blur", function (event) {
 				var valueStr = event.target.value;
 				if (valueStr == "") {
-					symbol.assign(parseFloat(valueStrOnEntry), Symbol.hciAgent, true);
+					symbol.assign(parseFloat(valueStrOnEntry), EdenSymbol.hciAgent, true);
 				} else {
 					var value = symbol.value();
 					var min = parseFloat(slider.min);
@@ -540,7 +540,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 
 			textboxJQ.on("input", function (event) {
 				var value = textbox.value;
-				symbol.assign(value, Symbol.hciAgent, true);
+				symbol.assign(value, EdenSymbol.hciAgent, true);
 				textbox.style.height = "";
 				textbox.style.height = String(textbox.scrollHeight + 4) + "px";
 			});

@@ -128,19 +128,19 @@ Checkbox.prototype.draw = function(context) {
 			} else {
 				value = element.checked;
 			}
-			valueSym.assign(value, root.scope, Symbol.hciAgent, true);
+			valueSym.assign(value, root.scope, EdenSymbol.hciAgent, true);
 		})
 
 		elementJQ.on("mousedown", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseDownZone").assign(undefined, root.scope, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseDownZone").assign(undefined, root.scope, EdenSymbol.hciAgent, mouseFollow);
 		})
 		.on("mouseup", function () {
 			edenUI.plugins.Canvas2D.endClick();
 		})
 		.on("mouseenter", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseZone").assign(name, root.scope, EdenSymbol.hciAgent, mouseFollow);
 		});
 
 		this.elements = [element];

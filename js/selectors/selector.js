@@ -278,7 +278,7 @@ Eden.Selectors.processResults = function(statements, o) {
 									} break; 
 				case "depends"	: val = (stat.dependencies) ? Object.keys(stat.dependencies) : [];
 								  break;
-				case "value"	: 	if (stat instanceof Symbol) {
+				case "value"	: 	if (stat instanceof EdenSymbol) {
 										val = stat.value();
 									} else {
 										try {
@@ -694,7 +694,7 @@ Eden.Selectors.execute = function(selector, cb) {
 		function doStat(i) {
 			var p = stats[i];
 			while (p.parent) p = p.parent;
-			p.base.executeStatement(stats[i], -1, Symbol.localJSAgent, function() {
+			p.base.executeStatement(stats[i], -1, EdenSymbol.localJSAgent, function() {
 				i++;
 				if (i < stats.length) doStat(i);
 				else if (cb) cb();
@@ -747,7 +747,7 @@ Eden.Selectors.goto = function(selector) {
 				var tabs = eden.root.lookup("view_"+x+"_tabs").value();
 				var id = (res[0].type == "script") ? selector : Eden.Selectors.getID(res[0].parent);
 				tabs.push(id);
-				eden.root.lookup("view_"+x+"_tabs").assign(tabs, eden.root.scope, Symbol.localJSAgent);
+				eden.root.lookup("view_"+x+"_tabs").assign(tabs, eden.root.scope, EdenSymbol.localJSAgent);
 				success = Eden.Fragment.emit("goto", [nodes[i], res[0]]);
 				break;
 			}
@@ -758,8 +758,8 @@ Eden.Selectors.goto = function(selector) {
 			edenUI.createView("gotoscript","ScriptInput");
 			var id = (res[0].type == "script") ? selector : Eden.Selectors.getID(res[0].parent);
 			var tabs = [id];
-			eden.root.lookup("view_gotoscript_tabs").assign(tabs, eden.root.scope, Symbol.localJSAgent);
-			eden.root.lookup("view_gotoscript_current").assign(0, eden.root.scope, Symbol.localJSAgent);
+			eden.root.lookup("view_gotoscript_tabs").assign(tabs, eden.root.scope, EdenSymbol.localJSAgent);
+			eden.root.lookup("view_gotoscript_current").assign(0, eden.root.scope, EdenSymbol.localJSAgent);
 			success = true;
 		}
 	}

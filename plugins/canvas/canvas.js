@@ -41,7 +41,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					newMouseMovement = false;
 				} else if (!mouseVelocityZero) {
 						var followMouse = root.lookup("mouseFollow").value();
-						root.lookup("mouseVelocity").assign(new Point(0, 0), root.scope, Symbol.hciAgent, followMouse);
+						root.lookup("mouseVelocity").assign(new Point(0, 0), root.scope, EdenSymbol.hciAgent, followMouse);
 						mouseVelocityZero = true;
 						mouseVelocityTimestamp = undefined;
 				}
@@ -720,7 +720,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 		var backgroundColourSym = root.lookup("view_" + canvasName + "_background_colour");
 		if (backgroundColourSym.value() === undefined) {
-		  backgroundColourSym.assign("white", root.scope, Symbol.defaultAgent);
+		  backgroundColourSym.assign("white", root.scope, EdenSymbol.defaultAgent);
 		}
 		backgroundColourSym.addJSObserver("refreshView", redraw);
 
@@ -776,13 +776,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		} //end function
 		var scale = scaleSym.value();
 		if (scale === undefined) {
-		  scaleSym.assign(1, root.scope, Symbol.defaultAgent);
+		  scaleSym.assign(1, root.scope, EdenSymbol.defaultAgent);
 		  scale = 1;
 		}
 		scaleSym.addJSObserver("refreshView", resizeCanvas);
 		var zoom = zoomSym.value();
 		if (zoom === undefined) {
-		  zoomSym.assign(1, root.scope, Symbol.defaultAgent);
+		  zoomSym.assign(1, root.scope, EdenSymbol.defaultAgent);
 		  zoom = 1;
 		}
 		var zoomingQueued = false;
@@ -816,7 +816,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var offset = offsetSym.value();
 		var offsetX, offsetY;
 		if (!(offset instanceof Point)) {
-		  offsetSym.assign(new Point(0, 0), root.scope, Symbol.defaultAgent);
+		  offsetSym.assign(new Point(0, 0), root.scope, EdenSymbol.defaultAgent);
 		  offsetX = 0;
 		  offsetY = 0;
 		} else {
@@ -825,11 +825,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		}
 		offsetSym.addJSObserver("refreshView", resizeCanvas);
 		if (widthSym.value() == undefined) {
-			widthSym.assign(undefined, root.scope, Symbol.defaultAgent);
+			widthSym.assign(undefined, root.scope, EdenSymbol.defaultAgent);
 		}
 		widthSym.addJSObserver("repaintView", resizeCanvas);
 		if (heightSym.value() == undefined) {
-			heightSym.assign(undefined, root.scope, Symbol.defaultAgent);
+			heightSym.assign(undefined, root.scope, EdenSymbol.defaultAgent);
 		}
 		heightSym.addJSObserver("repaintView", resizeCanvas);
 		var initialWidth = widthSym.value();
@@ -847,12 +847,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 		var gridVisibleSym = root.lookup("view_" + canvasName + "_grid_visible");
 		if (gridVisibleSym.value() === undefined) {
-			gridVisibleSym.assign(false, root.scope, Symbol.defaultAgent);
+			gridVisibleSym.assign(false, root.scope, EdenSymbol.defaultAgent);
 		}
 		gridVisibleSym.addJSObserver("refreshView", redraw);
 		var gridSpacingSym = root.lookup("view_" + canvasName + "_grid_spacing");
 		if (gridSpacingSym.value() === undefined) {
-			gridSpacingSym.assign(20, root.scope, Symbol.defaultAgent);
+			gridSpacingSym.assign(20, root.scope, EdenSymbol.defaultAgent);
 		}
 		gridSpacingSym.addJSObserver("refreshView", redraw);
 				
@@ -865,7 +865,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			switch (e.button) {
 				case 0:
 					mouseInfo.leftButton = true;
-					root.lookup('mousePressed').assign(true, root.scope, Symbol.hciAgent, followMouse);
+					root.lookup('mousePressed').assign(true, root.scope, EdenSymbol.hciAgent, followMouse);
 					buttonName = "Left";
 					break;
 				case 1:
@@ -905,13 +905,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				buttonsStr = buttonsStr + "Button5|";
 			}
 
-			root.lookup("mouseButtons").assign(buttonsStr, root.scope, Symbol.hciAgent, followMouse);
-			root.lookup("mouseButton").assign(buttonName + " down", root.scope, Symbol.hciAgent, followMouse);
+			root.lookup("mouseButtons").assign(buttonsStr, root.scope, EdenSymbol.hciAgent, followMouse);
+			root.lookup("mouseButton").assign(buttonName + " down", root.scope, EdenSymbol.hciAgent, followMouse);
 
 			if (mouseInfo.buttonCount == 1) {
 				var mousePos = root.lookup('mousePosition').value();
-				root.lookup('mouseDownView').assign(canvasName, root.scope, Symbol.hciAgent, followMouse);
-				root.lookup('mouseDown').assign(mousePos, root.scope, Symbol.hciAgent, followMouse);
+				root.lookup('mouseDownView').assign(canvasName, root.scope, EdenSymbol.hciAgent, followMouse);
+				root.lookup('mouseDown').assign(mousePos, root.scope, EdenSymbol.hciAgent, followMouse);
 				//var hitZone = root.lookup("mouseZone").value();
 
 				var scale = root.lookup("view_" + canvasName + "_scale").value();
@@ -938,9 +938,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var zoneSym = root.lookup("mouseZone");
 				var previousZone = zoneSym.value();
 				if (zoneHit !== previousZone) {
-					zoneSym.assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
+					zoneSym.assign(zoneHit, root.scope, EdenSymbol.hciAgent, followMouse);
 				}
-				root.lookup("mouseDownZone").assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
+				root.lookup("mouseDownZone").assign(zoneHit, root.scope, EdenSymbol.hciAgent, followMouse);
 			}
 			root.endAutocalcOff();
 			
@@ -962,7 +962,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			switch (e.button) {
 				case 0:
 					mouseInfo.leftButton = false;
-					root.lookup('mousePressed').assign(false, root.scope, Symbol.hciAgent, followMouse);
+					root.lookup('mousePressed').assign(false, root.scope, EdenSymbol.hciAgent, followMouse);
 					buttonName = "Left";
 					break;
 				case 1:
@@ -986,12 +986,12 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			}
 			mouseInfo.buttonCount = mouseInfo.leftButton + mouseInfo.middleButton + mouseInfo.rightButton + mouseInfo.button4 + mouseInfo.button5;
 
-			root.lookup("mouseButton").assign(buttonName + " up", root.scope, Symbol.hciAgent, followMouse);
+			root.lookup("mouseButton").assign(buttonName + " up", root.scope, EdenSymbol.hciAgent, followMouse);
 			
 			if (mouseInfo.buttonCount == 0) {
 				var mousePos = root.lookup('mousePosition').value();
-				root.lookup("mouseButtons").assign("", root.scope, Symbol.hciAgent, followMouse);
-				root.lookup('mouseUp').assign(mousePos, root.scope, Symbol.hciAgent, followMouse);
+				root.lookup("mouseButtons").assign("", root.scope, EdenSymbol.hciAgent, followMouse);
+				root.lookup('mouseUp').assign(mousePos, root.scope, EdenSymbol.hciAgent, followMouse);
 				edenUI.plugins.Canvas2D.endClick();
 			} else {
 				var buttonsStr = "|";
@@ -1010,7 +1010,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				if (mouseInfo.button5) {
 					buttonsStr = buttonsStr + "Button5|";
 				}
-				root.lookup("mouseButtons").assign(buttonsStr, root.scope, Symbol.hciAgent, followMouse);
+				root.lookup("mouseButtons").assign(buttonsStr, root.scope, EdenSymbol.hciAgent, followMouse);
 			}
 			root.endAutocalcOff();
 
@@ -1035,7 +1035,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var followMouse = root.lookup("mouseFollow").value();
 			var dblClickSym = root.lookup("mouseDoubleClicks");
 			var numClicks = dblClickSym.value();
-			dblClickSym.assign(numClicks + 1, root.scope, Symbol.hciAgent, followMouse);
+			dblClickSym.assign(numClicks + 1, root.scope, EdenSymbol.hciAgent, followMouse);
 		
 		}).on("wheel", function (e) {
 			var e2 = e.originalEvent;
@@ -1065,7 +1065,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var pinchSym = root.lookup("touchPinch");
 					var touchPinchValue = pinchSym.value();
 					touchPinchValue = touchPinchValue + deltaY;
-					pinchSym.assign(touchPinchValue, root.scope, Symbol.hciAgent, followMouse);
+					pinchSym.assign(touchPinchValue, root.scope, EdenSymbol.hciAgent, followMouse);
 				} else {
 					//Zoom on pinch gesture or Ctrl + mouse wheel.
 					var zoom = zoomSym.value();
@@ -1073,7 +1073,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					if (zoom < 0.05) {
 						zoom = 0.05;
 					}
-					zoomSym.assign(zoom, root.scope, Symbol.hciAgent, followMouse);
+					zoomSym.assign(zoom, root.scope, EdenSymbol.hciAgent, followMouse);
 				}
 				root.endAutocalcOff();
 				return;
@@ -1092,8 +1092,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var mouseWheelValue = mouseWheelSym.value();
 					var deltaY = e2.deltaY * wheelScale;
 					mouseWheelValue = mouseWheelValue + deltaY;
-					mouseWheelSym.assign(mouseWheelValue, root.scope, Symbol.hciAgent, followMouse);
-					root.lookup("mouseWheelVelocity").assign(deltaY, root.scope, Symbol.hciAgent, followMouse);
+					mouseWheelSym.assign(mouseWheelValue, root.scope, EdenSymbol.hciAgent, followMouse);
+					root.lookup("mouseWheelVelocity").assign(deltaY, root.scope, EdenSymbol.hciAgent, followMouse);
 				}
 			}
 			if (e2.deltaX !== 0) {
@@ -1103,15 +1103,15 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var touchPanXValue = touchPanXSym.value();
 				var deltaX = e2.deltaX * wheelScale;
 				touchPanXValue = touchPanXValue + deltaX;
-				touchPanXSym.assign(touchPanXValue, root.scope, Symbol.hciAgent, followMouse);
-				root.lookup("touchPanXSpeed").assign(deltaX, root.scope, Symbol.hciAgent, followMouse);
+				touchPanXSym.assign(touchPanXValue, root.scope, EdenSymbol.hciAgent, followMouse);
+				root.lookup("touchPanXSpeed").assign(deltaX, root.scope, EdenSymbol.hciAgent, followMouse);
 			}
 			root.endAutocalcOff();
 
 		}).on("mouseout", function (e) {
 			mouseInfo.insideCanvas = false;
 			var followMouse = root.lookup("mouseFollow").value();
-			root.lookup("mouseZone").assign(undefined, root.scope, Symbol.hciAgent, followMouse);
+			root.lookup("mouseZone").assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
 		
 		}).on("mouseenter", function (e) {
 			if (!mouseInfo.insideCanvas) {
@@ -1144,16 +1144,16 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					var followMouse = root.lookup("mouseFollow").value();
 					root.beginAutocalcOff();
 
-					buttonsSym.assign(buttonsStr, root.scope, Symbol.hciAgent, followMouse);
-					root.lookup("mouseButton").assign("Enter window", root.scope, Symbol.hciAgent, followMouse);				
+					buttonsSym.assign(buttonsStr, root.scope, EdenSymbol.hciAgent, followMouse);
+					root.lookup("mouseButton").assign("Enter window", root.scope, EdenSymbol.hciAgent, followMouse);				
 
 					var pressedSym = root.lookup("mousePressed");
 					if (pressedSym.value() != mouseInfo.leftButton) {
-						pressedSym.assign(mouseInfo.leftButton, root.scope, Symbol.hciAgent, followMouse);
+						pressedSym.assign(mouseInfo.leftButton, root.scope, EdenSymbol.hciAgent, followMouse);
 					}
 					if (prevButtons == "" && buttonsStr != "") {
-						root.lookup("mouseDown").assign(undefined, root.scope, Symbol.hciAgent, followMouse);
-						root.lookup("mouseDownView").assign(undefined, root.scope, Symbol.hciAgent, followMouse);
+						root.lookup("mouseDown").assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
+						root.lookup("mouseDownView").assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
 					}
 					root.endAutocalcOff();
 				}
@@ -1194,9 +1194,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				}
 			}
 
-			viewSym.assign(canvasName, root.scope, Symbol.hciAgent, followMouse);
+			viewSym.assign(canvasName, root.scope, EdenSymbol.hciAgent, followMouse);
 			var mousePos = new Point(x, y);
-			positionSym.assign(mousePos, root.scope, Symbol.hciAgent, followMouse);
+			positionSym.assign(mousePos, root.scope, EdenSymbol.hciAgent, followMouse);
 
 			var deltaTime;
 			var now = Date.now();
@@ -1224,7 +1224,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					velocityX = Math.ceil(velocityX * combinedScale) / combinedScale;
 					velocityY = Math.ceil(velocityY * combinedScale) / combinedScale;
 					var mouseVelocity = new Point(velocityX, velocityY);
-					velocitySym.assign(mouseVelocity, root.scope, Symbol.hciAgent, followMouse);
+					velocitySym.assign(mouseVelocity, root.scope, EdenSymbol.hciAgent, followMouse);
 					mouseVelocityTimestamp = now;
 				}
 			} else {
@@ -1242,7 +1242,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var zoneSym = root.lookup("mouseZone");
 			var previousZone = zoneSym.value();
 			if (zoneHit !== previousZone) {
-				zoneSym.assign(zoneHit, root.scope, Symbol.hciAgent, followMouse);
+				zoneSym.assign(zoneHit, root.scope, EdenSymbol.hciAgent, followMouse);
 			}
 			
 			root.endAutocalcOff();
@@ -1267,7 +1267,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					zoom = 1;
 					handled = true;
 				}
-				zoomSym.assign(zoom, root.scope, Symbol.hciAgent);
+				zoomSym.assign(zoom, root.scope, EdenSymbol.hciAgent);
 			}
 			if (handled) {
 				e.preventDefault();
@@ -1477,7 +1477,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if (eden.isValidIdentifier(zone)) {
 			var clickSym = root.lookup(zone + "_click");
 			if (clickSym.value() === false) {
-				clickSym.assign(true, root.scope, Symbol.hciAgent, true);
+				clickSym.assign(true, root.scope, EdenSymbol.hciAgent, true);
 			}
 		}
 	});
@@ -1487,7 +1487,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if (eden.isValidIdentifier(zoneDown)) {
 			var clickSym = root.lookup(zoneDown + "_click");
 			if (clickSym.value() === true) {
-				clickSym.assign(false, root.scope, Symbol.hciAgent, true);
+				clickSym.assign(false, root.scope, EdenSymbol.hciAgent, true);
 			}
 		}
 	};
@@ -1542,14 +1542,14 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				var mousePressedSym = root.lookup("mousePressed");
 				var mousePressed = mousePressedSym.value();
 
-				root.lookup("mouseButton").assign(buttonName + " up", root.scope, Symbol.hciAgent, followMouse);
-				buttonsSym.assign("", root.scope, Symbol.hciAgent, followMouse);
-				root.lookup('mousePosition').assign(undefined, root.scope, Symbol.hciAgent, followMouse);
+				root.lookup("mouseButton").assign(buttonName + " up", root.scope, EdenSymbol.hciAgent, followMouse);
+				buttonsSym.assign("", root.scope, EdenSymbol.hciAgent, followMouse);
+				root.lookup('mousePosition').assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
 				if (mousePressed) {
-					mousePressedSym.assign(false, root.scope, Symbol.hciAgent, followMouse);
+					mousePressedSym.assign(false, root.scope, EdenSymbol.hciAgent, followMouse);
 				}
-				root.lookup('mouseUp').assign(undefined, root.scope, Symbol.hciAgent, followMouse);
-				root.lookup('mouseView').assign(undefined, root.scope, Symbol.hciAgent, followMouse);
+				root.lookup('mouseUp').assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
+				root.lookup('mouseView').assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
 				edenUI.plugins.Canvas2D.endClick();
 			}
 		}

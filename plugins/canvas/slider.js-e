@@ -196,7 +196,7 @@ Slider.prototype.draw = function (context) {
 					}
 				}
 				if (previewValue != roundedValue) {
-					previewSym.assign(roundedValue, root.scope, Symbol.hciAgent);
+					previewSym.assign(roundedValue, root.scope, EdenSymbol.hciAgent);
 				}
 			}
 		}
@@ -208,7 +208,7 @@ Slider.prototype.draw = function (context) {
 			}
 			var previewSym = root.lookup(name + "_preview");
 			var valueSym = root.lookup(name + "_value");
-			if (previewSym.last_modified_by !== Symbol.hciAgent.name) {
+			if (previewSym.last_modified_by !== EdenSymbol.hciAgent.name) {
 				var roundedValue;
 				if (preview >= me.min && preview <= me.max) {
 					inputElem.value = preview;
@@ -238,22 +238,22 @@ Slider.prototype.draw = function (context) {
 
 		inputJQ
 		.on("input", function(){
-			root.lookup(name + "_preview").assign(parseFloat(this.value), root.scope, Symbol.hciAgent, true);
+			root.lookup(name + "_preview").assign(parseFloat(this.value), root.scope, EdenSymbol.hciAgent, true);
 		})
 		.on("mousedown", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseDownZone").assign(undefined, root.scope, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseDownZone").assign(undefined, root.scope, EdenSymbol.hciAgent, mouseFollow);
 		})
 		.on("mouseup", function () {
-			root.lookup(name + "_value").assign(parseFloat(this.value), root.scope, Symbol.hciAgent, true);
+			root.lookup(name + "_value").assign(parseFloat(this.value), root.scope, EdenSymbol.hciAgent, true);
 			edenUI.plugins.Canvas2D.endClick();
 		})
 		.on("keyup", function () {
-			root.lookup(name + "_value").assign(parseFloat(this.value), root.scope, Symbol.hciAgent, true);		
+			root.lookup(name + "_value").assign(parseFloat(this.value), root.scope, EdenSymbol.hciAgent, true);		
 		})
 		.on("mouseenter", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseZone").assign(name, root.scope, EdenSymbol.hciAgent, mouseFollow);
 		});
 
 		var outerDiv = $('<div class="' + cssClass + '" ></div>');

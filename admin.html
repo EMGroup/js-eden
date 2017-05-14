@@ -121,7 +121,7 @@
 
 	$(".loadmodal").show();
 	Construit({noload: true}, function(loaded) {
-		eden.root.lookup("jseden_project_title").assign("Management Page", eden.root.scope, Symbol.localJSAgent);
+		eden.root.lookup("jseden_project_title").assign("Management Page", eden.root.scope, EdenSymbol.localJSAgent);
 
 		Eden.DB.adminCommentActivity(undefined, 0, function(data) {
 			var comresults = document.getElementById("commentlog");

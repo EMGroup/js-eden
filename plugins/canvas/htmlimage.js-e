@@ -164,21 +164,21 @@ HTMLImage.prototype.draw = function(context) {
 		var imagePos = $(this).offset();
 		var x = (event.pageX - Math.round(imagePos.left)) / canvasScale;
 		var y = (event.pageY - Math.round(imagePos.top)) / canvasScale;
-		root.lookup("mousePosition").assign(new Point(x, y), root.scope, Symbol.hciAgent, mouseFollow);
+		root.lookup("mousePosition").assign(new Point(x, y), root.scope, EdenSymbol.hciAgent, mouseFollow);
 	});
 
 	if (name !== undefined) {
 		edenUI.plugins.Canvas2D.initZoneFromName(name, "HTMLImage");
 		imageJQ.on("mousedown", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseDownZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseDownZone").assign(name, root.scope, EdenSymbol.hciAgent, mouseFollow);
 		})
 		.on("mouseup", function () {
 			edenUI.plugins.Canvas2D.endClick();
 		})
 		.on("mouseenter", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseZone").assign(name, root.scope, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseZone").assign(name, root.scope, EdenSymbol.hciAgent, mouseFollow);
 		});
 	}
 	
@@ -188,11 +188,11 @@ HTMLImage.prototype.draw = function(context) {
 		var setAreaEvents = function (area, regionName) {
 			area.on("mouseenter", function (event) {
 				var followMouse = root.lookup("mouseFollow").value();
-				root.lookup("mouseZone").assign(regionName, root.scope, Symbol.hciAgent, followMouse);
+				root.lookup("mouseZone").assign(regionName, root.scope, EdenSymbol.hciAgent, followMouse);
 			})
 			.on("mousedown", function (event) {
 				var followMouse = root.lookup("mouseFollow").value();
-				root.lookup("mouseDownZone").assign(regionName, root.scope, Symbol.hciAgent, followMouse);
+				root.lookup("mouseDownZone").assign(regionName, root.scope, EdenSymbol.hciAgent, followMouse);
 
 			}).on("mouseup", function (event) {
 				edenUI.plugins.Canvas2D.endClick();

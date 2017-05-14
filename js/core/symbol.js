@@ -1,12 +1,12 @@
 /**
- * A symbol table entry.
+ * A EdenSymbol table entry.
  *
  * @constructor
  * @struct
- * @param {Folder} context Folder this Symbol belongs to.
- * @param {string} name Name for the Symbol.
+ * @param {Folder} context Folder this EdenSymbol belongs to.
+ * @param {string} name Name for the EdenSymbol.
  */
-function Symbol(context, name) {
+function EdenSymbol(context, name) {
 	/**
 	 * @type {Folder}
 	 * @private
@@ -30,7 +30,7 @@ function Symbol(context, name) {
 	// that we can unsubscribe from them when our definition changes
 	this.dependencies =  {};
 
-	// need to keep track of what symbols subscribe to us
+	// need to keep track of what EdenSymbols subscribe to us
 	// so that we can notify them of a change in value
 	this.subscribers = {};
 
@@ -52,7 +52,7 @@ function Symbol(context, name) {
 
 	this.origin = undefined;
 
-	// true when the symbol ready to be garbage collected from its folder when execution of the
+	// true when the EdenSymbol ready to be garbage collected from its folder when execution of the
 	// current script finishes (if it is not subsequently referenced again).  This occurs when
 	// using EDEN's forget function.
 	this.garbage = false;
@@ -60,43 +60,43 @@ function Symbol(context, name) {
 
 
 /* Virtual AST Attributes */
-Object.defineProperty(Symbol.prototype, "type", {
+Object.defineProperty(EdenSymbol.prototype, "type", {
 	get: function() { return (this.origin && this.origin.type) ? this.origin.type:"assignment"; }
 });
 
-Object.defineProperty(Symbol.prototype, "lvalue", {
+Object.defineProperty(EdenSymbol.prototype, "lvalue", {
 	get: function() { return (this.origin) ? this.origin.lvalue : undefined; }
 });
 
-Object.defineProperty(Symbol.prototype, "expression", {
+Object.defineProperty(EdenSymbol.prototype, "expression", {
 	get: function() { return (this.origin) ? this.origin.expression : undefined; }
 });
 
-Object.defineProperty(Symbol.prototype, "doxyComment", {
+Object.defineProperty(EdenSymbol.prototype, "doxyComment", {
 	get: function() { return (this.origin) ? this.origin.doxyComment : undefined; }
 });
 
-Object.defineProperty(Symbol.prototype, "parent", {
+Object.defineProperty(EdenSymbol.prototype, "parent", {
 	get: function() { return eden.root; }
 });
 
-Object.defineProperty(Symbol.prototype, "stamp", {
+Object.defineProperty(EdenSymbol.prototype, "stamp", {
 	get: function() { return (this.origin) ? this.origin.stamp : undefined; }
 });
 
-Object.defineProperty(Symbol.prototype, "id", {
+Object.defineProperty(EdenSymbol.prototype, "id", {
 	get: function() { return (this.origin && this.origin.id) ? this.origin.id : this.name; }
 });
 
-Object.defineProperty(Symbol.prototype, "executed", {
+Object.defineProperty(EdenSymbol.prototype, "executed", {
 	get: function() { return 1; }
 });
 
-Symbol.prototype.getStartLine = function(relative) {
+EdenSymbol.prototype.getStartLine = function(relative) {
 	return (this.origin) ? this.origin.getStartLine(relative) : -1;
 }
 
-Symbol.prototype.getASTOrigin = function() {
+EdenSymbol.prototype.getASTOrigin = function() {
 	if (this.origin) {
 		var p = this.origin;
 		while (p.parent) p = p.parent;
@@ -104,7 +104,7 @@ Symbol.prototype.getASTOrigin = function() {
 	}
 }
 
-Symbol.prototype.getOrigin = function() {
+EdenSymbol.prototype.getOrigin = function() {
 	if (this.origin) return this.origin.getOrigin();
 	return undefined;
 }
@@ -124,26 +124,26 @@ InternalAgent.prototype.getOrigin = function() {
 InternalAgent.prototype.numlines = 0;
 
 // Input device agents are always local only.
-Symbol.hciAgent = new InternalAgent("*Input Device", true);
+EdenSymbol.hciAgent = new InternalAgent("*Input Device", true);
 // A JavaScript agent is not local only.
-Symbol.jsAgent = new InternalAgent("*JavaScript", false);
-Symbol.localJSAgent = new InternalAgent("*JavaScript", true);
+EdenSymbol.jsAgent = new InternalAgent("*JavaScript", false);
+EdenSymbol.localJSAgent = new InternalAgent("*JavaScript", true);
 // Network changes are always local to prevent loops.
-Symbol.netAgent = new InternalAgent("*net", true);
+EdenSymbol.netAgent = new InternalAgent("*net", true);
 // Something entirely ignored by script generator
-Symbol.defaultAgent = new InternalAgent("*Default", true);
+EdenSymbol.defaultAgent = new InternalAgent("*Default", true);
 
-Symbol.NONOTIFY = 0;
-Symbol.CREATED = 1;
-Symbol.EXPIRED = 2;
-Symbol.REDEFINED = 3;
-Symbol.ASSIGNED = 4;
+EdenSymbol.NONOTIFY = 0;
+EdenSymbol.CREATED = 1;
+EdenSymbol.EXPIRED = 2;
+EdenSymbol.REDEFINED = 3;
+EdenSymbol.ASSIGNED = 4;
 
 /**
- * Get the value of this symbol bound with the scope the value was
+ * Get the value of this EdenSymbol bound with the scope the value was
  * generated in.
  */
-Symbol.prototype.boundValue = function(scope, indices) {
+EdenSymbol.prototype.boundValue = function(scope, indices) {
 	//console.log("BOUNDVALUE",this.name);
 	var value = this.value(scope);
 	var cache = scope.lookup(this.name);
@@ -157,11 +157,11 @@ Symbol.prototype.boundValue = function(scope, indices) {
 }
 
 /**
- * Return the current value of this symbol, forcing calculation if necessary.
+ * Return the current value of this EdenSymbol, forcing calculation if necessary.
  *
  * @return {*}
  */
-Symbol.prototype.value = function (pscope) {
+EdenSymbol.prototype.value = function (pscope) {
 	if (pscope && pscope.isRange()) {
 		return this.multiValue(pscope);
 	} else {
@@ -181,7 +181,7 @@ Symbol.prototype.value = function (pscope) {
 	}
 };
 
-Symbol.prototype.multiValue = function (newscope) {
+EdenSymbol.prototype.multiValue = function (newscope) {
 	var results = [];
 
 	newscope.range = false;
@@ -205,7 +205,7 @@ Symbol.prototype.multiValue = function (newscope) {
 	return results;
 };
 
-Symbol.prototype.evaluateIfDependenciesExist = function () {
+EdenSymbol.prototype.evaluateIfDependenciesExist = function () {
 	var name;
 	//for (name in this.dependencies) {
 		// only evaluate if all dependencies have been defined by some agent
@@ -216,11 +216,11 @@ Symbol.prototype.evaluateIfDependenciesExist = function () {
 	this.evaluate(this.context.scope, this.context.scope.lookup(this.name));
 };
 
-Symbol.prototype.getValueScope = function(scope) {
+EdenSymbol.prototype.getValueScope = function(scope) {
 	return scope.lookup(this.name).scope;
 }
 
-Symbol.prototype.evaluate = function (scope, cache) {
+EdenSymbol.prototype.evaluate = function (scope, cache) {
 	if (this.context) {
 		this.context.beginEvaluation(this);
 	}
@@ -281,7 +281,7 @@ Symbol.prototype.evaluate = function (scope, cache) {
 	}
 };
 
-Symbol.prototype.clearEvalIDs = function () {
+EdenSymbol.prototype.clearEvalIDs = function () {
 	var context = this.context;
 	for (var id in this.evalIDs) {
 		context.clearEval(this.evalIDs[id]);
@@ -290,24 +290,24 @@ Symbol.prototype.clearEvalIDs = function () {
 	this.evalResolved = false;
 }
 
-Symbol.prototype.clearObservees = function () {
+EdenSymbol.prototype.clearObservees = function () {
 	for (var name in this.observees) {
-		var symbol = this.observees[name];
-		symbol.removeObserver(this.name);
+		var EdenSymbol = this.observees[name];
+		EdenSymbol.removeObserver(this.name);
 	}
 	this.observees = {};
 };
 
-Symbol.prototype.subscribe = function () {
+EdenSymbol.prototype.subscribe = function () {
 	var dependencies = Utils.flatten(arguments);
 	for (var i = 0; i < dependencies.length; ++i) {
 		var dependency = dependencies[i];
-		var symbol = this.context.lookup(dependency);
+		var EdenSymbol = this.context.lookup(dependency);
 
-		if (symbol.name != this.name) {
-			symbol.addSubscriber(this.name, this);
-			var name = symbol.name;
-			this.dependencies[name] = symbol;
+		if (EdenSymbol.name != this.name) {
+			EdenSymbol.addSubscriber(this.name, this);
+			var name = EdenSymbol.name;
+			this.dependencies[name] = EdenSymbol;
 			delete this.dynamicDependencies[name];
 		}
 	}
@@ -315,7 +315,7 @@ Symbol.prototype.subscribe = function () {
 	return this;
 };
 
-Symbol.prototype.subscribeDynamic = function (position, dependency, scope) {
+EdenSymbol.prototype.subscribeDynamic = function (position, dependency, scope) {
 	// To put the dependency on the outer scoped observable is in a scoping context
 	if (scope && scope !== eden.root.scope && scope.cause) {
 		// TODO WHY WAS THIS HERE? Nested scopes?
@@ -329,23 +329,23 @@ Symbol.prototype.subscribeDynamic = function (position, dependency, scope) {
 	}
 
 	if (!(dependency in this.dependencies)) {
-		var symbol, refCount;
+		var EdenSymbol, refCount;
 		var previousDependency = this.dynamicDependencyTable[position];
 		if (previousDependency !== undefined) {
 			refCount = this.dynamicDependencyRefCount[previousDependency];
 			if (refCount == 1) {
-				symbol = this.context.lookup(previousDependency);
-				symbol.removeSubscriber(this.name);
-				delete this.dynamicDependencies[symbol.name];
+				EdenSymbol = this.context.lookup(previousDependency);
+				EdenSymbol.removeSubscriber(this.name);
+				delete this.dynamicDependencies[EdenSymbol.name];
 				delete this.dynamicDependencyRefCount[previousDependency];
 			} else {
 				this.dynamicDependencyRefCount[previousDependency] = refCount - 1;
 			}
 		}
 		if (!(dependency in this.dynamicDependencies)) {
-			symbol = this.context.lookup(dependency);
-			symbol.addSubscriber(this.name, this);
-			this.dynamicDependencies[symbol.name] = symbol;
+			EdenSymbol = this.context.lookup(dependency);
+			EdenSymbol.addSubscriber(this.name, this);
+			this.dynamicDependencies[EdenSymbol.name] = EdenSymbol;
 			this.dynamicDependencyRefCount[dependency] = 1;
 		} else {
 			this.dynamicDependencyRefCount[dependency]++;				
@@ -356,7 +356,7 @@ Symbol.prototype.subscribeDynamic = function (position, dependency, scope) {
 }
 
 
-Symbol.prototype.clearDependencies = function () {
+EdenSymbol.prototype.clearDependencies = function () {
 	var dependency;
 	for (var name in this.dependencies) {
 		dependency = this.dependencies[name];
@@ -373,7 +373,7 @@ Symbol.prototype.clearDependencies = function () {
 };
 
 
-Symbol.prototype.getSource = function() {
+EdenSymbol.prototype.getSource = function() {
 	//if (this.origin && !this.origin.internal && !this.origin.getSource) console.log("NO GETSOURCE",this);
 	if (this.origin && !this.origin.internal) return this.origin.getSource();
 	return this.name + " = " + Eden.edenCodeForValue(this.value()) + ";";
@@ -381,18 +381,18 @@ Symbol.prototype.getSource = function() {
 
 
 /**
- * Set a definition for the Symbol, which will be used to calculate it's value.
+ * Set a definition for the EdenSymbol, which will be used to calculate it's value.
  *
  * @param {function(Folder)} definition
- * @param {Symbol} modifying_agent Agent modifying this Symbol.
+ * @param {EdenSymbol} modifying_agent Agent modifying this EdenSymbol.
  */
-Symbol.prototype.define = function (definition, origin, subscriptions, source) {
+EdenSymbol.prototype.define = function (definition, origin, subscriptions, source) {
 	this.garbage = false;
 	this.definition = definition;
 	this.origin = origin;
-	this.needsGlobalNotify = Symbol.REDEFINED;
+	this.needsGlobalNotify = EdenSymbol.REDEFINED;
 
-	// symbol no longer observes or depends on anything
+	// EdenSymbol no longer observes or depends on anything
 	this.clearObservees();
 	this.clearDependencies();
 
@@ -413,7 +413,7 @@ Symbol.prototype.define = function (definition, origin, subscriptions, source) {
 	}
 
 	if (this.context) {
-		this.context.expireSymbol(this);
+		this.context.expireEdenSymbol(this);
 	}
 
 	if (eden.peer && source) eden.peer.define(origin, this.name, source, subscriptions);
@@ -421,57 +421,57 @@ Symbol.prototype.define = function (definition, origin, subscriptions, source) {
 	return this;
 };
 
-Symbol.prototype.expireSubscribers = function() {
+EdenSymbol.prototype.expireSubscribers = function() {
 	for (var s in this.subscribers) {
-		this.subscribers[s].needsGlobalNotify = Symbol.EXPIRED;
-		this.context.expireSymbol(this.subscribers[s]);
+		this.subscribers[s].needsGlobalNotify = EdenSymbol.EXPIRED;
+		this.context.expireEdenSymbol(this.subscribers[s]);
 	}
 }
 
 /**
- * Watch another symbol for changes.
+ * Watch another EdenSymbol for changes.
  *
- * @param {...string} symbol_names Names of other symbols to observe from the same Folder.
- * @return {Symbol}
+ * @param {...string} EdenSymbol_names Names of other EdenSymbols to observe from the same Folder.
+ * @return {EdenSymbol}
  */
-Symbol.prototype.observe = function (symbol_names) {
-	symbol_names = Utils.flatten(arguments);
+EdenSymbol.prototype.observe = function (EdenSymbol_names) {
+	EdenSymbol_names = Utils.flatten(arguments);
 	
-	for (var i = 0; i < symbol_names.length; ++i) {
-		var symbol = this.context.lookup(symbol_names[i]);
-		this.observees[symbol.name] = symbol;
-		symbol.addObserver(this.name, this);
+	for (var i = 0; i < EdenSymbol_names.length; ++i) {
+		var EdenSymbol = this.context.lookup(EdenSymbol_names[i]);
+		this.observees[EdenSymbol.name] = EdenSymbol;
+		EdenSymbol.addObserver(this.name, this);
 	}
 
 	if (this.context) {
-		this.context.triggerSymbol(this);
+		this.context.triggerEdenSymbol(this);
 	}
 	return this;
 };
 
-Symbol.prototype.stopObserving = function (symbol_name) {
-	this.observees[symbol_name].removeObserver(this.name);
-	this.observees[symbol_name] = undefined;
+EdenSymbol.prototype.stopObserving = function (EdenSymbol_name) {
+	this.observees[EdenSymbol_name].removeObserver(this.name);
+	this.observees[EdenSymbol_name] = undefined;
 };
 
-Symbol.prototype.append = function(value, scope, origin) {
+EdenSymbol.prototype.append = function(value, scope, origin) {
 	var val = this.value(scope);
 	val.push(value);
 	this.assign(val, scope, origin);
 }
 
 /**
- * Change the current value of this symbol and notify.
+ * Change the current value of this EdenSymbol and notify.
  *
  * If this is called from within JavaScript code that is initiated in some way other than via the
  * input window (e.g. mouse movement events) then the third parameter must be set to true to
  * ensure that the change gets propagated to other networked instances of JS-EDEN.
  *
  * @param {*} value
- * @param {Symbol} modifying_agent
+ * @param {EdenSymbol} modifying_agent
  * @param {boolean} pushToNetwork
  */
-Symbol.prototype.assign = function (value, scope, origin) {
+EdenSymbol.prototype.assign = function (value, scope, origin) {
 	this.garbage = false;
 	if (this.cache.value !== value) value = copy(value);
 	
@@ -489,7 +489,7 @@ Symbol.prototype.assign = function (value, scope, origin) {
 	this.clearEvalIDs();
 	this.origin = origin;
 	this.definition = undefined;
-	this.needsGlobalNotify = Symbol.ASSIGNED;
+	this.needsGlobalNotify = EdenSymbol.ASSIGNED;
 	this.has_evaled = true;
 
 	this.extend = undefined;
@@ -506,12 +506,12 @@ Symbol.prototype.assign = function (value, scope, origin) {
 	cache.value = value;
 	cache.up_to_date = true;
 
-	// symbol no longer observes or depends on anything
+	// EdenSymbol no longer observes or depends on anything
 	this.clearObservees();
 	this.clearDependencies();
 
 	if (this.context) {
-		this.context.expireSymbol(this);
+		this.context.expireEdenSymbol(this);
 	}
 
 	// Attempt send over p2p network
@@ -521,24 +521,24 @@ Symbol.prototype.assign = function (value, scope, origin) {
 };
 
 /**
- * Change the current value of this symbol and notify.
+ * Change the current value of this EdenSymbol and notify.
  *
  * If this is called from within JavaScript code that is initiated in some way other than via the
  * input window (e.g. mouse movement events) then the third parameter must be set to true to
  * ensure that the change gets propagated to other networked instances of JS-EDEN.
  *
  * @param {*} value
- * @param {Symbol} modifying_agent
+ * @param {EdenSymbol} modifying_agent
  * @param {boolean} pushToNetwork
  */
-Symbol.prototype.assigned = function (origin) {
+EdenSymbol.prototype.assigned = function (origin) {
 	this.garbage = false;
 	this.clearEvalIDs();
 	this.evalResolved = true;
 	this.origin = origin;
 	this.definition = undefined;
 
-	// symbol no longer observes or depends on anything
+	// EdenSymbol no longer observes or depends on anything
 	this.clearObservees();
 	this.clearDependencies();
 
@@ -546,13 +546,13 @@ Symbol.prototype.assigned = function (origin) {
 };
 
 /**
- * Change the current value of this symbol and notify
+ * Change the current value of this EdenSymbol and notify
  *
- * @param {function(Symbol, Symbol)} mutator
- * @param {Symbol} modifying_agent
+ * @param {function(EdenSymbol, EdenSymbol)} mutator
+ * @param {EdenSymbol} modifying_agent
  * @param {...*} mutatorArgs args to be passed to the mutator function.
  */
-Symbol.prototype.mutate = function (scope, mutator, origin, mutatorArgs) {
+EdenSymbol.prototype.mutate = function (scope, mutator, origin, mutatorArgs) {
 	this.garbage = false;
 	var me = this;
 	this.origin = origin
@@ -561,7 +561,7 @@ Symbol.prototype.mutate = function (scope, mutator, origin, mutatorArgs) {
 	// which is allowed to refer to the cached value.
 	this.value(scope);
 	this.definition = undefined;
-	this.needsGlobalNotify = Symbol.ASSIGNED;
+	this.needsGlobalNotify = EdenSymbol.ASSIGNED;
 
 	var args = [];
 	for (var i = 1; i < arguments.length; i++) {
@@ -571,19 +571,19 @@ Symbol.prototype.mutate = function (scope, mutator, origin, mutatorArgs) {
 	mutator.apply(undefined, [this].concat(args));
 
 	if (this.context) {
-		this.context.expireSymbol(this);
+		this.context.expireEdenSymbol(this);
 	}
 
 	return this;
 };
 
-Symbol.prototype.loggers = {
+EdenSymbol.prototype.loggers = {
 	console: function (error) {
 		console.log("<JSEDEN:" + this.name + "> "  + error);
 	}
 };
 
-Symbol.prototype.logError = function (error) {
+EdenSymbol.prototype.logError = function (error) {
 	for (var channel_name in this.loggers) {
 		var logger = this.loggers[channel_name];
 		logger.call(this, error);
@@ -591,17 +591,17 @@ Symbol.prototype.logError = function (error) {
 };
 
 /**
- * Used with pointer type observables, e.g. when clicking in the Symbol List view to edit one.
- * @return {string} The EDEN code used to create an expression that references this symbol,
+ * Used with pointer type observables, e.g. when clicking in the EdenSymbol List view to edit one.
+ * @return {string} The EDEN code used to create an expression that references this EdenSymbol,
  *	i.e. &name
  */
-Symbol.prototype.getEdenCode = function () {
+EdenSymbol.prototype.getEdenCode = function () {
 	return "&" + this.name;
 }
 
-Symbol.prototype.trigger = function () {
+EdenSymbol.prototype.trigger = function () {
 	var name;
-	// only trigger when all observed symbols have been defined by some agent
+	// only trigger when all observed EdenSymbols have been defined by some agent
 	//for (name in this.observees) {
 	//	if (!this.observees[name].last_modified_by) {
 	//		return;
@@ -630,18 +630,18 @@ function fireActions(actions_to_fire){
 	}
 };
 
-function fireJSActions(symbols_to_fire_for) {
-	for (var i = 0; i < symbols_to_fire_for.length; i++) {
-		symbols_to_fire_for[i].fireJSObservers();
+function fireJSActions(EdenSymbols_to_fire_for) {
+	for (var i = 0; i < EdenSymbols_to_fire_for.length; i++) {
+		EdenSymbols_to_fire_for[i].fireJSObservers();
 	}
 }
 
-Symbol.prototype.fireJSObservers = function () {
+EdenSymbol.prototype.fireJSObservers = function () {
 	for (var jsObserverName in this.jsObservers) {
 		try {
 			this.jsObservers[jsObserverName](this, this.value());
 		} catch (error) {
-			//this.logError("Failed while triggering JavaScript observer for symbol " + this.name + ": " + error);
+			//this.logError("Failed while triggering JavaScript observer for EdenSymbol " + this.name + ": " + error);
 			var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.JSOBSERVER, undefined, "JavaScript observer '"+jsObserverName+"' failed: "+error);
 			eden.emit("error", [this,err]);
 			var debug;
@@ -661,13 +661,13 @@ Symbol.prototype.fireJSObservers = function () {
 
 
 /**
- * Mark this symbol as out of date, and notify all formulas and observers of
+ * Mark this EdenSymbol as out of date, and notify all formulas and observers of
  * this change
- * @param {Object.<string,Symbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
+ * @param {Object.<string,EdenSymbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
  */
-Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to_fire, fullexpire) {
+EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, actions_to_fire, fullexpire) {
 	//console.log("Expire",this.name,this.has_evaled,fullexpire);
-	if (this.has_evaled || (fullexpire && this.needsGlobalNotify != Symbol.EXPIRED)) {
+	if (this.has_evaled || (fullexpire && this.needsGlobalNotify != EdenSymbol.EXPIRED)) {
 
 		for (var observer_name in this.observers) {
 			actions_to_fire[observer_name] = this.observers[observer_name];
@@ -675,10 +675,10 @@ Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to
 
 
 		if (this.definition) {
-			// TODO, Also mark all active scopes for this symbol as out-of-date.
+			// TODO, Also mark all active scopes for this EdenSymbol as out-of-date.
 			this.cache.up_to_date = false;
 			this.has_evaled = false;
-			symbols_to_force[this.name] = insertionIndex.value;
+			EdenSymbols_to_force[this.name] = insertionIndex.value;
 			insertionIndex.value++;
 
 			// Need to rebuild the scope dependency path
@@ -693,13 +693,13 @@ Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to
 			//}
 		}
 
-		this.needsGlobalNotify = Symbol.EXPIRED;
+		this.needsGlobalNotify = EdenSymbol.EXPIRED;
 
 		// recursively mark out of date and collect
 		for (var subscriber_name in this.subscribers) {
 			var subscriber = this.subscribers[subscriber_name];
 			if (subscriber) {
-				subscriber.expire(symbols_to_force, insertionIndex, actions_to_fire,fullexpire);
+				subscriber.expire(EdenSymbols_to_force, insertionIndex, actions_to_fire,fullexpire);
 			}
 		}
 	} else {
@@ -707,28 +707,28 @@ Symbol.prototype.expire = function (symbols_to_force, insertionIndex, actions_to
 	}
 };
 
-Symbol.prototype.isDependentOn = function (name) {
+EdenSymbol.prototype.isDependentOn = function (name) {
 	if (name == this.name || this.dependencies[name]) {
 		return true;
 	}
 
-	var symbol;
+	var EdenSymbol;
 	for (var d in this.dependencies) {
-		symbol = this.dependencies[d];
-		if (symbol.isDependentOn(name)) {
+		EdenSymbol = this.dependencies[d];
+		if (EdenSymbol.isDependentOn(name)) {
 			return true;
 		}
 	}
 	for (var d in this.dynamicDependencies) {
-		symbol = this.dynamicDependencies[d];
-		if (symbol.isDependentOn(name)) {
+		EdenSymbol = this.dynamicDependencies[d];
+		if (EdenSymbol.isDependentOn(name)) {
 			return true;
 		}
 	}
 	return false;
 };
 
-Symbol.prototype.getDependencies = function() {
+EdenSymbol.prototype.getDependencies = function() {
 	var res = [];
 	for (var d in this.dependencies) {
 		res.push(d);
@@ -737,7 +737,7 @@ Symbol.prototype.getDependencies = function() {
 	return res;
 }
 
-Symbol.prototype.assertNotDependentOn = function (name, path) {
+EdenSymbol.prototype.assertNotDependentOn = function (name, path) {
 	if (path === undefined) {
 		path = [];
 	}
@@ -748,14 +748,14 @@ Symbol.prototype.assertNotDependentOn = function (name, path) {
 		throw new Error("Cyclic dependency detected: " + details);
 	}
 
-	var symbol;
+	var EdenSymbol;
 	for (var d in this.dependencies) {
-		symbol = this.dependencies[d];
-		symbol.assertNotDependentOn(name, path);
+		EdenSymbol = this.dependencies[d];
+		EdenSymbol.assertNotDependentOn(name, path);
 	}
 	for (var d in this.dynamicDependencies) {
-		symbol = this.dynamicDependencies[d];
-		symbol.assertNotDependentOn(name, path);
+		EdenSymbol = this.dynamicDependencies[d];
+		EdenSymbol.assertNotDependentOn(name, path);
 	}
 	path.pop();
 };
@@ -763,27 +763,27 @@ Symbol.prototype.assertNotDependentOn = function (name, path) {
 /**
  * Add a subscriber to notify on changes to the stored value
  *
- * @param {string} name The name of the subscribing symbol
+ * @param {string} name The name of the subscribing EdenSymbol
  */
-Symbol.prototype.addSubscriber = function (name, symbol) {
+EdenSymbol.prototype.addSubscriber = function (name, EdenSymbol) {
 	this.garbage = false;
 	//this.assertNotDependentOn(name);
-	this.subscribers[name] = symbol;
+	this.subscribers[name] = EdenSymbol;
 };
 
 /**
- * Tell this Symbol that it no longer needs to notify a specific symbol.
+ * Tell this EdenSymbol that it no longer needs to notify a specific EdenSymbol.
  *
- * @param {string} name The name of the symbol that no longer needs to be notified.
+ * @param {string} name The name of the EdenSymbol that no longer needs to be notified.
  */
-Symbol.prototype.removeSubscriber = function (name) {
+EdenSymbol.prototype.removeSubscriber = function (name) {
 	delete this.subscribers[name];
 	if (this.origin === undefined && this.canSafelyBeForgotten()) {
 		this.forget();
 	}
 };
 
-Symbol.prototype.canSafelyBeForgotten = function () {
+EdenSymbol.prototype.canSafelyBeForgotten = function () {
 	for (var s in this.subscribers) {
 		return false;
 	}
@@ -793,7 +793,7 @@ Symbol.prototype.canSafelyBeForgotten = function () {
 	return true;
 }
 
-Symbol.prototype.forget = function () {
+EdenSymbol.prototype.forget = function () {
 	this.origin = undefined;
 	this.clearEvalIDs();
 	this.evalResolved = true;
@@ -802,7 +802,7 @@ Symbol.prototype.forget = function () {
 	this.cache.up_to_date = true;
 
 	if (this.context) {
-		this.context.expireSymbol(this);
+		this.context.expireEdenSymbol(this);
 	}
 
 	this.clearObservees();
@@ -822,21 +822,21 @@ Symbol.prototype.forget = function () {
 /**
  * Add an observer to notify on changes to the stored value.
  *
- * @param {string} name The name of the subscribing Symbol.
- * @param {Symbol} symbol The Symbol to trigger when there is a change in this Symbol.
+ * @param {string} name The name of the subscribing EdenSymbol.
+ * @param {EdenSymbol} EdenSymbol The EdenSymbol to trigger when there is a change in this EdenSymbol.
  */
-Symbol.prototype.addObserver = function (name, symbol) {
+EdenSymbol.prototype.addObserver = function (name, EdenSymbol) {
 	this.garbage = false;
-	this.observers[name] = symbol;
+	this.observers[name] = EdenSymbol;
 };
 
 /**
  * Add a JavaScript function to notify on changes to the stored value.
  *
  * @param {string} name A descriptive ID identifying the code being called.
- * @param {function} listener The JavaScript function to call when there is a change in this Symbol.
+ * @param {function} listener The JavaScript function to call when there is a change in this EdenSymbol.
  */
-Symbol.prototype.addJSObserver = function (name, listener) {
+EdenSymbol.prototype.addJSObserver = function (name, listener) {
 	if (typeof(listener) != "function") {
 		throw new Error("Failed adding JavaScript observer " + listener);
 	}
@@ -848,11 +848,11 @@ Symbol.prototype.addJSObserver = function (name, listener) {
 }
 
 /**
- * Tell this Symbol that it no longer needs to notify a specific observer.
+ * Tell this EdenSymbol that it no longer needs to notify a specific observer.
  *
  * @param {string} name Name of the observer that no longer needs to be notified.
  */
-Symbol.prototype.removeObserver = function (name) {
+EdenSymbol.prototype.removeObserver = function (name) {
 	delete this.observers[name];
 	if (this.origin === undefined && this.canSafelyBeForgotten()) {
 		this.forget();
@@ -860,15 +860,15 @@ Symbol.prototype.removeObserver = function (name) {
 };
 
 /**
- * Tell this Symbol that it no longer needs to notify a specific JavaScript function.
+ * Tell this EdenSymbol that it no longer needs to notify a specific JavaScript function.
  *
  * @param {string} name Identifier of the function that no longer needs to be notified.
  */
- Symbol.prototype.removeJSObserver = function (name) {
+ EdenSymbol.prototype.removeJSObserver = function (name) {
 	delete this.jsObservers[name];
 }
 
-Symbol.prototype.addExtension = function(idstr, ext, source, modifying_agent, deps) {
+EdenSymbol.prototype.addExtension = function(idstr, ext, source, modifying_agent, deps) {
 	if (this.definition) {	
 		if (this.extend === undefined) {
 			this.extend = {};
@@ -876,17 +876,17 @@ Symbol.prototype.addExtension = function(idstr, ext, source, modifying_agent, de
 		this.extend[idstr] = { code: ext, source: source, deps: deps };
 
 		this.subscribe(deps);
-		this.needsGlobalNotify = Symbol.REDEFINED;
+		this.needsGlobalNotify = EdenSymbol.REDEFINED;
 
 		if (this.context) {
-			this.context.expireSymbol(this);
+			this.context.expireEdenSymbol(this);
 		}
 	} else {
 		throw new Error(Eden.RuntimeError.EXTENDSTATIC);
 	}
 }
 
-Symbol.prototype.listAssign = function(value, scope, origin, pushToNetwork, indices) {
+EdenSymbol.prototype.listAssign = function(value, scope, origin, pushToNetwork, indices) {
 	if (this.definition) {
 		throw new Error(Eden.RuntimeError.ASSIGNTODEFINED);
 		return;
@@ -909,9 +909,9 @@ Symbol.prototype.listAssign = function(value, scope, origin, pushToNetwork, indi
 	}
 
 	this.origin = origin;
-	this.needsGlobalNotify = Symbol.ASSIGNED;
+	this.needsGlobalNotify = EdenSymbol.ASSIGNED;
 	if (this.context) {
-		this.context.expireSymbol(this);
+		this.context.expireEdenSymbol(this);
 	}
 
 	if (eden.peer) eden.peer.listAssign(origin, this.name, value, indices);

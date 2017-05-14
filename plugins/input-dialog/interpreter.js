@@ -109,9 +109,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		var valsplit = value.sp;
 		var viewname = value.replace(/[^a-zA-Z0-9]+/g,"");
-		eden.root.lookup("view_"+viewname+"_tabs").assign([value], eden.root.scope, Symbol.hciAgent);
+		eden.root.lookup("view_"+viewname+"_tabs").assign([value], eden.root.scope, EdenSymbol.hciAgent);
 		edenUI.createView(viewname, "ScriptInput");
-		eden.root.lookup("view_"+viewname+"_current").assign(0, eden.root.scope, Symbol.hciAgent);
+		eden.root.lookup("view_"+viewname+"_current").assign(0, eden.root.scope, EdenSymbol.hciAgent);
 	}).delegate(null, 'dragover', function(e) {
 		e.preventDefault();
 	});
@@ -211,7 +211,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 		if (showTabsSym.value() === undefined && showTabsSym.definition === undefined) {
-			showTabsSym.assign(true, eden.root.scope, Symbol.defaultAgent);
+			showTabsSym.assign(true, eden.root.scope, EdenSymbol.defaultAgent);
 		}
 		showTabsSym.addJSObserver("scriptview_"+name, showTabs);
 		showTabs(showTabsSym, showTabsSym.value());
@@ -229,7 +229,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			}
 		}
 		if (showButtonsSym.value() === undefined && showButtonsSym.definition === undefined) {
-			showButtonsSym.assign(true, eden.root.scope, Symbol.defaultAgent);
+			showButtonsSym.assign(true, eden.root.scope, EdenSymbol.defaultAgent);
 		}
 		showButtonsSym.addJSObserver("scriptview_"+name, showButtons);
 		showButtons(showButtonsSym, showButtonsSym.value());
@@ -247,7 +247,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					curtab = value;
 					scriptarea.setFragment(tab_frags[curtab]);
 					if (scriptarea.fragment.originast && scriptarea.fragment.originast.doxyComment && scriptarea.fragment.originast.doxyComment.getProperty("nobuttons")) {
-						showButtonsSym.assign(false, eden.root.scope, Symbol.localJSAgent);
+						showButtonsSym.assign(false, eden.root.scope, EdenSymbol.localJSAgent);
 						console.log("DISABLE BUTTONS");
 					}
 				}
@@ -306,11 +306,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		tabsChanged(tabsSym, tabsSym.value());
 
 		if (tabsSym.value() === undefined && tabsSym.definition === undefined) {
-			tabsSym.assign([], eden.root.scope, Symbol.defaultAgent);
+			tabsSym.assign([], eden.root.scope, EdenSymbol.defaultAgent);
 		}
 
 		if (curSym.value() === undefined && curSym.definition === undefined) {
-			curSym.assign(-1, eden.root.scope, Symbol.defaultAgent);
+			curSym.assign(-1, eden.root.scope, EdenSymbol.defaultAgent);
 		}
 
 
@@ -358,7 +358,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			for (var i=0; i<tab_frags.length; i++) {
 				if (frag === tab_frags[i]) {
 					console.log("I have the goto frag");
-					if (curtab != i) curSym.assign(i, eden.root.scope, Symbol.localJSAgent);
+					if (curtab != i) curSym.assign(i, eden.root.scope, EdenSymbol.localJSAgent);
 					scriptarea.gotoLine(line);
 					// Scroll to correct place
 					var scrollto = 50 + (line-5) * 20;
@@ -630,13 +630,13 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		function onBrowse() {
 			// A tab index of -1 means show script browser...
-			curSym.assign(-1, eden.root.scope, Symbol.localJSAgent);
+			curSym.assign(-1, eden.root.scope, EdenSymbol.localJSAgent);
 		}
 
 
 		function onTabClick(e) {
 			var name = e.currentTarget.getAttribute("data-index");
-			curSym.assign(parseInt(name), eden.root.scope, Symbol.hciAgent);
+			curSym.assign(parseInt(name), eden.root.scope, EdenSymbol.hciAgent);
 			scriptarea.intextarea.focus();
 		}
 
@@ -645,10 +645,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (name >= 0 && name < tab_frags.length) {
 				var tabs = tabsSym.value();
 				tabs.splice(name, 1);
-				tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
+				tabsSym.assign(tabs, eden.root.scope, EdenSymbol.localJSAgent);
 				var curt = curSym.value();
 				if (curt >= tabs.length) {
-					curSym.assign(curt-1, eden.root.scope, Symbol.localJSAgent);
+					curSym.assign(curt-1, eden.root.scope, EdenSymbol.localJSAgent);
 				}
 			}
 			e.stopPropagation();
@@ -663,7 +663,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			ix--;
 			if (ix >= 0) {
 				//curtab = ix;
-				curSym.assign(ix, eden.root.scope, Symbol.hciAgent);
+				curSym.assign(ix, eden.root.scope, EdenSymbol.hciAgent);
 				//agent.state[obs_agent] = tabs[ix];
 			}
 		}
@@ -674,7 +674,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var ix = curtab; // tabs.indexOf(scriptagent.name);
 			ix++;
 			if (ix < tab_frags.length) {
-				curSym.assign(ix, eden.root.scope, Symbol.hciAgent);
+				curSym.assign(ix, eden.root.scope, EdenSymbol.hciAgent);
 			}
 		}
 
@@ -683,8 +683,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var tabs = tabsSym.value();
 			tabs.push("scratch"+scratchnum);
 			scratchnum++;
-			tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
-			curSym.assign(tabs.length-1, eden.root.scope, Symbol.localJSAgent);
+			tabsSym.assign(tabs, eden.root.scope, EdenSymbol.localJSAgent);
+			curSym.assign(tabs.length-1, eden.root.scope, EdenSymbol.localJSAgent);
 		}
 
 
@@ -794,7 +794,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var tabs = tabsSym.value();
 			if (tabs.indexOf(value) == -1) {
 				tabs.push(value);
-				tabsSym.assign(tabs,eden.root.scope,Symbol.hciAgent);
+				tabsSym.assign(tabs,eden.root.scope,EdenSymbol.hciAgent);
 			}
 		}
 
@@ -813,7 +813,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					if (ix < tabs.length) {
 						//agent.state[obs_agent] = tabs[ix];
 					}
-					tabsSym.assign(tabs,eden.root.scope,Symbol.hciAgent);
+					tabsSym.assign(tabs,eden.root.scope,EdenSymbol.hciAgent);
 				}
 				if(tabs.length == 0) {
 					//agent.state[obs_agent] = undefined;
@@ -877,7 +877,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			
 			var tabs = tabsSym.value();
 			tabs[curtab] = tab_frags[curtab].selector;
-			tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
+			tabsSym.assign(tabs, eden.root.scope, EdenSymbol.localJSAgent);
 		}
 
 		function onBrowseClick(e) {
@@ -886,10 +886,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			var ix = tabs.indexOf(path);
 			if (ix == -1) {
 				tabs.push(path);
-				tabsSym.assign(tabs, eden.root.scope, Symbol.localJSAgent);
-				curSym.assign(tabs.length-1, eden.root.scope, Symbol.localJSAgent);
+				tabsSym.assign(tabs, eden.root.scope, EdenSymbol.localJSAgent);
+				curSym.assign(tabs.length-1, eden.root.scope, EdenSymbol.localJSAgent);
 			} else {
-				curSym.assign(ix, eden.root.scope, Symbol.localJSAgent);
+				curSym.assign(ix, eden.root.scope, EdenSymbol.localJSAgent);
 			}
 		}
 
@@ -924,7 +924,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (script && script != "") {
 				//script = script.replace(/\\/g,"");
 				//eden.execute2(script, {name: "execute"});
-				eden.root.lookup(script).assign(e.currentTarget.value, eden.root.scope, Symbol.hciAgent);
+				eden.root.lookup(script).assign(e.currentTarget.value, eden.root.scope, EdenSymbol.hciAgent);
 			}
 			//e.stopPropogation();
 		}
@@ -967,7 +967,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 						agent.state[obs_agent] = agname;
 
 						//if (edited == false) {
-							if (data instanceof Symbol) {
+							if (data instanceof EdenSymbol) {
 								agent.setScope(data.getValueScope(eden.root.scope));
 								intextarea.value = EdenUI.plugins.ScriptInput.buildScriptFromList(agent.code);
 								updateEntireHighlight();
@@ -1061,8 +1061,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			stop: function(event, ui) {
 				var root = eden.root;
 				root.beginAutocalcOff();
-				view(simpleName, 'x').assign(ui.position.left, eden.root.scope, Symbol.hciAgent);
-				view(simpleName, 'y').assign(ui.position.top, eden.root.scope, Symbol.hciAgent);
+				view(simpleName, 'x').assign(ui.position.left, eden.root.scope, EdenSymbol.hciAgent);
+				view(simpleName, 'y').assign(ui.position.top, eden.root.scope, EdenSymbol.hciAgent);
 				root.endAutocalcOff();
 			},
 			start: function(event, ui) {

@@ -17,13 +17,13 @@ Eden.Peer = function(master, id) {
 	this.capturepatch = false;
 
 	if (eden.root.lookup("jseden_p2p_newconnections").value() === undefined) {
-		eden.root.lookup("jseden_p2p_newconnections").assign([], eden.root.scope, Symbol.defaultAgent);
+		eden.root.lookup("jseden_p2p_newconnections").assign([], eden.root.scope, EdenSymbol.defaultAgent);
 	}
 	if (eden.root.lookup("jseden_p2p_newdisconnections").value() === undefined) {
-		eden.root.lookup("jseden_p2p_newdisconnections").assign([], eden.root.scope, Symbol.defaultAgent);
+		eden.root.lookup("jseden_p2p_newdisconnections").assign([], eden.root.scope, EdenSymbol.defaultAgent);
 	}
 	if (eden.root.lookup("jseden_p2p_errors").value() === undefined) {
-		eden.root.lookup("jseden_p2p_errors").assign([], eden.root.scope, Symbol.defaultAgent);
+		eden.root.lookup("jseden_p2p_errors").assign([], eden.root.scope, EdenSymbol.defaultAgent);
 	}
 
 	//Eden.Agent.importAgent("lib/p2p","default",[],function() {});
@@ -33,14 +33,14 @@ Eden.Peer = function(master, id) {
 		var sym = eden.root.lookup(obj.symbol.slice(1));
 		//var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, {noparse: true});
 		var express = Eden.AST.parseExpression(obj.value); //ast.pEXPRESSION();
-		sym.assign(express.execute({}, Symbol.netAgent, eden.root.scope), eden.root.scope, Symbol.netAgent);
+		sym.assign(express.execute({}, EdenSymbol.netAgent, eden.root.scope), eden.root.scope, EdenSymbol.netAgent);
 		me.broadcastExcept(obj.id, obj);
 	}
 
 	function processDefine(obj) {
 		var sym = eden.root.lookup(obj.symbol.slice(1));
 		//sym.eden_definition = obj.source;
-		sym.define(eval(obj.code), Symbol.netAgent, obj.dependencies, obj.source);
+		sym.define(eval(obj.code), EdenSymbol.netAgent, obj.dependencies, obj.source);
 		me.broadcastExcept(obj.id, obj);
 	}
 
@@ -53,7 +53,7 @@ Eden.Peer = function(master, id) {
 		var sym = eden.root.lookup(obj.symbol.slice(1));
 		//var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, true);
 		var express = Eden.AST.parseExpression(obj.value); //ast.pEXPRESSION();
-		sym.listAssign(express.execute({}, Symbol.netAgent, eden.root.scope), eden.root.scope, Symbol.netAgent, false, obj.components);
+		sym.listAssign(express.execute({}, EdenSymbol.netAgent, eden.root.scope), eden.root.scope, EdenSymbol.netAgent, false, obj.components);
 		me.broadcastExcept(obj.id, obj);
 	}
 
@@ -82,7 +82,7 @@ Eden.Peer = function(master, id) {
 
 	function processRegister(obj) {
 		Eden.Peer.emit("user", [obj.id,obj.username]);
-		eden.root.lookup("jseden_p2p_"+obj.id+"_name").assign(obj.username, eden.root.scope, Symbol.localJSAgent);
+		eden.root.lookup("jseden_p2p_"+obj.id+"_name").assign(obj.username, eden.root.scope, EdenSymbol.localJSAgent);
 	}
 
 	function processGetSnapshot(obj) {
@@ -185,7 +185,7 @@ Eden.Peer = function(master, id) {
 					conn.on('open',function() {
 						me.connections[conn.peer] = {id: conn.peer, username: undefined, connection: conn, share: false, observe: false};
 						conn.on('data',function(data) { processData(conn, data); });
-						eden.root.lookup("jseden_p2p_newconnections").append(conn.peer, eden.root.scope, Symbol.localJSAgent);
+						eden.root.lookup("jseden_p2p_newconnections").append(conn.peer, eden.root.scope, EdenSymbol.localJSAgent);
 
 						// Register
 						conn.send(JSON.stringify({cmd: "register", username: Eden.DB.username, id: id}));
@@ -198,7 +198,7 @@ Eden.Peer = function(master, id) {
 				conn.on('data', function(data) { processData(conn, data); });
 				console.log("Peer connection from " + conn.peer);
 				Eden.Peer.emit("peer", [conn.peer]);
-				eden.root.lookup("jseden_p2p_newconnections").append(conn.peer, eden.root.scope, Symbol.localJSAgent);
+				eden.root.lookup("jseden_p2p_newconnections").append(conn.peer, eden.root.scope, EdenSymbol.localJSAgent);
 
 				conn.on('open', function() {
 					if (me.config.share) {
@@ -212,13 +212,13 @@ Eden.Peer = function(master, id) {
 			peer.on('error', function(err) {
 				console.log("Peer error: ", err);
 				Eden.Peer.emit("error", [err]);
-				eden.root.lookup("jseden_p2p_errors").append(err, eden.root.scope, Symbol.localJSAgent);
+				eden.root.lookup("jseden_p2p_errors").append(err, eden.root.scope, EdenSymbol.localJSAgent);
 			});
 
 			peer.on('disconnected', function(conn) {
 				Eden.Peer.emit("disconnect", [conn.peer, (me.connections[conn.peer]) ? me.connections[conn.peer].username : undefined]);
 				delete me.connections[conn.peer];
-				eden.root.lookup("jseden_p2p_newdisconnections").append(conn.peer, eden.root.scope, Symbol.localJSAgent);
+				eden.root.lookup("jseden_p2p_newdisconnections").append(conn.peer, eden.root.scope, EdenSymbol.localJSAgent);
 			});
 		}
 
@@ -251,11 +251,11 @@ Eden.Peer = function(master, id) {
 	var capInSym = eden.root.lookup("jseden_p2p_captureinput");
 	capInSym.addJSObserver("p2p", function(sym, value) {
 		if (value) {
-			Symbol.hciAgent.local = false;
-			Symbol.localJSAgent.local = false;
+			EdenSymbol.hciAgent.local = false;
+			EdenSymbol.localJSAgent.local = false;
 		} else {
-			Symbol.hciAgent.local = true;
-			Symbol.localJSAgent.local = true;
+			EdenSymbol.hciAgent.local = true;
+			EdenSymbol.localJSAgent.local = true;
 		}
 	});
 

@@ -347,7 +347,7 @@ EdenScriptGutter.prototype.executeSelected = function() {
 			//this.ast.executeLine(i, agent);
 			eden.project.ast.executeStatement(stat, i, eden.project);
 			i = sellines[1];
-			eden.root.lookup("jseden_fragment_executed").assign(".id("+stat.id+")", eden.root.scope, Symbol.hciAgent);
+			eden.root.lookup("jseden_fragment_executed").assign(".id("+stat.id+")", eden.root.scope, EdenSymbol.hciAgent);
 		}
 	}
 }

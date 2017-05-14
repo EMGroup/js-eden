@@ -22,7 +22,7 @@ edenCopy = copy;
  *
  * @constructor
  * @struct
- * @param {string?} name Name to prepend to all child Symbols.
+ * @param {string?} name Name to prepend to all child symbols.
  * @param {Folder?} parent Parent Folder for this Folder.
  * @param {Folder?} root The top most parent of this Folder.
  */
@@ -61,7 +61,7 @@ function Folder(name, parent, root) {
 	this.scope = new Scope(this, undefined, {});
 
 	/**
-	 * @type {Object.<string, Symbol>}
+	 * @type {Object.<string, EdenSymbol>}
 	 * @public
 	 */
 	this.symbols = {};
@@ -69,7 +69,7 @@ function Folder(name, parent, root) {
 	this.evalResults = {};
 
 	/**
-	 * @type {Array.<function(Symbol, boolean)>}
+	 * @type {Array.<function(EdenSymbol, boolean)>}
 	 * @private
 	 */
 	this.globalobservers = [];
@@ -91,7 +91,7 @@ function Folder(name, parent, root) {
 	 */
 	this.expiryCount = new Pointer(0);
 
-	/** Symbols that might be ready to be garbage collected.
+	/** symbols that might be ready to be garbage collected.
 	 * @private
 	 */
 	this.potentialGarbage = {};
@@ -187,14 +187,14 @@ Folder.prototype.getSource = function() {
 Folder.prototype.execute = function() {}
 
 /**
- * Looks up the the Symbol with the given name.
+ * Looks up the the EdenSymbol with the given name.
  *
- * @param {string} name The name of the symbol you want.
- * @return {Symbol}
+ * @param {string} name The name of the EdenSymbol you want.
+ * @return {EdenSymbol}
  */
 Folder.prototype.lookup = function (name) {
 	if (this.symbols[name] === undefined) {
-		this.symbols[name] = new Symbol(this, name);
+		this.symbols[name] = new EdenSymbol(this, name);
 		this.notifyGlobals(this.symbols[name], 1);
 	}
 	return this.symbols[name];
@@ -208,21 +208,21 @@ Folder.prototype.currentObservableName = function () {
 	}
 }
 
-Folder.prototype.beginEvaluation = function (symbol) {
-	this.currentObservables.push(symbol)
+Folder.prototype.beginEvaluation = function (EdenSymbol) {
+	this.currentObservables.push(EdenSymbol)
 }
 
-Folder.prototype.endEvaluation = function (symbol) {
+Folder.prototype.endEvaluation = function (EdenSymbol) {
 	this.currentObservables.pop();
 }
 
 /**
- * Adds a symbol to the garbage queue, for example, when EDEN's forget function is used.
- * @param {Symbol} The symbol that will require garbage collection if it isn't referenced again
+ * Adds a EdenSymbol to the garbage queue, for example, when EDEN's forget function is used.
+ * @param {EdenSymbol} The EdenSymbol that will require garbage collection if it isn't referenced again
  * before execution of the current script completes.
  */
-Folder.prototype.queueForGarbageCollection = function (symbol) {
-	this.potentialGarbage[symbol.name] = symbol;
+Folder.prototype.queueForGarbageCollection = function (EdenSymbol) {
+	this.potentialGarbage[EdenSymbol.name] = EdenSymbol;
 }
 
 Folder.prototype.collectGarbage = function () {
@@ -260,7 +260,7 @@ Folder.prototype.clearEval = function (id) {
 /**
  * Add a listener for any change in the Folder.
  *
- * @param {function(Symbol, boolean)} listener This will be executed when a change occurs in the Folder.
+ * @param {function(EdenSymbol, boolean)} listener This will be executed when a change occurs in the Folder.
  */
 Folder.prototype.addGlobal = function (listener) {
 	this.globalobservers.push(listener);
@@ -269,7 +269,7 @@ Folder.prototype.addGlobal = function (listener) {
 /**
  * Remove a global observer / global listener.
  *
- * @param {function(Symbol, boolean)} listener This listener will cease being executed when a change occurs in the Folder.
+ * @param {function(EdenSymbol, boolean)} listener This listener will cease being executed when a change occurs in the Folder.
  * @return {boolean} True if the listener was successfully removed, or false if it could not be found.
  */
 Folder.prototype.removeGlobal = function (listener) {
@@ -285,13 +285,13 @@ Folder.prototype.removeGlobal = function (listener) {
 /**
  * Notify all global listeners about a change in the Folder.
  *
- * @param {Symbol} symbol The symbol that changed.
+ * @param {EdenSymbol} EdenSymbol The EdenSymbol that changed.
  * @param {boolean} create 
  */
-Folder.prototype.notifyGlobals = function (symbol, kind) {
+Folder.prototype.notifyGlobals = function (EdenSymbol, kind) {
 	for (var i = 0; i < this.globalobservers.length; i++) {
 		if (this.globalobservers[i] !== undefined) {
-			this.globalobservers[i].call(this, symbol, kind);
+			this.globalobservers[i].call(this, EdenSymbol, kind);
 		}
 	}
 };
@@ -333,14 +333,14 @@ Folder.prototype.endAutocalcOff = function () {
 	}
 }
 
-Folder.prototype.expireSymbol = function (sym) {
+Folder.prototype.expireEdenSymbol = function (sym) {
 	if (this.needsExpire.indexOf(sym) == -1) {
 		this.needsExpire.push(sym);
 	}
 	this.expireAndFireActions();
 };
 
-Folder.prototype.triggerSymbol = function (sym) {
+Folder.prototype.triggerEdenSymbol = function (sym) {
 	this.needsTrigger[sym.name] = sym;
 	if (this.firetimer === undefined) {
 		var me = this;
@@ -357,24 +357,24 @@ Folder.prototype.expireAndFireActions = function () {
 	}
 
 	this.expiryCount.value = 0;
-	var symbolNamesToForce = {};
+	var EdenSymbolNamesToForce = {};
 	for (var i = 0; i < this.needsExpire.length; i++) {
 		var sym = this.needsExpire[i];
-		sym.expire(symbolNamesToForce, this.expiryCount, this.needsTrigger, sym.needsGlobalNotify == Symbol.REDEFINED);
+		sym.expire(EdenSymbolNamesToForce, this.expiryCount, this.needsTrigger, sym.needsGlobalNotify == EdenSymbol.REDEFINED);
 		//sym.needsGlobalNotify = 2;
 	}
 	var expired = this.needsExpire;
 	this.needsExpire = [];
-	var symbolNamesArray = Object.keys(symbolNamesToForce);
-	symbolNamesArray.sort(function (name1, name2) {
-		return symbolNamesToForce[name1] - symbolNamesToForce[name2];
+	var EdenSymbolNamesArray = Object.keys(EdenSymbolNamesToForce);
+	EdenSymbolNamesArray.sort(function (name1, name2) {
+		return EdenSymbolNamesToForce[name1] - EdenSymbolNamesToForce[name2];
 	});
 	var symbolsToForce = [];
-	for (var i = 0; i < symbolNamesArray.length; i++) {
+	for (var i = 0; i < EdenSymbolNamesArray.length; i++) {
 		// force re-eval
-		var sym = this.symbols[symbolNamesArray[i]];
+		var sym = this.symbols[EdenSymbolNamesArray[i]];
 		//sym.evaluateIfDependenciesExist();
-		sym.needsGlobalNotify = Symbol.EXPIRED;
+		sym.needsGlobalNotify = EdenSymbol.EXPIRED;
 		symbolsToForce.push(sym);
 	}
 	var actions_to_fire = this.needsTrigger;
@@ -406,11 +406,11 @@ Folder.prototype.processGlobalNotifyQueue = function () {
 	var index = 0;
 	while (index < notifyList.length) {
 		this.globalNotifyIndex++;
-		var symbol = notifyList[index];
-		if (symbol.needsGlobalNotify) {
-			var kind = symbol.needsGlobalNotify;
-			symbol.needsGlobalNotify = 0;
-			this.notifyGlobals(symbol, kind);
+		var EdenSymbol = notifyList[index];
+		if (EdenSymbol.needsGlobalNotify) {
+			var kind = EdenSymbol.needsGlobalNotify;
+			EdenSymbol.needsGlobalNotify = 0;
+			this.notifyGlobals(EdenSymbol, kind);
 		}
 		index = this.globalNotifyIndex;
 	}
@@ -419,8 +419,8 @@ Folder.prototype.processGlobalNotifyQueue = function () {
 };
 
 Folder.prototype.forgetAll = function() {
-	var searchStr, caseSensitive, requireConfirm, includeSystemSymbols;
-	var regExp, symbol;
+	var searchStr, caseSensitive, requireConfirm, includeSystemsymbols;
+	var regExp, EdenSymbol;
 	var obsToDelete = undefined;
 	var includeAgent = {name: "/include"};
 	
@@ -474,9 +474,9 @@ Folder.prototype.forgetAll = function() {
 			eden.error(new Error("forgetAll: The forth argument must be a boolean, not a " + typeof(arguments[3])), "error");
 			return [[], undefined, []];
 		}
-		includeSystemSymbols = arguments[3];
+		includeSystemsymbols = arguments[3];
 	} else {
-		includeSystemSymbols = false;
+		includeSystemsymbols = false;
 	}
 	
 	var references = {};
@@ -489,12 +489,12 @@ Folder.prototype.forgetAll = function() {
 		//Observables given as a list.
 		for (var i = 0; i < obsToDelete.length; i++) {
 			var name;
-			if (obsToDelete[i] instanceof Symbol) {
+			if (obsToDelete[i] instanceof EdenSymbol) {
 				name = obsToDelete[i].name;
-				symbol = obsToDelete[i];
+				EdenSymbol = obsToDelete[i];
 			} else if (typeof(obsToDelete[i]) == "string") {
 				name = obsToDelete[i];
-				symbol = root.lookup(name);
+				EdenSymbol = root.lookup(name);
 			} else if (obsToDelete === undefined) {
 				continue;
 			} else {
@@ -502,7 +502,7 @@ Folder.prototype.forgetAll = function() {
 				return [[], undefined, []];
 			}
 
-			if (!includeSystemSymbols && Eden.isitSystemSymbol(name)) {
+			if (!includeSystemsymbols && Eden.isitSystemEdenSymbol(name)) {
 				unableToDelete.push(name);
 				continue;
 			}
@@ -512,10 +512,10 @@ Folder.prototype.forgetAll = function() {
 				reset[name] = initialDefinition;
 			} else {
 				var referencedBy = [];
-				for (var dependency in symbol.subscribers) {
+				for (var dependency in EdenSymbol.subscribers) {
 					referencedBy.push(dependency);
 				}
-				for (var triggeredProc in symbol.observers) {
+				for (var triggeredProc in EdenSymbol.observers) {
 					referencedBy.push(triggeredProc);
 				}
 				references[name] = referencedBy;
@@ -534,8 +534,8 @@ Folder.prototype.forgetAll = function() {
 		
 		for (var name in root.symbols) {
 			if (regExp.test(name)) {
-				if (!includeSystemSymbols) {
-					if (Eden.isitSystemSymbol(name) || viewsRE.test(name)) {
+				if (!includeSystemsymbols) {
+					if (Eden.isitSystemEdenSymbol(name) || viewsRE.test(name)) {
 						continue;
 					}
 				}
@@ -544,12 +544,12 @@ Folder.prototype.forgetAll = function() {
 				//if (initialDefinition) {
 				//	reset[name] = initialDefinition;
 				//} else {
-					symbol = root.symbols[name];
+					EdenSymbol = root.symbols[name];
 					var referencedBy = [];
-					for (var dependency in symbol.subscribers) {
+					for (var dependency in EdenSymbol.subscribers) {
 						referencedBy.push(dependency);
 					}
-					for (var triggeredProc in symbol.observers) {
+					for (var triggeredProc in EdenSymbol.observers) {
 						referencedBy.push(triggeredProc);
 					}
 					references[name] = referencedBy;
@@ -561,7 +561,7 @@ Folder.prototype.forgetAll = function() {
 	var canForget = {};
 
 	/* Traverses the subgraph of symbols suggested for deletion and returns true if the named
-	 * symbol isn't referenced by anything outside of the subgraph.
+	 * EdenSymbol isn't referenced by anything outside of the subgraph.
 	 */
 	var isSafeToForget = function (name) {
 		if (name in canForget) {
@@ -629,19 +629,19 @@ Folder.prototype.forgetAll = function() {
 
 		for (var i = 0; i < namesToDelete.length; i++) {
 			var name = namesToDelete[i];
-			symbol = root.symbols[name];
-			if (symbol !== undefined) {
-				if ("refreshView" in symbol.jsObservers) {
-					/* Set the symbol to undefined before deleting it, so at least it is clear
+			EdenSymbol = root.symbols[name];
+			if (EdenSymbol !== undefined) {
+				if ("refreshView" in EdenSymbol.jsObservers) {
+					/* Set the EdenSymbol to undefined before deleting it, so at least it is clear
 					 * that the view is no longer valid and isn't merely "hung".
 					 */
-					symbol.assign(undefined, root.scope);
+					EdenSymbol.assign(undefined, root.scope);
 					if (edenUI.plugins.Canvas2D && edenUI.plugins.Canvas2D.destroyViews) {
 						// Close the window if it's a canvas picture observable. (JS-EDEN 1.2.2 and earlier).
 						edenUI.plugins.Canvas2D.destroyViews(name);
 					}
 				}
-				symbol.forget();
+				EdenSymbol.forget();
 				// Close the window if this observable defines the content for a view (e.g. canvas).
 				var match = name.match(/^_view_(.*)_content$/);
 				if (match !== null) {
@@ -654,7 +654,7 @@ Folder.prototype.forgetAll = function() {
 		}*/
 		/*
 		 * The new environment no longer seems to call this automatically at completion of execution, so call
-		 * it manually here to force a clean-up.  Hopefully nothing in the parser is holding onto a Symbol
+		 * it manually here to force a clean-up.  Hopefully nothing in the parser is holding onto a EdenSymbol
 		 * object belonging to a forgotten observable, otherwise bad things will happen.
 		 * TODO: Verify that bad things don't happen.
 		 */

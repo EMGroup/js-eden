@@ -202,7 +202,7 @@ ${{
 		if (this.elements === undefined ) {
 			var me = this;
 			var name = this.name;
-			var agent = Symbol.localJSAgent;
+			var agent = EdenSymbol.localJSAgent;
 			root.beginAutocalcOff();
 
 	//Create HTML tag
@@ -243,7 +243,7 @@ ${{
 					chapterName = chapterNames[chapterIndex];
 				}
 				if (chapterName != chapterSym.value()) {
-					chapterSym.assign(chapterName, root.scope, Symbol.defaultAgent);
+					chapterSym.assign(chapterName, root.scope, EdenSymbol.defaultAgent);
 				}
 				if (chapterIndex < numChapters - 1) {
 					nextChapterAt = chapterMarks[chapterIndex + 1];
@@ -282,7 +282,7 @@ ${{
 				}
 			}; //end of function
 			if (chapterMarksSym.value() === undefined && chapterMarksSym.definition === undefined) {
-				chapterMarksSym.assign({}, root.scope, Symbol.defaultAgent);
+				chapterMarksSym.assign({}, root.scope, EdenSymbol.defaultAgent);
 			}
 			setChapters(chapterMarksSym, chapterMarksSym.value());
 			chapterMarksSym.addJSObserver("setChapters", setChapters);
@@ -318,7 +318,7 @@ ${{
 
 			var initialLooping = loopSym.value();
 			if (initialLooping === undefined && loopSym.definition === undefined) {
-				loopSym.assign(false, root.scope, Symbol.defaultAgent);
+				loopSym.assign(false, root.scope, EdenSymbol.defaultAgent);
 			} else if (initialLooping) {
 				mediaElement.loop = true;
 			}
@@ -358,7 +358,7 @@ ${{
 			var position = positionSym.value();
 			if (position === undefined) {
 				position = new Point(0, 0);
-				positionSym.assign(position, root.scope, Symbol.defaultAgent);
+				positionSym.assign(position, root.scope, EdenSymbol.defaultAgent);
 			}
 			positionSym.addJSObserver("reposition", function (sym, position) {
 				me.doTranslation(position);
@@ -435,7 +435,7 @@ ${{
 			if (time !== undefined) {
 				mediaElement.currentTime = parseFloat(time);
 			} else if (timeSym.definition === undefined) {
-				timeSym.assign(0, root.scope, Symbol.defaultAgent);
+				timeSym.assign(0, root.scope, EdenSymbol.defaultAgent);
 			}
 
 			function findChapter() {
@@ -519,7 +519,7 @@ ${{
 			var speedResetOnLoad;
 			var speed = speedSym.value();
 			if (speed === undefined) {
-				speedSym.assign(1, root.scope, Symbol.defaultAgent);
+				speedSym.assign(1, root.scope, EdenSymbol.defaultAgent);
 			} else if (speed > 0) {
 				mediaElement.defaultPlaybackRate = speed;
 			}
@@ -552,7 +552,7 @@ ${{
 
 			var volume = volumeSym.value();
 			if (volume === undefined) {
-				volumeSym.assign(1, root.scope, Symbol.defaultAgent);
+				volumeSym.assign(1, root.scope, EdenSymbol.defaultAgent);
 			} else if (volume == 0) {
 				mediaElement.muted = true;
 			} else {
@@ -624,7 +624,7 @@ ${{
 		if (this.type == "Video") {
 			mediaElement.onmousedown = function (event) {
 				var mouseFollow = root.lookup("mouseFollow").value();
-				root.lookup("mouseDownZone").assign(me.name, root.scope, Symbol.hciAgent, mouseFollow);
+				root.lookup("mouseDownZone").assign(me.name, root.scope, EdenSymbol.hciAgent, mouseFollow);
 			};
 			mediaElement.onmouseup = function (event) {
 				edenUI.plugins.Canvas2D.endClick();
@@ -633,7 +633,7 @@ ${{
 		}
 		mediaElement.onmouseenter = function (event) {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseZone").assign(me.name, root.scope, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseZone").assign(me.name, root.scope, EdenSymbol.hciAgent, mouseFollow);
 		};
 
 
@@ -700,10 +700,10 @@ ${{
 	var backgroundAudioSym = root.lookup("background_audio");
 	var backgroundAudioPausedSym = root.lookup("background_audio_paused");
 	if (backgroundAudioPausedSym.value() === undefined && backgroundAudioPausedSym.definition === undefined) {
-		backgroundAudioPausedSym.assign(false, root.scope, Symbol.defaultAgent);
+		backgroundAudioPausedSym.assign(false, root.scope, EdenSymbol.defaultAgent);
 	}
 	var backgroundAudio = new Audiovisual("background_audio", "Audio", true);
-	backgroundAudioSym.assign(backgroundAudio, root.scope,Symbol.defaultAgent);
+	backgroundAudioSym.assign(backgroundAudio, root.scope,EdenSymbol.defaultAgent);
 	backgroundAudio.draw();
 	backgroundAudioSym.addJSObserver("initialize", function (sym, value) {
 		if (value instanceof Audiovisual) {

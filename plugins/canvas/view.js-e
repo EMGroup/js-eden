@@ -133,10 +133,10 @@ View.prototype.resize = function () {
 		var widthSymName = this.name + "_width";
 		var heightSymName = this.name + "_height";
 
-		if (autoWidth || widthSymName in root.symbols) {
+		if (autoWidth || widthSymName in eden.root.symbols) {
 			root.lookup(widthSymName).assign(element.offsetWidth / scale, root.scope, agent);
 		}
-		if (autoHeight || heightSymName in root.symbols) {
+		if (autoHeight || heightSymName in eden.root.symbols) {
 			root.lookup(heightSymName).assign(element.offsetHeight / scale, root.scope, agent);
 		}
 	}

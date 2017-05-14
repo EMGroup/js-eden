@@ -102,7 +102,7 @@ Eden.AST.Definition.prototype.generate = function(ctx,scope) {
 		for (var d in this.dependencies) {
 			deps.push(d);
 		}
-		result = result + ", Symbol.localJSAgent, "+JSON.stringify(deps)+");\n";
+		result = result + ", EdenSymbol.localJSAgent, "+JSON.stringify(deps)+");\n";
 		return result;
 	}
 };
