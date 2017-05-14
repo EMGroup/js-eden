@@ -216,7 +216,7 @@ function Construit(options,callback) {
 		
 		// TODO Remove this once restore works
 		if (edenUI.getOptionValue('optConfirmUnload') != "false") {
-			window.addEventListener("beforeunload", confirmUnload);
+			//window.addEventListener("beforeunload", confirmUnload);
 		}
 
 		/**
