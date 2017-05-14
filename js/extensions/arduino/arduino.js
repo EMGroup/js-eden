@@ -183,9 +183,9 @@ Eden.Arduino.check = function() {
 		//console.log("Serial ports", ports);
 	});
 
-	/*if (!found) {
+	if (!found) {
 		return;
-	}*/
+	}
 
 	console.log("Arduinos",Eden.Arduino.devices);
 
