@@ -10,6 +10,7 @@
   },
   "scripts": {
     "test": "node ./qunit_tests.js",
+    "rebuild": "node_modules/.bin/electron-rebuild -f -w serialport",
     "start": "electron ."
   },
   "main": "main.js",
@@ -17,6 +18,7 @@
   "devDependencies": {
     "chai-as-promised": "~4.1.1",
     "electron": "~1.6.2",
+    "electron-rebuild": "^1.5.11",
     "finalhandler": "^1.0.2",
     "gateway": "~0.2.1",
     "grunt": "~0.4.5",
