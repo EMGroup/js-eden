@@ -4,12 +4,13 @@ Eden.Arduino = function(port) {
 	this.connected = false;
 
 	for (var i=0; i<14; i++) {
-		pinModes[i] = "IN";
+		this.pinModes[i] = "IN";
 	}
 
 }
 
 Eden.Arduino.prototype.connect = function() {
+	console.log("Attempt connect");
 	var me = this;
 	var cacheData = [];
 
@@ -30,11 +31,11 @@ Eden.Arduino.prototype.connect = function() {
 
 	me.sp.on('open', function() {
 		me.connected = true;
-		eden.root.assign("arduino_connected", true, eden.root.scope, EdenSymbol.localJSAgent);
+		eden.root.lookup("arduino_connected").assign(true, eden.root.scope, EdenSymbol.localJSAgent);
 		console.log("Arduino connected...");
 
 		me.sp.on('close', function() {
-			eden.root.assign("arduino_connected", false, eden.root.scope, EdenSymbol.localJSAgent);
+			eden.root.lookup("arduino_connected").assign(false, eden.root.scope, EdenSymbol.localJSAgent);
 			console.log("Arduino disconnected.");
 			setTimeout(function() {
 				serialHandlers();
@@ -68,6 +69,8 @@ Eden.Arduino.prototype.connect = function() {
 		});
 	});
 	}
+	serialHandlers();
+	me.sp.open();
 
 	function digiHandler(sym, value) {
 		console.log("Write arduino",sym.name,value);
@@ -175,35 +178,37 @@ Eden.Arduino.check = function() {
 
 	SerialPort.list(function (err, ports) {
 		ports.forEach(function(port) {
-			if (port.manufacturer == "Arduino_Srl") {
+			console.log("Serial",port.manufacturer);
+			if (port.manufacturer && port.manufacturer.includes("Arduino")) {
 				Eden.Arduino.devices[port.comName] = new Eden.Arduino(port.comName);
 				found = true;
+				console.log("Has arduino");
 			}
 		});
+
+		if (!found) {
+			return;
+		}
+
+		console.log("Arduinos",Eden.Arduino.devices);
+
+		var devele = $("#arduinodevices");
+
+		/*for (var x in Eden.Arduino.devices) {
+			var ele = $('<div class="arduinodevice"></div>');
+		}*/
+
+		var arddiag = $("#arduinodialog");
+		arddiag.on("click",".close",function() {
+			arddiag.hide();
+		})
+		.on("click",".use",function() {
+			arddiag.hide();
+			for (var x in Eden.Arduino.devices) {
+				Eden.Arduino.devices[x].connect();
+			}
+		});
+		arddiag.show();
 		//console.log("Serial ports", ports);
 	});
-
-	if (!found) {
-		return;
-	}
-
-	console.log("Arduinos",Eden.Arduino.devices);
-
-	var devele = $("#arduinodevices");
-
-	/*for (var x in Eden.Arduino.devices) {
-		var ele = $('<div class="arduinodevice"></div>');
-	}*/
-
-	var arddiag = $("#arduinodialog");
-	arddiag.on("click",".close",function() {
-		arddiag.hide();
-	})
-	.on("click",".use",function() {
-		arddiag.hide();
-		for (var x in Eden.Arduino.devices) {
-			Eden.Arduino.devices[x].connect();
-		}
-	});
-	arddiag.show();
 }
