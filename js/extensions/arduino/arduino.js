@@ -7,6 +7,7 @@ Eden.Arduino = function(port) {
 		this.pinModes[i] = "IN";
 	}
 
+	this.digipincache = {};
 }
 
 Eden.Arduino.prototype.connect = function() {
@@ -76,13 +77,28 @@ Eden.Arduino.prototype.connect = function() {
 		console.log("Write arduino",sym.name,value);
 		if (!me.connected || sym.origin === EdenSymbol.localJSAgent) return;
 		var pin = parseInt(sym.name.replace("arduino_d",""));
-		me.writeDigitalPin(pin, value);
+		if (value != me.digipincache[pin]) {
+			me.writeDigitalPin(pin, value);
+			me.digipincache[pin] = value;
+		}
 	}
 
 	var digisyms = [];
 	for (var i=1; i<=14; i++) {
 		digisyms[i-1] = eden.root.lookup("arduino_d"+i);
 		digisyms[i-1].addJSObserver(this.port, digiHandler);
+	}
+
+	function inputHandler(sym, value) {
+		if (!me.connected || sym.origin === EdenSymbol.localJSAgent) return;
+		var pin = parseInt(sym.name.replace("arduino_input_",""));
+		
+	}
+
+	var inputsyms = [];
+	for (var i=1; i<=14; i++) {
+		inputsyms[i-1] = eden.root.lookup("arduino_input_d"+i);
+		inputsyms[i-1].addJSObserver(this.port, inputHandler);
 	}
 }
 
@@ -159,7 +175,7 @@ Eden.Arduino.prototype.analogHandler = function(name, value) {
 }
 
 Eden.Arduino.prototype.toneHandler = function(dummy, pin) {
-	sendCommand(pin, 1, 6);
+	this.sendCommand(pin, 1, 6);
 }
 
 Eden.Arduino.prototype.servoHandler = function(name, value) {
