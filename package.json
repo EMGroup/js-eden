@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "node ./qunit_tests.js",
-    "rebuild": "node_modules/.bin/electron-rebuild -f -w serialport",
+    "rebuild": "electron-rebuild -f -w serialport",
     "start": "electron ."
   },
   "main": "main.js",
