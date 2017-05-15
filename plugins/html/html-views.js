@@ -30,14 +30,14 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 			var name = e.currentTarget.name;
 			var value = e.currentTarget.getAttribute("data-value");
 			if (value !== null && value.charAt(0).match(/[0-9]?/) !== null) value = parseInt(value);
-			eden.root.lookup(name).assign((value === null) ? true : value, eden.root.scope, Symbol.hciAgent);
-			//eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
+			eden.root.lookup(name).assign((value === null) ? true : value, eden.root.scope, EdenSymbol.hciAgent);
+			//eden.root.lookup(name).assign(false, eden.root.scope, EdenSymbol.hciAgent);
 		});
 		code_entry.on("mouseup", "button", function(e) {
 			var name = e.currentTarget.name;
 			var value = e.currentTarget.getAttribute("data-value");
-			if (value === null) eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
-			//eden.root.lookup(name).assign(false, eden.root.scope, Symbol.hciAgent);
+			if (value === null) eden.root.lookup(name).assign(false, eden.root.scope, EdenSymbol.hciAgent);
+			//eden.root.lookup(name).assign(false, eden.root.scope, EdenSymbol.hciAgent);
 		});
 		code_entry.on("click", function(e) {
 			var script = e.srcElement.getAttribute("data-jseden");
@@ -89,11 +89,11 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 
 	//Load the Eden wrapper functions
 	/*Eden.Agent.importAgent("plugins/html", "default", ["enabled"], function() {
-		eden.root.lookup("plugins_html_loaded").assign(true, eden.root.scope, Symbol.localJSAgent);
+		eden.root.lookup("plugins_html_loaded").assign(true, eden.root.scope, EdenSymbol.localJSAgent);
 		if (success) success();
 	});*/
 	Eden.Selectors.execute("plugins > html > html", function() {
-		eden.root.lookup("plugins_html_loaded").assign(true, eden.root.scope, Symbol.localJSAgent);
+		eden.root.lookup("plugins_html_loaded").assign(true, eden.root.scope, EdenSymbol.localJSAgent);
 		if (success) success();
 	});
 };

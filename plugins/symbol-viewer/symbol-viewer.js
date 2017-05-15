@@ -91,9 +91,9 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 				var tabs = eden.root.lookup("view_"+editorViewName+"_tabs").value();
 				if (!Array.isArray(tabs)) tabs = [];
 				tabs.push(searchBoxElem.value.substring(8));
-				eden.root.lookup("view_"+editorViewName+"_tabs").assign(tabs, eden.root.scope, Symbol.hciAgent);
-				eden.root.lookup("view_"+editorViewName+"_current").assign(tabs.length-1, eden.root.scope, Symbol.hciAgent);
-				//edenUI.eden.root.lookup("view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, Symbol.hciAgent);
+				eden.root.lookup("view_"+editorViewName+"_tabs").assign(tabs, eden.root.scope, EdenSymbol.hciAgent);
+				eden.root.lookup("view_"+editorViewName+"_current").assign(tabs.length-1, eden.root.scope, EdenSymbol.hciAgent);
+				//edenUI.eden.root.lookup("view_" + editorViewName + "_title").assign("Script for " + edenName, eden.root.scope, EdenSymbol.hciAgent);
 			}
 		});
 
@@ -143,7 +143,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 
 		// Make changes in search box update the list.
 		searchBox.keyup(function() {
-			searchStrSym.assign(searchBoxElem.value, root.scope, Symbol.hciAgent);
+			searchStrSym.assign(searchBoxElem.value, root.scope, EdenSymbol.hciAgent);
 		});
 
 		//document.getElementById(name + "-category-filter").addEventListener("change", function (event) {
@@ -673,9 +673,9 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation)
 					inputBoxElem.selectionEnd = currentEden.length - 1;
 				}
 			} else if (value === true) {
-				me.symbol.assign(false, eden.root.scope, Symbol.hciAgent, true);
+				me.symbol.assign(false, eden.root.scope, EdenSymbol.hciAgent, true);
 			} else {
-				me.symbol.assign(true, eden.root.scope, Symbol.hciAgent, true);
+				me.symbol.assign(true, eden.root.scope, EdenSymbol.hciAgent, true);
 			}
 		});
 	}

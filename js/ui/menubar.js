@@ -10,7 +10,7 @@ EdenUI.MenuBar = function() {
 	obscurer.html(`<div class="modal-content" style="width: 550px; height: 400px;"><div class="menubar-sharebox-title"><span class="menubar-shareicon">&#xf090;</span>${Language.ui.menu_bar.signin}</div><iframe frameborder="0" name="logintarget" width="540px" height="300px" class="menubar-login-iframe"></iframe><button class="jseden button-cancel">${Language.ui.menu_bar.cancel}</button></div>`);
 	obscurer.hide();
 
-	if (Eden.AST) eden.execute2("views_number_created = 0;", Symbol.defaultAgent);
+	if (Eden.AST) eden.execute2("views_number_created = 0;", EdenSymbol.defaultAgent);
 
 	// The menu bar, title and buttons...
 	//<div class="jseden-subtitle">by Some Author</div>
@@ -242,7 +242,7 @@ EdenUI.MenuBar = function() {
 		 * are not, in case mouseFollow is enabled later.
 		 */
 		var viewNumber = viewNumberSym.value() + 1;
-		viewNumberSym.assign(viewNumber, root.scope, Symbol.hciAgent, true);
+		viewNumberSym.assign(viewNumber, root.scope, EdenSymbol.hciAgent, true);
 		var viewType = this.view;
 		// NOTE: Why does this not just lowercase everything? 
 		// results in hTMLView!
@@ -529,7 +529,7 @@ EdenUI.MenuBar = function() {
 						document.location.pathname = pathname;
 					} else if (button == 1) {
 						//Don't restart but apply the debugging preference in as many areas as possible without restarting.
-						root.lookup("debug").mutate(root.scope, function (symbol) { symbol.cache.value.jsExceptions = enabled; }, Symbol.hciAgent);
+						root.lookup("debug").mutate(root.scope, function (symbol) { symbol.cache.value.jsExceptions = enabled; }, EdenSymbol.hciAgent);
 					} else {
 						//Cancel the change.
 						var checkbox = document.getElementById("menu-developer");
@@ -540,7 +540,7 @@ EdenUI.MenuBar = function() {
 			);
 		} else {
 			//No need to restart, but do apply changes.
-			root.lookup("debug").mutate(root.scope, function (symbol) { symbol.cache.value.jsExceptions = enabled; }, Symbol.hciAgent);
+			root.lookup("debug").mutate(root.scope, function (symbol) { symbol.cache.value.jsExceptions = enabled; }, EdenSymbol.hciAgent);
 		}
 	});
 
@@ -556,7 +556,7 @@ EdenUI.MenuBar = function() {
 
 	eden.root.lookup("jseden_project_title").addJSObserver("menubar", function(sym, value) {
 		if (ismobile) return;
-		if (sym.origin && sym.origin !== Symbol.hciAgent) {
+		if (sym.origin && sym.origin !== EdenSymbol.hciAgent) {
 			var title = $(".jseden-title").get(0);
 			title.contentEditable = true;
 			title.textContent = value;
@@ -625,14 +625,14 @@ EdenUI.MenuBar = function() {
 		if (!sym.eden_definition) {
 			var val = sym.value();
 			if (val === undefined) val = false;
-			sym.assign(!val, eden.root.scope, Symbol.localJSAgent);
+			sym.assign(!val, eden.root.scope, EdenSymbol.localJSAgent);
 		}
 	});
 
 	this.element.on("keyup", ".jseden-title", function(e) {
 		var sym = eden.root.lookup("jseden_project_title");
 		if (!sym.definition) {
-			sym.assign(e.currentTarget.textContent, eden.root.scope, Symbol.hciAgent);
+			sym.assign(e.currentTarget.textContent, eden.root.scope, EdenSymbol.hciAgent);
 		}
 	});
 }
@@ -650,5 +650,5 @@ EdenUI.MenuBar.reset = function() {
 }
 
 EdenUI.MenuBar.saveTitle = function(title) {
-	eden.root.lookup("jseden_project_title").assign(title, eden.root.scope, Symbol.jsAgent);
+	eden.root.lookup("jseden_project_title").assign(title, eden.root.scope, EdenSymbol.jsAgent);
 }

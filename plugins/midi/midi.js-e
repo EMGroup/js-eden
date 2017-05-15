@@ -400,7 +400,7 @@ proc bindMIDINote {
 			arg = arguments[argsProcessed];
 		}
 
-		if (arg instanceof Symbol) {
+		if (arg instanceof EdenSymbol) {
 			noteSym = arg;
 			argsProcessed++;
 			arg = arguments[argsProcessed];
@@ -411,7 +411,7 @@ proc bindMIDINote {
 			return;
 		}
 
-		if (arg instanceof Symbol) {
+		if (arg instanceof EdenSymbol) {
 			velocitySym = arg;
 			argsProcessed++;
 			arg = arguments[argsProcessed];
@@ -422,7 +422,7 @@ proc bindMIDINote {
 			return;
 		}
 
-		if (arg instanceof Symbol) {
+		if (arg instanceof EdenSymbol) {
 			strikeSym = arg;
 			argsProcessed++;
 			arg = arguments[argsProcessed];

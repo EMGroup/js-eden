@@ -73,14 +73,14 @@ Eden.AST.Assignment.prototype.generate = function(ctx,scope,mode) {
 	} else if (this.lvalue.hasListIndices()) {
 		result = scope+".listAssign("+result+",";
 		result += this.expression.generate(ctx, scope, mode);
-		result += ", Symbol.localJSAgent, false, ";
+		result += ", EdenSymbol.localJSAgent, false, ";
 		result += this.lvalue.generateCompList(ctx, scope);
 		result += ");\n";
 		return result;
 	} else {
 		result = scope+".assign("+result+",";
 		result += this.expression.generate(ctx, scope,mode);
-		result += ", Symbol.localJSAgent);\n"
+		result += ", EdenSymbol.localJSAgent);\n"
 		return result;
 	}
 };

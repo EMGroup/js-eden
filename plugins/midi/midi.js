@@ -216,7 +216,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 	};
 
 	this.bindPrograms = function (symbol, outputNum) {
-		if (!(symbol instanceof Symbol)) {
+		if (!(symbol instanceof EdenSymbol)) {
 			throw new Error("The first argument must be a Symbol.");
 		}
 		//Resolve default device number, etc.
@@ -466,7 +466,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 	controlNumbers["volume"] = 7;
 
 	this.bindControlChange = function (symbol, outputNum, channel, control) {
-		if (!(symbol instanceof Symbol)) {
+		if (!(symbol instanceof EdenSymbol)) {
 			throw new Error("The first argument must be a Symbol.");
 		}
 		var output = outputs[resolveOutputNumber(outputNum)];

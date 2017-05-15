@@ -82,10 +82,10 @@ EdenUI.Explorer = function() {
 		handles: "w",
 		stop: function(event, ui) {
 			//console.log("RESIZESTOP",ui);
-			eden.root.lookup("jseden_explorer_width").assign(ui.element[0].clientWidth+2, eden.root.scope, Symbol.localJSAgent);
+			eden.root.lookup("jseden_explorer_width").assign(ui.element[0].clientWidth+2, eden.root.scope, EdenSymbol.localJSAgent);
 		}
 	});
-	eden.root.lookup("jseden_explorer_width").assign(this.element.get(0).clientWidth+2, eden.root.scope, Symbol.localJSAgent);
+	eden.root.lookup("jseden_explorer_width").assign(this.element.get(0).clientWidth+2, eden.root.scope, EdenSymbol.localJSAgent);
 
 	// Make the console...
 	this.console = new EdenUI.ScriptBox(this.consoleele.get(0), {nobuttons: true});
@@ -156,13 +156,13 @@ EdenUI.Explorer = function() {
 		if (val && me.enabled) {
 			me.element.show();
 			me.state.show();
-			eden.root.lookup("jseden_explorer_width").assign(me.element.get(0).clientWidth+2, eden.root.scope, Symbol.localJSAgent);
+			eden.root.lookup("jseden_explorer_width").assign(me.element.get(0).clientWidth+2, eden.root.scope, EdenSymbol.localJSAgent);
 		} else {
 			me.element.hide();
 			me.state.capture = false;
 			me.state.clear();
 			me.state.hide();
-			eden.root.lookup("jseden_explorer_width").assign(0, eden.root.scope, Symbol.localJSAgent);
+			eden.root.lookup("jseden_explorer_width").assign(0, eden.root.scope, EdenSymbol.localJSAgent);
 		}
 	});
 
@@ -175,7 +175,7 @@ EdenUI.Explorer = function() {
 			me.state.results.css("font-size",""+fs+"pt");
 		}
 	});
-	if (zoomVal === undefined) zoomSym.assign(1, eden.root.scope, Symbol.defaultAgent);
+	if (zoomVal === undefined) zoomSym.assign(1, eden.root.scope, EdenSymbol.defaultAgent);
 
 }
 
@@ -199,9 +199,9 @@ EdenUI.Explorer.prototype.addSetting = function(root, obs, plabel, tip, type) {
 
 	input.onchange = function(e) {
 		if (type == "boolean") {
-			sym.assign(input.checked, eden.root.scope, Symbol.localJSAgent);
+			sym.assign(input.checked, eden.root.scope, EdenSymbol.localJSAgent);
 		} else {
-			sym.assign(input.value, eden.root.scope, Symbol.localJSAgent);
+			sym.assign(input.value, eden.root.scope, EdenSymbol.localJSAgent);
 		}
 	}
 

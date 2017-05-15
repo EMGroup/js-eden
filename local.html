@@ -1,0 +1,736 @@
+<!doctype html>
+<!--
+Copyright (c) 2013, Empirical Modelling Group
+All rights reserved.
+
+See LICENSE.txt
+-->
+
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=0.9">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="theme-color" content="#132023" />
+	<title>JS-EDEN</title>
+
+	<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.12.1.min.css">
+	<link rel="stylesheet" type="text/css" href="css/jseden.css">
+	<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="css/eden.css">
+	<link rel="stylesheet" type="text/css" href="css/menu-bar.css">
+	<link rel="stylesheet" type="text/css" href="css/explorer.css">
+	<link rel="stylesheet" type="text/css" href="css/scriptbox.css">
+	<link rel="stylesheet" type="text/css" href="css/projectdetails.css">
+	<link rel="stylesheet" type="text/css" href="css/feedback.css">
+	<link rel="stylesheet" type="text/css" href="plugins/canvas/canvas.css"/>
+	<link rel="stylesheet" type="text/css" href="plugins/symbol-viewer/symbol-viewer.css">
+	<link rel="stylesheet" type="text/css" href="plugins/version-viewer/version-viewer.css">
+	<link rel="stylesheet" type="text/css" href="plugins/observable-mining/observable-mining.css">
+	<link rel="stylesheet" type="text/css" href="plugins/symbol-lookup-table/symbol-lookup-table.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/dependency-map/dependency-map.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/state-timeline/state-timeline.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/state-listener/state-listener.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/network-remote/network-remote.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/external-html-content/external-html-content.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/html/html-views.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/input-dialog/interpreter.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/input-dialog/details.css" />
+	<link rel="stylesheet" type="text/css" href="css/contextmenu.css" />
+	<link rel="stylesheet" type="text/css" href="css/highlighter.css" />
+	<link rel="stylesheet" type="text/css" href="css/markdown.css">
+	<link rel="stylesheet" type="text/css" href="plugins/input-dialog/gutter.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/page/page.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/adm/adm-input.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/dbview/dbview.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/veden/veden.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/script-generator/script-generator.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/observable-palette/observable-palette.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/debugger/debugger.css" />
+	<link rel="stylesheet" type="text/css" media="print" href="css/print.css" />
+	<link rel="stylesheet" type="text/css" href="css/home.css">
+
+	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery-ui-1.12.1.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.dialogextend.min.js"></script>
+	<style type="text/css">
+		/*If we ever upgrade to jquery.ui version 1.10 or later then remove the following rule. */
+		.ui-front {
+			/*z-index: 10000 !important;*/
+		}
+
+		.ui-top {
+			z-index: 200000 !important;
+		}
+
+		/* Used to force a dialog to the back */
+		.ui-back {
+			z-index: 9000 !important;
+		}
+
+		.ui-dialog {
+			z-index: 9999;
+		}
+
+		div#arduinodialog {
+			font-family: "Source Sans Pro",Arial,sans-serif;
+		}
+
+		div#arduinodialog button {
+			font-size: 14pt;
+			border-radius: 8px;
+			background: #666;
+			outline: none;
+			border: 1px solid #aaa;
+			margin: 10px;
+			padding: 5px;
+			padding-left: 20px;
+			padding-right: 20px;
+			/*height: 24px;*/
+			cursor: pointer;
+			color: white;
+			text-shadow: 0 3px 3px black;
+			margin-left: 20px;
+			margin-right: 20px;
+		}
+	</style>
+</head>
+<body>
+
+<script src="js/lib/jquery.color.js"></script>
+<script src="js/lib/jquery.hotkeys.js"></script>
+<script src="js/lib/json2.js"></script>
+<script src="js/lib/diff_match_patch.js"></script>
+<!--script src="js/lib/showdown.min.js"></script-->
+<script src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
+<script src="js/util/misc.js"></script>
+<script src="js/util/diff.js"></script>
+<script src="js/core/runtime.js"></script>
+<script src="js/dummyconsole.js"></script>
+<script src="js/arrayCompareFix.js"></script>
+<script src="js/core/window-highlighter.js"></script>
+<script src="js/core/scope.js"></script>
+<script src="js/core/symbol.js"></script>
+<script src="js/core/context.js"></script>
+<script src="js/core/eden.js"></script>
+<script src="js/core/database.js"></script>
+<script src="js/core/plugins.js"></script>
+<script src="js/util/url.js"></script>
+<script src="js/core/initialise.js"></script>
+<script src="js/lex.js"></script>
+<script src="js/core/errors.js"></script>
+<script src="js/core/warnings.js"></script>
+<script src="js/selectors/selector.js"></script>
+<script src="js/selectors/property.js"></script>
+<script src="js/selectors/name.js"></script>
+<script src="js/selectors/tag.js"></script>
+<script src="js/selectors/intersection.js"></script>
+<script src="js/selectors/union.js"></script>
+<script src="js/selectors/navigate.js"></script>
+<script src="js/index.js"></script>
+<script src="js/ast/ast.js"></script>
+<script src="js/ast/basestatement.js"></script>
+<script src="js/ast/basescript.js"></script>
+<script src="js/ast/basecontext.js"></script>
+<script src="js/ast/append.js"></script>
+<script src="js/ast/assignment.js"></script>
+<script src="js/ast/after.js"></script>
+<script src="js/ast/binaryop.js"></script>
+<script src="js/ast/break.js"></script>
+<script src="js/ast/case.js"></script>
+<script src="js/ast/codeblock.js"></script>
+<script src="js/ast/context.js"></script>
+<script src="js/ast/continue.js"></script>
+<script src="js/ast/declarations.js"></script>
+<script src="js/ast/default.js"></script>
+<script src="js/ast/definition.js"></script>
+<script src="js/ast/delete.js"></script>
+<script src="js/ast/do.js"></script>
+<script src="js/ast/doxycomments.js"></script>
+<script src="js/ast/dummy.js"></script>
+<script src="js/ast/for.js"></script>
+<script src="js/ast/function.js"></script>
+<script src="js/ast/functioncall.js"></script>
+<script src="js/ast/handle.js"></script>
+<script src="js/ast/if.js"></script>
+<script src="js/ast/import.js"></script>
+<script src="js/ast/index.js"></script>
+<script src="js/ast/insert.js"></script>
+<script src="js/ast/length.js"></script>
+<script src="js/ast/literal.js"></script>
+<script src="js/ast/llist.js"></script>
+<script src="js/ast/local.js"></script>
+<script src="js/ast/lvalue.js"></script>
+<script src="js/ast/modify.js"></script>
+<script src="js/ast/parameter.js"></script>
+<script src="js/ast/primary.js"></script>
+<script src="js/ast/proc.js"></script>
+<script src="js/ast/range.js"></script>
+<script src="js/ast/require.js"></script>
+<script src="js/ast/return.js"></script>
+<script src="js/ast/scope.js"></script>
+<script src="js/ast/scopedscript.js"></script>
+<script src="js/ast/scopepath.js"></script>
+<script src="js/ast/scopepattern.js"></script>
+<script src="js/ast/script.js"></script>
+<script src="js/ast/virtual.js"></script>
+<script src="js/ast/scriptexpr.js"></script>
+<script src="js/ast/subscribers.js"></script>
+<script src="js/ast/switch.js"></script>
+<script src="js/ast/ternaryop.js"></script>
+<script src="js/ast/unaryop.js"></script>
+<script src="js/ast/wait.js"></script>
+<script src="js/ast/when.js"></script>
+<script src="js/ast/while.js"></script>
+<script src="js/ast/querystat.js"></script>
+<script src="js/ast/alias.js"></script>
+<script src="js/ast/indexed.js"></script>
+<script src="js/ast/section.js"></script>
+<script src="js/grammar/actionbody.js"></script>
+<script src="js/grammar/after.js"></script>
+<script src="js/grammar/declarations.js"></script>
+<script src="js/grammar/do.js"></script>
+<script src="js/grammar/expression.js"></script>
+<script src="js/grammar/factor.js"></script>
+<script src="js/grammar/for.js"></script>
+<script src="js/grammar/function.js"></script>
+<script src="js/grammar/if.js"></script>
+<script src="js/grammar/import.js"></script>
+<script src="js/grammar/listops.js"></script>
+<script src="js/grammar/lists.js"></script>
+<script src="js/grammar/lvalue.js"></script>
+<script src="js/grammar/primary.js"></script>
+<script src="js/grammar/proc.js"></script>
+<script src="js/grammar/scope.js"></script>
+<script src="js/grammar/script.js"></script>
+<script src="js/grammar/selector.js"></script>
+<script src="js/grammar/statement.js"></script>
+<script src="js/grammar/switch.js"></script>
+<script src="js/grammar/terms.js"></script>
+<script src="js/grammar/wait.js"></script>
+<script src="js/grammar/when.js"></script>
+<script src="js/grammar/while.js"></script>
+<script src="js/grammar/query.js"></script>
+<script src="js/grammar/section.js"></script>
+<script src="js/core/engine.js"></script>
+<script src="js/language/lang.js"></script>
+<script src="js/project.js"></script>
+<script src="js/fragment.js"></script>
+<script src="js/util/css.js"></script>
+<script src="js/peer.js"></script>
+<script src="js/query.js"></script>
+<script src="js/generator.js"></script>
+<script src="plugins/input-dialog/scriptarea.js"></script>
+<script src="plugins/input-dialog/details.js"></script>
+<script src="plugins/input-dialog/keyboard.js"></script>
+<script src="plugins/input-dialog/mouse.js"></script>
+<script src="plugins/input-dialog/interpreter.js"></script>
+<script src="plugins/input-dialog/subdialogs.js"></script>
+<script src="js/ui/highlighter.js"></script>
+<script src="js/ui/highlighter-rules.js"></script>
+<script src="js/ui/highlighter-commentrules.js"></script>
+<script src="plugins/input-dialog/gutter.js"></script>
+<script src="js/ui/contextmenu.js"></script>
+<script src="js/ui/buttonbar.js"></script>
+<script src="js/ui/tabs.js"></script>
+<script src="plugins/plugin-listing/plugin-listing.js"></script>
+<script src="js/ui/menubar.js"></script>
+<script src="js/ui/notifications.js"></script>
+<script src="js/ui/sharebox.js"></script>
+<script src="js/ui/search.js"></script>
+<script src="js/ui/dialogs.js"></script>
+<script src="js/ui/explorer.js"></script>
+<script src="js/ui/explorer-state.js"></script>
+<script src="js/ui/explorer-script.js"></script>
+<script src="js/ui/scriptbox.js"></script>
+<script src="js/ui/presentation.js"></script>
+<script src="js/ui/markdown.js"></script>
+<script src="js/ui/projectdetails.js"></script>
+<script src="js/ui/feedback.js"></script>
+<script src="js/extensions/arduino/arduino.js"></script>
+<script src="plugins/canvas/canvas.js"></script>
+<script src="plugins/symbol-viewer/symbol-viewer.js"></script>
+<script src="plugins/version-viewer/version-viewer.js"></script>
+<script src="plugins/external-html-content/external-html-content.js"></script>
+<script src="plugins/html/html-views.js"></script>
+<script src="plugins/expression-tree/expression-tree.js"></script>
+<script src="plugins/page/page.js"></script>
+<script src="plugins/midi/midi.js"></script>
+<script src="plugins/midi/emulation/midi.js-bridge.js"></script>
+<script src="plugins/midi/emulation/midi-file.js"></script>
+<script src="plugins/systemSymbols.js"></script>
+<script src="plugins/symbol-lookup-table/symbol-lookup-table.js"></script>
+<script src="plugins/observable-mining/observable-mining.js"></script>
+<script src="plugins/script-generator/script-generator.js"></script>
+<script src="plugins/dependency-map/springy/springy.js"></script>
+<script src="plugins/dependency-map/springy/springyui.js"></script>
+<script src="plugins/dependency-map/dependency-map.js"></script>
+<script src="plugins/state-timeline/state-timeline.js"></script>
+<script src="plugins/state-listener/state-listener.js"></script>
+<script src="plugins/network-remote/network-remote.js"></script>
+<script src="plugins/view-layout/view-layout.js"></script>
+<script src="plugins/adm/adm-input.js"></script>
+<script src="plugins/dbview/dbview.js"></script>
+<script src="plugins/veden/veden.js"></script>
+<script src="plugins/veden/element.js"></script>
+<script src="plugins/veden/index.js"></script>
+<script src="plugins/veden/observable.js"></script>
+<script src="plugins/veden/number.js"></script>
+<script src="plugins/veden/lvalue.js"></script>
+<script src="plugins/veden/operator.js"></script>
+<script src="plugins/veden/modifier.js"></script>
+<script src="plugins/veden/group.js"></script>
+<script src="plugins/veden/statement.js"></script>
+<script src="plugins/veden/when.js"></script>
+<script src="plugins/veden/boolean.js"></script>
+<script src="plugins/veden/string.js"></script>
+<script src="plugins/veden/with.js"></script>
+<script src="plugins/veden/list.js"></script>
+<script src="plugins/speech-synthesis/speech-synthesis.js"></script>
+<script src="plugins/observable-palette/observable-palette.js"></script>
+<script src="plugins/debugger/debugger.js"></script>
+
+<script type="text/javascript">
+	var projects;
+
+	showdown = require('showdown');
+
+	SerialPort = require("serialport");
+
+	function changePage(name) {
+		$.get("pages/"+name+"-"+Language.language+".html", function(data) {
+			$("#welcometext").html(data);
+		}, "text");
+	}
+
+	if (mobilecheck()) document.location = "mobile-dev.html";
+
+	$(".loadmodal").show();
+	Construit(undefined, function(loaded) {
+		changePage("welcome");
+		// Place to record projects by tag.
+		Eden.projecttags = {};
+		var cachedprojects;
+		var maxres = URLUtil.getParameterByName("max");
+		var searchstr = "";
+		maxres = (maxres && maxres != "") ? parseInt(maxres) : undefined;
+
+		Eden.Arduino.check();
+
+		$(".loadmodal").hide();
+		if (!loaded) {
+			var q = URLUtil.getParameterByName("q");
+			var lopts = $("#loadoptions");
+			var catsearchtimeout = undefined;
+
+			function updateSearch() {
+				var pbrowser = lopts.find("#project-browser");
+
+				pbrowser.get(0).style.display = "none";
+				var plist = pbrowser.get(0).previousSibling;
+				//console.log(plist);
+				if (plist === null || plist.nodeName == "#text" || plist.getAttribute("id") != "jseden-project-search") {
+					var pliste = document.createElement("div");
+					pliste.setAttribute("id", "jseden-project-search");
+					pliste.style.height = "initial";
+					pbrowser.get(0).parentNode.insertBefore(pliste, pbrowser.get(0));
+					plist = pliste;
+					pliste.className = "jseden-dialog-plisting";
+				}
+
+				//console.log("Load projects: " + path);
+
+				Eden.DB.search(searchstr, 1, 50, undefined, function(data) {
+					//console.log("SEARCH",searchstr,data,plist);
+					//var pliste = plist.get(0);
+					while (plist.lastChild) plist.removeChild(plist.lastChild);
+					EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 50, 1, false);
+				});
+			}
+
+			function updateSearch2(searchstr, sortby, plist, count) {
+				if (count === undefined) count = 10;
+				Eden.DB.search(searchstr, 1, count, sortby, function(data) {
+					//console.log("SEARCH",searchstr,data,plist);
+					//var pliste = plist.get(0);
+					while (plist.lastChild) plist.removeChild(plist.lastChild);
+					EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, count, 1, false);
+				});
+			}
+
+			Eden.Project.listenTo("loading", this, function() {
+				lopts.css("display","none");
+			});
+
+			lopts.css("display","block");
+			lopts.on("click","#restoreold",function() {
+				Eden.Project.restore();
+				lopts.css("display","none");
+			})
+			.on("click","#loadnew",function() {
+				Eden.Project.newFromExisting("NewProject");
+				lopts.css("display","none");
+			})
+			.on("click","#importfile",function() {
+				//Eden.loadFromURL("library2/NewProject.js-e");
+				lopts.css("display","none");
+				var importfile = $("#importdialog");
+				importfile.css("display","block");
+
+				importfile.on("click","#closeimport",function() {
+					importfile.css("display","none");
+					lopts.css("display","block");
+				})
+				.on("click","#openfile",function() {
+					var fileinput = $("#theimportfile").get(0);
+					var file = fileinput.files[0];
+					var filename = file.name;
+					filename = filename.substring(0,filename.lastIndexOf("."));
+					filename = filename.replace(/\([0-9]+\)/,"");
+					console.log("FILE",file);
+					var reader = new FileReader();
+					reader.onload = function(e) {
+						//Eden.loadFromString(e.target.result);
+						eden.project = new Eden.Project(undefined, filename, e.target.result.replace(/\r/g,""));
+						eden.project.start();
+						importfile.css("display","none");
+					};
+					reader.readAsText(file);
+				});
+			})
+			.on("click","#plist-login", function() {
+				if (Eden.DB.isConnected()) {
+					lopts.find("#jseden-private-projects").html("<div style=\"background: white; padding: 10px; border-radius: 5px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" src=\""+Eden.DB.remoteURL+"/login"+"\" name=\"logintarget\" width=\"550\" height=\"400\" class=\"menubar-login-iframe\"></iframe></div>");
+				}
+			})
+			.on("keyup",".search", function(e) {
+				var filter = e.currentTarget.parentNode.parentNode.getAttribute("data-filter");
+				var sortby = e.currentTarget.parentNode.nextElementSibling.value;
+				//console.log("Sort by " + sortby);
+
+				switch(sortby) {
+				case "Popular": sortby = "downloads"; break;
+				case "Rating": sortby = "rating"; break;
+				default: sortby = "";
+				}
+
+				//console.log("FILTER: " + filter);
+				//searchstr = e.currentTarget.value;
+
+				if (catsearchtimeout) {
+					clearTimeout(catsearchtimeout);
+				}
+
+				catsearchtimeout = setTimeout(function() {
+					updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling.nextElementSibling);
+					catsearchtimeout = undefined;
+				}, 200);
+
+				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
+			})
+			.on("change",".search", function(e) {
+				var filter = e.currentTarget.parentNode.parentNode.getAttribute("data-filter");
+				var sortby = e.currentTarget.parentNode.nextElementSibling.value;
+				//console.log("Sort by " + sortby);
+
+				switch(sortby) {
+				case "Popular": sortby = "downloads"; break;
+				case "Rating": sortby = "rating"; break;
+				default: sortby = "";
+				}
+
+				//console.log("FILTER: " + filter);
+				//searchstr = e.currentTarget.value;
+				updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling.nextElementSibling);
+				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
+			})
+			.on("change", ".projectsort", function(e) {
+				var filter = e.currentTarget.parentNode.getAttribute("data-filter");
+				var count = e.currentTarget.parentNode.getAttribute("data-count");
+				var sortby = e.currentTarget.value;
+				//console.log("Sort by " + sortby);
+
+				if (count === null || count == "") count = 10
+				else if (typeof count == "string") count = parseInt(count);
+
+				switch(sortby) {
+				case "Popular": sortby = "downloads"; break;
+				case "Rating": sortby = "rating"; break;
+				default: sortby = "";
+				}
+
+				//console.log("FILTER: " + filter);
+				//searchstr = e.currentTarget.value;
+				updateSearch2(filter + " " + e.currentTarget.previousElementSibling.firstChild.value, sortby, e.currentTarget.parentNode.nextElementSibling, count);
+				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
+			})
+			.on("click",".projectmore", function(e) {
+				var filter = e.currentTarget.parentNode.getAttribute("data-filter");
+				console.log("FILTER: " + filter);
+				searchstr = filter;
+				//updateSearch();
+
+				//lopts.find(".searchouter").remove();
+				var content = lopts.find(".project-content");
+				var pbrowser = $("#defaultcontent");
+				pbrowser.get(0).style.display = "none";
+				//var welcometext = $("#welcometext");
+				//welcometext.get(0).style.display = "none";
+				//content[0].removeChild(content[0].firstChild);
+				var newblock = $('<div class="jseden-project-cat tmpitem" data-count="50" data-filter="'+searchstr+'">'+searchstr+'<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select></div>');
+				var newres = $('<div id="jseden-custom-projects" style="height: initial;" class="jseden-dialog-plisting tmpitem">');
+				//content.html("");
+				content.prepend(newres);
+				content.prepend(newblock);
+				EdenUI.ProjectDetails.searchProjects(newres, searchstr, 50, undefined, false, "downloads");
+
+				window.history.pushState({query: searchstr},"","?q="+encodeURIComponent(searchstr));
+			});
+
+			function setLoadObserver() {
+				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
+					if (value) {
+						lopts.css("display","none");
+						$(".loadmessage").html("Loading...");
+						$(".loadmodal").hide();
+					}
+				});
+			}
+			setLoadObserver();
+
+			window.addEventListener("popstate", function(e) {
+				if (!e.state || !e.state.id) {
+					if (eden.project) window.location.reload();
+					else {
+						setLoadObserver();
+						lopts.css("display","block");
+						$(".tmpitem").remove();
+						var pbrowser = $("#defaultcontent");
+						pbrowser.get(0).style.display = "block";
+					}
+				} else {
+					lopts.css("display","none");
+				}
+			});
+
+			function addCategory(name, title, filter, sortby) {
+				var browser = $("#project-browser").get(0);
+				var wrapper = document.createElement("div");
+				wrapper.className = "public-projects";
+				var cat = document.createElement("div");
+				cat.className = "jseden-project-cat";
+				cat.setAttribute("data-filter",filter);
+				cat.innerHTML = title+`<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search ${name}..."></input></div><button class="script-button projectmore">${Language.ui.categories.seemore}</button>`;
+				var poptags = document.createElement("div");
+				/*poptags.className = "popular-tags";
+				if (filter) {
+					Eden.DB.getPopularTags(filter.replace("#",""), function(tags) {
+						var html = "";
+						var count = (tags.length > 20) ? 20 : tags.length;
+						for (var i=0; i<count; i++) {
+							html += '<a href="#" onclick="this.parentNode.previousSibling.childNodes[1].childNodes[0].value = \''+tags[i]+'\'; return false;">'+tags[i]+'</a>';
+						}
+						poptags.innerHTML = html;
+					});
+				}*/
+				var cont = document.createElement("div");
+				cont.className = "jseden-dialog-plisting";
+				cont.id = "jseden-"+name+"-projects";
+				wrapper.appendChild(cat);
+				wrapper.appendChild(poptags);
+				wrapper.appendChild(cont);
+
+				browser.appendChild(wrapper);
+
+				displayProjects(name, filter, sortby);
+			}
+
+			function displayProjects(id, query, sortby, cb) {
+				var plist = lopts.find("#jseden-"+id+"-projects");
+				EdenUI.ProjectDetails.searchProjects(plist, query, 10, cb, false, sortby);
+			}
+
+			if (Eden.DB.isConnected()) {
+				if (q && q != "") {
+					//searchstr = q;
+					//updateSearch();
+					//displayProjects(true, function() {
+						//updateSearch(q);
+					//});
+					lopts.find(".searchouter").remove();
+					var content = lopts.find(".project-content");
+					//content[0].removeChild(content[0].firstChild);
+					var newblock = $('<div class="jseden-project-cat">'+q+':</div>');
+					var newres = $('<div id="jseden-custom-projects" class="jseden-dialog-plisting">');
+					content.html("");
+					content.prepend(newres);
+					content.prepend(newblock);
+					EdenUI.ProjectDetails.searchProjects(newres, q, 10);
+					//displayProjects("featured", "#featured");
+					//displayProjects("recent");
+					$("#welcometext").get(0).style.display = "none";
+					$("#welcomelinks").get(0).style.display = "none";
+				} else {
+					/*displayProjects("featured", "#featured", "downloads");
+					displayProjects("recent");
+					displayProjects("starter", "#starter", "downloads");
+					displayProjects("ref", "#documentation", "downloads");
+					displayProjects("conf", "#construit2017", "downloads");
+					displayProjects("games", "#game", "downloads");
+					displayProjects("oers", "#OERs", "downloads");*/
+
+					addCategory("featured", Language.ui.categories.featured, "#featured", "downloads");
+					addCategory("starter", Language.ui.categories.starter, "#starter", "downloads");
+					addCategory("recent", Language.ui.categories.all, "", undefined);
+					addCategory("ref", Language.ui.categories.ref, "#documentation", "downloads");
+					addCategory("conf", Language.ui.categories.construit2017, "#construit2017", "downloads");
+					addCategory("games", Language.ui.categories.games, "#game", "downloads");
+					addCategory("oers", Language.ui.categories.edres, "#OERs", "downloads");
+				}
+
+				if (Eden.DB.isLoggedIn()) {
+					$("#welcometext").get(0).style.display = "none";
+					$("#welcomelinks").get(0).style.display = "none";
+				}
+			} else {
+				//$("#welcometext").get(0).style.display = "block";
+				$("#project-browser").html('<p>Construal store: <span style="color:red; font-weight: bold;">offline</span>. Our server is undergoing maintenance, try again later or look at the selected examples below.</p><div class="jseden-project-cat">Examples:</div><div id="jseden-offline-projects" class="jseden-dialog-plisting"></div>');
+				var plist = lopts.find("#jseden-offline-projects");
+
+				var projects = [];
+				for (var x in Eden.Project.local) {
+					Eden.Project.local[x].name = x;
+					if (Eden.Project.local[x].listed) projects.push(Eden.Project.local[x]);
+				}
+				EdenUI.ProjectDetails.localProjects(plist, projects, false);
+			}
+
+			Eden.DB.listenTo("login", this, function(name) {
+				var plist = lopts.find("#jseden-private-projects").get(0);
+				if (!plist) return;
+				var node = plist.firstChild;
+				while (node) {
+					var next = node.nextSibling;
+					plist.removeChild(node);
+					node = next;
+				}
+
+				displayProjects("private",":me");
+
+				$("#welcometext").get(0).style.display = "none";
+				$("#welcomelinks").get(0).style.display = "none";
+				$("#privateprojects").get(0).style.display = "block";
+				//$("#projectbuttons").get(0).style.display = "flex";
+			});
+
+			Eden.DB.listenTo("logout", this, function() {
+				var plist = lopts.find("#jseden-private-projects").get(0);
+				if (!plist) return;
+				var node = plist.firstChild;
+				while (node) {
+					var next = node.nextSibling;
+					plist.removeChild(node);
+					node = next;
+				}
+
+				$("#welcometext").get(0).style.display = "block";
+				$("#welcomelinks").get(0).style.display = "block";
+				$("#privateprojects").get(0).style.display = "none";
+				$("#projectbuttons").get(0).style.display = "none";
+				//displayProjects(true);
+			});
+
+			Eden.Project.listenTo("load", this, function() {
+				$(".loadmodal").hide();
+			});
+		}
+	});
+</script>
+
+<div id="jseden-main">
+<div id="jseden-views"></div>
+</div>
+
+<div class="loadmodal modal" style="display: block">
+	<div class="loaddialog">
+		<div class="mainloader">Loading...</div>
+		<div class="loadmessage">Loading...</div>
+	</div>
+</div>
+
+<div id="loadoptions" class="" style="display: none;">
+	<div class="project-content" style="padding: 20px 0;">
+		<div id="defaultcontent">
+		<div id="welcometext">
+		<!--div class="videobox">
+		<iframe width="260" height="146" src="https://www.youtube.com/embed/0i7lNddcXIc" frameborder="0" allowfullscreen></iframe>
+		<iframe width="260" height="146" src="https://www.youtube.com/embed/xa63K878zYc" frameborder="0" allowfullscreen></iframe>
+		<iframe width="260" height="146" src="https://www.youtube.com/embed/isRrihy40uE" frameborder="0" allowfullscreen></iframe>
+		</div>
+		<div>
+		<img src="images/hexsun.png" style="position: absolute; z-index: 2;">
+		<img src="images/construit_logo_2.png" width="400" id="welcometitle">
+		<div id="welcomecontent">Learn to digitally model the world, real or imaginary<br>
+Adaptable artefacts and work environments for lessons<br>
+Live and intuitive paradigm using dependency and agency<br>
+Free and open-source as part of an EU Erasmus+ Project</div>
+		<div class="hexagon blue" style="left: 270px; top: 66px;">Construct interactive <em>objects to think with</em> called <b>construals</b></div>
+		<div class="hexagon orange" style="left: 158px; top: 260px; font-style: italic; font-size: 28pt; line-height: 40px;">Explore<br>Experiment<br>Extend</div>
+		</div--></div>
+		<div id="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-in</button>
+		<a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/construit/conference/draftcall/moreaboutconstruals/">Learn More</a><a href="http://edumotiva.eu/construit2017/">Conference 2017</a><a href="javascript:changePage('teachers');">Teachers</a><a href="javascript:changePage('students');">Students</a><a href="javascript:changePage('lifelong');">Lifelong</a><a href="http://construit.org">Erasmus+ Project</a>
+		</div>
+		<div id="projectbuttons" class="jseden-dialog-plisting" style="padding: 10px; height: 80px; display: none;">
+			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
+			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special">&#xf07c;</div></div>
+			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
+		</div>
+		<div id="project-browser" style="clear: right;">
+			<div id="privateprojects" style="display: none">
+			<div class="jseden-project-cat" data-filter=":me">Your Projects<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><button class="script-button projectmore">See More</button></div>
+			<div></div>
+			<div id="jseden-private-projects" class="jseden-dialog-plisting">
+			</div>
+			</div>
+		</div>
+		</div>
+	</div>
+
+	<div id="footer">
+		<div id="footerlogo"><img width="200" src="images/erasmus.png"></div>
+		<div id="footerlinks">
+			<a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/">Empirical Modelling</a><br>
+			<a href="http://construit.org">Construit Project</a><br>
+			<a href="http://edumotiva.eu/construit2017/">Conference 2017</a><br>
+			<a href="https://github.com/EMGroup/js-eden">Source Code</a><br>
+		</div>
+		<div id="footerfunding">
+		This project has been funded with support from the European Commission under the ERASMUS+ Programme 2014, KA2, project number: 2014-1-UK01-KA200-001818. This website reflects the views only of the author, and the Commission cannot be held responsible for any use which may be made of the information contained therein.
+		</div>
+	</div>
+</div>
+
+<div id="importdialog" class="modal" style="display: none">
+	<div class="modal-content" style="width: 300px;">
+		<div class="importdialog-title"><span class="importdialog-icon">&#xf07c;</span>Import File</div>
+		<div class="importdialog-content">
+		<input id="theimportfile" type="file"></input><br/><br/>
+		<div style="text-align: center; margin-top: 20px;"><button class="jseden" id="openfile">Import</button><button class="jseden" id="closeimport">Cancel</button></div>
+		</div>
+	</div>
+</div>
+
+<div id="arduinodialog" class="modal" style="display: none">
+	<div class="modal-content" style="width: 450px; padding: 20px;">
+		<img src="images/arduino-logo.png">
+		<div style="text-align: center; margin: 20px;">An Arduino has been found...</div>
+		<div id="arduinodevices"></div>
+		<button class="use">Use</button><button style="float:right;" class="close">Close</button>
+	</div>
+</div>
+
+<div id="tooltip" style="display:none"></div>
+</body>
+</html>

@@ -1,20 +1,23 @@
 {
-  "author": "",
-  "name": "js-eden",
-  "description": "JavaScript EDEN",
-  "version": "0.0.1",
-  "homepage": "jseden.dcs.warwick.ac.uk",
+  "author": "Construit",
+  "name": "construit",
+  "description": "Construit, the Making Construals Environment on the web.",
+  "version": "2.1.11",
+  "homepage": "jseden.dcs.warwick.ac.uk/construit",
   "repository": {
     "type": "git",
     "url": "git://github.com/EMGroup/js-eden.git"
   },
   "scripts": {
-    "test": "node ./qunit_tests.js"
+    "test": "node ./qunit_tests.js",
+    "start": "electron ."
   },
+  "main": "main.js",
   "dependencies": {},
   "devDependencies": {
     "chai-as-promised": "~4.1.1",
-    "connect": "~3.0.1",
+    "electron": "~1.6.2",
+    "finalhandler": "^1.0.2",
     "gateway": "~0.2.1",
     "grunt": "~0.4.5",
     "grunt-contrib-connect": "~0.8.0",
@@ -23,9 +26,12 @@
     "grunt-contrib-uglify": "git://github.com/gruntjs/grunt-contrib-uglify.git#harmony",
     "grunt-contrib-watch": "~0.6.1",
     "grunt-gh-pages": "~0.9.1",
+    "http": "0.0.0",
     "mocha": "~2.0.1",
     "qunit": "0.5.12",
+    "serialport": "^4.0.7",
     "serve-static": "~1.3.0",
+    "showdown": "^1.6.4",
     "uglify-js": "git+https://github.com/mishoo/UglifyJS2.git#harmony",
     "wd": "~0.3.11"
   },

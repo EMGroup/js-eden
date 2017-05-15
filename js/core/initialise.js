@@ -46,7 +46,7 @@ function touchHandler(event) {
 var doingNavigateAway = false;
 var confirmUnload = function (event) {
 	if (!doingNavigateAway) {
-		eden.project.localSave();
+		//eden.project.localSave();
 		var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
 		event.returnValue = prompt;
 		return prompt;
@@ -216,7 +216,7 @@ function Construit(options,callback) {
 		
 		// TODO Remove this once restore works
 		if (edenUI.getOptionValue('optConfirmUnload') != "false") {
-			window.addEventListener("beforeunload", confirmUnload);
+			//window.addEventListener("beforeunload", confirmUnload);
 		}
 
 		/**

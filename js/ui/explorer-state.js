@@ -28,7 +28,7 @@ EdenUI.ExplorerState = function(element) {
 		//if (Object.keys(sym.dependencies).length > 0) return;
 		var name = sym.name;
 
-		if (me.capture && (kind != Symbol.EXPIRED || me.watchobs[name] === undefined) && (me.filter === undefined || me.filter[name])) {
+		if (me.capture && (kind != EdenSymbol.EXPIRED || me.watchobs[name] === undefined) && (me.filter === undefined || me.filter[name])) {
 			if (me.watchobs[name] === undefined) {
 				me.watchobs[sym.name] = 1;
 			} else {
@@ -65,12 +65,12 @@ EdenUI.ExplorerState = function(element) {
 
 	this.controls.on("click", ".clear", function(e) {
 		var clrsym = eden.root.lookup("jseden_explorer_clear");
-		if (!clrsym.eden_definition) clrsym.assign(true, eden.root.scope, Symbol.localJSAgent);
+		if (!clrsym.eden_definition) clrsym.assign(true, eden.root.scope, EdenSymbol.localJSAgent);
 	});
 
 	this.controls.on("click", ".capture", function(e) {
 		var capsym = eden.root.lookup("jseden_explorer_capture");
-		if (!capsym.eden_definition) capsym.assign(!capsym.value(), eden.root.scope, Symbol.localJSAgent);
+		if (!capsym.eden_definition) capsym.assign(!capsym.value(), eden.root.scope, EdenSymbol.localJSAgent);
 	});
 
 	this.results.on("click", ".explore-observable", function(e) {
@@ -172,7 +172,7 @@ EdenUI.ExplorerState = function(element) {
 
 	this.searchbox.on("keyup", function(e) {
 		if (searchSym.definition === undefined) {
-			searchSym.assign(e.target.value, eden.root.scope, Symbol.localJSAgent);
+			searchSym.assign(e.target.value, eden.root.scope, EdenSymbol.localJSAgent);
 		}
 	});
 

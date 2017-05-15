@@ -90,7 +90,7 @@
 
 
 		var me = this;
-		var agent = Symbol.defaultAgent;
+		var agent = EdenSymbol.defaultAgent;
 
 		var currentType = this.activeDialogs[name];
 		var visibilitySym = view(name, "visibility");
@@ -235,7 +235,7 @@
 		var typeSym = view(name, 'type');
 		if (typeSym.value() != type) {
 			typeSym.removeJSObserver("changeType");
-			typeSym.assign(type, root.scope, Symbol.localJSAgent);
+			typeSym.assign(type, root.scope, EdenSymbol.localJSAgent);
 			typeSym.addJSObserver("changeType", function (sym, newType) {
 				if (newType !== undefined && root.lookup("views_list").value().indexOf(name) !== -1) {
 					me.createView(name, newType);
@@ -248,10 +248,10 @@
 			if (viewList.indexOf(name) === -1) {
 				viewList = viewList.slice();
 				viewList.push(name);
-				viewListSym.assign(viewList, root.scope, Symbol.localJSAgent);
+				viewListSym.assign(viewList, root.scope, EdenSymbol.localJSAgent);
 			}
 		} else {
-			viewListSym.assign([name], root.scope, Symbol.localJSAgent);
+			viewListSym.assign([name], root.scope, EdenSymbol.localJSAgent);
 		}
 
 		function updateSize(sym, value) {
@@ -480,8 +480,8 @@
 
 			var root = me.eden.root;
 			root.beginAutocalcOff();
-			widthSym.assign(ui.size.width, root.scope, Symbol.hciAgent); //  - me.scrollBarSize
-			heightSym.assign(ui.size.height - me.titleBarHeight, root.scope, Symbol.hciAgent); //  - me.titleBarHeight + 2 * me.dialogBorderWidth
+			widthSym.assign(ui.size.width, root.scope, EdenSymbol.hciAgent); //  - me.scrollBarSize
+			heightSym.assign(ui.size.height - me.titleBarHeight, root.scope, EdenSymbol.hciAgent); //  - me.titleBarHeight + 2 * me.dialogBorderWidth
 
 			/*var xSym = view(name, "x");
 			if (xSym.value() != ui.position.left) {
@@ -498,8 +498,8 @@
 			var root = me.eden.root;
 			root.beginAutocalcOff();
 			console.log(ui);
-			view(name, 'x').assign(ui.position.left, eden.root.scope, Symbol.hciAgent);
-			view(name, 'y').assign(ui.position.top, eden.root.scope, Symbol.hciAgent);
+			view(name, 'x').assign(ui.position.left, eden.root.scope, EdenSymbol.hciAgent);
+			view(name, 'y').assign(ui.position.top, eden.root.scope, EdenSymbol.hciAgent);
 			root.endAutocalcOff();
 		});
 		diag.on("dialogdragstart", function() {
@@ -618,7 +618,7 @@
 						viewList.splice(index, 1);
 						newViewList = viewList;
 					}
-					viewListSym.assign(newViewList, root.scope, Symbol.hciAgent);
+					viewListSym.assign(newViewList, root.scope, EdenSymbol.hciAgent);
 				}
 			}
 		}
@@ -846,7 +846,7 @@
 		var xMax = window.innerWidth + document.body.scrollLeft;
 		var yMax = window.innerHeight + document.body.scrollTop - this.scrollBarSize2;
 		var bottomBarY = yMax - this.bottomBarHeight;			
-		var hciName = Symbol.hciAgent.name;
+		var hciName = EdenSymbol.hciAgent.name;
 		//Round the width.  For some reason the width set by jquery.ui isn't always aligned to the grid.
 		/*var adjustedWidth = Math.round((newWidth + this.scrollBarSize + this.dialogBorderWidth) / this.gridSizeX) * this.gridSizeX - 2 * this.dialogBorderWidth;
 		if (widthSym.last_modified_by != hciName) {
@@ -887,8 +887,8 @@
 
 		//diag.dialog("option", "width", adjustedWidth);
 		//diag.dialog("option", "height", adjustedHeight);
-		if (widthSym.origin !== Symbol.hciAgent) diag.dialog("option", "width", newWidth);
-		if (heightSym.origin !== Symbol.hciAgent) diag.dialog("option", "height", newHeight);
+		if (widthSym.origin !== EdenSymbol.hciAgent) diag.dialog("option", "width", newWidth);
+		if (heightSym.origin !== EdenSymbol.hciAgent) diag.dialog("option", "height", newHeight);
 		//No idea why the following line is needed but it makes things work smoother when the window is positioned more than the value of the CSS height of the body element down the page.
 		//diag.parent().offset({top: top - document.body.scrollTop});
 
@@ -939,10 +939,10 @@
 		this.eden.reset();
 		this.destroyView("jspe", true);
 		if ("Canvas2D" in this.plugins) {
-			this.eden.executeEden('createCanvas("picture");', "new project", "", Symbol.hciAgent, noop);
+			this.eden.executeEden('createCanvas("picture");', "new project", "", EdenSymbol.hciAgent, noop);
 		}
 		if ("ScriptInput" in this.plugins) {
-			this.eden.executeEden('createView("input", "ScriptInput");', "new project", "", Symbol.hciAgent, noop);
+			this.eden.executeEden('createView("input", "ScriptInput");', "new project", "", EdenSymbol.hciAgent, noop);
 		}
 		if (this.views.ErrorLog.errorWindow) {
 			this.views.ErrorLog.errorWindow.html('');

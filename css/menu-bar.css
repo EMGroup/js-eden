@@ -175,6 +175,15 @@ button.sharebox-button.upload:before {
 	padding-right: 10px;
 }
 
+button.sharebox-button.local:before {
+	font-family: "FontAwesome";
+	font-size: 25px;
+	content: '\f1e6';
+	position: relative;
+	top: 2px;
+	padding-right: 10px;
+}
+
 button.sharebox-button.fork:before {
 	font-family: "FontAwesome";
 	font-size: 25px;

@@ -121,7 +121,7 @@
 
 	$(".loadmodal").show();
 	Construit({noload: true}, function(loaded) {
-		eden.root.lookup("jseden_project_title").assign("Management Page", eden.root.scope, Symbol.localJSAgent);
+		eden.root.lookup("jseden_project_title").assign("Management Page", eden.root.scope, EdenSymbol.localJSAgent);
 
 		Eden.DB.adminCommentActivity(undefined, 0, function(data) {
 			var comresults = document.getElementById("commentlog");
@@ -174,7 +174,7 @@
 				ele.className = "project-result";
 				var t = data[i].date.split(/[- :]/);
 
-				ele.innerHTML = '<a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'">'+data[i].title+'</a><span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" title="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+				ele.innerHTML = '<a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'&r='+data[i].readPassword+'">'+data[i].title+'</a><span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" title="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
 				proresults.appendChild(ele);
 			}
 		});

@@ -5,3 +5,14 @@ version.json
 plugins/midi/emulation/soundfonts/
 plugins/midi/emulation/lib/MIDI.js/examples/
 /.project
+js/lib/jquery-ui-1.11.4*
+images/construit-logo-bw.png
+images/construit_logo_black.png
+images/hexsun2.png
+images/moon.gif
+css/oldimages/
+js/view.js
+js/util/projectsearch.js
+js/lib/w3color.js
+plugins/network-remote/lo
+

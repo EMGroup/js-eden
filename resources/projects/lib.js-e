@@ -82,7 +82,7 @@ func forget {
 				return 1;
 			}
 			nameToDelete = "/" + nameToDelete;
-		} else if (arguments[0] instanceof Symbol) {
+		} else if (arguments[0] instanceof EdenSymbol) {
 			symbolToDelete = arguments[0];
 			nameToDelete = symbolToDelete.name;
 		} else {
@@ -202,7 +202,7 @@ func forgetAll {
 			//Observables given as a list.
 			for (var i = 0; i < obsToDelete.length; i++) {
 				var name;
-				if (obsToDelete[i] instanceof Symbol) {
+				if (obsToDelete[i] instanceof EdenSymbol) {
 					name = obsToDelete[i].name.slice(1);
 					symbol = obsToDelete[i];
 				} else if (typeof(obsToDelete[i]) == "string") {
@@ -400,7 +400,7 @@ func nameof {
 
 		var pointer = arguments[0];
 		
-		if (pointer instanceof Symbol) {	
+		if (pointer instanceof EdenSymbol) {	
 			return pointer.name.slice(1);
 		} else if (
 			pointer !== null &&
@@ -409,7 +409,7 @@ func nameof {
 			Array.isArray(pointer.keys) &&
 			pointer.keys.length > 0 &&
 			"parent" in pointer &&
-			pointer.parent instanceof Symbol
+			pointer.parent instanceof EdenSymbol
 		) {
 			return pointer.parent.name.slice(1) + "[" + pointer.keys[0] + "]";
 		} else {
@@ -451,7 +451,7 @@ proc touch {
 	${{
 		root.beginAutocalcOff();
 		for (var i = 0; i < arguments.length; i++) {
-			if (arguments[i] instanceof Symbol) {
+			if (arguments[i] instanceof EdenSymbol) {
 				root.expireSymbol(arguments[i]);
 			} else {
 				eden.error(new Error("touch: Argument " + (i+1) + " must be a pointer, not a " + typeof(arguments[i])), "error");
@@ -735,13 +735,13 @@ func type {
 				return "proc";
 			}
 		} else if (
-			(value instanceof Symbol) || (
+			(value instanceof EdenSymbol) || (
 				typeName == "object" &&
 				"keys" in value &&
 				Array.isArray(value.keys) &&
 				value.keys.length > 0 &&
 				"parent" in value &&
-				value.parent instanceof Symbol
+				value.parent instanceof EdenSymbol
 		)) {
 			return "pointer";
 		} else {
@@ -923,13 +923,13 @@ func isPointer {
 			return undefined;
 		}
 		var value = arguments[0];
-		return (value instanceof Symbol) || (
+		return (value instanceof EdenSymbol) || (
 				typeof(value) == "object" &&
 				"keys" in value &&
 				Array.isArray(value.keys) &&
 				value.keys.length > 0 &&
 				"parent" in value &&
-				value.parent instanceof Symbol);
+				value.parent instanceof EdenSymbol);
 	}}$;
 }
 
@@ -1074,7 +1074,7 @@ ${{
 		// Keep track of what to call the next view that is created using the menu bar.
 		var numViewsSym = root.lookup("views_number_created");
 		if (numViewsSym.value() < maxViewNumber) {
-			numViewsSym.assign(maxViewNumber, root.scope, Symbol.hciAgent);
+			numViewsSym.assign(maxViewNumber, root.scope, EdenSymbol.hciAgent);
 		}
 	});
 }}$;
@@ -1156,8 +1156,8 @@ screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFram
 ${{
 	window.addEventListener("resize", function (event) {
 		root.beginAutocalcOff();
-		root.lookup("screenWidth").assign(window.innerWidth - 2, root.scope, Symbol.defaultAgent);
-		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2, root.scope, Symbol.defaultAgent);
+		root.lookup("screenWidth").assign(window.innerWidth - 2, root.scope, EdenSymbol.defaultAgent);
+		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2, root.scope, EdenSymbol.defaultAgent);
 		root.endAutocalcOff();
 	});
 }}$;
@@ -1852,7 +1852,7 @@ proc loadTextFileIntoObservable {
 		var url = arguments[1];
 		var synchronous = arguments[2];
 
-		if (!(symbol instanceof Symbol)) {
+		if (!(symbol instanceof EdenSymbol)) {
 			eden.error(new Error("loadTextFileIntoObservable: The first argument must be a pointer, not a " + typeof(symbol)), "error");
 			return;
 		}
@@ -2400,7 +2400,7 @@ func substitute {
 				//Case 3: Placeholders refer to observable names.
 				if (!scannedForObservables) {
 					for (var i = 1; i < argList.length ; i++) {
-						if (argList[i] instanceof Symbol) {
+						if (argList[i] instanceof EdenSymbol) {
 							observables[argList[i].name.slice(1)] = argList[i];
 						}
 					}
@@ -3729,7 +3729,7 @@ ${{
 		if (Array.isArray(clocks)) {
 			var incrementClock = function (symbol) {
 				if (!pausedSym.cache.value) {
-					symbol.assign(symbol.cache.value + 1, root.scope, Symbol.localJSAgent);
+					symbol.assign(symbol.cache.value + 1, root.scope, EdenSymbol.localJSAgent);
 					if (debugSym.cache.value.edenclocks) {
 						console.log("edenclocks: clock " + symbol.name);
 					}
@@ -3749,7 +3749,7 @@ ${{
 				} else {
 					var currentValue = target.value();
 					if (currentValue === undefined) {
-						target.assign(0, root.scope, Symbol.localJSAgent);
+						target.assign(0, root.scope, EdenSymbol.localJSAgent);
 						return window.setInterval(incrementClock, interval, target);
 					} else if (typeof(currentValue) == "number") {
 						return window.setInterval(incrementClock, interval, target);					
@@ -3765,7 +3765,7 @@ ${{
 				var clockDetails = clocks[i];
 				if (Array.isArray(clockDetails)) {
 					var clockSymbol = clockDetails[0];
-					if (clockSymbol instanceof Symbol) {
+					if (clockSymbol instanceof EdenSymbol) {
 						var clockName = clockSymbol.name;
 						var clockInterval = clockDetails[1];
 						if (clockInterval !== undefined && typeof(clockInterval) != "number") {
@@ -4071,7 +4071,7 @@ proc bindCSSProperty {
 			eden.error(new Error("bindCSSProperty: The CSS property name must be a string, not a " + typeof(property)), "error");
 			return;
 		}
-		if (obsName instanceof Symbol) {
+		if (obsName instanceof EdenSymbol) {
 			obsName = obsName.name.slice(1);
 		} else if (typeof(obsName) != "string") {
 			eden.error(new Error("bindCSSProperty: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
@@ -4143,7 +4143,7 @@ proc bindCSSNumericProperty {
 			eden.error(new Error("bindCSSNumericProperty: The CSS property name must be a string, not a " + typeof(property)), "error");
 			return;
 		}
-		if (obsName instanceof Symbol) {
+		if (obsName instanceof EdenSymbol) {
 			obsName = obsName.name.slice(1);
 		} else if (typeof(obsName) != "string") {
 			eden.error(new Error("bindCSSNumericProperty: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
@@ -4211,7 +4211,7 @@ proc bindCSSRule {
 			return;
 		}
 		
-		if (obsName instanceof Symbol) {
+		if (obsName instanceof EdenSymbol) {
 			obsName = obsName.name.slice(1);
 		} else if (typeof(obsName) != "string") {
 			eden.error(new Error("bindCSSRule: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
@@ -4280,7 +4280,7 @@ proc unbind {
 			return;
 		}
 		var obsSym;
-		if (arguments[0] instanceof Symbol) {
+		if (arguments[0] instanceof EdenSymbol) {
 			obsSym = arguments[0];
 		} else if (typeof(arguments[0]) == "string") {
 			obsSym = root.lookup(arguments[0]);

@@ -170,14 +170,14 @@ Div.prototype.draw = function(context) {
 	if (this.name !== undefined) {
 		divElement.onmousedown = function (event) {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseDownZone").assign(event.target.id, root.scope, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseDownZone").assign(event.target.id, root.scope, EdenSymbol.hciAgent, mouseFollow);
 		};
 		divElement.onmouseup = function (event) {
 			edenUI.plugins.Canvas2D.endClick();
 		};
 		divElement.onmouseenter = function (event) {
 			var mouseFollow = root.lookup("mouseFollow").value();
-			root.lookup("mouseZone").assign(event.target.id, root.scope, Symbol.hciAgent, mouseFollow);
+			root.lookup("mouseZone").assign(event.target.id, root.scope, EdenSymbol.hciAgent, mouseFollow);
 		};
 		edenUI.plugins.Canvas2D.initZoneFromName(name, "Div")
 	}

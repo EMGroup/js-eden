@@ -20,7 +20,10 @@ Eden.DB = {
 	repoindex: 0,
 	retrycount: 0,
 	connected: false,
-	searchServer: "http://jseden.dcs.warwick.ac.uk"
+	searchServer: "http://jseden.dcs.warwick.ac.uk",
+	querycache: null,
+	qcacheloaded: false,
+	qcachetimeout: undefined
 }
 
 Eden.DB.listeners = {};
@@ -228,6 +231,8 @@ Eden.DB.localSave = function(project) {
 		window.localStorage.setItem(prefix+"_desc", project.desc);
 
 		var plist = JSON.parse(window.localStorage.getItem("project_list"));
+
+		if (plist === null) plist = {};
 		plist[project.id] = true;
 		window.localStorage.setItem("project_list", JSON.stringify(plist));
 	}
@@ -257,6 +262,7 @@ Eden.DB.save = function(project, ispublic, callback) {
 			},
 			success: function(data){
 				if (data === null || data.error) {
+					Eden.DB.localSave(project);
 					console.error(data);
 					Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 					if (callback) callback(false);
@@ -266,10 +272,12 @@ Eden.DB.save = function(project, ispublic, callback) {
 					project.id = data.projectID;
 					project.vid = data.saveID;
 					project.readPassword = data.readPassword;
+					Eden.DB.localSave(project);
 					if (callback) callback(true);
 				}
 			},
 			error: function(a,status,err){
+				Eden.DB.localSave(project);
 				//console.error(a);
 				//eden.error(a);
 				Eden.DB.handleError(a,status,err);
@@ -277,6 +285,7 @@ Eden.DB.save = function(project, ispublic, callback) {
 			}
 		});
 	} else {
+		Eden.DB.localSave(project);
 		console.error("Cannot upload, not connected to server. Local save only.");
 		if (callback) callback(false);
 		eden.error("Cannot upload "+path+", not connected to server. Local save only");
@@ -323,16 +332,6 @@ Eden.DB.loadLocal = function(id) {
 		var desc = window.localStorage.getItem(prefix+"_desc");
 		var title = window.localStorage.getItem(prefix+"_title");
 		if (src && src != "") {
-			//eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
-			eden.project = new Eden.Project(id, title, src);
-			eden.project.vid = vid;
-			eden.project.author = author;
-			eden.project.name = name;
-			eden.project.authorid = authorid;
-			eden.project.thumb = thumb;
-			eden.project.desc = desc;
-			eden.project.start();
-
 			return {
 				source: src,
 				saveID: vid,
@@ -343,18 +342,32 @@ Eden.DB.loadLocal = function(id) {
 				tags: "",
 				parentProject: null,
 				minimisedTitle: name,
-				projectMetaData: '{"description": "'+desc+'"}'
+				projectMetaData: '{}' //'{"description": "'+desc+'"}'
 			};
 		}
 	}
 }
 
 
+Eden.DB.hasLocal = function(pid, vid) {
+	var plist = JSON.parse(window.localStorage.getItem("project_list"));
+	if (plist !== null && plist[pid]) {
+		if (!vid) return true;
+		var prefix = "project_"+pid;
+		var lvid = window.localStorage.getItem(prefix+"_vid");
+		console.log("Load local",lvid, vid);
+		lvid = parseInt(lvid);
+		return (lvid >= vid);
+	}
+	return false;
+}
+
 Eden.DB.load = function(pid, vid, readPassword, callback) {
 	if(arguments.length == 3){
 		callback = readPassword;
 		readPassword = undefined;
 	}
+
 	if (Eden.DB.isConnected()) {
 		$.ajax({
 			url: Eden.DB.remoteURL+"/project/get?projectID="+pid+ ((vid) ? "&to="+vid : "") + ((readPassword) ? "&readPassword="+readPassword : ""),
@@ -370,7 +383,12 @@ Eden.DB.load = function(pid, vid, readPassword, callback) {
 					console.log(data);
 					Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				} else {
-					callback(data);
+					if (Eden.DB.hasLocal(pid,data.saveID)) {
+						console.log("Yes, load local");
+						callback(Eden.DB.loadLocal(pid));
+					} else {
+						callback(data);
+					}
 				}
 			},
 			error: function(a,status,err){
@@ -379,7 +397,13 @@ Eden.DB.load = function(pid, vid, readPassword, callback) {
 				callback(undefined, "Disconnected");
 			}
 		});
-	} else if (callback) callback(undefined, "Disconnected");
+	} else if (callback) {
+		if (Eden.DB.hasLocal(pid,vid)) {
+			callback(Eden.DB.loadLocal(pid));
+		} else {
+			callback(undefined, "Disconnected");
+		}
+	}
 }
 
 Eden.DB.search = function(q, pagenum, pagecount, sortby, callback) {
@@ -512,31 +536,59 @@ Eden.DB.rate = function(projectid, stars) {
 }
 
 Eden.DB.searchSelector = function(q, kind, callback) {
-	$.ajax({
-		url: this.remoteURL+"/code/search?selector="+q.replace("#","%23")+"&outtype="+kind,
-		type: "get",
-		crossDomain: true,
-		xhrFields:{
-			withCredentials: true
-		},
-		success: function(data){
-			if (data === null || data.error) {
-				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
-				callback([]);			
-			} if (data) {
-				callback(data);
-				return;
-			} else {
+	if (Eden.DB.isConnected()) {
+		$.ajax({
+			url: this.remoteURL+"/code/search?selector="+q.replace("#","%23")+"&outtype="+kind,
+			type: "get",
+			crossDomain: true,
+			xhrFields:{
+				withCredentials: true
+			},
+			success: function(data){
+				if (data === null || data.error) {
+					Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
+					callback([]);			
+				} if (data) {
+					if (!Eden.DB.qcacheloaded) {
+						Eden.DB.querycache = JSON.parse(window.localStorage.getItem("query_cache"));
+						Eden.DB.qcacheloaded = true;
+						if (Eden.DB.querycache === null) Eden.DB.querycache = {};
+					}
+					Eden.DB.querycache[q] = data;
+					Eden.DB.requestQCacheSave();
+					callback(data);
+					return;
+				} else {
+					callback([]);
+				}
+			},
+			error: function(a,status,err){
+				//console.error(a);
 				callback([]);
+				Eden.DB.handleError(a,status,err);
+				//Eden.DB.disconnect(true);
 			}
-		},
-		error: function(a,status,err){
-			//console.error(a);
-			callback([]);
-			Eden.DB.handleError(a,status,err);
-			//Eden.DB.disconnect(true);
+		});
+	} else {
+		console.log("ATTEMPT CACHE",q);
+		if (!Eden.DB.qcacheloaded) {
+			Eden.DB.querycache = JSON.parse(window.localStorage.getItem("query_cache"));
+			Eden.DB.qcacheloaded = true;
+			if (Eden.DB.querycache === null) Eden.DB.querycache = {};
 		}
-	});
+		var cent = Eden.DB.querycache[q];
+		callback((cent) ? cent : []);
+	}
+}
+
+Eden.DB.requestQCacheSave = function() {
+	if (Eden.DB.qcachetimeout) {
+		return;
+	}
+	Eden.DB.qcachetimeout = setTimeout(function() {
+		window.localStorage.setItem("query_cache", JSON.stringify(Eden.DB.querycache));
+		Eden.DB.qcachetimeout = undefined;
+	}, 2000);
 }
 
 Eden.DB.postComment = function(project, text, priv) {
