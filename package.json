@@ -2,7 +2,7 @@
   "author": "Construit",
   "name": "construit",
   "description": "Construit, the Making Construals Environment on the web.",
-  "version": "2.1.13",
+  "version": "2.1.14",
   "homepage": "jseden.dcs.warwick.ac.uk/construit",
   "repository": {
     "type": "git",
@@ -15,13 +15,13 @@
   },
   "main": "main.js",
   "dependencies": {
-	"electron": "~1.6.2",
+    "electron": "~1.6.2",
     "electron-rebuild": "^1.5.11",
     "finalhandler": "^1.0.2",
-	"http": "0.0.0",
-	"serialport": "^4.0.7",
-	"showdown": "^1.6.4"
-	},
+    "http": "0.0.0",
+    "serialport": "^4.0.7",
+    "showdown": "^1.6.4"
+  },
   "devDependencies": {
     "chai-as-promised": "~4.1.1",
     "electron": "~1.6.2",
