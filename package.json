@@ -13,9 +13,6 @@
     "start": "electron .",
     "construit": "electron ."
   },
-  "bin": {
-    "construit": "electron ."
-  },
   "main": "main.js",
   "dependencies": {
     "electron": "~1.6.2",
