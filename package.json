@@ -2,7 +2,7 @@
   "author": "Construit",
   "name": "construit",
   "description": "Construit, the Making Construals Environment on the web.",
-  "version": "2.1.15",
+  "version": "2.1.16",
   "homepage": "jseden.dcs.warwick.ac.uk/construit",
   "repository": {
     "type": "git",
@@ -11,7 +11,7 @@
   "scripts": {
     "test": "node ./qunit_tests.js",
     "start": "electron .",
-	"construit": "electron ."
+    "construit": "electron ."
   },
   "bin": {
     "construit": "electron ."
@@ -20,7 +20,7 @@
   "dependencies": {
     "electron": "~1.6.2",
     "electron-rebuild": "^1.5.11",
-	"require-rebuild": "^1.2.8",
+    "require-rebuild": "^1.2.8",
     "finalhandler": "^1.0.2",
     "http": "0.0.0",
     "serialport": "^4.0.7",
