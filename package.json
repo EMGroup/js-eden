@@ -10,9 +10,11 @@
   },
   "scripts": {
     "test": "node ./qunit_tests.js",
-    "install": "electron-rebuild -f -w serialport",
-    "rebuild": "electron-rebuild -f -w serialport",
-    "start": "electron ."
+    "start": "electron .",
+	"construit": "electron ."
+  },
+  "bin": {
+    "construit": "electron ."
   },
   "main": "main.js",
   "dependencies": {

@@ -9,7 +9,6 @@ Afterwards, on a command line in some folder where you want to store the downloa
 
 ```
 npm install construit
-npm run rebuild
 ```
 
 And to start Construit use:
