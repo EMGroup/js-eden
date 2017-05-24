@@ -281,8 +281,8 @@ function Construit(options,callback) {
 				});
 			} else {
 				loadPlugins(plugins, function () {
-						$.getJSON('config.json', function (config) {
-							rt.config = config;
+						//$.getJSON('config.json', function (config) {
+						//	rt.config = config;
 
 							Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
 								if (load != "") {
@@ -304,7 +304,7 @@ function Construit(options,callback) {
 							});
 							Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
 
-						});
+						//});
 					//});
 				});
 			}
