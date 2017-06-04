@@ -753,7 +753,7 @@ Eden.DB.handleError = function(a, status, err) {
 Eden.DB.adminProjectActivity = function(newerthan, offset, cb) {
 	if (!Eden.DB.isLoggedIn()) return;
 	$.ajax({
-		url: this.remoteURL+"/project/activity?limit=15&offset="+offset+((newerthan) ? "&newerThan="+newerthan : ""),
+		url: this.remoteURL+"/project/activity?limit=30&offset="+offset+((newerthan) ? "&newerThan="+newerthan : ""),
 		type: "get",
 		crossDomain: true,
 		xhrFields:{

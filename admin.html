@@ -35,8 +35,13 @@
 	<script src="js/ui/notifications.js"></script>
 
 	<style>
+		body {
+			font-family: Helvetica;
+		}
+
 		div#admincontent {
-			
+			display: flex;
+			padding-top: 45px;
 		}
 
 		a.feedback-title {
@@ -44,15 +49,15 @@
 			margin-right: 10px;
 		}
 
+		span.feedback-date {
+			float: right;
+		}
+
 		div.feedback-links a {
 			margin-left: 15px;
 		}
 
 		div#commentactivity {
-			position: absolute;
-			top: 80px;
-			bottom: 20px;
-			left: 150px;
 			width: 400px;
 			padding: 0;
 			border: 1px solid #bbb;
@@ -71,23 +76,18 @@
 		}
 
 		div#projectactivity {
-			position: absolute;
-			top: 80px;
-			height: 400px;
-			left: 600px;
-			width: 400px;
 			padding: 0;
 			border: 1px solid #bbb;
 			border-radius: 6px;
 			background: white;
 			overflow: hidden;
+			flex-grow: 1;
 		}
 
 		div#commentlog {
 			padding: 5px;
 			overflow-y: auto;
 			box-sizing: border-box;
-			position: absolute;
 			bottom: 0;
 			top: 30px;
 			left: 0;
@@ -95,18 +95,18 @@
 		}
 
 		div#projectlog {
-			padding: 5px;
+			padding: 20px;
 			overflow-y: auto;
 			box-sizing: border-box;
-			position: absolute;
-			bottom: 0;
 			top: 30px;
 			left: 0;
 			right: 0;
 		}
 
 		div.project-result {
-			padding: 5px;
+			padding: 8px;
+			margin-bottom: 5px;
+			border-bottom: 1px solid #ddd;
 		}
 
 		a.projectlink {
@@ -163,21 +163,38 @@
 			}
 		});
 
-		Eden.DB.adminProjectActivity(undefined, 0, function(data) {
-			var proresults = document.getElementById("projectlog");
+		var projects = {};
 
-			console.log("PROJET DATA", data);
-			if (!data) return;
+		function addProjects(page) {
+			Eden.DB.adminProjectActivity(undefined, page*30, function(data) {
+				var proresults = document.getElementById("projectlog");
+
+				console.log("PROJET DATA", data);
+				if (!data) return;
+
+				var count = 0;
 			
-			for (var i=0; i<data.length; i++) {
-				var ele = document.createElement("div");
-				ele.className = "project-result";
-				var t = data[i].date.split(/[- :]/);
+				for (var i=0; i<data.length; i++) {
+					if (projects.hasOwnProperty(data[i].projectID)) {
+						projects[data[i].projectID].push(data[i]);
+						continue;
+					} else {
+						projects[data[i].projectID] = [data[i]];
+						count++;
+					}
+					var ele = document.createElement("div");
+					ele.className = "project-result";
+					var t = data[i].date.split(/[- :]/);
 
-				ele.innerHTML = '<a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'&r='+data[i].readPassword+'">'+data[i].title+'</a><span class="feedback-author">'+data[i].name+'</span><span class="feedback-date" title="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
-				proresults.appendChild(ele);
-			}
-		});
+					ele.innerHTML = '<span class="feedback-author">'+data[i].name+'</span><a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'&r='+data[i].readPassword+'">'+data[i].title+'</a><span class="feedback-date" title="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+					proresults.appendChild(ele);
+				}
+	
+				if (count < 10 && data.length > 0) addProjects(page+1);
+			});
+		}
+
+		addProjects(0);
 	});
 </script>
 
@@ -193,11 +210,11 @@
 <div id="projectlog"></div>
 </div>
 
-<div id="managecategories">
+<div id="managecategories" style="display: none;">
 <h2>Front-page Categories</h2>
 </div>
 
-<div id="managepages">
+<div id="managepages" style="display: none;">
 <h1>Page Contents</h1>
 </div>
 
