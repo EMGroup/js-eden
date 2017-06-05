@@ -112,6 +112,10 @@
 		a.projectlink {
 			margin-right: 10px;
 		}
+
+		button.more {
+			margin-top: 20px;
+		}
 	</style>
 </head>
 
@@ -165,14 +169,14 @@
 
 		var projects = {};
 
+		var count = 0;
+
 		function addProjects(page) {
 			Eden.DB.adminProjectActivity(undefined, page*30, function(data) {
 				var proresults = document.getElementById("projectlog");
 
 				console.log("PROJET DATA", data);
 				if (!data) return;
-
-				var count = 0;
 			
 				for (var i=0; i<data.length; i++) {
 					if (projects.hasOwnProperty(data[i].projectID)) {
@@ -190,7 +194,18 @@
 					proresults.appendChild(ele);
 				}
 	
-				if (count < 10 && data.length > 0) addProjects(page+1);
+				if (count < 15 && data.length > 0) addProjects(page+1);
+				else {
+					var ele = document.createElement("button");
+					ele.className = "more";
+					ele.innerHTML = 'More';
+					proresults.appendChild(ele);
+					ele.onclick = function() {
+						count = 5;
+						addProjects(page+1);
+						proresults.removeChild(ele);
+					}
+				}
 			});
 		}
 
