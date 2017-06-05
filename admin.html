@@ -116,6 +116,13 @@
 		button.more {
 			margin-top: 20px;
 		}
+
+		div.privacy {
+			display: inline-block;
+			font-family: "FontAwesome";
+			color: gold;
+			width: 20px;
+		}
 	</style>
 </head>
 
@@ -190,7 +197,7 @@
 					ele.className = "project-result";
 					var t = data[i].date.split(/[- :]/);
 
-					ele.innerHTML = '<span class="feedback-author">'+data[i].name+'</span><a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'&r='+data[i].readPassword+'">'+data[i].title+'</a><span class="feedback-date" title="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+					ele.innerHTML = '<div class="privacy">'+((data[i].readPassword === null) ? '' : '&#xf023;')+'</div><span class="feedback-author">'+data[i].name+'</span><a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'&r='+data[i].readPassword+'">'+data[i].title+'</a><span class="feedback-date" title="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
 					proresults.appendChild(ele);
 				}
 	
