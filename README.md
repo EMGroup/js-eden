@@ -1,6 +1,7 @@
 # Construit [![Build Status](https://secure.travis-ci.org/EMGroup/js-eden.png?branch=master)](https://travis-ci.org/EMGroup/js-eden)
 
-
+Either use our hosted version at http://jseden.dcs.warwick.ac.uk/construit or
+you can download JS-Eden from the github releases page and use it off-line.
 
 # Local Installation
 
@@ -28,6 +29,19 @@ npm install
 And to start Construit use:
 ```
 npm start
+```
+
+## Arduino
+
+If an Arduino is connected (by USB at present) then it should prompt you when
+you start js-eden. You must first have uploaded our firmware to the device using
+the Arduino IDE. The sketch file can be found in `plugins/arduino/sketch.c`.
+
+Observables starting with `arduino_` are created to correspond to pins on the
+device or configuration. For example:
+
+```
+arduino_d13 is ledOn;
 ```
 
 # Developers

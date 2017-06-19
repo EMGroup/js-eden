@@ -84,7 +84,14 @@ void loop() {
 		value = Serial.read() + (Serial.read() * 256);
 		device = Serial.read();
 
-		if (device == 6) {
+		// Firmware check command
+		if (device == 101) {
+			if (value == 0x5555) {
+				Serial.write(101);
+				Serial.write(101);
+				Serial.write(0);
+			}
+		} else if (device == 6) {
 			if (tonepin != 255) noTone(tonepin);
 			tonepin = pin;
 		} else if (pin < 50) {
