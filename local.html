@@ -95,6 +95,19 @@ See LICENSE.txt
 			margin-left: 20px;
 			margin-right: 20px;
 		}
+
+		div#projectbuttons {
+			background: #29454B;
+			vertical-align: middle;
+			line-height: 100px;
+			height: 150px;
+			color: white;
+			justify-content: flex-start;
+		}
+
+		div#menubar-main {
+			box-shadow: none;
+		}
 	</style>
 </head>
 <body>
@@ -619,8 +632,6 @@ See LICENSE.txt
 
 				displayProjects("private",":me");
 
-				$("#welcometext").get(0).style.display = "none";
-				$("#welcomelinks").get(0).style.display = "none";
 				$("#privateprojects").get(0).style.display = "block";
 				//$("#projectbuttons").get(0).style.display = "flex";
 			});
@@ -635,8 +646,6 @@ See LICENSE.txt
 					node = next;
 				}
 
-				$("#welcometext").get(0).style.display = "block";
-				$("#welcomelinks").get(0).style.display = "block";
 				$("#privateprojects").get(0).style.display = "none";
 				$("#projectbuttons").get(0).style.display = "none";
 				//displayProjects(true);
@@ -663,10 +672,9 @@ See LICENSE.txt
 <div id="loadoptions" class="" style="display: none;">
 	<div class="project-content" style="padding: 20px 0;">
 		<div id="defaultcontent">
-		<div id="projectbuttons" class="jseden-dialog-plisting" style="padding: 10px; height: 80px;">
-			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
-			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special">&#xf07c;</div></div>
-			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
+		<div id="projectbuttons" class="jseden-dialog-plisting" style="padding: 10px;">
+			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special" style="color: white;" >&#xf067;</div></div>
+			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special" style="color: white;" >&#xf07c;</div></div>
 		</div>
 		<div id="project-browser" style="clear: right;">
 			<div id="privateprojects" style="display: none">

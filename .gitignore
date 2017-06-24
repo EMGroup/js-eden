@@ -16,4 +16,5 @@ js/util/projectsearch.js
 js/lib/w3color.js
 plugins/network-remote/lo
 build/
+release-builds/
 

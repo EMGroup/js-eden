@@ -35,9 +35,14 @@ EdenUI.MenuBar = function() {
 				<div class="menubar-button enabled main create" data-obs="views" title="${Language.ui.tooltips.create}" style="display: none;">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div>
 				<div class="menubar-button enabled main existing" data-obs="existing" title="${Language.ui.tooltips.existing}" style="display: none;">&#xf2d2;<div id="menubar-mainitem-existing" class="menubar-menu"></div></div>
 				<div class="menubar-button enabled main settings" data-obs="options" title="${Language.ui.tooltips.options}" style="display: none;">&#xf013;<div id="menubar-mainitem-options" class="menubar-menu"></div></div>
-				<div class="menubar-button enabled main help" data-obs="help" title="${Language.ui.tooltips.help}" style="display: none;">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu"></div></div>
-				<div class="menubar-button enabled main notifications" data-obs="notifications" title="${Language.ui.tooltips.notifications}">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div>
-				<div class="menubar-button enabled main maker" data-obs="maker" title="${Language.ui.tooltips.maker}">&#xf0ad;</div></div>
+				<div class="menubar-button enabled main help" data-obs="help" title="${Language.ui.tooltips.help}">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu">
+					<div class="menubar-item-fullwidth menubar-item-clickable"><a target="_blank" style="color: inherit; text-decoration: none;" href="?load=54">Getting Started...</a></div>					
+					<div class="menubar-item-fullwidth menubar-item-clickable"><a target="_blank" style="color: inherit; text-decoration: none;" href="resources/doc/cheat.pdf">Cheat Sheet (PDF)</a></div>
+					<div class="menubar-item-fullwidth menubar-item-clickable"><a target="_blank" style="color: inherit; text-decoration: none;" href="https://github.com/EMGroup/js-eden/wiki/Eden-Functions">Library Reference</a></div>
+					<div class="menubar-item-fullwidth menubar-item-clickable"><a target="_blank" style="color: inherit; text-decoration: none;" href="http://construit.org">About Construit</a></div>
+				</div></div>
+				<div class="menubar-button enabled main notifications" data-obs="notifications" title="${Language.ui.tooltips.notifications}" style="display: none;">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div>
+				<div class="menubar-button enabled main maker" data-obs="maker" title="${Language.ui.tooltips.maker}" style="display: none;">&#xf0ad;</div></div>
 			<div class="searchouter menusearch" style="display: none;"><input type="text" class="search menusearch" placeholder="${Language.ui.menu_bar.search}" spellcheck="false"></input>
 				<div id="menubar-searchresults"></div>
 			</div></div>`);
@@ -586,6 +591,11 @@ EdenUI.MenuBar = function() {
 		}
 	});
 
+	eden.root.lookup("jseden_explorer_enabled").addJSObserver("menubar", function(sym, value) {
+		if (value) me.element.find(".menubar-button.maker").show();
+		else me.element.find(".menubar-button.maker").hide();
+	});
+
 	eden.root.lookup("jseden_menu_showshare").addJSObserver("menubar", function(sym, value) {
 		if (value) me.element.find(".menubar-button.share").show();
 		else me.element.find(".menubar-button.share").hide();
@@ -609,6 +619,11 @@ EdenUI.MenuBar = function() {
 	eden.root.lookup("jseden_menu_showhelp").addJSObserver("menubar", function(sym, value) {
 		if (value) me.element.find(".menubar-button.help").show();
 		else me.element.find(".menubar-button.help").hide();
+	});
+
+	eden.root.lookup("jseden_menu_shownotifications").addJSObserver("menubar", function(sym, value) {
+		if (value) me.element.find(".menubar-button.notifications").show();
+		else me.element.find(".menubar-button.notifications").hide();
 	});
 
 	eden.root.lookup("jseden_project_subtitle").addJSObserver("menubar", function(sym, value) {

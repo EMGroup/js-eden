@@ -3493,14 +3493,15 @@ jseden_menu_showshare is jseden_project_title != "CONSTRUIT";
 jseden_menu_showcreate is jseden_project_title != "CONSTRUIT";
 /** Display (or hide) menu bar existing views button. @handle */
 jseden_menu_showexisting is jseden_project_title != "CONSTRUIT";
+jseden_menu_shownotifications is jseden_project_title != "CONSTRUIT";
 /** Display (or hide) menu bar settings button. @handle */
 jseden_menu_showsettings = false;
 /** Display (or hide) menu bar help button. @handle */
-jseden_menu_showhelp = false;
+jseden_menu_showhelp = true;
 /** Your logged in user name. @oracle */
 jseden_pm_user = jseden_pm_user;
 /** Is the explorer panel accessible? */
-jseden_explorer_enabled = true;
+jseden_explorer_enabled is jseden_project_title != "CONSTRUIT";
 jseden_explorer_visible is jseden_maker;
 jseden_explorer_watch is (querySelector(jseden_explorer_search,"symbol") if jseden_explorer_search != @ && jseden_explorer_search != "" else
 	querySelector(".type(script).name:not(:remote,ACTIVE) >","symbol")) if (jseden_fragment_changed || jseden_fragment_executed) && jseden_explorer_visible else @;
