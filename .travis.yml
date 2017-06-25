@@ -8,8 +8,10 @@ env:
   - secure: bgYfQCKNPRZmSd7rrp8O5z4lf71PZ0/9vcuodOtjwhTuP9kWa3sIHdDw7ZHaseJWc4z5mfl7KZBAm1CMaTyf8ou9rPWNPLbYKh61One1qI1JABxh0ZY9brGdNtkB/QgI+RZYhFUwbqzp7PPQAiCPLLQVTKAT+v4LzI3BBRZsEc8=
   - secure: kZMoRh4h9gDZDiRM+5niT6bpBXixex+kXjhHriI0/QAdW7meclLSMlwrm4c8/Jh+3l9mOfbVOiXydpyOT3YVrwlFctGidACmogZeh5J5fXIrFBzuJXGGIrMD6XPFcbU8wy7h/m5ps7/BezpCSkX8a1eSXimXNmilGIZK5DQtUks=
 before_install:
+- sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+- sudo apt-get update -qq
 - npm install -g grunt-cli
-- sudo apt-get install g++-5
+- sudo apt-get install g++-4.8
 after_success:
 - ./travis.sh
 addons:
