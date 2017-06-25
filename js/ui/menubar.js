@@ -38,6 +38,7 @@ EdenUI.MenuBar = function() {
 				<div class="menubar-button enabled main help" data-obs="help" title="${Language.ui.tooltips.help}">&#xf128;<div id="menubar-mainitem-help" class="menubar-menu">
 					<div class="menubar-item-fullwidth menubar-item-clickable"><a target="_blank" style="color: inherit; text-decoration: none;" href="?load=54">Getting Started...</a></div>					
 					<div class="menubar-item-fullwidth menubar-item-clickable"><a target="_blank" style="color: inherit; text-decoration: none;" href="resources/doc/cheat.pdf">Cheat Sheet (PDF)</a></div>
+					<div class="menubar-item-fullwidth menubar-item-clickable"><a target="_blank" style="color: inherit; text-decoration: none;" href="https://www.youtube.com/channel/UCQUAv0AU1FF2EN0qwOOZCag">Tutorial Videos (YouTube)</a></div>
 					<div class="menubar-item-fullwidth menubar-item-clickable"><a target="_blank" style="color: inherit; text-decoration: none;" href="https://github.com/EMGroup/js-eden/wiki/Eden-Functions">Library Reference</a></div>
 					<div class="menubar-item-fullwidth menubar-item-clickable"><a target="_blank" style="color: inherit; text-decoration: none;" href="http://construit.org">About Construit</a></div>
 				</div></div>
