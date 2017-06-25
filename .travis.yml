@@ -1,7 +1,7 @@
 # consumed by travis-ci.org for running automated tests
 language: node_js
 node_js:
-- '0.10'
+- '6.0'
 env:
   global:
   - secure: MOAONWnE1Cqal+qcPD08VoaRYj4izY4x2eHrMr/jM7D7qG7Utcuyc448+DtlS+7Ni0RJeHeklfTk4AnE7ZafbxFrS6UFtEwCTagqDXcwAnkB/+NMLje2QTEtlT8eIV5Iz3jk0P1SSGc/KlueuB73Ew3uDJKh+NlO/lbsNwRESjk=
@@ -13,7 +13,7 @@ after_success:
 addons:
   sauce_connect: true
 before_script:
-- node jseden-dev-server &
+- npm run devserver &
 script:
 - npm test
 #- ./node_modules/.bin/mocha selenium-tests/test.js
