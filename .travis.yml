@@ -12,6 +12,7 @@ before_install:
 - sudo apt-get update -qq
 - npm install -g grunt-cli
 - sudo apt-get install g++-4.8
+- export CXX="g++-4.8"
 after_success:
 - ./travis.sh
 addons:
