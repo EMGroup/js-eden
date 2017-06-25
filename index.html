@@ -75,7 +75,7 @@ See LICENSE.txt
 	var projects;
 
 	function changePage(name) {
-		$.get(name, function(data) {
+		$.get("pages/"+name+"-"+Language.language+".html", function(data) {
 			$("#welcometext").html(data);
 		}, "text");
 	}
