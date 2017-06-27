@@ -564,8 +564,8 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 			inputName = source.name;
 		}
 		root.beginAutocalcOff();
-		inputDeviceSym.assign(inputName, agent);
-		inputTimestampSym.assign(event.timeStamp, agent);
+		inputDeviceSym.assign(inputName, root.scope);
+		inputTimestampSym.assign(event.timeStamp, root.scope);
 		inputMessageSym.assign(event.data,eden.root.scope);
 		inputMessageCountSym.assign(inputMessageCount - inputMessagesRead,eden.root.scope);
 		root.endAutocalcOff();
