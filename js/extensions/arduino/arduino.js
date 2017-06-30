@@ -48,7 +48,7 @@ Eden.Arduino.prototype.connect = function() {
 		me.sp.on('data', function(data) {
 			var i = 0;
 
-			console.log("RAW", data);
+			//console.log("RAW", data);
 
 			while (i < data.length) {
 				if (cacheData.length == 0) {
@@ -76,7 +76,7 @@ Eden.Arduino.prototype.connect = function() {
 	me.sp.open();
 
 	function digiHandler(sym, value) {
-		console.log("Write arduino",sym.name,value);
+		//console.log("Write arduino",sym.name,value);
 		if (!me.connected || sym.origin === EdenSymbol.localJSAgent) return;
 		var pin = parseInt(sym.name.replace("arduino_d",""));
 		if (value != me.digipincache[pin]) {
@@ -86,9 +86,9 @@ Eden.Arduino.prototype.connect = function() {
 	}
 
 	var digisyms = [];
-	for (var i=1; i<=14; i++) {
-		digisyms[i-1] = eden.root.lookup("arduino_d"+i);
-		digisyms[i-1].addJSObserver(this.port, digiHandler);
+	for (var i=0; i<14; i++) {
+		digisyms[i] = eden.root.lookup("arduino_d"+i);
+		digisyms[i].addJSObserver(this.port, digiHandler);
 	}
 
 	function inputHandler(sym, value) {
@@ -108,9 +108,9 @@ Eden.Arduino.prototype.connect = function() {
 	}
 
 	var inputsyms = [];
-	for (var i=1; i<=14; i++) {
-		inputsyms[i-1] = eden.root.lookup("arduino_input_d"+i);
-		inputsyms[i-1].addJSObserver(this.port, inputHandler);
+	for (var i=0; i<14; i++) {
+		inputsyms[i] = eden.root.lookup("arduino_input_d"+i);
+		inputsyms[i].addJSObserver(this.port, inputHandler);
 	}
 
 	var ainputsyms = [];
@@ -123,7 +123,7 @@ Eden.Arduino.prototype.connect = function() {
 Eden.Arduino.prototype.processSerialData = function(obj) {
 	var pin = obj[0];
 
-	console.log("IN", obj);
+	//console.log("IN", obj);
 
 	if (pin < 50) {
 		var val = obj[1];
@@ -139,7 +139,7 @@ Eden.Arduino.prototype.sendCommand = function(pin, value, command) {
 	buf.writeUInt8(pin, 0);
 	buf.writeUInt16LE(value, 1);
 	buf.writeUInt8(command, 3);
-	console.log(buf);
+	//console.log(buf);
 	this.sp.write(buf);
 }
 
