@@ -59,9 +59,9 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 	var outputs = [];
 	var inputs = [];
 	var numOutputsSym = root.lookup("midiNumberOfOutputs");
-	numOutputsSym.assign(0);
+	numOutputsSym.assign(0,eden.root.scope);
 	var numInputsSym = root.lookup("midiNumberOfInputs");
-	numInputsSym.assign(0);
+	numInputsSym.assign(0,eden.root.scope);
 
 	/* A mapping between output device number and the name of an observable that stores which
 	 * programs (instruments) have been selected for each channel of that output.
@@ -87,7 +87,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 
 	this.addSoftSynth = function (synth) {
 		outputs.push(synth);
-		numOutputsSym.assign(outputs.length);
+		numOutputsSym.assign(outputs.length,eden.root.scope);
 		console.log('Added software synthesizer "' + synth.name + '".');
 		if (initialized) {
 			var outputNum = outputs.length - 1;
@@ -100,7 +100,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 
 	this.addSoftInput = function (input) {
 		inputs.push(input);
-		numInputsSym.assign(inputs.length);
+		numInputsSym.assign(inputs.length,eden.root.scope);
 		console.log('Added software input "' + input.name + '".');
 	}
 
@@ -223,7 +223,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		outputNum = resolveOutputNumber(outputNum);
 
 		if (!Array.isArray(symbol.value()) && symbol.definition === undefined) {
-			symbol.assign([1]);
+			symbol.assign([1],eden.root.scope);
 		}
 		var programObserver = function (symbol, programs) {
 			if (!Array.isArray(programs)) {
@@ -315,8 +315,8 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 						inputs.push(input);
 						iteratedItem = iterator.next();
 					}
-					numOutputsSym.assign(outputs.length);
-					numInputsSym.assign(inputs.length);
+					numOutputsSym.assign(outputs.length,eden.root.scope);
+					numInputsSym.assign(inputs.length,eden.root.scope);
 				}
 				initializeSoftwareDrivers(0);
 
@@ -528,7 +528,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 			}
 			inputMessageCount++;
 		}
-		inputMessageCountSym.assign(inputMessageCount - inputMessagesRead);		
+		inputMessageCountSym.assign(inputMessageCount - inputMessagesRead,eden.root.scope);		
 	}
 
 	this.startInput = function (inputNum) {
@@ -564,10 +564,10 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 			inputName = source.name;
 		}
 		root.beginAutocalcOff();
-		inputDeviceSym.assign(inputName, agent);
-		inputTimestampSym.assign(event.timeStamp, agent);
-		inputMessageSym.assign(event.data);
-		inputMessageCountSym.assign(inputMessageCount - inputMessagesRead);
+		inputDeviceSym.assign(inputName, root.scope);
+		inputTimestampSym.assign(event.timeStamp, root.scope);
+		inputMessageSym.assign(event.data,eden.root.scope);
+		inputMessageCountSym.assign(inputMessageCount - inputMessagesRead,eden.root.scope);
 		root.endAutocalcOff();
 	}
 
@@ -577,10 +577,13 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		}
 		inputMessageCount = 0;
 		inputMessagesRead = 0;
-		inputMessageCountSym.assign(0);
+		inputMessageCountSym.assign(0,eden.root.scope);
 	}
 
-	Eden.Agent.importAgent("plugins/midi", "default", [], success);
+	Eden.Selectors.execute("plugins > midi > midi", function() {
+		eden.root.lookup("plugins_midi_loaded").assign(true, eden.root.scope, EdenSymbol.localJSAgent);
+		if (success) success();
+	});
 }
 EdenUI.plugins.MIDI.title = "MIDI";
 EdenUI.plugins.MIDI.description = "Adds musical capabilities to JS-EDEN.";
