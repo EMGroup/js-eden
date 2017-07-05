@@ -26,6 +26,24 @@ Eden.DB = {
 	qcachetimeout: undefined
 }
 
+Eden.DB.storageSpace = function() {
+	var _lsTotal=0,_xLen,_x;
+	for(_x in localStorage){
+		_xLen= ((localStorage[_x].length + _x.length)* 2);
+		_lsTotal+=_xLen;
+	}
+	return _lsTotal;
+}
+
+console.log("Local Usage:",""+(Eden.DB.storageSpace()/1024/1024) + "Mb");
+
+if (Eden.DB.storageSpace() > 4*1024*1024) {
+	console.log("WARNING - CLEARING LOCAL STORAGE");
+	for (var x in window.localStorage) {
+		delete window.localStorage[x];
+	}
+}
+
 Eden.DB.listeners = {};
 Eden.DB.emit = emit;
 Eden.DB.listenTo = listenTo;
@@ -218,6 +236,7 @@ Eden.DB.getLoginName = function(callback) {
 }
 
 Eden.DB.localSave = function(project) {
+	//return;
 	if (window.localStorage) {
 		var prefix = "project_"+project.id;
 		window.localStorage.setItem(prefix+"_project", project.generate());
@@ -229,6 +248,7 @@ Eden.DB.localSave = function(project) {
 		window.localStorage.setItem(prefix+"_title", project.title);
 		window.localStorage.setItem(prefix+"_thumb", project.thumb);
 		window.localStorage.setItem(prefix+"_desc", project.desc);
+		window.localStorage.setItem(prefix+"_tags", project.tags.join(" "));
 
 		var plist = JSON.parse(window.localStorage.getItem("project_list"));
 		if (plist === null) plist = {};
@@ -269,6 +289,8 @@ Eden.DB.save = function(project, ispublic, callback) {
 					project.id = data.projectID;
 					project.vid = data.saveID;
 					project.readPassword = data.readPassword;
+					project.author = Eden.DB.username;
+					project.authorid = Eden.DB.userid;
 					Eden.DB.localSave(project);
 					if (callback) callback(true);
 				}
@@ -324,6 +346,7 @@ Eden.DB.loadLocal = function(id) {
 		if (author == "undefined") author = undefined;
 		var authorid = window.localStorage.getItem(prefix+"_authorid");
 		var name = window.localStorage.getItem(prefix+"_name");
+		var tags = window.localStorage.getItem(prefix+"_tags");
 		var thumb = window.localStorage.getItem(prefix+"_thumb");
 		if (thumb == "undefined") thumb = undefined;
 		var desc = window.localStorage.getItem(prefix+"_desc");
@@ -336,10 +359,10 @@ Eden.DB.loadLocal = function(id) {
 				ownername: author,
 				owner: authorid,
 				image: thumb,
-				tags: "",
+				tags: tags,
 				parentProject: null,
 				minimisedTitle: name,
-				projectMetaData: '{}' //'{"description": "'+desc+'"}'
+				projectMetaData: JSON.stringify({"description": desc})
 			};
 		}
 	}
