@@ -647,11 +647,19 @@ Eden.DB.postComment = function(project, text, priv) {
 	});
 }
 
+var waitingforcomment = false;
+
 Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 	//if (!project) return;
+	if (waitingforcomment) {
+		cb();
+		return;
+	}
+
 	var pid = (project) ? project.id : -1;
 	//if (cb) cb(dummycomments);
 	if (Eden.DB.isConnected()) {
+	waitingforcomment = true;
 	$.ajax({
 		url: this.remoteURL+"/comment/search?projectID="+pid+((last) ? "&newerThan="+last : "")+"&offset="+((page-1) * count)+"&limit="+count,
 		type: "get",
@@ -660,6 +668,7 @@ Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 			withCredentials: true
 		},
 		success: function(data){
+			waitingforcomment = false;
 			if (data) {
 				cb(data);
 				return;
@@ -668,8 +677,9 @@ Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 			}
 		},
 		error: function(a,status,err){
+			waitingforcomment = false;
 			//console.error(a);
-			cb([]);
+			cb();
 			Eden.DB.handleError(a,status,err);
 			//Eden.DB.disconnect(true);
 		}

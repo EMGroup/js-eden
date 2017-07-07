@@ -54,14 +54,19 @@ EdenUI.Feedback = function() {
 			me.interval = setInterval(function() {
 				//me.updateComments("");
 				Eden.DB.searchComments(eden.project, "", 1, 10, last, function(data) {
-					if (last === undefined && data.length > 0) {
-						last = data[0].commentID;
-						return;
+					if (data) {
+						if (last === undefined && data.length > 0) {
+							last = data[0].commentID;
+							return;
+						}
+						for (var i=0; i<data.length; i++) {
+							edenUI.menu.notifications.notification("comment", "New comment by " + data[i].name);
+						}
+						if (data.length > 0) {
+							last = data[0].commentID;
+							me.cache = data.concat(me.cache);
+						}
 					}
-					for (var i=0; i<data.length; i++) {
-						edenUI.menu.notifications.notification("comment", "New comment by " + data[i].name);
-					}
-					if (data.length > 0) last = data[0].commentID;
 				});
 			},10000);
 			//me.interval = undefined;
@@ -183,8 +188,8 @@ EdenUI.Feedback.prototype.updateComments = function(q) {
 					}
 				});
 			}
-		}
 
-		me.cache = data.concat(me.cache);
+			me.cache = data.concat(me.cache);
+		}
 	});
 }
