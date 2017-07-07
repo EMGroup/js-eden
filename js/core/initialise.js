@@ -45,6 +45,7 @@ function touchHandler(event) {
 //See also plugins/external-html-content/external-html-content.js
 var doingNavigateAway = false;
 var confirmUnload = function (event) {
+	Eden.DB.log("leave", {project: (eden.project) ? eden.project.id : -1});
 	if (!doingNavigateAway) {
 		//eden.project.localSave();
 		var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
@@ -143,6 +144,7 @@ function Construit(options,callback) {
 
 		function invalidVersion(msg) {
 			$(".loadmessage").html(msg);
+			Eden.DB.log("badbrowser", browser);
 		}
 
 		if (browser.msie) {
@@ -289,6 +291,7 @@ function Construit(options,callback) {
 									if (mode !== null && mode != "") {
 										eden.root.lookup("jseden_project_mode").assign(mode, eden.root.scope, Symbol.defaultAgent);
 									}
+									Eden.DB.log("urlload", {useragent: navigator.userAgent, referrer: document.referrer, pid: load, vid: vid, "private": readPassword !== null});
 									Eden.Project.load(parseInt(load),(vid === null || vid == "") ? undefined : parseInt(vid),(readPassword === null || readPassword == "") ? undefined : readPassword,function(){ doneLoading(true); });
 								} else if (restore != "") {
 									if (mode !== null && mode != "") {
@@ -299,6 +302,7 @@ function Construit(options,callback) {
 								} else {
 									// Background load library...
 									//Eden.Agent.importAgent("lib","default", [], function() {});
+									Eden.DB.log("home", {referrer: document.referrer, useragent: navigator.userAgent});
 									doneLoading(false);
 								}
 							});

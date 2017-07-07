@@ -114,6 +114,7 @@ EdenUI.Feedback = function() {
 	buttons.appendChild(postbut);
 	postbut.addEventListener("click", function() {
 		//console.log("COMMENT", markdown.intextarea.value);
+		Eden.DB.log("postcomment", {pid: (eden.project) ? eden.project.id : -1, content: markdown.intextarea.value});
 		Eden.DB.postComment(eden.project, markdown.intextarea.value);
 		markdown.setValue("");
 		me.updateComments("");

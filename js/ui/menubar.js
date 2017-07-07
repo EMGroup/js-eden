@@ -115,6 +115,7 @@ EdenUI.MenuBar = function() {
 
 		} else {
 			if (name) {
+				Eden.DB.log("login");
 				setTimeout(function() {
 					$("#menubar-obscurer").remove();
 				}, 1000);

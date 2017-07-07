@@ -110,9 +110,12 @@ EdenUI.Sharebox = function(element) {
 		}
 		//Eden.Agent.uploadAll(function() {
 			//console.log("ALL UPLOADED");
+
+			Eden.DB.log("save", {pid: eden.project.id});
+
 			eden.project.thumb = me.thumbdata;
 			eden.project.setDescription(desc);
-			console.log("SAVE", listed, desc);
+			//console.log("SAVE", listed, desc);
 			eden.project.save(listed, function(status) {
 				if (status) {
 					var url = "?load="+eden.project.id+"&vid="+eden.project.vid+"&r="+eden.project.readPassword;
@@ -146,12 +149,15 @@ EdenUI.Sharebox = function(element) {
 		}
 		//Eden.Agent.uploadAll(function() {
 			//console.log("ALL UPLOADED");
+
+			Eden.DB.log("fork", {pid: eden.project.id});
+
 			eden.project.thumb = me.thumbdata;
 			if (eden.project.id) eden.project.parentid = eden.project.id;
 			eden.project.id = undefined;
 			eden.project.vid = undefined;
 			eden.project.setDescription(desc);
-			console.log("FORK", listed, desc);
+			//console.log("FORK", listed, desc);
 			eden.project.save(listed, function(status) {
 				if (status) {
 					var url = "?load="+eden.project.id+"&vid="+eden.project.vid;

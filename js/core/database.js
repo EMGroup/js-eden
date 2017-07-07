@@ -828,4 +828,36 @@ Eden.DB.getPopularTags = function(tag, cb) {
 	});
 }
 
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+var browserID = window.localStorage["construit_uid"];
+if (browserID === null || browserID === undefined || browserID == "") {
+	browserID = guid();
+	window.localStorage.setItem("construit_uid", browserID);
+}
+var sessionID = guid();
+
+Eden.DB.log = function(action, details) {
+	console.log("LOG", browserID, (Eden.DB.userid) ? Eden.DB.userid : -1, action, details);
+
+	$.ajax({
+		url: this.searchServer+"/jsedenlog/jsedenlog",
+		type: "post",
+		data:{	browserID: browserID,
+				sessionID: sessionID,
+				userID: Eden.DB.userid,
+				action: action,
+				details: details
+		}
+	});
+}
+
 
