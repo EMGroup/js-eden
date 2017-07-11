@@ -462,7 +462,7 @@ proc bindMIDINote {
 
 
 		if (velocity === undefined && velocitySym.definition === undefined) {
-			velocitySym.assign(127, agent);
+			velocitySym.assign(127, eden.root.scope);
 			velocity = 127;
 		}
 
@@ -474,7 +474,7 @@ proc bindMIDINote {
 		} else {
 			strike = strikeSym.value();
 			if (strike === undefined && strikeSym.definition === undefined) {
-				strikeSym.assign(true, agent);
+				strikeSym.assign(true, eden.root.scope);
 				strike = true;
 			}
 			noteSym.addJSObserver("bind", function (symbol, note) {
