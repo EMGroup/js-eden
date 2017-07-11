@@ -21,6 +21,13 @@ module.exports = function (grunt) {
       src: ['**']
     },
 
+	concat: {
+		canvas: {
+		src: ["plugins/canvas/*.js-e"],
+		dest: "plugins/canvas_merged.js-e"
+		}
+	},
+
 	cssmin: {
 		options: {
 			target: './plugins/',
@@ -248,8 +255,9 @@ module.exports = function (grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-gh-pages');
 
-  grunt.registerTask('build', ['uglify', 'cssmin', 'merge']);
+  grunt.registerTask('build', ['uglify', 'cssmin', 'concat']);
   grunt.registerTask('default', ['build', 'connect', 'watch']);
 };

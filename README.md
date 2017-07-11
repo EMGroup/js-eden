@@ -22,11 +22,20 @@ Install [Node.js](https://nodejs.org) version 6.10 or newer.
 Afterwards, open a command line terminal into the folder extracted from the
 download and enter the following commands:
 
+On Windows you will also need to install `windows-build-tools` with:
+
+```
+npm install -g windows-build-tools
+```
+
+And then for all platforms:
+
 ```
 npm install
 ```
 
 And to start Construit use:
+
 ```
 npm start
 ```

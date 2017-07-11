@@ -17,7 +17,7 @@
     "release": "grunt cssmin; grunt uglify",
     "devserver": "node ./bin/devserver.js",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=resources/icons/mac/icon.icns --prune=true --out=release-builds",
-    "package-win": "electron-packager . --overwrite --asar=true --platform=win32 --arch=ia32 --icon=resources/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=Construit --version-string.FileDescription=Construit --version-string.ProductName=\"Construit\"",
+    "package-win": "electron-packager . --overwrite --asar=true --platform=win32 --icon=resources/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=Construit --version-string.FileDescription=Construit --version-string.ProductName=\"Construit\"",
     "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=resources/icons/png/128x128.png --prune=true --out=release-builds"
   },
   "bin": {
@@ -31,6 +31,7 @@
     "grunt": "^0.4.5",
     "grunt-browserify": "^5.0.0",
     "grunt-cli": "^1.2.0",
+    "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-cssmin": "~0.14.0",
     "grunt-contrib-uglify": "git://github.com/gruntjs/grunt-contrib-uglify.git#harmony",
     "grunt-gh-pages": "~0.9.1",
