@@ -8522,6 +8522,7 @@ ${{
 				mediaElement.loop = true;
 			}
 			loopSym.addJSObserver("setLooping", function (sym, value) {
+				console.log("LOOPSYM");
 				mediaElement.loop = value;
 			});
 
@@ -8605,6 +8606,7 @@ ${{
 				mediaElement.autoplay = true;
 			}
 			pausedSym.addJSObserver("pausePlay", function (symbol, pause) {
+				console.log("PAUSESYM");
 				if (pause) {
 					mediaElement.pause();
 				} else {
@@ -8613,12 +8615,12 @@ ${{
 				}
 			});
 			mediaElement.addEventListener("pause", function (event) {
-				if (pausedSym.definition === undefined) {
+				if (pausedSym.definition === undefined && pausedSym.value() != true) {
 					pausedSym.assign(true, root.scope, agent);
 				}
 			});
 			mediaElement.addEventListener("playing", function (event) {
-				if (pausedSym.definition === undefined) {
+				if (pausedSym.definition === undefined  && pausedSym.value() != false) {
 					pausedSym.assign(false, root.scope, agent);
 				}
 				if (speedSym.value() == 0) {
@@ -8667,7 +8669,8 @@ ${{
 			}
 
 			timeSym.addJSObserver("seek", function (symbol, seconds) {
-				if (symbol.last_modified_by !== me.type) {
+				if (symbol.origin !== EdenSymbol.localJSAgent) {
+					console.log("TIMESYM");
 					mediaElement.currentTime = seconds;
 				}
 			});
@@ -8678,7 +8681,7 @@ ${{
 				var currentTime = mediaElement.currentTime;
 				var newTimeIndex = Math.floor(currentTime);
 				if (newTimeIndex != me.timeIndex) {
-					timeSym.assign(newTimeIndex, root.scope, agent);
+					timeSym.assign(newTimeIndex, root.scope, EdenSymbol.localJSAgent);
 					me.timeIndex = newTimeIndex;					
 				}
 				if (nextChapterAt !== undefined && currentTime >= nextChapterAt) {
@@ -8692,14 +8695,14 @@ ${{
 				}
 			});
 			mediaElement.addEventListener("ended", function (event) {
-				timeSym.assign(mediaElement.duration, root.scope, agent);
+				timeSym.assign(mediaElement.duration, root.scope, EdenSymbol.localJSAgent);
 				chapterIndex = chapterMarks.length;
 				goToChapter();
 			});
 			mediaElement.addEventListener("seeking", function (event) {
 				var currentTime = mediaElement.currentTime;
 				if (timeSym.value() !== currentTime) {
-					timeSym.assign(currentTime, root.scope, agent);
+					timeSym.assign(currentTime, root.scope, EdenSymbol.localJSAgent);
 				}
 				me.atEnd = currentTime == mediaElement.duration;
 				findChapter();
@@ -8724,6 +8727,7 @@ ${{
 			}
 			speedSym.addJSObserver("changePlaybackSpeed", function (symbol, speed) {
 				if (mediaElement.playbackRate != speed) {
+					console.log("SPEEDSYM");
 					if (speed > 0) {
 						mediaElement.defaultPlaybackRate = speed;
 					} else {
@@ -8760,6 +8764,7 @@ ${{
 			this.volumeChanging = false;
 			volumeSym.addJSObserver("adjustVolume", function (symbol, volume) {
 				if (!me.volumeChanging) {
+					console.log("VOLUMESYM");
 					me.volumeChanging = true;
 					if (symbol.definition === undefined) {
 						if (volume == 0) {
@@ -8808,6 +8813,7 @@ ${{
 			}
 			urlSym.addJSObserver("newVideo", function (symbol, url) {
 				if (url != mediaElement.src) {
+					console.log("URLSYM");
 					timeSym.assign(0, root.scope, agent);
 					me.timeIndex = 0;
 					chapterIndex = -1;
@@ -8906,6 +8912,7 @@ ${{
 	backgroundAudio.draw();
 	backgroundAudioSym.addJSObserver("initialize", function (sym, value) {
 		if (value instanceof Audiovisual) {
+			console.log("BGAUDIO");
 			value.draw();
 		}
 	});
