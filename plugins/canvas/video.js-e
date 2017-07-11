@@ -323,7 +323,6 @@ ${{
 				mediaElement.loop = true;
 			}
 			loopSym.addJSObserver("setLooping", function (sym, value) {
-				console.log("LOOPSYM");
 				mediaElement.loop = value;
 			});
 
@@ -407,7 +406,6 @@ ${{
 				mediaElement.autoplay = true;
 			}
 			pausedSym.addJSObserver("pausePlay", function (symbol, pause) {
-				console.log("PAUSESYM");
 				if (pause) {
 					mediaElement.pause();
 				} else {
@@ -471,7 +469,6 @@ ${{
 
 			timeSym.addJSObserver("seek", function (symbol, seconds) {
 				if (symbol.origin !== EdenSymbol.localJSAgent) {
-					console.log("TIMESYM");
 					mediaElement.currentTime = seconds;
 				}
 			});
@@ -528,7 +525,6 @@ ${{
 			}
 			speedSym.addJSObserver("changePlaybackSpeed", function (symbol, speed) {
 				if (mediaElement.playbackRate != speed) {
-					console.log("SPEEDSYM");
 					if (speed > 0) {
 						mediaElement.defaultPlaybackRate = speed;
 					} else {
@@ -565,7 +561,6 @@ ${{
 			this.volumeChanging = false;
 			volumeSym.addJSObserver("adjustVolume", function (symbol, volume) {
 				if (!me.volumeChanging) {
-					console.log("VOLUMESYM");
 					me.volumeChanging = true;
 					if (symbol.definition === undefined) {
 						if (volume == 0) {
@@ -614,7 +609,6 @@ ${{
 			}
 			urlSym.addJSObserver("newVideo", function (symbol, url) {
 				if (url != mediaElement.src) {
-					console.log("URLSYM");
 					timeSym.assign(0, root.scope, agent);
 					me.timeIndex = 0;
 					chapterIndex = -1;
@@ -713,7 +707,6 @@ ${{
 	backgroundAudio.draw();
 	backgroundAudioSym.addJSObserver("initialize", function (sym, value) {
 		if (value instanceof Audiovisual) {
-			console.log("BGAUDIO");
 			value.draw();
 		}
 	});
