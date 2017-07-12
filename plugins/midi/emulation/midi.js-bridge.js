@@ -55,7 +55,11 @@ EdenUI.plugins.MIDIDotJS = function (edenUI, success) {
 
 				case 0x90: //Note On
 
-					midijs.noteOn(channel, data1, data2, time / 1000);
+					if (data2 == 0) {
+						midijs.noteOff(channel, data1, time / 1000);
+					} else {
+						midijs.noteOn(channel, data1, data2, time / 1000);
+					}
 					break;
 
 				case 0xB0: // Control Change
