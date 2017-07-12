@@ -383,6 +383,22 @@ Eden.DB.hasLocal = function(pid, vid) {
 }
 
 
+function removeActive(src) {
+	var ix = src.indexOf("action ACTIVE {");
+	var count = 1;
+
+	var i = ix+16;
+	for (; i<src.length; i++) {
+		var ch = src.charAt(i);
+		if (ch == "{") count++;
+		else if (ch == "}") count--;
+		if (count == 0) break;
+	}
+
+	return src.substring(0,ix) + src.substring(i);
+}
+
+
 Eden.DB.load = function(pid, vid, readPassword, callback) {
 	if(arguments.length == 3){
 		callback = readPassword;
@@ -404,9 +420,17 @@ Eden.DB.load = function(pid, vid, readPassword, callback) {
 					console.log(data);
 					Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				} else {
-					if (Eden.DB.hasLocal(pid,data.saveID)) {
+					if (eden.root.lookup("jseden_autosave").value() && Eden.DB.hasLocal(pid,data.saveID)) {
 						console.log("Yes, load local");
-						callback(Eden.DB.loadLocal(pid));
+						var ldata = Eden.DB.loadLocal(pid);
+
+						if (removeActive(ldata.source) != removeActive(data.source)) {
+							var r = window.confirm("You have local changes, restore these?");
+							if (r) callback(ldata);
+							else callback(data);
+						} else {
+							callback(data);
+						}
 					} else {
 						callback(data);
 					}
@@ -419,8 +443,10 @@ Eden.DB.load = function(pid, vid, readPassword, callback) {
 			}
 		});
 	} else if (callback) {
-		if (Eden.DB.hasLocal(pid,vid)) {
-			callback(Eden.DB.loadLocal(pid));
+		if (eden.root.lookup("jseden_autosave").value() && Eden.DB.hasLocal(pid,vid)) {
+			var r = window.confirm("You have local changes, restore these?");
+			if (r) callback(Eden.DB.loadLocal(pid));
+			else callback(undefined, "Disconnected");
 		} else {
 			callback(undefined, "Disconnected");
 		}

@@ -17,6 +17,8 @@ EdenUI.Explorer = function() {
 </div>
 <div class="explore-settings" style="display: none">
 	<div style="font-size: 8pt">Note: Many of these do not work yet.</div>
+	<h1>Environment</h1>
+	<div id="explorerenvsettings" class="explorer-settings-list"></div>
 	<h1>Project</h1>
 	<div id="explorerprojectsettings" class="explorer-settings-list"></div>
 	<h1>Menu Bar</h1>
@@ -44,9 +46,13 @@ EdenUI.Explorer = function() {
 	this.expsettings = this.element.find(".explore-settings");
 
 	// Make the settings
+	var curset = this.expsettings.find('#explorerenvsettings').get(0);
+	this.addSetting(curset, "jseden_autosave", "Enable autosave to local storage", "", "boolean");
+	this.addSetting(curset, "jseden_leaveprompt", "Enable a leave page prompt", "", "boolean");
+
 	var curset = this.expsettings.find('#explorerprojectsettings').get(0);
 	this.addSetting(curset, "jseden_project_nocomments", "Disable comments", "", "boolean");
-	this.addSetting(curset, "jseden_project_nocomments", "Disable forking", "", "boolean");
+	this.addSetting(curset, "jseden_project_noforking", "Disable forking", "", "boolean");
 
 	var curset = this.expsettings.find('#explorermenusettings').get(0);
 	this.addSetting(curset, "jseden_menu_visible", "Menu visible", "", "boolean");
@@ -165,6 +171,28 @@ EdenUI.Explorer = function() {
 			eden.root.lookup("jseden_explorer_width").assign(0, eden.root.scope, EdenSymbol.localJSAgent);
 		}
 	});
+
+	function saveSetting(sym, value) {
+		window.localStorage.setItem(sym.name, value);
+	}
+
+	var setlist = [
+		"jseden_autosave",
+		"jseden_leaveprompt",
+		"jseden_menu_visible",
+		"jseden_menu_showhelp",
+		"jseden_menu_showsearch",
+		"jseden_menu_showcreate",
+		"jseden_menu_showexisting",
+		"jseden_menu_showshare",
+		"jseden_explorer_enabled"
+	];
+
+	for (var i=0; i<setlist.length; i++) {
+		var sym = eden.root.lookup(setlist[i]);
+		sym.assign(window.localStorage[setlist[i]] == "true", eden.root.scope, EdenSymbol.localJSAgent);
+		sym.addJSObserver("settings", saveSetting);
+	}
 
 
 	var zoomSym = eden.root.lookup("jseden_explorer_zoom");

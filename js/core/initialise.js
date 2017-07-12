@@ -47,10 +47,12 @@ var doingNavigateAway = false;
 var confirmUnload = function (event) {
 	Eden.DB.log("leave", {project: (eden.project) ? eden.project.id : -1});
 	if (!doingNavigateAway) {
-		//eden.project.localSave();
-		var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
-		event.returnValue = prompt;
-		return prompt;
+		if (eden.root.lookup("jseden_autosave").value()) eden.project.localSave();
+		else if (eden.root.lookup("jseden_leaveprompt").value()) {
+			var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
+			event.returnValue = prompt;
+			return prompt;
+		}
 	}
 };
 
@@ -218,7 +220,7 @@ function Construit(options,callback) {
 		
 		// TODO Remove this once restore works
 		if (edenUI.getOptionValue('optConfirmUnload') != "false") {
-			//window.addEventListener("beforeunload", confirmUnload);
+			window.addEventListener("beforeunload", confirmUnload);
 		}
 
 		/**
