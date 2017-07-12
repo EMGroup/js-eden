@@ -48,7 +48,7 @@ var confirmUnload = function (event) {
 	Eden.DB.log("leave", {project: (eden.project) ? eden.project.id : -1});
 	if (!doingNavigateAway) {
 		if (eden.root.lookup("jseden_autosave").value()) eden.project.localSave();
-		else if (eden.root.lookup("jseden_leaveprompt").value()) {
+		if (eden.root.lookup("jseden_leaveprompt").value()) {
 			var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
 			event.returnValue = prompt;
 			return prompt;

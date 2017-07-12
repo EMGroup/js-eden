@@ -1,0 +1,162 @@
+/**
+ * @title Start Your Model
+ */
+action start {/* Enter some script here */
+do @external Layouts > book;
+do :project > line;
+
+bookpic is picture;
+
+frame = 0;
+frame = 1;
+when (frame > 0) {
+	wait 40;
+	frame += 3;
+}
+
+waveform1 is 4*sin(x*10+frame) :: x in 1..100;
+waveform2 is sin(x*20+(9*frame)) :: x in 1..100;
+waveform3 is (0.3 * (waveform1[ix]-0.5 + waveform2[ix]-0.5))::ix in 1..100;
+waveform is [waveform1,waveform3];
+
+demo_chart is LineChart;
+
+	data is waveform;
+	width is book_width - 100;
+	height is book_height - 100;
+	x = 50;
+	y = 50;
+
+lc_y_axis_size = 2;
+lc_show_points = false;
+lc_show_line = true;
+lc_show_fill = true;
+lc_common_range = true;
+
+test1 is type(data[1]);
+
+picture is demo_chart;
+
+}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+if (jseden_project_mode != "safe") do :project > start;
+else createView("safemode","ScriptInput");
+
+action ACTIVE {
+jseden_project_title = "Charts";
+views_number_created = 0;
+jseden_autosave = false;
+jseden_leaveprompt = false;
+jseden_menu_visible = false;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+plugins_html_loaded = true;
+mouseVelocity = Point(0, 0);
+jseden_project_name = "Charts";
+jseden_project_thumb = "data:image/png;base64,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";
+jseden_project_author = "Nicolas Pope";
+views_list = ["safemode"];
+view_safemode_visibility = "visible";
+view_safemode_title = "Script View";
+view_safemode_tabs = [":project"];
+view_safemode_current = 0;
+view_safemode_showtabs = true;
+view_safemode_showbuttons = true;
+view_safemode_query is jseden_script_query;
+view_safemode_type = "ScriptInput";
+view_safemode_width = 600;
+view_safemode_height = 405;
+view_safemode_x = 659;
+view_safemode_y = 220.5;
+}
+
+action line {lc_left_bar is Line(lc_x, y, lc_x, y+height,lc_axiscolour,Object("lineWidth",lc_y_axis_size))
+	if lc_y_axis_size > 0 else @;
+lc_bottom_bar is Line(x, y+lc_height, x+width, y+lc_height,lc_axiscolour,Object("lineWidth",lc_x_axis_size))
+	if lc_x_axis_size > 0 else @;
+lc_left is [lc_left_bar];
+lc_bottom is [lc_bottom_bar];
+lc_axisopts is Object("lineWidth",lc_axissize);
+
+lc_labely is Text(keys[i], lc_datapoint_x, y+height+lc_keysize, lc_keysize, "middle center");
+lc_labelsy is (lc_labely :: i in 1..keys#) if keys else [];
+
+lc_numpoints is lc_dataset#;
+lc_maxval is max(lc_dataset) if type(data[1]) != "list" || !lc_common_range
+	else max(max(data[k])::k in 1..data#);
+lc_minval is min(lc_dataset) if type(data[1]) != "list" || !lc_common_range
+	else min(min(data[k])::k in 1..data#);
+lc_range is lc_maxval-lc_minval if lc_maxval-lc_minval > 0 else 1;
+lc_offsetx = 0;
+lc_scaley is 0.8;
+
+lc_linecolours = [
+	"rgba(0,133,188,1)",
+	"rgba(188,24,24,1)"
+];
+
+lc_fillcolours = [
+	"rgba(0,133,188,0.2)",
+	"rgba(188,24,24,0.2)"
+];
+
+lc_linecolour = "rgba(0,133,188,1)";
+lc_fillcolour = "rgba(0,133,188,0.2)";
+lc_linesize = 4;
+lc_axissize = 2;
+lc_x_axis_size is lc_axissize;
+lc_y_axis_size is lc_axissize;
+lc_y_axis_width is 20;
+lc_x_axis_height is 20;
+lc_axiscolour = "#aaa";
+lc_keysize = 12;
+lc_width is width - lc_y_axis_width - 10;
+lc_height is height - lc_x_axis_height;
+lc_x is x+lc_y_axis_width;
+lc_y is y;
+lc_show_points = false;
+lc_show_fill = true;
+lc_show_line = true;
+lc_point_radius is lc_linesize * 0.75;
+lc_point_colour = "#222";
+lc_common_range = false;
+
+lc_zeroy is lc_y+(lc_height * lc_scaley * (1.0 - ((0 - lc_minval)/lc_range)))+((1.0 - lc_scaley)*lc_height/2);
+
+lc_datapoint_x is lc_x+(lc_width / (lc_numpoints-1) * (i-1))-lc_offsetx;
+lc_datapoint_y is lc_y+(lc_height * lc_scaley * (1.0 - ((lc_dataset[i] - lc_minval)/lc_range)))+((1.0 - lc_scaley)*lc_height/2);
+lc_datapoint is Point(lc_datapoint_x, lc_datapoint_y);
+lc_points is lc_datapoint with i in 1..lc_dataset#;
+lc_polygonpoints is lc_points // [Point(lc_x+lc_width,lc_y+lc_height),Point(lc_x,lc_y+lc_height)];
+lc_polygon is Polygon(lc_polygonpoints, lc_fillcolour, "transparent")
+	if lc_show_fill else @;
+lc_lines is LineSequence(lc_points, lc_linecolour, Object("lineWidth",lc_linesize))
+	if lc_show_line else @;
+lc_points is (Circle(lc_datapoint_x, lc_datapoint_y, lc_point_radius, lc_point_colour) ::
+	i in 1..lc_dataset#);
+
+lc_zeroline is Line(x, lc_zeroy, x+width, lc_zeroy,"black",Object("lineWidth",1))
+	if (lc_showzero && lc_zeroy > y && lc_zeroy < y+height) else @;
+
+lc_datacollection is [lc_polygon,lc_lines,lc_points if lc_show_points else @, lc_zeroline];
+lc_dataelement is lc_datacollection::
+	lc_dataset is data[j],
+	lc_linecolour is lc_linecolours[j],
+	lc_fillcolour is lc_fillcolours[j];
+lc_data is (lc_datacollection::lc_dataset=data) if (type(data[1]) != "list")
+		else (lc_dataelement :: j in 1..data#);
+
+lc_showzero = true;
+
+LineChart is [lc_data,lc_left, lc_bottom, lc_labelsy];}

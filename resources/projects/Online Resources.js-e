@@ -1,0 +1,707 @@
+/**
+ * @title Start Your Model
+ */
+action start {import Layouts > book;
+do book;
+
+startexs = 3;
+endexs= 4;
+
+book_divider is book_width/2
+				if ((pageno==1)||(pageno>=startexs)&&(pageno<=endexs)) || ((pageno>7)&&(pageno<21)) else book_width;
+
+book_style is "left" if (pageno != startexs+1) && (pageno!=1) &&(pageno!=7) else "both" ;
+book_style is "both" if (pageno == startexs) || (pageno==1) || ((pageno>=8)&&(pageno<21)) else "left" ;
+
+
+modelno = 1;
+
+pages is ["welcome","index","keytopics","references", "inventory",
+			"workinprogresstmp", "intro" if (pageno!=startexs+1) else models[modelno]];
+
+pages is ["welcome","index" if pageno==1 else "keytopics","references", "inventory",
+			"workinprogresstmp", "intro" if (pageno!=startexs+1) else models[modelno]];
+
+pages is ["welcome","index" if pageno==1 else keytopicsopts[keytopicno], 
+			"workinprogresstmp", "inventory" if (pageno!=startexs) else models[modelno], "basicguide", "references", "invite"];
+
+keytopicsopts is ["keytopics", "keytopic1", "keytopic2", "keytopic3", "keytopic4"];
+keytopicno = 1;
+
+models is ["", "solar","whackamole","pennyrolling", "dog", "liftadv",
+"liftsim","democracy", "FaradayComputer", "artiphon", "shopping", "bubblesorting",
+"oxolab"];
+
+project_list is Div(<<END
+<div class="jseden-dialog-plisting" style="height: initial;" id="embedprojects"></div>
+END, book_width/2,0,book_width/2,book_height);
+
+picture is [project_list] if ((pageno>=startexs)&&(pageno<=startexs+1)) else [];
+
+showProjects("embedprojects","#featured");
+
+/*
+pages1to8 is sublist(pages,1,8);
+
+import Construingthemoment > tutorial;
+import Construingthemoment > tutorial1;
+import Construingthemoment > tutorial1b;
+import Construingthemoment > tutorial2;
+import Construingthemoment > tutorial2a;
+import Construingthemoment > tutorial2b;
+import Construingthemoment > tutorial3;
+import Construingthemoment > tutorial3a;
+import Construingthemoment > tutorial3b;
+*/
+/*
+import Construingthemoment > insummary;
+*/
+/*
+import Construingthemoment > doxygensource;
+
+tutorialcontent is ["tutorial","tutorial1","tutorial1b",
+			"tutorial2", "tutorial2a", "tutorial2b",
+			"tutorial3","tutorial3a","tutorial3b", "insummarycopy"];
+
+pages is ["welcome","index" if pageno==1 else keytopicsopts[keytopicno],"references", "inventory",
+			"workinprogresstmp", "invite" if (pageno!=startexs+1) else models[modelno],
+			"basicguide", "MCEorientation","construingnow", "MCEtechnical"] // ["introtutorial"] // tutorialcontent // ["doxygensource"];
+*/
+
+}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+do :project > start;
+
+action ACTIVE {
+jseden_project_title = "Online Resources";
+views_number_created = 0;
+jseden_autosave = false;
+jseden_leaveprompt = false;
+jseden_menu_visible = false;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+mouseVelocity = Point(0, 0);
+plugins_html_loaded = true;
+jseden_project_name = "OnlineResources";
+jseden_project_thumb = "data:image/png;base64,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";
+jseden_project_author = "Meurig Beynon";
+views_list = ["bookpic"];
+pages is ["welcome","index" if pageno==1 else keytopicsopts[keytopicno], 
+			"workinprogresstmp", "inventory" if (pageno!=startexs) else models[modelno], "basicguide", "references", "invite"];
+picture is [project_list] if ((pageno>=startexs)&&(pageno<=startexs+1)) else [];
+book_style is "both" if (pageno == startexs) || (pageno==1) || ((pageno>=8)&&(pageno<21)) else "left" ;
+book_divider is book_width/2
+				if ((pageno==1)||(pageno>=startexs)&&(pageno<=endexs)) || ((pageno>7)&&(pageno<21)) else book_width;
+view_bookpic_visibility = "visible";
+view_bookpic_title = "Canvas bookpic";
+view_bookpic_content is bookpic;
+view_bookpic_background_colour = "white";
+view_bookpic_scale = 1;
+view_bookpic_offset = Point(0, 0);
+view_bookpic_canvas_right = @;
+view_bookpic_canvas_bottom = @;
+view_bookpic_grid_visible = false;
+view_bookpic_grid_spacing = 20;
+view_bookpic_type = "Canvas2D";
+startexs = 3;
+endexs= 4;
+modelno = 1;
+models is ["", "solar","whackamole","pennyrolling", "dog", "liftadv",
+"liftsim","democracy", "FaradayComputer", "artiphon", "shopping", "bubblesorting",
+"oxolab"];
+keytopicsopts is ["keytopics", "keytopic1", "keytopic2", "keytopic3", "keytopic4"];
+keytopicno = 1;
+project_list is Div(<<END
+<div class="jseden-dialog-plisting" style="height: initial;" id="embedprojects"></div>
+END, book_width/2,0,book_width/2,book_height);
+view_bookscript1_query is jseden_script_query;
+view_bookscript2_query is jseden_script_query;
+}
+
+action inventory {#{.comment size=14pt}
+#Themed examples of construals{size=18pt}
+
+#Click on the themed links below. Icons representing practical examples of construals associated with this theme will appear on the right.  Click on an icon to explore the construal.
+
+# * [About construals]{script='showProjects("embedprojects","#conceptual");' colour=blue} (\#conceptual)
+# {margin-left=60px}The concepts and principles behind making construals
+
+# * [About the construction process]{script='showProjects("embedprojects","#process");' colour=blue} (\#process)
+# {margin-left=60px}Illustrating a typical evolutionary development of construals
+
+#* [Construals for open educational resources]{script='showProjects("embedprojects","#OERs");' colour=blue} (\#OERs)
+# {margin-left=60px}Construals that can be elaborated as OERs
+
+#* [About the environment]{script='showProjects("embedprojects","#MCE");' colour=blue} (\#MCE)
+# {margin-left=60px}Construals which illustrate key features of using the MCE
+
+#* [Technical documentation]{script='showProjects("embedprojects","#documentation");' colour=blue}  (\#documentation)
+# {margin-left=60px}Show-casing technical features of the MCE 
+
+#* [Starter construals]{script='showProjects("embedprojects","#starter");' colour=blue}  (\#starter)
+# {margin-left=60px}Incomplete simple construals suitable for extension
+
+#* [Elaborate construals]{script='showProjects("embedprojects","#elaborate");' colour=blue}  (\#elaborate)
+# {margin-left=60px}Well-developed construals on specialised topics 
+
+
+}action solar {
+
+
+
+## Solar System
+
+# ![img](http://jseden.dcs.warwick.ac.uk/resources/solar.png){width=200}
+
+#The solar system construal was developed by Antony Harfield as a first introduction to the environment for making construals. It was deployed with secondary school pupils and teachers in Athens in September 2015 and April 2016. This construal introduces the basic techniques used to specify observables and dependencies as definitions, and incorporates agency based on the use of  clock. Extensions of this construal have been used to illustrate planetary recession, and to model aspects of sending a probe to Mars. 
+
+# [Run Solar System](http://jseden.dcs.warwick.ac.uk/construit/?load=39)
+}action democracy {
+
+
+##The Will of the People
+
+# ![willofthepeople](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/willofthepeople.png){height=300 margin-left=0px}
+
+#This construal illustrates how problematic the idea of 'the will of the people' can be. It allows the reader to manipulate the number of votes cast for four candidates, two men and two women, and crafts a paragraph of text that reflects the relationship between the outcome of the election and that of a referendum on the question of whether the majority would pefer the winning candidate to be male or female.
+
+# [Run The Will of the People](http://jseden.dcs.warwick.ac.uk/construit/?load=40)
+}action liftsim {
+##A Lift Simulation
+
+# ![Liftanimation](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/LiftAnimation.png){height=300 margin-left=100px}
+#
+#
+#This simulation illustrates how scenarios can be analysed in terms of observables, dependencies and agency. It can be viewed as an exercise in making a construal as a way of prototyping software. The behaviour of the lift in response to button presses is expressed using a family of **when**-clauses.  The simulation can potentially used to explore the way in which these agents are configured so as to make sure that the lift service is appropriate and the possible implications of hardware failures. There is scope to make the construal much more concise using features of the MCE that have been relatively recently introduced. This version of the construal is similar in character to the lift simulation using these principles built by Cheryl Sidebotham and Lee Suker in 1992.
+
+#[Run Lift Simulation](http://jseden.dcs.warwick.ac.uk/construit/?load=36)
+
+}action pennyrolling {
+## A Penny Rolling Construal
+
+# ![i](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/pennyrollingvisualisation.png){margin-left=100px width=200}
+
+#In  *Aha! Gotcha: Paradoxes to Puzzle and Delight*, Martin Gardner posed the question:
+#> When one penny rolls around the circumference of another, how many complete rotations does it  make\? 
+#Seymour Papert proposed an 'object-to-think-with' that could be used to explain the answer to Gardner's puzzle. His proposal was to consider one penny rolling around another as the limiting case of a circle rolling around the circumference of a regular k-polygon, where k tends to infinity. As the circle rolls around the circumference of the polygon, rolling along the k sides cumulatively contributes one complete rotation as does rolling around the k corners. This accounts for the fact that the rolling penny makes two complete rotations.
+
+#The penny rolling construal is an implementation of Papert's object-to-think-with in which the parameter k, which determines the number of sides of the regular polygon, can be dynamically varied. The construction incidentally serves as a case-study in the use of a suite of functions for specifying rotations of geometric objects that have been devised by Elizabeth Hudnott. 
+
+# [A Penny Rolling Construal](http://jseden.dcs.warwick.ac.uk/construit/?load=27)
+}action invite {
+
+#The CONSTRUIT 2017 Interest Group{size=18pt colour=black}
+
+ #---
+#{size=16pt  margin-left=190px colour=blue}The [CONSTRUIT 2017 conference](http://edumotiva.eu/construit2017/){colour=blue}**\:  Making, Thinking and Learning in the Digital Age **
+
+#{size=14pt margin-left=270px}[University of Warwick, UK\:  Thursday 13th July - Sunday 16th July 2017]{size=14pt  colour=#00d}
+#--- 
+
+# *[We invite expressions of interest from all interested in the potential of computer technology to support making things-to-think-with and learning-through-making. We believe educational technology has barely begun to realise this potential. We think]{size=14pt} [the CONSTRUIT! project](http://www.construit.org){size=14pt} [is bringing a new vision, and a new technology, to this enterprise but we need help from the community to understand better the position and value of our contribution. We invite contributions which will reflect your own work and perspective on educational technology and in addition, if possible, make connections with the work of CONSTRUIT! as represented in the recent papers and modelling artefacts introduced in previous pages.]{size=14pt}*
+
+#---
+#{size=14pt}To express your interest in the conference you can  join the  **[CONSTRUIT 2017 Interest Group](http://jseden.dcs.warwick.ac.uk/joincommunity)**. This does not commit you to attendance in July, but will register you on our conference database. You will then receive updates and be able to join online activities before and after the physical conference. 
+
+#{size=14pt}The primary activity for the CONSTRUIT 2017 Interest Group will take the form of conversations about the online resources introduced in this presentation. These will be conducted within *the environment for making construals* (the **MCE**) in which the presentation has been created. By logging in (via the <button>:sign-in:{colour=white} Login</button> button in the top right corner), you can post feedback on the online resources (via the comment facility (:comments-o:{colour=grey}) at the bottom right corner) and store your own construals in the CONSTRUIT! repository for private or public access (via the Save or share button (:share-alt:{colour=grey}) at the top right). 
+
+#{size=14pt}To contribute to CONSTRUIT 2017, consult the [Call for Contributions](http://edumotiva.eu/construit2017/?page_id=493). These online resources have been compiled to support contributors.
+
+# ![text](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/ErasmusDisclaimer.png)        ![imgimg](http://jseden.dcs.warwick.ac.uk/construit-v2.0/images/construit_logo_2.png){width=200 margin-left=5px}
+
+
+
+
+ 
+
+}action whackamole {
+##Whack-a-Mole
+
+# ![wam](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/whackamoleall.png){margin-left=100px}
+#Whack-a-mole is a popular recreational app that has been used to illustrate the principles of programming in environments such as App Inventor. This construal shows how it can be implemented using the basic concepts of making construals: observables, dependencies and agency. The player's score is displayed in the top left corner. 
+
+# [Run Whack-a-Mole](http://jseden.dcs.warwick.ac.uk/construit/?load=50)
+}action FaradayComputer {
+
+##Faraday and the Computer
+# ![Faraday](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/FaradayandtheComputer.png){height=280 margin-left=0px}
+#**Construal** is the term that applies to making sense of natural language statements.  This short presentation, enititled **Digital Construals: How Faraday would have used the computer\?** , was given by Meurig Beynon at UEF, Joensuu, Finland in September 2013. It discusses the way in which construal might apply to possible variations on the title of the presentation. This is one way in which to appreciate the qualities of construals, such as their subjective and context-dependent nature.
+
+#The term 'construal' was also adopted by David Gooding in his study of the techniques by which Michael Faraday recorded his emerging understanding of electromagnetism in his celebrated experimental work in the 19th century. The talk draws attention to the parallel between construals as they apply in these two contexts. A central theme of CONSTRUIT! project is how these qualities can be realised in digital construals.
+
+# [Run Faraday and the Computer](http://jseden.dcs.warwick.ac.uk/construit/?load=44)
+
+
+
+
+
+
+
+
+
+}action dog {
+
+
+
+##Dog
+
+# ![dog](https://openclipart.org/image/200px/svg_to_png/1706/johnny-automatic-cartoon-dog-1.png){height=120 margin-left=100px}
+
+
+#The dog construal was devised to demonstrate some basic features of the MCE: how to create an image, place it on the screen at a specific starting position and animate its movement. It also illustrates some simple observables (e.g. the coordinates of the dog image), dependency (the position of the image of the dog depends on the specified coordinates) and agency (a **when**-clause is used to animate the image).
+
+#The construal also illustrates how the interface to the script provided by the MCE works: the script is presented in three sections entitled Make, Animate and Display. The definitions in each section can be executed either as a group or individually. This highlights the open-ended, non-sequential and concurrent nature of the interpration of the script.
+
+# [Run Dog](http://jseden.dcs.warwick.ac.uk/construit/?load=41)
+}
+action liftadv {
+
+
+##Adventures in a Lift
+
+# ![liftadventure](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/LiftAdv.png){height=300 margin-left=10px}
+
+#Making a construal is an activity that is  associated with sense making in all kinds of situation. The "adventures in a lift" construal was developed to account for a real-life interaction between lift-users in which the author played the principal role.  It builds on the lift simulation construal.
+
+
+#[Run Adventures in a Lift](http://jseden.dcs.warwick.ac.uk/construit/?load=53)
+}action shopping {
+##Scenes from Shopping
+
+# ![shopping](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/shoppingscenes.png){height=300 margin-left=37px}
+
+#An introduction to the basic concepts of observables, dependencies and agents, on the theme of shopping and aimed at an early secondary school audience. This was originally developed by Steve Russ. The presentation introduces core features of the MCE.
+ 
+#The scenes are based on a shopping construal devised by Jonny Foss and Meurig Beynon that has been elaborated in a variety of different OERs. These include a Shopping Game, variants that test mental arithmetic and coin recognition, and a rudimentary vending machine model.
+
+#[Run Shopping Scenes](http://jseden.dcs.warwick.ac.uk/construit/?load=63)
+
+#*Note:  This is a prototope resource from which an appropriate OER  might be derived  (cf. Steve Russ's later version of the  [Shopping Scenes](http://jseden.dcs.warwick.ac.uk/latest-master/index-dev.html?load=97) construal).
+}action workinprogress {##Illustrative examples of construals
+#Click on the examples below to see the different ways in which the concept  of *Construal* can be applied.
+
+
+# * [Solar System]{script="pages[4] = 'solar';" colour=blue} 
+# {margin-left=60px}A basic introduction to using the environment for making construals
+# * [Whack-a-Mole]{script="pages[4] = 'whackamole';" colour=blue}
+# {margin-left=60px}A simple application of the basic concepts behind construals
+#* [Penny Rolling]{script="pages[4] = 'pennyrolling';" colour=blue}
+# {margin-left=60px} Implementing an *object-to-think-with* conceived by Seymour Papert 
+#* [Dog]{script="pages[4] = 'dog';" colour=blue}
+# {margin-left=60px}Illustrating simple programming based on  dependency and agency
+#* [Adventures in a Lift]{script="pages[4] = 'liftadv';" colour=blue} 
+# {margin-left=60px}A commonsense construal of a perplexing everyday scenario 
+#* [Lift Simulation]{script="pages[4] = 'liftsim';" colour=blue} 
+# {margin-left=60px}A construal that serves as a prototype for the movement of a lift
+#* [The Will of the People]{script="pages[4] = 'democracy';" colour=blue}
+# {margin-left=60px}A simple construal that problematises aspects of the democratic process 
+#* [Faraday and the Computer]{script="pages[4] = 'FaradayComputer';" colour=blue}
+#{margin-left=60px}Exploring the meaning of **construal** in natural language and science
+#* Artiphon
+# {margin-left=60px}A enthusiast's work-in-progress construal of the Artiphon instrument
+#*  [Shopping]{script="pages[4] = 'shopping';" colour=blue}
+# {margin-left=60px}Observables and dependencies in learning to shop
+#* Bubblesort
+#* OXO Laboratory
+}action unwelcome {#{.comment size=14pt}
+##Welcome to the CONSTRUIT environment for making construals (also known as the "MCE"){size=20pt}
+
+#The CONSTRUIT environment is a core product of the CONSTRUIT! project. 
+
+#When you read the words on this page as a fluent English reader, images come to your mind. The experience of looking at the words and making a connection with a meaning is direct and immediate. However well the words are chosen and organised, the connections are made in your imagination.
+
+#When you look at the page as a digital artefact, many other things capture your attention. Fonts, styles, layout, images, animation also shape your experience and invoke meanings.  Beyond the static text, there are also dynamic links to rich interactive experiences to stimulate your imagination. 
+ 
+#The aspiration in creating the CONSTRUIT environment is to construct interactive artefacts (\"construals\") that can inform and enrich  what you experience when you look at the screen and make meaningful connections by shadowing your stream-of-thought and states -of-mind.
+
+#In its simplest terms, the MCE expresses this perception of state by maintaining the whole constellation of things that are observable to you as the reader and modelling the dependencies between them (\"how the status of one thing depends on that of others\") and the agencies acting upon them.
+
+#This presentation and the open-ended work-in-progress resources that are linked to it form a construal of the MCE itself. Within the MCE, you can view the evolving script of observables in a construal at any stage: here's a button <button data-jseden="do showwholescript;" >Show whole script</button> to do just that for this very construal.
+
+#The expressive power of the environment derives from the fact that what is explicitly specified in making a construal evokes responses in its readers that can only ever be implicit.  In this way, what we construct suffuses the worlds of our imaginations with the world we appear to have in common.
+ 
+#Making a construal establishes a dynamic relation between making and learning of interest to thinkers and scholars from many communities, teachers in many different educational contexts, learners everywhere across many disciplines, and those concerned with the future of learning in the digital age.
+ 
+# ![text](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/ErasmusDisclaimer.png)        ![imgimg](http://jseden.dcs.warwick.ac.uk/construit-v2.0/images/construit_logo_2.png){width=200 margin-left=5px}
+}action index {#{.comment size=14pt}
+
+
+
+#This presentation is designed to help you to find links to those resources most relevant to your interests. It has been developed within the CONSTRUIT environment for making construals (also known as the \"MCE\") which you can access by clicking on the CONSTRUIT! logo at the top left. By logging in to the MCE, you will be able to share your feedback and make your own construals. You are also invited to join the CONSTRUIT 2017 Interest Group.
+
+#---
+##Index to resources{size=20pt}
+
+#* Key topics and themes of interest for CONSTRUIT 2017<button data-jseden="pageno=2;"> >> </button>
+
+#* Examples of construals for different learning contexts <button data-jseden="pageno=startexs;">>></button>
+ 
+#* About the **Making Construals Environment (the MCE)**  <button data-jseden="pageno=5;">>></button>
+
+#* Publications about making construals <button data-jseden="pageno=6;"> >> </button>
+
+#* An invitation to join the CONSTRUIT 2017 Interest Group <button data-jseden="pageno=7;">>></button>
+
+#---
+
+
+
+}action references {
+#{.comment size=12pt}
+#Publications from the CONSTRUIT! project{size=18pt}
+
+##2016
+#* Meurig Beynon, Mindstorms Revisited: Making New Construals of Seymour Papert's Legacy, Proceedings Edurobotics 2016, November 25th 2016, Athens (to appear) \[#136\]
+#* Nicolas Pope, Elizabeth Hudnott, Jonathan Foss, Meurig Beynon, Whither with 'with'? – new prospects for programming, in Proceedings of the PPIG 2016 - 27th Annual Workshop, 7-10th Sept. 2016, University of Cambridge, pp. 130-139 \[#135\]
+#* Sixteen members of the CONSTRUIT! project team, Playing games with observation, dependency and agency in a new environment for making construals, Proceedings of the 2016 International Conference on Interactive Technologies and Games, 26-27th October 2016, Nottingham, UK, pp.21-28, DOI 10.1109/iTAG.2016.11 \[#134\]
+#* Russell Boyatt and Meurig Beynon, Liberating open education through making construals (abstract only), Proc. Association of Learning Technology Open Educational Resources conference, OER 2016, Edinburgh April 19-20, 2016 \[#133\]
+#* Meurig Beynon, Jonathan Foss, Antony Harfield, Elizabeth Hudnott, Nick Pope. Construing and Computing: Learning through Exploring and Exploiting Agency. In Proceedings of Constructionism 2016, February 1-5, 2016, Bangkok, Thailand, 69-78 \[#132\]
+#* Antony Harfield, Rene Alimisi, Peter Tomcsanyi, Nick Pope, Meurig Beynon. Constructionism as making construals: first steps with JS-Eden in the classroom. In Proceedings of Constructionism 2016, February 1-5, 2016, Bangkok, Thailand, 42-52, ISBN (E-Book) 978-616-92726-0-1 \[#131\]
+
+##2015
+#* Meurig Beynon, Russell Boyatt, Ilkka Jormanainen and Andrés Moreno. Where Making Construals meets Learning to Code. In Proceedings of 15th Koli Calling Conference on Computing Education Research, Koli, Finland, November 2015 (2pp abstract and poster), DOI http\://dx.doi.org/10.1145/2828959.2828985 \[#130\]
+#* Meurig Beynon, Russell Boyatt, Jonathan Foss, Chris Hall, Elizabeth Hudnott, Steve Russ, Erkki Sutinen, Hamish Macleod and Piet Kommers, Making construals as a new digital skill for learning, in Proceedings of the 12th International Conference on Cognition and Exploratory Learning (CELDA 2015), Maynooth University, Greater Dublin, Ireland. (October 2015), 363-368 \[#129\]
+#* Nineteen members of the CONSTRUIT! project team, Making construals as a new digital skill: dissolving the program - and the programmer - interface, Proceedings of the 2015 International Conference on Interactive Technologies and Games, 22-23 October 2015, Nottingham, UK, pp9-16, DOI 10.1109/iTAG.2015.10, ISBN: 978-1-4673-7874-1 \[#128\]
+
+#Copies of these publications are available from the [Empirical Modelling publications webpage](http://www2.warwick.ac.uk/fac/sci/dcs/research/em/publications/papers/). To access a specific paper, append the three digit code that appears in square brackets (\[\]) at the end of the reference.*
+#[For more background to making construals, see Steve Russ's reflections on ]{size=12pt} [What is 'Making Construals'\?](http://www2.warwick.ac.uk/fac/sci/dcs/research/em/construit/conference/draftcall/moreaboutconstruals/){size=12pt} {size=12pt}.
+}action showwholescript {createView("showscript", "ScriptInput");
+view_showscript_showbuttons = false;
+view_showscript_tabs is ["Construit2017InterestGroup"];
+view_showscript_current = 0;
+view_showscript_visibility = "visible";}action workinprogresstmp {
+#Selected illustrative construals{size=18pt}
+
+#* [Dog]{script="modelno=5;" colour=blue}
+# {margin-left=60px}Illustrating simple programming based on dependency and agency
+# * [Whack-a-Mole]{script="modelno=3;" colour=blue}
+# {margin-left=60px}A simple application illustrating dependency and agency
+# * [Solar System]{script="modelno=2;" colour=blue} 
+# {margin-left=60px}A basic introduction to using the environment for making construals
+#*  [Scenes from Shopping]{script="modelno=11;" colour=blue}
+# {margin-left=60px}Observables and dependencies in learning to shop
+#* [The Will of the People]{script="modelno=8;" colour=blue}
+# {margin-left=60px}A simple construal that problematises aspects of the democratic process
+#* [Faraday and the Computer]{script="modelno=9;" colour=blue}
+#{margin-left=60px}Exploring the meaning of **construal** in natural language and science
+#* [Bubblesorting]{script="modelno=12;" colour=blue}
+#{margin-left=60px}A documented construal of an elementary algorithm
+#* [The OXO Laboratory]{script="modelno=13;" colour=blue}
+#{margin-left=60px}A construal of the observables, dependency and agency in noughts-and-crosses
+#* [Penny Rolling]{script="modelno=4;" colour=blue}
+# {margin-left=60px} Implementing an *object-to-think-with* conceived by Seymour Papert 
+#* [Lift Simulation]{script="modelno=7;"    colour=blue} 
+# {margin-left=60px}A construal that serves as a prototype for the movement of a lift
+#* [Adventures in a Lift]{script="modelno=6;" colour=blue} 
+# {margin-left=60px}A commonsense construal of a perplexing everyday scenario 
+#* [The Artiphon]{script="modelno=10;" colour=blue}
+# {margin-left=60px}An enthusiast's work-in-progress construal of the Artiphon instrument
+
+#{size=14pt}*See the next page for themed examples of construals.
+}action welcome {#{.comment size=14pt}
+
+
+#**Online resources for the CONSTRUIT 2017 conference{size=18pt}
+
+#*Making, Thinking and Learning in the Digital Age*
+#Thursday 13th - Sunday 16th July 2017, The University of Warwick, UK
+
+#The online resources presented here have been developed in the course of the EU Erasmus+ CONSTRUIT!  project.
+
+#CONSTRUIT! is primarily a practically oriented project to promote *making construals* as a new digital skill for creating interactive open educational resources (OERs). The long-term goal for the project is to show that making construals is a powerful and versatile technique that has wide applications to learning. Its target audience includes teachers and learners in all sectors of education, those engaged in modelling and sense making in science, humanities and everyday life and researchers interested in the potential and implications of making and learning.
+
+#The resources to be offered here will include OERs for practical use in a wide variety of learning contexts, exemplars to illustrate the unusual potential for modification of these OERs by teachers and learners, and tutorial materials relating to the technical and conceptual aspects of making construals. Further development of these resources is an ongoing process in which we invite interested readers to participate. 
+
+}action keytopics {#{.comment size=14pt}
+#Key topics for the [CONSTRUIT 2017](http://edumotiva.eu/construit2017) conference{size=18pt}
+
+##Principles and practice of making construals  <button data-jseden='keytopicno=2;'>>></button>
+#* Construals as objects/things-to-think-with
+#* Environments that support learning-through-making
+#* Understanding making in relation to programming and computational thinking
+
+##Open educational resources for the classroom  <button data-jseden='keytopicno=3;'>>></button>
+#* Primary, secondary and tertiary education
+#* Science: e.g. Computing, Mathematics, Educational Robotics
+#* Humanities: e.g. Languages, History, Music
+
+##Open educational resources beyond the classroom   <button data-jseden='keytopicno=4;'>>></button>
+#* Subject areas: engineering, software development, experimental science, history of science, astronomy, medicine
+#* Applications: mechanism, musical instruments, geometric modelling, design, geographical information systems
+#* Management: spreadsheets, timetabling, financial modelling
+
+##The broader educational context / perspective   <button data-jseden='keytopicno=5;'>>></button>
+#* Pedagogy: experiential learning, inquiry-based learning, conceptual modelling
+#* Integrating making and modelling into the school curriculum
+#* Pedagogical characteristics of construals
+
+# For practical examples of construals, see <button data-jseden="pageno=3;">Selected Construals</button> and the [tutorial](http://jseden.dcs.warwick.ac.uk/construit-v2.0/?load=79) on *construing this moment in time*.
+}action index0 {#{.comment size=14pt}
+##Index to resources{size=20pt}
+
+###Key topics for CONSTRUIT 2017 
+#* Themes of interest <button data-jseden="pageno=2;"> >> </button>
+
+###Reference material 
+#* Publications  for readers and thinkers <button data-jseden="pageno=3;"> >> </button>
+
+### Practical examples
+#* Illustrative examples of construals for different purposes and audiences <button data-jseden="pageno=startexs;">>></button>
+
+###Using the MCE  (to be supplied) <button data-jseden="pageno=2;">>></button>
+#* A basic guide to using the illustrative construals
+
+###An invitation
+#*  How to join the CONSTRUIT 2017 Interest Group<button data-jseden="pageno=6;">>></button>
+}action keytopic1 {#{.comment size=14pt}
+
+#Key topics{size=20pt}  <button data-jseden='keytopicno=1;'><<</button>
+
+##Principles and practice of making construals
+
+#*  Construals as objects/things-to-think-with
+
+#{margin-left=20px}Tags: 
+#{margin-left=20px}Example construals: Penny Rolling presentation. Penny Rollling
+#{margin-left=20px}Publications: \<i>TAG 2015,  \<i>TAG 2016
+
+#* Environments that support learning-through-making
+
+#{margin-left=20px}Tags: #mce , #documentation
+#{margin-left=20px}Example construals: The MCE in the MCE, The OXO Laboratory
+#{margin-left=20px}Publications:  \<i>TAG 2016
+
+#* Understanding making in relation to programming and computational thinking
+
+#{margin-left=20px}Tags: #conceptual. #process
+#{margin-left=20px}Example construals: Jugs, Dog
+#{margin-left=20px}Publications: \<i>TAG 2015
+
+}action keytopic2 {#{.comment size=14pt}
+
+#Key topics{size=20pt}  <button data-jseden='keytopicno=1;'><<</button>
+
+##Open educational resources for the classroom
+
+#* Primary, secondary and tertiary education
+
+#{margin-left=20px}Tags: #OERs
+#{margin-left=20px}Example construals: Scenes from Shopping, Solar System
+#{margin-left=20px}Publications: \<i>TAG 2015, Constructionism 2016
+
+#* Science: e.g. Computing, Mathematics, Educational Robotics
+
+#{margin-left=20px}Tags: #OERs
+#{margin-left=20px}Example construals: Sorting, OXO Symmetries
+#{margin-left=20px}Publications:  Edurobotics  2016
+
+#* Humanities: e.g. Languages, History, Music
+
+#{margin-left=20px}Tags: 
+#{margin-left=20px}Example construals: The Lift Adventure
+#{margin-left=20px}Publications: 
+
+}action keytopic3 {#{.comment size=14pt}
+
+#Key topics{size=20pt}  <button data-jseden='keytopicno=1;'><<</button>
+
+##Open educational resources beyond the classroom
+
+#*  Subject areas: engineering, software development, experimental science, history of science, astronomy
+
+#{margin-left=20px}Tags: 
+#{margin-left=20px}Example construals: The Lift Simulation, FREP 2D
+#{margin-left=20px}Publications: 
+
+#* Subject areas: Applications: mechanism, musical instruments, geometric modelling, design, geographical information systems
+
+#{margin-left=20px}Tags: #mce , #documentation
+#{margin-left=20px}Example construals: The Artiphon
+#{margin-left=20px}Publications:  \<i>TAG 2016
+
+#* Management: spreadsheets, timetabling, financial modellingmputational thinking
+
+#{margin-left=20px}Tags: #conceptual. #process
+#{margin-left=20px}Example construals: 
+#{margin-left=20px}Publications: \<i>TAG 2015
+
+}action keytopic4 {#{.comment size=14pt}
+
+#Key topics{size=20pt}  <button data-jseden='keytopicno=1;'><<</button>
+
+##The broader educational context / perspective
+
+#* Pedagogy: experiential learning, inquiry-based learning, conceptual modelling
+
+#{margin-left=20px}Tags: #conceptual
+#{margin-left=20px}Example construals: 
+#{margin-left=20px}Publications: Constructionism 2016, CELDA 2015
+
+#* Integrating making and modelling into the school curriculum
+
+#{margin-left=20px}Tags: 
+#{margin-left=20px}Example construals: The Lift Simulation
+#{margin-left=20px}Publications:  
+
+#* Pedagogical characteristics of construals
+
+#{margin-left=20px}Tags: #conceptual. #process
+#{margin-left=20px}Example construals: 
+#{margin-left=20px}Publications: \<i>TAG 2015, OER 2016
+
+}action basicguide {
+#{.comment size=14pt}
+#About the making construals environment ('MCE'){size=18pt}
+
+#---
+#The [making construals environment](http://jseden.dcs.warwick.ac.uk/construit) (the 'MCE') has a central role in the CONSTRUIT! project.
+
+#It is an environment with which learners, teachers and makers can interact in a wide variety of different ways. Initially, it is important to understand how to interact with a construal as a 'user' might, and to develop the skills needed for construal comprehension. Once you have these basic skills, you are in a position to make changes to construals, and explore the rich alternative connections and meanings that are typically associated with a construal. When you have some experience of modifying other people's construals, you can then move on to create your own,
+
+#Consult this [introduction to the MCE](http://jseden.dcs.warwick.ac.uk/construit/?load=113) for orientation for the MCE, basic technical guidance and a tutorial example.
+ 
+#In the CONSTRUIT! project , and in the CONSTRUIT 2017 conference, making construals is studied as the basis of creating open educational resources (OERs). Some of the key ideas that motivate this application are illustrated with reference to specific construals in [a short introduction to CONSTRUIT 2017](http://jseden.dcs.warwick.ac.uk/construit/?load=106) implemented in the MCE. The MCE will have a particularly important role in the participatory design practices that support the development of OERs. Comments can be added to all construals for instance, and work is in progess to extend this feature to enable new kinds of commentary, conversation and collaboration.
+
+#--- 
+
+
+}action artiphon {
+
+##The Artiphon
+
+# ![img](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/artiphon.png){width=500 margin-left=30px}
+
+#The Artiphon is  a MIDI controller that can be played using a variety of different methods, and in a (unlimited!) number of tunings. It can be played in a way that imitates a stringed instrument such as a guitar, banjo or violin or a keyboard insrument. The tuning of the instrument can be dynamically changed by simulating the use of a capo.
+
+#This construal has been developed by Jonny Foss as an aid for learning about the instrument and the relevant music theory. It has also been used for reference purposes whilst playing the instrument in live rehearsals.
+
+#The development of the construal has been documented step-by-step in a presentation in such a way as to trace the thought processes involved. This illustrates the way in which understanding can be built up in an incremental fashion, even taking into account misconceptions and bugs. 
+
+# [Run Artiphon](http://jseden.dcs.warwick.ac.uk/construit/?load=37)
+}action construingnow {###Construing the present moment
+
+#What you are interacting with at the moment is itself a rather complex construal implemented in the MCE. It has features similar to a book, a website with linked pages, a spreadsheet and a programming-related artefact. Looking at some observables in the construal helps to illustrate the idea of 'making connections with the current situation' . 
+
+#At this point in the presentation, you are looking at two pages that are being presented  side by side. There are observables to determine the pages to display: the page on the left is page number `pageno`, current value **?(ACTIVE > pageno)**. Text in bold refers to observable names and values that feature in the construal. The fact that two pages are displayed at this point reflects the 'style' of the book, which is recorded in  `book_style`, current value  \"**?(ACTIVE > book_style)**\".
+
+#Each page in the presentation has an associated topic. The list of topics is currently:
+#{margin-left=20px}**?(ACTIVE > pages1to8)**
+#\- this is recorded in an observable called `pages`. There isn't an explicit observable to record the current topic (so far as I know), but we can add one by introducing a new observable\:
+currentpagetopic is pages[pageno];
+#To activate this definition, hover in the margin to its left and click the green :play:{colour=green} button that appears. A green bar to the left then indicates that this definition has been recorded. Note that the value of `currentpagetopic` is determined from the list `pages` by using `pageno` as an index into the list\: it's the **?(ACTIVE>pageno)**th element. This is a spreadsheet-like *dependency*. By referring to the value of this observable, we see that current page topic is **?(currentpagetopic)**.
+
+#The fact that the current page topic refers to the left-hand page may be confusing. You can explore this by incrementing `pageno`. The simplest way to do this is to press the <button>Next ></button>{size=8pt} button at the bottom left. The values of `pageno` and `currentpagetopic` will be updated appropriately. To consult the values of these observables on other pages, you can execute:
+showObservables("pageno|book_style|currentpagetopic");
+#This brings up an **Observable List** window in which you can inspect their values and definitions.
+}action scraps {
+/*
+# ![Use](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/useperspective.png){height=480 margin-left=100px}
+*/}action blankpage { }action introtutorial {#{.comment size=14pt}
+#A tutorial: Construing a moment in time{size=20pt}
+
+#Another interpretation of 'construing the moment' is related to time.
+
+#The construal introduced in the next few pages addresses the question *How does a computer 'know' the date, day of the week and time now\?*
+
+#To follow the tutorial, the reader builds up a construal by executing the definitions specified on each page in sequence.
+
+#The definitions are framed in the JS-Eden notation. Many of the most important constructs  of JS-Eden are  illustrated\: these include `is` and `=`, scalars, booleans, strings and lists, the use of `with` to change the scope of definitions  and of `when` to supply automated agents. 
+
+#As an alternative to building up the construal step-by-step, you can find the full script of definitions in the construal with 'doxygen' comments at the end of the construction sequence. This entire script can be run by hovering to the left of the title and pressing the green play button ( :play:{colour=green}).
+
+#The observables in the script can be inspected by using the command:
+
+showObservables(
+"year|month|week|day|hour|minu|second|remaind|hun|thou|mill|bill"
+);
+
+#All these observables are directly or indirectly dependent on `timenow`.
+}action insummarycopy {#{.comment size=14pt}
+##The information as reported by the computer\:
+
+#[Today is ?(ACTIVE > dayofmonth) ?(ACTIVE > currmonth) ?(ACTIVE > curryear)]{size=14pt}
+#[The time is ?(ACTIVE > hours) hours, ?(ACTIVE > minutes) minutes and ?(ACTIVE > seconds) seconds.]{size=14pt}
+#[It is ?(ACTIVE > dayofweek).]{size=14pt}
+
+#*How to keep the time up to date\?
+
+when (timenow) {
+	wait 300;
+	timenow = time();
+}
+
+#*How to control the updating\:
+
+tracktime = !tracktime;
+tracktime = true;
+
+#Don't execute this` when` without disabling the previous one!
+#... or edit the previous one to the form below
+{
+	when (timenow && tracktime) {
+		wait 300;
+		timenow = time();
+	
+}
+}
+
+#If the two `when`'s act together they will freeze the environment\!
+}action oxolab {
+##The OXO laboratory
+
+# ![The ](http://www.dcs.warwick.ac.uk/~wmb/construit!/construit/theOXOlab.png){width=241}{margin-left=125px}
+
+#The OXO Laboratory is a construal of the game of Noughts-and-Crosses that can be adapted to study the game from many perspectives and adapted to create variants in the form of OXO-like games. The construal is closely based on a project originally developed by Simon Gardner in 1999.
+
+# [Run OXO Laboratory](http://jseden.dcs.warwick.ac.uk/construit/?load=81)
+
+}action bubblesorting {
+
+
+##A bubblesorting construal
+
+# ![The ](http://www.dcs.warwick.ac.uk/~wmb/MCE2017/scripts/bubblesorting.png){width=441}{margin-left=50px}
+
+#This is a construal of bubblesorting that illustrates how a basic algorithm can be illustrated, animated and visualised in a way that enables rich interaction. It also features a full script that is annotated using doxygen comments.
+
+# [Run Bubblesorting](http://jseden.dcs.warwick.ac.uk/construit/?load=83)
+}action MCEorientation {
+#Orientation{size=20pt}
+
+#A construal can be viewed as a personal record of experiences that carry meanings for its maker.  The MCE is the medium for the recording. The record itself takes the form of an artefact with which you interact and at the same time reflect upon the maker's intended meaning. 
+
+#There are many commonplace examples of such artefacts.  It is not necessary to use digital technology to make them. 'You' might be the reader of a book and the 'maker' its author.  Hypertext allows richer interaction, but may not do more to excite the reader's imagination. A spreadsheet exploits the computational power of the computer to convey meanings that relate to 'real-world' affairs. GPS devices illustrate how visualisation can serve a similar purpose.
+
+#Making artefacts plays a significant role in software development. Specialised artefacts, such as flowcharts or object diagrams, feature in the software process. There are typically many empirical aspects to developing programs.  Programmers create and experiment with artefacts in designing, debugging and evaluating the user experience, for example.
+
+#In all these instances, the focus is on a sense-making activity that relates to a specific situation. The reader of the book looks at specific words on a particular page; the spreadsheet user interprets specific values on the grid in a specific context; the programmer consults the debugger at a particular point in the execution of the program. The artefact helps us to recall what has been discovered in past interactions of this nature (\"the story so far\") and to inform expectations about future interactions (\"what if\?\").
+
+#In studying construals, the key idea is making connections between the current state of the construal and a situation to which it refers (\"the intended meaning of the construal\"). In the MCE, the state of the construal is at all times expressed by a family of *observables* whose status reflects its intended meaning.
+
+
+
+}action MCEtechnical {
+#Basic technical guidance{size=20pt}
+
+#Some basic skills of a programming nature are essential for making construals. 
+
+#This [introductory set of interactive slides](http://jseden.dcs.warwick.ac.uk/construit-v2.0/?load=54) (work-in-progress) is a useful starting point.
+#The basic concepts introduced in the slides are complemented by presentations giving guidance on using specific technical features of the MCE. These can be accessed by clicking on the **Technical Documentation** link on page 4 of this presentation. <button data-jseden="pageno=4;">Go to page 4. </button> The **Starter Construals** linked on that page are also intended to illustrate basic technical concepts.
+
+#The family of observables and dependencies that determine the current state of a construal is recorded in a script of definitions. Though a script superficially resembles a conventional program, its interpretation is quite different. The order in which a sequence of programming  instructions is executed is usually quite critical. By contrast, the order in which definitions are listed in a script is typically unimportant and not all of them need be executed. 
+
+#In making a construal, definitions are introduced and revised in a flexible open-ended way. A script is typically built up by combining many smaller scripts.   It may be useful to record more than one definition of the same observable. For instance, there is one special **start** script that is executed when the construal is first loaded, and this may assign default values to observables that later need to be redefined. To understand a construal, it is essential to keep track of the current values of observables. This involves knowing what definitions have been recorded for each observable and which of these have been executed.
+
+#When you are interacting with a construal in the MCE, there are many different ways in which you can view the current script of definitions. Two of the most important ways are introduced in the **Scenes from Shopping** construal that is linked from page 5. <button data-jseden="pageno=5;">Go to page 5. </button>  These involve using the **Script View** and **Observable List** features that can be accessed via the **Create Views** ({colour=grey}:plus:) button at the top right.
+}

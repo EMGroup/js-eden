@@ -1,0 +1,1101 @@
+/**
+ * @title Start Your Model
+ */
+action start {/* Enter some script here */
+import Layouts > book;
+do book;
+
+do :project > display;
+do :project > arduinopins;
+do :project > components;
+do :project > arduinodraw;
+do :project > spaceship > Script;
+
+pages is ["intro","spaceship","page1","led_demo"];
+
+}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+if (jseden_project_mode != "safe") do :project > start;
+else createView("safemode","ScriptInput");
+
+action ACTIVE {
+jseden_project_title = "ArduinoMaker";
+views_number_created = 1;
+jseden_autosave = false;
+jseden_leaveprompt = false;
+jseden_menu_visible = false;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+mousePosition = Point(1029.5568862275447, 84.50299401197604);
+mouseView = "bookpic";
+mouseZone = @;
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+mouseVelocity = Point(0, 0);
+plugins_html_loaded = true;
+jseden_project_name = "ArduinoMaker";
+jseden_project_thumb = "data:image/png;base64,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";
+jseden_project_author = "Nicolas Pope";
+views_list = ["bookpic", "scriptinput1"];
+pages is ["intro","spaceship","page1","led_demo"];
+picture is [board, ard, led1, led2, led3, resistor1, resistor2, resistor3, resistor4, button1,wire6,wire3,wire4,wire5,wire1,wire2,wire7];
+view_bookpic_visibility = "visible";
+view_bookpic_title = "Canvas bookpic";
+view_bookpic_content is bookpic;
+view_bookpic_background_colour = "white";
+view_bookpic_scale = 1;
+view_bookpic_offset = Point(0, 0);
+view_bookpic_canvas_right = @;
+view_bookpic_canvas_bottom = @;
+view_bookpic_grid_visible = false;
+view_bookpic_grid_spacing = 20;
+view_bookpic_type = "Canvas2D";
+wire1 is wire :: pin1 = "5V", pin2 = "Bread_P1", wire_colour = "red";
+wire is wire_raw ::
+	wire_x1 = ard_uno_{pin1}["x"],
+	wire_y1 = ard_uno_{pin1}["y"],
+	wire_x2 = ard_uno_{pin2}["x"],
+	wire_y2 = ard_uno_{pin2}["y"];
+wire2 is wire :: pin1 = "GND3", pin2 = "Bread_GND1", wire_colour = "black";
+wire3 is wire :: pin1 = "D5", pin2 = "Bread_A6", wire_colour = "yellow";
+wire4 is wire :: pin1 = "D4", pin2 = "Bread_A10", wire_colour = "yellow";
+wire5 is wire :: pin1 = "D3", pin2 = "Bread_A14", wire_colour = "yellow";
+wire6 is wire :: pin1 = "Bread_P19", pin2 = "Bread_A22", wire_colour = "red";
+wire7 is wire :: pin1 = "D2", pin2 = "Bread_C24", wire_colour = "green";
+led1 is led :: pin1 = "Bread_E6", led_colour = "red", led_on is redLED1;
+redLED1 is switchPressed && toggle;
+led is [led_anode,led_cathode, led_base, led_top1, led_top2,led_top3];
+led2 is led :: pin1 = "Bread_E10", led_colour = "red", led_on is redLED2;
+redLED2 is switchPressed && !toggle;
+led3 is led :: pin1 = "Bread_E14", led_colour = "green", led_on is greenLED;
+greenLED is !switchPressed;
+resistor1 is resistor :: pin1 = "Bread_GND6", pin2 = "Bread_B7", ohms=220;
+resistor is [resistor_wire1, resistor_wire2, resistor_blob];
+resistor2 is resistor :: pin1 = "Bread_GND10", pin2 = "Bread_B11", ohms=220;
+resistor3 is resistor :: pin1 = "Bread_GND13", pin2 = "Bread_B15", ohms=220;
+resistor4 is resistor :: pin1 = "Bread_GND20", pin2 = "Bread_B24", ohms=10000;
+button1 is button::pin1 = "Bread_F22";
+button is [button_leg1, button_leg2, button_leg3, button_leg4, button_rect,button_button,button_blob1,button_blob2, button_blob3, button_blob4];
+board is Image(board_x, board_y,
+	board_width, board_height, "http://jseden.dcs.warwick.ac.uk/resources/BareMetalArduino_bb.png");
+ard is Image(ard_x, ard_y,
+	ard_width, ard_height, "http://jseden.dcs.warwick.ac.uk/resources/ArduinoUNO_bb.png");
+led_colour = "red";
+pin1 = "D13";
+pin2 = "Bread_P1";
+wire_colour = "red";
+ard_uno_pindist is 27 * ard_scale;
+ard_scale = 0.4520;
+ard_uno_breaddist is 27 * board_scale;
+board_scale = 0.3990;
+ard_uno_D0 is Point(ard_x + 741* ard_scale, ard_y + 30* ard_scale);
+ard_x is book_width / 4 - ard_width / 2;
+ard_y = 376;
+ard_uno_D1 is ard_uno_D0 + Point(-ard_uno_pindist * 1, 0);
+ard_uno_D2 is ard_uno_D0 + Point(-ard_uno_pindist * 2, 0);
+ard_uno_D3 is ard_uno_D0 + Point(-ard_uno_pindist * 3, 0);
+ard_uno_D4 is ard_uno_D0 + Point(-ard_uno_pindist * 4, 0);
+ard_uno_D5 is ard_uno_D0 + Point(-ard_uno_pindist * 5, 0);
+ard_uno_D6 is ard_uno_D0 + Point(-ard_uno_pindist * 6, 0);
+ard_uno_D7 is ard_uno_D0 + Point(-ard_uno_pindist * 7, 0);
+ard_uno_D8 is ard_uno_D0 + Point(-ard_uno_pindist * 8 - 16 * ard_scale, 0);
+ard_uno_D9 is ard_uno_D8 + Point(-ard_uno_pindist * 1, 0);
+ard_uno_D10 is ard_uno_D8 + Point(-ard_uno_pindist * 2, 0);
+ard_uno_D11 is ard_uno_D8 + Point(-ard_uno_pindist * 3, 0);
+ard_uno_D12 is ard_uno_D8 + Point(-ard_uno_pindist * 4, 0);
+ard_uno_D13 is ard_uno_D8 + Point(-ard_uno_pindist * 5, 0);
+ard_uno_GND1 is ard_uno_D13 + Point(-ard_uno_pindist, 0);
+ard_uno_A5 is Point(ard_x + 741* ard_scale, ard_y + 541* ard_scale);
+ard_uno_A4 is ard_uno_A5 + Point(-ard_uno_pindist * 1, 0);
+ard_uno_A3 is ard_uno_A5 + Point(-ard_uno_pindist * 2, 0);
+ard_uno_A2 is ard_uno_A5 + Point(-ard_uno_pindist * 3, 0);
+ard_uno_A1 is ard_uno_A5 + Point(-ard_uno_pindist * 4, 0);
+ard_uno_A0 is ard_uno_A5 + Point(-ard_uno_pindist * 5, 0);
+ard_uno_VIN is ard_uno_A0 + Point(-53* ard_scale, 0);
+ard_uno_GND2 is ard_uno_VIN + Point(-ard_uno_pindist * 1, 0);
+ard_uno_GND3 is ard_uno_VIN + Point(-ard_uno_pindist * 2, 0);
+ard_uno_5V is ard_uno_VIN + Point(-ard_uno_pindist * 3, 0);
+ard_uno_3V3 is ard_uno_VIN + Point(-ard_uno_pindist * 4, 0);
+ard_uno_RESET is ard_uno_VIN + Point(-ard_uno_pindist * 5, 0);
+ard_uno_Bread_P1 is Point(board_x + 50* board_scale, board_y + 540* board_scale);
+board_x is book_width / 4 - board_width / 2;
+board_y = 100;
+ard_uno_Bread_P2 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 1, 0);
+ard_uno_Bread_P3 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 2, 0);
+ard_uno_Bread_P4 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 3, 0);
+ard_uno_Bread_P5 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 4, 0);
+ard_uno_Bread_P6 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 6, 0);
+ard_uno_Bread_P7 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 7, 0);
+ard_uno_Bread_P8 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 8, 0);
+ard_uno_Bread_P9 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 9, 0);
+ard_uno_Bread_P10 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 10, 0);
+ard_uno_Bread_P11 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 12, 0);
+ard_uno_Bread_P12 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 13, 0);
+ard_uno_Bread_P13 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 14, 0);
+ard_uno_Bread_P14 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 15, 0);
+ard_uno_Bread_P15 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 16, 0);
+ard_uno_Bread_P16 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 18, 0);
+ard_uno_Bread_P17 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 19, 0);
+ard_uno_Bread_P18 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 20, 0);
+ard_uno_Bread_P19 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 21, 0);
+ard_uno_Bread_P20 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 22, 0);
+ard_uno_Bread_P21 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 24, 0);
+ard_uno_Bread_P22 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 25, 0);
+ard_uno_Bread_P23 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 26, 0);
+ard_uno_Bread_P24 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 27, 0);
+ard_uno_Bread_P25 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 28, 0);
+ard_uno_Bread_GND1 is ard_uno_Bread_P1 + Point(0, -ard_uno_breaddist);
+ard_uno_Bread_GND2 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 1, 0);
+ard_uno_Bread_GND3 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 2, 0);
+ard_uno_Bread_GND4 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 3, 0);
+ard_uno_Bread_GND5 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 4, 0);
+ard_uno_Bread_GND6 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 6, 0);
+ard_uno_Bread_GND7 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 7, 0);
+ard_uno_Bread_GND8 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 8, 0);
+ard_uno_Bread_GND9 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 9, 0);
+ard_uno_Bread_GND10 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 10, 0);
+ard_uno_Bread_GND11 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 12, 0);
+ard_uno_Bread_GND12 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 13, 0);
+ard_uno_Bread_GND13 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 14, 0);
+ard_uno_Bread_GND14 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 15, 0);
+ard_uno_Bread_GND15 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 16, 0);
+ard_uno_Bread_GND16 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 18, 0);
+ard_uno_Bread_GND17 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 19, 0);
+ard_uno_Bread_GND18 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 20, 0);
+ard_uno_Bread_GND19 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 21, 0);
+ard_uno_Bread_GND20 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 22, 0);
+ard_uno_Bread_GND21 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 24, 0);
+ard_uno_Bread_GND22 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 25, 0);
+ard_uno_Bread_GND23 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 26, 0);
+ard_uno_Bread_GND24 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 27, 0);
+ard_uno_Bread_GND25 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 28, 0);
+ard_uno_Bread_A1 is Point(board_x + 40* board_scale, board_y + 434* board_scale);
+letters = ["A","B","C","D","E"];
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_F1 is Point(board_x + 40* board_scale, board_y + 246* board_scale);
+letters2 = ["F","G","H","I","J"];
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+metal_colour = "#999";
+led_pinlength = 25;
+led_height is 36 * board_scale;
+led_x1 is ard_uno_{pin1}["x"];
+led_y1 is ard_uno_{pin1}["y"];
+led_base_width is ard_uno_breaddist * 1.3;
+led_cathode is Line(led_x1+ard_uno_breaddist, led_y1, led_x1+ard_uno_breaddist, led_y1 - led_pinlength, metal_colour);
+led_anode is Line(led_x1, led_y1, led_x1, led_y1 - led_pinlength, metal_colour);
+interp_col_r is floor($1[1] + ($2[1] - $1[1]) * $3);
+interp_col_g is floor($1[2] + ($2[2] - $1[2]) * $3);
+interp_col_b is floor($1[3] + ($2[3] - $1[3]) * $3);
+interp_colours is rgb2colour(interp_col_r, interp_col_g, interp_col_b);
+led_colours_green_on = [87,255,87];
+led_colours_green_off = [50,146,50];
+led_colours_red_on = [255,87,87];
+led_colours_red_off = [184,26,26];
+led_status is led_on/256 if type(led_on) == "int" || type(led_on) == "float" else 1.0 if led_on else 0.0;
+led_colour_map is interp_colours::(
+	led_colours_{led_colour}_off,
+	led_colours_{led_colour}_on,
+	led_status);
+led_base is Ellipse(led_x1+ard_uno_breaddist/2, led_y1- led_pinlength, led_base_width, led_base_width*0.7, led_colour);
+led_top1 is Ellipse(led_x1+ard_uno_breaddist/2, led_y1 - led_pinlength, led_base_width-3, (led_base_width - 3)*0.7, led_colour_map);
+led_top2 is Circle(led_x1+ard_uno_breaddist/2, led_y1 - led_pinlength - led_height, led_base_width-3, led_colour_map, led_colour_map);
+led_top3 is Rectangle(led_x1+ard_uno_breaddist/2 - (((led_base_width*2))/2)+3, led_y1 - led_pinlength - led_height, (led_base_width-3)*2, led_height, led_colour_map, led_colour_map);
+resistor_x1 is ard_uno_{pin1}["x"];
+resistor_y1 is ard_uno_{pin1}["y"];
+resistor_x2 is ard_uno_{pin2}["x"];
+resistor_y2 is ard_uno_{pin2}["y"];
+resistor_offset = 20*board_scale;
+resistor_wire1 is Curve(resistor_x1, resistor_y1, resistor_x1+resistor_excess,
+	resistor_y1-resistor_excess, 4, 0.8225, 0, 0,0.5,0,false, metal_colour);
+resistor_excess is (resistor_distance - resistor_length) / 2;
+resistor_wire2 is Curve(resistor_x2, resistor_y2, resistor_x2+resistor_excess,
+	resistor_y2+resistor_excess, 4, 0.8225, 0, 0,0.5,0,true, metal_colour);
+resistor_dx is resistor_x1 - resistor_x2;
+resistor_dy is resistor_y1 - resistor_y2;
+resistor_distance is sqrt(resistor_dx * resistor_dx + resistor_dy * resistor_dy);
+resistor_length is 65 * board_scale;
+resistor_width is 25 * board_scale;
+resistor_angle is asin(resistor_dx/resistor_distance);
+resistor_blob1 is RoundedRectangle(-resistor_width/2,
+	0,resistor_width,resistor_width,
+	3, "orange");
+resistor_blob2 is RoundedRectangle(-resistor_width/2,
+	resistor_length-resistor_width,resistor_width,resistor_width,
+	3, "orange");
+resistor_blob3 is Rectangle(-resistor_width*0.8/2,
+	resistor_width*0.8, resistor_width*0.8,resistor_length-2*resistor_width*0.8,
+	"orange");
+resistor_colour1 is Line(-resistor_width/2, 10*board_scale,
+	resistor_width/2, 10*board_scale, valueA_colour);
+resistor_colour2 is Line(-resistor_width*0.9/2, 10*2.2*board_scale,
+	resistor_width*0.9/2, 10*2.2*board_scale, valueB_colour);
+resistor_colour3 is Line(-resistor_width*0.8/2, 10*3.4*board_scale,
+	resistor_width*0.8/2, 10*3.4*board_scale, multi_colour);
+resistor_colour4 is Line(-resistor_width/2, 10*4.9*board_scale,
+	resistor_width/2, 10*4.9*board_scale, tolerance_colour);
+resistor_ox is resistor_x2 + resistor_excess + resistor_dx/2;
+resistor_oy is resistor_y2 + resistor_excess+resistor_length/2;
+resistor_blob_comp is [resistor_blob1,resistor_blob2,resistor_blob3,
+	resistor_colour1, resistor_colour2, resistor_colour3, resistor_colour4];
+resistor_blob is Translate(0,0,resistor_ox, resistor_oy,RotateAboutCentre(resistor_angle, Point(0, resistor_length/2), Point(0, 0), resistor_blob_comp));
+button_x is ard_uno_{pin1}["x"];
+button_y is ard_uno_{pin1}["y"];
+button_width is ard_uno_breaddist*2 + ard_uno_breaddist/2;
+button_ox is button_x-ard_uno_breaddist/4;
+button_oy is  button_y+ard_uno_breaddist/10;
+button_rect is RoundedRectangle(button_ox, button_oy, button_width, button_width, 5*board_scale, "grey", "grey");
+button_button is Circle(button_ox+button_width/2, button_oy+button_width/2, button_width/2 * 0.6, "#222", "black");
+button_blob_offset = 0.15;
+button_blob1 is Circle(button_ox+button_blob_offset*button_width, button_oy+button_blob_offset*button_width, (button_blob_offset/2)*button_width, "black");
+button_blob2 is Circle(button_ox+(1.0-button_blob_offset)*button_width, button_oy+button_blob_offset*button_width, (button_blob_offset/2)*button_width, "black");
+button_blob3 is Circle(button_ox+button_blob_offset*button_width, button_oy+(1.0-button_blob_offset)*button_width, (button_blob_offset/2)*button_width, "black");
+button_blob4 is Circle(button_ox+(1.0-button_blob_offset)*button_width, button_oy+(1.0-button_blob_offset)*button_width, (button_blob_offset/2)*button_width, "black");
+button_leg1 is Line(button_x, button_y-(5*board_scale), button_x, button_oy, metal_colour);
+button_leg2 is Line(button_x+2*ard_uno_breaddist, button_y-(5*board_scale), button_x+2*ard_uno_breaddist, button_oy, metal_colour);
+button_leg3 is Line(button_x, button_y+button_width, button_x, button_oy+button_width+ard_uno_breaddist/10+3, metal_colour);
+button_leg4 is Line(button_x+2*ard_uno_breaddist, button_oy+button_width, button_x+2*ard_uno_breaddist, button_oy+button_width+ard_uno_breaddist/10+3, metal_colour);
+tempsensor_x is ard_uno_{pin1}["x"];
+tempsensor_y is ard_uno_{pin1}["y"];
+tempsensor_width is 1.1 * 2 * ard_uno_breaddist;
+tempsensor_cx is tempsensor_x + (2 * ard_uno_breaddist)/2;
+tempsensor_offset is 30 * board_scale;
+tempsensor_height is 60 * board_scale;
+tempsensor_ellipse is Ellipse(tempsensor_cx,
+	tempsensor_y - tempsensor_offset - tempsensor_height,
+	tempsensor_width/2, tempsensor_width/3, "black", "#777");
+tempsensor_rect is Rectangle(tempsensor_cx - tempsensor_width/2,
+	tempsensor_y - tempsensor_offset - tempsensor_height,
+	tempsensor_width, tempsensor_height, "black", "#777");
+tempsensor_line1 is Line(tempsensor_cx, tempsensor_y,
+	tempsensor_cx, tempsensor_y-tempsensor_offset, metal_colour);
+tempsensor_line2a is Line(tempsensor_cx-tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset*0.5,
+	tempsensor_cx-tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset, metal_colour);
+tempsensor_line2b is Line(tempsensor_cx-tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset*0.5,
+	tempsensor_x,
+	tempsensor_y, metal_colour);
+tempsensor_line3a is Line(tempsensor_cx+tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset*0.5,
+	tempsensor_cx+tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset, metal_colour);
+tempsensor_line3b is Line(tempsensor_cx+tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset*0.5,
+	tempsensor_x+2*ard_uno_breaddist,
+	tempsensor_y, metal_colour);
+tempsensor_text is Text("TMP", tempsensor_cx,
+	tempsensor_y - tempsensor_offset - tempsensor_height*0.6, 18*board_scale, "white",
+	"middle center");
+tempsensor is [tempsensor_line1, tempsensor_line2a, tempsensor_line2b,
+	tempsensor_line3a, tempsensor_line3b, tempsensor_ellipse, tempsensor_rect,
+	tempsensor_text];
+board_width is 874 * board_scale;
+board_height is 566 * board_scale;
+ard_width is 795 * ard_scale;
+ard_height is 569 * ard_scale;
+wire_connector_x = 100;
+wire_connector_y = 100;
+wire_connector_length is 14*board_scale;
+wire_connector is Line(wire_connector_x, wire_connector_y,
+	wire_connector_x, wire_connector_y - wire_connector_length, "silver");
+dopts = Object("lineWidth", 3);
+wire_x1 = 159;
+wire_x2 = 353;
+wire_y1 = 319;
+wire_y2 = 620;
+wire_sizing = 40;
+wire_cable is Curve(wire_x1, wire_y1-wire_connector_length, wire_x2, wire_y2 - wire_connector_length,
+	wire_sizing, 1.5, 90, 90,wire_colour, dopts);
+wire_end1 is wire_connector ::
+	wire_connector_x = wire_x1,
+	wire_connector_y = wire_y1;
+wire_end2 is wire_connector ::
+	wire_connector_x = wire_x2,
+	wire_connector_y = wire_y2;
+wire_raw is [wire_end1, wire_end2, wire_cable];
+arduino_input_d2 = true;
+arduino_input_d3 = false;
+arduino_input_d4 = false;
+arduino_input_d5 = false;
+switchPressed is arduino_d2;
+arduino_d3 is greenLED;
+arduino_d4 is redLED1;
+arduino_d5 is redLED2;
+toggle = false;
+view_bookscript2_query is jseden_script_query;
+view_scriptinput1_visibility = "visible";
+view_scriptinput1_title = "Script View";
+view_scriptinput1_tabs = [":project > start", ":project > components"];
+view_scriptinput1_current = 1;
+view_scriptinput1_showtabs = true;
+view_scriptinput1_showbuttons = true;
+view_scriptinput1_query is jseden_script_query;
+view_scriptinput1_type = "ScriptInput";
+view_scriptinput1_width = 600;
+view_scriptinput1_height = 405;
+view_scriptinput1_x = 659;
+view_scriptinput1_y = 220.5;
+}
+
+action page1 {
+##Build Arduino Circuits
+# Configure circuit diagrams in JS-Eden using existing prototype components and wires. To get started in your own project add the following to your `start` script.
+
+import ArduinoMaker > :(arduinopins, components, arduinodraw);
+do ArduinoMaker > *;
+
+# Below is the script to generate the diagram on the left
+
+wire1 is wire::pin1="5V",pin2="Bread_P1",wire_colour="red";
+wire2 is wire::pin1="GND3",pin2="Bread_GND1",wire_colour="black";
+wire3 is wire::pin1="D5",pin2="Bread_A6",wire_colour="yellow";
+wire4 is wire::pin1="D4",pin2="Bread_A10",wire_colour="yellow";
+wire5 is wire::pin1="D3",pin2="Bread_A14",wire_colour="yellow";
+wire6 is wire::pin1="Bread_P19",pin2="Bread_A22",wire_colour="red";
+wire7 is wire::pin1="D2",pin2="Bread_C24",wire_colour="green";
+
+led1 is led::pin1="Bread_E6",led_colour="red",led_on=redLED1;
+led2 is led::pin1="Bread_E10",led_colour="red",led_on=redLED2;
+led3 is led::pin1="Bread_E14",led_colour="green",led_on=greenLED;
+
+resistor1 is resistor::pin1="Bread_GND6",pin2="Bread_B7";
+resistor2 is resistor::pin1="Bread_GND10",pin2="Bread_B11";
+resistor3 is resistor::pin1="Bread_GND13",pin2="Bread_B15";
+
+resistor4 is resistor::pin1="Bread_GND20",pin2="Bread_B24";
+
+picture is [board, ard, led1, led2, led3, resistor1, resistor2,
+	resistor3, resistor4,wire6,wire3,wire4,wire5,wire1,
+	wire2,wire7];
+
+}action display {
+wire1 is wire :: pin1 = "5V", pin2 = "Bread_P1", wire_colour = "red";
+wire2 is wire :: pin1 = "GND3", pin2 = "Bread_GND1", wire_colour = "black";
+wire3 is wire :: pin1 = "D5", pin2 = "Bread_A6", wire_colour = "yellow";
+wire4 is wire :: pin1 = "D4", pin2 = "Bread_A10", wire_colour = "yellow";
+wire5 is wire :: pin1 = "D3", pin2 = "Bread_A14", wire_colour = "yellow";
+wire6 is wire :: pin1 = "Bread_P19", pin2 = "Bread_A22", wire_colour = "red";
+wire7 is wire :: pin1 = "D2", pin2 = "Bread_C24", wire_colour = "green";
+
+led1 is led :: pin1 = "Bread_E6", led_colour = "red", led_on is redLED1;
+led2 is led :: pin1 = "Bread_E10", led_colour = "red", led_on is redLED2;
+led3 is led :: pin1 = "Bread_E14", led_colour = "green", led_on is greenLED;
+
+resistor1 is resistor :: pin1 = "Bread_GND6", pin2 = "Bread_B7", ohms=220;
+resistor2 is resistor :: pin1 = "Bread_GND10", pin2 = "Bread_B11", ohms=220;
+resistor3 is resistor :: pin1 = "Bread_GND13", pin2 = "Bread_B15", ohms=220;
+
+resistor4 is resistor :: pin1 = "Bread_GND20", pin2 = "Bread_B24", ohms=10000;
+
+button1 is button::pin1 = "Bread_F22";
+
+picture is [board, ard, led1, led2, led3, resistor1, resistor2, resistor3, resistor4, button1,wire6,wire3,wire4,wire5,wire1,wire2,wire7];}action arduinopins {ard_uno_pindist is 27 * ard_scale;
+ard_uno_breaddist is 27 * board_scale;
+
+ard_uno_D0 is Point(ard_x + 741* ard_scale, ard_y + 30* ard_scale);
+ard_uno_D1 is ard_uno_D0 + Point(-ard_uno_pindist * 1, 0);
+ard_uno_D2 is ard_uno_D0 + Point(-ard_uno_pindist * 2, 0);
+ard_uno_D3 is ard_uno_D0 + Point(-ard_uno_pindist * 3, 0);
+ard_uno_D4 is ard_uno_D0 + Point(-ard_uno_pindist * 4, 0);
+ard_uno_D5 is ard_uno_D0 + Point(-ard_uno_pindist * 5, 0);
+ard_uno_D6 is ard_uno_D0 + Point(-ard_uno_pindist * 6, 0);
+ard_uno_D7 is ard_uno_D0 + Point(-ard_uno_pindist * 7, 0);
+ard_uno_D8 is ard_uno_D0 + Point(-ard_uno_pindist * 8 - 16 * ard_scale, 0);
+ard_uno_D9 is ard_uno_D8 + Point(-ard_uno_pindist * 1, 0);
+ard_uno_D10 is ard_uno_D8 + Point(-ard_uno_pindist * 2, 0);
+ard_uno_D11 is ard_uno_D8 + Point(-ard_uno_pindist * 3, 0);
+ard_uno_D12 is ard_uno_D8 + Point(-ard_uno_pindist * 4, 0);
+ard_uno_D13 is ard_uno_D8 + Point(-ard_uno_pindist * 5, 0);
+ard_uno_GND1 is ard_uno_D13 + Point(-ard_uno_pindist, 0);
+
+ard_uno_A5 is Point(ard_x + 741* ard_scale, ard_y + 541* ard_scale);
+ard_uno_A4 is ard_uno_A5 + Point(-ard_uno_pindist * 1, 0);
+ard_uno_A3 is ard_uno_A5 + Point(-ard_uno_pindist * 2, 0);
+ard_uno_A2 is ard_uno_A5 + Point(-ard_uno_pindist * 3, 0);
+ard_uno_A1 is ard_uno_A5 + Point(-ard_uno_pindist * 4, 0);
+ard_uno_A0 is ard_uno_A5 + Point(-ard_uno_pindist * 5, 0);
+
+ard_uno_VIN is ard_uno_A0 + Point(-53* ard_scale, 0);
+ard_uno_GND2 is ard_uno_VIN + Point(-ard_uno_pindist * 1, 0);
+ard_uno_GND3 is ard_uno_VIN + Point(-ard_uno_pindist * 2, 0);
+ard_uno_5V is ard_uno_VIN + Point(-ard_uno_pindist * 3, 0);
+ard_uno_3V3 is ard_uno_VIN + Point(-ard_uno_pindist * 4, 0);
+ard_uno_RESET is ard_uno_VIN + Point(-ard_uno_pindist * 5, 0);
+
+ard_uno_Bread_P1 is Point(board_x + 50* board_scale, board_y + 540* board_scale);
+ard_uno_Bread_P2 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 1, 0);
+ard_uno_Bread_P3 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 2, 0);
+ard_uno_Bread_P4 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 3, 0);
+ard_uno_Bread_P5 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 4, 0);
+ard_uno_Bread_P6 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 6, 0);
+ard_uno_Bread_P7 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 7, 0);
+ard_uno_Bread_P8 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 8, 0);
+ard_uno_Bread_P9 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 9, 0);
+ard_uno_Bread_P10 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 10, 0);
+ard_uno_Bread_P11 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 12, 0);
+ard_uno_Bread_P12 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 13, 0);
+ard_uno_Bread_P13 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 14, 0);
+ard_uno_Bread_P14 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 15, 0);
+ard_uno_Bread_P15 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 16, 0);
+ard_uno_Bread_P16 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 18, 0);
+ard_uno_Bread_P17 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 19, 0);
+ard_uno_Bread_P18 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 20, 0);
+ard_uno_Bread_P19 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 21, 0);
+ard_uno_Bread_P20 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 22, 0);
+ard_uno_Bread_P21 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 24, 0);
+ard_uno_Bread_P22 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 25, 0);
+ard_uno_Bread_P23 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 26, 0);
+ard_uno_Bread_P24 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 27, 0);
+ard_uno_Bread_P25 is ard_uno_Bread_P1 + Point(ard_uno_breaddist * 28, 0);
+
+ard_uno_Bread_GND1 is ard_uno_Bread_P1 + Point(0, -ard_uno_breaddist);
+ard_uno_Bread_GND2 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 1, 0);
+ard_uno_Bread_GND3 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 2, 0);
+ard_uno_Bread_GND4 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 3, 0);
+ard_uno_Bread_GND5 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 4, 0);
+ard_uno_Bread_GND6 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 6, 0);
+ard_uno_Bread_GND7 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 7, 0);
+ard_uno_Bread_GND8 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 8, 0);
+ard_uno_Bread_GND9 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 9, 0);
+ard_uno_Bread_GND10 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 10, 0);
+ard_uno_Bread_GND11 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 12, 0);
+ard_uno_Bread_GND12 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 13, 0);
+ard_uno_Bread_GND13 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 14, 0);
+ard_uno_Bread_GND14 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 15, 0);
+ard_uno_Bread_GND15 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 16, 0);
+ard_uno_Bread_GND16 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 18, 0);
+ard_uno_Bread_GND17 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 19, 0);
+ard_uno_Bread_GND18 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 20, 0);
+ard_uno_Bread_GND19 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 21, 0);
+ard_uno_Bread_GND20 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 22, 0);
+ard_uno_Bread_GND21 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 24, 0);
+ard_uno_Bread_GND22 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 25, 0);
+ard_uno_Bread_GND23 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 26, 0);
+ard_uno_Bread_GND24 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 27, 0);
+ard_uno_Bread_GND25 is ard_uno_Bread_GND1 + Point(ard_uno_breaddist * 28, 0);
+
+ard_uno_Bread_A1 is Point(board_x + 40* board_scale, board_y + 434* board_scale);
+
+letters = ["A","B","C","D","E"];
+
+do {
+	local i,j;
+	for (i in 1..5) {
+		for (j in 1..30) {
+			if (!(i == 1 && j == 1)) {
+				ard_uno_Bread_{letters[i]}{j} is ard_uno_Bread_A1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+			}
+		}
+	}
+}
+
+ard_uno_Bread_F1 is Point(board_x + 40* board_scale, board_y + 246* board_scale);
+
+letters2 = ["F","G","H","I","J"];
+
+do {
+	local i,j;
+	for (i in 1..5) {
+		for (j in 1..30) {
+			if (!(i == 1 && j == 1)) {
+				ard_uno_Bread_{letters2[i]}{j} is ard_uno_Bread_F1 + Point(ard_uno_breaddist * (j-1), -ard_uno_breaddist * (i-1));
+			}
+		}
+	}
+}
+}action arduinodraw {board_x is book_width / 4 - board_width / 2;
+board_y = 100;
+board_scale = 0.3990;
+board_width is 874 * board_scale;
+board_height is 566 * board_scale;
+
+board is Image(board_x, board_y,
+	board_width, board_height, "http://jseden.dcs.warwick.ac.uk/resources/BareMetalArduino_bb.png");
+
+ard_x is book_width / 4 - ard_width / 2;ard_y = 376;
+ard_scale = 0.4520;
+ard_width is 795 * ard_scale;
+ard_height is 569 * ard_scale;
+
+ard is Image(ard_x, ard_y,
+	ard_width, ard_height, "http://jseden.dcs.warwick.ac.uk/resources/ArduinoUNO_bb.png");
+
+
+wire_connector_x = 100;
+wire_connector_y = 100;
+wire_connector_length is 14*board_scale;
+wire_connector is Line(wire_connector_x, wire_connector_y,
+	wire_connector_x, wire_connector_y - wire_connector_length, "silver");
+
+dopts = Object("lineWidth", 3);
+
+wire_x1 = 159;
+wire_x2 = 353;
+wire_y1 = 319;
+wire_y2 = 620;
+wire_colour = "red";
+wire_sizing = 40;
+wire_cable is Curve(wire_x1, wire_y1-wire_connector_length, wire_x2, wire_y2 - wire_connector_length,
+	wire_sizing, 1.5, 90, 90,wire_colour, dopts);
+
+pin1 = "D13";
+pin2 = "Bread_P1";
+
+wire_end1 is wire_connector ::
+	wire_connector_x = wire_x1,
+	wire_connector_y = wire_y1;
+wire_end2 is wire_connector ::
+	wire_connector_x = wire_x2,
+	wire_connector_y = wire_y2;
+
+wire_raw is [wire_end1, wire_end2, wire_cable];
+
+wire is wire_raw ::
+	wire_x1 = ard_uno_{pin1}["x"],
+	wire_y1 = ard_uno_{pin1}["y"],
+	wire_x2 = ard_uno_{pin2}["x"],
+	wire_y2 = ard_uno_{pin2}["y"];}action components {do @external ResistorColours > page1;
+do @external .id(197) >> rgb2colour;
+
+metal_colour = "#999";
+
+## LED
+
+pin1 = "Bread_E7";
+led_colour = "red";
+led_pinlength = 25;
+led_height is 36 * board_scale;
+led_x1 is ard_uno_{pin1}["x"];
+led_y1 is ard_uno_{pin1}["y"];
+led_base_width is ard_uno_breaddist * 1.3;
+led_cathode is Line(led_x1+ard_uno_breaddist, led_y1, led_x1+ard_uno_breaddist, led_y1 - led_pinlength, metal_colour);
+led_anode is Line(led_x1, led_y1, led_x1, led_y1 - led_pinlength, metal_colour);
+
+interp_col_r is floor($1[1] + ($2[1] - $1[1]) * $3);
+interp_col_g is floor($1[2] + ($2[2] - $1[2]) * $3);
+interp_col_b is floor($1[3] + ($2[3] - $1[3]) * $3);
+interp_colours is rgb2colour(interp_col_r, interp_col_g, interp_col_b);
+
+led_colours_green_on = [87,255,87];
+led_colours_green_off = [50,146,50];
+led_colours_red_on = [255,87,87];
+led_colours_red_off = [184,26,26];
+
+led_status is led_on/256 if type(led_on) == "int" || type(led_on) == "float" else 1.0 if led_on else 0.0;
+led_colour_map is interp_colours::(
+	led_colours_{led_colour}_off,
+	led_colours_{led_colour}_on,
+	led_status);
+
+led_base is Ellipse(led_x1+ard_uno_breaddist/2, led_y1- led_pinlength, led_base_width, led_base_width*0.7, led_colour);
+led_top1 is Ellipse(led_x1+ard_uno_breaddist/2, led_y1 - led_pinlength, led_base_width-3, (led_base_width - 3)*0.7, led_colour_map);
+led_top2 is Circle(led_x1+ard_uno_breaddist/2, led_y1 - led_pinlength - led_height, led_base_width-3, led_colour_map, led_colour_map);
+led_top3 is Rectangle(led_x1+ard_uno_breaddist/2 - (((led_base_width*2))/2)+3, led_y1 - led_pinlength - led_height, (led_base_width-3)*2, led_height, led_colour_map, led_colour_map);
+
+led is [led_anode,led_cathode, led_base, led_top1, led_top2,led_top3];
+
+## Resistor
+
+resistor_x1 is ard_uno_{pin1}["x"];
+resistor_y1 is ard_uno_{pin1}["y"];
+resistor_x2 is ard_uno_{pin2}["x"];
+resistor_y2 is ard_uno_{pin2}["y"];
+
+resistor_offset = 20*board_scale;
+resistor_wire1 is Curve(resistor_x1, resistor_y1, resistor_x1+resistor_excess,
+	resistor_y1-resistor_excess, 4, 0.8225, 0, 0,0.5,0,false, metal_colour);
+resistor_wire2 is Curve(resistor_x2, resistor_y2, resistor_x2+resistor_excess,
+	resistor_y2+resistor_excess, 4, 0.8225, 0, 0,0.5,0,true, metal_colour);
+
+resistor_dx is resistor_x1 - resistor_x2;
+resistor_dy is resistor_y1 - resistor_y2;
+resistor_distance is sqrt(resistor_dx * resistor_dx + resistor_dy * resistor_dy);
+resistor_excess is (resistor_distance - resistor_length) / 2;
+
+resistor_length is 65 * board_scale;
+resistor_width is 25 * board_scale;
+resistor_angle is asin(resistor_dx/resistor_distance);
+
+resistor_blob1 is RoundedRectangle(-resistor_width/2,
+	0,resistor_width,resistor_width,
+	3, "orange");
+
+resistor_blob2 is RoundedRectangle(-resistor_width/2,
+	resistor_length-resistor_width,resistor_width,resistor_width,
+	3, "orange");
+
+resistor_blob3 is Rectangle(-resistor_width*0.8/2,
+	resistor_width*0.8, resistor_width*0.8,resistor_length-2*resistor_width*0.8,
+	"orange");
+
+resistor_colour1 is Line(-resistor_width/2, 10*board_scale,
+	resistor_width/2, 10*board_scale, valueA_colour);
+resistor_colour2 is Line(-resistor_width*0.9/2, 10*2.2*board_scale,
+	resistor_width*0.9/2, 10*2.2*board_scale, valueB_colour);
+resistor_colour3 is Line(-resistor_width*0.8/2, 10*3.4*board_scale,
+	resistor_width*0.8/2, 10*3.4*board_scale, multi_colour);
+resistor_colour4 is Line(-resistor_width/2, 10*4.9*board_scale,
+	resistor_width/2, 10*4.9*board_scale, tolerance_colour);
+
+resistor_ox is resistor_x2 + resistor_excess + resistor_dx/2;
+resistor_oy is resistor_y2 + resistor_excess+resistor_length/2;
+
+/*resistor_angle = 107;*/
+resistor_blob_comp is [resistor_blob1,resistor_blob2,resistor_blob3,
+	resistor_colour1, resistor_colour2, resistor_colour3, resistor_colour4];
+resistor_blob is Translate(0,0,resistor_ox, resistor_oy,RotateAboutCentre(resistor_angle, Point(0, resistor_length/2), Point(0, 0), resistor_blob_comp));
+
+resistor is [resistor_wire1, resistor_wire2, resistor_blob];
+
+## Button
+
+button_x is ard_uno_{pin1}["x"];
+button_y is ard_uno_{pin1}["y"];
+button_width is ard_uno_breaddist*2 + ard_uno_breaddist/2;
+button_ox is button_x-ard_uno_breaddist/4;
+button_oy is  button_y+ard_uno_breaddist/10;
+button_rect is RoundedRectangle(button_ox, button_oy, button_width, button_width, 5*board_scale, "grey", "grey");
+button_button is Circle(button_ox+button_width/2, button_oy+button_width/2, button_width/2 * 0.6, "#222", "black");
+button_blob_offset = 0.15;
+button_blob1 is Circle(button_ox+button_blob_offset*button_width, button_oy+button_blob_offset*button_width, (button_blob_offset/2)*button_width, "black");
+button_blob2 is Circle(button_ox+(1.0-button_blob_offset)*button_width, button_oy+button_blob_offset*button_width, (button_blob_offset/2)*button_width, "black");
+button_blob3 is Circle(button_ox+button_blob_offset*button_width, button_oy+(1.0-button_blob_offset)*button_width, (button_blob_offset/2)*button_width, "black");
+button_blob4 is Circle(button_ox+(1.0-button_blob_offset)*button_width, button_oy+(1.0-button_blob_offset)*button_width, (button_blob_offset/2)*button_width, "black");
+
+button_leg1 is Line(button_x, button_y-(5*board_scale), button_x, button_oy, metal_colour);
+button_leg2 is Line(button_x+2*ard_uno_breaddist, button_y-(5*board_scale), button_x+2*ard_uno_breaddist, button_oy, metal_colour);
+button_leg3 is Line(button_x, button_y+button_width, button_x, button_oy+button_width+ard_uno_breaddist/10+3, metal_colour);
+button_leg4 is Line(button_x+2*ard_uno_breaddist, button_oy+button_width, button_x+2*ard_uno_breaddist, button_oy+button_width+ard_uno_breaddist/10+3, metal_colour);
+
+button is [button_leg1, button_leg2, button_leg3, button_leg4, button_rect,button_button,button_blob1,button_blob2, button_blob3, button_blob4];
+
+
+## Temperature Sensor
+
+tempsensor_x is ard_uno_{pin1}["x"];
+tempsensor_y is ard_uno_{pin1}["y"];
+tempsensor_width is 1.1 * 2 * ard_uno_breaddist;
+
+tempsensor_cx is tempsensor_x + (2 * ard_uno_breaddist)/2;
+tempsensor_offset is 30 * board_scale;
+tempsensor_height is 60 * board_scale;
+tempsensor_ellipse is Ellipse(tempsensor_cx,
+	tempsensor_y - tempsensor_offset - tempsensor_height,
+	tempsensor_width/2, tempsensor_width/3, "black", "#777");
+tempsensor_rect is Rectangle(tempsensor_cx - tempsensor_width/2,
+	tempsensor_y - tempsensor_offset - tempsensor_height,
+	tempsensor_width, tempsensor_height, "black", "#777");
+
+tempsensor_line1 is Line(tempsensor_cx, tempsensor_y,
+	tempsensor_cx, tempsensor_y-tempsensor_offset, metal_colour);
+tempsensor_line2a is Line(tempsensor_cx-tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset*0.5,
+	tempsensor_cx-tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset, metal_colour);
+
+tempsensor_line2b is Line(tempsensor_cx-tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset*0.5,
+	tempsensor_x,
+	tempsensor_y, metal_colour);
+
+tempsensor_line3a is Line(tempsensor_cx+tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset*0.5,
+	tempsensor_cx+tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset, metal_colour);
+
+tempsensor_line3b is Line(tempsensor_cx+tempsensor_width*0.25,
+	tempsensor_y-tempsensor_offset*0.5,
+	tempsensor_x+2*ard_uno_breaddist,
+	tempsensor_y, metal_colour);
+
+tempsensor_text is Text("TMP", tempsensor_cx,
+	tempsensor_y - tempsensor_offset - tempsensor_height*0.6, 18*board_scale, "white",
+	"middle center");
+
+tempsensor is [tempsensor_line1, tempsensor_line2a, tempsensor_line2b,
+	tempsensor_line3a, tempsensor_line3b, tempsensor_ellipse, tempsensor_rect,
+	tempsensor_text];
+}action spaceship {## The Spaceship Project
+# As an example, project 2 from the Arduino Project Book will be used. This slide gives the complete implementation that can be connected to an actual Arduino.
+
+### Script
+
+arduino_input_d2 = true;
+arduino_input_d3 = false;
+arduino_input_d4 = false;
+arduino_input_d5 = false;
+switchPressed is arduino_d2;
+arduino_d3 is greenLED;
+arduino_d4 is redLED1;
+arduino_d5 is redLED2;
+
+greenLED is !switchPressed;
+
+toggle = false;
+
+redLED1 is switchPressed && toggle;
+redLED2 is switchPressed && !toggle;
+
+when (switchPressed && !toggle) {
+	wait 250;
+	toggle = true;
+	wait 250;
+	toggle = false;
+}
+
+
+### Test with a virtual button press
+arduino_d2 = !arduino_d2;}action intro {
+
+
+## Arduino Maker
+# A library for making Arduino diagrams, as shown on the left. This construal is both the library itself and also a brief presentation of how to use it, including a demo project that will run with an actual Arduino if one is connected.
+
+# Note: Components are not complete, but it is not so difficult to modify a component or add a new one... this is the point of Construit afterall.
+
+
+
+### Using with Hardware
+# This construal can be connected to a hardware Arduino with the following steps (to be simplified over the summer of 2017)\:
+
+#* Install [Node.js](https://nodejs.org/)
+#* Download the [lastest](https://github.com/EMGroup/js-eden/releases/latest) zip or tar.gz of Construit
+#* Extract the zip
+#* Open a terminal/command window inside the extracted folder
+#* Type `npm install`
+#* Type `npm start` to run Construit
+
+# To use the Arduino, first install our firmware from our [sketch](http://jseden.dcs.warwick.ac.uk/construit/plugins/arduino/sketch.c) using the Arduino IDE. Then, with the Arduino plugged in, do the `npm start` as above and it will detect the Arduino and ask if you wish to use it.
+
+}action led_demo {
+
+## LED
+# Here is the script to represent an LED.
+
+pin1 = "Bread_E7";
+led_pinlength = 25;
+led_height is 36 * board_scale;
+led_x1 is ard_uno_{pin1}["x"];
+led_y1 is ard_uno_{pin1}["y"];
+led_base_width is ard_uno_breaddist * 1.3;
+led_cathode is Line(led_x1+ard_uno_breaddist, led_y1, led_x1+ard_uno_breaddist, led_y1 - led_pinlength, "silver");
+led_anode is Line(led_x1, led_y1, led_x1, led_y1 - led_pinlength, "silver");
+
+led_colour_off is "#b81a1a" if led_colour == "red" else "#329232" if led_colour == "green" else led_colour;
+led_colour_on is "#ff5757" if led_colour == "red" else "#57ff57" if led_colour == "green" else led_colour;
+led_colour_map is led_colour_off if !led_on else led_colour_on;
+
+led_base is Ellipse(led_x1+ard_uno_breaddist/2, led_y1- led_pinlength, led_base_width, led_base_width*0.7, led_colour);
+led_top1 is Ellipse(led_x1+ard_uno_breaddist/2, led_y1 - led_pinlength, led_base_width-3, (led_base_width - 3)*0.7, led_colour_map);
+led_top2 is Circle(led_x1+ard_uno_breaddist/2, led_y1 - led_pinlength - led_height, led_base_width-3, led_colour_map, led_colour_map);
+led_top3 is Rectangle(led_x1+ard_uno_breaddist/2 - (((led_base_width*2))/2)+3, led_y1 - led_pinlength - led_height, (led_base_width-3)*2, led_height, led_colour_map, led_colour_map);
+
+led is [led_anode,led_cathode, led_base, led_top1, led_top2,led_top3];
+
+}

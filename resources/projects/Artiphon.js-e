@@ -1,0 +1,1589 @@
+/**
+ * @title Start Your Model
+ */
+action start {
+import Layouts > book;
+do book;
+
+book_divider = 0;
+book_offset_top = 420;
+pages = ["stage1", "stage2", "stage3", "stage4", "stage5", "stage6", "stage7", "stage8", "stage9", "stage10", "page11", "stage12", "stage13", "page14", "page15", "page16", "page17", "page18", "page19", "page20"];
+do stage1;
+do stage2;
+do stage3;
+do stage4;
+do stage5;
+do stage6;
+do stage7;
+do stage8;
+do stage9;
+do stage10;
+do page11;
+do stage12;
+
+do stage13;
+do page14;
+do page15;
+do page16;
+
+do page17;
+do page18;
+
+#do page19;
+do page20;
+capo = 0;}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+do :project > start;
+
+action ACTIVE {
+jseden_project_title = "Artiphon";
+views_number_created = 0;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+mousePosition = Point(1145.9640718562873, 12.071856287425149);
+mouseView = "bookpic";
+mouseZone = @;
+mouseVelocity = Point(0, 0);
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+plugins_html_loaded = true;
+jseden_project_name = "Artiphon";
+jseden_project_thumb = "data:image/png;base64,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";
+jseden_project_author = "Jonny F";
+views_list = ["bookpic"];
+pages = ["stage1", "stage2", "stage3", "stage4", "stage5", "stage6", "stage7", "stage8", "stage9", "stage10", "page11", "stage12", "stage13", "page14", "page15", "page16", "page17", "page18", "page19", "page20"];
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,
+chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,
+capoDownBtn,chordDisplay,scaleDisplay,selectionInterface,fretmarkers,tuningDropDown,allNoteIndicators,invertTuningCheckbox,
+leftHandedCheckbox,musicControls];
+book_divider = 0;
+book_offset_top = 420;
+view_bookpic_visibility = "visible";
+view_bookpic_title = "Canvas bookpic";
+view_bookpic_content is bookpic;
+view_bookpic_background_colour = "white";
+view_bookpic_scale = 1;
+view_bookpic_offset = Point(0, 0);
+view_bookpic_canvas_right = @;
+view_bookpic_canvas_bottom = @;
+view_bookpic_grid_visible = false;
+view_bookpic_grid_spacing = 20;
+view_bookpic_type = "Canvas2D";
+keywidth is (book_width - 100) / numFrets;
+lineProperties is Object("dashes",[1,16],"lineWidth",1,"cap",1);
+stringProperties is Object(
+	"dashes", [1,0],
+	"lineWidth", 2,
+	"cap",1
+);
+labelText is (NoteNames[MIDIFretboard[(numStrings-y)][x+1]+1]) // octaveFromMIDINum with m is MIDIFretboard[numStrings - y][x+1];
+tuning is (convertTuning with t is setTuning) if isString(setTuning[1]) else setTuning;
+noteName is notes[(noteNum % 12) + 1];
+keyColour is keyColour_i with q is (keytuning with string is (numStrings+1) - y, fret is x);
+rootNum is selNote;
+withinRange is (x >= startFret) && (x < startFret + handWidth);
+inScale is sum(inScalei with i is 1..thisScale[2]#) > 0;
+label is gridLabel if mode == "grid" else fretKeyLabel;
+pressureSize is 20;
+selNote = 2;
+channelPressures = notesOnChannels;
+labels is label with x is minFret..numFrets,y is 0..(numStrings -1);
+noteDisplay is Text((NoteNames[selNote+1]),0,0);
+internalGrid is Rectangle(xoffset,yoffset,(keywidth*numFrets),numStrings*keyHeight,"white","black");
+externalGrid is Rectangle(0,outerYoffset,book_width, extGridHeight, labelColours_possible[1], labelColours_possible[2]);
+handWidth = 12;
+key is fret_key if x > 0 else open_key;
+string is Line(xoffset,outerYoffset+(y*keyHeight),25+keywidth*numFrets,outerYoffset+(y*keyHeight),"#999999",stringProperties);
+strings is string with y is numStrings;
+keys is key with x is minFret..numFrets, y is 1..numStrings;
+fingerDot is Ellipse(xoffset+((myX-0.5)*keywidth), (((numStrings - myY)+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,"pink");
+myX is rawX if (rawX <= maxFret && rawX >= 0) else @;
+myY is numStrings - rawY if (rawY < numStrings && rawY >= 0) else @;
+rawX is floor((mouseX - xoffset) / keywidth) + 1;
+rawY is floor((mouseY - yoffset) / keyHeight);
+openY is keytuning with string is myY, fret is 0;
+notes is ["C","C#/Db","D","D#/Eb","E","F","F#/Gb","G","G#/Ab","A","A#/Bb","B"];
+majorScale = [0,2,4,5,7,9,11,12];
+minorScale = [0,2,3,5,7,8,10,12];
+thisScale is ["selected",selScaleIntArray];
+scalei is (rootNum + thisScale[2][i]);
+scale is scalei with i is 1..thisScale[2]#;
+inScalei is (q_s % 12) == scale[i] % 12;
+beforeRoot = true;
+afterTwelth = true;
+labelColour is labelColours_possible[1] if notePos > -1 else labelColours_possible[2];
+labelColours_possible = ["white", "black"];
+notePos is positionInList((myMod with t is (q+132-rootNum), m is 12),thisScale);
+myMod is t % m if t >= 0 else m + t % m;
+keyColour_i is keyColours_possible[2] if (q < selNote && !beforeRoot) 
+else keyColours_possible[2] if (q > selNote + 12 && !afterOctave) 
+else keyColours_possible[1] if inScaleFull[q]
+else keyColours_possible[2];
+keyColours_possible = ["#66ff66",labelColours_possible[2]];
+dotColour is dotColours[notePos] if notePos else "";
+dotColours is ["#006600","","#fff22","#00CC00","#008800","","","","","",""];
+highlightDot is Ellipse(xoffset+((tmpX-0.5)*keywidth), 
+((tmpY+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,(dotColour with q is keytuning with string is (numStrings-tmpY), fret is tmpX),@) 
+if tmpX > 0 else Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth -10,dotHeight, 
+(dotColour with q is keytuning with string is (numStrings-tmpY), fret is tmpX),@);
+highlightDots is highlightDot with tmpX is minFret..numFrets,tmpY is 0..(numStrings -1);
+hoveredNote is MIDIFretboard[myY][myX+1];
+xoffset=75;
+fret_key is Rectangle(xoffset+keywidth*(x-1),(75+((y-1)*keyHeight)),keywidth, keyHeight,(keyColour_i with q is (MIDIFretboard[numStrings+1 - y][x+1])),"black",lineProperties);
+open_key is Circle(open_key_pos,((y+0.5)*50)+keywidth/4,keywidth/4,(keyColour_i with q is keytuning with string is (numStrings+1) -y, fret is 0),"black",lineProperties);
+tuning_guitar = [40,45,50,55,59,64];
+tuning_violin = ["F1","C2","G2","D3","A3","E4"];
+letterFromLetterOctave is substr(LetterOctave,1,2) if substringPosition("#",LetterOctave) > 0 else substr(LetterOctave,1,1);
+octaveFromLetterOctave is int(substr(LetterOctave,3)) if substringPosition("#",LetterOctave) > 0 else int(substr(LetterOctave,2));
+letterList is ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+letterToMIDINote is (positionInList(letterFromLetterOctave,letterList)-1)+12*(octaveFromLetterOctave) + (0 if transpose == @ else transpose);
+convertTuning_i is letterToMIDINote with LetterOctave is t[i];
+convertTuning is convertTuning_i with i is 1..t#;
+setTuning is selTuningOptions[selTuningIndex];
+tuning_six_bass = ["B0","E1","A1","D2","G2","C3"];
+tuning_bass = ["E0","A0","D1","G1","B1","E2"];
+tuning_ukulele = ["G3","C3","E3","A3"];
+tuning_mandolin is tuning_violin;
+tuning_hawaiian_a = ["E2","A2","E3","A3","C#4","E4"];
+tuning_lap_steel = ["C1","E1","G1","A1","C2","E2"];
+tuning_ext_banjo = ["G4","B2","D3","G3","B3","D4"];
+tuning_open_a = ["E1","A1","C#2","E2","A2","C#3"];
+tuning_open_c = ["C1","G1","C2","G2","C3","E3"];
+tuning_dadgad = ["D1","A1","D2","G2","A2","D2"];
+tuning_open_e = ["E1","A1","E2","G#2","B2","E3"];
+tuning_open_g = ["D1","G1","D2","G2","B2","D3"];
+tuning_drop_d = ["D1","A1","D2","G2","B2","E3"];
+tuning_drop_c = ["C1","G1","C2","F2","A2","D3"];
+tuning_a_minor = ["A1","B1","C2","D2","E2","F2"];
+tuning_thirds = ["C2","E2","G2","B2","D3","F3"];
+tuning_fourths = ["E1","A1","D2","G2","C3","F3"];
+tuning_fifths = ["C1","G1","D2","A2","E3","B3"];
+mode = "string";
+base is b + 12 * (5-o);
+baseRow is base with b is 0..11;
+tuning_chromatic is baseRow with o is 0..5;
+keytuning is (tuning [(numStrings+1) -string][fret]+capo) if mode =="grid" else (tuning[string]+fret+capo);
+open_key_pos is xoffset+keywidth*12.5 if mode == "grid" else xoffset+keywidth*(x-1)+(keywidth/2);
+maxFret is numFrets;
+gridLabel is Text(labelText,(xoffset+(keywidth*(x-0.5)) 
+if x > 0 else (xoffset+(keywidth*(13-0.5)))),65+(50*(y+0.5)),
+(pressureSize with q is keytuning with string is (numStrings - y), fret is x),
+(labelColour with q is keytuning with string is (numStrings-y), fret is x),"center");
+fretKeyLabel is Text(labelText,xoffset+(keywidth*(x-0.5)),
+65+(keyHeight*(y+0.5)),(pressureSize with q is keytuning with string is (numStrings-y), fret is x),
+(labelColour with q is keytuning with string is (numStrings-y), fret is x),"center");
+scale_major_pentatonic = ["major pentatonic",[0,2,4,7,9]];
+scale_minor_harmonic = ["harmonic minor", [0,2,3,5,7,8,11,12]];
+capo = 0;
+capoLED is Circle(100+(30*x),25,10,"black" if capoLit[x] else @);
+capoIndicator is capoLED with x is 1..12;
+capoLit is capoLit_i with i is 1..12;
+capoLit_i is (true if i <= capo else false) if capo >= 0 else (true if i > 12 + capo else false);
+capoUpBtn is Button("capoUpBtn","Capo Up",480,25);
+capoDownBtn is Button("capoDownBtn","Capo Down",560,25);
+capoUpBtn_click = false;
+capoDownBtn_click = false;
+octaveFromMIDINum is floor(m / 12);
+majorChord is [0,4,7];
+thisChord is selChordIntArray;
+inChord_i is ((myMod with t is (q +132 - rootNum), m is 12) == thisChord[i]);
+inChord is sum(inChord_i with i is 1..thisChord#, rootNum is chordRoot ) > 0;
+noteDiff is (q - rootNum) if q > rootNum else (q + 12 - rootNum ) % 12;
+afterOctave = true;
+minorChord is [0,3,7];
+seventhChord is [0,4,7,10];
+majorSeventhChord is [0,4,7,11];
+minorSeventhChord is [0,3,7,10];
+chordDot is (Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth+10, dotHeight,chordDotColour,@) if tmpX > 0 
+else Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,chordDotColour,@)) if chordDotColour else @;
+chordDotColour is "#119911" if inChord with q is (tuning[numStrings-tmpY] + tmpX + capo) else labelColours_possible[2];
+chordDots is chordDot with tmpX is minFret..numFrets, tmpY is 0..(numStrings -1);
+chordRoot is chordList[chordSeqPos][1] + selNote;
+chordList is [[9,chord_minor],[0,chord_major],[5,chord_major],[7,chord_7]];
+chordSeqPos++;
+chord_major is ["",majorChord];
+chord_minor is ["m", minorChord];
+chord_7 is ["7", seventhChord];
+chord_maj7 is ["M7", majorSeventhChord];
+thisChordType is chordList[chordSeqPos][2][1];
+chordDisplay is Text("Currently displayed chord: " // (NoteNames[chordRoot+1]) // thisChordType,480, 0);
+scale_major is ["major", majorScale];
+scale_minor is ["minor", minorScale];
+scaleDisplay is Text("Currently displayed scale: " // (NoteNames[rootNum+1]) // " " // thisScale[1],750, 20);
+pentatonic is [0,2,4,7,9];
+minor_pentatonic_i is pentatonic[i] +3 % 12;
+minor_pentatonic is minor_pentatonic_i with i is 1..5;
+scale_minor_pentatonic is ["minor pentatonic",minor_pentatonic];
+selectionInterface is [chordTypeInterface, scaleDropDown, selChordOrScaleBtn];
+chordTypeInterface is DropDownList("chordTypeDrop",[[],chord_major[2],chord_minor[2],chord_7[2],chord_maj7,minorSeventhChord],["Select","Major","Minor","7","Maj7","m7"],680,0);
+selChordTypeArray is splitString(chordTypeDrop_value,",");
+selChordInt is int(selChordTypeArray[i]);
+selChordIntArray is selChordInt with i is 1..selChordTypeArray#;
+scaleDropDown is DropDownList("scaleTypeDrop",[[],scale_major[2],scale_minor[2],scale_major_pentatonic[2], scale_minor_pentatonic[2], scale_minor_harmonic[2]],["Select","Major","Minor","Major Pentatonic","Minor Pentatonic", "Minor Harmonic"],850,0);
+selScaleTypeArray is splitString(scaleTypeDrop_value,",");
+selScaleIntArray is selChordIntArray with selChordTypeArray is selScaleTypeArray;
+selModeScaleRoot = false;
+selChordOrScaleBtn is Button("Select " // ("Chord" if selModeScaleRoot else "Scale"),1000,0);
+selChordOrScaleBtn_click = false;
+fretmarker_i is Text(i,125+keywidth*(i-1),56+((numStrings*keyHeight +25)*j),16,
+(fretmarker_colour[1] if positionInList(i,[1,3,5,7,9,12]) > 0 else fretmarker_colour[2]),"center");
+fretmarkers is [fretmarker_highlights,fretmarker_i with i is 1..12, j is 0..1];
+fretmarker_colour is labelColours_possible;
+fretmarker_b is Circle(125+keywidth*(i-1),64+((numStrings*keyHeight +25)*j),10,fretmarker_colour[2]) if positionInList(i,[1,3,5,7,9,12]) > 0 else @;
+fretmarker_highlights is fretmarker_b with i is 1..numFrets,j is 0..1;
+firstByte is midiInputMessage[1];
+channel is (firstByte % 16) + 1;
+messageType is firstByte - channel + 1;
+notesOnChannels = [@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@];
+notesOn is notesOnChannels;
+midiData is midiInputMessage[2];
+value is midiInputMessage[3];
+keyCurrent is sum(keyCurrent_i with i is 1..16) > 0;
+keyCurrent_i is q == notesOnChannels[i];
+modWheelSeen = false;
+targNote is selectedSong[melodyPosition];
+isTarget is q == targNote;
+song_twinkle = ["G3","G3","D4","D4","E4","E4","D4","C4","C4","B3","B3","A3","A3","G3"];
+blaydon = [62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 72, 72, 72, 72, 71, 71, 71, 71, 69, 71, 69, 67, 66, 62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 71, 72, 72, 72, 72, 71, 72, 74, 74, 72, 71, 69, 67, 67, 62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 72, 72, 72, 72, 71, 71, 71, 71, 69, 71, 69, 67, 66, 62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 71, 72, 72, 72, 72, 71, 72, 74, 74, 72, 71, 69, 67, 67, 74, 74, 74, 71, 67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 67, 71, 72, 72, 72, 72, 71, 71, 71, 71, 69, 71, 69, 67, 66, 62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 71, 72, 72, 72, 72, 71, 72, 74, 74, 72, 71, 69, 67, 67, 74, 74, 74, 71, 67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 67, 71, 72, 72, 72, 72, 71, 71, 71, 71, 69, 71, 69, 67, 66, 62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 71, 72, 72, 72, 72, 71, 72, 74, 74, 72, 71, 69, 67, 67];
+selectedSong is convertTuning with t is song_twinkle, transpose is melodyTranspose;
+melodyPosition++;
+melodyTranspose = -12;
+score = 0;
+noteIndicator_i is Ellipse(noteIndicatorPosX,noteIndicatorPosY,dotWidth,dotHeight,noteIndicatorColour);
+noteIndicatorPosX is (pos_targNote)[i]*keywidth + xoffset - (keywidth / 2);
+noteIndicatorPosY is keyHeight+((numStrings+1)-i)*keyHeight;
+noteIndicatorColour is "yellow";
+noteIndicator is noteIndicator_i with i is 1..numStrings;
+ni_xy is keytuning with fret is 2,string is 6;
+diffOnString is q - tuning[string];
+posOnString is (diffOnString) if diffOnString > 0 && diffOnString <= numFrets else -1;
+posString144 is posOnString with q is 44, string is 1;
+pos_all_Strings_q is posOnString with string is 1..numStrings;
+pos_targNote is pos_all_Strings_q;
+pos_targNote_i is pos_all_Strings_q with q is targNotes[i];
+targNotes is noteOnCheck;
+pos_targNote_all is pos_targNote_i with i is 1..targNotes#;
+noteIndicator_k is noteIndicator with q is targNotes[k] - capo;
+allNoteIndicators is noteIndicator_k with k is 1..targNotes#;
+plugins_midi_loaded = true;
+capoUpBtn_clicked = false;
+capoDownBtn_clicked = false;
+selChordOrScaleBtn_clicked = false;
+view_bookscript2_query is jseden_script_query;
+tuneABC = <<END
+X:1
+T:Ode to Joy
+C:L. Van Beethoven
+M:4/4
+L:1/4
+K:G
+B B c d | d c B A | G G A B | B>A A2 |
+B B c d | d c B A | G G A B | A>G G2 |:
+A A B G | A B/2c/2 B G | A B/2c/2 B A | G A D2 |
+B B c d | d c B A | G G A B | A>G G2 :|
+END;
+tuneMIDI_i is tuneMIDI[i];
+tuneMIDI = readABCMIDI(tuneABC);
+tuneMIDI_eventData_i is (tuneMIDI_i)[1]["event"];
+timeMap_i is [
+	(tuneMIDI_i)[1]["ticksToEvent"]
+	+((timeMap_i with i is i -1)[1] if (i > 1) else 0),
+	(tuneMIDI_eventData_i)["subtype"],
+	(tuneMIDI_eventData_i)["noteNumber"],
+	(tuneMIDI_eventData_i)["velocity"]
+	];
+timeMap is timeMap_i with i is 1..tuneMIDI#;
+noteOn_i = 0;
+emptyNoteOns is noteOn_i with i is 1..127;
+tick = 0;
+nextMessageNum = 1;
+noteOns = emptyNoteOns;
+musicTick is tick*12;
+edenclocks = [];
+nextMessage is timeMap_i with i is nextMessageNum;
+nextEventTick is (timeMap_i with i is nextMessageNum)[1];
+allMessages = [];
+noteOnCheck_i is i if noteOns[i] > 0 else @;
+noteOnCheck is noteOnCheck_i with i is 1..127;
+tuningDropDown is DropDownList("tuningDrop",[1,2,3,4,5,6,7,8],["Guitar","Violin","Bass","Ukulele","Mandolin","Banjo","Drop D","Piano"],1150,0);
+selTuningIndex is int(tuningDrop_value);
+selTuningOptions is [tuning_guitar,tuning_violin,tuning_bass,tuning_ukulele,tuning_mandolin,tuning_ext_banjo,tuning_drop_d,tuning_piano];
+tuning_piano = [47,47,47,47,47,47];
+numStrings = 6;
+numFrets = 12;
+keyHeight = 50;
+yoffset = 75;
+minFret = 0;
+outerYoffset =50;
+dotWidth is keywidth / 4;
+dotHeight is 15;
+extGridHeight is outerYoffset+numStrings*keyHeight;
+pianoColour is "black" if key_x_black else "white";
+inScaleFull is inScale with q_s is 1..127;
+q_k is (keytuning with string is (numStrings+1) - y, fret is x);
+key_x_black is (xmod12 == 1) || (xmod12 == 3) || (xmod12 == 6) || (xmod12 == 8) || (xmod12 == 10);
+xmod12 is q_k % 12;
+MIDIFretboard is (keytuning with fret is 0..numFrets) with string is 1..numStrings;
+NoteNames is noteName with noteNum is 0..127;
+finger_velocity is 80;
+finger_note is targNotes[1] -20;
+musicPlay is Checkbox("Play Music",120,30);
+musicRestart is Button("Restart Music", 0,30);
+musicControls is [musicPlay,musicRestart];
+musicRestart_click = false;
+musicRestart_clicked = false;
+}
+
+action stage1 {##Artiphon
+
+#The Artiphon is a MIDI controller that can be played using a variety of different methods, and in a (unlimited!) number of tunings.
+#This construal allows for the visualisation of the scales on a fretboard.
+
+###Drawing the Artiphon
+#First, let's draw the Artiphon:
+
+keywidth = 100;
+lineProperties is Object(
+	"dashes", [1,16],
+	"lineWidth", 1,
+	"cap", 1
+);
+stringProperties is Object(
+	"dashes", [1,0],
+	"lineWidth", 2,
+	"cap",1
+);
+labelText is noteName with noteNum = (tuning[6-y]+x);
+keyColour is "blue" if q == rootNum else ("red" if (withinRange && (inScale with q is tuning[6-y]+x)) else "black");
+
+#Create some labels positioned in the middle of the keys
+
+#The size of the label is determined by the `channelPressures` observable - the harder you press on the Artiphon, the bigger the text.
+#The channelPressures observable is populated by MIDI, which will be added later (in a different script tab)
+
+label is Text(labelText,25+(keywidth*(x-0.5)),65+(50*(y+0.5)),(pressureSize with q is tuning[6-y]+x),
+(keyColour with q is tuning[6-y]+x),"center");
+
+pressureSize is (1 + (channelPressures[(7-y)]/127)) *15 if (q == selNote) else 15;
+
+#Now create the labels from the above prototype definition
+
+labels is label with x is 1..12, y is 0..5;
+
+#Create a Text object to be shown in the top-left corner - highlighting the currently selected note
+
+noteDisplay is Text((noteName with noteNum = selNote),0,0);
+
+#The internalGrid is a white background for the inside of the instrument
+internalGrid is Rectangle(25,75,keywidth*12,300,"white");
+#The externalGrid is the black border to show the edges of the instrument
+externalGrid is Rectangle(0,50,keywidth*12 + 50,350,"black");
+
+#Calculate whether the current fret (based on x position, where x is between 0 and 12) is within the range of the hand (shown by the grey background)
+#handWidth defines how many frets the selection should highlight starting from startFret
+handWidth = 12;
+withinRange is (x >= startFret) && (x < startFret + handWidth);
+
+#Define the rectangle used to draw the key, with a dotted border
+
+key is Rectangle(25+keywidth*(x-1),25+(y*50),keywidth,50,(withinRange)?"#dde3e9":@,"black",lineProperties);
+
+#Define a string (as a horizontal line)
+string is Line(25,50+(y*50),25+keywidth*12,50+(y*50),"#999999",stringProperties);
+#Create each string
+strings is string with y is 1..6;
+#Create each key for each of the 12 frets and 6 strings
+keys is key with x is 1..12, y is 1..6;
+#Create a dot to represent a finger in the current position
+fingerDot is Circle(25+((myX-0.5)*keywidth), ((myY+0.5)*50)+75, 15,"pink");
+#Show all the drawables in the picture
+picture is [externalGrid,internalGrid, keys,strings,fingerDot,noteDisplay,labels];
+
+##Calculating positions
+
+#Calculate the X value to get the fret position (1 is the lowest fret, 0 would be the open string)
+
+rawX is floor((mouseX - 25) / keywidth) + 1;
+
+#Calculate the Y value to get the string position (0 is the highest string - e.g. top E on a guitar tuning)
+
+rawY is floor((mouseY - 75) / 50);
+
+#Normalise myX and myY to make sure they're within acceptable ranges
+
+myX is rawX if (rawX < 12 && rawX >= 0) else @;
+myY is rawY if (rawY < 6 && rawY >= 0) else @;
+
+#Get the MIDI note number for the openY position
+openY is tuning[6 - myY];
+
+#Define the note \"names\"
+notes is ["C","C#/Db","D","D#/Eb","E","F","F#/Gb","G","G#/Ab","A","A#/Bb","B"];
+
+#noteName acts as a function to convert from a MIDI number to the note name
+noteName is notes[(noteNum % 12) + 1];
+
+#selNote is the openY position + the fret number
+selNote is openY + myX;
+
+#Set up the tuning, this is 76,81,86,91,95,100 is EADGBE tuning (standard Guitar)
+tuning is [76,81,86,91,95,100];
+
+#Define a major and minor scale as an array of intervals from the root (0) 
+majorScale = [0,2,4,5,7,9,11,12];
+minorScale = [0,2,3,5,7,8,10,12];
+
+#Set thisScale to the currently selected scale
+thisScale is majorScale;
+
+#Define rootNum as the selected note - this should probably be disabled if you want to explore a particular key.
+#By default the key will change when you move the mouse over a different string/fret
+rootNum is selNote;
+
+#scalei acts as a function to calculate the MIDI notes in a particular scale
+#scale is calculated as the set of notes in the scale starting from the rootNum
+scalei is (rootNum + thisScale[i]);
+scale is scalei with i is 1..thisScale#;
+
+#A note is in the scale if the note num % 12 is in the scale, and if it's bigger than the root Num and if it's smaller than the rootNum + 12
+inScalei is (q % 12) == (scale[i] % 12) && q >= rootNum && q <= (rootNum + 12);
+beforeRoot = true;
+afterTwelth = true;
+inScalei is (q % 12) == (scale[i] % 12) && ((q >= rootNum) || beforeRoot) && ((q <= (rootNum+12)) || afterTwelth);
+#
+#A note is in the scale if ANY of the above conditions are true from 1 - the length of the scale.
+inScale is sum(inScalei with i is 1..thisScale#) > 0;
+
+#This can be used to change the highlighted hand position (minFret is the lowest fret the hand can reach)
+
+when(mouseDown){
+	if(mouseDown["y"] < 50){
+		startFret = floor((mouseDown["x"] - 25) / keywidth)+1;
+	}
+}
+
+}action stage2 {##Highlighting colours
+#So far, the keyColour just determines the colour of the note label
+keyColour is "blue" if q == rootNum else ("red" if (withinRange && (inScale with q is tuning[6-y]+x)) else "black");
+label is Text(labelText,25+(keywidth*(x-0.5)),75+(50*(y+0.5)),(pressureSize with q is tuning[6-y]+x),
+(keyColour with q is tuning[6-y]+x));
+#I'd prefer it if the whole key changed colour, so first let's copy the definition of keyColour to the more aptly named labelColour
+labelColour is labelColours_possible[notePos];
+
+notePos is positionInList((q-rootNum)%12,thisScale);
+#Actually, note this isn't highlighting the notes that are lower than the rootNum, this is because taking the mod of a negative number isn't quite what I'd natually expect
+#The following definition solves this\:
+myMod is t % m if t >= 0 else m + t % m;
+notePos is positionInList((myMod with t is (q-rootNum), m is 12),thisScale);
+
+
+labelColours_possible is ["white","black","black","black","black"];
+#pressureSize makes the size dependent on how hard the MIDI channelPressure says
+pressureSize is (1 + (channelPressures[(7-y)]/127)) *15 if (q == selNote) else 15;
+#However for now, let's normalize the sizes\:
+pressureSize is 20;
+label is Text(labelText,25+(keywidth*(x-0.5)),65+(50*(y+0.5)),(pressureSize with q is tuning[6-y]+x),(labelColour with q is tuning[6-y]+x),"center");
+#Now I'll redefine the keys to be coloured using keyColour
+#I can't work out why for the labelColour it has to be tuning\[6-y\] and for the keyColour it has to be tuning\[7-y\] but it works!
+key is Rectangle(25+keywidth*(x-1),25+(y*50),keywidth,50,(keyColour_i with q is tuning[7-y]+x),"black",lineProperties);
+keyColour_i is keyColours_possible[1] if q == rootNum else keyColours_possible[2];
+keyColours_possible is ["#00ff99","white"];
+
+#So the above will highlight just the rootNum, now I need to extend it so that the entire scale is highlighted
+keyColour_i is keyColours_possible[1] if (inScale) else keyColours_possible[2];
+
+
+fingerDot is Ellipse(25+((myX-0.5)*keywidth), ((myY+0.5)*50)+75, 30,15,"pink");
+dotColour is dotColours[notePos] if notePos else "";
+dotColours is ["#006600","","#fff22","#00CC00","#008800","","","","","",""];
+highlightDot is Ellipse(25+((tmpX-0.5)*keywidth), ((tmpY+0.5)*50)+75, 30,15,(dotColour with q is tuning[6-tmpY]+tmpX),@);
+highlightDots is highlightDot with tmpX is 1..12,tmpY is 0..5;
+
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,fingerDot,noteDisplay,labels];}action stage3 {##Latching the selected note
+#I'd like to be able to only have the rootNote change when I click on a key.
+#Remember that selNote is
+selNote is openY + myX;
+
+#now
+selNote is openY + myX if hoveredNote == @ else hoveredNote;
+rootNum is selNote;
+
+#Let's now define the hovered note
+hoveredNote is openY + myX;
+
+#Then I can redefine the selNote every time the mouse is clicked
+
+when(mouseDown){
+	if(mouseDown["y"] < 50){
+		startFret = floor((mouseDown["x"] - 25) / keywidth)+1;
+	}else{
+		selNote = hoveredNote;
+	}
+}
+}action stage4 {##The Open Strings
+#Since the Artiphon has keys representing each part of the fretboard,
+#I often end up playing them in a tapped guitar 'Gui-Tap-iano' mode. So I often forget to play the open strings.
+#Of course as there are twelve frets, the open string position (in a stringed instrument mode) is exactly an octave below that shown on the 12th fret.
+#But for visualising scales, we really should indicate the open string note.
+###Moving the Fretboard
+#Unfortunately I haven't allowed enough room, so I'll have to move the fretboard a bit.
+#I need to redefine the position of each key, I should have made it variable anyway
+xoffset = 75;
+key is Rectangle(xoffset+keywidth*(x-1),25+(y*50),keywidth,50,(keyColour_i with q is tuning[7-y]+x),"black",lineProperties);
+label is Text(labelText,xoffset+(keywidth*(x-0.5)),65+(50*(y+0.5)),(pressureSize with q is tuning[6-y]+x),(labelColour with q is tuning[6-y]+x),"center");
+#The internalGrid is a white background for the inside of the instrument
+internalGrid is Rectangle(xoffset,75,(keywidth*12),300,"white");
+#The externalGrid is the black border to show the edges of the instrument
+externalGrid is Rectangle(0,50,keywidth*12 + 50+xoffset,350,"black");
+
+string is Line(xoffset,50+(y*50),25+keywidth*12,50+(y*50),"#999999",stringProperties);
+
+fingerDot is Ellipse(xoffset+((myX-0.5)*keywidth), ((myY+0.5)*50)+75, 30,15,"pink");
+highlightDot is Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*50)+75, 30,15,(dotColour with q is tuning[6-tmpY]+tmpX),@);
+
+#Also need to adjust the mouse behaviour\:
+rawX is floor((mouseX - xoffset) / keywidth) + 1;
+rawY is floor((mouseY - 75) / 50);
+
+###Adding an extra open "key"
+#Having done all that, it would probably be better to redefine the keys anyway. Each key starts at fret 1, but for an open string, they need to start at fret 0. 
+#I can draw an extra fret by simply changing the x-range of keys from 1..12 to 0..12
+keys is key with x is 0..12, y is 1..6;
+#I'll need to add a label to those too\:
+labels is label with x is 0..12, y is 0..5;
+#I've just noticed a strange discrepency that might explain my confusion about labelColour on slide 2 - keys are labelled 1..6, whereas labels are labelled 0..5. This probably doesn't matter too much at the moment, so I'll carry on without making it consistent.
+#It's basically working now, but I'd like to style the open string a bit better - that huge box makes it look like another fret. It at least needs to show most of the black border. I can fix this by redefining key again, but this time I'll define two different types of key. One main key (as before), and an open_key, which will be drawn as a circle.
+
+key is fret_key if x > 0 else open_key;
+
+fret_key is
+Rectangle(xoffset+keywidth*(x-1),25+(y*50),keywidth,
+50,(keyColour_i with q is tuning[7-y]+x),"black",lineProperties);
+
+open_key is 
+Circle(xoffset+keywidth*(x-1)+(keywidth/2),25+(y*50)+keywidth/4,keywidth/4,
+(keyColour_i with q is tuning[7-y]+x),"black",lineProperties);
+
+#I also need to extend the dots\:
+highlightDots is highlightDot with tmpX is 0..12,tmpY is 0..5;
+#Now things have stopped working, I'll try saving and reloading. After reloading everything seems fine - not sure what happened there.
+
+#However, I'd like to have the highlightDots looking smaller for the open strings, so I'll have to break the highlightDot out like I did with the keys, although I'll put it all in one definition (sorry if this makes it less readable).
+
+highlightDot is 
+Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*50)+75, 30,15,(dotColour with q is tuning[6-tmpY]+tmpX),@)
+if tmpX > 0 else
+Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*50)+75, 20,15,(dotColour with q is tuning[6-tmpY]+tmpX),@);
+
+}action stage5 {##Other Tunings
+#The Artiphon can be set to any tuning, by default the construal is set like a guitar (EADGBE)\:
+tuning_guitar = [40,45,50,55,59,64];
+tuning_violin = [17,24,31,38,45,52];
+#But it would be much more convenient if the user could just specify it in terms of letters like this\:
+tuning_violin = ["F1","C2","G2","D3","A3","E4"];
+#To achieve this, first we need to be able to extract the letters and numbers from the above elements
+letterFromLetterOctave is substr(LetterOctave,1,2) if substringPosition("#",LetterOctave) > 0 else substr(LetterOctave,1,1);
+octaveFromLetterOctave is int(substr(LetterOctave,3)) if substringPosition("#",LetterOctave) > 0 else int(substr(LetterOctave,2));
+#To get the MIDI note, we need to know it's position starting from C.
+letterList is ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+#Then we need to extract the letter and the octave and offset the note by 12 \* the number of octaves 
+letterToMIDINote is (positionInList(letterFromLetterOctave,letterList)-1)+12*(octaveFromLetterOctave);
+#Create a prototype for the ith element of the list
+convertTuning_i is letterToMIDINote with LetterOctave is t[i];
+#Create a list of converted notes
+convertTuning is convertTuning_i with i is 1..t#;
+#Now we can allow either the numerical or letterOctave method by checking which type setTuning is, and converting if necessary
+tuning is (convertTuning with t is setTuning) if isString(setTuning[1]) else setTuning;
+#Now we can set the tuning
+setTuning is tuning_guitar;
+#And now define a few more methods
+tuning_six_bass = ["B0","E1","A1","D2","G2","C3"];
+tuning_bass = ["E0","A0","D1","G1","B1","E2"];
+tuning_ukulele = ["G2","C2","G3","C3","E3","A3"];
+tuning_mandolin is tuning_violin;
+tuning_hawaiian_a = ["E2","A2","E3","A3","C#4","E4"];
+tuning_lap_steel = ["C1","E1","G1","A1","C2","E2"];
+tuning_ext_banjo = ["G4","B2","D3","G3","B3","D4"];
+tuning_open_a = ["E1","A1","C#2","E2","A2","C#3"];
+tuning_open_c = ["C1","G1","C2","G2","C3","E3"];
+tuning_dadgad = ["D1","A1","D2","G2","A2","D2"];
+tuning_open_e = ["E1","A1","E2","G#2","B2","E3"];
+tuning_open_g = ["D1","G1","D2","G2","B2","D3"];
+tuning_drop_d = ["D1","A1","D2","G2","B2","E3"];
+tuning_drop_c = ["C1","G1","C2","F2","A2","D3"];
+tuning_a_minor = ["A1","B1","C2","D2","E2","F2"];
+tuning_thirds = ["C2","E2","G2","B2","D3","F3"];
+tuning_fourths = ["E1","A1","D2","G2","C3","F3"];
+tuning_fifths = ["C1","G1","D2","A2","E3","B3"];
+
+setTuning is tuning_guitar;
+
+
+
+
+}action stage6 {##Grid Mode
+#The Artiphon's keys can also be arranged as a grid, which means that frets don't necessarily increment the tone. This will affect quite a lot of things, so I'll need to change a few things.
+mode = "string";
+mode = "grid";
+
+###Defining some discrete grid tunings
+#So far, tunings are only defined by the open string. In order to allow for tapped grid style tunings, I'll have to define each key separately.
+#Rather than specify the note names, I'll define some numbers and translate them.
+#The following calculates a 6 row chromatic scale starting from C and ending with B.
+base is b + 12 * (5-o);
+baseRow is base with b is 0..11;
+tuning_chromatic is baseRow with o is 0..5;
+
+setTuning is tuning_chromatic if mode == "grid" else tuning_guitar;
+
+###Open Strings - Revisited
+#It no longer makes sense to display the open strings, as they are only triggered by the buttons at the end of the instrument.
+
+xoffset is 5 if mode == "grid" else 75;
+#I can no longer calculate the tuning as a linear function of x. I now need to address the list directly.
+keytuning is tuning [string][fret] if mode =="grid" else tuning[string]+fret;
+
+key is fret_key if x > 0 else open_key;
+
+fret_key is
+Rectangle(xoffset+keywidth*(x-1),25+(y*50),keywidth,
+50,(keyColour_i with q is (keytuning with string is 7 - y, fret is x)),"black",lineProperties);
+
+open_key is 
+Circle(open_key_pos,25+(y*50)+keywidth/4,keywidth/4,
+(keyColour_i with q is keytuning with string is 7 -y, fret is x),"black",lineProperties);
+open_key_pos is xoffset+keywidth*12.5 if mode == "grid" else xoffset+keywidth*(x-1)+(keywidth/2);
+
+###A slight diversion to fix a bug
+#I've just noticed that the 12th fret has never been clickable. I need to redefine myX
+myX is rawX if (rawX <= 12 && rawX >= 0) else @;
+#However, if it's a grid mode, I'll need to enable the buttons on the right
+maxFret is 13 if mode == "grid" else 12;
+myX is rawX if (rawX <= maxFret && rawX >= 0) else @;
+
+###Back to the grid mode
+#I need to make sure the labels are shown in the bridge triggers\:
+
+label is Text(labelText,(xoffset+(keywidth*(x-0.5)) if x > 0 else (xoffset+(keywidth*(13-0.5)))),65+(50*(y+0.5)),(pressureSize with q is (keytuning with string is (7-y), fret is x)),
+(labelColour with q is tuning[6-y]+x),"center");
+
+#And to make sure the highlightDot backgrounds are shown in the right place
+highlightDot is 
+Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*50)+75, 30,15,(dotColour with q is (keytuning with string is (6-tmpY), fret is  tmpX)),@)
+if tmpX > 0 else
+Ellipse(xoffset+(keywidth*12.5), ((tmpY+0.5)*50)+75, 20,15,(dotColour with q is keytuning with string is (6-tmpY), fret is tmpX),@);
+
+
+
+#Now I can rewrite label to use the tuning\:
+labelText is noteName with noteNum is keytuning with string is (6-y), fret is x;
+label is gridLabel if mode == "grid" else fretKeyLabel; 
+
+fretKeyLabel is 
+Text(labelText,xoffset+(keywidth*(x-0.5)),65+(50*(y+0.5)),(pressureSize with q is keytuning with string is (6-y), fret is x),
+(labelColour with q is keytuning with string is (6-y), fret is x),"center");
+
+gridLabel is Text(labelText,(xoffset+(keywidth*(x-0.5)) if x > 0 else (xoffset+(keywidth*(13-0.5)))),65+(50*(y+0.5)),
+(pressureSize with q is keytuning with string is (6 - y), fret is x),
+(labelColour with q is keytuning with string is (6-y), fret is x),"center");
+
+#There's now a very confusing thing where the selectedNote is not being updated properly (it seems to be being assigned to a string/list instead. When I look at the observable list at hoveredNote, I can see a long list of numbers. This must be because of the new way of representing tunings, so I need to redefine hoveredNote
+hoveredNote is (keytuning with string is myY+1, fret is myX) if (mode =="grid") else (openY + myX);
+
+
+#I also need to redefine openY
+openY is keytuning with string is (6-myY), fret is 0;
+
+highlightDot is 
+Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*50)+75, 30,15,(dotColour with q is keytuning with string is (6-tmpY), fret is tmpX),@)
+if tmpX > 0 else
+Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*50)+75, 20,15,(dotColour with q is keytuning with string is (6-tmpY), fret is tmpX),@);
+
+}action stage7 {##Other Scales
+#Let's simplify the scale by making a pentatonic scale
+scale_major_pentatonic = [0,2,4,7,9];
+thisScale is scale_major_pentatonic;
+thisScale is majorScale;
+scale_minor_harmonic = [0,2,3,5,7,8,11,12];
+##Capo
+#We can adjust the capo too. The Artiphon allows the capo to adjust the fretboard by a multiple of semi-tones, or octaves. For the educational purposes of this construal, it's far more interesting to use the semi-tones capo, which will actually change the notes!
+#First, let's define a capo observable\:
+capo = 2;
+#Now let's change the way that notes are calculated\:
+keytuning is (setTuning [string][fret]+capo) if mode =="grid" else (setTuning[string]+fret+capo);
+#On the Artiphon, the capo is set and displayed near the bridge (the part where you strum/pick). to save space, I'll put the capo buttons at the top.
+capoLED is Circle(100+(30*x),25,10);
+capoIndicator is capoLED with x is 1..12;
+
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,fingerDot,noteDisplay,labels,capoIndicator];
+#In order to display the capoIndicator properly, we'll need a 12 element list\:
+capoLit is [true,false,false,false,false,false,false,false,false,false,false,false];
+#Now we can change the definition of capoLED to be filled if it's corresponding capoLit element is true
+capoLED is Circle(100+(30*x),25,10,"black" if capoLit[x] else @);
+#Now we need some way of automatically updating  capoLit when capo changes
+capoLit_i is (true if i <= capo else false) if capo >= 0 else (true if i > 12 + capo else false);
+capoLit is capoLit_i with i is 1..12;
+capoUpBtn is Button("capoUpBtn","Capo Up",480,25);
+capoDownBtn is Button("capoDownBtn","Capo Down",560,25);
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,capoDownBtn];
+when(capoUpBtn_click){
+	if(capo < 12)
+		capo = capo +1;
+}
+
+when(capoDownBtn_click){
+	if(capo > -12)
+		capo = capo -1;
+}
+##Fixing another bug
+#Now I can see that if I make capo negative, the top left keys become undefined.first - this must mean that I've labelled the keyboard mode upside down. I can confirm this by redefining label to add the octave.
+octaveFromMIDINum is floor(m / 12);
+labelText is (noteName with noteNum is keytuning with string is (6-y), fret is x) // octaveFromMIDINum with 
+m is keytuning with string is (6-y), fret is x;
+
+#This confirms that it's being drawn upside down (I want C0 in the bottom left). I need to redefine keytuning
+
+keytuning is (tuning [7 -string][fret]+capo) if mode =="grid" else (tuning[string]+fret+capo);
+
+##Tidying the logic up a bit!
+#There now seems to be quite a lot of confused statements - just look at keytuning, it's 7 - string if it's a grid tuning, but just string if it's a string tuning. This is clearly insane and a sign that I didn't plan this very well. It's all because the Y axis is calculated from top-to-bottom, but the tunings are indexed bottom-to-top.
+#A lot of things can be simplified if I change myY
+myY is 6 - rawY if (rawY < 6 && rawY >= 0) else @;
+
+#By searching for \".depends(myY)\" I can find the observables that depend on myY, and I can adjust their definitions accordingly
+
+fingerDot is Ellipse(xoffset+((myX-0.5)*keywidth), (((6 - myY)+0.5)*50)+75, 30,15,"pink");
+openY is keytuning with string is myY, fret is 0;
+hoveredNote is (keytuning with string is myY, fret is myX) if (mode =="grid") else (openY + myX);
+
+#However the drawable aspects (highlightDots, labels and keys) still have their own slight adjustments - some of them have y between 1 and 6, others have y between 0 and 5. The actual observable definitions for the individual parts adjust for this accordingly.
+
+}
+action stage8 {##Chords
+#I'm not entirely sure how this is going to work - I'd like to be able to display some basic chords in this, but I'm not sure how generic I'll be able to make it.
+#First let's define a major chord has having only three notes.
+majorChord is [0,4,7];
+thisChord is majorChord;
+#Now I can calculate whether a given note falls within a chord in a similar way to how I calculated whether the note is in the scale
+inChord_i is (q % 12) == (thisChord[i] % 12);
+
+#A note is in the chord if ANY of the above conditions are true from 1 - the length of the scale.
+inChord is sum(inChord_i with i is 1..thisChord#) > 0;
+
+keyColour_i is keyColours_possible[3] if inChord else keyColours_possible[1] if inScale else keyColours_possible[2];
+keyColours_possible is ["#00ff99","white","#0099ff"];
+
+mode = "string";
+#Chord notes are now highlighted in blue, but only for the chord of C. The next stage is to make the chord the root chord of the key, let's try\:
+inChord_i is ((q - rootNum) % 12 == (thisChord[i] % 12));
+#This works mostly, except for a few oddities (e.g., the A6 should be highlighted when D7 is selected. This is probably due to the problem of mod of negative numbers.
+inChord_i is ((myMod with t is (q-rootNum), m is 12) == thisChord[i]);
+#For some reason, there's still a problem with highlighting a root note below rootNum. For instance, if B7 is clicked, B6 will not be highlighted as a root note, or as a chord note although it will be shown in the scale. It's something to do with q - rootNum going negative, so let's try the absolute value.
+inChord_i is ((myMod with t is abs(q-rootNum), m is 12) == thisChord[i]);
+#This definition has a problem - everything below rootNum is wrong - so this is clearly not the correct definition. Let's extract the value that we're taking the mod of.
+#Effectively, the above definition can be replaced by the following 2 definitions.
+inChord_i is ((myMod with t is noteDiff, m is 12) == thisChord[i]);
+noteDiff is (q - rootNum) if q > rootNum else rootNum - q;
+#So this has the same problem as the previous definition of inChord_i, but if I add 12 to q and then take mod of 12, I can see what happens when q is forced to be above rootNum
+noteDiff is (q - rootNum) if q > rootNum else (q + 12 - rootNum ) % 12;
+#Which I can then simplify by always adding the 12 to q.
+inChord_i is ((myMod with t is (q+12 - rootNum), m is 12) == thisChord[i]);
+#Unfortunately, this definition is still flawed when clicking C9, because I'm only adding a single octave to q. I suppose I could find the difference between q and rootNum, then use this to calculate how many multiples of 12 I'd need to add to q before subtracting rootNum. However, the easiest way is to say that  as MIDI numbers only go to 127, I'd be safe to add 132 to allow for all 10 octaves to be used\:
+inChord_i is ((myMod with t is (q+132 - rootNum), m is 12) == thisChord[i]);
+#This seems to fix things quite well, and I also notice that the highlightDots aren't completely immune from this problem either. For instance, when clicking G7, G6 is not shown as a root. When I look at highlightDot, I realise that the colour depends on notePos, which has a similar problem to that explained above. So let's add 132 to q.
+notePos is positionInList((myMod with t is (q+132-rootNum), m is 12),thisScale);
+
+###A spelling mistake
+#The scale highlighting should be immune from this problem, but I've just noticed that I've managed to consistently misspell Twelfth - but octave is a better word anyway.
+afterOctave = true;
+beforeRoot = false;
+inScalei is ((q) % 12) == (scale[i] % 12) && ((q>= rootNum) || beforeRoot) && ((q<= (rootNum+12)) || afterOctave);
+#The blue highlighting of chords doesn't obey this octave filtering - we'll refine the way that chords are displayed in the next  few slides, but in the meantime let's at least allow for the capo
+inChord_i is ((myMod with t is (q +132 - rootNum), m is 12) == thisChord[i]);
+
+###This is complete nonsense - I thought I'd found a bug - ignore this section
+#I can see there's still a problem with the capo - for some reason the wrong notes are highlighted as inScale or inChord on the open string when there's a capo.
+open_key is 
+Circle(open_key_pos,25+(y*50)+keywidth/4,keywidth/4,
+(keyColour_i with q is keytuning with string is 7 -y, fret is x),"black",lineProperties);
+#For the open string, I'd expect fret to be 0, so let's replace the x with 0 and see if it helps
+open_key is 
+Circle(open_key_pos,25+(y*50)+keywidth/4,keywidth/4,
+(keyColour_i with q is keytuning with string is 7 -y, fret is 0),"black",lineProperties);
+#No that's still weird - to see the problem, try setting
+capo = 1;
+selNote = 84;
+#Note that D\# is shown as being in the scale, and A\# and F are both shown as being in the chord. I can't understand what the difference is here... It obviously thinks that A\# is either C, E or G, and that F is either C, E or G. It's more likely that the F is triggered instead of E because it's only 1 semitone difference. However, a 1 semitone difference makes no since because that would mean the A\# is representing a A, which shouldn't be highlighted anyway! 
+#If we suppose that the F actually represents a G - this would mean that the A\# represents a C, which makes sense. This also means the D\# highlighted as within the scale represents an F. Therefore, when the capo is set to 1, the offset of the open strings seems to be 2. When the capo is 2, all the open strings go white, just like the 9th fret - so F\# on the open string is equivalent to D\#, so when the capo is set to 2, the offset of the open strings seems to be 3.
+
+##Anyway, let's define some more chords.
+minorChord is [0,3,7];
+seventhChord is [0,4,7,10];
+majorSeventhChord is [0,4,7,11];
+minorSeventhChord is [0,3,7,10];
+
+thisChord is minorChord;
+thisChord is majorSeventhChord;
+thisChord is seventhChord;
+thisChord is majorChord;
+
+}action stage9 {##Fixing the inScale bug
+#There's still a problem with the visualisation of the scale - notice that when C7 is selected, A6 is not highlighted but G6 is. Let\'s simplify the colouring logic. We probably shouldn't have the beforeRoot or afterOctave considered within inScalei - that should be governed by the keyColour_i
+inScalei is (q % 12) == scale[i] % 12;
+#Then we can expand the logic of keyColour_i
+keyColour_i is keyColours_possible[2] if (q < selNote && !beforeRoot) 
+else keyColours_possible[2] if (q > selNote + 12 && !afterOctave) 
+else keyColours_possible[3] if inChord 
+else keyColours_possible[1] if inScale 
+else keyColours_possible[2];
+beforeRoot = true;
+thisChord is majorChord;
+
+
+
+##Allowing multiple chords per scale
+#So far, the blue highlighted chords are  only following the scale - the root of the chord is the same as the root of the scale. Or to put it another way, the blue only highlights chord I. It would be better if we could highlight all the available chords within a single scale. This will partly need an interface change, but first we can just add the background code for it.
+#The root of the chord is allowed for in  inChord_i by having a different rootNum. By default, rootNum is the same as selNote. But by changing the definition of inChord, the chord can be calculated based on an arbitrary root. So to highlight the F chord (no matter what the scale is)\:
+inChord is sum(inChord_i with i is 1..thisChord#, rootNum is 89 ) > 0;
+#Or more generally, we could highlight chord IV for every highlighted scale\:
+inChord is sum(inChord_i with i is 1..thisChord#, rootNum is selNote+5 ) > 0;
+#It would be great if we could have a slightly stronger view of the relationship between chords and scales - the illusion I want to create is that those keys that are both in the scale and in the chord have the chord indicator on top of the scale indicator - i.e., the blue is sitting on top of the green. Unfortunately, the way that keyColour_i is defined, only allows for a single colour per fret. Maybe by having a different colour when the chord coincides with the scale it would look more interesting\:
+keyColour_i is keyColours_possible[2] if (q < selNote && !beforeRoot) 
+else keyColours_possible[2] if (q > selNote + 12 && !afterOctave) 
+else keyColours_possible[4] if (inChord && inScale)
+else keyColours_possible[3] if inChord 
+else keyColours_possible[1] if inScale 
+else keyColours_possible[2];
+keyColours_possible = ["#991111","white","#33ccff","#85b8d6"];
+ #Now let's change to a seventhChord so that we can see a chord note that isn't in the scale.
+thisChord is seventhChord;
+inChord is sum(inChord_i with i is 1..thisChord#, rootNum is selNote ) > 0;
+#This is all far too cluttered and confusing - I think it would be better to introduce a different shape so that the background colour can still be seen. Something along the lines of highlightDot seems to be in order...
+chordDot is 
+Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*50)+75, 40,15,chordDotColour,@)
+if tmpX > 0 else
+Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*50)+75, 30,15,chordDotColour,@);
+chordDotColour is "#119911" if inChord with q is (tuning[6-tmpY] + tmpX + capo) else "";
+
+chordDots is chordDot with tmpX is 0..12, tmpY is 0..5;
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,capoDownBtn];
+#Now to simplify the main colours again\:
+keyColour_i is keyColours_possible[2] if (q < selNote && !beforeRoot) 
+else keyColours_possible[2] if (q > selNote + 12 && !afterOctave) 
+else keyColours_possible[1] if inScale 
+else keyColours_possible[2];
+
+#Now let's make it a bit easier to specify a chord - let's start by making sure we can view the entire grid, and setting the root of the scale to C\:
+beforeRoot = true;
+afterOctave = true;
+selNote = 0;
+
+#Now let\'s define the root of the chord as F, and redefine inChord to use it.
+chordRoot = 5;
+inChord is sum(inChord_i with i is 1..thisChord#, rootNum is chordRoot ) > 0;
+#Now let's define a sequence of chord - the famous C Am F G sequence\:
+chordList is [[0,majorChord],[9,minorChord],[5,majorChord],[7,seventhChord]];
+#I\'ll also have an observable that keeps track of which part of the sequence we\'re on
+chordSeqPos = 1;
+#Then we can have a dependency that changes the chordRoot and chord type depending on the position of the chord sequence
+chordRoot is chordList[chordSeqPos][1] + selNote;
+thisChord is chordList[chordSeqPos][2];
+#Then we can have a line that increments chordSeqPos
+chordSeqPos++;
+when(chordSeqPos){
+	if(chordSeqPos > chordList#){
+		chordSeqPos = 1;
+	}
+}
+
+thisScale = majorScale;
+###Example chord sequence
+#Based on \"Beyond Your Elsewhere\" by Paul McGrath for Warwick Fused VI
+#Set the key to F (could also do it in Dminor, but it's currently set to display major scale)
+selNote = 2;
+chordList is [[9,minorChord],[5,majorSeventhChord],[0,majorChord],[7,majorChord]];
+chordSeqPos = 1;
+
+
+
+}action page10 {##From Relative to Absolute
+#Actually it would be easier if the chords weren't relative to the scale.
+chordRoot is chordList[chordSeqPos][1];
+selNote is 0;
+chordSeqPos++;
+chordList is [[5,minorChord],[0,seventhChord]];}action page10 {}action stage10 {##Display chord type at the top
+#I want to show the name of the current chord at the top, but I need to associate each chord with a label. I'll do this with  a new naming scheme that refers to the previously defined chords:
+chord_major is ["",majorChord];
+chord_minor is ["m", minorChord];
+chord_7 is ["7", seventhChord];
+chord_maj7 is ["M7", majorSeventhChord];
+chordList is [[9,chord_minor],[0,chord_major],[5,chord_major],[7,chord_7]];
+chordSeqPos++;
+#But now I need to redefine thisChord to go just to the list of numbers that specify the chord:
+thisChord is chordList[chordSeqPos][2][2];
+thisChordType is chordList[chordSeqPos][2][1];
+chordDisplay is Text("Currently displayed chord: " // (noteName with noteNum = (rootNum + chordList[chordSeqPos][1])) // thisChordType,500, 0);
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,
+chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,capoDownBtn,chordDisplay];
+##Display scale name at the top
+#Similarly, it would be good to make it more obvious which scale is being highlighted, but I need to overwrite the scale_ observables with a name of the scale type\:
+scale_major is ["major", majorScale];
+scale_minor is ["minor", minorScale];
+scale_major_pentatonic = ["major pentatonic",[0,2,4,7,9]];
+scale_minor_harmonic = ["harmonic minor", [0,2,3,5,7,8,11,12]];
+thisScale is scale_major;
+inScale is sum(inScalei with i is 1..thisScale[2]#) > 0;
+scalei is (rootNum + thisScale[2][i]);
+scale is scalei with i is 1..thisScale[2]#;
+scaleDisplay is Text("Currently displayed scale: " // (noteName with noteNum = rootNum) // " " // thisScale[1],750, 20);
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,
+chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,capoDownBtn,chordDisplay,scaleDisplay];
+
+thisScale is scale_major_pentatonic;
+
+##Defining minor pentatonic
+pentatonic is [0,2,4,7,9];
+minor_pentatonic_i is pentatonic[i] +3 % 12;
+minor_pentatonic is minor_pentatonic_i with i is 1..5;
+scale_minor_pentatonic is ["minor pentatonic",minor_pentatonic];
+thisScale is scale_major_pentatonic;
+thisScale is scale_minor_pentatonic;
+
+
+
+}action page11 {##An interface for selecting chords
+#So far, the chords have to be changed via code, but it would be better if there was an interface to allow this.
+#The picture observable is quite long now, it would be simpler to put the interface in a separate observable\:
+selectionInterface is [chordTypeInterface];
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,
+chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,capoDownBtn,chordDisplay,scaleDisplay,selectionInterface];
+#We can embed the numerical value into the dropdown lists 'values'. However,  only strings can appear in a dropdownlist (because it is converted to an HTML string), so the actual value is just a comma separated string
+chordTypeInterface is DropDownList("chordTypeDrop",[[],chord_major[2],chord_minor[2],chord_7[2],chord_maj7,minorSeventhChord],["Select","Major","Minor","7","Maj7","m7"],680,0);
+#We can convert the comma separated string every time the value changes
+#First, we need to split the string into an array of 
+selChordTypeArray is splitString(chordTypeDrop_value,",");
+selChordInt is int(selChordTypeArray[i]);
+selChordIntArray is selChordInt with i is 1..selChordTypeArray#;
+thisChord is selChordIntArray;
+##An interface for selecting scales
+#Similalry, we can add a drop down to choose the scale type\:
+scaleDropDown is DropDownList("scaleTypeDrop",[[],scale_major[2],scale_minor[2],scale_major_pentatonic[2], scale_minor_pentatonic[2], scale_minor_harmonic[2]],["Select","Major","Minor","Major Pentatonic","Minor Pentatonic", "Minor Harmonic"],850,0);
+#Add the scale drop down to the interface
+selectionInterface is [chordTypeInterface, scaleDropDown];
+selScaleTypeArray is splitString(scaleTypeDrop_value,",");
+selScaleIntArray is selChordIntArray with selChordTypeArray is selScaleTypeArray;
+#Set thisScale to use the numeric version of the selected scale
+thisScale is ["selected",selScaleIntArray];
+##Choosing the root of the chord/scale
+#Now we need to provide an interface to choose the root of the scale or the chord. First let's define a button that will let us choose whether we want to select the root of the chord or the root of the scale.
+selModeScaleRoot = false;
+selChordOrScaleBtn is Button("Select " // ("Chord" if selModeScaleRoot else "Scale"),1000,0);
+selectionInterface is [chordTypeInterface, scaleDropDown, selChordOrScaleBtn];
+#Next we can make the button toggle between the selection of the chord root or the scale root
+when(selChordOrScaleBtn_click){
+	selModeScaleRoot = !selModeScaleRoot;
+}
+
+
+#Then we can change the behaviour of the  mouseDown action so that the chordRoot is shown if selModeScaleRoot is false.
+when(mouseDown){
+	if(mouseDown["y"] < 50){
+		startFret = floor((mouseDown["x"] - 25) / keywidth)+1;
+	}else{
+		if(selModeScaleRoot){
+			selNote = hoveredNote;
+		}else{
+			chordRoot = hoveredNote;
+		}
+	}
+}
+
+#However, at the moment, there are three when statements that are triggered when the mouse is clicked - so I need to disable the one that was defined on the first and third pages\:
+?(stage3 > .type(when))[enabled] = false;
+?(stage1 > .type(when))[enabled] = false;
+
+#Then we can make the chordDisplay show the chordRoot rather than the selNote (which only refers to the root of the scale)
+chordDisplay is Text("Currently displayed chord: " // (noteName with noteNum = chordRoot) // thisChordType,480, 0);
+
+}action stage12 {##Fret Markers
+#Let's now add fret markers so it's easier to see the numbers.
+fretmarker_i is Text(i,120+keywidth*(i-1),54,16,"white");
+fretmarkers is fretmarker_i with i is 1..12;
+#Then add it to the picture
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,
+chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,
+capoDownBtn,chordDisplay,scaleDisplay,selectionInterface,fretmarkers];
+fretmarker_colour is ["black","white"];
+#It would be better to the bottom of the picture too. By experimentation I can see that they are in the correct position if I add 325 to the offset (the six keys are 50 pixels high each) 
+fretmarker_i is Text(i,125+keywidth*(i-1),54+325,16,fretmarker_colour[1]);
+#We can show both top and bottom together by adding y into the with statement\:
+fretmarkers is fretmarker_i with i is 1..12, j is 0..1;
+fretmarker_i is Text(i,125+keywidth*(i-1),56+(325*j),16,(fretmarker_colour[1] if positionInList(i,[1,3,5,7,9,12]) > 0 else fretmarker_colour[2]),"center");
+#We can also show bold circles on the 1st, 3rd, 5th, 7th, 9th and 12th fret (to match the Artiphon)
+fretmarker_b is Circle(125+keywidth*(i-1),64+(325*j),10,fretmarker_colour[2]) if positionInList(i,[1,3,5,7,9,12]) > 0 else @;
+
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,
+chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,
+capoDownBtn,chordDisplay,scaleDisplay,selectionInterface,fretmarkers];
+fretmarker_highlights is fretmarker_b with i is 1..12,j is 0..1;
+fretmarkers is [fretmarker_highlights,fretmarker_i with i is 1..12, j is 0..1];
+
+##Colour Themes
+#So far, the colour scheme has shown a black border (like a black Artiphon), with white keys (even though all Artiphon keys are black). Let's redefine a few things so that we can simulate a white Artiphon and some black keys.
+keyColours_possible = ["#66ff66","black"];
+chordDotColour is "#119911" if inChord with q is (tuning[6-tmpY] + tmpX + capo) else labelColours_possible[2];
+labelColours_possible = ["white","black"];
+#By defining keyColours_possible (and other observables below) based on labelColours_possible, we can instantly change the colour scheme of the Artiphon
+keyColours_possible = ["#66ff66",labelColours_possible[2]];
+labelColour is labelColours_possible[1] if notePos > -1 else labelColours_possible[2];
+fretKeyLabel is 
+Text(labelText,xoffset+(keywidth*(x-0.5)),65+(50*(y+0.5)),(pressureSize with q is keytuning with string is (6-y), fret is x),
+(labelColour with q is keytuning with string is (6-y), fret is x),"center");
+externalGrid is Rectangle(0,50,1325,350,labelColours_possible[1],labelColours_possible[2]);
+fretmarker_colour is labelColours_possible;
+#So now, we can click on either\:
+labelColours_possible = ["black","white"];
+#Or
+labelColours_possible = ["white","black"];}action stage13 {##Adding MIDI input
+#To make this construal interactive, I can use the MIDI library
+require("MIDIDotJS");
+
+#To start the MIDI input, I just call the library's startMIDIInput function - although I need to wait for it to become available first.
+when(startMIDIInput){
+	startMIDIInput();
+}
+#The library will now automatically update the midiInputMessageCount whenever a message is received. When a message is received, the construal should fetch the message into another observable.
+when (midiInputMessageCount > 0) {
+	fetchMIDIMessage();
+}
+
+#According to the MIDI specification, the first byte contains the message type and the channel of the message, so to extract the channel and message type using a bit of maths\:
+firstByte is midiInputMessage[1];
+channel is (firstByte % 16) + 1;
+messageType is firstByte - channel + 1;
+#There are 16 MIDI channels, so we can initialise them all to be undefined at first
+notesOnChannels = [@,@,@,@,@,@,@,@,@,@,@,@,@,@,@,@];
+channelPressures = notesOnChannels;
+notesOn is notesOnChannels;
+
+#I'll call the second part of the message midiData
+midiData is midiInputMessage[2];
+#The value contains extra information about the MIDI message - for instance for note on, it represents a velocity.
+ value is midiInputMessage[3];
+#When the noteOn message is received, we should updated the selNote observable accordingly. Sometimes the noteOn message sends a value of 0, which means the note isn\'t being played, so we should count it as a noteOff
+when(messageType == 144 && value != 0){
+	curNote = midiInputMessage[2];
+	notesOnChannels[channel] = midiInputMessage[2];
+}
+
+#Similarly, when the noteOff is detected (or a noteOn with velocity of 0), we should reset the notesOnChannels to be undefined\:
+when((messageType == 128) || ((messageType == 144) && (value == 0))){
+	notesOnChannels[channel] = @;
+}
+
+#
+#Now, rather than have the finger dot appear when the mouse is hovered over, I'd like to show a finger dot whenever a note is playing\:
+fingerDot is Ellipse(xoffset+((myX-0.5)*keywidth), (((6 - myY)+0.5)*50)+75, 30,15,"pink");
+#But rather than redefine fingerDot, it would be easier to redefine keyColour_i
+keyColour_i is "red" if keyCurrent else keyColours_possible[1] if inScale else keyColours_possible[2];
+keyCurrent is q == curNote;
+labelColours_possible = ["white","black"];
+
+#Or more generally, it would be better to use notesOnChannels
+keyCurrent_i is q == notesOnChannels[i];
+keyCurrent is sum(keyCurrent_i with i is 1..16) > 0;
+#By defining keyColours_possible (and other observables below) based on labelColours_possible, we can instantly change the colour scheme of the Artiphon
+keyColours_possible = ["#66ff66",labelColours_possible[2]];
+
+
+
+}action page14 {##Adding some MIDI Pedals
+#I have a set of keyboard pedals (M-AUDIO SP-TRIPLE) that are connected to an Arduino. The pedals are effectively potentiometers that the Arduino can measure the voltage across (via a potential divider circuit), these go to the analogue inputs, and are then processed on the Arduino, before the equivalent (scaled) MIDI message is sent back by the Arduino (through the digital output pins), through a MIDI DIN cable and into my soundcard.
+#The pedals are mapped onto CC numbers 64,66,67 (which I chose and programmed into the Arduino, so that I could easily map them onto Sustain, Sostenuto and Soft respectively)
+
+#For the purpose of this construal, I want the scale to change when the Soft pedal is pressed
+when(messageType == 176 && midiData ==1){
+	modWheel = value;
+}
+#Now I want to perform an action when the modWheel value goes above 90. However if my when statement just says when modWheel is greater than 90, the action will trigger when it's 91, 92, 93 and so on. So I need some sort of flag to say whether or not the modWheel has been triggered or not.
+modWheelSeen = false;
+when(modWheel > 90){
+	modWheelHigh = true;
+}
+when(modWheel < 90){
+	modWheelHigh = false;
+	modWheelSeen = false;
+}
+#Change the root of the scale to the currently played note when the modWheel goes above 90
+when(modWheelHigh && !modWheelSeen){
+	selNote = curNote;
+	modWheelSeen = true;
+}
+
+}action page15 {##A melody game
+#Let's see if we can define a set of sequences to be highlighted. Imagine I want to highlight F5
+targNote = 65;
+isTarget is q == targNote;
+#Using a similar notation to how I highlighted the current note\:
+keyColour_i is "red" if keyCurrent else ("yellow" if isTarget else keyColours_possible[1] if inScale else keyColours_possible[2]);
+#Then I can define a list of notes that represent a tune\:
+song_twinkle = ["G3","G3","D4","D4","E4","E4","D4","C4","C4","B3","B3","A3","A3","G3"];
+blaydon = [62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 72, 72, 72, 72, 71, 71, 71, 71, 69, 71, 69, 67, 66, 62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 71, 72, 72, 72, 72, 71, 72, 74, 74, 72, 71, 69, 67, 67, 62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 72, 72, 72, 72, 71, 71, 71, 71, 69, 71, 69, 67, 66, 62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 71, 72, 72, 72, 72, 71, 72, 74, 74, 72, 71, 69, 67, 67, 74, 74, 74, 71, 67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 67, 71, 72, 72, 72, 72, 71, 71, 71, 71, 69, 71, 69, 67, 66, 62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 71, 72, 72, 72, 72, 71, 72, 74, 74, 72, 71, 69, 67, 67, 74, 74, 74, 71, 67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 67, 71, 72, 72, 72, 72, 71, 71, 71, 71, 69, 71, 69, 67, 66, 62, 67, 67, 67, 67, 67, 67, 67, 67, 69, 69, 69, 69, 71, 67, 71, 72, 72, 72, 72, 71, 72, 74, 74, 72, 71, 69, 67, 67];
+selectedSong = blaydon;
+selectedSong is convertTuning with t is song_twinkle;
+melodyPosition = 1;
+targNote is selectedSong[melodyPosition];
+melodyPosition++;
+#Whilst I think about it, I can add the ability to transpose the song by redifining letterToMIDINote\:
+letterToMIDINote is (positionInList(letterFromLetterOctave,letterList)-1)+12*(octaveFromLetterOctave) + (0 if transpose == @ else transpose);
+melodyTranspose = -12;
+selectedSong is convertTuning with t is song_twinkle, transpose is melodyTranspose;
+#Now I should automatically advance the melodyPosition when the curNote changes
+when(curNote != @){
+	score = (score + 1) if (curNote == targNote) else score - 1;
+	melodyPosition is melodyPosition + 1 if melodyPosition < selectedSong# else 1;
+}
+#Now I can have a score too\:
+score = 0;
+
+#Actually, things are still very slow, particularly when a scale is being displayed - I wonder if it's because the keyColours have to be re-evaluated every time the targNote changes (and the current Note). I'm going to attempt to solve this by resetting keyColour_i to not depend on the target or keyCurrent.
+keyColour_i is keyColours_possible[1] if inScale else keyColours_possible[2];
+#Then I'm going to make a new type of indicator.
+
+noteIndicator_i is Ellipse(noteIndicatorPosX,noteIndicatorPosY,30,15,noteIndicatorColour);
+#I can make a noteIndicator for each string
+noteIndicator is noteIndicator_i with i is 1..6;
+#However, now I need to do the opposite of keytuning - I know the number of the note (targNote), but I want to know the X,Y co-ordinates of the note so that I can put something there.
+#Recall that keytuning will let me do something like this to find the note number at a particular string/fret combination
+ni_xy is keytuning with fret is 2,string is 6; 
+#But I also know that the tuning observable is a list of open strings, so I can find the number of semitones between the target note (q) and the open string
+diffOnString is q - tuning[string];
+posOnString is (diffOnString) if diffOnString > 0 && diffOnString <= 12 else -1; 
+#For instance, the position of MIDI note 44 on string 1 is given by\:
+posString144 is posOnString with q is 44, string is 1;
+#Therefore to find the position of note q on each string we can write\:
+pos_all_Strings_q is posOnString with string is 1..6;
+#So to obtain a list of the position of the note on each string,  we can say\:
+pos_targNote is pos_all_Strings_q;
+#which will give a list that represents the fret that the note appears on for each string, so that the x position of the note indicators can be calculated
+noteIndicatorPosX is (pos_targNote with q is targNote)[i]*keywidth + xoffset - (keywidth / 2);
+noteIndicatorPosY is 50+(7-i)*50;
+noteIndicatorColour is "yellow";
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,
+chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,
+capoDownBtn,chordDisplay,scaleDisplay,selectionInterface,fretmarkers,noteIndicator];
+
+
+##Extending the pos_targNote
+#By joining lots of pos_targNote observables together, I can highlight more than one note at a time\:
+pos_targNote_i is pos_all_Strings_q with q is targNotes[i];
+pos_targNote_all is pos_targNote_i with i is 1..targNotes#;
+#
+#My old definition of noteIndicatorPos was overriding q to by targNote, but I want it to be more generic now\:
+noteIndicatorPosX is (pos_targNote)[i]*keywidth + xoffset - (keywidth / 2);
+#I've also noticed I haven't taken the capo into account, so I'll do that with this definition
+noteIndicator_k is noteIndicator with q is targNotes[k] - capo;
+allNoteIndicators is noteIndicator_k with k is 1..targNotes#;
+targNotes is [49,52,55];
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,
+chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,
+capoDownBtn,chordDisplay,scaleDisplay,selectionInterface,fretmarkers,allNoteIndicators];
+}action page16 {##Improving the Melody Game
+do @external .id(254) >> :(includeABCJS,readABCMIDI);
+includeABCJS();
+tuneABC = <<END
+X:1
+T:Ode to Joy
+C:L. Van Beethoven
+M:4/4
+L:1/4
+K:G
+B B c d | d c B A | G G A B | B>A A2 |
+B B c d | d c B A | G G A B | A>G G2 |:
+A A B G | A B/2c/2 B G | A B/2c/2 B A | G A D2 |
+B B c d | d c B A | G G A B | A>G G2 :|
+END;
+when(plugins_abc_loaded){
+	tuneMIDI = readABCMIDI(tuneABC);
+	do restartMusic;
+}
+	tuneMIDI_i is tuneMIDI[i];
+	tuneMIDI_eventData_i is (tuneMIDI_i)[1]["event"];
+	timeMap_i is [(tuneMIDI_i)[1]["ticksToEvent"],(tuneMIDI_eventData_i)["subtype"],(tuneMIDI_eventData_i)["noteNumber"],(tuneMIDI_eventData_i)["velocity"]];
+	timeMap is timeMap_i with i is 1..tuneMIDI#;
+	timeMap_i is [
+	(tuneMIDI_i)[1]["ticksToEvent"]
+	+((timeMap_i with i is i -1)[1] if (i > 1) else 0),
+	(tuneMIDI_eventData_i)["subtype"],
+	(tuneMIDI_eventData_i)["noteNumber"],
+	(tuneMIDI_eventData_i)["velocity"]
+	];
+noteOn_i = 0;
+emptyNoteOns is noteOn_i with i is 1..127;
+
+action restartMusic{
+	tick = 0;
+	nextMessageNum = 1;
+	noteOns = emptyNoteOns;
+}
+do restartMusic;
+musicTick is tick*12;
+
+do lib > clocks;
+setedenclock(&tick,10);
+removeedenclock(&tick);
+nextMessage is timeMap_i with i is nextMessageNum;
+
+nextEventTick is (timeMap_i with i is nextMessageNum)[1];
+when(musicTick > nextEventTick){
+	do callEvent;
+	nextMessageNum++;
+}
+when(nextEventTick == @){
+	do restartMusic;
+}
+allMessages = [];
+noteOn_i = 0;
+noteOns = noteOn_i with i is 1..127;
+noteOnCheck_i is i if noteOns[i] > 0 else @;
+noteOnCheck is noteOnCheck_i with i is 1..127; 
+action callEvent{
+	if(nextMessage[2] == "noteOn"){
+		noteOns[nextMessage[3]+melodyTranspose] = nextMessage[4];
+	}
+	if(nextMessage[2] == "noteOff"){
+		noteOns[nextMessage[3]+melodyTranspose] = 0;
+	}
+} 
+targNotes is noteOnCheck;}action page17 {##Changing the Tuning with an interface
+#Just as there's an interface for the scale and chord, it would be good to have an interface that allows for the instrument to be quickly changed, similar to the drop down menus for chord and scale selection.
+tuningDropDown is DropDownList("tuningDrop",[1,2,3,4,5,6,7,8],["Guitar","Violin","Bass","Ukulele","Mandolin","Banjo","Drop D","Piano"],1150,0);
+selTuningIndex is int(tuningDrop_value);
+selTuningOptions is [tuning_guitar,tuning_violin,tuning_bass,tuning_ukulele,tuning_mandolin,tuning_ext_banjo,tuning_drop_d,tuning_piano];
+setTuning is selTuningOptions[selTuningIndex];
+
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,
+chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,
+capoDownBtn,chordDisplay,scaleDisplay,selectionInterface,fretmarkers,tuningDropDown,allNoteIndicators];
+
+##Changing the number of strings
+#Although the Artiphon has 6 rows of strings, I'd like to make it possible to change the number of strings so that the diagram can be used to illustrate other instruments too.
+#Unfortunately, most things have been defined using a fixed value of '6', let's change these now. Whilst I'm here, I might as well change some other fixed values in case I need to change them later.
+numStrings = 6;
+numFrets is 12;
+keyHeight = 50;
+yoffset = 75;
+minFret = 0;
+strings is string with y is numStrings;
+keys is key with x is minFret..numFrets, y is 1..numStrings;
+highlightDots is highlightDot with tmpX is minFret..numFrets,tmpY is 0..(numStrings -1);
+chordDots is chordDot with tmpX is minFret..numFrets, tmpY is 0..(numStrings -1);
+labels is label with x is minFret..numFrets,y is minFret..(numStrings -1);
+fingerDot is Ellipse(xoffset+((myX-0.5)*keywidth), (((numStrings - myY)+0.5)*keyHeight)+75, 30,15,"pink");
+myY is numStrings - rawY if (rawY < numStrings && rawY >= 0) else @;
+noteIndicator is noteIndicator_i with i is 1..numStrings;
+noteIndicatorPosY is keyHeight+((numStrings+1)-i)*keyHeight;
+fret_key is Rectangle(xoffset+keywidth*(x-1),25+(y*keyHeight),keywidth,keyHeight,(keyColour_i with q is (keytuning with string is (numStrings+1) - y, fret is x)),"black",lineProperties);
+rawY is floor((mouseY - 75) / keyHeight);
+noteIndicatorPosY is keyHeight+((numStrings+1)-i)*keyHeight;
+chordDot is 
+(Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+75, 40,15,chordDotColour,@)
+if tmpX > 0 else
+Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+75, 30,15,chordDotColour,@));
+#Whilst I'm here, I can modify chordDotColour to be the colour of the keyColour if it's not highlighted
+chordDotColour is "#119911" if inChord with q is (tuning[numStrings-tmpY] + tmpX + capo) else keyColour;
+labelText is (noteName with noteNum is keytuning with string is (numStrings-y), fret is x) // octaveFromMIDINum with m is keytuning with string is (numStrings-y), fret is x;
+keyColour is "blue" if q == rootNum else ("red" if (withinRange && (inScale with q is tuning[numStrings-y]+x)) else "black");
+#I can also probably simplify keyColour now to override the above definition
+keyColour is keyColour_i with q is (keytuning with string is (numStrings+1) - y, fret is x);
+#Which makes the next line much simpler\:
+fret_key is Rectangle(xoffset+keywidth*(x-1),25+(y*keyHeight),keywidth,keyHeight,keyColour,"black",lineProperties);
+labels is label with x is minFret..numFrets,y is 0..(numStrings -1);
+internalGrid is Rectangle(xoffset,yoffset,(keywidth*numFrets),numStrings*keyHeight,"white");
+outerYoffset = 50;
+externalGrid is Rectangle(0,outerYoffset,book_width,outerYoffset+numStrings*keyHeight,labelColours_possible[1],labelColours_possible[2]);
+string is Line(xoffset,outerYoffset+(y*keyHeight),25+keywidth*numFrets,outerYoffset+(y*keyHeight),"#999999",stringProperties);
+dotWidth is 30;
+dotHeight is 15;
+fingerDot is Ellipse(xoffset+((myX-0.5)*keywidth), (((numStrings - myY)+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,"pink");
+rawY is floor((mouseY - yoffset) / keyHeight);
+highlightDot is Ellipse(xoffset+((tmpX-0.5)*keywidth), 
+((tmpY+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,(dotColour with q is keytuning with string is (numStrings-tmpY), fret is tmpX),@) 
+if tmpX > 0 else Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth -10,dotHeight, 
+(dotColour with q is keytuning with string is (numStrings-tmpY), fret is tmpX),@);
+
+fret_key is Rectangle(xoffset+keywidth*(x-1),(75+((y-1)*keyHeight)),keywidth, keyHeight,(keyColour_i with q is (keytuning with string is (numStrings+1) - y, fret is x)),"black",lineProperties);
+open_key is Circle(open_key_pos,((y+0.5)*50)+keywidth/4,keywidth/4,(keyColour_i with q is keytuning with string is (numStrings+1) -y, fret is 0),"black",lineProperties);
+keytuning is (tuning [(numStrings+1) -string][fret]+capo) if mode =="grid" else (tuning[string]+fret+capo);
+#I'm not currently sure what the 12.5 is there for - I need to remind myself what grid mode does soon!
+open_key_pos is xoffset+keywidth*12.5 if mode == "grid" else xoffset+keywidth*(x-1)+(keywidth/2);
+#Again, there are some things in the following definition that may need changing
+gridLabel is Text(labelText,(xoffset+(keywidth*(x-0.5)) 
+if x > 0 else (xoffset+(keywidth*(13-0.5)))),65+(50*(y+0.5)),
+(pressureSize with q is keytuning with string is (numStrings - y), fret is x),
+(labelColour with q is keytuning with string is (numStrings-y), fret is x),"center");
+#Not too sure where the 65 in the following definition comes from
+fretKeyLabel is Text(labelText,xoffset+(keywidth*(x-0.5)),
+65+(keyHeight*(y+0.5)),(pressureSize with q is keytuning with string is (numStrings-y), fret is x),
+(labelColour with q is keytuning with string is (numStrings-y), fret is x),"center");
+chordDot is Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth+10, dotHeight,chordDotColour,@) if tmpX > 0 
+else Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,chordDotColour,@);
+chordDot is @;
+
+chordDot is (Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth+10, dotHeight,chordDotColour,@) if tmpX > 0 
+else Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,chordDotColour,@)) if chordDotColour else @;
+
+chordDotColour is "#119911" if inChord with q is (tuning[numStrings-tmpY] + tmpX + capo) else labelColours_possible[2];
+
+fretmarker_i is Text(i,125+keywidth*(i-1),56+((numStrings*keyHeight +25)*j),16,
+(fretmarker_colour[1] if positionInList(i,[1,3,5,7,9,12]) > 0 else fretmarker_colour[2]),"center");
+fretmarker_b is Circle(125+keywidth*(i-1),64+((numStrings*keyHeight +25)*j),10,fretmarker_colour[2]) if positionInList(i,[1,3,5,7,9,12]) > 0 else @;
+fretmarker_highlights is fretmarker_b with i is 1..numFrets,j is 0..1;
+noteIndicator_i is Ellipse(noteIndicatorPosX,noteIndicatorPosY,dotWidth,dotHeight,noteIndicatorColour);
+#Not sure whether the following definition is right - presumably it should be \<= numFrets, but maybe it doesn't matter as this will have covered an entire octave anyway
+posOnString is (diffOnString) if diffOnString > 0 && diffOnString <= numFrets else -1;
+pos_all_Strings_q is posOnString with string is 1..numStrings;
+externalGrid is Rectangle(0,outerYoffset,book_width, extGridHeight, labelColours_possible[1], labelColours_possible[2]);
+extGridHeight is outerYoffset+numStrings*keyHeight;
+internalGrid is Rectangle(xoffset,yoffset,(keywidth*numFrets),numStrings*keyHeight,"white","black");
+numStrings =4;
+#However, this only selects the bottom 4 strings - for a ukulele, it should be the top 4 strings - probably best just to redefine the ukulele tuning
+tuning_ukulele = ["G3","C3","E3","A3"];
+
+
+##Making a piano
+#Let's consider the case of only 1 string - maybe we can make a piano out of this.  First we'll make the piano start at C
+tuning_piano = [47,47,47,47,47,47];
+#There are going to be a few fairly drastic changes here - so let's do them all in an action, then I can make another action to reverse the changes.
+#(Edit\: I've just realised I don\'t think I can override actions, so I'm going to call this makePiano1, on subsequent pages I may revisit these actions but give them slightly different names)
+action makePiano1{
+numStrings = 1;
+numFrets = 25;
+minFret = 1;
+maxFret is numFrets;
+keywidth is (book_width - 100) / numFrets;
+dotWidth is keywidth / 4;
+keyHeight = 200;
+#Hide the horizontal screen line
+string is @;
+#Now let's consider most of these keys are white.
+keyColour is keyColour_i with q is (keytuning with string is (numStrings+1) - y, fret is x);
+keyColour_i is pianoColour if (q < selNote && !beforeRoot) 
+else pianoColour if (q > selNote + 12 && !afterOctave) 
+else (keyColours_possible[1] if pianoColour == "white" else labelColours_possible[3]) if inScale 
+else pianoColour;
+highlightDot is @;
+chordDot is Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.8)*keyHeight)+yoffset, dotWidth+10, dotHeight,chordDotColour,@) if chordDotColour else @;
+labelColours_possible = ["white","black","#000066"];
+
+q_k is (keytuning with string is (numStrings+1) - y, fret is x);
+pianoColour is "black" if key_x_black else "white";
+#But some of them are black.
+key_x_black is (xmod12 == 1) || (xmod12 == 3) || (xmod12 == 6) || (xmod12 == 8) || (xmod12 == 10);
+xmod12 is q_k % 12;
+keyHeight is 100 if key_x_black else 200;
+}
+
+
+
+do makePiano;
+#Some of those changes are probably worth keeping such as
+keywidth is (book_width - 100) / numFrets;
+dotWidth is keywidth / 4;
+
+action makeArtiphon1{
+numStrings = 6;
+numFrets = 12;
+chordDot is (Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth+10, dotHeight,chordDotColour,@) if tmpX > 0 
+else Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,chordDotColour,@)) if chordDotColour else @;
+highlightDot is Ellipse(xoffset+((tmpX-0.5)*keywidth), 
+((tmpY+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,(dotColour with q is keytuning with string is (numStrings-tmpY), fret is tmpX),@) 
+if tmpX > 0 else Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth -10,dotHeight, 
+(dotColour with q is keytuning with string is (numStrings-tmpY), fret is tmpX),@);
+
+minFret = 0;
+maxFret is numFrets;
+keyColour_i is keyColours_possible[2] if (q < selNote && !beforeRoot) 
+else keyColours_possible[2] if (q > selNote + 12 && !afterOctave) 
+else keyColours_possible[1] if inScale 
+else keyColours_possible[2];
+labelColours_possible = ["white", "black"];
+keyHeight = 50;
+string is Line(xoffset,outerYoffset+(y*keyHeight),25+keywidth*numFrets,outerYoffset+(y*keyHeight),"#999999",stringProperties);
+}
+
+do makeArtiphon;
+
+
+}action page18 {##Making things a bit quicker
+#Although it's quite convenient to be able to say "with string is...", I can probably speed things up by pre-caching things
+#I can represent the MIDI value of every note by saying\:
+MIDIFretboard is (keytuning with fret is 0..numFrets) with string is 1..numStrings;
+hoveredNote is MIDIFretboard[myY][myX+1];
+labelText is (noteName with noteNum is MIDIFretboard[(numStrings-y)][x+1]) // octaveFromMIDINum with m is MIDIFretboard[numStrings - y][x+1];
+fret_key is Rectangle(xoffset+keywidth*(x-1),(75+((y-1)*keyHeight)),keywidth, keyHeight,(keyColour_i with q is (MIDIFretboard[numStrings+1 - y][x+1])),"black",lineProperties);
+NoteNames is noteName with noteNum is 0..127;
+noteDisplay is Text((NoteNames[selNote+1]),0,0);
+chordDisplay is Text("Currently displayed chord: " // (NoteNames[chordRoot+1]) // thisChordType,480, 0);
+labelText is (NoteNames[MIDIFretboard[(numStrings-y)][x+1]+1]) // octaveFromMIDINum with m is MIDIFretboard[numStrings - y][x+1];
+scaleDisplay is Text("Currently displayed scale: " // (NoteNames[rootNum+1]) // " " // thisScale[1],750, 20);
+
+
+inScalei is (q_s % 12) == scale[i] % 12;
+inScale is sum(inScalei with i is 1..thisScale[2]#) > 0;
+scalei is (rootNum + thisScale[2][i]);
+scale is scalei with i is 1..thisScale[2]#;
+inScaleFull is inScale with q_s is 1..127;
+
+keyColour_i is keyColours_possible[2] if (q < selNote && !beforeRoot) 
+else keyColours_possible[2] if (q > selNote + 12 && !afterOctave) 
+else keyColours_possible[1] if inScaleFull[q]
+else keyColours_possible[2];
+
+action makePiano{
+xoffset = 0;
+numStrings = 1;
+numFrets = 25;
+minFret = 1;
+maxFret is numFrets;
+keywidth is (book_width - 100) / numFrets;
+dotWidth is keywidth / 4;
+keyHeight = 300;
+#Hide the horizontal string line
+string is @;
+#Now let's consider most of these keys are white.
+keyColour is keyColour_i with q is (keytuning with string is (numStrings+1) - y, fret is x);
+
+keyColour_i is pianoColour if (q < selNote && !beforeRoot) 
+else pianoColour if (q > selNote + 12 && !afterOctave) 
+else (keyColours_possible[1] if pianoColour == "white" else labelColours_possible[3]) if inScaleFull[q]
+else pianoColour;
+
+highlightDot is @;
+chordDot is Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.8)*keyHeight)+yoffset, dotWidth+10, dotHeight,chordDotColour,@) if chordDotColour != "black" else @;
+labelColours_possible = ["white","black","#006600"];
+outerYoffset =50;
+q_k is (keytuning with string is (numStrings+1) - y, fret is x);
+pianoColour is "black" if key_x_black else "white";
+#But some of them are black.
+key_x_black is (xmod12 == 1) || (xmod12 == 3) || (xmod12 == 6) || (xmod12 == 8) || (xmod12 == 10);
+xmod12 is q_k % 12;
+lineProperties is Object("lineWidth",1,"cap",1);
+keyHeight is 100 if key_x_black else 200;
+}
+do makePiano;
+
+action makeArtiphon{
+xoffset=75;
+numStrings = 6;
+numFrets = 12;
+lineProperties is Object("dashes",[1,16],"lineWidth",1,"cap",1);
+chordDot is (Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth+10, dotHeight,chordDotColour,@) if tmpX > 0 
+else Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,chordDotColour,@)) if chordDotColour else @;
+highlightDot is Ellipse(xoffset+((tmpX-0.5)*keywidth), 
+((tmpY+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,(dotColour with q is keytuning with string is (numStrings-tmpY), fret is tmpX),@) 
+if tmpX > 0 else Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth -10,dotHeight, 
+(dotColour with q is keytuning with string is (numStrings-tmpY), fret is tmpX),@);
+minFret = 0;
+maxFret is numFrets;
+keyColour_i is keyColours_possible[2] if (q < selNote && !beforeRoot) 
+else keyColours_possible[2] if (q > selNote + 12 && !afterOctave) 
+else keyColours_possible[1] if inScaleFull[q]
+else keyColours_possible[2];
+labelColours_possible = ["white", "black"];
+keyHeight = 50;
+string is Line(xoffset,outerYoffset+(y*keyHeight),25+keywidth*numFrets,outerYoffset+(y*keyHeight),"#999999",stringProperties);
+}
+
+do makeArtiphon;
+
+#Let's make the tuning selection box determine the display type\:
+when(selTuningIndex){
+	if(selTuningIndex == 8)
+		do makePiano;
+	else
+		do makeArtiphon;
+}}action page19 {##Flipping the visualisation
+#It would be nice to be able to show the whole thing upside down
+#The obvious first step is to change the tuning (although of course the Artiphon can automatically flip tuning, for left handed playing)\:
+tuningInverted = false;
+invertTuning is reverse(a) if tuningInverted else a;
+{
+tuning is (invertTuning with a is (convertTuning with t is setTuning)) if isString(setTuning[1]) else (invertTuning with a is setTuning);
+}
+#But the next two steps are to move the open string 'keys' to the right, and to label the frets from right to left, this will be governed by a leftHanded observable\:
+leftHanded = true;
+#The easiest way of doing this is to redefine key\:
+{
+key is fret_key if (x < maxFret && leftHanded || (x > 0 && !leftHanded)) else open_key;
+MIDIFretboard is (reverse(keytuning with fret is 0..numFrets)) with string is 1..numStrings if leftHanded else
+(keytuning with fret is 0..numFrets) with string is 1..numStrings;
+rightMIDIFretboard is (keytuning with fret is 0..numFrets) with string is 1..numStrings;
+leftMIDIFretboard is reverse(keytuning with fret is 0..numFrets) with string is 1..numStrings;
+MIDIFretboard is rightMIDIFretboard if !leftHanded else leftMIDIFretboard;
+}
+#Then we can add interface controls to control both invertTuning
+{
+invertTuningCheckbox is Checkbox("Invert Tuning",1100,20);
+leftHandedCheckbox is Checkbox("Left Handed",1000,20);
+leftHanded is leftHandedCheckbox_checked;
+tuningInverted is invertTuningCheckbox_checked;
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,
+chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,
+capoDownBtn,chordDisplay,scaleDisplay,selectionInterface,fretmarkers,tuningDropDown,allNoteIndicators,invertTuningCheckbox,leftHandedCheckbox];
+}
+#Although this has now broken the noteIndicator, because the noteIndicator uses\:
+{
+diffOnString is q - tuning[string];
+posOnString is (diffOnString) if diffOnString > 0 && diffOnString <= 12 else -1;
+noteIndicatorPosX is (pos_targNote)[i]*keywidth + xoffset - (keywidth / 2);
+#I can correct this by saying\:
+noteIndicatorPosX is (12-(pos_targNote)[i])*keywidth + xoffset - (keywidth / 2);
+#which will work when left handed is ticked, but not when it's not, so I need to use an if statement\:
+noteIndicatorPosX is (pos_targNote)[i]*keywidth + xoffset - (keywidth / 2) if !leftHanded else (maxFret-(pos_targNote)[i])*keywidth + xoffset - (keywidth / 2);
+#And now I've noticed I have the same problem with chordDots (and presumably highlightDot)\:
+#I should make things slightly easier to read by saying\:
+chordDotX is xoffset + ((tmpX - 0.5)*keywidth);
+chordDot is (Ellipse(chordDotX, ((tmpY+0.5)*keyHeight)+yoffset, dotWidth+10, dotHeight,chordDotColour,@) if tmpX > 0 
+else Ellipse(chordDotX, ((tmpY+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,chordDotColour,@)) if chordDotColour else @;
+highlightDot is Ellipse(chordDotX, 
+((tmpY+0.5)*keyHeight)+yoffset, dotWidth,dotHeight,(dotColour with q is keytuning with string is (numStrings-tmpY), fret is tmpX),@) 
+if tmpX > 0 else Ellipse(xoffset+((tmpX-0.5)*keywidth), ((tmpY+0.5)*keyHeight)+yoffset, dotWidth -10,dotHeight, 
+(dotColour with q is keytuning with string is (numStrings-tmpY), fret is tmpX),@);
+#Then I can simplify chordDotX and allow for leftHanded with\:
+chordDotX is xoffset + ((tmpX - 0.5)*keywidth) if !leftHanded else xoffset + ((maxFret -tmpX)-0.5)*keywidth;
+}
+#I've also noticed the fretmarkers aren't working at the moment - but I'm also keen to find out why the noteIndicators are only displayed in Guitar mode.
+
+}action page20 {##Adding sound
+#Let's add some sound
+bindMIDINote("finger");
+finger_velocity is 80;
+finger_note is targNotes[1] -20;
+do restartMusic;
+musicPlay is Checkbox("Play Music",120,30);
+musicRestart is Button("Restart Music", 0,30);
+musicControls is [musicPlay,musicRestart];
+when(musicRestart_click == true){
+	do restartMusic;
+}
+when(musicPlay_checked != @){
+	if(musicPlay_checked)
+		setedenclock(&tick,10);
+	else
+		removeedenclock(&tick);
+}
+picture is [externalGrid,internalGrid, keys,strings,highlightDots,
+chordDots,fingerDot,noteDisplay,labels,capoIndicator,capoUpBtn,
+capoDownBtn,chordDisplay,scaleDisplay,selectionInterface,fretmarkers,tuningDropDown,allNoteIndicators,invertTuningCheckbox,
+leftHandedCheckbox,musicControls];
+melodyTranspose = -12;}

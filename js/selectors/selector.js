@@ -367,6 +367,8 @@ Eden.Selectors.parse = function(s, opts) {
 
 	if (!s || s == "") return;
 
+	s = s.trim();
+
 	while (s.length > 0 && s.charAt(0) == "@") {
 		if (!options) options = {};
 		s = s.substring(1);

@@ -1,0 +1,2389 @@
+/**
+ * @title Start Your Model
+ */
+action start {/* Enter some script here */
+import Layouts > book;
+do book;
+
+do grid;
+do puzzle4;
+do possibilities;
+
+do @external .id(158) > keyboard;
+
+pages = ["intro"];
+}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+if (jseden_project_mode != "safe") do :project > start;
+else createView("safemode","ScriptInput");
+
+action ACTIVE {
+jseden_project_title = "Sudoku";
+views_number_created = 1;
+jseden_autosave = false;
+jseden_leaveprompt = false;
+jseden_menu_visible = false;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+plugins_html_loaded = true;
+mouseVelocity = Point(0, 0);
+jseden_project_name = "Sudoku";
+jseden_project_thumb = "data:image/png;base64,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";
+jseden_project_author = "Nicolas Pope";
+autocalc=1;
+views_list = ["bookpic", "scriptinput1"];
+pages = ["intro"];
+picture is cells // cell_labels // [Rectangle(grid_x-1,grid_y-1,grid_width+2,grid_height+2)];
+view_bookpic_visibility = "visible";
+view_bookpic_title = "Canvas bookpic";
+view_bookpic_content is bookpic;
+view_bookpic_background_colour = "white";
+view_bookpic_scale = 1;
+view_bookpic_offset = Point(0, 0);
+view_bookpic_canvas_right = @;
+view_bookpic_canvas_bottom = @;
+view_bookpic_grid_visible = false;
+view_bookpic_grid_spacing = 20;
+view_bookpic_type = "Canvas2D";
+letters = ["a","b","c","d","e","f","g","h","i"];
+grid_a1_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_a1 is "";
+grid_a2_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_a2 is "";
+grid_a3_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_a3 is "";
+grid_a4_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_a4 is "";
+grid_a5_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_a5="5";
+grid_a6_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_a6 is "";
+grid_a7_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_a7="6";
+grid_a8_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_a8 is "";
+grid_a9_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_a9 is "";
+grid_b1_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_b1 is "";
+grid_b2_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_b2="2";
+grid_b3_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_b3 is "";
+grid_b4_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_b4="4";
+grid_b5_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_b5 is "";
+grid_b6_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_b6 is "";
+grid_b7_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_b7 is "";
+grid_b8_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_b8="7";
+grid_b9_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_b9 is "";
+grid_c1_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_c1="1";
+grid_c2_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_c2="";
+grid_c3_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_c3="3";
+grid_c4_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_c4 is "";
+grid_c5_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_c5 is "";
+grid_c6_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_c6 is "";
+grid_c7_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_c7="8";
+grid_c8_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_c8 is "";
+grid_c9_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_c9 is "";
+grid_d1_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_d1 is "";
+grid_d2_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_d2 is "";
+grid_d3_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_d3 is "";
+grid_d4_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_d4 is "";
+grid_d5_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_d5 is "";
+grid_d6_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_d6="1";
+grid_d7_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_d7 is "";
+grid_d8_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_d8="9";
+grid_d9_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_d9 is "";
+grid_e1_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_e1="9";
+grid_e2_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_e2 is "";
+grid_e3_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_e3 is "";
+grid_e4_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_e4 is "";
+grid_e5_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_e5 is "";
+grid_e6_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_e6 is "";
+grid_e7_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_e7 is "";
+grid_e8_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_e8 is "";
+grid_e9_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_e9="1";
+grid_f1_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_f1 is "";
+grid_f2_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_f2="8";
+grid_f3_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_f3 is "";
+grid_f4_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_f4="6";
+grid_f5_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_f5 is "";
+grid_f6_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_f6 is "";
+grid_f7_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_f7 is "";
+grid_f8_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_f8 is "";
+grid_f9_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_f9 is "";
+grid_g1_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_g1 is "";
+grid_g2_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_g2 is "";
+grid_g3_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_g3="7";
+grid_g4_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_g4 is "";
+grid_g5_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_g5 is "";
+grid_g6_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_g6 is "";
+grid_g7_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_g7="4";
+grid_g8_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_g8 is "";
+grid_g9_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_g9="2";
+grid_h1_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_h1 is "";
+grid_h2_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_h2="6";
+grid_h3_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_h3 is "";
+grid_h4_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_h4 is "";
+grid_h5_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_h5 is "";
+grid_h6_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_h6="7";
+grid_h7_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_h7 is "";
+grid_h8_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_h8="3";
+grid_h9_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_h9 is "";
+grid_i1_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_i1 is "";
+grid_i2_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_i2 is "";
+grid_i3_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_i3="5";
+grid_i4_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_i4 is "";
+grid_i5_fixed=1;
+grid_{letters[x]}{y}_focus = false;
+grid_i5="6";
+grid_i6_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_i6 is "";
+grid_i7_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_i7 is "";
+grid_i8_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_i8 is "";
+grid_i9_fixed=0;
+grid_{letters[x]}{y}_focus = false;
+grid_i9 is "";
+grid_x is book_width/4 - grid_width/2;
+grid_width is 9 * cell_size + 8 * cell_spacing;
+grid_y = 100;
+cell_size = 40;
+cell_spacing = 0;
+grid_height is 9 * cell_size + 8 * cell_spacing;
+cell_x is grid_x + (x-1)*cell_size + (x-1)*cell_spacing;
+cell_y is grid_y + (y-1)*cell_size + (y-1)*cell_spacing;
+focus_colour = "skyblue";
+relevant_colour = "yellow";
+grid_colour = "white";
+fixed_colour = "#eee";
+cell_relevant is floor((grid_current_x-1) / 3) == floor((x-1) / 3) &&
+	floor((grid_current_y-1) / 3) == floor((y-1) / 3);
+grid_current_x is floor(((mouseX-grid_x) / cell_size)+1) if grid_mouseover else @;
+grid_current_y is floor(((mouseY-grid_y) / cell_size)+1) if grid_mouseover else @;
+cell_colour is
+	focus_colour if grid_{letters[x]}{y}_focus
+	else relevant_colour if grid_current_x == x
+	else relevant_colour if grid_current_y == y
+	else relevant_colour if cell_relevant
+	else fixed_colour if grid_{letters[x]}{y}_fixed
+	else grid_colour;
+grid_mouseover is mouseX >= grid_x && mouseY >= grid_y &&
+	mouseX <= grid_x+grid_width && mouseY <= grid_y+grid_height;
+grid_current is grid_{letters[grid_current_x]}{grid_current_y};
+grid_current_fixed is grid_{letters[grid_current_x]}{grid_current_y}_fixed;
+cell_label_colour is "red" if grid_{letters[x]}{y}_fixed else "black";
+cell_label is Text(grid_{letters[x]}{y}, cell_x+cell_size/2, cell_y+cell_size/2, 20, cell_label_colour, "middle center");
+cell is Rectangle(cell_x,cell_y,cell_size,cell_size,cell_colour,"black");
+cells is cell :: x in 1..9, y in 1..9;
+cell_labels is cell_label :: x in 1..9, y in 1..9;
+current_column is (grid_{letters[grid_current_x]}{y} :: y in 1..9) if grid_current_x else @;
+current_row is (grid_{letters[x]}{grid_current_y} :: x in 1..9) if grid_current_y else @;
+current_region is grid_{letters[floor((grid_current_x-1)/3)*3+i]}{floor((grid_current_y-1)/3)*3+j}
+	:: i in 1..3, j in 1..3;
+func possibles {
+
+para column,row,region;
+
+auto col_poss,row_poss,region_poss,i,j,k,l,sub_result,result;
+
+i=1;
+j=1;
+k=1;
+l=1;
+
+result=[];
+
+col_poss=[0,0,0,0,0,0,0,0,0];
+row_poss=[0,0,0,0,0,0,0,0,0];
+region_poss=[0,0,0,0,0,0,0,0,0];
+
+if(column# > 0 && row# > 0 && region# > 0)
+{
+	while(i<=column#)
+	{
+		if(column[i]!="") {
+			col_poss[int(column[i])]++;
+		}
+		i++;
+	}
+
+	while(j<=row#)
+	{
+		if(row[j]!="") {
+			row_poss[int(row[j])]++;
+		}
+		j++;
+	}
+
+	while(k<=region#)
+	{
+		if(region[k]!="") {
+			region_poss[int(region[k])]++;
+		}
+		k++;
+	}
+
+	sub_result=[col_poss[1]+row_poss[1]+region_poss[1],col_poss[2]+row_poss[2]+region_poss[2],col_poss[3]+row_poss[3]+region_poss[3],col_poss[4]+row_poss[4]+region_poss[4],col_poss[5]+row_poss[5]+region_poss[5],col_poss[6]+row_poss[6]+region_poss[6],col_poss[7]+row_poss[7]+region_poss[7],col_poss[8]+row_poss[8]+region_poss[8],col_poss[9]+row_poss[9]+region_poss[9]];
+
+	while(l<=sub_result#)
+	{
+		if(sub_result[l]==0) {
+			append result,l;
+		}
+		l++;
+	}
+
+	return result;
+} else {
+	return @;
+}
+}
+current_possibilities is [int(grid_current)] if grid_current_fixed
+	else possibles(current_column,current_row,current_region);
+current_possibles_msg is current_possibilities if current_possibilities
+	else "... choose a square ...";
+view_bookscript2_query is jseden_script_query;
+view_scriptinput1_visibility = "visible";
+view_scriptinput1_title = "Script View";
+view_scriptinput1_tabs = [":project > start"];
+view_scriptinput1_current = 0;
+view_scriptinput1_showtabs = true;
+view_scriptinput1_showbuttons = true;
+view_scriptinput1_query is jseden_script_query;
+view_scriptinput1_type = "ScriptInput";
+view_scriptinput1_width = 600;
+view_scriptinput1_height = 405;
+view_scriptinput1_x = 659;
+view_scriptinput1_y = 220.5;
+}
+
+action grid {letters = ["a","b","c","d","e","f","g","h","i"];
+
+do {
+	local x;
+	local y;
+	for (x in 1..9) {
+		for (y in 1..9) {
+			grid_{letters[x]}{y}_fixed = false;
+			grid_{letters[x]}{y}_focus = false;
+			grid_{letters[x]}{y} = "";
+		}
+	}
+}
+
+grid_x is book_width/4 - grid_width/2;
+grid_y = 100;
+grid_width is 9 * cell_size + 8 * cell_spacing;
+grid_height is 9 * cell_size + 8 * cell_spacing;
+cell_spacing = 0;
+cell_size = 40;
+cell_x is grid_x + (x-1)*cell_size + (x-1)*cell_spacing;
+cell_y is grid_y + (y-1)*cell_size + (y-1)*cell_spacing;
+focus_colour = "skyblue";
+relevant_colour = "yellow";
+grid_colour = "white";
+fixed_colour = "#eee";
+
+cell_relevant is floor((grid_current_x-1) / 3) == floor((x-1) / 3) &&
+	floor((grid_current_y-1) / 3) == floor((y-1) / 3);
+
+cell_colour is
+	focus_colour if grid_{letters[x]}{y}_focus
+	else relevant_colour if grid_current_x == x
+	else relevant_colour if grid_current_y == y
+	else relevant_colour if cell_relevant
+	else fixed_colour if grid_{letters[x]}{y}_fixed
+	else grid_colour;
+
+grid_mouseover is mouseX >= grid_x && mouseY >= grid_y &&
+	mouseX <= grid_x+grid_width && mouseY <= grid_y+grid_height;
+
+grid_current_x is floor(((mouseX-grid_x) / cell_size)+1) if grid_mouseover else @;
+grid_current_y is floor(((mouseY-grid_y) / cell_size)+1) if grid_mouseover else @;
+
+grid_current is grid_{letters[grid_current_x]}{grid_current_y};
+grid_current_fixed is grid_{letters[grid_current_x]}{grid_current_y}_fixed;
+
+cell_label_colour is "red" if grid_{letters[x]}{y}_fixed else "black";
+cell_label is Text(grid_{letters[x]}{y}, cell_x+cell_size/2, cell_y+cell_size/2, 20, cell_label_colour, "middle center");
+cell is Rectangle(cell_x,cell_y,cell_size,cell_size,cell_colour,"black");
+cells is cell :: x in 1..9, y in 1..9;
+cell_labels is cell_label :: x in 1..9, y in 1..9;
+
+when (grid_mouseover && (grid_focus_x != grid_current_x || grid_focus_y != grid_current_y)) {
+	grid_{letters[grid_focus_x]}{grid_focus_y}_focus = false;
+	grid_focus_x = grid_current_x;
+	grid_focus_y = grid_current_y;
+	if (!grid_{letters[grid_focus_x]}{grid_focus_y}_fixed) {
+		grid_{letters[grid_focus_x]}{grid_focus_y}_focus = true;
+	}
+}
+
+current_column is (grid_{letters[grid_current_x]}{y} :: y in 1..9) if grid_current_x else @;
+current_row is (grid_{letters[x]}{grid_current_y} :: x in 1..9) if grid_current_y else @;
+current_region is grid_{letters[floor((grid_current_x-1)/3)*3+i]}{floor((grid_current_y-1)/3)*3+j}
+	:: i in 1..3, j in 1..3;
+
+picture is cells // cell_labels // [Rectangle(grid_x-1,grid_y-1,grid_width+2,grid_height+2)];
+
+when (grid_mouseover && !grid_current_fixed && key_pressed_Digit0) grid_{letters[grid_current_x]}{grid_current_y} = "";
+when (grid_mouseover && !grid_current_fixed && key_pressed_Digit1) grid_{letters[grid_current_x]}{grid_current_y} = "1";
+when (grid_mouseover && !grid_current_fixed && key_pressed_Digit2) grid_{letters[grid_current_x]}{grid_current_y} = "2";
+when (grid_mouseover && !grid_current_fixed && key_pressed_Digit3) grid_{letters[grid_current_x]}{grid_current_y} = "3";
+when (grid_mouseover && !grid_current_fixed && key_pressed_Digit4) grid_{letters[grid_current_x]}{grid_current_y} = "4";
+when (grid_mouseover && !grid_current_fixed && key_pressed_Digit5) grid_{letters[grid_current_x]}{grid_current_y} = "5";
+when (grid_mouseover && !grid_current_fixed && key_pressed_Digit6) grid_{letters[grid_current_x]}{grid_current_y} = "6";
+when (grid_mouseover && !grid_current_fixed && key_pressed_Digit7) grid_{letters[grid_current_x]}{grid_current_y} = "7";
+when (grid_mouseover && !grid_current_fixed && key_pressed_Digit8) grid_{letters[grid_current_x]}{grid_current_y} = "8";
+when (grid_mouseover && !grid_current_fixed && key_pressed_Digit9) grid_{letters[grid_current_x]}{grid_current_y} = "9";
+
+
+}action puzzle4 {autocalc=0;
+grid_a1 is "";
+grid_a1_fixed=0;
+grid_a2 is "";
+grid_a2_fixed=0;
+grid_a3 is "";
+grid_a3_fixed=0;
+grid_a4 is "";
+grid_a4_fixed=0;
+grid_a5="5";
+grid_a5_fixed=1;
+grid_a6 is "";
+grid_a6_fixed=0;
+grid_a7="6";
+grid_a7_fixed=1;
+grid_a8 is "";
+grid_a8_fixed=0;
+grid_a9 is "";
+grid_a9_fixed=0;
+grid_b1 is "";
+grid_b1_fixed=0;
+grid_b2="2";
+grid_b2_fixed=1;
+grid_b3 is "";
+grid_b3_fixed=0;
+grid_b4="4";
+grid_b4_fixed=1;
+grid_b5 is "";
+grid_b5_fixed=0;
+grid_b6 is "";
+grid_b6_fixed=0;
+grid_b7 is "";
+grid_b7_fixed=0;
+grid_b8="7";
+grid_b8_fixed=1;
+grid_b9 is "";
+grid_b9_fixed=0;
+grid_c1="1";
+grid_c1_fixed=1;
+grid_c2="";
+grid_c2_fixed=0;
+grid_c3="3";
+grid_c3_fixed=1;
+grid_c4 is "";
+grid_c4_fixed=0;
+grid_c5 is "";
+grid_c5_fixed=0;
+grid_c6 is "";
+grid_c6_fixed=0;
+grid_c7="8";
+grid_c7_fixed=1;
+grid_c8 is "";
+grid_c8_fixed=0;
+grid_c9 is "";
+grid_c9_fixed=0;
+grid_d1 is "";
+grid_d1_fixed=0;
+grid_d2 is "";
+grid_d2_fixed=0;
+grid_d3 is "";
+grid_d3_fixed=0;
+grid_d4 is "";
+grid_d4_fixed=0;
+grid_d5 is "";
+grid_d5_fixed=0;
+grid_d6="1";
+grid_d6_fixed=1;
+grid_d7 is "";
+grid_d7_fixed=0;
+grid_d8="9";
+grid_d8_fixed=1;
+grid_d9 is "";
+grid_d9_fixed=0;
+grid_e1="9";
+grid_e1_fixed=1;
+grid_e2 is "";
+grid_e2_fixed=0;
+grid_e3 is "";
+grid_e3_fixed=0;
+grid_e4 is "";
+grid_e4_fixed=0;
+grid_e5 is "";
+grid_e5_fixed=0;
+grid_e6 is "";
+grid_e6_fixed=0;
+grid_e7 is "";
+grid_e7_fixed=0;
+grid_e8 is "";
+grid_e8_fixed=0;
+grid_e9="1";
+grid_e9_fixed=1;
+grid_f1 is "";
+grid_f1_fixed=0;
+grid_f2="8";
+grid_f2_fixed=1;
+grid_f3 is "";
+grid_f3_fixed=0;
+grid_f4="6";
+grid_f4_fixed=1;
+grid_f5 is "";
+grid_f5_fixed=0;
+grid_f6 is "";
+grid_f6_fixed=0;
+grid_f7 is "";
+grid_f7_fixed=0;
+grid_f8 is "";
+grid_f8_fixed=0;
+grid_f9 is "";
+grid_f9_fixed=0;
+grid_g1 is "";
+grid_g1_fixed=0;
+grid_g2 is "";
+grid_g2_fixed=0;
+grid_g3="7";
+grid_g3_fixed=1;
+grid_g4 is "";
+grid_g4_fixed=0;
+grid_g5 is "";
+grid_g5_fixed=0;
+grid_g6 is "";
+grid_g6_fixed=0;
+grid_g7="4";
+grid_g7_fixed=1;
+grid_g8 is "";
+grid_g8_fixed=0;
+grid_g9="2";
+grid_g9_fixed=1;
+grid_h1 is "";
+grid_h1_fixed=0;
+grid_h2="6";
+grid_h2_fixed=1;
+grid_h3 is "";
+grid_h3_fixed=0;
+grid_h4 is "";
+grid_h4_fixed=0;
+grid_h5 is "";
+grid_h5_fixed=0;
+grid_h6="7";
+grid_h6_fixed=1;
+grid_h7 is "";
+grid_h7_fixed=0;
+grid_h8="3";
+grid_h8_fixed=1;
+grid_h9 is "";
+grid_h9_fixed=0;
+grid_i1 is "";
+grid_i1_fixed=0;
+grid_i2 is "";
+grid_i2_fixed=0;
+grid_i3="5";
+grid_i3_fixed=1;
+grid_i4 is "";
+grid_i4_fixed=0;
+grid_i5="6";
+grid_i5_fixed=1;
+grid_i6 is "";
+grid_i6_fixed=0;
+grid_i7 is "";
+grid_i7_fixed=0;
+grid_i8 is "";
+grid_i8_fixed=0;
+grid_i9 is "";
+grid_i9_fixed=0;
+autocalc=1;}action puzzle0 {autocalc=0;
+grid_a1 is "";
+grid_a1_fixed=0;
+grid_a2 is "";
+grid_a2_fixed=0;
+grid_a3="2";
+grid_a3_fixed=1;
+grid_a4="3";
+grid_a4_fixed=1;
+grid_a5 is "";
+grid_a5_fixed=0;
+grid_a6 is "";
+grid_a6_fixed=0;
+grid_a7 is "";
+grid_a7_fixed=0;
+grid_a8="5";
+grid_a8_fixed=1;
+grid_a9 is "";
+grid_a9_fixed=0;
+grid_b1="6";
+grid_b1_fixed=1;
+grid_b2 is "";
+grid_b2_fixed=0;
+grid_b3 is "";
+grid_b3_fixed=0;
+grid_b4 is "";
+grid_b4_fixed=0;
+grid_b5="8";
+grid_b5_fixed=1;
+grid_b6="1";
+grid_b6_fixed=1;
+grid_b7 is "";
+grid_b7_fixed=0;
+grid_b8="7";
+grid_b8_fixed=1;
+grid_b9="2";
+grid_b9_fixed=1;
+grid_c1="8";
+grid_c1_fixed=1;
+grid_c2="7";
+grid_c2_fixed=1;
+grid_c3 is "";
+grid_c3_fixed=0;
+grid_c4 is "";
+grid_c4_fixed=0;
+grid_c5="5";
+grid_c5_fixed=1;
+grid_c6 is "";
+grid_c6_fixed=0;
+grid_c7 is "";
+grid_c7_fixed=0;
+grid_c8 is "";
+grid_c8_fixed=0;
+grid_c9 is "";
+grid_c9_fixed=0;
+grid_d1 is "";
+grid_d1_fixed=0;
+grid_d2="4";
+grid_d2_fixed=1;
+grid_d3="7";
+grid_d3_fixed=1;
+grid_d4 is "";
+grid_d4_fixed=0;
+grid_d5 is "";
+grid_d5_fixed=0;
+grid_d6 is "";
+grid_d6_fixed=0;
+grid_d7 is "";
+grid_d7_fixed=0;
+grid_d8 is "";
+grid_d8_fixed=0;
+grid_d9="1";
+grid_d9_fixed=1;
+grid_e1 is "";
+grid_e1_fixed=0;
+grid_e2 is "";
+grid_e2_fixed=0;
+grid_e3="3";
+grid_e3_fixed=1;
+grid_e4 is "";
+grid_e4_fixed=0;
+grid_e5="7";
+grid_e5_fixed=1;
+grid_e6 is "";
+grid_e6_fixed=0;
+grid_e7="2";
+grid_e7_fixed=1;
+grid_e8 is "";
+grid_e8_fixed=0;
+grid_e9="9";
+grid_e9_fixed=1;
+grid_f1="5";
+grid_f1_fixed=1;
+grid_f2 is "";
+grid_f2_fixed=0;
+grid_f3 is "";
+grid_f3_fixed=0;
+grid_f4 is "";
+grid_f4_fixed=0;
+grid_f5 is "";
+grid_f5_fixed=0;
+grid_f6 is "";
+grid_f6_fixed=0;
+grid_f7="4";
+grid_f7_fixed=1;
+grid_f8="3";
+grid_f8_fixed=1;
+grid_f9 is "";
+grid_f9_fixed=0;
+grid_g1 is "";
+grid_g1_fixed=0;
+grid_g2 is "";
+grid_g2_fixed=0;
+grid_g3 is "";
+grid_g3_fixed=0;
+grid_g4 is "";
+grid_g4_fixed=0;
+grid_g5="2";
+grid_g5_fixed=1;
+grid_g6 is "";
+grid_g6_fixed=0;
+grid_g7 is "";
+grid_g7_fixed=0;
+grid_g8 is "";
+grid_g8_fixed=0;
+grid_g9="8";
+grid_g9_fixed=1;
+grid_h1="2";
+grid_h1_fixed=1;
+grid_h2="8";
+grid_h2_fixed=1;
+grid_h3 is "";
+grid_h3_fixed=0;
+grid_h4="1";
+grid_h4_fixed=1;
+grid_h5="4";
+grid_h5_fixed=1;
+grid_h6 is "";
+grid_h6_fixed=0;
+grid_h7 is "";
+grid_h7_fixed=0;
+grid_h8="9";
+grid_h8_fixed=1;
+grid_h9="5";
+grid_h9_fixed=1;
+grid_i1 is "";
+grid_i1_fixed=0;
+grid_i2 is "";
+grid_i2_fixed=0;
+grid_i3="4";
+grid_i3_fixed=1;
+grid_i4 is "";
+grid_i4_fixed=0;
+grid_i5 is "";
+grid_i5_fixed=0;
+grid_i6="9";
+grid_i6_fixed=1;
+grid_i7="1";
+grid_i7_fixed=1;
+grid_i8 is "";
+grid_i8_fixed=0;
+grid_i9 is "";
+grid_i9_fixed=0;
+autocalc=1;}action puzzle1 {autocalc=0;
+grid_a1="8";
+grid_a1_fixed=1;
+grid_a2="4";
+grid_a2_fixed=1;
+grid_a3 is "";
+grid_a3_fixed=0;
+grid_a4 is "";
+grid_a4_fixed=0;
+grid_a5 is "";
+grid_a5_fixed=0;
+grid_a6="6";
+grid_a6_fixed=1;
+grid_a7 is "";
+grid_a7_fixed=0;
+grid_a8 is "";
+grid_a8_fixed=0;
+grid_a9="1";
+grid_a9_fixed=1;
+grid_b1 is "";
+grid_b1_fixed=0;
+grid_b2 is "";
+grid_b2_fixed=0;
+grid_b3="7";
+grid_b3_fixed=1;
+grid_b4 is "";
+grid_b4_fixed=0;
+grid_b5 is "";
+grid_b5_fixed=0;
+grid_b6 is "";
+grid_b6_fixed=0;
+grid_b7 is "";
+grid_b7_fixed=0;
+grid_b8 is "";
+grid_b8_fixed=0;
+grid_b9="2";
+grid_b9_fixed=1;
+grid_c1 is "";
+grid_c1_fixed=0;
+grid_c2 is "";
+grid_c2_fixed=0;
+grid_c3 is "";
+grid_c3_fixed=0;
+grid_c4="5";
+grid_c4_fixed=1;
+grid_c5 is "";
+grid_c5_fixed=0;
+grid_c6 is "";
+grid_c6_fixed=0;
+grid_c7 is "";
+grid_c7_fixed=0;
+grid_c8="7";
+grid_c8_fixed=1;
+grid_c9 is "";
+grid_c9_fixed=0;
+grid_d1 is "";
+grid_d1_fixed=0;
+grid_d2 is "";
+grid_d2_fixed=0;
+grid_d3 is "";
+grid_d3_fixed=0;
+grid_d4 is "";
+grid_d4_fixed=0;
+grid_d5="2";
+grid_d5_fixed=1;
+grid_d6="9";
+grid_d6_fixed=1;
+grid_d7="3";
+grid_d7_fixed=1;
+grid_d8 is "";
+grid_d8_fixed=0;
+grid_d9 is "";
+grid_d9_fixed=0;
+grid_e1="6";
+grid_e1_fixed=1;
+grid_e2 is "";
+grid_e2_fixed=0;
+grid_e3 is "";
+grid_e3_fixed=0;
+grid_e4 is "";
+grid_e4_fixed=0;
+grid_e5 is "";
+grid_e5_fixed=0;
+grid_e6 is "";
+grid_e6_fixed=0;
+grid_e7 is "";
+grid_e7_fixed=0;
+grid_e8 is "";
+grid_e8_fixed=0;
+grid_e9="4";
+grid_e9_fixed=1;
+grid_f1 is "";
+grid_f1_fixed=0;
+grid_f2 is "";
+grid_f2_fixed=0;
+grid_f3="5";
+grid_f3_fixed=1;
+grid_f4="7";
+grid_f4_fixed=1;
+grid_f5="8";
+grid_f5_fixed=1;
+grid_f6 is "";
+grid_f6_fixed=0;
+grid_f7 is "";
+grid_f7_fixed=0;
+grid_f8 is "";
+grid_f8_fixed=0;
+grid_f9 is "";
+grid_f9_fixed=0;
+grid_g1 is "";
+grid_g1_fixed=0;
+grid_g2="2";
+grid_g2_fixed=1;
+grid_g3 is "";
+grid_g3_fixed=0;
+grid_g4 is "";
+grid_g4_fixed=0;
+grid_g5 is "";
+grid_g5_fixed=0;
+grid_g6="1";
+grid_g6_fixed=1;
+grid_g7 is "";
+grid_g7_fixed=0;
+grid_g8 is "";
+grid_g8_fixed=0;
+grid_g9 is "";
+grid_g9_fixed=0;
+grid_h1="3";
+grid_h1_fixed=1;
+grid_h2 is "";
+grid_h2_fixed=0;
+grid_h3 is "";
+grid_h3_fixed=0;
+grid_h4 is "";
+grid_h4_fixed=0;
+grid_h5 is "";
+grid_h5_fixed=0;
+grid_h6 is "";
+grid_h6_fixed=0;
+grid_h7="8";
+grid_h7_fixed=1;
+grid_h8 is "";
+grid_h8_fixed=0;
+grid_h9 is "";
+grid_h9_fixed=0;
+grid_i1="4";
+grid_i1_fixed=1;
+grid_i2 is "";
+grid_i2_fixed=0;
+grid_i3 is "";
+grid_i3_fixed=0;
+grid_i4="9";
+grid_i4_fixed=1;
+grid_i5 is "";
+grid_i5_fixed=0;
+grid_i6 is "";
+grid_i6_fixed=0;
+grid_i7 is "";
+grid_i7_fixed=0;
+grid_i8="5";
+grid_i8_fixed=1;
+grid_i9="6";
+grid_i9_fixed=1;
+autocalc=1;}action puzzle2 {autocalc=0;
+grid_a1 is "";
+grid_a1_fixed=0;
+grid_a2 is "";
+grid_a2_fixed=0;
+grid_a3 is "";
+grid_a3_fixed=0;
+grid_a4="9";
+grid_a4_fixed=1;
+grid_a5 is "";
+grid_a5_fixed=0;
+grid_a6="3";
+grid_a6_fixed=1;
+grid_a7 is "";
+grid_a7_fixed=0;
+grid_a8 is "";
+grid_a8_fixed=0;
+grid_a9 is "";
+grid_a9_fixed=0;
+grid_b1 is "";
+grid_b1_fixed=0;
+grid_b2 is "";
+grid_b2_fixed=0;
+grid_b3="9";
+grid_b3_fixed=1;
+grid_b4 is "";
+grid_b4_fixed=0;
+grid_b5 is "";
+grid_b5_fixed=0;
+grid_b6 is "";
+grid_b6_fixed=0;
+grid_b7="6";
+grid_b7_fixed=1;
+grid_b8 is "";
+grid_b8_fixed=0;
+grid_b9 is "";
+grid_b9_fixed=0;
+grid_c1 is "";
+grid_c1_fixed=0;
+grid_c2="4";
+grid_c2_fixed=1;
+grid_c3 is "";
+grid_c3_fixed=0;
+grid_c4 is "";
+grid_c4_fixed=0;
+grid_c5="1";
+grid_c5_fixed=1;
+grid_c6 is "";
+grid_c6_fixed=0;
+grid_c7 is "";
+grid_c7_fixed=0;
+grid_c8="8";
+grid_c8_fixed=1;
+grid_c9 is "";
+grid_c9_fixed=0;
+grid_d1="9";
+grid_d1_fixed=1;
+grid_d2 is "";
+grid_d2_fixed=0;
+grid_d3 is "";
+grid_d3_fixed=0;
+grid_d4="2";
+grid_d4_fixed=1;
+grid_d5 is "";
+grid_d5_fixed=0;
+grid_d6="8";
+grid_d6_fixed=1;
+grid_d7 is "";
+grid_d7_fixed=0;
+grid_d8 is "";
+grid_d8_fixed=0;
+grid_d9="1";
+grid_d9_fixed=1;
+grid_e1 is "";
+grid_e1_fixed=0;
+grid_e2 is "";
+grid_e2_fixed=0;
+grid_e3="3";
+grid_e3_fixed=1;
+grid_e4 is "";
+grid_e4_fixed=0;
+grid_e5 is "";
+grid_e5_fixed=0;
+grid_e6 is "";
+grid_e6_fixed=0;
+grid_e7="7";
+grid_e7_fixed=1;
+grid_e8 is "";
+grid_e8_fixed=0;
+grid_e9 is "";
+grid_e9_fixed=0;
+grid_f1="8";
+grid_f1_fixed=1;
+grid_f2 is "";
+grid_f2_fixed=0;
+grid_f3 is "";
+grid_f3_fixed=0;
+grid_f4="4";
+grid_f4_fixed=1;
+grid_f5 is "";
+grid_f5_fixed=0;
+grid_f6="6";
+grid_f6_fixed=1;
+grid_f7 is "";
+grid_f7_fixed=0;
+grid_f8 is "";
+grid_f8_fixed=0;
+grid_f9="5";
+grid_f9_fixed=1;
+grid_g1 is "";
+grid_g1_fixed=0;
+grid_g2="6";
+grid_g2_fixed=1;
+grid_g3 is "";
+grid_g3_fixed=0;
+grid_g4 is "";
+grid_g4_fixed=0;
+grid_g5="5";
+grid_g5_fixed=1;
+grid_g6 is "";
+grid_g6_fixed=0;
+grid_g7 is "";
+grid_g7_fixed=0;
+grid_g8="2";
+grid_g8_fixed=1;
+grid_g9 is "";
+grid_g9_fixed=0;
+grid_h1 is "";
+grid_h1_fixed=0;
+grid_h2 is "";
+grid_h2_fixed=0;
+grid_h3="7";
+grid_h3_fixed=1;
+grid_h4 is "";
+grid_h4_fixed=0;
+grid_h5 is "";
+grid_h5_fixed=0;
+grid_h6 is "";
+grid_h6_fixed=0;
+grid_h7="3";
+grid_h7_fixed=1;
+grid_h8 is "";
+grid_h8_fixed=0;
+grid_h9 is "";
+grid_h9_fixed=0;
+grid_i1 is "";
+grid_i1_fixed=0;
+grid_i2 is "";
+grid_i2_fixed=0;
+grid_i3 is "";
+grid_i3_fixed=0;
+grid_i4="6";
+grid_i4_fixed=1;
+grid_i5 is "";
+grid_i5_fixed=0;
+grid_i6="2";
+grid_i6_fixed=1;
+grid_i7 is "";
+grid_i7_fixed=0;
+grid_i8 is "";
+grid_i8_fixed=0;
+grid_i9 is "";
+grid_i9_fixed=0;
+autocalc=1;}action puzzle3 {autocalc=0;
+grid_a1 is "";
+grid_a1_fixed=0;
+grid_a2 is "";
+grid_a2_fixed=0;
+grid_a3 is "";
+grid_a3_fixed=0;
+grid_a4 is "";
+grid_a4_fixed=0;
+grid_a5 is "";
+grid_a5_fixed=0;
+grid_a6 is "";
+grid_a6_fixed=0;
+grid_a7="1";
+grid_a7_fixed=1;
+grid_a8="2";
+grid_a8_fixed=1;
+grid_a9="8";
+grid_a9_fixed=1;
+grid_b1 is "";
+grid_b1_fixed=0;
+grid_b2 is "";
+grid_b2_fixed=0;
+grid_b3="5";
+grid_b3_fixed=1;
+grid_b4 is "";
+grid_b4_fixed=0;
+grid_b5 is "";
+grid_b5_fixed=0;
+grid_b6="3";
+grid_b6_fixed=1;
+grid_b7 is "";
+grid_b7_fixed=0;
+grid_b8 is "";
+grid_b8_fixed=0;
+grid_b9 is "";
+grid_b9_fixed=0;
+grid_c1 is "";
+grid_c1_fixed=0;
+grid_c2 is "";
+grid_c2_fixed=0;
+grid_c3 is "";
+grid_c3_fixed=0;
+grid_c4="7";
+grid_c4_fixed=1;
+grid_c5 is "";
+grid_c5_fixed=0;
+grid_c6 is "";
+grid_c6_fixed=0;
+grid_c7="6";
+grid_c7_fixed=1;
+grid_c8 is "";
+grid_c8_fixed=0;
+grid_c9 is "";
+grid_c9_fixed=0;
+grid_d1="2";
+grid_d1_fixed=1;
+grid_d2="6";
+grid_d2_fixed=1;
+grid_d3="8";
+grid_d3_fixed=1;
+grid_d4 is "";
+grid_d4_fixed=0;
+grid_d5 is "";
+grid_d5_fixed=0;
+grid_d6 is "";
+grid_d6_fixed=0;
+grid_d7 is "";
+grid_d7_fixed=0;
+grid_d8 is "";
+grid_d8_fixed=0;
+grid_d9 is "";
+grid_d9_fixed=0;
+grid_e1 is "";
+grid_e1_fixed=0;
+grid_e2 is "";
+grid_e2_fixed=0;
+grid_e3 is "";
+grid_e3_fixed=0;
+grid_e4 is "";
+grid_e4_fixed=0;
+grid_e5 is "";
+grid_e5_fixed=0;
+grid_e6 is "";
+grid_e6_fixed=0;
+grid_e7 is "";
+grid_e7_fixed=0;
+grid_e8 is "";
+grid_e8_fixed=0;
+grid_e9 is "";
+grid_e9_fixed=0;
+grid_f1 is "";
+grid_f1_fixed=0;
+grid_f2 is "";
+grid_f2_fixed=0;
+grid_f3 is "";
+grid_f3_fixed=0;
+grid_f4 is "";
+grid_f4_fixed=0;
+grid_f5 is "";
+grid_f5_fixed=0;
+grid_f6 is "";
+grid_f6_fixed=0;
+grid_f7="3";
+grid_f7_fixed=1;
+grid_f8="5";
+grid_f8_fixed=1;
+grid_f9="4";
+grid_f9_fixed=1;
+grid_g1 is "";
+grid_g1_fixed=0;
+grid_g2 is "";
+grid_g2_fixed=0;
+grid_g3="2";
+grid_g3_fixed=1;
+grid_g4 is "";
+grid_g4_fixed=0;
+grid_g5 is "";
+grid_g5_fixed=0;
+grid_g6="8";
+grid_g6_fixed=1;
+grid_g7 is "";
+grid_g7_fixed=0;
+grid_g8 is "";
+grid_g8_fixed=0;
+grid_g9 is "";
+grid_g9_fixed=0;
+grid_h1 is "";
+grid_h1_fixed=0;
+grid_h2 is "";
+grid_h2_fixed=0;
+grid_h3 is "";
+grid_h3_fixed=0;
+grid_h4="6";
+grid_h4_fixed=1;
+grid_h5 is "";
+grid_h5_fixed=0;
+grid_h6 is "";
+grid_h6_fixed=0;
+grid_h7="7";
+grid_h7_fixed=1;
+grid_h8 is "";
+grid_h8_fixed=0;
+grid_h9 is "";
+grid_h9_fixed=0;
+grid_i1="4";
+grid_i1_fixed=1;
+grid_i2="1";
+grid_i2_fixed=1;
+grid_i3="3";
+grid_i3_fixed=1;
+grid_i4 is "";
+grid_i4_fixed=0;
+grid_i5 is "";
+grid_i5_fixed=0;
+grid_i6 is "";
+grid_i6_fixed=0;
+grid_i7 is "";
+grid_i7_fixed=0;
+grid_i8 is "";
+grid_i8_fixed=0;
+grid_i9 is "";
+grid_i9_fixed=0;
+autocalc=1;}action possibilities {func possibles {
+
+para column,row,region;
+
+auto col_poss,row_poss,region_poss,i,j,k,l,sub_result,result;
+
+i=1;
+j=1;
+k=1;
+l=1;
+
+result=[];
+
+col_poss=[0,0,0,0,0,0,0,0,0];
+row_poss=[0,0,0,0,0,0,0,0,0];
+region_poss=[0,0,0,0,0,0,0,0,0];
+
+if(column# > 0 && row# > 0 && region# > 0)
+{
+	while(i<=column#)
+	{
+		if(column[i]!="") {
+			col_poss[int(column[i])]++;
+		}
+		i++;
+	}
+
+	while(j<=row#)
+	{
+		if(row[j]!="") {
+			row_poss[int(row[j])]++;
+		}
+		j++;
+	}
+
+	while(k<=region#)
+	{
+		if(region[k]!="") {
+			region_poss[int(region[k])]++;
+		}
+		k++;
+	}
+
+	sub_result=[col_poss[1]+row_poss[1]+region_poss[1],col_poss[2]+row_poss[2]+region_poss[2],col_poss[3]+row_poss[3]+region_poss[3],col_poss[4]+row_poss[4]+region_poss[4],col_poss[5]+row_poss[5]+region_poss[5],col_poss[6]+row_poss[6]+region_poss[6],col_poss[7]+row_poss[7]+region_poss[7],col_poss[8]+row_poss[8]+region_poss[8],col_poss[9]+row_poss[9]+region_poss[9]];
+
+	while(l<=sub_result#)
+	{
+		if(sub_result[l]==0) {
+			append result,l;
+		}
+		l++;
+	}
+
+	return result;
+} else {
+	return @;
+}
+}
+
+current_possibilities is [int(grid_current)] if grid_current_fixed
+	else possibles(current_column,current_row,current_region);
+
+current_possibles_msg is current_possibilities if current_possibilities
+	else "... choose a square ...";}action colours {possibles1 is possibles;
+
+do {
+	local x;
+	local y;
+	for (x in 1..9) {
+		for (y in 1..9) {
+			grid_{letters[x]}{y}_possibilities is current_possibilities::(grid_current_x = x, grid_current_y = y);
+		}
+	}
+}
+
+func rgb2colour {
+	para r,g,b;
+	return "rgb("//r//","//g//","//b//")";
+}
+
+func possibles2binary {
+   para inlist;
+   auto i, outlist;
+   outlist = [0,0,0,0,0,0,0,0,0];
+   if (inlist != @)
+      for (i=1; i<=inlist#; i++)
+         outlist[inlist[i]] = 1;
+   return outlist;
+}
+
+func rgb3components {
+   para components;
+   if (components# == 3)
+      return rgb2colour(components[1]*255,components[2]*255,components[3]*255);
+   return @;
+}
+
+func rgb6components {
+   para components;
+   if (components# == 6)
+      return rgb2colour(components[6]*64+components[1]*127+components[2]*64,
+        components[2]*64+components[3]*127+components[4]*64,
+        components[4]*64+components[5]*127+components[6]*64);
+   return @;
+}
+
+/* rgb9components calculates colour as follows:
+**
+** 1: R=33% G=0% B=0%
+** 2: R=22% G=11% B=0%
+** 3: R=11% G=22% B=0%
+** 4: R=0% G=33% B=0%
+** 5: R=0% G=22% B=11%
+** 6: R=0% G=11% B=22%
+** 7: R=0% G=0% B=33%
+** 8: R=11% G=0% B=22%
+** 9: R=22% G=0% B=11%
+**
+** this means that:
+** a) darker colours on the grid have fewer candidates
+** b) lighter colours have lots of candidates
+** c) dark redish colours are somewhere around 1
+** d) dark greenish colours are somewhere around 4
+** e) dark bluish colours are somewhere around 7
+*/
+
+func rgb9components {
+   para components;
+   if (components# == 9)
+      return rgb2colour(components[1]*85
+                       +components[2]*57
+                       +components[3]*28
+                       +components[4]*0
+                       +components[5]*0
+                       +components[6]*0
+                       +components[7]*0
+                       +components[8]*28
+                       +components[9]*57,
+                        components[1]*0
+                       +components[2]*28
+                       +components[3]*57
+                       +components[4]*85
+                       +components[5]*57
+                       +components[6]*28
+                       +components[7]*0
+                       +components[8]*0
+                       +components[9]*0,
+                        components[1]*0
+                       +components[2]*0
+                       +components[3]*0
+                       +components[4]*0
+                       +components[5]*28
+                       +components[6]*57
+                       +components[7]*85
+                       +components[8]*57
+                       +components[9]*28);
+   return @;
+}
+
+colourclue is rgb9components;
+
+func rgbxcomponents {
+   para components, colours;
+   auto i, red, green, blue;
+   red = 0;
+   green = 0;
+   blue = 0;
+   if (components# == colours#) {
+      for (i=1; i<=components#; i++) {
+         red = red + (components[i]*colours[i][1]);
+         green = green + (components[i]*colours[i][2]);
+         blue = blue + (components[i]*colours[i][3]);
+      }
+      if (red > 255) red = 255;
+      if (green > 255) green = 255;
+      if (blue > 255) blue = 255;
+      return rgb2colour(red, green, blue);
+   }
+   return @;
+}
+
+colourvalues = [
+  [85,0,0],
+  [57,28,0],
+  [28,57,0],
+  [0,85,0],
+  [0,57,28],
+  [0,28,57],
+  [0,0,85],
+  [28,0,57],
+  [57,0,28] ];
+
+colourclue is rgbxcomponents;
+
+cell_label_colour is "white";
+cell_colour is colourclue(possibles2binary(grid_{letters[x]}{y}_possibilities),colourvalues);
+
+do colourui;
+}action intro {##Sudoku
+
+# Move your mouse over a square to focus on it, click and enter a number.
+
+# Possible digits for the square under the mouse square are: 
+#{margin-left=20px color=green size=14pt} ?(current_possibles_msg)
+
+### Colour Variant
+do colours;
+}action colourui {colour_slider_offset = 40;
+colour_r_slider is Slider("comp"//str(ix)//"r",0,255,grid_x+colour_slider_offset, grid_y+grid_height+ix*20,100);
+colour_g_slider is Slider("comp"//str(ix)//"g",0,255,grid_x+colour_slider_offset+110, grid_y+grid_height+ix*20,100);
+colour_b_slider is Slider("comp"//str(ix)//"b",0,255,grid_x+colour_slider_offset+220, grid_y+grid_height+ix*20,100);
+
+colour_sliders is (colour_r_slider::ix in 1..9) // (colour_g_slider::ix in 1..9) // (colour_b_slider::ix in 1..9);
+
+colour_box is Rectangle(grid_x, grid_y+grid_height+ix*20, 20, 20,
+	rgb2colour(comp{ix}r_value,comp{ix}g_value,comp{ix}b_value));
+colour_label is Text(str(ix),grid_x+10, grid_y+grid_height+10+ix*20, 12, "white", "middle center");
+colour_boxes is (colour_box::ix in 1..9) // (colour_label::ix in 1..9);
+
+comp1r_value = 85;
+comp1g_value = 0;
+comp1b_value = 0;
+comp2r_value = 57;
+comp2g_value = 28;
+comp2b_value = 0;
+comp3r_value = 28;
+comp3g_value = 57;
+comp3b_value = 0;
+comp4r_value = 0;
+comp4g_value = 85;
+comp4b_value = 0;
+comp5r_value = 0;
+comp5g_value = 57;
+comp5b_value = 28;
+comp6r_value = 0;
+comp6g_value = 28;
+comp6b_value = 57;
+comp7r_value = 0;
+comp7g_value = 0;
+comp7b_value = 85;
+comp8r_value = 28;
+comp8g_value = 0;
+comp8b_value = 57;
+comp9r_value = 57;
+comp9g_value = 0;
+comp9b_value = 28;
+
+colourvalues is [
+  [comp1r_value,comp1g_value,comp1b_value],
+  [comp2r_value,comp2g_value,comp2b_value],
+  [comp3r_value,comp3g_value,comp3b_value],
+  [comp4r_value,comp4g_value,comp4b_value],
+  [comp5r_value,comp5g_value,comp5b_value],
+  [comp6r_value,comp6g_value,comp6b_value],
+  [comp7r_value,comp7g_value,comp7b_value],
+  [comp8r_value,comp8g_value,comp8b_value],
+  [comp9r_value,comp9g_value,comp9b_value] ];
+
+picture is cells // cell_labels // [Rectangle(grid_x-1,grid_y-1,grid_width+2,grid_height+2)] //
+	colour_sliders // colour_boxes;
+
+grid_y = 50;
+}action puzzle5 {autocalc=0;
+grid_a1 is "";
+grid_a1_fixed=0;
+grid_a2 is "";
+grid_a2_fixed=0;
+grid_a3 is "";
+grid_a3_fixed=0;
+grid_a4="4";
+grid_a4_fixed=1;
+grid_a5 is "";
+grid_a5_fixed=0;
+grid_a6 is "";
+grid_a6_fixed=0;
+grid_a7 is "";
+grid_a7_fixed=0;
+grid_a8="9";
+grid_a8_fixed=1;
+grid_a9 is "";
+grid_a9_fixed=0;
+grid_b1="7";
+grid_b1_fixed=1;
+grid_b2="9";
+grid_b2_fixed=1;
+grid_b3="";
+grid_b3_fixed=0;
+grid_b4 is "";
+grid_b4_fixed=0;
+grid_b5="1";
+grid_b5_fixed=1;
+grid_b6 is "";
+grid_b6_fixed=0;
+grid_b7 is "";
+grid_b7_fixed=0;
+grid_b8="3";
+grid_b8_fixed=1;
+grid_b9 is "";
+grid_b9_fixed=0;
+grid_c1 is "";
+grid_c1_fixed=0;
+grid_c2 is "";
+grid_c2_fixed=0;
+grid_c3="5";
+grid_c3_fixed=1;
+grid_c4 is "";
+grid_c4_fixed=0;
+grid_c5 is "";
+grid_c5_fixed=0;
+grid_c6 is "";
+grid_c6_fixed=0;
+grid_c7="7";
+grid_c7_fixed=1;
+grid_c8 is "";
+grid_c8_fixed=0;
+grid_c9 is "";
+grid_c9_fixed=0;
+grid_d1 is "";
+grid_d1_fixed=0;
+grid_d2 is "";
+grid_d2_fixed=0;
+grid_d3 is "";
+grid_d3_fixed=0;
+grid_d4="2";
+grid_d4_fixed=1;
+grid_d5 is "";
+grid_d5_fixed=0;
+grid_d6="9";
+grid_d6_fixed=1;
+grid_d7 is "";
+grid_d7_fixed=0;
+grid_d8 is "";
+grid_d8_fixed=0;
+grid_d9="3";
+grid_d9_fixed=1;
+grid_e1 is "";
+grid_e1_fixed=0;
+grid_e2="6";
+grid_e2_fixed=1;
+grid_e3 is "";
+grid_e3_fixed=0;
+grid_e4 is "";
+grid_e4_fixed=0;
+grid_e5="8";
+grid_e5_fixed=1;
+grid_e6 is "";
+grid_e6_fixed=0;
+grid_e7 is "";
+grid_e7_fixed=0;
+grid_e8="7";
+grid_e8_fixed=1;
+grid_e9 is "";
+grid_e9_fixed=0;
+grid_f1="5";
+grid_f1_fixed=1;
+grid_f2 is "";
+grid_f2_fixed=0;
+grid_f3 is "";
+grid_f3_fixed=0;
+grid_f4="6";
+grid_f4_fixed=1;
+grid_f5 is "";
+grid_f5_fixed=0;
+grid_f6="4";
+grid_f6_fixed=1;
+grid_f7 is "";
+grid_f7_fixed=0;
+grid_f8 is "";
+grid_f8_fixed=0;
+grid_f9 is "";
+grid_f9_fixed=0;
+grid_g1 is "";
+grid_g1_fixed=0;
+grid_g2 is "";
+grid_g2_fixed=0;
+grid_g3="9";
+grid_g3_fixed=1;
+grid_g4 is "";
+grid_g4_fixed=0;
+grid_g5 is "";
+grid_g5_fixed=0;
+grid_g6 is "";
+grid_g6_fixed=0;
+grid_g7="1";
+grid_g7_fixed=1;
+grid_g8 is "";
+grid_g8_fixed=0;
+grid_g9 is "";
+grid_g9_fixed=0;
+grid_h1 is "";
+grid_h1_fixed=0;
+grid_h2="8";
+grid_h2_fixed=1;
+grid_h3 is "";
+grid_h3_fixed=0;
+grid_h4 is "";
+grid_h4_fixed=0;
+grid_h5="6";
+grid_h5_fixed=1;
+grid_h6 is "";
+grid_h6_fixed=0;
+grid_h7 is "";
+grid_h7_fixed=0;
+grid_h8="2";
+grid_h8_fixed=1;
+grid_h9="5";
+grid_h9_fixed=1;
+grid_i1 is "";
+grid_i1_fixed=0;
+grid_i2="4";
+grid_i2_fixed=1;
+grid_i3 is "";
+grid_i3_fixed=0;
+grid_i4 is "";
+grid_i4_fixed=0;
+grid_i5 is "";
+grid_i5_fixed=0;
+grid_i6="8";
+grid_i6_fixed=1;
+grid_i7 is "";
+grid_i7_fixed=0;
+grid_i8 is "";
+grid_i8_fixed=0;
+grid_i9 is "";
+grid_i9_fixed=0;
+autocalc=1;}action puzzle6 {autocalc=0;
+grid_a1 is "";
+grid_a1_fixed=0;
+grid_a2 is "";
+grid_a2_fixed=0;
+grid_a3="2";
+grid_a3_fixed=1;
+grid_a4="1";
+grid_a4_fixed=1;
+grid_a5 is "";
+grid_a5_fixed=0;
+grid_a6 is "";
+grid_a6_fixed=0;
+grid_a7="5";
+grid_a7_fixed=1;
+grid_a8 is "";
+grid_a8_fixed=0;
+grid_a9 is "";
+grid_a9_fixed=0;
+grid_b1 is "";
+grid_b1_fixed=0;
+grid_b2="3";
+grid_b2_fixed=1;
+grid_b3="";
+grid_b3_fixed=0;
+grid_b4 is "";
+grid_b4_fixed=0;
+grid_b5 is "";
+grid_b5_fixed=0;
+grid_b6="8";
+grid_b6_fixed=1;
+grid_b7 is "";
+grid_b7_fixed=0;
+grid_b8="6";
+grid_b8_fixed=1;
+grid_b9 is "";
+grid_b9_fixed=0;
+grid_c1="4";
+grid_c1_fixed=1;
+grid_c2 is "";
+grid_c2_fixed=0;
+grid_c3 is "";
+grid_c3_fixed=0;
+grid_c4 is "";
+grid_c4_fixed=0;
+grid_c5="9";
+grid_c5_fixed=1;
+grid_c6 is "";
+grid_c6_fixed=0;
+grid_c7 is "";
+grid_c7_fixed=0;
+grid_c8 is "";
+grid_c8_fixed=0;
+grid_c9="3";
+grid_c9_fixed=1;
+grid_d1 is "";
+grid_d1_fixed=0;
+grid_d2="5";
+grid_d2_fixed=1;
+grid_d3 is "";
+grid_d3_fixed=0;
+grid_d4 is "";
+grid_d4_fixed=0;
+grid_d5="8";
+grid_d5_fixed=1;
+grid_d6 is "";
+grid_d6_fixed=0;
+grid_d7 is "";
+grid_d7_fixed=0;
+grid_d8 is "";
+grid_d8_fixed=0;
+grid_d9="4";
+grid_d9_fixed=1;
+grid_e1 is "";
+grid_e1_fixed=0;
+grid_e2 is "";
+grid_e2_fixed=0;
+grid_e3="6";
+grid_e3_fixed=1;
+grid_e4 is "";
+grid_e4_fixed=0;
+grid_e5 is "";
+grid_e5_fixed=0;
+grid_e6 is "";
+grid_e6_fixed=0;
+grid_e7="9";
+grid_e7_fixed=1;
+grid_e8 is "";
+grid_e8_fixed=0;
+grid_e9 is "";
+grid_e9_fixed=0;
+grid_f1="8";
+grid_f1_fixed=1;
+grid_f2 is "";
+grid_f2_fixed=0;
+grid_f3 is "";
+grid_f3_fixed=0;
+grid_f4 is "";
+grid_f4_fixed=0;
+grid_f5="4";
+grid_f5_fixed=1;
+grid_f6 is "";
+grid_f6_fixed=0;
+grid_f7 is "";
+grid_f7_fixed=0;
+grid_f8="2";
+grid_f8_fixed=1;
+grid_f9 is "";
+grid_f9_fixed=0;
+grid_g1="9";
+grid_g1_fixed=1;
+grid_g2 is "";
+grid_g2_fixed=0;
+grid_g3 is "";
+grid_g3_fixed=0;
+grid_g4 is "";
+grid_g4_fixed=0;
+grid_g5="5";
+grid_g5_fixed=1;
+grid_g6 is "";
+grid_g6_fixed=0;
+grid_g7 is "";
+grid_g7_fixed=0;
+grid_g8 is "";
+grid_g8_fixed=0;
+grid_g9="1";
+grid_g9_fixed=1;
+grid_h1 is "";
+grid_h1_fixed=0;
+grid_h2="6";
+grid_h2_fixed=1;
+grid_h3 is "";
+grid_h3_fixed=0;
+grid_h4="4";
+grid_h4_fixed=1;
+grid_h5 is "";
+grid_h5_fixed=0;
+grid_h6 is "";
+grid_h6_fixed=0;
+grid_h7 is "";
+grid_h7_fixed=0;
+grid_h8="9";
+grid_h8_fixed=1;
+grid_h9 is "";
+grid_h9_fixed=0;
+grid_i1 is "";
+grid_i1_fixed=0;
+grid_i2 is "";
+grid_i2_fixed=0;
+grid_i3="1";
+grid_i3_fixed=1;
+grid_i4 is "";
+grid_i4_fixed=0;
+grid_i5 is "";
+grid_i5_fixed=0;
+grid_i6="7";
+grid_i6_fixed=1;
+grid_i7="8";
+grid_i7_fixed=1;
+grid_i8 is "";
+grid_i8_fixed=0;
+grid_i9 is "";
+grid_i9_fixed=0;
+autocalc=1;}action puzzle7 {autocalc=0;
+grid_a1="5";
+grid_a1_fixed=1;
+grid_a2 is "";
+grid_a2_fixed=0;
+grid_a3="4";
+grid_a3_fixed=1;
+grid_a4 is "";
+grid_a4_fixed=0;
+grid_a5 is "";
+grid_a5_fixed=0;
+grid_a6="6";
+grid_a6_fixed=1;
+grid_a7 is "";
+grid_a7_fixed=0;
+grid_a8 is "";
+grid_a8_fixed=0;
+grid_a9 is "";
+grid_a9_fixed=0;
+grid_b1 is "";
+grid_b1_fixed=0;
+grid_b2 is "";
+grid_b2_fixed=0;
+grid_b3="3";
+grid_b3_fixed=1;
+grid_b4 is "";
+grid_b4_fixed=0;
+grid_b5 is "";
+grid_b5_fixed=0;
+grid_b6 is "";
+grid_b6_fixed=0;
+grid_b7="7";
+grid_b7_fixed=1;
+grid_b8 is "";
+grid_b8_fixed=0;
+grid_b9 is "";
+grid_b9_fixed=0;
+grid_c1="1";
+grid_c1_fixed=1;
+grid_c2="2";
+grid_c2_fixed=1;
+grid_c3 is "";
+grid_c3_fixed=0;
+grid_c4 is "";
+grid_c4_fixed=0;
+grid_c5="4";
+grid_c5_fixed=1;
+grid_c6 is "";
+grid_c6_fixed=0;
+grid_c7 is "";
+grid_c7_fixed=0;
+grid_c8="8";
+grid_c8_fixed=1;
+grid_c9 is "";
+grid_c9_fixed=0;
+grid_d1 is "";
+grid_d1_fixed=0;
+grid_d2 is "";
+grid_d2_fixed=0;
+grid_d3 is "";
+grid_d3_fixed=0;
+grid_d4="3";
+grid_d4_fixed=1;
+grid_d5 is "";
+grid_d5_fixed=0;
+grid_d6="5";
+grid_d6_fixed=1;
+grid_d7 is "";
+grid_d7_fixed=0;
+grid_d8 is "";
+grid_d8_fixed=0;
+grid_d9="9";
+grid_d9_fixed=1;
+grid_e1 is "";
+grid_e1_fixed=0;
+grid_e2 is "";
+grid_e2_fixed=0;
+grid_e3="1";
+grid_e3_fixed=1;
+grid_e4 is "";
+grid_e4_fixed=0;
+grid_e5 is "";
+grid_e5_fixed=0;
+grid_e6 is "";
+grid_e6_fixed=0;
+grid_e7="6";
+grid_e7_fixed=1;
+grid_e8 is "";
+grid_e8_fixed=0;
+grid_e9 is "";
+grid_e9_fixed=0;
+grid_f1="9";
+grid_f1_fixed=1;
+grid_f2 is "";
+grid_f2_fixed=0;
+grid_f3 is "";
+grid_f3_fixed=0;
+grid_f4="2";
+grid_f4_fixed=1;
+grid_f5 is "";
+grid_f5_fixed=0;
+grid_f6="4";
+grid_f6_fixed=1;
+grid_f7 is "";
+grid_f7_fixed=0;
+grid_f8 is "";
+grid_f8_fixed=0;
+grid_f9 is "";
+grid_f9_fixed=0;
+grid_g1 is "";
+grid_g1_fixed=0;
+grid_g2="8";
+grid_g2_fixed=1;
+grid_g3 is "";
+grid_g3_fixed=0;
+grid_g4 is "";
+grid_g4_fixed=0;
+grid_g5="3";
+grid_g5_fixed=1;
+grid_g6 is "";
+grid_g6_fixed=0;
+grid_g7 is "";
+grid_g7_fixed=0;
+grid_g8="1";
+grid_g8_fixed=1;
+grid_g9="2";
+grid_g9_fixed=1;
+grid_h1 is "";
+grid_h1_fixed=0;
+grid_h2 is "";
+grid_h2_fixed=0;
+grid_h3="7";
+grid_h3_fixed=1;
+grid_h4 is "";
+grid_h4_fixed=0;
+grid_h5 is "";
+grid_h5_fixed=0;
+grid_h6 is "";
+grid_h6_fixed=0;
+grid_h7="9";
+grid_h7_fixed=1;
+grid_h8 is "";
+grid_h8_fixed=0;
+grid_h9 is "";
+grid_h9_fixed=0;
+grid_i1 is "";
+grid_i1_fixed=0;
+grid_i2 is "";
+grid_i2_fixed=0;
+grid_i3 is "";
+grid_i3_fixed=0;
+grid_i4="6";
+grid_i4_fixed=1;
+grid_i5 is "";
+grid_i5_fixed=0;
+grid_i6 is "";
+grid_i6_fixed=0;
+grid_i7="8";
+grid_i7_fixed=1;
+grid_i8 is "";
+grid_i8_fixed=0;
+grid_i9="7";
+grid_i9_fixed=1;
+autocalc=1;}action puzzle8 {autocalc=0;
+grid_a1 is "";
+grid_a1_fixed=0;
+grid_a2 is "";
+grid_a2_fixed=0;
+grid_a3 is "";
+grid_a3_fixed=0;
+grid_a4 is "";
+grid_a4_fixed=0;
+grid_a5 is "";
+grid_a5_fixed=0;
+grid_a6 is "";
+grid_a6_fixed=0;
+grid_a7 is "";
+grid_a7_fixed=0;
+grid_a8="2";
+grid_a8_fixed=1;
+grid_a9 is "";
+grid_a9_fixed=0;
+grid_b1 is "";
+grid_b1_fixed=0;
+grid_b2 is "";
+grid_b2_fixed=0;
+grid_b3 is "";
+grid_b3_fixed=0;
+grid_b4 is "";
+grid_b4_fixed=0;
+grid_b5 is "";
+grid_b5_fixed=0;
+grid_b6 is "";
+grid_b6_fixed=0;
+grid_b7 is "";
+grid_b7_fixed=0;
+grid_b8="5";
+grid_b8_fixed=1;
+grid_b9="3";
+grid_b9_fixed=1;
+grid_c1 is "";
+grid_c1_fixed=0;
+grid_c2="4";
+grid_c2_fixed=1;
+grid_c3="9";
+grid_c3_fixed=1;
+grid_c4="6";
+grid_c4_fixed=1;
+grid_c5 is "";
+grid_c5_fixed=0;
+grid_c6 is "";
+grid_c6_fixed=0;
+grid_c7 is "";
+grid_c7_fixed=0;
+grid_c8 is "";
+grid_c8_fixed=0;
+grid_c9 is "";
+grid_c9_fixed=0;
+grid_d1 is "";
+grid_d1_fixed=0;
+grid_d2="1";
+grid_d2_fixed=1;
+grid_d3 is "";
+grid_d3_fixed=0;
+grid_d4="8";
+grid_d4_fixed=1;
+grid_d5 is "";
+grid_d5_fixed=0;
+grid_d6 is "";
+grid_d6_fixed=0;
+grid_d7 is "";
+grid_d7_fixed=0;
+grid_d8 is "";
+grid_d8_fixed=0;
+grid_d9 is "";
+grid_d9_fixed=0;
+grid_e1 is "";
+grid_e1_fixed=0;
+grid_e2="8";
+grid_e2_fixed=1;
+grid_e3="7";
+grid_e3_fixed=1;
+grid_e4="2";
+grid_e4_fixed=1;
+grid_e5 is "";
+grid_e5_fixed=0;
+grid_e6 is "";
+grid_e6_fixed=0;
+grid_e7 is "";
+grid_e7_fixed=0;
+grid_e8 is "";
+grid_e8_fixed=0;
+grid_e9 is "";
+grid_e9_fixed=0;
+grid_f1 is "";
+grid_f1_fixed=0;
+grid_f2 is "";
+grid_f2_fixed=0;
+grid_f3 is "";
+grid_f3_fixed=0;
+grid_f4 is "";
+grid_f4_fixed=0;
+grid_f5 is "";
+grid_f5_fixed=0;
+grid_f6="9";
+grid_f6_fixed=1;
+grid_f7="1";
+grid_f7_fixed=1;
+grid_f8="4";
+grid_f8_fixed=1;
+grid_f9 is "";
+grid_f9_fixed=0;
+grid_g1 is "";
+grid_g1_fixed=0;
+grid_g2 is "";
+grid_g2_fixed=0;
+grid_g3 is "";
+grid_g3_fixed=0;
+grid_g4 is "";
+grid_g4_fixed=0;
+grid_g5 is "";
+grid_g5_fixed=0;
+grid_g6="3";
+grid_g6_fixed=1;
+grid_g7 is "";
+grid_g7_fixed=0;
+grid_g8="9";
+grid_g8_fixed=1;
+grid_g9 is "";
+grid_g9_fixed=0;
+grid_h1="2";
+grid_h1_fixed=1;
+grid_h2="5";
+grid_h2_fixed=1;
+grid_h3 is "";
+grid_h3_fixed=0;
+grid_h4 is "";
+grid_h4_fixed=0;
+grid_h5 is "";
+grid_h5_fixed=0;
+grid_h6="7";
+grid_h6_fixed=1;
+grid_h7="4";
+grid_h7_fixed=1;
+grid_h8="6";
+grid_h8_fixed=1;
+grid_h9 is "";
+grid_h9_fixed=0;
+grid_i1 is "";
+grid_i1_fixed=0;
+grid_i2="6";
+grid_i2_fixed=1;
+grid_i3 is "";
+grid_i3_fixed=0;
+grid_i4 is "";
+grid_i4_fixed=0;
+grid_i5 is "";
+grid_i5_fixed=0;
+grid_i6 is "";
+grid_i6_fixed=0;
+grid_i7 is "";
+grid_i7_fixed=0;
+grid_i8 is "";
+grid_i8_fixed=0;
+grid_i9 is "";
+grid_i9_fixed=0;
+autocalc=1;}action puzzle9 {autocalc=0;
+grid_a1 is "";
+grid_a1_fixed=0;
+grid_a2 is "";
+grid_a2_fixed=0;
+grid_a3="3";
+grid_a3_fixed=1;
+grid_a4 is "";
+grid_a4_fixed=0;
+grid_a5 is "";
+grid_a5_fixed=0;
+grid_a6 is "";
+grid_a6_fixed=0;
+grid_a7="4";
+grid_a7_fixed=1;
+grid_a8 is "";
+grid_a8_fixed=0;
+grid_a9 is "";
+grid_a9_fixed=0;
+grid_b1 is "";
+grid_b1_fixed=0;
+grid_b2 is "";
+grid_b2_fixed=0;
+grid_b3 is "";
+grid_b3_fixed=0;
+grid_b4="6";
+grid_b4_fixed=1;
+grid_b5 is "";
+grid_b5_fixed=0;
+grid_b6 is "";
+grid_b6_fixed=0;
+grid_b7 is "";
+grid_b7_fixed=0;
+grid_b8="2";
+grid_b8_fixed=1;
+grid_b9 is "";
+grid_b9_fixed=0;
+grid_c1="8";
+grid_c1_fixed=1;
+grid_c2 is "";
+grid_c2_fixed=0;
+grid_c3 is "";
+grid_c3_fixed=0;
+grid_c4 is "";
+grid_c4_fixed=0;
+grid_c5="9";
+grid_c5_fixed=1;
+grid_c6 is "";
+grid_c6_fixed=0;
+grid_c7 is "";
+grid_c7_fixed=0;
+grid_c8 is "";
+grid_c8_fixed=0;
+grid_c9 is "";
+grid_c9_fixed=0;
+grid_d1 is "";
+grid_d1_fixed=0;
+grid_d2 is "";
+grid_d2_fixed=0;
+grid_d3="1";
+grid_d3_fixed=1;
+grid_d4="3";
+grid_d4_fixed=1;
+grid_d5 is "";
+grid_d5_fixed=0;
+grid_d6 is "";
+grid_d6_fixed=0;
+grid_d7 is "";
+grid_d7_fixed=0;
+grid_d8 is "";
+grid_d8_fixed=0;
+grid_d9="8";
+grid_d9_fixed=1;
+grid_e1 is "";
+grid_e1_fixed=0;
+grid_e2="9";
+grid_e2_fixed=1;
+grid_e3 is "";
+grid_e3_fixed=0;
+grid_e4 is "";
+grid_e4_fixed=0;
+grid_e5 is "";
+grid_e5_fixed=0;
+grid_e6 is "";
+grid_e6_fixed=0;
+grid_e7 is "";
+grid_e7_fixed=0;
+grid_e8="4";
+grid_e8_fixed=1;
+grid_e9 is "";
+grid_e9_fixed=0;
+grid_f1="2";
+grid_f1_fixed=1;
+grid_f2 is "";
+grid_f2_fixed=0;
+grid_f3 is "";
+grid_f3_fixed=0;
+grid_f4 is "";
+grid_f4_fixed=0;
+grid_f5 is "";
+grid_f5_fixed=0;
+grid_f6="7";
+grid_f6_fixed=1;
+grid_f7="6";
+grid_f7_fixed=1;
+grid_f8 is "";
+grid_f8_fixed=0;
+grid_f9 is "";
+grid_f9_fixed=0;
+grid_g1 is "";
+grid_g1_fixed=0;
+grid_g2 is "";
+grid_g2_fixed=0;
+grid_g3 is "";
+grid_g3_fixed=0;
+grid_g4 is "";
+grid_g4_fixed=0;
+grid_g5="8";
+grid_g5_fixed=1;
+grid_g6 is "";
+grid_g6_fixed=0;
+grid_g7 is "";
+grid_g7_fixed=0;
+grid_g8 is "";
+grid_g8_fixed=0;
+grid_g9="1";
+grid_g9_fixed=1;
+grid_h1 is "";
+grid_h1_fixed=0;
+grid_h2="4";
+grid_h2_fixed=1;
+grid_h3 is "";
+grid_h3_fixed=0;
+grid_h4 is "";
+grid_h4_fixed=0;
+grid_h5 is "";
+grid_h5_fixed=0;
+grid_h6="2";
+grid_h6_fixed=1;
+grid_h7 is "";
+grid_h7_fixed=0;
+grid_h8 is "";
+grid_h8_fixed=0;
+grid_h9 is "";
+grid_h9_fixed=0;
+grid_i1 is "";
+grid_i1_fixed=0;
+grid_i2 is "";
+grid_i2_fixed=0;
+grid_i3="7";
+grid_i3_fixed=1;
+grid_i4 is "";
+grid_i4_fixed=0;
+grid_i5 is "";
+grid_i5_fixed=0;
+grid_i6 is "";
+grid_i6_fixed=0;
+grid_i7="5";
+grid_i7_fixed=1;
+grid_i8 is "";
+grid_i8_fixed=0;
+grid_i9 is "";
+grid_i9_fixed=0;
+autocalc=1;}
