@@ -578,10 +578,10 @@ Eden.SyntaxError.db = [
 
 
 
-Eden.SyntaxError.prototype.extractBefore = function(maxchar) {
+Eden.SyntaxError.prototype.extractBefore = function(maxchar, ignoreline) {
 	var pos = this.prevposition;
 	while (pos > 0 && maxchar > 0) {
-		if (this.context.stream.code.charCodeAt(pos) == 10) {
+		if (!ignoreline && this.context.stream.code.charCodeAt(pos) == 10) {
 			break;
 		}
 		pos--;
@@ -597,10 +597,10 @@ Eden.SyntaxError.prototype.extractToken = function() {
 	return this.context.stream.code.substr(this.prevposition, this.position - this.prevposition);
 };
 
-Eden.SyntaxError.prototype.extractAfter = function(maxchar) {
+Eden.SyntaxError.prototype.extractAfter = function(maxchar, ignoreline) {
 	var pos = this.position;
 	while (pos < this.context.stream.code.length && maxchar > 0) {
-		if (this.context.stream.code.charCodeAt(pos) == 10) {
+		if (!ignoreline && this.context.stream.code.charCodeAt(pos) == 10) {
 			//pos--;
 			break;
 		}

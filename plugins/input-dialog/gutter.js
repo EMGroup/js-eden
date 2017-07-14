@@ -345,6 +345,7 @@ EdenScriptGutter.prototype.executeSelected = function() {
 			var stat = this.ast.getStatementByLine(i);
 			var sellines = this.ast.getStatementByLine(i).getRange();
 			//this.ast.executeLine(i, agent);
+			Eden.DB.log("play", {project: (eden.project) ? eden.project.id : -1, source: stat.getSource()});
 			eden.project.ast.executeStatement(stat, i, eden.project);
 			i = sellines[1];
 			eden.root.lookup("jseden_fragment_executed").assign(".id("+stat.id+")", eden.root.scope, EdenSymbol.hciAgent);

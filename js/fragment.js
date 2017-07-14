@@ -16,6 +16,7 @@ Eden.Fragment = function(selector) {
 	this.history = [];
 	this.snapshot = "";
 	this.index = -1;
+	this.errtout = undefined;
 
 	//console.error("FRAGMENT");
 
@@ -361,6 +362,17 @@ Eden.Fragment.prototype.setSource = function(src) {
 	} else {
 		// Oops, errors.
 		Eden.Fragment.emit("errored", [this]);
+
+		if (!me.errtout) {
+			me.errtout = setTimeout(function() {
+				me.errtout = undefined;
+				if (me.ast.errors.length > 0) {
+					var err = me.ast.errors[0];
+					Eden.DB.log("syntaxerror", {project: (eden.project) ? eden.project.id : -1, error:
+						{code: err.errno, line: err.line, message: err.messageText(), source:  err.extractBefore(20, true) + ">>> " + err.extractToken() + " <<<" + err.extractAfter(20, true)}});
+				}
+			}, 3000);
+		}
 	}
 }
 
