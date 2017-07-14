@@ -293,7 +293,7 @@ function Construit(options,callback) {
 									if (mode !== null && mode != "") {
 										eden.root.lookup("jseden_project_mode").assign(mode, eden.root.scope, Symbol.defaultAgent);
 									}
-									Eden.DB.log("urlload", {useragent: navigator.userAgent, referrer: document.referrer, pid: load, vid: vid, "private": readPassword !== null});
+									Eden.DB.log("urlload", {href: window.location.href, useragent: navigator.userAgent, referrer: document.referrer, pid: load, vid: vid, "private": readPassword !== null});
 									Eden.Project.load(parseInt(load),(vid === null || vid == "") ? undefined : parseInt(vid),(readPassword === null || readPassword == "") ? undefined : readPassword,function(){ doneLoading(true); });
 								} else if (restore != "") {
 									if (mode !== null && mode != "") {
@@ -304,7 +304,7 @@ function Construit(options,callback) {
 								} else {
 									// Background load library...
 									//Eden.Agent.importAgent("lib","default", [], function() {});
-									Eden.DB.log("home", {referrer: document.referrer, useragent: navigator.userAgent});
+									Eden.DB.log("home", {href: window.location.href, referrer: document.referrer, useragent: navigator.userAgent});
 									doneLoading(false);
 								}
 							});
