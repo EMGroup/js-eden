@@ -677,7 +677,7 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 
 	if (fullexpire && this.origin && this.origin.type == "definition") this.origin.expire();
 
-	if (this.has_evaled || (fullexpire && this.needsGlobalNotify != EdenSymbol.EXPIRED)) {
+	//if (this.has_evaled || (fullexpire && this.needsGlobalNotify != EdenSymbol.EXPIRED)) {
 
 		for (var observer_name in this.observers) {
 			actions_to_fire[observer_name] = this.observers[observer_name];
@@ -713,9 +713,9 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 				subscriber.expire(EdenSymbols_to_force, insertionIndex, actions_to_fire,fullexpire);
 			}
 		}
-	} else {
+	//} else {
 		//console.log("NO EXPIRE", this.name);
-	}
+	//}
 };
 
 EdenSymbol.prototype.isDependentOn = function (name) {
