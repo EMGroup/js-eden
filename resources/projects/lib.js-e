@@ -3874,6 +3874,600 @@ proc removeedenclock {
 }
 }
 
+action functional {
+/**
+ * @title Functional Programming Library
+ * Copyright (c) 2014, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ *
+ * Functions commonly found in or inspired by functional programming languages.
+ */
+
+#!compose(f, g)(x) returns f(g(x)).
+func compose {
+	${{
+		var functions;
+
+		if (arguments.length == 1 && Array.isArray(arguments[0])) {
+			functions = arguments[0];
+		} else {
+			functions = arguments;
+		}
+		
+		//Return the identity function if a zero length list of functions are composed.
+		if (functions.length == 0) {
+			return function () {
+				if (arguments.length == 1) {
+					return arguments[0];
+				} else {
+					return Array.prototype.slice.call(arguments);
+				}
+			};
+		}
+		
+		for (var i = 0; i < functions.length; i++) {
+			if (typeof(functions[i]) != "function") {
+				eden.error(new Error("compose: Item " + i + " must be a func, not a " + typeof(functions[i])), "error");
+				return undefined;
+			}
+		}
+		
+		if (functions.length == 1) {
+			return functions[0];
+		} else {
+			return function () {
+				var result = functions[functions.length - 1].apply(this, Array.prototype.slice.call(arguments));
+				for (var i = functions.length - 2; i >= 0; i--) {
+					result = functions[i](result);
+				}
+				return result;
+			};
+		}
+	}}$;
+}
+
+func foldl {
+	para p1,p2,p3;
+	auto f, initialValue, list, i, value;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 2) {
+		error("foldl: This function requires at least 2 arguments.");
+		return @;
+	} else if (argc == 3 && isList(p2)) {
+		f = p1;
+		initialValue = p2;
+		list = p3;
+	} else {
+		f = p1;
+		initialValue = p2;
+		list = sublist(${{ arguments }}$, 3, argc);
+	}
+	
+	if (f == @) {
+		return @;
+	} else if (!isFunc(f)) {
+		error("foldl: The first argument must be a function, not a " // type(f));
+		return @;
+	}
+	
+	value = initialValue;
+	for (i = 1; i <= list#; i++) {
+		value = f(value, list[i]);
+	}
+	return value;
+}
+
+func foldr {
+	para p1,p2,p3;
+	auto f, initialValue, list, i, value;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 2) {
+		error("foldr: This function requires at least 2 arguments.");
+		return @;
+	} else if (argc == 3 && isList(p2)) {
+		f = p1;
+		initialValue = p2;
+		list = p3;
+	} else {
+		f = p1;
+		initialValue = p2;
+		list = sublist(${{ arguments }}$, 3, argc);
+	}
+	
+	if (f == @) {
+		return @;
+	} else if (!isFunc(f)) {
+		error("foldr: The first argument must be a function, not a " // type(f));
+		return @;
+	}
+
+	value = initialValue;
+	for (i = list#; i >= 1; i--) {
+		value = f(value, list[i]);
+	}
+	return value;
+}
+
+#!This function is useful in conjunction with compose.  It converts an argument
+#list (a, b, c,...) into a list [a, b, c,...].
+func List {
+	return ${{ arguments }}$;
+}
+
+func map {
+	para p1, p2;
+	auto f, list, result, i;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 0) {
+		error("map: This function requires at least 1 argument.");
+		return @;
+	} else if (argc == 2 && p2 == @) {
+		return @;
+	} else if (argc == 2 && isList(p2)) {
+		f = p1;
+		list = p2;	
+	} else {
+		f = p1;
+		list = sublist(${{ arguments }}$, 2, argc);
+	}
+
+	if (f == @) {
+		return array(list#);
+	} else if (!isFunc(f)) {
+		error("map: The first argument must be a function, not a " // type(f));
+		return @;
+	}
+	
+	result = [];
+	for (i = 1; i <= list#; i++) {
+		append result, f(list[i]);
+	}
+	return result;
+}
+
+func mapPartial {
+	para p1,p2;
+	auto f, list, result, i;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 0) {
+		error("mapPartial: This function requires at least 1 argument.");
+		return @;
+	} else if (argc == 2 && p2 == @) {
+		return @;
+	} else if (argc == 2 && isList(p2)) {
+		f = p1;
+		list = p2;	
+	} else {
+		f = p1;
+		list = sublist(${{ arguments }}$, 2, argc);
+	}
+
+	if (f == @) {
+		return array(list#);
+	} else if (!isFunc(f)) {
+		error("mapPartial: The first argument must be a function, not a " // type(f));
+		return @;
+	}
+	
+	result = [];
+	for (i = 1; i <= list#; i++) {
+		if (list[i] == @) {
+			append result, @;
+		} else {
+			append result, f(list[i]);
+		}
+	}
+	return result;
+}
+
+
+func curry {
+	${{
+		if (arguments.length == 0) {
+			eden.error(new Error("curry: This function requires at least 1 argument."), "error");
+			return undefined;
+		}
+
+		var f = arguments[0];
+		if (f === undefined) {
+			return function () { return undefined; };
+		} else if (typeof(f) != "function") {
+			eden.error(new Error("curry: The first argument must be a func, not a " + typeof(f)), "error");
+			return undefined;
+		}
+		var curriedArgs = Array.prototype.slice.call(arguments, 1);
+		if ("bind" in f) {
+			return Function.prototype.bind.apply(f, [this].concat(curriedArgs));
+		} else {
+			//IE 8
+			return function () {
+				return f.apply(this, curriedArgs.concat(Array.prototype.slice.call(arguments)));
+			};
+		}
+	}}$;
+}
+
+#!Similar to currying, except that any combination of arguments can be applied
+#to produce a partially instantiated function, not just the leftmost argument.
+#
+#Example:
+#
+#	g = partApply(f, 1, "A", 3, "B");
+#	g("C", "D") is equivalent to f("A", "C", "B", D")
+#
+#	Can also be written as g = partApply(f, [1, "A", 3, "B"]);
+#
+func partApply {
+	${{
+		var argMap;
+		if (arguments.length == 0) {
+			eden.error(new Error("partApply: This function requires at least 1 argument."), "error");
+			return undefined;
+		}
+
+		var f = arguments[0];
+		if (f === undefined) {
+			return function () { return undefined; };
+		} else if (typeof(f) != "function") {
+			eden.error(new Error("partApply: The first argument must be a func, not a " + typeof(f)), "error");
+			return undefined;
+		} else if (arguments.length == 1) {
+			return f;
+		} else if (arguments.length == 2) {
+			if (Array.isArray(arguments[1])) {
+				argMap = arguments[1];
+			} else {
+				eden.error(new Error("partApply: The second argument must be a list or an int, not a " + typeof(arguments[1])), "error");
+				return undefined;			
+			}
+		} else if (arguments.length % 2 == 1) {
+			argMap = Array.prototype.slice.call(arguments, 1);
+		} else {
+			eden.error(new Error("partApply: This function requires exactly 2 arguments or an odd number of arguments, not " + arguments.length + " arguments."), "error");
+			return undefined;		
+		}
+		
+		for (var i = 0; i < argMap.length; i = i + 2) {
+			if (typeof(argMap[i]) != "number") {
+				eden.error(new Error("partApply: Argument" + (i+1).toString() + " must be an int, not a " + typeof(argMap[i])), "error");
+				return undefined;
+			} else if (isNaN(argMap[i])) {
+				eden.error(new Error("partApply: Argument" + (i+1).toString() + " must be an int, not a NaN."), "error");
+				return undefined;
+			} else if (!Number.isInteger(argMap[i])) {
+				eden.error(new Error("partApply: Argument" + (i+1).toString() + " must be an int, not a float."), "error");
+				return undefined;			
+			} else if (argMap[i] < 1) {
+				eden.error(new Error("partApply: Argument" + (i+1).toString() + " must be greater than zero, not " + argMap[i]), "error");
+				return undefined;
+			}
+		}
+		
+		return function () {
+			var fArgs = Array(argMap.length / 2);
+			var filledArgs = Array(argMap.length / 2);
+			
+			for (var i = 0; i < argMap.length; i = i + 2) {
+				fArgs[argMap[i] - 1] = argMap[i + 1];
+				filledArgs[argMap[i] - 1] = true;
+			}
+			
+			var slot = 0;
+			var argNum = 0;
+			while (slot < filledArgs.length && argNum < arguments.length) {
+				if (filledArgs[slot] != true) {
+					fArgs[slot] = arguments[argNum];
+					argNum++;
+				}
+				slot++;
+			}
+			while (argNum < arguments.length) {
+				fArgs[slot] = arguments[argNum];
+				argNum++;
+				slot++;
+			}
+			return f.apply(this, fArgs);
+		};
+	}}$;
+}
+
+#! sequenceItoJ - Build a sequence using a function with a numeric parameter
+# and explicitly defined numeric bounds.
+#
+# Computes a sequence where each element's value is derived from a number.
+#
+# result = [ f(low), f(low + increment),... f(high)]	(if high - low is wholly divisible by increment)
+#
+# In addition, if f has two parameters then the optional init parameter to sequenceItoJ applies and
+# f is provided with both an integer and the previous value in the sequence (basically a cross
+# between the basic sequenceItoJ functionality and the functionality of sequencePrevious).
+#
+# result = [ f(low,init), f(low+increment, f(low,init)), f(low+2*increment, f(low+increment,f(low,init))), ... ]
+#
+# See also: sequencePrevious
+#
+func sequenceItoJ {
+	para low, high, p3, p4, p5;
+	auto increment, f, init;
+	auto i, value, prevValue, result;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 3 || argc > 5) {
+		error("sequenceItoJ: This function requires at least 3 arguments and at most 5 arguments.");
+		return @;
+	}
+
+	if (argc < 5 && isCallable(p3)) {
+		increment = 1;
+		f = p3;
+		init = p4;
+	} else {
+		increment = p3;
+		f = p4;
+		init = p5;
+	}
+
+	if (low == @ || high == @ || increment == @ || f == @) {
+		return @;
+	} else if (!isNumber(low)) {
+		error("sequenceItoJ: The first argument must be a number, not a " // type(low));
+		return @;
+	} else if (!isNumber(high)) {
+		error("sequenceItoJ: The second argument must be a number, not a " // type(high));
+		return @;
+	} else if (!isNumber(increment)) {
+		error("sequenceItoJ: The amount to increment must be a number, not a " // type(increment));
+		return @;
+	} else if (!isCallable(f)) {
+		error("sequenceItoJ: The function to invoke must be a function, not a " // type(f));
+		return @;
+	}
+	
+	prevValue = init;
+	result = [];
+	for (i = low; i <= high; i = i + increment) {
+		value = f(i, prevValue);
+		append result, value;
+		prevValue = value;
+	}
+	return result;
+}
+
+#! sequenceN - Build a sequence using a function with a numeric parameter, a defined lower bound and
+# an integer number of steps.
+#
+# result = [ f(low), f(low + increment),... f(low + (n-1) * increment)]	(without init parameter)
+#
+func sequenceN {
+	para low, p2, p3, p4, p5;
+	auto increment, n, f, init;
+	auto high, i, value, prevValue, result;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 3 || argc > 5) {
+		error("sequenceN: This function requires at least 3 arguments and at most 5 arguments.");
+		return @;
+	}
+	
+	if (argc < 5 && isCallable(p3)) {
+		increment = 1;
+		n = p2;
+		f = p3;
+		init = p4;
+	} else {
+		increment = p2;
+		n = p3;
+		f = p4;
+		init = p5;
+	}
+	
+	if (low == @ || n == @ || increment == @ || f == @) {
+		return @;
+	} else if (!isNumber(low)) {
+		error("sequenceN: The first argument must be a number, not a " // type(low));
+		return @;
+	} else if (!isInt(n)) {
+		error("sequenceN: The number of steps must be an integer, not a " // type(n));
+		return @;
+	} else if (!isNumber(increment)) {
+		error("sequenceN: The amount to increment must be a number, not a " // type(increment));
+		return @;
+	} else if (!isCallable(f)) {
+		error("sequenceN: The function to invoke must be a function, not a " // type(f));
+		return @;
+	}
+	
+	high = low + (n - 1) * increment;
+	prevValue = init;
+	result = [];
+	for (i = low; i <= high; i = i + increment) {
+		value = f(i, prevValue);
+		append result, value;
+		prevValue = value;
+	}
+	return result;
+}
+
+#! sequenceArithmetic - A degenerate case of sequenceItoJ when the sequence values are the same as
+# the indices, that is, the sequence is a simple arithmetic progression.
+#
+# If the increment parameter is omitted then the increment defaults to 1.
+#
+func sequenceArithmetic {
+	para low, high;
+	auto increment, i, result;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 2 || argc > 3) {
+		error("sequenceArithmetic: This function requires at least 2 arguments and at most 3 arguments.");
+		return @;
+	}
+	if (argc == 2) {
+		increment = 1;
+	}
+	if (low == @ || high == @ || increment == @) {
+		return @;
+	} else if (!isNumber(low)) {
+		error("sequenceArithmetic: The first argument must be a number, not a " // type(low));
+		return @;
+	} else if (!isNumber(high)) {
+		error("sequenceArithmetic: The second argument must be a number, not a " // type(high));
+		return @;
+	} else if (!isNumber(increment)) {
+		error("sequenceArithmetic: The third must be a number, not a " // type(increment));
+		return @;
+	}
+	
+	result = [];
+	for (i = low; i <= high; i = i + increment) {
+		append result, i;
+	}
+	return result;
+}
+
+#! sequenceArithmeticN - A degenerate case of sequenceNSteps when the sequence values are the same
+# as the indices, that is, the sequence is a simple arithmetic progression.
+func sequenceArithmeticN {
+	para low, p2, p3;
+	auto increment, n;
+	auto high, i, result;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 2 || argc > 3) {
+		error("sequenceArithmeticN: This function requires at least 2 arguments and at most 3 arguments.");
+		return @;
+	}
+	
+	if (argc == 2) {
+		increment = 1;
+		n = p2;
+	} else {
+		increment = p2;
+		n = p3;
+	}
+	
+	if (low == @ || n == @ || increment == @) {
+		return @;
+	} else if (!isNumber(low)) {
+		error("sequenceArithmeticN: The first argument must be a number, not a " // type(low));
+		return @;
+	} else if (!isInt(n)) {
+		error("sequenceArithmeticN: The number of steps must be an integer, not a " // type(n));
+		return @;
+	} else if (!isNumber(increment)) {
+		error("sequenceArithmeticN: The amount to increment must be a number, not a " // type(increment));
+		return @;
+	}
+
+	high = low + (n - 1) * increment;
+	result = [];
+	for (i = low; i <= high; i = i + increment) {
+		append result, i;
+	}
+	return result;
+}
+
+#! sequenceList - Build a sequence from another list using list indices.
+#
+# result = [ f(list, 1), ... f(list, list#) ]
+#
+func sequenceList {
+	para f,p2;
+	auto list, result, i;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc == 0) {
+		error("sequenceList: This function requires at least one argument.");
+	} else if (argc == 2 && (p2 == @ || isList(p2))) {
+		list = p2;
+	} else {
+		list = sublist(${{ arguments }}$, 2);
+	}
+	
+	if (f == @ || list == @) {
+		return @;
+	} else if (!isCallable(f)) {
+		error("sequenceN: The first argument must be a function, not a " // type(f));
+		return @;
+	}
+	
+	result = [];
+	for (i = 1; i <= list#; i++) {
+		append result, f(list, i);
+	}
+	return result;
+}
+
+#! sequencePrevious - Build a sequence using the previous value.
+# If the optional n parameter is provided then the sequence will have exactly n elements, otherwise
+# the sequence will stop as soon f returns undefined (or if init is undefined).
+#
+# result = [ init, f(init), f(f(init)), ... ]
+#
+func sequencePrevious {
+	para f, init, p3;
+	auto n, i, value, prevValue, result;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 2 || argc > 3) {
+		error("sequencePrevious: This function requires at least 2 arguments and at most 3 arguments.");
+	}
+	
+	if (f == @ || init == @) {
+		return @;
+	} else if (!isCallable(f)) {
+		error("sequencePrevious: The first argument must be a function, not a " // type(f));
+		return @;	
+	}
+
+	if (argc == 3) {
+		n = p3;
+		if (n == @) {
+			return @;
+		} else if (!isInt(n)) {
+			error("sequencePrevious: The third argument must be an integer, not a " // type(n));
+			return @;
+		}
+	}
+	
+	prevValue = init;
+	result = [init];
+	if (n != @) {
+		for (i = 2; i <= n; i++) {
+			value = f(prevValue);
+			append result, value;
+			prevValue = value;
+		}
+	} else {
+		while (prevValue != @) {
+			value = f(prevValue);
+			if (value != @) {
+				append result, value;
+			}
+			prevValue = value;
+		}
+	}
+	return result;
+}
+
+}
+
 action html {
 /**
  * @title Bridging HTML/CSS
