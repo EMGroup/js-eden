@@ -12,7 +12,7 @@
 	/*padding-top: 4px;*/
 	padding-right: 20px;
 	z-index: 2147483646; /* One less than max so that fullscreen works */
-	box-shadow: 0 0 15px black; /*#4a6887*/
+	/*box-shadow: 0 0 15px black;*/ /*#4a6887*/
 }
 
 div.menubar-sharebox {
@@ -86,8 +86,8 @@ div.menubar-buttons {
 	float: right;
 	height: 45px;
 	line-height: 45px;
-	margin-right: 20px;
-	padding-right: 25px;
+	margin-right: 5px;
+	padding-right: 15px;
 	border-right: 1px solid #444;
 	border-left: 1px solid #444;
 	padding-left: 25px;

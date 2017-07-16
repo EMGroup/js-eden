@@ -3,9 +3,6 @@
 #
 # See LICENSE.txt
 
-action plugins {
-action canvas {
-action canvas {
 
 #Initialize observables
 mouseButton = "";
@@ -444,6 +441,7 @@ func observablesAt {
 	return obsList;
 }
 
+
 #! A 3D point containing x, y and z. #library
 Point3D is ${{ new Point3D }}$ ($1, $2, $3);
 
@@ -451,58 +449,3 @@ Point2D is ${{ new Point }}$ ($1,$2);
 
 RGB is "rgb("//$1//","//$2//","//$3//")";
 
-do lib:unexecuted;
-do plugins > canvas > arc;
-do plugins > canvas > arrowhead;
-do plugins > canvas > button;
-do plugins > canvas > checkbox;
-do plugins > canvas > circle;
-do plugins > canvas > combobox;
-do plugins > canvas > curve;
-do plugins > canvas > div;
-do plugins > canvas > dropdownlist;
-do plugins > canvas > ellipse;
-do plugins > canvas > fillpattern;
-do plugins > canvas > flowlayout;
-do plugins > canvas > greypixellist;
-do plugins > canvas > canvasimage;
-do plugins > canvas > htmlimage;
-do plugins > canvas > line;
-do plugins > canvas > lineargradient;
-do plugins > canvas > linesequence;
-do plugins > canvas > polygon;
-do plugins > canvas > rectangle;
-do plugins > canvas > slider;
-do plugins > canvas > text;
-do plugins > canvas > pixel;
-do plugins > canvas > pixellist;
-do plugins > canvas > radialgradient;
-do plugins > canvas > radiobuttons;
-do plugins > canvas > regularpolygon;
-do plugins > canvas > rotation;
-do plugins > canvas > roundedrectangle;
-do plugins > canvas > scaling;
-do plugins > canvas > sector;
-do plugins > canvas > shadow;
-do plugins > canvas > tablelayout;
-do plugins > canvas > textbox;
-do plugins > canvas > translation;
-do plugins > canvas > video;
-do plugins > canvas > view;
-do plugins > canvas > texture;
-do plugins > canvas > mesh;
-do plugins > canvas > uvmap;
-do plugins > canvas > shape;
-do plugins > canvas > cube;
-do plugins > canvas > plane;
-do plugins > canvas > sphere;
-do plugins > canvas > light;
-do plugins > canvas > spotlight;
-do plugins > canvas > line3d;
-do plugins > canvas > isosurface;
-
-}
-}
-}
-
-do plugins > canvas > canvas;

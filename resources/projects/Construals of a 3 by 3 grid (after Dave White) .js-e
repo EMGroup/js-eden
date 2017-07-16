@@ -1,0 +1,175 @@
+/**
+ * @title Start Your Model
+ */
+action start {
+import Layouts > book;
+do book;
+
+pages is ["page1", "page2", "page3", "configure"];
+
+}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+if (jseden_project_mode != "safe") do :project > start;
+else createView("safemode","ScriptInput");
+
+action ACTIVE {
+jseden_project_title = "Construals of a 3 by 3 grid (after Dave White) ";
+views_number_created = 0;
+jseden_autosave = false;
+jseden_leaveprompt = false;
+jseden_menu_visible = false;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+mousePosition = Point(626.0119760479041, 7.760479041916167);
+mouseView = "bookpic";
+mouseZone = @;
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+plugins_html_loaded = true;
+mouseVelocity = Point(0, 0);
+jseden_project_name = "Construalsofa3by3gridafterDaveWhite";
+jseden_project_thumb = "data:image/png;base64,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";
+jseden_project_author = "Meurig Beynon";
+views_list = ["bookpic"];
+jseden_fragment_executed = ".id(Representing a square as an array of squares@1578458839)";
+pages is ["page1", "page2", "page3", "configure"];
+picture is squares;
+view_bookpic_visibility = "visible";
+view_bookpic_title = "Canvas bookpic";
+view_bookpic_content is bookpic;
+view_bookpic_background_colour = "white";
+view_bookpic_scale = 1;
+view_bookpic_offset = Point(0, 0);
+view_bookpic_canvas_right = @;
+view_bookpic_canvas_bottom = @;
+view_bookpic_grid_visible = false;
+view_bookpic_grid_spacing = 20;
+view_bookpic_type = "Canvas2D";
+view_bookscript2_query is jseden_script_query;
+size = 20;
+x = 1;
+y = 1;
+squareXY is Rectangle(x*size, y*size,
+			size, size, colsqs[3*(x-1)+y]);
+squares is squareXY with x is 1..3, y is 1..3;
+colXY is rgb2colour(x*80, y*80, (x+y)*40);
+func rgb2colour {
+	para r,g,b;
+	return "rgb("//r//","//g//","//b//")";
+}
+colsqs is colXY with x is 1..3, y is 1..3;
+}
+
+action page1 {## Representing a square as an array of squares
+
+size = 20;
+
+x = 1;
+y = 1;
+squareXY is Rectangle(x*size, y*size, size, size);
+picture is [squareXY];
+
+squares is squareXY with x is 1..3, y is 1..3;
+picture is squares;
+
+colXY is rgb2colour(x*80, y*80, (x+y)*40);
+colsqs is colXY with x is 1..3, y is 1..3;
+
+squareXY is Rectangle(x*size, y*size,
+			size, size, colsqs[3*(x-1)+y]);
+
+func rgb2colour {
+	para r,g,b;
+	return "rgb("//r//","//g//","//b//")";
+}
+}action page2 {## Representing a square using rectangles
+
+size = 20;
+
+y = 1;
+rectangleXY is Rectangle(size, y*size, 3*size, size);
+picture is [rectangleXY];
+
+rectanglesXY is rectangleXY with y is 1..3;
+picture is rectanglesXY;
+
+x = 1;
+rectangleYX is Rectangle(x*size, size, size, 3*size);
+picture is [rectangleYX];
+
+rectanglesYX is rectangleYX with x is 1..3;
+picture is rectanglesYX // rectanglesXY;
+
+#---
+
+colXY is ["red", "green", "blue"];
+colYX is colXY;
+
+rectangleYX is Rectangle(x*size, size, size, 3*size, colYX[x]);
+
+rectangleXY is Rectangle(size, y*size, 3*size, size, colXY[y]);
+
+picture is rectanglesXY // rectanglesYX;
+
+{
+colXY is [@,@,@];
+}
+}action page3 {##Representing a square using lines
+
+size = 20;
+
+line123 is Line(size,y*size,size+3*size, y*size);
+picture is [line123];
+
+rowlines is line123 with y is 1..4;
+
+picture is rowlines;
+
+line157 is Line(x*size, size, x*size,size+3*size); 
+
+collines is line157 with x is 1..4;
+
+picture is collines // rowlines;
+
+
+
+
+
+}action configure {##Configuring grids for display
+
+#Can set parameters for Translate() 
+#* to display different representations at the same time  
+#* to reveal the different ways in which the 3 by 3  grid is being conceived
+
+squareXY is Translate(0,10,Rectangle(x*size, y*size,
+			size, size, colsqs[3*(x-1)+y]));
+
+rectangleYX is Translate(70,10,Rectangle(x*size, size, size, 3*size, colYX[x]));
+
+rectangleXY is Translate(140,10,Rectangle(size, y*size, 3*size, size, colXY[y]));
+
+line123 is Translate(210,10, Line(size,y*size,size+3*size, y*size));
+
+line157 is Translate(280,10, Line(x*size, size, x*size,size+3*size));
+
+#An example display
+picture is squares // (rectanglesXY // rectanglesYX) // collines // rowlines;
+
+{
+colXY is [@,@,@];
+}
+
+{
+colXY is ["red", "green", "blue"];
+colYX is colXY;
+}
+}

@@ -125,6 +125,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 			me.remove();
 			if (!me.newtab) {
 				$(".loadmodal").show();
+				Eden.DB.log("open", {pid: projectid});
 				Eden.Project.load(projectid);
 			} else {
 				window.open(window.location.origin + window.location.pathname + "?load="+projectid);
@@ -134,6 +135,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 		buttons.on("click",".deleteproject", function() {
 			if (confirm("Are you sure you want to delete this project?")) {
 				me.remove();
+				Eden.DB.log("delete", {pid: projectid});
 				Eden.DB.remove(projectid);
 			}
 		});
@@ -210,6 +212,8 @@ EdenUI.ProjectDetails.searchProjects = function(output, query, count, cb, newtab
 	var maxres = (count) ? count : 7;
 	var page = 1;
 
+	//Eden.DB.log("projectsearch", {q: query});
+
 	output.on("click",".more",function(e) {
 		output.find(".more").remove();
 		page++;
@@ -276,7 +280,8 @@ EdenUI.ProjectDetails._searchProjects = function(query, output, pub, projects, c
 
 		ele.click(function(e) {
 			var pid = e.currentTarget.getAttribute("data-pid");
-			console.log("Load project: " + pid); // + "@"+tag);
+			//console.log("Load project: " + pid); // + "@"+tag);
+			Eden.DB.log("view", {pid: pid});
 			new EdenUI.ProjectDetails(pid, newtab);
 		});
 

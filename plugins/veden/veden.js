@@ -155,6 +155,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		}
 
 		function moveElement(evt){
+			console.log("MOVE",evt);
 			if (selectedElement == 0) return;
 			evt.preventDefault();
 			dx = evt.layerX - currentX;
@@ -562,6 +563,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		}
 
 		svg1.droppable({drop: function(event, ui) {
+			console.log("DROPPABLE",event,ui);
 			var type = ui.draggable[0].getAttribute("data-block");
 			if (elementFactory[type]) {
 				var data = ui.draggable[0].getAttribute("data-value");

@@ -1,0 +1,169 @@
+/**
+ * @title Start Your Model
+ */
+action start {/* Enter some script here */
+import Layouts > book;
+do book;
+
+do :project > page1;
+do :project > display;
+
+pages is ["page1"];
+
+}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+if (jseden_project_mode != "safe") do :project > start;
+else createView("safemode","ScriptInput");
+
+action ACTIVE {
+jseden_project_title = "Resistor Colours";
+views_number_created = 0;
+jseden_autosave = false;
+jseden_leaveprompt = false;
+jseden_menu_visible = false;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+mousePosition = Point(637.2215568862275, 202.63473053892213);
+mouseView = "bookpic";
+mouseZone = @;
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+mouseVelocity = Point(0, 0);
+plugins_html_loaded = true;
+jseden_project_name = "ResistorColours";
+jseden_project_thumb = "data:image/png;base64,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";
+jseden_project_author = "Nicolas Pope";
+views_list = ["bookpic"];
+pages is ["page1"];
+picture is [valARect,valBRect,multiRect, tolRect, ohmsText];
+view_bookpic_visibility = "visible";
+view_bookpic_title = "Canvas bookpic";
+view_bookpic_content is bookpic;
+view_bookpic_background_colour = "white";
+view_bookpic_scale = 1;
+view_bookpic_offset = Point(0, 0);
+view_bookpic_canvas_right = @;
+view_bookpic_canvas_bottom = @;
+view_bookpic_grid_visible = false;
+view_bookpic_grid_spacing = 20;
+view_bookpic_type = "Canvas2D";
+ohms = 10000;
+tolerance = 5;
+multiplier is 
+	1000000 if ohms >= 10000000 else
+	100000 if ohms >= 1000000 else
+	10000 if ohms >= 100000 else
+	1000 if ohms >= 10000 else
+	100 if ohms >= 1000 else
+	10 if ohms >= 100 else
+	1;
+multi_colour is
+	"black" if multiplier == 1 else
+	"brown" if multiplier == 10 else
+	"red" if multiplier == 100 else
+	"orange" if multiplier == 1000 else
+	"yellow" if multiplier == 10000 else
+	"green" if multiplier == 100000 else
+	"blue";
+valueA is floor(ohms / multiplier / 10);
+valueB is floor(ohms / multiplier % 10);
+value_colours is
+	"black" if value == 0 else
+	"brown" if value == 1 else
+	"red" if value == 2 else
+	"orange" if value == 3 else
+	"yellow" if value == 4 else
+	"green" if value == 5 else
+	"blue"if value == 6 else
+	"violet" if value == 7 else
+	"grey" if value == 8 else
+	"white";
+valueA_colour is value_colours with value = valueA;
+valueB_colour is value_colours with value = valueB;
+tolerance_colour is
+	"gold" if tolerance == 5 else
+	"silver" if tolerance == 10 else
+	"transparent";
+resistor_x is book_width/4 - 100;
+resistor_y = 217;
+ohmsText is Text(str(ohms) // "Ω", resistor_x+100, resistor_y - 80, 60, "middle center");
+valARect is Rectangle(resistor_x, resistor_y, 200, 50, valueA_colour);
+valBRect is Rectangle(resistor_x, resistor_y+70, 200, 50, valueB_colour);
+multiRect is Rectangle(resistor_x, resistor_y+140, 200, 50, multi_colour);
+tolRect is Rectangle(resistor_x, resistor_y+250, 200, 50, tolerance_colour);
+view_bookscript2_query is jseden_script_query;
+}
+
+action page1 {## Set the Values
+
+ohms = 10000;
+tolerance = 5;
+
+## The Algorithm
+
+multiplier is 
+	1000000 if ohms >= 10000000 else
+	100000 if ohms >= 1000000 else
+	10000 if ohms >= 100000 else
+	1000 if ohms >= 10000 else
+	100 if ohms >= 1000 else
+	10 if ohms >= 100 else
+	1;
+
+multi_colour is
+	"black" if multiplier == 1 else
+	"brown" if multiplier == 10 else
+	"red" if multiplier == 100 else
+	"orange" if multiplier == 1000 else
+	"yellow" if multiplier == 10000 else
+	"green" if multiplier == 100000 else
+	"blue";
+
+valueA is floor(ohms / multiplier / 10);
+valueB is floor(ohms / multiplier % 10);
+
+value_colours is
+	"black" if value == 0 else
+	"brown" if value == 1 else
+	"red" if value == 2 else
+	"orange" if value == 3 else
+	"yellow" if value == 4 else
+	"green" if value == 5 else
+	"blue"if value == 6 else
+	"violet" if value == 7 else
+	"grey" if value == 8 else
+	"white";
+
+valueA_colour is value_colours with value = valueA;
+valueB_colour is value_colours with value = valueB;
+
+tolerance_colour is
+	"gold" if tolerance == 5 else
+	"silver" if tolerance == 10 else
+	"transparent";
+	
+
+
+
+}action display {resistor_x is book_width/4 - 100;
+resistor_y = 217;
+
+ohmsText is Text(str(ohms) // "Ω", resistor_x+100, resistor_y - 80, 60, "middle center");
+
+valARect is Rectangle(resistor_x, resistor_y, 200, 50, valueA_colour);
+valBRect is Rectangle(resistor_x, resistor_y+70, 200, 50, valueB_colour);
+multiRect is Rectangle(resistor_x, resistor_y+140, 200, 50, multi_colour);
+tolRect is Rectangle(resistor_x, resistor_y+250, 200, 50, tolerance_colour);
+
+
+picture is [valARect,valBRect,multiRect, tolRect, ohmsText];
+}

@@ -1,0 +1,451 @@
+/**
+ * @title Start Your Model
+ */
+action start {/* Enter some script here */
+
+import Layouts > presentation;
+do presentation;
+
+slide_remaining_x is screenWidth; /*view_scriptinput2_x;*/
+
+slidepic is picture // [embeddedscript, slide_buttons];
+
+slide_max=12;
+
+picture is [];
+jseden_project_title = "Penny Rolling Presentation";
+
+
+embeddedscript is View("slidescript", "ScriptInput",
+			slide_width/2, 0, slide_width/2, slide_resolution);
+view_slidescript_showtabs = false;
+view_slidescript_showbuttons = false;
+
+when (slideno) {
+	view_slidescript_tabs = ["start","stage"+(slideno-1)];
+	view_slidescript_current = 1;
+}
+
+k=7; /* default value of k */
+}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+do :project > start;
+
+action ACTIVE {
+jseden_project_title = "Penny Rolling Presentation";
+views_number_created = 0;
+jseden_autosave = false;
+jseden_leaveprompt = false;
+jseden_menu_visible = false;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+plugins_html_loaded = true;
+mouseVelocity = Point(0, 0);
+jseden_project_name = "PennyRollingPresentation";
+jseden_project_thumb = "data:image/png;base64,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";
+jseden_project_author = "Meurig Beynon";
+views_list = ["slidepic"];
+slide_max=12;
+slidepic is picture // [embeddedscript, slide_buttons];
+view_slidepic_visibility = "visible";
+view_slidepic_title = "Canvas slidepic";
+view_slidepic_content is slidepic;
+view_slidepic_background_colour = "white";
+view_slidepic_scale = 1;
+view_slidepic_offset = Point(0, 0);
+view_slidepic_canvas_right = @;
+view_slidepic_canvas_bottom = @;
+view_slidepic_grid_visible = false;
+view_slidepic_grid_spacing = 20;
+view_slidepic_type = "Canvas2D";
+slide_remaining_x is screenWidth;
+picture is [];
+embeddedscript is View("slidescript", "ScriptInput",
+			slide_width/2, 0, slide_width/2, slide_resolution);
+view_slidescript_showtabs = false;
+view_slidescript_showbuttons = false;
+view_slidescript_tabs = ["start","stage"+(slideno-1)];
+view_slidescript_current = 1;
+k=7;
+view_slidescript_query is jseden_script_query;
+}
+
+action stage1 {##Regular k-polygon construction
+
+###Make base line
+# define a base line from the middle of the picture horizontal to R
+
+picwidth is slide_width/2;
+picheight is slide_resolution;
+OX is Line(picwidth/2, picheight/2, picwidth/2+radx, picheight/2,"grey");
+radx = 91;
+picture is [OX];
+
+###Draw a side
+# construct a side of the regular polygon with k sides
+
+k = 7;
+polyangle is 360/k;
+lenside is 2 * tan(polyangle/2) * radx;
+side is Line(picwidth/2+radx, (picheight + lenside)/2, picwidth/2+radx,
+						(picheight - lenside)/2, "red");
+picture is [OX, side];
+
+###Draw a regular k-polygon
+# construct a regular polygon with k sides
+# rotate midpoint of a base side about the centre of the canvas
+
+side_i is CombinedRotation(
+	polyangle*i,
+	Point(picwidth/2+radx,picheight/2),
+	Point(picwidth/2,picheight/2),
+	polyangle*i, radx, [side]
+);
+
+picture is [OX, side] // (side_i with i is 1..k);}action stage2 {##Draw limiting circle
+
+# construct a circle of the same circumference as the polygon
+circumpolygon is k * 2 * radx * tan(180/k);
+radiuscoin is circumpolygon / (2 * PI);
+coinlimit is Circle(picwidth/2,picheight/2, radiuscoin, @, "lightblue");
+picture is [OX] // (side_i with i is 1..k) // [coinlimit];
+
+# as k tends to infinity the polygon converges to the circle
+
+##Make the radius of the penny independent of k
+
+#{size=14pt}As initially parametrised, k determines the penny size ...
+
+####Test different values of k
+k=3;
+k=25;
+k=7;
+
+####This is because the initial parametrisation has
+radx = 90;
+circumpolygon is k * 2 * radx * tan(180/k);
+radiuscoin is circumpolygon / (2 * PI);
+
+####Re-parametrise so that  the size of penny is fixed for all k
+radiuscoin = 90;  /* 90 is a good default value here*/
+circumpolygon is 2 * PI * radiuscoin ;
+radx is circumpolygon / (2*k*tan(180/k));
+
+/* definitions in actions are ordered to avoid cyclic dependency */
+
+}action stage4 {##Add parameters for rolling along a side
+
+#As `centreheight`, the height of the coin centre, ranges from `-lenside/2` to `+lenside2`, the orientation of the mark line, `mkangle`, varies from `polyangle/2` to `-polyangle/2`.
+
+#Introduce a parameter `lambda` that varies from -1 to 1
+#so that, as `lambda` varies from -1 to 1, centreheight` moves from `-lenside/2` to `+lenside2`,
+#and `mkangle` from `polyangle/2` to `-polyangle/2`
+
+####Initialise `mkangle` for test purposes
+mkangle = 0;
+centreheight = 0;
+lambda = 0;
+
+coinrotate is Circle(picwidth/2+radx+radiuscoin,picheight/2+centreheight,
+								radiuscoin, @, "blue");
+mkcoinrotate is Circle(picwidth/2+radx+(1+cos(mkangle))*radiuscoin,
+	picheight/2+centreheight+radiuscoin*sin(mkangle), 2*radiuscoin/radx);
+mklncoinrotate is Line(picwidth/2+radx+radiuscoin,
+	picheight/2+centreheight,
+	picwidth/2+radx+(1+cos(mkangle))*radiuscoin,
+	picheight/2+centreheight+radiuscoin*sin(mkangle), "blue");
+
+####Assign appropriate definitions to determine `mkangle` and `centreheight`
+
+centreheight is lambda * lenside/2;
+mkangle is lambda * polyangle/2;
+lambda = 1;
+picture is [OX] // (side_i with i is 1..k) //
+			[coinlimit, coinrotate, mkcoinrotate, mklncoinrotate];
+
+{
+	lambda = -1;
+}}action stage5 {
+##Add parameters for rolling around corner
+
+###rotate the coin through polyangle at corner
+# so that it is in position to rotate along the next side, assuming
+# `lambda` is 1 so that `centreheight` is `lenside/2`
+
+lambda = 1;
+nextposcoin is CombinedRotation(
+	-polyangle,
+	Point(picwidth/2+radx+radiuscoin,picheight/2+lenside/2),
+	Point(picwidth/2+radx, picheight/2+lenside/2),
+	radiuscoin,
+	[coinrotate,mkcoinrotate,mklncoinrotate]
+);
+
+picture is [OX, side] // (side_i with i is 1..k)
+						// [coinlimit,  nextposcoin];
+
+###show initial and final positions at the corner 
+picture is [OX, side] // (side_i with i is 1..k)
+ // [coinlimit, coinrotate, mkcoinrotate, mklncoinrotate, nextposcoin];
+
+###parametrise the corner rotation by mu (between 0 and 1)
+
+mu = 0.0;
+nextposcoin is CombinedRotation(
+	-polyangle*mu,
+	Point(picwidth/2+radx+radiuscoin,picheight/2+lenside/2),
+	Point(picwidth/2+radx, picheight/2+lenside/2),
+	radiuscoin,
+	[coinrotate,mkcoinrotate,mklncoinrotate]
+);
+
+}action stage6 {
+##Prepare to animate
+#Animate the penny rolling for a side and adjacent corner.
+
+###Set up parameter `lambda` to range from -1 to 1 as 
+#`lambdaval` takes on values from -lambdamax/2 to lambdamax/2 and ensure that
+#`lambda` is -1 if `lambdaval` is < -`lambdamax`/2 and 1 if `lambdaval` > `lambdamax`/2
+
+lambdamax = 1000;
+lambdaval = 576;
+lambdanorm is max(min(lambdamax/2, lambdaval),-lambdamax/2);
+lambda is 2 * lambdanorm/lambdamax;
+
+###Set up parameter mu to range from 0 to 1 as
+#`muval` takes on values from 1 to `mumax` and ensure that
+# `mu` is 0 if `muval` is < 0 and 1 if `muval` > `mumax`
+
+mumax = 1000;
+muval = -141;
+munorm is max(min(mumax, muval),0);
+mu is munorm/mumax;
+
+###Correlate the step sizes
+#`lambdamax` and `mumax` determine how fine grained the animation is
+# -- for uniformity in the animation both should be the same
+
+mumax is numstep;
+lambdamax is numstep;
+numstep = 1000;
+
+#Test the side rolling animation by setting `lambdaval` to `-lambdamax/2` (viz. -?(ACTIVE > lambdamax)/2) with `muval` to 0 and incrementing `lambdaval` until it has the value `lambdamax/2` (viz. ?(ACTIVE > lambdamax)/2)
+#then the corner rolling animation by incrementing `muval` until its value is `mumax` (viz. ?(ACTIVE > mumax))
+
+
+}action stage7 {
+
+##Animate the parameters `lambda` and `mu`
+#for `tick` in the range 0 to 2\*`numstep`
+
+###Set up the parametrisation and selection of the coin images
+lambdaval is tick-numstep/2 if (tick >= 0) && (tick < numstep)
+							else numstep;
+muval is tick-numstep if (tick >= numstep) && (tick < 2*numstep)
+					  else numstep;
+
+firstposcoin is [coinrotate,mkcoinrotate,mklncoinrotate];
+
+rotatedcoinimage is firstposcoin if (tick >= 0) && (tick < numstep)
+								 else nextposcoin;
+picture is (side_i with i is 1..k) // [rotatedcoinimage];
+
+
+
+}action annotated {## Annotated rolling along a side and around an adjacent corner
+
+sidecol is "cyan";
+side is Line(picwidth/2+radx, (picheight + lenside)/2, picwidth/2+radx, (picheight - lenside)/2, sidecol);
+side_i is CombinedRotation(
+	polyangle*i,
+	Point(picwidth/2+radx,picheight/2),
+	Point(picwidth/2,picheight/2),
+	polyangle*i,
+	radx,
+	[side with sidecol is "red"]
+);
+
+picture is (side_i with i is 1..k) // [rotatedcoinimage] // [side];
+
+lambdaline is Line(picwidth/2+radx, picheight/2+centreheight, picwidth/2+radx+2.2*radiuscoin, picheight/2+centreheight, "lightgrey");
+muline is Line(picwidth/2+radx, picheight/2+lenside/2,
+				picwidth/2+radx+2.2*radiuscoin*cos(mu*polyangle), picheight/2+lenside/2+2.2*radiuscoin*sin(mu*polyangle), "lightgrey");
+picture is (side_i with i is 1..k) // [rotatedcoinimage] // [OX,side, lambdaline, muline];
+
+tick = 0;
+
+picture is (muline with muval is 0..muval) // (lambdaline with lambdaval is (-numstep/2)..lambdaval) //
+						(side_i with i is 1..k) // [rotatedcoinimage] // [OX,side];
+picture is (muline with muval is 0..muval) //
+						(side_i with i is 1..k) // [rotatedcoinimage] // [OX,side, lambdaline];
+picture is (muline with muval is 0..muval) // [lambdaline] //
+						(side_i with i is 1..k) // [rotatedcoinimage] // [OX,side];
+
+
+muval is tick-numstep if (tick >= numstep) && (tick <= 2*numstep) else
+						0 if tick < numstep else numstep;
+
+{
+mklncoinrotate is Line(picwidth/2+radx+radiuscoin, picheight/2+centreheight,
+		picwidth/2+radx+(1+cos(mkangle+polyangle/2))*radiuscoin,picheight/2+centreheight+radiuscoin*sin(mkangle+polyangle/2
+), "blue");
+
+mklncoinrotate is Line(picwidth/2+radx+radiuscoin, picheight/2, picwidth/2+radx+2*radiuscoin,picheight/2, "blue");
+}}action stage10 {
+##Full animation
+
+###Generalise the rolling along side
+firstposcoin_ix is RotateAboutCentre(-polyangle*ix, Point(picwidth/2,
+		picheight/2), Point(picwidth/2, picheight/2), [firstposcoin]);
+firstposcoin_ixs is firstposcoin_ix with ix in 1..k;
+
+###Generalise the rolling around corner
+nextposcoin_ix is RotateAboutCentre(-polyangle*ix, Point(picwidth/2,
+		picheight/2), Point(picwidth/2, picheight/2), [nextposcoin]);
+nextposcoin_ixs is nextposcoin_ix with ix is 1..k;
+
+### Introduce side/odd and corner/even phases to the rolling
+phase = 0;
+mkangle is (lambda+1) * polyangle/2 + polyangle * int((phase-1)/2);
+
+phase is int(tick/numstep)+1;
+lambdaval is -numstep/2+tick - int((phase-1)/2)*2*numstep
+				if (int(phase/2)!=phase/2) else numstep/2;
+muval is tick -numstep - int((phase-1)/2)*2*numstep
+				if (int(phase/2)==phase/2) else numstep;
+
+
+phasemod2k is 2*k if (phase % (2*k) ==0) else phase % (2*k);
+rotatedcoinimage is firstposcoin_ixs[int((phasemod2k+1)/2)]
+		if int(phase/2) != phase/2 else nextposcoin_ixs[phasemod2k/2];
+
+picture is (side_i with i is 1..k) // [rotatedcoinimage];
+
+#*{margin-left=25px}{size=14pt}{colour=green}Click on the picture window to stop and start the animation*
+}action experiments {
+## Experiments
+
+###change number of sides of the polygon
+k = 12;
+
+###change size of the polygon
+radx = 100;
+
+
+
+}action stage11 {
+#{size=20pt}Reflections
+
+#{size=14pt}The penny rolling construal is based on the object-to-think-with proposed by Seymour Papert in Mindstorms, as motivated by a puzzle posed by Martin Gardner. It was originally developed by Meurig Beynon as an illustrative example for an invited presentation at the Edurobotics conference in Athens in November 2016. The current version is a reworking of the original script that takes advantage of Nick Pope's extensive and transformative revisions of the environment for making construals . The construal has served as a trial implementation of the new presentation environment and owes much to Nick Pope's parallel and at times concurrent work on its refinement.
+
+#{size=14pt}The construal makes use of a suite of rotation functions that were implemented by Elizabeth Hudnott, and was conceived in part with testing out their use in mind. It might in some respects have been simpler to implement the construal by describing these rotations explicitly in more primitive terms.
+
+#{size=14pt}[Some effort has been made to rationalise the steps in the construction process but experimental work is still evident in the exposition in the presentation slides. It can also be seen in the] `annotated`{size=12pt} script which adds visualisation (when the construal is explored using Option 2). This script is not displayed in the slides but can be inspected by opening up a Script View using the Create Views  (:plus:{colour=grey}) menu.
+
+#{size=14pt}Possible extensions to the construal include adding loci of key points and making a connection with the another penny rolling construal developed by the same maker.
+}action stage0 {
+#{size=20pt}Papert's Polygonal Penny Rolling Construal
+
+
+#{size=14pt}Option 1\: 
+
+#{size=12pt}Trace the entire development of the construal step-by-step by executing the sequence of actions set out in the slides, pressing the <button>Next</button> button at the bottom left to move to the next slide.
+
+
+#{size=14pt}Option 2\: 
+
+#{margin-left=10px}<button data-jseden="for (i=1; i<=7; i++) do stage{i};">Explore the principle behind the construal</button>{colour=yellow}
+
+#{margin-left=10px}<button data-jseden="do stage8;">Roll around one side and corner</button>          <button data-jseden="do annotated;">Add visualisation</button> 
+
+#{margin-left=10px}<button data-jseden="tick=0;">Reset</button> <button data-jseden="do startpartialanimation;">Repeat</button>  <button data-jseden="k=k+1;">Add vertices</button>   <button data-jseden="k=k-1 if k>3 else 3;">Remove vertices</button> 
+
+#{margin-left=40px}{size=12pt}`tick`\:  ?(ACTIVE > tick)           The regular polygon has k=?(ACTIVE > k) vertices
+
+
+#{size=14pt}Option 3\: 
+
+#{margin-left=10px}<button data-jseden="for (i=1; i<=7; i++) do stage{i}; for (i=9; i<=10; i++) do stage{i};">Animate the full construal</button>{colour=yellow}
+
+#{margin-left=10px}<button data-jseden="do startanimation;">Start</button> <button data-jseden="do stopanimation;">Stop</button>   <button data-jseden="k=k+1;">Add vertices</button>   <button data-jseden="k=k-1 if k>3 else 3;">Remove vertices</button> 
+
+#{margin-left=30px}{size=12pt}`tick`\:  ?(ACTIVE > tick)       The regular polygon has k=?(ACTIVE > k) vertices
+
+}action stage9 {
+
+
+
+##Introduce the clock mechanism
+
+###Load the clocking library
+do lib > clocks;
+
+####Start the clock #startanimation
+tick = 0;
+setedenclock(&tick, 1);
+
+####Stop the clock  #stopanimation
+removeedenclock(&tick);
+
+###Pause and start clock on mouseclick
+when (mousePressed) {
+	if (edenclocks == []) setedenclock(&tick,1);
+	else edenclocks = [];
+}
+
+##Restore the mark line to its original orientation
+#a more appropriate orientation when the rotation is automated
+mkangle is lambda * polyangle/2;
+}action stage8 {
+
+
+
+
+##Rotate the mark line to be horizontal initially
+#appropriate when monitoring how far the penny rotates
+mkangle is (lambda+1) * polyangle/2;
+
+##Execute the partial animation
+#roll the penny along a side and around an adjacent corner
+
+###Initialise the partial animation #initpartialanimation
+tick = 0;
+
+###Execute the partial animation #startpartialanimation
+while (tick<=2*numstep) {
+	tick++;
+	wait 10;
+}
+
+}action stage3 {
+##Initialise the penny rolling along a side
+
+# model circle rotating along the vertical RH side of the polygon
+# radx is the length of the construction line OX
+# radiuscoin is the radius of the coin with the same circumference
+# first place the coin in the initial position so that it touches the end of OX
+
+coinrotate is Circle(picwidth/2+radx+radiuscoin,
+						picheight/2, radiuscoin, @, "blue");
+
+# introduce a markpoint on the circumference of the coin
+# and add a line joining it to the centre
+
+mkcoinrotate is Circle(picwidth/2+radx+2*radiuscoin,
+					picheight/2, view_picture_scale/2);
+mklncoinrotate is Line(picwidth/2+radx+radiuscoin, picheight/2,
+					picwidth/2+radx+2*radiuscoin,picheight/2, "blue");
+
+picture is [OX] // (side_i with i is 1..k) //
+				[coinlimit, coinrotate, mkcoinrotate, mklncoinrotate];}

@@ -175,10 +175,10 @@ Eden.Selectors.resultTypes = {
 
 Eden.Selectors.expressionToLists = function(expr) {
 	switch(expr.type) {
-	case "binaryop":	return [Eden.Selectors.expressionToLists(expr.l),expr.op,Eden.Selectors.expressionToLists(expr.r)];
-	case "ternaryop":	return [Eden.Selectors.expressionToLists(expr.first),"if",Eden.Selectors.expressionToLists(expr.condition),"else",Eden.Selectors.expressionToLists(expr.second)];
+	case "binaryop":	return [expr.op,Eden.Selectors.expressionToLists(expr.l),Eden.Selectors.expressionToLists(expr.r)];
+	case "ternaryop":	return ["eif",Eden.Selectors.expressionToLists(expr.first),Eden.Selectors.expressionToLists(expr.condition),Eden.Selectors.expressionToLists(expr.second)];
 	case "unaryop":		return [expr.op,Eden.Selectors.expressionToLists(expr.r)];
-	case "length":		return [Eden.Selectors.expressionToLists(expr.l),"#"];
+	case "length":		return ["#",Eden.Selectors.expressionToLists(expr.l)];
 	case "index":		return Eden.Selectors.expressionToLists(expr.expression);
 	}
 
@@ -195,12 +195,12 @@ Eden.Selectors.expressionToLists = function(expr) {
 		switch(expr.datatype) {
 		case "NUMBER":
 		case "STRING":
-		case "BOOLEAN":	return expr.value;
+		case "BOOLEAN":	return ["literal",expr.value];
 		case "LIST":	var list = [];
 						for (var i=0; i<expr.value.length; i++) {
 							list.push(Eden.Selectors.expressionToLists(expr.value[i]));
 						}
-						return list;
+						return ["literal",list];
 		}
 	} else if (expr.type == "primary") {
 		if (expr.extras.length == 0) return expr.observable;
@@ -366,6 +366,8 @@ Eden.Selectors.parse = function(s, opts) {
 	var options = opts;
 
 	if (!s || s == "") return;
+
+	s = s.trim();
 
 	while (s.length > 0 && s.charAt(0) == "@") {
 		if (!options) options = {};

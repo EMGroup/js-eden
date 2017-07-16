@@ -65,13 +65,13 @@
 		this.loaded = false;
 
 		this.branding = {};
-		$.ajax({
+		/*$.ajax({
 			url: "branding.json",
 			dataType: "json",
 			success: function (data) {
 				me.branding = data;
 			},
-		});
+		});*/
 
 		this.$uimsg = $("<div class='message-box'></div>");
 		this.$uimsg.appendTo("body");

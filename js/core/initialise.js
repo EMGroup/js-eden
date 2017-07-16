@@ -45,11 +45,14 @@ function touchHandler(event) {
 //See also plugins/external-html-content/external-html-content.js
 var doingNavigateAway = false;
 var confirmUnload = function (event) {
+	Eden.DB.log("leave", {project: (eden.project) ? eden.project.id : -1});
 	if (!doingNavigateAway) {
-		//eden.project.localSave();
-		var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
-		event.returnValue = prompt;
-		return prompt;
+		if (eden.root.lookup("jseden_autosave").value()) eden.project.localSave();
+		if (eden.root.lookup("jseden_leaveprompt").value()) {
+			var prompt = "Leaving this page will discard the current script. Your work will not be saved.";
+			event.returnValue = prompt;
+			return prompt;
+		}
 	}
 };
 
@@ -143,6 +146,7 @@ function Construit(options,callback) {
 
 		function invalidVersion(msg) {
 			$(".loadmessage").html(msg);
+			Eden.DB.log("badbrowser", browser);
 		}
 
 		if (browser.msie) {
@@ -216,7 +220,7 @@ function Construit(options,callback) {
 		
 		// TODO Remove this once restore works
 		if (edenUI.getOptionValue('optConfirmUnload') != "false") {
-			//window.addEventListener("beforeunload", confirmUnload);
+			window.addEventListener("beforeunload", confirmUnload);
 		}
 
 		/**
@@ -281,14 +285,15 @@ function Construit(options,callback) {
 				});
 			} else {
 				loadPlugins(plugins, function () {
-						$.getJSON('config.json', function (config) {
-							rt.config = config;
+						//$.getJSON('config.json', function (config) {
+						//	rt.config = config;
 
 							Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
 								if (load != "") {
 									if (mode !== null && mode != "") {
 										eden.root.lookup("jseden_project_mode").assign(mode, eden.root.scope, Symbol.defaultAgent);
 									}
+									Eden.DB.log("urlload", {href: window.location.href, useragent: navigator.userAgent, referrer: document.referrer, pid: load, vid: vid, "private": readPassword !== null});
 									Eden.Project.load(parseInt(load),(vid === null || vid == "") ? undefined : parseInt(vid),(readPassword === null || readPassword == "") ? undefined : readPassword,function(){ doneLoading(true); });
 								} else if (restore != "") {
 									if (mode !== null && mode != "") {
@@ -299,12 +304,13 @@ function Construit(options,callback) {
 								} else {
 									// Background load library...
 									//Eden.Agent.importAgent("lib","default", [], function() {});
+									Eden.DB.log("home", {href: window.location.href, referrer: document.referrer, useragent: navigator.userAgent});
 									doneLoading(false);
 								}
 							});
 							Eden.DB.repoindex = (Eden.DB.repoindex + 1) % Eden.DB.repositories.length;
 
-						});
+						//});
 					//});
 				});
 			}

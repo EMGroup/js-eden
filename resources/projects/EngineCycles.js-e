@@ -1,0 +1,644 @@
+/**
+ * @title Start Your Model
+ */
+action start {/* Enter some script here */
+import Layouts > book;
+do book;
+
+do @external .id(RPoint@1480539503);
+do @external Charts > line;
+/*do @external .id(170) > dial;*/
+do dial2;
+
+# Correction for dial script
+dial_current_percent is (dial_current - dial_start_value) / (dial_end_value - dial_start_value);
+
+do @external .id(192) > altgeomlib;
+do linkage;
+do linkagetrace;
+do display;
+do eqs;
+do animate;
+
+crankAngle = 1000;
+
+pages = ["page0","page0a","page1","page2","page3"];
+
+/*do kick;*/
+}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+if (jseden_project_mode != "safe") do :project > start;
+else createView("safemode","ScriptInput");
+
+action ACTIVE {
+jseden_project_title = "Engine Cycles";
+views_number_created = 0;
+jseden_autosave = false;
+jseden_leaveprompt = false;
+jseden_menu_visible = false;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+plugins_html_loaded = true;
+mouseVelocity = Point(0, 0);
+jseden_project_name = "EngineCycles";
+jseden_project_thumb = "data:image/png;base64,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";
+jseden_project_author = "Nicolas Pope";
+views_list = ["safemode"];
+view_safemode_visibility = "visible";
+view_safemode_title = "Script View";
+view_safemode_tabs = [":project"];
+view_safemode_current = 0;
+view_safemode_showtabs = true;
+view_safemode_showbuttons = true;
+view_safemode_query is jseden_script_query;
+view_safemode_type = "ScriptInput";
+view_safemode_width = 600;
+view_safemode_height = 405;
+view_safemode_x = 659;
+view_safemode_y = 220.5;
+}
+action page1 {
+
+
+
+
+
+## The Straw Engine
+
+# Start the engine with a push, crank handle or starter motor. Pushing the wheel one way will make it go faster (+=) and the other will then slow it down (-=).
+
+crankVelocity += 100;
+crankVelocity -= 100;
+
+# A straw has been attached to the top of the cylinder, which you can suck or blow using the slider.
+
+straw_value = 0;
+
+
+#---
+
+#It shouldn't go forever, but will slow down after a while so add *friction*.
+add_friction = true;
+
+}action display {show_compression = false;
+show_pressure is pageno >= 4  && pageno < 5;
+show_temp is pageno >= 4 && pageno < 4;
+show_torque is pageno >= 3 && pageno < 5;
+show_valves is pageno >= 5;
+show_velocity is pageno >= 3 && pageno < 5;
+show_stroke is pageno >= 5;
+show_straw is pageno == 3;
+use_mouse is pageno <= 2;
+show_components is pageno > 1;
+show_trace is pageno == 1;
+do_animation is pageno > 2;
+show_labels is pageno == 2;
+
+engine_x is book_width / 4 - cylinder_diameter_px/2;
+engine_y = 76;
+cylinder_diameter = 0.2;
+pixel_scale = 361;
+cylinder_diameter_px is pixel_scale * cylinder_diameter;
+block_thickness = 0.02;
+block_thickness_px is block_thickness * pixel_scale;
+stroke_length = 0.2;
+stroke_length_px is pixel_scale * stroke_length;
+head_space = 0.02;
+head_space_px is head_space * pixel_scale;
+
+engine_block1 is Rectangle(
+	engine_x,
+	engine_y,
+	cylinder_diameter_px,
+	stroke_length_px+head_space_px+piston_height_px,
+	"#ddd","#ddd"
+);
+
+engine_block_edge2 is Line(
+	engine_x+cylinder_diameter_px,
+	engine_y,
+	engine_x+cylinder_diameter_px,
+	engine_y+stroke_length_px+head_space_px+piston_height_px,
+	"#666",
+	Object("lineWidth",4)
+);
+
+engine_block_edge1 is Line(
+	engine_x,
+	engine_y,
+	engine_x,
+	engine_y+stroke_length_px+head_space_px+piston_height_px,
+	"#666",
+	Object("lineWidth",4)
+);
+
+engine_block_top is Line(engine_x, engine_y, engine_x+cylinder_diameter_px, engine_y,
+	"#666", Object("lineWidth",4));
+
+straw_width = 10;
+straw_height = 30;
+engine_straw_x is engine_x + cylinder_diameter_px/2 - straw_width/2;
+engine_straw_y is engine_y - straw_height+5;
+engine_straw_inner is Rectangle(
+	engine_straw_x,
+	engine_straw_y,
+	straw_width,
+	straw_height,
+	"#ddd","#ddd"
+);
+engine_straw_line1 is Line(
+	engine_straw_x,
+	engine_straw_y,
+	engine_straw_x,
+	engine_straw_y+straw_height,
+	"black",
+	Object("lineWidth",1));
+engine_straw_line2 is engine_straw_line1::(engine_straw_x = engine_straw_x+straw_width);
+	
+straw_slider is Slider("straw",
+	-10000,10000,1000,10000, 1000, 1000,
+	book_width/2 - 100, engine_y, 200, "vertical");
+straw_suck_label is Text("Suck",
+	book_width/2-150, engine_y+140,
+	16, "black");
+straw_blow_label is Text("Blow",
+	book_width/2-150, engine_y+30,
+	16, "black");
+
+engine_straw is [engine_straw_inner, engine_straw_line1,
+	engine_straw_line2, straw_slider, straw_suck_label,
+	straw_blow_label] if show_straw else [];
+
+engine_intakevalve is Line (engine_x + 0.2*cylinder_diameter_px, engine_y-5,
+	engine_x + 0.2*cylinder_diameter_px, engine_y+5,
+	"red") if show_valves else @;
+engine_exhaustvalve is Line(engine_x + 0.8*cylinder_diameter_px, engine_y-5,
+	engine_x + 0.8*cylinder_diameter_px, engine_y+5,
+	"blue") if show_valves else @;
+
+wheel is RotateAboutCentre(angleBC-10,Point(150/2,150/2), Point(pointC["x"],(picture_height-pointC["y"])), [Image(0,0,"https://openclipart.org/image/150px/svg_to_png/17705/Stormcloud-Wheel.png")]);
+
+
+piston_height = 0.1;
+piston_height_px is piston_height * pixel_scale;
+stroke_position is ((book_height-linkage[1]["y"]) - (engine_y+head_space_px+piston_height_px)) / stroke_length_px * stroke_length;
+stroke_position_px is (book_height-linkage[1]["y"])-piston_height_px;
+
+angleBC is crankAngle if !use_mouse else atan(((picture_height-pointC["y"])-mouseY)/(mouseX-pointC["x"])) if mouseX>pointC["x"]
+		else (atan((pointC["y"]-mouseY)/(mouseX-pointC["x"])) - 180);
+
+crankAngle = 0;
+
+piston_diameter is cylinder_diameter-2*block_thickness;
+piston_diameter_px is piston_diameter * pixel_scale;
+
+piston_rect is Rectangle(
+	engine_x+block_thickness_px,
+	stroke_position_px,
+	piston_diameter_px,
+	piston_height_px,
+	"#aaa","#666"
+);
+
+connector_length is connector_size * pixel_scale;
+connector_size = 0.5;
+
+pointC is Point(engine_x+cylinder_diameter_px/2, crank_position);
+
+crank_position is book_height-(engine_y+connector_length+(stroke_length_px/2)+piston_height_px+head_space_px);
+linkage is [pointA, [vertA, vertB, linAB, vertC, linBC] // (traceA // traceB if (show_trace) else [])];
+
+lenBC is stroke_length_px/2;
+lenAB is connector_length;
+
+force_chart is (LineChart::
+	data is force_history,
+	width is 400,
+	height is 150,
+	x = book_width/4 - 200,
+	y = book_height - 250) if show_torque else [];
+
+pressure_dial is (dial with
+	dial_divisions = 10,
+	dial_centre = Point(engine_x-150,book_height-engine_y-248),
+	dial_start_value = -200,
+	dial_opt_value = 0,
+	dial_end_value = 3000,
+	dial_name = "Pressure kPa",
+	dial_danger_value = 2500,
+	dial_current = pressure_diff / 1000) if show_pressure else [];
+
+temp_dial is (dial with
+	dial_divisions = 10,
+	dial_centre = Point(engine_x+225,book_height-engine_y-50),
+	dial_start_value = 200,
+	dial_opt_value = 270,
+	dial_end_value = 1200,
+	dial_name = "Temp K",
+	dial_danger_value = 900,
+	dial_current = temperature) if show_temp else [];
+
+velocity_dial is (dial with
+	dial_divisions = 10,
+	dial_centre = Point(engine_x-150,book_height-engine_y-50),
+	dial_start_value = 0,
+	dial_end_value = 200,
+	dial_danger_value = 200,
+	dial_opt_value = 200,
+	dial_name = "Velocity",
+	dial_current = abs(crankVelocity/10)) if show_velocity else [];
+
+fire_image is Image(engine_x, engine_y, cylinder_diameter_px,
+	stroke_position_px-2*piston_height_px, "/resources/fire.png");
+
+stroke_image is (fire_image if temperature > room_temperature+2 else smoke_image if stroke == 4 else @)
+	; /*if show_stroke else @;*/
+
+stroke_label is Text("Stroke: "//str(stroke), engine_x+cylinder_diameter_px/2, 40, 20, "black", "middle centre") if show_stroke else @;
+	
+torque_label is (Text("Torque" if chart_mode=="torque" else "Velocity", book_width/4 - 268, book_height - 195, 16, "black"))
+	if show_torque else @;
+
+engine_components is [wheel,engine_block1,stroke_image,engine_block_edge1,
+	engine_block_edge2, engine_block_top, piston_rect, engine_intakevalve, engine_exhaustvalve]
+	if show_components else [];
+
+when (pageno == 3) {
+	cylinder_diameter = 0.2;
+	stroke_length = 0.2;
+	connector_size = 0.5;
+	head_space = 0.02;
+
+	piston_diameter is cylinder_diameter-2*block_thickness;
+}
+
+click_me is Rectangle(
+	book_width/4 + 165, engine_y, 133, 99, "red"
+) if pageno == 4 else @;
+click_me_text is Text("Add Heat", book_width/4+230,128,26,"white",
+	"middle centre") if pageno == 4 else @;
+
+cylinder_label is Text("Cylinder", engine_x - 201,
+	engine_y + 50, 30, "black", "middle");
+cylinder_label_line is Line(
+	engine_x - 80, engine_y + 50,
+	engine_x + cylinder_diameter_px/2, engine_y + stroke_length_px / 2,
+	"black",
+	Object("lineWidth",1));
+
+piston_label is Text("Piston", engine_x + cylinder_diameter_px + 100,
+	engine_y + 50, 30, "black", "middle");
+piston_label_line is Line(
+	engine_x + cylinder_diameter_px + 100, engine_y + 50,
+	engine_x + cylinder_diameter_px/2, stroke_position_px+piston_height_px/2,
+	"black",
+	Object("lineWidth",1));
+
+crank_label is Text("Crankshaft", engine_x-165,
+	book_height-crank_position+169, 30, "black", "middle");
+crank_label_line is Line(
+	engine_x-102, book_height-crank_position+150,
+	engine_x + cylinder_diameter_px/2, book_height-crank_position,
+	"black",
+	Object("lineWidth",1));
+
+labels is [cylinder_label, cylinder_label_line,
+	piston_label,piston_label_line,
+	crank_label, crank_label_line]
+	if show_labels else [];
+
+picture is engine_components // linkage[2] // force_chart // velocity_dial //
+	pressure_dial // temp_dial // engine_straw // [stroke_label,torque_label,click_me,click_me_text] // labels;}action animate {crankAngle = 0;
+crankVelocity = 0;
+force_history = [];
+
+action kick {
+	crankVelocity = 100;
+}
+
+tick=0;
+
+chart_mode = "velocity";
+/*chart_mode = "torque";*/
+
+chart_value is crankVelocity if chart_mode == "velocity" else crank_torque;
+
+import lib > clocks;
+do clocks;
+removeedenclock(&tick);
+setedenclock(&tick,50);
+
+when (pageno == 3) {
+	crankVelocity = 0;
+	straw_value = 0;
+	crankAngle = 0;
+}
+
+when (pageno == 4) {
+	crankVelocity = 50;
+}
+
+when (do_animation && tick) {
+	if (crankAngle != @ && (crankVelocity > 0.001 || crankVelocity < -0.001 || crank_angular_acceleration > 0.001)) {
+	crankVelocity = (crankVelocity*crank_friction_coef) + crank_angular_acceleration*0.02;
+	crankAngle += crankVelocity * 0.02;
+	if (force_history# > 100) delete force_history,1;
+	force_history = force_history // [chart_value];
+	}
+}
+}action eqs {cylinder_space is stroke_position+head_space;
+piston_radius is cylinder_diameter / 2;
+area is PI * piston_radius * piston_radius;
+volume is area * cylinder_space;
+room_temperature = 273;
+atmospheric_density = 1.225;
+density is gas / volume;
+gas = 1;
+gas is atmospheric_density * (area * (stroke_length+head_space));
+
+temperature is room_temperature;
+
+pressure is density * temperature * rspecific;
+atmospheric_pressure = 101300;
+rspecific = 287.058;
+pressure_diff is pressure - atmospheric_pressure;
+
+manual_force is pageno <= 3;
+straw is straw_value;
+pistonForce is straw;
+force is (pressure_diff * area) if !manual_force else pistonForce;
+
+crankx is (stroke_length/2)*cos(crankAngle-90);
+connectorl2 is connector_length / pixel_scale;
+useful_force is force * (sqrt(connectorl2*connectorl2 - crankx*crankx)/connectorl2);
+loadTorque = 0;
+crank_torque is (stroke_length/2) * useful_force * sin(crankAngle-90) - loadTorque;
+
+crank_friction_coef is 0.99 if add_friction else 1.0;
+
+crank_mass = 10;
+crank_radius = 0.04;
+flywheel_mass = 14;
+flywheel_radius = 0.4;
+flywheel_moi is flywheel_mass * flywheel_radius * flywheel_radius / 2;
+crank_moi is crank_mass * crank_radius * crank_radius / 2;
+
+add_friction = false;
+crank_angular_acceleration is (crank_torque / (crank_moi+flywheel_moi));
+
+stroke_raw is (((abs(crankAngle)-90) % 720) / 180)+1;
+stroke is floor(stroke_raw);
+
+power is crankVelocity * crank_torque;
+horsepower is power * 0.00134;
+
+minPressure is pressure with crankAngle = 270, gas=1;
+maxPressure is pressure with crankAngle = 90,gas=1;
+maxCompression is maxPressure / minPressure;
+
+}action page2 {
+
+
+
+##The Combustion Engine
+# Changing the temperature can change pressure instead of using a straw.
+
+#Manually change the temperatures in the cylinder using mouse clicks.
+
+when (mousePressed) {
+	temperature = room_temperature+200;
+}
+
+when (!mousePressed) {
+	temperature = room_temperature;
+}
+
+
+#---
+
+#Stop the engine
+crankVelocity = 0;
+
+#Give the engine a kick start
+crankVelocity = 100;
+}action dial2 {dial_radius = 55;
+dial_divisions = 10;
+dial_start_angle = 230;
+dial_end_angle = -40;
+dial_mark_length = 12;
+dial_centre = Point(100,150);
+dial_start_value = 0;
+dial_end_value = 200;
+dial_label_offset = 20;
+dial_danger_value = 150;
+dial_opt_value = 20;
+dial_name = "Dial";
+
+dial_current = 112;
+
+dial_value_step is (dial_end_value - dial_start_value) / dial_divisions;
+dial_value is floor(dial_start_value + i * dial_value_step);
+dial_mark_step is (dial_end_angle - dial_start_angle) / dial_divisions;
+dial_mark_angle is dial_start_angle + i * dial_mark_step;
+dial_mark_p1 is (RPoint::(dial_radius-dial_mark_length, dial_mark_angle)) + dial_centre;
+dial_mark_p2 is (RPoint::(dial_radius, dial_mark_angle)) + dial_centre;
+dial_label_p is (RPoint::(dial_radius+dial_label_offset, dial_mark_angle)) + dial_centre;
+dial_label is Text(str(dial_value), dial_label_p["x"], picture_height-dial_label_p["y"],
+	12, "black", "middle centre");
+dial_mark is Line2::(dial_mark_p1, dial_mark_p2);
+dial_marks is dial_mark::(i in 0..dial_divisions);
+dial_labels is dial_label::(i in 0..dial_divisions);
+dial_blob is Circle2::(dial_centre, 6, fill="black");
+dial_current_percent is (dial_current - dial_start_value) / (dial_end_value - dial_start_value);
+dial_current_angle is (dial_end_angle - dial_start_angle) * dial_current_percent + dial_start_angle;
+dial_needle_p is (RPoint::(dial_radius, dial_current_angle))+dial_centre;
+dial_needle is Line2::(dial_centre, dial_needle_p, width=3, colour="red");
+
+dial_text is Text(dial_name, dial_centre["x"], picture_height - dial_centre["y"] + dial_radius + 20, 12, "black", "middle centre");
+
+dial_danger_percent is (dial_danger_value - dial_start_value) / (dial_end_value - dial_start_value);
+dial_danger_angle is (dial_end_angle - dial_start_angle) * dial_danger_percent + dial_start_angle;
+
+dial_opt_percent is (dial_opt_value - dial_start_value) / (dial_end_value - dial_start_value);
+dial_opt_angle is (dial_end_angle - dial_start_angle) * dial_opt_percent + dial_start_angle;
+
+
+dial_green is Arc(dial_centre["x"],picture_height-dial_centre["y"], dial_radius,
+	dial_opt_angle, dial_danger_angle, "green", Object("lineWidth",dial_mark_length / 2));
+dial_red is Arc(dial_centre["x"],picture_height-dial_centre["y"], dial_radius,
+	dial_danger_angle, dial_end_angle, "red", Object("lineWidth",dial_mark_length / 2));
+
+dial is dial_marks // dial_labels // [dial_green, dial_red, dial_needle,dial_blob, dial_text];
+}action page3 {
+
+
+## The Combustion Cycle
+#Automate the temperature changes based on stroke number.
+
+when (intake_open) fuel = true;
+
+when (spark && fuel) {
+	temperature = room_temperature+200;
+	fuel = false;
+}
+
+when (exhaust_open) temperature = room_temperature;
+
+intake_open is stroke == 1;
+exhaust_open is stroke == 4;
+spark is stroke == 3;
+
+crankVelocity += 50;
+
+
+#---
+
+#But this goes faster and faster forever which isn't what really happens... so limit it by making it do some work (eg. pushing a car along)
+loadTorque is crankVelocity*crankVelocity * 0.00002;
+
+
+}action linkage {
+/* 
+createCanvas("picture"); 
+picture_height is view_picture_height;
+*/
+
+picture_height is book_height;
+fill = true;
+width = 2;
+
+pointA is pointC + Point(0, lenAX + lenCX);
+radA = 10;
+vertA is Circle2::(pointA, radA, fill="red", colour="red");
+lenAB = 180;
+angleAB = -174;
+
+vertB is Circle2::(pointB, radB, fill="green", colour="green");
+radB = 10;
+linAB is Line2::(pointA, pointB);
+
+lenAX is lenAB * sin(angleAB);
+lenCX is lenBC * sin(angleBC);
+
+pointC is Point(150,350);
+radC = 10;
+vertC is Circle2::(pointC, radC, fill="blue", colour="blue");
+
+angleBC = -28;
+lenBC = 100;
+linBC is Line2::(pointB, pointC);
+
+pointB is pointC + (RPoint::(lenBC, angleBC));
+
+labA is Label2::("A", pointA - Point(5,10));
+labB is Label2::("B", pointB - Point(5,10));
+labC is Label2::("C", pointC - Point(5,10));
+
+/*picture is [vertA, vertB, linAB, vertC, linBC,
+				labA, labB, labC];*/
+
+angleAB is acos(lenBC/lenAB*cos(angleBC));
+
+/*picture is [vertA, vertB, linAB, vertC, linBC];*/
+
+radA is radpt;
+radB is radpt;
+radC is radpt;
+radpt = 5;
+
+picture_height is book_height;
+fill = true;
+width = 2;
+
+pointA is pointC + Point(0, lenAX + lenCX);
+radA = 10;
+vertA is Circle2::(pointA, radA, fill="red", colour="red");
+lenAB = 180;
+angleAB = -174;
+
+vertB is Circle2::(pointB, radB, fill="green", colour="green");
+radB = 10;
+linAB is Line2::(pointA, pointB);
+
+lenAX is lenAB * sin(angleAB);
+lenCX is lenBC * sin(angleBC);
+
+pointC is Point(150,350);
+radC = 10;
+vertC is Circle2::(pointC, radC, fill="blue", colour="blue");
+
+angleBC = -28;
+lenBC = 100;
+linBC is Line2::(pointB, pointC);
+
+pointB is pointC + (RPoint::(lenBC, angleBC));
+
+labA is Label2::("A", pointA - Point(5,10));
+labB is Label2::("B", pointB - Point(5,10));
+labC is Label2::("C", pointC - Point(5,10));
+
+/*picture is [vertA, vertB, linAB, vertC, linBC,
+				labA, labB, labC];*/
+
+angleAB is acos(lenBC/lenAB*cos(angleBC));
+
+/*picture is [vertA, vertB, linAB, vertC, linBC];*/
+
+radA is radpt;
+radB is radpt;
+radC is radpt;
+radpt = 5;
+}action linkagetrace {smallA is vertA with radA is 0.05;
+smallB is vertB with radB is 0.05;
+traceA is smallA with angleBC is -90..90;
+traceB is smallB with angleBC is 0..360;
+
+
+
+}action page0 {
+
+
+
+
+
+## Circular  and Linear Motion
+
+
+#From moving in a circle to moving in a line
+
+ #> Move the mouse around the green circle and watch the red point go up and down
+ 
+#From moving in a line to moving in a circle
+
+ #> Move the mouse up and down the screen and watch the green point follow an arc
+}action page0a {
+
+
+
+
+
+
+
+##Observables
+
+# Some things to play with... (the values are in meters).
+
+cylinder_diameter = 0.3690;
+stroke_length = 0.2842;
+connector_size = 0.4496;
+head_space = 0.2474;
+
+piston_diameter = 0.3;
+piston_diameter is cylinder_diameter-2*block_thickness;
+}

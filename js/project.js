@@ -19,8 +19,8 @@ Eden.Project = function(id, name, source) {
 	if (this.ast && this.ast.script.errors.length == 0) {
 	}
 
-	eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);
-	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, Symbol.localJSAgent);
+	//eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);
+	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, EdenSymbol.localJSAgent);
 }
 
 Eden.Project.listenTo = listenTo;
@@ -130,7 +130,7 @@ Eden.Project.newFromExisting = function(name, cb) {
 			Eden.Project.load(Eden.Project.local[name].id, undefined, undefined, cb);
 		} else {
 			$.get(Eden.Project.local[name].file, function(data) {
-				eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, Symbol.defaultAgent);
+				eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, EdenSymbol.defaultAgent);
 				eden.project = new Eden.Project(undefined, name, data);
 				eden.project.start(function () {
 					Eden.Project.emit("load", [me]);
@@ -178,10 +178,10 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 				eden.project.thumb = meta.image;
 				eden.project.tags = meta.tags.trim().split(" ");
 				eden.project.parentid = meta.parentProject;
-				eden.root.lookup("jseden_project_title").assign(meta.title, eden.root.scope, Symbol.localJSAgent);
-				eden.root.lookup("jseden_project_name").assign(meta.minimisedTitle, eden.root.scope, Symbol.localJSAgent);	
-				eden.root.lookup("jseden_project_thumb").assign(meta.image, eden.root.scope, Symbol.localJSAgent);
-				eden.root.lookup("jseden_project_author").assign(meta.ownername, eden.root.scope, Symbol.localJSAgent);
+				eden.root.lookup("jseden_project_title").assign(meta.title, eden.root.scope, EdenSymbol.localJSAgent);
+				eden.root.lookup("jseden_project_name").assign(meta.minimisedTitle, eden.root.scope, EdenSymbol.localJSAgent);	
+				eden.root.lookup("jseden_project_thumb").assign(meta.image, eden.root.scope, EdenSymbol.localJSAgent);
+				eden.root.lookup("jseden_project_author").assign(meta.ownername, eden.root.scope, EdenSymbol.localJSAgent);
 				if (meta.projectMetaData !== null) {
 					var extra = JSON.parse(meta.projectMetaData);
 					eden.project.desc = extra.description;

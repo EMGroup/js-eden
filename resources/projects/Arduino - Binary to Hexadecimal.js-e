@@ -1,0 +1,480 @@
+/**
+ * @title Start Your Model
+ */
+action start {/* Enter some script here */
+import Layouts > book;
+do book;
+
+do :project > display;
+do :project > page1;
+do :project > virtualbutton;
+
+import ArduinoMaker > :(arduinopins, components, arduinodraw);
+do ArduinoMaker > *;
+
+do :project > displayboard;
+do :project > challenge;
+
+pages is ["intro","page2","page3","page1","challenge","displayboard"];
+
+when (pageno == 4) {
+	/*showObservables("switch|digit$|data|timer|score");*/
+	jseden_maker = true;
+}
+
+}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+if (jseden_project_mode != "safe") do :project > start;
+else createView("safemode","ScriptInput");
+
+action ACTIVE {
+jseden_project_title = "Arduino - Binary to Hexadecimal";
+views_number_created = 1;
+jseden_autosave = false;
+jseden_leaveprompt = false;
+jseden_menu_visible = false;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+mousePosition = Point(376.814371257485, 1.7245508982035926);
+mouseView = "bookpic";
+mouseZone = @;
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+mouseVelocity = Point(0, 0);
+plugins_html_loaded = true;
+jseden_project_name = "ArduinoBinarytoHexadecimal";
+jseden_project_thumb = "data:image/png;base64,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";
+jseden_project_author = "Nicolas Pope";
+views_list = ["bookpic", "scriptinput1"];
+pages is ["intro","page2","page3","page1","challenge","displayboard"];
+picture is [segment_digit::(x=504,y=69),
+	binary_digits::(x=92, y=109),Text("=",384,109,90,"black"),
+	gameComponents, photo, vbuttons, boardpicture];
+view_bookpic_visibility = "visible";
+view_bookpic_title = "Canvas bookpic";
+view_bookpic_content is bookpic;
+view_bookpic_background_colour = "white";
+view_bookpic_scale = 1;
+view_bookpic_offset = Point(0, 0);
+view_bookpic_canvas_right = @;
+view_bookpic_canvas_bottom = @;
+view_bookpic_grid_visible = false;
+view_bookpic_grid_spacing = 20;
+view_bookpic_type = "Canvas2D";
+segment_width is 9 * segment_scale;
+segment_scale = 1.3830;
+segment_height is 40 * segment_scale;
+segment_padding = 3;
+segment_colour is "red" if on else "#ddd";
+vsegment_inset is (segment_width / 2);
+vsegment_p1 is Point(x+vsegment_inset, y);
+vsegment_p2 is Point(x+segment_width,y+vsegment_inset);
+vsegment_p3 is Point(x+segment_width,y+segment_height-vsegment_inset);
+vsegment_p4 is Point(x+vsegment_inset,y+segment_height);
+vsegment_p5 is Point(x, y+segment_height-vsegment_inset);
+vsegment_p6 is Point(x, y+vsegment_inset);
+vsegment_points is [vsegment_p1, vsegment_p2, vsegment_p3,
+	vsegment_p4, vsegment_p5, vsegment_p6];
+vsegment is Polygon(vsegment_points, segment_colour, segment_colour);
+hsegment_p1 is Point(x+vsegment_inset, y);
+hsegment_p2 is Point(x+segment_height-vsegment_inset,y);
+hsegment_p3 is Point(x+segment_height,y+vsegment_inset);
+hsegment_p4 is Point(x+segment_height-vsegment_inset,y+segment_width);
+hsegment_p5 is Point(x+vsegment_inset, y+segment_width);
+hsegment_p6 is Point(x, y+vsegment_inset);
+hsegment_points is [hsegment_p1, hsegment_p2, hsegment_p3,
+	hsegment_p4, hsegment_p5, hsegment_p6];
+hsegment is Polygon(hsegment_points, segment_colour, segment_colour);
+segment_right is x + segment_height - vsegment_inset + segment_padding;
+segmentA is hsegment::(on=data[8]);
+data is digit{digit};
+segmentB is vsegment::(x = segment_right, y = y + vsegment_inset + segment_padding, on=data[7]);
+segmentC is vsegment::(x = segment_right,
+	y = y + segment_height + vsegment_inset + 3*segment_padding, on=data[6]);
+segmentD is hsegment::(y = y + segment_height*2 + vsegment_inset + 2*segment_padding, on=data[5]);
+segmentE is vsegment::(x = x - vsegment_inset - segment_padding,
+	y = y + segment_height + vsegment_inset + 3*segment_padding, on=data[4]);
+segmentF is vsegment::(x = x - vsegment_inset - segment_padding,
+	y = y + vsegment_inset + segment_padding, on=data[3]);
+segmentG is hsegment::(
+	y = y + 2*segment_padding + segment_height, on is data[2]);
+segment_digit is [segmentA, segmentB, segmentC, segmentD, segmentE, segmentF, segmentG];
+binary_digit is Text("1" if on else "0", x, y, 90, "black");
+binary_spacing = 60;
+binary_digit1 is binary_digit::(on=switch1);
+switch1 is 1 if arduino_d11 else 0;
+binary_digit2 is binary_digit::(on=switch2, x = x + binary_spacing);
+switch2 is 1 if arduino_d10 else 1 if pageno == 1 else 0;
+binary_digit3 is binary_digit::(on=switch3, x = x + 2*binary_spacing);
+switch3 is 1 if arduino_d9 else 0;
+binary_digit4 is binary_digit::(on=switch4, x = x + 3*binary_spacing);
+switch4 is 1 if arduino_d8 else 0;
+binary_digits is [binary_digit1, binary_digit2, binary_digit3, binary_digit4];
+randomText is Text(str(therandomnumber), book_width/4,370, 120, "black", "middle center");
+therandomnumber = 0;
+randomBox is Rectangle(book_width/4- 70, 370 - 70, 140, 120, "white", "black");
+score = 0;
+scoreText is Text("Score: " // str(score), book_width/4, 481, 50, "black", "middle center");
+timerText is Text(timermsg, book_width/4, 545, 50, "black", "middle center");
+timermsg is "Time: " // str(timer) // "s" if timer > 0 else "Finished";
+gameComponents is [randomBox, randomText, scoreText, timerText] if pageno  == 3 else @;
+photo is Image(book_width/4 - 300, 250, "http://jseden.dcs.warwick.ac.uk/resources/arduino_bin_hex.jpg") if pageno==1 else @;
+vbuttons_x = 100;
+vbuttons_y = 200;
+vbuttons_spacing is 2*vbutton_spacing + 20;
+vbutton_spacing = 20;
+vbutton1 is vbutton::(vbutton_x=vbuttons_x,vbutton_y = vbuttons_y);
+vbutton is [vbutton_rect,vbutton_button,vbutton_blob1,vbutton_blob2, vbutton_blob3, vbutton_blob4];
+vbutton2 is vbutton::(vbutton_x=vbuttons_x+vbuttons_spacing, vbutton_y=vbuttons_y);
+vbutton3 is vbutton::(vbutton_x=vbuttons_x+2*vbuttons_spacing, vbutton_y=vbuttons_y);
+vbutton4 is vbutton::(vbutton_x=vbuttons_x+3*vbuttons_spacing, vbutton_y=vbuttons_y);
+vbuttons is [vbutton1,vbutton2,vbutton3,vbutton4] if !arduino_connected && pageno > 1 && pageno < 4 else @;
+boardpicture is [board, ard, wire7,wire9, wire10, wire11, button1, button2, button3, button4, resistor1, resistor2,
+	resistor3, resistor4,wire6,wire3,wire4,wire5,wire1,
+	wire2] if pageno >= 4 else @;
+latchBit = true;
+dataBit = true if data[i] else false;
+clockBit = false;
+arduino_d3 is latchBit;
+arduino_d4 is clockBit;
+arduino_d2 is dataBit;
+arduino_input_d8 = true;
+arduino_input_d9 = true;
+arduino_input_d10 = true;
+arduino_input_d11 = true;
+digit0 = [0,0,1,1,1,1,1,1];
+digit1 = [0,0,0,0,0,1,1,0];
+digit2 = [0,1,0,1,1,0,1,1];
+digit3 = [0,1,0,0,1,1,1,1];
+digit4 = [0,1,1,0,0,1,1,0];
+digit5 = [0,1,1,0,1,1,0,1];
+digit6 = [0,1,1,1,1,1,0,1];
+digit7 = [0,0,0,0,0,1,1,1];
+digit8 = [0,1,1,1,1,1,1,1];
+digit9 = [0,1,1,0,0,1,1,1];
+digit10 = [0,1,1,1,0,1,1,1];
+digit11 = [0,1,1,1,1,1,0,0];
+digit12 = [0,0,1,1,1,0,0,1];
+digit13 = [0,1,0,1,1,1,1,0];
+digit14 = [0,1,1,1,1,0,0,1];
+digit15 = [0,1,1,1,0,0,0,1];
+digit is switch1*8 + switch2*4 + switch3*2 + switch4;
+vboard_scale = 0.7550;
+vbutton_width is vbutton_spacing*2 + vbutton_spacing/2;
+vbutton_ox is vbutton_x-vbutton_spacing/4;
+vbutton_oy is  vbutton_y+vbutton_spacing/10;
+vbutton_rect is RoundedRectangle(vbutton_ox, vbutton_oy, vbutton_width, vbutton_width, 5*vboard_scale, "grey", "grey");
+vbutton_button is Circle(vbutton_ox+vbutton_width/2, vbutton_oy+vbutton_width/2, vbutton_width/2 * 0.6, "#222", "black");
+vbutton_blob_offset = 0.15;
+vbutton_blob1 is Circle(vbutton_ox+vbutton_blob_offset*vbutton_width, vbutton_oy+vbutton_blob_offset*vbutton_width, (vbutton_blob_offset/2)*vbutton_width, "black");
+vbutton_blob2 is Circle(vbutton_ox+(1.0-vbutton_blob_offset)*vbutton_width, vbutton_oy+vbutton_blob_offset*vbutton_width, (vbutton_blob_offset/2)*vbutton_width, "black");
+vbutton_blob3 is Circle(vbutton_ox+vbutton_blob_offset*vbutton_width, vbutton_oy+(1.0-vbutton_blob_offset)*vbutton_width, (vbutton_blob_offset/2)*vbutton_width, "black");
+vbutton_blob4 is Circle(vbutton_ox+(1.0-vbutton_blob_offset)*vbutton_width, vbutton_oy+(1.0-vbutton_blob_offset)*vbutton_width, (vbutton_blob_offset/2)*vbutton_width, "black");
+board_y = 241;
+board_scale = 0.3;
+ard_y = 445;
+ard_scale = 0.35;
+wire1 is wire::pin1="5V",pin2="Bread_P2",wire_colour="red";
+wire2 is wire::pin1="GND3",pin2="Bread_GND2",wire_colour="black";
+wire3 is wire::pin1="D11",pin2="Bread_A3",wire_colour="orange";
+wire4 is wire::pin1="D10",pin2="Bread_A6",wire_colour="orange";
+wire5 is wire::pin1="D9",pin2="Bread_A9",wire_colour="orange";
+wire6 is wire::pin1="D8",pin2="Bread_A12",wire_colour="orange";
+wire7 is wire::pin1="Bread_P1",pin2="Bread_A1",wire_colour="red",wire_sizing=10;
+wire8 is wire::pin1="D2",pin2="Bread_C24",wire_colour="green";
+wire9 is wire::pin1="Bread_P4",pin2="Bread_A4",wire_colour="red",wire_sizing=10;
+wire10 is wire::pin1="Bread_P6",pin2="Bread_A7",wire_colour="red",wire_sizing=10;
+wire11 is wire::pin1="Bread_P9",pin2="Bread_A10",wire_colour="red",wire_sizing=10;
+button1 is button::pin1="Bread_F1";
+button2 is button::pin1="Bread_F4";
+button3 is button::pin1="Bread_F7";
+button4 is button::pin1="Bread_F10";
+resistor1 is resistor::pin1="Bread_GND3",pin2="Bread_C3";
+resistor2 is resistor::pin1="Bread_GND5",pin2="Bread_C6";
+resistor3 is resistor::pin1="Bread_GND8",pin2="Bread_C9";
+resistor4 is resistor::pin1="Bread_GND10",pin2="Bread_C12";
+timer = 0;
+view_bookscript2_query is jseden_script_query;
+view_scriptinput1_visibility = "visible";
+view_scriptinput1_title = "Script View";
+view_scriptinput1_tabs = [":project > start"];
+view_scriptinput1_current = 0;
+view_scriptinput1_showtabs = true;
+view_scriptinput1_showbuttons = true;
+view_scriptinput1_query is jseden_script_query;
+view_scriptinput1_type = "ScriptInput";
+view_scriptinput1_width = 600;
+view_scriptinput1_height = 405;
+view_scriptinput1_x = 659;
+view_scriptinput1_y = 220.5;
+}
+
+action page1 {
+## Source Code...
+# Play with the code to change the logic, or add a new component like an LED or Buzzer for when the timer runs out. *Hint*\: the `timer` variable counts from 60 to 0, you could use this to control an LED or Buzzer. Go back to the previous page to try the challenge again...
+
+#> **Tip\:** Move the mouse to the left of a line to see a play button, click this to activate that line.
+
+
+/* Set up the pins */
+latchBit = true;
+dataBit = false;
+clockBit = false;
+
+arduino_d3 is latchBit;
+arduino_d4 is clockBit;
+arduino_d2 is dataBit;
+
+/* Make these digital pins input instead of output */
+arduino_input_d8 = true;
+arduino_input_d9 = true;
+arduino_input_d10 = true;
+arduino_input_d11 = true;
+
+switch1 is 1 if arduino_d11 else 0;
+switch2 is 1 if arduino_d10 else 1 if pageno == 1 else 0;
+switch3 is 1 if arduino_d9 else 0;
+switch4 is 1 if arduino_d8 else 0;
+
+/* LED Segments for each digit */
+digit0 = [0,0,1,1,1,1,1,1];
+digit1 = [0,0,0,0,0,1,1,0];
+digit2 = [0,1,0,1,1,0,1,1];
+digit3 = [0,1,0,0,1,1,1,1];
+digit4 = [0,1,1,0,0,1,1,0];
+digit5 = [0,1,1,0,1,1,0,1];
+digit6 = [0,1,1,1,1,1,0,1];
+digit7 = [0,0,0,0,0,1,1,1];
+digit8 = [0,1,1,1,1,1,1,1];
+digit9 = [0,1,1,0,0,1,1,1];
+digit10 = [0,1,1,1,0,1,1,1];
+digit11 = [0,1,1,1,1,1,0,0];
+digit12 = [0,0,1,1,1,0,0,1];
+digit13 = [0,1,0,1,1,1,1,0];
+digit14 = [0,1,1,1,1,0,0,1];
+digit15 = [0,1,1,1,0,0,0,1];
+
+/* Calculate decimal from switch bits */
+digit is switch1*8 + switch2*4 + switch3*2 + switch4;
+
+/* Select correct segment data */
+data is digit{digit};
+
+/* Write segment data to segment LED display */
+when (data) {
+	local i;
+	latchBit = false;
+	for (i in 1..8) {
+	dataBit = true if data[i] else false;
+	clockBit = true;
+	wait 10;
+	clockBit = false;
+	wait 10;
+	}
+	latchBit = true;
+}}action display {segment_width is 9 * segment_scale;
+segment_height is 40 * segment_scale;
+segment_scale = 1.3830;
+segment_padding = 3;
+
+segment_colour is "red" if on else "#ddd";
+
+vsegment_inset is (segment_width / 2);
+vsegment_p1 is Point(x+vsegment_inset, y);
+vsegment_p2 is Point(x+segment_width,y+vsegment_inset);
+vsegment_p3 is Point(x+segment_width,y+segment_height-vsegment_inset);
+vsegment_p4 is Point(x+vsegment_inset,y+segment_height);
+vsegment_p5 is Point(x, y+segment_height-vsegment_inset);
+vsegment_p6 is Point(x, y+vsegment_inset);
+
+vsegment_points is [vsegment_p1, vsegment_p2, vsegment_p3,
+	vsegment_p4, vsegment_p5, vsegment_p6];
+vsegment is Polygon(vsegment_points, segment_colour, segment_colour);
+
+hsegment_p1 is Point(x+vsegment_inset, y);
+hsegment_p2 is Point(x+segment_height-vsegment_inset,y);
+hsegment_p3 is Point(x+segment_height,y+vsegment_inset);
+hsegment_p4 is Point(x+segment_height-vsegment_inset,y+segment_width);
+hsegment_p5 is Point(x+vsegment_inset, y+segment_width);
+hsegment_p6 is Point(x, y+vsegment_inset);
+
+hsegment_points is [hsegment_p1, hsegment_p2, hsegment_p3,
+	hsegment_p4, hsegment_p5, hsegment_p6];
+hsegment is Polygon(hsegment_points, segment_colour, segment_colour);
+
+segment_right is x + segment_height - vsegment_inset + segment_padding;
+segmentA is hsegment::(on=data[8]);
+segmentB is vsegment::(x = segment_right, y = y + vsegment_inset + segment_padding, on=data[7]);
+segmentC is vsegment::(x = segment_right,
+	y = y + segment_height + vsegment_inset + 3*segment_padding, on=data[6]);
+segmentD is hsegment::(y = y + segment_height*2 + vsegment_inset + 2*segment_padding, on=data[5]);
+segmentE is vsegment::(x = x - vsegment_inset - segment_padding,
+	y = y + segment_height + vsegment_inset + 3*segment_padding, on=data[4]);
+segmentF is vsegment::(x = x - vsegment_inset - segment_padding,
+	y = y + vsegment_inset + segment_padding, on=data[3]);
+segmentG is hsegment::(
+	y = y + 2*segment_padding + segment_height, on is data[2]);
+
+segment_digit is [segmentA, segmentB, segmentC, segmentD, segmentE, segmentF, segmentG];
+
+binary_digit is Text("1" if on else "0", x, y, 90, "black");
+binary_spacing = 60;
+binary_digit1 is binary_digit::(on=switch1);
+binary_digit2 is binary_digit::(on=switch2, x = x + binary_spacing);
+binary_digit3 is binary_digit::(on=switch3, x = x + 2*binary_spacing);
+binary_digit4 is binary_digit::(on=switch4, x = x + 3*binary_spacing);
+binary_digits is [binary_digit1, binary_digit2, binary_digit3, binary_digit4];
+
+randomText is Text(str(therandomnumber), book_width/4,370, 120, "black", "middle center");
+randomBox is Rectangle(book_width/4- 70, 370 - 70, 140, 120, "white", "black");
+score = 0;
+therandomnumber = 0;
+scoreText is Text("Score: " // str(score), book_width/4, 481, 50, "black", "middle center");
+timerText is Text(timermsg, book_width/4, 545, 50, "black", "middle center");
+
+gameComponents is [randomBox, randomText, scoreText, timerText] if pageno  == 3 else @;
+
+photo is Image(book_width/4 - 300, 250, "http://jseden.dcs.warwick.ac.uk/resources/arduino_bin_hex.jpg") if pageno==1 else @;
+
+vbuttons_x = 100;
+vbuttons_y = 200;
+vbuttons_spacing is 2*vbutton_spacing + 20;
+vbutton1 is vbutton::(vbutton_x=vbuttons_x,vbutton_y = vbuttons_y);
+vbutton2 is vbutton::(vbutton_x=vbuttons_x+vbuttons_spacing, vbutton_y=vbuttons_y);
+vbutton3 is vbutton::(vbutton_x=vbuttons_x+2*vbuttons_spacing, vbutton_y=vbuttons_y);
+vbutton4 is vbutton::(vbutton_x=vbuttons_x+3*vbuttons_spacing, vbutton_y=vbuttons_y);
+
+vbuttons is [vbutton1,vbutton2,vbutton3,vbutton4] if !arduino_connected && pageno > 1 && pageno < 4 else @;
+
+picture is [segment_digit::(x=504,y=69),
+	binary_digits::(x=92, y=109),Text("=",384,109,90,"black"),
+	gameComponents, photo, vbuttons, boardpicture];
+}action intro {
+
+
+
+##{size=40pt}Binary Numbers
+
+
+
+#{size=18pt}This Construal should be connected to an Arduino setup, as shown in the photo.
+
+
+#{size=18pt}There are 4 buttons on the Arduino breadboard, one for each binary digit displayed in the top left of this page.
+
+
+#{size=18pt}The red digit on the right shows the hexadecimal number equivalent of the binary number.
+
+
+
+
+#{size=12pt}Click **Next** to continue...
+
+}action page2 {
+
+
+
+
+
+
+
+#{size=18pt}Press the buttons to see which hexadecimal number each binary digit represents...
+
+
+
+#{size=18pt}Try pressing more than one at a time.
+
+
+
+#{size=18pt}Can you make it count from 1 to 9\?
+}action page3 {
+
+
+
+
+
+##{size=25pt}Challenge
+
+
+
+#{size=18pt}Try and make the random decimal number shown in the box by pressing the buttons.
+
+
+
+#{size=18pt}How many can you do in 60 seconds\?
+
+
+}action virtualbutton {vbutton_spacing = 20;
+vboard_scale = 0.7550;
+vbutton_width is vbutton_spacing*2 + vbutton_spacing/2;
+vbutton_ox is vbutton_x-vbutton_spacing/4;
+vbutton_oy is  vbutton_y+vbutton_spacing/10;
+vbutton_rect is RoundedRectangle(vbutton_ox, vbutton_oy, vbutton_width, vbutton_width, 5*vboard_scale, "grey", "grey");
+vbutton_button is Circle(vbutton_ox+vbutton_width/2, vbutton_oy+vbutton_width/2, vbutton_width/2 * 0.6, "#222", "black");
+vbutton_blob_offset = 0.15;
+vbutton_blob1 is Circle(vbutton_ox+vbutton_blob_offset*vbutton_width, vbutton_oy+vbutton_blob_offset*vbutton_width, (vbutton_blob_offset/2)*vbutton_width, "black");
+vbutton_blob2 is Circle(vbutton_ox+(1.0-vbutton_blob_offset)*vbutton_width, vbutton_oy+vbutton_blob_offset*vbutton_width, (vbutton_blob_offset/2)*vbutton_width, "black");
+vbutton_blob3 is Circle(vbutton_ox+vbutton_blob_offset*vbutton_width, vbutton_oy+(1.0-vbutton_blob_offset)*vbutton_width, (vbutton_blob_offset/2)*vbutton_width, "black");
+vbutton_blob4 is Circle(vbutton_ox+(1.0-vbutton_blob_offset)*vbutton_width, vbutton_oy+(1.0-vbutton_blob_offset)*vbutton_width, (vbutton_blob_offset/2)*vbutton_width, "black");
+
+vbutton is [vbutton_rect,vbutton_button,vbutton_blob1,vbutton_blob2, vbutton_blob3, vbutton_blob4];
+}action displayboard {wire1 is wire::pin1="5V",pin2="Bread_P2",wire_colour="red";
+wire2 is wire::pin1="GND3",pin2="Bread_GND2",wire_colour="black";
+wire3 is wire::pin1="D11",pin2="Bread_A3",wire_colour="orange";
+wire4 is wire::pin1="D10",pin2="Bread_A6",wire_colour="orange";
+wire5 is wire::pin1="D9",pin2="Bread_A9",wire_colour="orange";
+wire6 is wire::pin1="D8",pin2="Bread_A12",wire_colour="orange";
+wire7 is wire::pin1="Bread_P1",pin2="Bread_A1",wire_colour="red",wire_sizing=10;
+wire8 is wire::pin1="D2",pin2="Bread_C24",wire_colour="green";
+wire9 is wire::pin1="Bread_P4",pin2="Bread_A4",wire_colour="red",wire_sizing=10;
+wire10 is wire::pin1="Bread_P6",pin2="Bread_A7",wire_colour="red",wire_sizing=10;
+wire11 is wire::pin1="Bread_P9",pin2="Bread_A10",wire_colour="red",wire_sizing=10;
+
+button1 is button::pin1="Bread_F1";
+button2 is button::pin1="Bread_F4";
+button3 is button::pin1="Bread_F7";
+button4 is button::pin1="Bread_F10";
+
+resistor1 is resistor::pin1="Bread_GND3",pin2="Bread_C3";
+resistor2 is resistor::pin1="Bread_GND5",pin2="Bread_C6";
+resistor3 is resistor::pin1="Bread_GND8",pin2="Bread_C9";
+resistor4 is resistor::pin1="Bread_GND10",pin2="Bread_C12";
+
+boardpicture is [board, ard, wire7,wire9, wire10, wire11, button1, button2, button3, button4, resistor1, resistor2,
+	resistor3, resistor4,wire6,wire3,wire4,wire5,wire1,
+	wire2] if pageno >= 4 else @;
+
+board_scale = 0.3;
+ard_scale = 0.35;
+board_y = 241;
+ard_y = 445;
+}action challenge {score = 0;
+therandomnumber = 0;
+timer = 0;
+timermsg is "Time: " // str(timer) // "s" if timer > 0 else "Finished";
+
+when (pageno == 3) {
+	therandomnumber = randomInteger(1,9);
+	timer = 60;
+	score = 0;
+}
+
+when (timer) {
+	wait 1000;
+	timer--;
+}
+
+when (pageno == 3 && digit == therandomnumber) {
+	therandomnumber = randomInteger(1,9);
+	score++;
+}
+}

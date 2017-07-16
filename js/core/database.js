@@ -26,6 +26,24 @@ Eden.DB = {
 	qcachetimeout: undefined
 }
 
+Eden.DB.storageSpace = function() {
+	var _lsTotal=0,_xLen,_x;
+	for(_x in localStorage){
+		_xLen= ((localStorage[_x].length + _x.length)* 2);
+		_lsTotal+=_xLen;
+	}
+	return _lsTotal;
+}
+
+console.log("Local Usage:",""+(Eden.DB.storageSpace()/1024/1024) + "Mb");
+
+if (Eden.DB.storageSpace() > 4*1024*1024) {
+	console.log("WARNING - CLEARING LOCAL STORAGE");
+	for (var x in window.localStorage) {
+		delete window.localStorage[x];
+	}
+}
+
 Eden.DB.listeners = {};
 Eden.DB.emit = emit;
 Eden.DB.listenTo = listenTo;
@@ -218,6 +236,7 @@ Eden.DB.getLoginName = function(callback) {
 }
 
 Eden.DB.localSave = function(project) {
+	//return;
 	if (window.localStorage) {
 		var prefix = "project_"+project.id;
 		window.localStorage.setItem(prefix+"_project", project.generate());
@@ -229,6 +248,7 @@ Eden.DB.localSave = function(project) {
 		window.localStorage.setItem(prefix+"_title", project.title);
 		window.localStorage.setItem(prefix+"_thumb", project.thumb);
 		window.localStorage.setItem(prefix+"_desc", project.desc);
+		window.localStorage.setItem(prefix+"_tags", project.tags.join(" "));
 
 		var plist = JSON.parse(window.localStorage.getItem("project_list"));
 
@@ -272,6 +292,8 @@ Eden.DB.save = function(project, ispublic, callback) {
 					project.id = data.projectID;
 					project.vid = data.saveID;
 					project.readPassword = data.readPassword;
+					project.author = Eden.DB.username;
+					project.authorid = Eden.DB.userid;
 					Eden.DB.localSave(project);
 					if (callback) callback(true);
 				}
@@ -327,6 +349,7 @@ Eden.DB.loadLocal = function(id) {
 		if (author == "undefined") author = undefined;
 		var authorid = window.localStorage.getItem(prefix+"_authorid");
 		var name = window.localStorage.getItem(prefix+"_name");
+		var tags = window.localStorage.getItem(prefix+"_tags");
 		var thumb = window.localStorage.getItem(prefix+"_thumb");
 		if (thumb == "undefined") thumb = undefined;
 		var desc = window.localStorage.getItem(prefix+"_desc");
@@ -339,10 +362,10 @@ Eden.DB.loadLocal = function(id) {
 				ownername: author,
 				owner: authorid,
 				image: thumb,
-				tags: "",
+				tags: tags,
 				parentProject: null,
 				minimisedTitle: name,
-				projectMetaData: '{}' //'{"description": "'+desc+'"}'
+				projectMetaData: JSON.stringify({"description": desc})
 			};
 		}
 	}
@@ -360,6 +383,21 @@ Eden.DB.hasLocal = function(pid, vid) {
 		return (lvid >= vid);
 	}
 	return false;
+}
+
+function removeActive(src) {
+	var ix = src.indexOf("action ACTIVE {");
+	var count = 1;
+
+	var i = ix+16;
+	for (; i<src.length; i++) {
+		var ch = src.charAt(i);
+		if (ch == "{") count++;
+		else if (ch == "}") count--;
+		if (count == 0) break;
+	}
+
+	return src.substring(0,ix) + src.substring(i);
 }
 
 Eden.DB.load = function(pid, vid, readPassword, callback) {
@@ -383,9 +421,17 @@ Eden.DB.load = function(pid, vid, readPassword, callback) {
 					console.log(data);
 					Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
 				} else {
-					if (Eden.DB.hasLocal(pid,data.saveID)) {
+					if (eden.root.lookup("jseden_autosave").value() && Eden.DB.hasLocal(pid,data.saveID)) {
 						console.log("Yes, load local");
-						callback(Eden.DB.loadLocal(pid));
+						var ldata = Eden.DB.loadLocal(pid);
+
+						if (removeActive(ldata.source) != removeActive(data.source)) {
+							var r = window.confirm("You have local changes, restore these?");
+							if (r) callback(ldata);
+							else callback(data);
+						} else {
+							callback(data);
+						}
 					} else {
 						callback(data);
 					}
@@ -398,8 +444,10 @@ Eden.DB.load = function(pid, vid, readPassword, callback) {
 			}
 		});
 	} else if (callback) {
-		if (Eden.DB.hasLocal(pid,vid)) {
-			callback(Eden.DB.loadLocal(pid));
+		if (eden.root.lookup("jseden_autosave").value() && Eden.DB.hasLocal(pid,vid)) {
+			var r = window.confirm("You have local changes, restore these?");
+			if (r) callback(Eden.DB.loadLocal(pid));
+			else callback(undefined, "Disconnected");
 		} else {
 			callback(undefined, "Disconnected");
 		}
@@ -626,11 +674,19 @@ Eden.DB.postComment = function(project, text, priv) {
 	});
 }
 
+var waitingforcomment = false;
+
 Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 	//if (!project) return;
+	if (waitingforcomment) {
+		cb();
+		return;
+	}
+
 	var pid = (project) ? project.id : -1;
 	//if (cb) cb(dummycomments);
 	if (Eden.DB.isConnected()) {
+	waitingforcomment = true;
 	$.ajax({
 		url: this.remoteURL+"/comment/search?projectID="+pid+((last) ? "&newerThan="+last : "")+"&offset="+((page-1) * count)+"&limit="+count,
 		type: "get",
@@ -639,6 +695,7 @@ Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 			withCredentials: true
 		},
 		success: function(data){
+			waitingforcomment = false;
 			if (data) {
 				cb(data);
 				return;
@@ -647,8 +704,9 @@ Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 			}
 		},
 		error: function(a,status,err){
+			waitingforcomment = false;
 			//console.error(a);
-			cb([]);
+			cb();
 			Eden.DB.handleError(a,status,err);
 			//Eden.DB.disconnect(true);
 		}
@@ -755,7 +813,7 @@ Eden.DB.handleError = function(a, status, err) {
 Eden.DB.adminProjectActivity = function(newerthan, offset, cb) {
 	if (!Eden.DB.isLoggedIn()) return;
 	$.ajax({
-		url: this.remoteURL+"/project/activity?limit=15&offset="+offset+((newerthan) ? "&newerThan="+newerthan : ""),
+		url: this.remoteURL+"/project/activity?limit=30&offset="+offset+((newerthan) ? "&newerThan="+newerthan : ""),
 		type: "get",
 		crossDomain: true,
 		xhrFields:{
@@ -803,6 +861,38 @@ Eden.DB.getPopularTags = function(tag, cb) {
 			//Eden.DB.disconnect(true);
 			Eden.DB.handleError(a,status,err);
 			if (cb) cb(false);
+		}
+	});
+}
+
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+var browserID = window.localStorage["construit_uid"];
+if (browserID === null || browserID === undefined || browserID == "") {
+	browserID = guid();
+	window.localStorage.setItem("construit_uid", browserID);
+}
+var sessionID = guid();
+
+Eden.DB.log = function(action, details) {
+	console.log("LOG", browserID, (Eden.DB.userid) ? Eden.DB.userid : -1, action, details);
+
+	$.ajax({
+		url: this.searchServer+"/jsedenlog/jsedenlog",
+		type: "post",
+		data:{	browserID: browserID,
+				sessionID: sessionID,
+				userID: Eden.DB.userid,
+				action: action,
+				details: details
 		}
 	});
 }

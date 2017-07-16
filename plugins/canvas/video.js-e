@@ -414,12 +414,12 @@ ${{
 				}
 			});
 			mediaElement.addEventListener("pause", function (event) {
-				if (pausedSym.definition === undefined) {
+				if (pausedSym.definition === undefined && pausedSym.value() != true) {
 					pausedSym.assign(true, root.scope, agent);
 				}
 			});
 			mediaElement.addEventListener("playing", function (event) {
-				if (pausedSym.definition === undefined) {
+				if (pausedSym.definition === undefined  && pausedSym.value() != false) {
 					pausedSym.assign(false, root.scope, agent);
 				}
 				if (speedSym.value() == 0) {
@@ -468,7 +468,7 @@ ${{
 			}
 
 			timeSym.addJSObserver("seek", function (symbol, seconds) {
-				if (symbol.last_modified_by !== me.type) {
+				if (symbol.origin !== EdenSymbol.localJSAgent) {
 					mediaElement.currentTime = seconds;
 				}
 			});
@@ -479,7 +479,7 @@ ${{
 				var currentTime = mediaElement.currentTime;
 				var newTimeIndex = Math.floor(currentTime);
 				if (newTimeIndex != me.timeIndex) {
-					timeSym.assign(newTimeIndex, root.scope, agent);
+					timeSym.assign(newTimeIndex, root.scope, EdenSymbol.localJSAgent);
 					me.timeIndex = newTimeIndex;					
 				}
 				if (nextChapterAt !== undefined && currentTime >= nextChapterAt) {
@@ -493,14 +493,14 @@ ${{
 				}
 			});
 			mediaElement.addEventListener("ended", function (event) {
-				timeSym.assign(mediaElement.duration, root.scope, agent);
+				timeSym.assign(mediaElement.duration, root.scope, EdenSymbol.localJSAgent);
 				chapterIndex = chapterMarks.length;
 				goToChapter();
 			});
 			mediaElement.addEventListener("seeking", function (event) {
 				var currentTime = mediaElement.currentTime;
 				if (timeSym.value() !== currentTime) {
-					timeSym.assign(currentTime, root.scope, agent);
+					timeSym.assign(currentTime, root.scope, EdenSymbol.localJSAgent);
 				}
 				me.atEnd = currentTime == mediaElement.duration;
 				findChapter();

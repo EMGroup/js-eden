@@ -11,35 +11,22 @@
 
 var path = require('path');
 var fs = require('fs');
-var lrSnippet = require('grunt-contrib-livereload/lib/utils').livereloadSnippet;
 
 module.exports = function (grunt) {
 
-	function mergeFile(file) {
-		var data = grunt.file.read(file);
-		var res = "";
-		var lines = data.split("\n");
-		for (var i = 0; i < lines.length; i++) {
-			lines[i] = lines[i].trim();
-			if (lines[i].substr(0,9) == "include(\"") {
-				var filename = lines[i].slice(9,-3);
-				console.log(filename);
-				res += mergeFile("./"+filename);
-			} else if (lines[i].substr(0,2) == "##") {
-				continue;
-			} else {
-				res += lines[i] + "\n";
-			}
-		}
-		console.log("Size: " + res.length);
-		return res;
-	}
 
   grunt.initConfig({
 
     'gh-pages': {
       src: ['**']
     },
+
+	concat: {
+		canvas: {
+		src: ["plugins/canvas/*.js-e"],
+		dest: "plugins/canvas_merged.js-e"
+		}
+	},
 
 	cssmin: {
 		options: {
@@ -263,60 +250,14 @@ module.exports = function (grunt) {
 					'./plugins/midi/emulation/midi-file.js'
 				]}
 		}
-	},
-
-    jison: {
-      target: {
-        files: { 'js/core/translator.js': 'translator/grammar.jison' }
-      }
-    },
-
-    watch: {
-	  coresrc: {
-		files: ['js/core/*.js','js/ui/*.js','./plugins/**/*.js'],
-		tasks: ['uglify']
-	  },
-
-	  plugincss: {
-	    files: ['plugins/**/*.css'],
-		tasks: ['cssmin']
-	  }
-    },
-
-    connect: {
-      options: {
-        port: 9000,
-        hostname: 'localhost'
-      },
-      livereload: {
-        options: {
-          middleware: function (connect) {
-            return [
-              lrSnippet,
-              connect.static(path.resolve('translator')),
-              connect.static(path.resolve('.'))
-            ];
-          }
-        }
-      }
-    }
+	}
   });
 
-  grunt.loadNpmTasks('grunt-jison');
-  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
-  grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('grunt-contrib-livereload');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-gh-pages');
 
-  grunt.registerTask('merge', 'Merge all JSE files', function() {
-		var data = mergeFile("./library/eden.jse");
-		grunt.file.write("./library/jseden-lib.min.jse", data);
-
-		data = mergeFile("./plugins/canvas-html5/canvas.js-e");
-		grunt.file.write("./plugins/canvas-html5/jseden-canvas.min.js-e", data);
-	});
-  grunt.registerTask('build', ['jison', 'uglify', 'cssmin', 'merge']);
+  grunt.registerTask('build', ['uglify', 'cssmin', 'concat']);
   grunt.registerTask('default', ['build', 'connect', 'watch']);
 };

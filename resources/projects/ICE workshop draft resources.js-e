@@ -1,0 +1,691 @@
+/**
+ * @title Start Your Model
+ */
+action start {
+import Layouts > book;
+do book;
+
+picture_height is book_height;
+
+do altgeomlib;
+
+pageno = 6;
+
+#Working resources:
+pages is ["rough1", "animating", "rough2", "WorkingNotes", "enginecycle"] // workshop;
+
+
+workshop is ["wsplan0", "wsplan1", "wsplan2", "wsplan3",
+			"wsplan4", "wsplan5", "wsplan6", "wsplan7", "wsplan8"];
+
+}
+
+do lib:unexecuted;
+if (jseden_project_mode == "restore") do :project > ACTIVE;
+if (jseden_project_mode != "safe") do :project > start;
+else createView("safemode","ScriptInput");
+
+action ACTIVE {
+jseden_project_title = "ICE workshop draft resources";
+views_number_created = 0;
+jseden_autosave = false;
+jseden_leaveprompt = false;
+jseden_menu_visible = false;
+jseden_explorer_width = 0;
+jseden_explorer_zoom = 1;
+background_audio = Audio("background_audio", true);
+background_audio_paused = false;
+background_audio_chapter = "start";
+background_audio_chapters = Object();
+background_audio_looping = false;
+background_audio_position = Point(0, 0);
+background_audio_speed = 1;
+background_audio_time = 0;
+background_audio_volume = 1;
+mouseVelocity = Point(0, 0);
+plugins_html_loaded = true;
+jseden_project_name = "ICEworkshopdraftresources";
+jseden_project_thumb = ${{ null }}$;
+jseden_project_author = "Meurig Beynon";
+views_list = ["safemode"];
+view_safemode_visibility = "visible";
+view_safemode_title = "Script View";
+view_safemode_tabs = [];
+view_safemode_current = -1;
+view_safemode_showtabs = true;
+view_safemode_showbuttons = true;
+view_safemode_query is jseden_script_query;
+view_safemode_type = "ScriptInput";
+view_safemode_width = 600;
+view_safemode_height = 405;
+view_safemode_x = 659;
+view_safemode_y = 220.5;
+}
+
+action altgeomlib {
+#Alternative form of Line. #library
+Line2 is Line($1["x"],picture_height-$1["y"],$2["x"],picture_height-$2["y"],colour if colour else "black",
+	Object("dashes",[5,5]) if style == "dotted" else
+	Object("lineWidth",width) if width != @ else @
+);
+
+#Alternative form of Circle. #library
+Circle2 is Circle($1["x"],picture_height-$1["y"],$2,fill if fill else "white", colour if colour else "black",
+	Object("lineWidth",width) if width != @ else Object("lineWidth",2));
+
+#Alternative form of  Rectangle that takes points. #library
+Rectangle2 is Rectangle($1["x"],picture_height-$2["y"],$2["x"]-$1["x"],$2["y"]-$1["y"],
+	fill if fill else "white", "black");
+
+#Generate a point from a distance and angle. #library
+RPoint is Point(
+	$1*cos($2), 
+	$1*sin($2)
+);
+
+#Find the mid point of a line between two points. #library
+midpoint is Point(
+	($2["x"]-$1["x"]) / 2 + $1["x"],
+	($2["y"]-$1["y"]) / 2 + $1["y"]
+);
+
+Label2 is Text($1, $2["x"],picture_height-$2["y"]);
+}action linkage1 {
+/* 
+createCanvas("picture"); 
+picture_height is view_picture_height;
+*/
+
+picture_height is book_height;
+fill = true;
+width = 2;
+
+pointA is pointC + Point(0, lenAX + lenCX);
+radA = 10;
+vertA is Circle2::(pointA, radA, fill="red", colour="red");
+lenAB = 180;
+angleAB = -174;
+
+vertB is Circle2::(pointB, radB, fill="green", colour="green");
+radB = 10;
+linAB is Line2::(pointA, pointB);
+
+lenAX is lenAB * sin(angleAB);
+lenCX is lenBC * sin(angleBC);
+
+pointC is Point(150,350);
+radC = 10;
+vertC is Circle2::(pointC, radC, fill="blue", colour="blue");
+
+angleBC = -28;
+lenBC = 100;
+linBC is Line2::(pointB, pointC);
+
+pointB is pointC + (RPoint::(lenBC, angleBC));
+
+labA is Label2::("A", pointA - Point(5,10));
+labB is Label2::("B", pointB - Point(5,10));
+labC is Label2::("C", pointC - Point(5,10));
+
+picture is [vertA, vertB, linAB, vertC, linBC,
+				labA, labB, labC];
+
+angleAB is acos(lenBC/lenAB*cos(angleBC));
+
+picture is [vertA, vertB, linAB, vertC, linBC];
+
+radA is radpt;
+radB is radpt;
+radC is radpt;
+radpt = 5;
+
+}action clocking {import Lib>clocks;
+do clocks;
+
+#! the length of each tick in nanoseconds
+lentick = 100;
+removeedenclock(&tick);
+setedenclock(&tick, lentick);
+
+angleBC is tick % 360 + 90;}action traces {smallA is vertA with radA is 0.5;
+traceA is smallA with tick is (tick-memoryA)..tick;
+memoryA = 290;
+
+smallB is vertB with radB is 0.5;
+traceB is smallB with tick is (tick-memoryB)..tick;
+memoryB = 290;
+
+picture is [vertA, vertB, linAB, vertC, linBC] // traceA // traceB;
+}action linkage2 {autocalc = 0;
+pointX is Point(pointC["x"], picture_height-pointB["y"]);
+vertX is Circle2::(pointX, 2);
+
+/* picture is [vertA, vertB, linAB, vertC, linBC, vertX]; */
+
+pointB is pointX + Point(lenBX, 0);
+#k is a parameter that ranges from -1 to 1
+lenCX is lenBC*k;
+lenBX is sqrt(lenBC^2 - lenCX^2);
+lenXA is sqrt(lenAB^2 - lenBC^2 + lenCX^2);
+
+pointX is pointC + Point(0, lenCX);
+
+pointA is pointC + Point(0, lenCX + lenXA);
+k = 100/100;
+k = 0.9;
+
+autocalc = 1;
+
+
+
+}action rough1 {#The observables in the construal\:
+
+#There are three key points called A, B and C. coloured RGB\:
+	#* `pointA` has value ?(ACTIVE>pointA)  
+	#* `pointB` has value ?(ACTIVE>pointB)  
+	#* `pointC` has value ?(ACTIVE>pointC)
+#A and B move, whilst C is in a fixed position  but can rotate
+
+#There is also potentially a construction point `pointX`\:
+	#* `pointX` has value ?(ACTIVE>pointX)  
+
+#A nd B are linked by a line, as are B and C\:
+	#* AB is of fixed length ?(ACTIVE>lenAB)  
+	#* BC is of fixed length ?(ACTIVE>lenBC)
+
+###Can assign different lengths to AB and BC\:
+lenAB = 120;
+lenBC = 30;  
+
+#Must be that AB is longer than BC
+
+
+}action rough2 {
+
+###There are two ways of realising the motion\:
+
+#* You can turn the blue circle as if it were a door-knobs about the blue point and the red point moves up and down through a semi-circle\:
+
+#* You can move the red point up and down and the green point moves so as to rotate the blue circle 
+
+#Two patterns of agency and dependency are relevant\:
+
+#* the green point rotates around the blue circle and the red point then moves up and down
+do linkage1;
+angleBC is 90 + tick % 360;
+
+#pointA|pointB|pointC
+
+#* the red point moves up and down and the blue cicle rotates accordingly\:
+do linkage2;
+k is sin(90 + tick%360);
+
+#pointA|pointB|pointC|pointX||k|lenXA
+
+
+
+
+#---
+#> Click here for the clock control actions: [STOP]{colour="red" script=removeedenclock(&tick);} INITIALISE{colour="grey" script=tick=1;}  [START]{colour="green" script=setedenclock(&tick,60);}
+}action animating {###Visualising the movement\:
+do linkage1;
+do clocking;
+
+###To visualise the transformation of linear to circular motion\:
+do traces;
+#Compare a long exposure with a camera
+
+###Vary the length of the exposure 
+
+memoryA = 350;
+memoryB = 360;
+
+#initial values\:
+memoryA = 290;
+memoryB = 290;
+
+#---
+#> Click here for the clock control actions: [STOP]{colour="red" script=removeedenclock(&tick);} INITIALISE{colour="grey" script=tick=1;}  [START]{colour="green" script=setedenclock(&tick,60);}
+}action enginecompts {lenBC = 30;
+lenAB = 120;
+
+pistonHeight = 50;
+pistonWidth = 40;
+piston is Rectangle2::(pointA+Point(-pistonWidth/2,pistonHeight),
+				pointA+Point(pistonWidth/2,0));
+combustionchamberHeight is cylinderHeight/5;
+cylinderHeight = 100;
+cylinderWidth = 42;
+
+/*
+cylinder is Rectangle2::(pointC+Point(0,lenAB+lenBC)+Point(-cylinderWidth/2,pistonHeight+combustionchamberHeight),
+				pointC+Point(0,lenAB-lenBC)+Point(cylinderWidth/2,0), fill="lightblue");
+*/
+
+cylinderbody is Rectangle2::(pointC+Point(0,lenAB+lenBC)+Point(-cylinderWidth/2,pistonHeight+combustionchamberHeight),
+				pointA+Point(cylinderWidth/2,0), fill="lightblue");
+
+cylinderLside is Line2::(pointC+Point(0,lenAB+lenBC)+Point(-cylinderWidth/2,pistonHeight+combustionchamberHeight),
+				pointC+Point(0,lenAB-lenBC)-Point(cylinderWidth/2,0), colour="grey");
+
+cylinderRside is Line2::(pointC+Point(0,lenAB+lenBC)+Point(cylinderWidth/2,pistonHeight+combustionchamberHeight),
+				pointC+Point(0,lenAB-lenBC)+Point(cylinderWidth/2,0), colour="grey");
+
+cylinder is [cylinderbody, cylinderLside, cylinderRside];
+
+crankshaft is Circle2::(pointC, lenBC*1.5, fill = "yellow");
+
+intakevalve is Circle2::(pointC+Point(0,lenAB+lenBC)+Point(-cylinderWidth/2,pistonHeight+combustionchamberHeight),
+							cylinderWidth/8, fill is "lightblue" if (inputvalve == "open") else "black",
+							colour="white" if (inputvalve == "open") else "transparent");
+
+exhaustvalve is Circle2::(pointC+Point(0,lenAB+lenBC)+Point(cylinderWidth/2,pistonHeight+combustionchamberHeight),
+							cylinderWidth/8, fill is "grey" if (outputvalve == "open") else "black",
+							colour="white" if (outputvalve == "open") else "transparent");
+
+carcomponents is cylinder // [piston, crankshaft, intakevalve, exhaustvalve];
+carcomponents is cylinder // [piston, crankshaft];
+
+
+
+#need to consider relationship between cylinder width and connecting rod length 
+
+picture is carcomponents // [vertA, vertB, linAB, vertC, linBC] // traceA // traceB;
+
+}action phases {#Monitoring motion as animated\:
+ 
+#The current value of `tick` is ?(ACTIVE > tick)
+
+#The current value of `angleBC` is ?(ACTIVE>angleBC)
+
+#Phase number is determined by value of `tick`\:
+
+phasenumber is 1 + int(tick/180) % 4;
+
+#The current phase is ?(ACTIVE > phasenumber) 
+
+phasesequence is ["INTAKE", "COMPRESSION", "IGNITION", "EXHAUST"];
+phasename is phasesequence[phasenumber];
+
+#Name of the phase is ?(ACTIVE > phasename)
+inputvalve is "open" if (phasenumber == 1) else "closed";
+outputvalve is "open" if (phasenumber == 4) else "closed";
+
+#Colour to represent the phase\:
+
+do colourfn;
+
+densitycol is int(k * 255);
+
+phasecolsequence is ["lightblue", rgb2colour(0,0,1), "red", "grey"];
+phasecolsequence is ["lightblue", "darkblue", "red", "grey"];
+phasecolsequence is ["lightblue", rgb2colour(0,255-densitycol,255-densitycol/2), "red", "grey"];
+
+phasecolour is phasecolsequence[phasenumber];
+
+
+cylinderbody is Rectangle2::(pointC+Point(0,lenAB+lenBC)+Point(-cylinderWidth/2,pistonHeight+combustionchamberHeight),
+				pointA+Point(cylinderWidth/2,0), fill is phasecolour);
+
+sparkplug is Circle2::(pointC+Point(0,lenAB+lenBC)+Point(0,pistonHeight+combustionchamberHeight),
+							cylinderWidth/8, fill is "yellow" if (sparking) else "transparent",
+							colour="yellow" if (sparking) else "transparent");
+
+sparking is (phasenumber==3) && ((tick - 180*int(tick/180)) < 10);
+
+
+
+}action manualmotion {####Manipulating `angleBC` with the mouse\:
+
+do linkage1; 
+do enginecompts;
+angleBC is atan(((picture_height-350)-mouseY)/(mouseX-200)) if mouseX>200
+		else (atan((350-mouseY)/(mouseX-200)) - 180);
+k is (pointA["y"]-botpointA)/(2*lenBC);
+
+####Manipulating `k` in the range -1 to 1 to reflect the location of `pointA`
+#between `pointC["y"]+lenAB-lenBC` and `pointC["y"]+lenAB+lenBC`
+
+botpointA is pointC["y"]+lenAB-lenBC;
+toppointA is pointC["y"]+lenAB+lenBC;
+
+do linkage2;
+do enginecompts;
+k is max(-1, min(1, 2*((picture_height-mouseY) - botpointA)/(2*lenBC)-1));
+
+
+
+}action colourfn {
+func rgb2colour {
+	para r,g,b;
+	return "rgb("//r//","//g//","//b//")";
+}
+
+}action WorkingNotes {###Resources for the workshop\:
+
+#Initially, expect to consider what is involved in creating the linkage betwen the piston and the crankshaft
+
+#The alternative geometry library proves very useful (and instructive), but it needs to be transformed to trad fns and with-s to be compatible with other novice resources 
+
+#It's not easy to know how to avoid using sin and cos in the construction of a linkage: it's important to know what is feasible by way of scaffolding of the construction: the most obvious linkage transforms rotation into linear motion, but *vice versa* is also interesting
+
+#linkage1 and linkage2 are prototype the rotation to liinear motion and the reverse (though the latter is conceptually less satisfactory, since it doesn't directly create a dependency betweenthe location of te piston and the orientation of the crankshaft)
+
+#It would be good to be able to show these dependencies clearly -- the Dependency Map as is doesn't seem to do this very well
+
+#Each linkage can be converted into a prototype engine cylinder by adding the enginecompts script
+
+#You can play with the engine manually by coupling the parameters in the model to the mouse position using actions from the manualmotion script: the up-down motion of the mouse could be more constrained / linked to the piston attachment for the connecting rod (but it doesn't work all that smoothly)
+
+#The manual exercise is quite good at getting a kinaesthetic sense of the movements involved
+
+#The linkage2 script is relevant to understanding the IGNITION phase
+
+#You can also introduce the traces script to convey the pattern of movement visually
+
+#There should be enough in enginecompts to support the modelling of the valves 
+#(but NB there is not yet a spark)
+
+#The script `phases` introduces the idea of phases in the engine cycle and shows how these can be associated with the clock cycle
+
+#The valve settings and the content of the combustion chamber can be conveyed with colours
+
+#A walkthrough for the cycle would be instructive, and might bring in Boyle's Law, or in fact the combined gas law, which asserts that PV/T is constant. When the temperature rises, either the voume or the pressure must increase (perhap both). When pressure is applied, either the volume decreases or the temperature rises (perhaps both).
+
+
+}action enginecycledoc {}action enginecycle {
+###Internal Combustion Engine Activity Background
+
+#**Objective: To support understanding of the following questions:
+#*  What is an internal combustion engine\?
+#* How does an internal combustion engine work\?
+#* How does kinetic energy turn the wheels of a car to drive\?
+
+###How Internal Combustion Engines Work
+#An internal combustion engine burns the fuel inside the engine of cars, and other vehicles. 
+#The engine works in a series of steps, which keep repeating. You can  follow the steps in the diagram below
+
+#* 1. Fuel and air is sent into the cylinder through a valve, which then closes.
+
+#* 2. The piston inside the cylinder moves up and compresses the fuel-air mixture in the cylinder. The mixture is under a lot of pressure warm.
+
+#* 3. Then a spark from a spark plug ignites the fuel-air mixture, causing it to burn explosively within the confined space of the closed cylinder.
+
+#* 4. The pressure of hot gases from combustion pushes the piston downward.
+
+#* 5. The piston moves up again, pushing exhaust gases out of the cylinder through another valve.
+
+#* 6. The piston moves downward again, and the cycle repeats.
+}action wsplan0 {#{.comment size=14pt}
+##Practical workshop with the MCE starts here ... 
+
+#*The previous two slides summarise the intended scope of the workshop
+
+#Know how to make a piston move with speed ...
+
+#* do an experiment: create pressure and get a piston effect \[bicycle pump\]
+
+#How would we make a piston turn a wheel\?
+
+#* Try it out with Lego or Meccano linkage
+
+#Model this with the computer ...
+
+do linkage1;
+
+#Call the red, green and blue points A, B and C 
+
+picture is [vertA, vertB, linAB, vertC, linBC, labA, labB, labC];
+
+#C is fixed, AB and BC are fixed length -- make point B follow the mouse\:
+
+angleBC is atan(((picture_height-350)-mouseY)/(mouseX-200)) if mouseX>200
+			else (atan((350-mouseY)/(mouseX-200)) - 180);
+
+#The line BC is at the angle ?(ACTIVE>angleBC)
+
+}action wsplan1 {#{.comment size=14pt}
+#Automate it\:
+
+#* do this with Lego or Meccano
+
+#Now do it with the computer\:
+
+do clocking;
+
+#The number of ticks so far is ?(ACTIVE>tick)
+
+do traces;
+
+
+#---
+#> Controls for the clock - click on these: [STOP]{colour="red" script=removeedenclock(&tick);} RESET{colour="black" script=tick=1;}  [START]{colour="green" script=setedenclock(&tick,60);}
+}action wsplan2 {#{.comment size=14pt}
+#Add the engine parts\:
+
+do enginecompts;
+
+####Just use three parts initially\:
+
+carcomponents is cylinder // [piston, crankshaft];
+labCYLINDER is Label2::("CYLINDER",
+		pointC+Point(cylinderWidth/2 + 10,lenAB+lenBC)
+			+Point(0,pistonHeight+combustionchamberHeight));
+labPISTON is Label2::("PISTON",
+		pointA + Point(cylinderWidth/2 + 10,pistonHeight/2));
+labCRANKSHAFT is Label2::("CRANKSHAFT", 
+				pointC + Point(lenBC*1.6 + 10,0));
+
+carcomponents is cylinder // [piston, crankshaft]
+				// [labCYLINDER, labPISTON, labCRANKSHAFT];
+
+####Relevant observables\:
+
+#`lenBC` is ?(ACTIVE > lenBC)
+#`lenAB` is ?(ACTIVE > lenAB)
+#`cylinderWidth` is ?(ACTIVE > cylinderWidth)
+#`cylinderHeight` is ?(ACTIVE > cylinderHeight)
+#`pistonWidth` is ?(ACTIVE > pistonWidth)
+
+####You can change these\: *Find some good initial values
+
+lenBC = 30; 
+lenAB = 174; 
+cylinderWidth = 42; 
+cylinderHeight = 203;
+pistonWidth = 40; 
+ 
+
+#> Change using :play:{green} and by Live Edit
+
+
+}action wsplan3 {
+#{.comment size=14pt}
+#What can go wrong with design\?
+
+#* rod hits cylinder side
+#* piston crashes into  crankshaft
+#* cylinder must be wide enough for the piston
+#* cylinder mustn't be too wide for the piston
+#
+
+#Other observables\:
+
+#`pistonWidth` is ?(ACTIVE>pistonWidth)
+#`combustionchamberHeight` is ?(ACTIVE > combustionchamberHeight)
+
+#How to use dependencies ...
+
+cylinderWidth is pistonWidth + 2;
+pistonWidth = 46;
+
+combustionchamberHeight is cylinderHeight/8;
+
+#What is the **compression ratio**\?
+
+#> An engine's *compression ratio* is the ratio of the volume of gas in the cylinder when the piston is at the top of its stroke (top dead centre, or TDC) to the volume of gas when the piston's at the bottom of its stroke (bottom dead centre or BDC).
+
+}action wsplan3a {#Other observables of interest to engineers\:
+
+#* torque
+#* momentum
+
+#... and to designers\:
+#* speed of simulation\:
+lentick = 10;
+setedenclock(&tick,lentick);
+}action wsplan4 {
+#{.comment size=14pt}
+#Do we have an engine\?
+
+#* Does it use any petrol\?
+#* What turns the crankshaft\?
+#* What  happens to the gas in the chamber\?
+#* Perpetual motion  machine\?  Effect of friction\?
+#* How would the  mechanism behave\? \[test  wth Lego/Meccano\]
+
+#Must create pressure in the chamber to drive the crankshaft ...
+
+do linkage2; 
+# *Need to refine this so that it doesn't change dimensions*
+
+do enginecompts;
+
+botpointA is pointC["y"]+lenAB-lenBC;
+k is max(-1, min(1, 2*((picture_height-mouseY) - botpointA)/(2*lenBC)-1));
+
+#This turns linear motion into rotation\:
+
+#> Move the mouse in a vertical direction downwards to simulate the piston pushing the connecting rod to turn the crankshaft
+
+
+
+}action wsplan5 {
+#{.comment size=14pt}
+#Applies a *torque* to the crankshaft: cf. pushing a swing
+
+#Create a 'push' by filling the chamber with a mixture of fuel and air and lighting it every so often
+
+#* Actually do this once every other rotation
+
+#* In fact typically have  several cylinders taking it in turns to push  
+
+#* how far does the crankshaft turn between pushes if you have 4 cylinders\? 
+
+####After the push, the rotating crankshaft moves the piston as before\:
+
+do linkage1; 
+do enginecompts;
+
+angleBC is atan(((picture_height-350)-mouseY)/(mouseX-200)) if mouseX>200
+		else (atan((350-mouseY)/(mouseX-200)) - 180);
+
+k is (pointA["y"]-botpointA)/(2*lenBC);
+
+####... but the speed of rotation is changed\:
+
+do clocking;
+lentick = 5;
+
+#The engine has to complete a cycle before its next push from this cylinder
+#---
+#> Controls for the clock - click on these: [STOP]{colour="red" script=removeedenclock(&tick);} RESET{colour="black" script=tick=1;}  [START]{colour="green" script=setedenclock(&tick,lentick);}
+
+}action wsplan6 {
+#{.comment size=14pt}
+#What happens to the gas in the chamber as the engine goes through its cycle\?
+
+#* consider   **P**ressure, **T**emperature and **V**olume
+#* The **Combined Gas Law**\: PV/T is a constant
+
+#Need to add in three extra parts to the engine\:
+
+#* intake valve
+
+#* exhaust valve
+
+#* a spark plug
+
+do phases;
+
+carcomponents is cylinder // [piston, crankshaft]
+	// [intakevalve, exhaustvalve, sparkplug];
+
+}action wsplan7 {
+#{.comment size=14pt}
+#Other relevant terms of interest
+
+#* 4 stroke 4 cylinder engine
+#* backfiring
+#* timing
+#* mixture
+#* gear box
+#* blowing a gasket
+#* the big end
+#* the camshaft
+#* the firing sequence
+}action linefollowmouse {#Line follows mouse exercise\:
+
+#* get maker mode with `mouseX` and `mouseY` in the Search
+#{margin-left=30px}move mouse around canvas to the keft, watch the values of `mouseX` and `mouseY`
+
+#* introduce a line from point C to mouse position
+ linetomouse is Line(200,350, mouseX, mouseY, "lightblue");
+
+
+ picture is [vertA, vertB, linAB, vertC, linBC, linetomouse];}action linkage1withtrace {smallA is vertA with radA is 0.05;
+smallB is vertB with radB is 0.05;
+traceA is smallA with angleBC is -90..90;
+traceB is smallB with angleBC is 0..360;
+
+picture is Translate(0, 0, [vertA, vertB, linAB, vertC, linBC]
+					// traceA // traceB);}action slide1 {do linkage1;
+do linkage1withtrace;
+
+angleBC is atan(((picture_height-350)-mouseY)/(mouseX-200)) if mouseX>200
+			else (atan((350-mouseY)/(mouseX-200)) - 180);
+
+
+/*
+do linkage2;
+
+botpointA is pointC["y"]+lenAB-lenBC;
+k is max(-1, min(1, 2*((picture_height-mouseY) - botpointA)/(2*lenBC)-1));
+*/
+
+}action wsplan8 {do slide1;
+
+#{.comment size=14pt}
+
+#From moving in a circle to moving in a line
+
+#> Move the mouse around the green circle and watch the red point go up and down
+ 
+#From moving in a line to moving in a circle
+
+#> Move the mouse up and down the screen and watch the green point follow an arc
+}action linkage2withtrace {smallA is vertA with radA is 0.05;
+smallB is vertB with radB is 0.05;
+traceA is smallA with k is 0..100;
+traceB is smallB with k is 0..100;
+
+picture is Translate(0, 0, [vertA, vertB, linAB, vertC, linBC]
+					// traceA // traceB);}action visenginecycle {createCanvas("picture");
+view_picture_scale = 2;
+view_picture_offset = Point(0, -100);
+
+do altgeomlib;
+do linkage1;
+do clocking;
+lentick = 10;
+setedenclock(&tick,lentick);
+k is sin(90 + tick%360);
+
+do traces;
+
+do enginecompts;
+carcomponents is cylinder // [piston, crankshaft, intakevalve, exhaustvalve];
+do phases;
+
+
+}action showenginecycle {do visenginecycle;}

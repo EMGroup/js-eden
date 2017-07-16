@@ -377,7 +377,7 @@
 				style.boxShadow = "none";
 			} else {
 				style.border = "1px solid #777";
-				style.boxShadow = "0 0 15px #4a6887";
+				style.boxShadow = "0 0 40px #6d8cac";
 			}
 		}
 		borderSym.addJSObserver("changeState",updateBorder);

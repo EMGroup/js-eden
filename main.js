@@ -10,7 +10,12 @@ const url = require('url')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow;
+
+if (process.resourcesPath) {
+	//process.chdir(process.resourcesPath+'/app');
+	console.log("RESPATH", process.resourcesPath);
+}
 
 function createWindow () {
   // Create the browser window.

@@ -21,8 +21,8 @@ Eden.Arduino.prototype.connect = function() {
 		me.connected = false;
 		//broadcastAssign("arduino_connected", false);
 		//broadcastAssign("arduino_error", error);
-		eden.root.assign("arduino_connected", false, eden.root.scope, EdenSymbol.localJSAgent);
-		eden.root.assign("arduino_error", error, eden.root.scope, EdenSymbol.localJSAgent);
+		eden.root.lookup("arduino_connected").assign(false, eden.root.scope, EdenSymbol.localJSAgent);
+		eden.root.lookup("arduino_error").assign(error, eden.root.scope, EdenSymbol.localJSAgent);
 
 		setTimeout(function() {
 			sp.open();
@@ -47,6 +47,8 @@ Eden.Arduino.prototype.connect = function() {
 
 		me.sp.on('data', function(data) {
 			var i = 0;
+
+			//console.log("RAW", data);
 
 			while (i < data.length) {
 				if (cacheData.length == 0) {
@@ -74,7 +76,7 @@ Eden.Arduino.prototype.connect = function() {
 	me.sp.open();
 
 	function digiHandler(sym, value) {
-		console.log("Write arduino",sym.name,value);
+		//console.log("Write arduino",sym.name,value);
 		if (!me.connected || sym.origin === EdenSymbol.localJSAgent) return;
 		var pin = parseInt(sym.name.replace("arduino_d",""));
 		if (value != me.digipincache[pin]) {
@@ -84,33 +86,51 @@ Eden.Arduino.prototype.connect = function() {
 	}
 
 	var digisyms = [];
-	for (var i=1; i<=14; i++) {
-		digisyms[i-1] = eden.root.lookup("arduino_d"+i);
-		digisyms[i-1].addJSObserver(this.port, digiHandler);
+	for (var i=0; i<14; i++) {
+		digisyms[i] = eden.root.lookup("arduino_d"+i);
+		digisyms[i].addJSObserver(this.port, digiHandler);
 	}
 
 	function inputHandler(sym, value) {
 		if (!me.connected || sym.origin === EdenSymbol.localJSAgent) return;
-		var pin = parseInt(sym.name.replace("arduino_input_",""));
-		
+		var pin = parseInt(sym.name.replace("arduino_input_d",""));
+		if (value) me.pinMode(pin, "IN");
+		else me.pinMode(pin, "OUT");
+	}
+
+	function enabledHandler(sym, value) {
+		var pin = parseInt(sym.name.replace("arduino_input_a",""));
+		if (value) {
+			me.sendCommand(50+pin, 1, 1);
+		} else {
+			me.sendCommand(50+pin, 0, 1);
+		}
 	}
 
 	var inputsyms = [];
-	for (var i=1; i<=14; i++) {
-		inputsyms[i-1] = eden.root.lookup("arduino_input_d"+i);
-		inputsyms[i-1].addJSObserver(this.port, inputHandler);
+	for (var i=0; i<14; i++) {
+		inputsyms[i] = eden.root.lookup("arduino_input_d"+i);
+		inputsyms[i].addJSObserver(this.port, inputHandler);
+	}
+
+	var ainputsyms = [];
+	for (var i=0; i<=15; i++) {
+		ainputsyms[i-1] = eden.root.lookup("arduino_input_a"+i);
+		ainputsyms[i-1].addJSObserver(this.port, enabledHandler);
 	}
 }
 
 Eden.Arduino.prototype.processSerialData = function(obj) {
 	var pin = obj[0];
 
+	//console.log("IN", obj);
+
 	if (pin < 50) {
 		var val = obj[1];
-		eden.root.assign("arduino_d"+pin, (val > 0) ? true : false, eden.root.scope, EdenSymbol.localJSAgent);
+		eden.root.lookup("arduino_d"+pin).assign((val > 0) ? true : false, eden.root.scope, EdenSymbol.localJSAgent);
 	} else {
 		var val = obj[1] + (obj[2]*256);
-		eden.root.assign("arduino_a"+(pin-50), val, eden.root.scope, EdenSymbol.localJSAgent);
+		eden.root.lookup("arduino_a"+(pin-50)).assign(val, eden.root.scope, EdenSymbol.localJSAgent);
 	}
 }
 
