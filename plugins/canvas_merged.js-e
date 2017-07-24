@@ -9088,7 +9088,7 @@ View.prototype.toString = function() {
 };
 
 View.prototype.getEdenCode = function () {
-	var s = "View(" + Eden.edenCodeForValues(this.name, this.type, this.x, this.y, this.width, this.height);
+	var s = "View(" + Eden.edenCodeForValues(this.name, this.type, this.x, this.y, this.width, this.height)+")";
 	return s;
 };
 
