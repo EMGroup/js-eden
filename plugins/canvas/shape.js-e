@@ -15,7 +15,7 @@ Shape = function(mesh, pos, scale, rot, material, uvmap, ortho) {
 	this.uvmap = uvmap;
 	this.ortho = ortho;
 
-	this.texture = undefined;
+	this.texture = {};
 }
 
 }}$;
@@ -67,18 +67,18 @@ Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pM
 		} else {
 			this.material.bind(context,viewname, shader);
 
-			if (!this.texture) {
-				this.texture = context.createTexture();
-				context.bindTexture(context.TEXTURE_2D, this.texture);
+			if (!this.texture[viewname]) {
+				this.texture[viewname] = context.createTexture();
+				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
 				context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
 							  new Uint8Array([100, 100, 100, 255]));
 			} else {
-				context.bindTexture(context.TEXTURE_2D, this.texture);
+				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
 			}
 		}
     	context.uniform1i(shader.samplerUniform, 0);
 	} else {
-		if (!this.texture) {
+		if (!this.texture[viewname]) {
 			var colorobj = jQuery.Color( (typeof this.material == "string") ? this.material : "orange" );
 			var r = colorobj.red();
 			var g = colorobj.green();
@@ -87,20 +87,21 @@ Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pM
 			//console.log("Making colour texture");
 
 			var rgbstr = "rgb("+r+","+g+","+b+")";
-			if (Texture.textures[rgbstr]) {
+			if (!Texture.textures[viewname]) Texture.textures[viewname] = {};
+			if (Texture.textures[viewname][rgbstr]) {
 				if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
-				this.texture = Texture.textures[rgbstr];
+				this.texture[viewname] = Texture.textures[viewname][rgbstr];
 				context.activeTexture(context.TEXTURE0);
-				context.bindTexture(context.TEXTURE_2D, this.texture);
+				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
 				//console.log("Reuse colour");
 			} else {
-				this.texture = context.createTexture();
-				Texture.textures[rgbstr] = this.texture;
+				this.texture[viewname] = context.createTexture();
+				Texture.textures[viewname][rgbstr] = this.texture[viewname];
 
 				if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
 				console.log("New colour being made");
 				context.activeTexture(context.TEXTURE0);
-				context.bindTexture(context.TEXTURE_2D, this.texture);
+				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
 				context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
 							  new Uint8Array([r, g, b, 255]));
 				context.uniform1i(shader.samplerUniform, 0);
@@ -111,7 +112,7 @@ Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pM
 			//console.log("UVMAP",this.uvmap.texCoords.length/2,this.mesh.vertices.length/3);
 
 			context.activeTexture(context.TEXTURE0);
-	   		context.bindTexture(context.TEXTURE_2D, this.texture);
+	   		context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
 			context.uniform1i(shader.samplerUniform, 0);
 		}
 	}
