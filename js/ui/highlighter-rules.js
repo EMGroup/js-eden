@@ -271,6 +271,7 @@ EdenUI.Highlight.prototype.START = function() {
 	case "local"	:
 	case "para"		:
 	case "handle"	:
+	case "role"		:
 	case "oracle"	:
 	case "auto"		:	this.classes.push("storage"); break;
 	case "NUMBER"	:	this.classes.push("number"); break;

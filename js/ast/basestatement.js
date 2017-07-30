@@ -14,6 +14,7 @@ Eden.AST.BaseStatement = function() {
 	this.nextSibling = undefined;
 	this.previousSibling = undefined;
 	this.tags = undefined;
+	this.local = false;
 }
 
 Eden.AST.BaseStatement.needsRebuild = function() { return false; }

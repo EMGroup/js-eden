@@ -280,6 +280,9 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 
 					initialized = true;
 					initializing = false;
+
+					eden.root.lookup("plugins_midi_loaded").assign(true, eden.root.scope, EdenSymbol.localJSAgent);
+					if (success) success();
 					console.log("Done.");
 
 					//Continue with the operations originally requested (e.g. play a tune).
@@ -411,9 +414,14 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 
 		if (me.isValidNote(note)) {
 			if (note === previousNote) {
-				if (strike && velocity > 0) {
-					//Strike the same note again.
-					output.send([0x90 + channel, note + 20, me.roundValue(velocity)]);
+				if (velocity > 0) {
+					if (strike) {
+						//Strike the same note again.
+						output.send([0x90 + channel, note + 20, me.roundValue(velocity)]);
+					} else {
+						//Release note.
+						output.send([0x90 + channel, note + 20, 0]);
+					}
 				}
 			} else {
 				if (velocity > 0) {
@@ -580,10 +588,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		inputMessageCountSym.assign(0,eden.root.scope);
 	}
 
-	Eden.Selectors.execute("plugins > midi > midi", function() {
-		eden.root.lookup("plugins_midi_loaded").assign(true, eden.root.scope, EdenSymbol.localJSAgent);
-		if (success) success();
-	});
+	Eden.Selectors.execute("plugins > midi > midi", function() { });
 }
 EdenUI.plugins.MIDI.title = "MIDI";
 EdenUI.plugins.MIDI.description = "Adds musical capabilities to JS-EDEN.";

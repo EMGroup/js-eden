@@ -111,6 +111,7 @@ Eden.SyntaxError.QUERYSELECTCLOSE = 84;
 Eden.SyntaxError.QUERYSELECTCOMMA = 85;
 Eden.SyntaxError.BLOCKCOMMENT = 86;
 Eden.SyntaxError.NEWLINE = 87;
+Eden.SyntaxError.WHENROLE = 88;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -571,6 +572,10 @@ Eden.SyntaxError.db = [
 		suggestion: {expected: [], next: []}
 	},
 /* EDEN_ERROR_NEWLINE */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_WHENROLE */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	}

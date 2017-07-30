@@ -85,6 +85,7 @@ var Language = {
 		"action": "action",
 		"procedure": "procedure",
 		"local": "local",
+		"role": "role",
 		"if": "if",
 		"is": "is",
 		"in": "in",

@@ -15,6 +15,7 @@ Eden.AST.When = function() {
 	this.enabled = false;
 	this.statements = [];
 	this.retrigger = false;
+	this.roles = null;
 };
 
 Eden.AST.registerContext(Eden.AST.When);
@@ -216,6 +217,9 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 
 Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
 	if (!this.enabled) {
+		if (this.doxyComment && this.doxyComment.getControls()["@local"]) {
+			this.local = true;
+		}
 		// Register agent with project.
 		eden.project.registerAgent(this);
 	}

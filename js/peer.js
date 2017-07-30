@@ -30,7 +30,8 @@ Eden.Peer = function(master, id) {
 	Eden.Selectors.execute("lib > p2p");
 
 	function processAssign(obj) {
-		var sym = eden.root.lookup(obj.symbol.slice(1));
+		//console.log("process assign",obj);
+		var sym = eden.root.lookup(obj.symbol);
 		//var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, {noparse: true});
 		var express = Eden.AST.parseExpression(obj.value); //ast.pEXPRESSION();
 		sym.assign(express.execute({}, EdenSymbol.netAgent, eden.root.scope), eden.root.scope, EdenSymbol.netAgent);
@@ -38,7 +39,7 @@ Eden.Peer = function(master, id) {
 	}
 
 	function processDefine(obj) {
-		var sym = eden.root.lookup(obj.symbol.slice(1));
+		var sym = eden.root.lookup(obj.symbol);
 		//sym.eden_definition = obj.source;
 		sym.define(eval(obj.code), EdenSymbol.netAgent, obj.dependencies, obj.source);
 		me.broadcastExcept(obj.id, obj);
@@ -46,11 +47,11 @@ Eden.Peer = function(master, id) {
 
 	function processImport(obj) {
 		//Eden.Agent.importAgent(obj.path, obj.tag, obj.options, function() {});
-		me.broadcastExcept(obj.id, obj);
+		//me.broadcastExcept(obj.id, obj);
 	}
 
 	function processListAssign(obj) {
-		var sym = eden.root.lookup(obj.symbol.slice(1));
+		var sym = eden.root.lookup(obj.symbol);
 		//var ast = new Eden.AST(obj.value, undefined, Symbol.netAgent, true);
 		var express = Eden.AST.parseExpression(obj.value); //ast.pEXPRESSION();
 		sym.listAssign(express.execute({}, EdenSymbol.netAgent, eden.root.scope), eden.root.scope, EdenSymbol.netAgent, false, obj.components);
@@ -60,13 +61,22 @@ Eden.Peer = function(master, id) {
 	function processRestore(obj) {
 		me.loading = true;
 		// TODO Must reset environment first!
-		Eden.DB.load(undefined, undefined, obj, function() {
+		/*Eden.DB.load(undefined, undefined, obj, function() {
 			me.loading = false;
+		});*/
+		eden.project = new Eden.Project(obj.pid, obj.name, obj.script);
+		Eden.Project.emit("loading", [eden.project]);
+		eden.project.vid = obj.vid;
+		eden.project.title = obj.title;
+		eden.project.author = obj.ownername;
+		eden.project.authorid = obj.owner;
+		eden.project.start(function() {
+			Eden.Project.emit("load", [eden.project]);
 		});
 	}
 
 	function processExecStatus(obj) {
-		var ag = Eden.Agent.agents[obj.path];
+		/*var ag = Eden.Agent.agents[obj.path];
 		if (ag && ag.meta && ag.meta.saveID == obj.saveID) {
 			ag.last_exec_version = obj.saveID;
 			ag.executed = true;
@@ -77,7 +87,7 @@ Eden.Peer = function(master, id) {
 				ag.last_exec_version = obj.saveID;
 				ag.executed = true;
 			});
-		}
+		}*/
 	}
 
 	function processRegister(obj) {
@@ -86,7 +96,7 @@ Eden.Peer = function(master, id) {
 	}
 
 	function processGetSnapshot(obj) {
-		var script = Eden.Generator.getScript();
+		var script = eden.project.generate();
 		me.connections[obj.id].connection.send(JSON.stringify({cmd: "callback", data: script, cbid: obj.cbid}));
 	}
 
@@ -96,8 +106,10 @@ Eden.Peer = function(master, id) {
 		if (obj.value) {
 			pconn.share = true;
 			// Auto share state.
-			var script = Eden.Generator.getScript();
-			pconn.connection.send(JSON.stringify({cmd: "restore", script: script}));
+			if (eden.project) {
+				var script = eden.project.generate();
+				pconn.connection.send(JSON.stringify({cmd: "restore", script: script}));
+			}
 			pconn.connection.send(JSON.stringify({cmd: "callback", data: true, cbid: obj.cbid}));
 			Eden.Peer.emit("share", [obj.id]);
 		} else {
@@ -134,7 +146,7 @@ Eden.Peer = function(master, id) {
 	}
 
 	function processDoxy(obj) {
-		eden.updateDictionary(obj.symbol, new Eden.AST.DoxyComment(obj.content,0,0), true);
+		//eden.updateDictionary(obj.symbol, new Eden.AST.DoxyComment(obj.content,0,0), true);
 	}
 
 	function processData(conn, data) {
@@ -166,6 +178,7 @@ Eden.Peer = function(master, id) {
 	}
 
 	function init(name) {
+		if (me.enabled) return;
 		if (name) {
 			var myid = name.replace(/[ \!\'\-\?\&]/g, "");
 			var peer;
@@ -203,7 +216,7 @@ Eden.Peer = function(master, id) {
 				conn.on('open', function() {
 					if (me.config.share) {
 						// Auto share state.
-						var script = Eden.Generator.getScript();
+						var script = eden.project.generate();
 						conn.send(JSON.stringify({cmd: "restore", script: script}));
 					}
 				});
@@ -222,7 +235,7 @@ Eden.Peer = function(master, id) {
 			});
 		}
 
-		Eden.Agent.listenTo('patch',this,function(origin,patch,lineno){
+		/*Eden.Fragment.listenTo('changed',this,function(origin,patch,lineno){
 			if(origin && me.capturepatch) {
 				var data = {cmd: "patch", name: origin.name, patch: patch, lineno: lineno};
 				me.broadcast(data);
@@ -237,12 +250,12 @@ Eden.Peer = function(master, id) {
 			me.imports(origin, origin.name, saveID, ["noexec"]);
 		});
 		Eden.Agent.listenTo("execute", this, function(origin, force, saveID) {
-			/*if (force && origin.canUndo() == false) {
-				console.log("EXECUTE IMPORT", origin.name, saveID);
-				me.imports(origin, origin.name, saveID, ["force"]);
-			}*/
+			//if (force && origin.canUndo() == false) {
+			//	console.log("EXECUTE IMPORT", origin.name, saveID);
+			//	me.imports(origin, origin.name, saveID, ["force"]);
+			//}
 			me.broadcast(JSON.stringify({cmd: "execstatus", path: origin.name, saveID: saveID}));
-		});
+		});*/
 	}
 	
 	Eden.DB.listenTo("login", this, init);
@@ -317,11 +330,10 @@ Eden.Peer.prototype.broadcastExcept = function(id, msg) {
 Eden.Peer.prototype.authoriseWhen = function(when) {
 	if (this.enabled) {
 		//console.log(when);
-		if (when.doxyComment) {
-			var roles = when.doxyComment.getControls()["@role"];
-			if (roles) {
+		if (when.roles) {
+			var roles = when.roles;
+			if (roles && roles.length > 0) {
 				for (var i=0; i<roles.length; i++) {
-					if (roles[i] == "@role" && this.id !== undefined) return true;
 					if (this.roles[roles[i]]) return true;
 				}
 				//console.log("DENIED WHEN: ", roles);
@@ -341,6 +353,7 @@ Eden.Peer.prototype.doxy = function(name, comment) {
 
 Eden.Peer.prototype.assign = function(agent, sym, value) {
 	if (agent && !agent.loading && !agent.local) {
+		//console.log("P2P Assign "+sym + " = " + Eden.edenCodeForValue(value));
 		this.broadcast({cmd: "assign", symbol: sym, value : Eden.edenCodeForValue(value)});
 	}
 }
@@ -352,9 +365,9 @@ Eden.Peer.prototype.define = function(agent, sym, source, rhs, deps) {
 }
 
 Eden.Peer.prototype.imports = function(agent, path, tag, options) {
-	if (agent && !agent.loading && !agent.local) {
-		this.broadcast({cmd: "import", path: path, tag: tag, options: options});
-	}
+	//if (agent && !agent.loading && !agent.local) {
+	//	this.broadcast({cmd: "import", path: path, tag: tag, options: options});
+	//}
 }
 
 Eden.Peer.prototype.listAssign = function(agent, sym, value, components) {
@@ -402,8 +415,10 @@ Eden.Peer.prototype.requestObserve = function(id, cb) {
 		pconn.share = true;
 		pconn.connection.send(JSON.stringify({cmd: "reqobserve", value: true, cbid: this.addCallback(cb)}));
 		// Auto share state.
-		var script = Eden.Generator.getScript();
-		pconn.connection.send(JSON.stringify({cmd: "restore", script: script}));
+		var script = eden.project.generate(); //Eden.Generator.getScript();
+		pconn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
+			vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
+			name: eden.project.name, title: eden.project.title}));
 	}
 }
 
@@ -427,6 +442,14 @@ Eden.Peer.prototype.requestCollaborate = function(id, cb) {
 			pconn.observe = true;
 			me.requestObserve(id, cb);
 		})}));
+
+		if (eden.project) {
+			// Auto share state.
+			var script = eden.project.generate(); //Eden.Generator.getScript();
+			pconn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
+				vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
+				name: eden.project.name, title: eden.project.title}));
+		}
 	}
 }
 

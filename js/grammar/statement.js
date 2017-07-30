@@ -364,6 +364,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	end = this.lastposition;
 	endline = this.lastline;
 	stat.parent = this.parent;
+	stat.local = this.localStatus;
 	if (stat.doxyComment === undefined) {
 		stat.setDoxyComment(doxy);// (doxy && doxy.endline == curline-1) ? doxy : undefined;
 	}

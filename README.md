@@ -15,26 +15,58 @@ there is an internet connection, but it will work without this and is presented
 as a desktop application instead of a web-site.
 
 Download the [latest release](https://github.com/EMGroup/js-eden/releases) and
-extract it from the zip or tar.gz.
+extract it from the zip or tar.gz. If there is a binary version (for linux) then
+you can use this directly. Otherwise:
+
+## Windows
 
 Install [Node.js](https://nodejs.org) version 6.10 or newer.
+Install [Git](https://git-scm.com/downloads).
 
-Afterwards, open a command line terminal into the folder extracted from the
-download and enter the following commands:
-
-On Windows you will also need to install `windows-build-tools` with:
+Afterwards, open a PowerShell in Administrator mode and `cd` into the folder extracted from the
+download and enter the following commands.
 
 ```
 npm install -g windows-build-tools
 ```
 
-And then for all platforms:
+```
+npm install
+```
+
+If the above command produces an error then you may need to install *Windows SDK 8.1* and try it again.
+
+And to start Construit use:
+
+```
+npm start
+```
+
+We suggest you then make a desktop shortcut which does `npm start` in the correct working directory.
+
+## Linux
+
+Either:
+
+```
+apt-get install npm
+apt-get install git
+```
+
+or
+
+```
+dnf install npm
+dnf install git
+```
+
+Then `cd` into the extracted `jseden` folder and run:
 
 ```
 npm install
 ```
 
-And to start Construit use:
+To start Construit run the following in the `jseden` directory
 
 ```
 npm start

@@ -337,6 +337,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_NEWLINE */ [
 	"You must have a new line after a section header or comment"
+],
+/* EDEN_ERROR_WHENROLE */ [
+	"A role must be a valid identifier"
 ]
 ];
 
