@@ -42,19 +42,28 @@ Eden.AST.prototype.pLOCALS = function() {
 	while (this.token == "auto" || this.token == "local") {
 		this.next();
 
-		var olist = this.pOLIST();
-		locals.list.push.apply(locals.list,olist);
-
-		if (olist.length == 0 || olist[olist.length-1] == "NONAME") {
-			locals.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LOCALNAME));
-			return locals;
-		}
-
-		if (this.token == ";") {
+		if (this.token == "when") {
 			this.next();
-		} else {
-			locals.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LOCALSEMICOLON));
+			this.localStatus = true;
+			locals = this.pWHEN();
+			this.localStatus = false;
+			//locals.local = true;
 			return locals;
+		} else {
+			var olist = this.pOLIST();
+			locals.list.push.apply(locals.list,olist);
+
+			if (olist.length == 0 || olist[olist.length-1] == "NONAME") {
+				locals.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LOCALNAME));
+				return locals;
+			}
+
+			if (this.token == ";") {
+				this.next();
+			} else {
+				locals.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LOCALSEMICOLON));
+				return locals;
+			}
 		}
 	}
 

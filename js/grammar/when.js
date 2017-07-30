@@ -14,6 +14,18 @@ Eden.AST.prototype.pWHEN = function() {
 	var parent = this.parent;
 	this.parent = when;
 
+	if (this.token == "role") {
+		this.next();
+		if (this.token == "OBSERVABLE") {
+			when.roles = this.pOLIST();
+		} else {
+			when.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.WHENROLE));
+			this.parent = parent;
+			return when;
+		}
+		//this.next();
+	}
+
 	if (this.token != "(") {
 		when.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.WHENOPEN));
 		this.parent = parent;
