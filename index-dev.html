@@ -283,7 +283,7 @@ See LICENSE.txt
 		}, "text");
 	}
 
-	if (mobilecheck()) document.location = "mobile-dev.html";
+	if (mobilecheck()) document.location = "mobile-dev.html"+document.location.search;
 
 	$(".loadmodal").show();
 	Construit(undefined, function(loaded) {
