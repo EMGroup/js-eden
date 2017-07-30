@@ -18,7 +18,6 @@ EdenUI.MenuBar = function() {
 	if (ismobile) {
 		this.element = $('<div id="menubar-main" class="no-print">\
 			<div class="menubar-buttons">\
-				<a id="eden-logo" href="'+window.location.pathname+'" target="_blank" style="display: block"></a>\
 				<div class="menubar-button enabled main share" data-obs="sharebox" title="Save or share" style="display: none;">&#xf1e0;<div id="menubar-mainitem-sharebox" class="menubar-menu"></div></div>\
 				<div class="menubar-button enabled main notifications" data-obs="notifications" title="Notifications">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div>\
 				<div class="menubar-button enabled main more" data-obs="more" title="More Options">&#xf0c9;</div></div>\

@@ -179,12 +179,12 @@ EdenUI.Explorer = function() {
 	var setlist = [
 		"jseden_autosave",
 		"jseden_leaveprompt",
-		"jseden_menu_visible",
+		/*"jseden_menu_visible",
 		"jseden_menu_showhelp",
 		"jseden_menu_showsearch",
 		"jseden_menu_showcreate",
 		"jseden_menu_showexisting",
-		"jseden_menu_showshare",
+		"jseden_menu_showshare",*/
 		"jseden_explorer_enabled"
 	];
 

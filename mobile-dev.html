@@ -78,15 +78,15 @@ See LICENSE.txt
 
 		div#loadoptions {
 			position: relative;
-			top: 55px;
+			top: 40px;
 		}
 
 		
 
 		div.project-content {
-			position: relative;
+			/*position: relative;
 			left: 5px;
-			width: calc(100% - 10px);
+			width: calc(100% - 10px);*/
 			font-family: "Source Sans Pro",Arial,sans-serif;
 			font-size: 13pt;
 			line-height: 150%;
@@ -228,6 +228,45 @@ See LICENSE.txt
 
 		div.popular-tags a {
 			margin-right: 5px;
+		}
+
+		div#projectbuttons {
+			background: #29454B;
+			vertical-align: middle;
+			/*line-height: 100px;*/
+			height: 400px;
+			color: white;
+			justify-content: center;
+			align-content: center;
+			flex-direction: column;
+			padding: 0 50px;
+		}
+
+		div#projectbuttons button {
+			background: #1a5e6d;
+			margin-bottom: 20px;
+			border: 2px solid white;
+			border-radius: 5px;
+			color: white;
+			outline: none;
+			height: 50px;
+			font-size: 14pt;
+			font-weight: bold;
+		}
+
+		div#projectbuttons button:hover {
+			background: #268ba1;
+		}
+
+		div#projectbuttons img {
+			margin-bottom: 40px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		span.icon {
+			font-family: 'FontAwesome';
+			margin-right: 10px;
 		}
 
 	</style>
@@ -765,13 +804,14 @@ See LICENSE.txt
 </div>
 
 <div id="loadoptions" class="" style="display: none;">
-	<div class="project-content" style="padding: 20px 0;">
+	<div class="project-content">
 		<div id="defaultcontent">
 		</div>
-		<div id="projectbuttons" class="jseden-dialog-plisting" style="padding: 10px; height: 80px; display: none;">
-			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
-			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special">&#xf07c;</div></div>
-			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
+		<div id="projectbuttons" class="jseden-dialog-plisting">
+			<img width="278" src="images/construit_logo_5.png"/>
+			<button onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-In</button>
+			<button><span class="icon">&#xf0c1;</span>P2P Connect</button>
+			<button><span class="icon">&#xf002;</span>Browse</button>
 		</div>
 		<div id="project-browser" style="clear: right;">
 			<div id="privateprojects" style="display: none">
