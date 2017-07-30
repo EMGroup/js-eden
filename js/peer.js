@@ -108,7 +108,9 @@ Eden.Peer = function(master, id) {
 			// Auto share state.
 			if (eden.project) {
 				var script = eden.project.generate();
-				pconn.connection.send(JSON.stringify({cmd: "restore", script: script}));
+				pconn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
+					vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
+					name: eden.project.name, title: eden.project.title}));
 			}
 			pconn.connection.send(JSON.stringify({cmd: "callback", data: true, cbid: obj.cbid}));
 			Eden.Peer.emit("share", [obj.id]);
@@ -217,7 +219,9 @@ Eden.Peer = function(master, id) {
 					if (me.config.share) {
 						// Auto share state.
 						var script = eden.project.generate();
-						conn.send(JSON.stringify({cmd: "restore", script: script}));
+						conn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
+							vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
+							name: eden.project.name, title: eden.project.title}));
 					}
 				});
 			});
