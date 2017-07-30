@@ -3147,124 +3147,6 @@ func ContourLine {
 	}}$;
 }
 
-/* Copyright (c) 2013, Empirical Modelling Group
- * All rights reserved.
- *
- * See LICENSE.txt
- */
-
-shape_cube_vertices = [
-            -1.0, -1.0,  1.0,
-             1.0, -1.0,  1.0,
-             1.0,  1.0,  1.0,
-            -1.0,  1.0,  1.0,
-
-            -1.0, -1.0, -1.0,
-            -1.0,  1.0, -1.0,
-             1.0,  1.0, -1.0,
-             1.0, -1.0, -1.0,
-
-            -1.0,  1.0, -1.0,
-            -1.0,  1.0,  1.0,
-             1.0,  1.0,  1.0,
-             1.0,  1.0, -1.0,
-
-            -1.0, -1.0, -1.0,
-             1.0, -1.0, -1.0,
-             1.0, -1.0,  1.0,
-            -1.0, -1.0,  1.0,
-
-             1.0, -1.0, -1.0,
-             1.0,  1.0, -1.0,
-             1.0,  1.0,  1.0,
-             1.0, -1.0,  1.0,
-
-            -1.0, -1.0, -1.0,
-            -1.0, -1.0,  1.0,
-            -1.0,  1.0,  1.0,
-            -1.0,  1.0, -1.0
-        ];
-
-shape_cube_normals = [
-       0.0,  0.0,  1.0,
-       0.0,  0.0,  1.0,
-       0.0,  0.0,  1.0,
-       0.0,  0.0,  1.0,
-
-       0.0,  0.0, -1.0,
-       0.0,  0.0, -1.0,
-       0.0,  0.0, -1.0,
-       0.0,  0.0, -1.0,
-
-       0.0,  1.0,  0.0,
-       0.0,  1.0,  0.0,
-       0.0,  1.0,  0.0,
-       0.0,  1.0,  0.0,
-
-       0.0, -1.0,  0.0,
-       0.0, -1.0,  0.0,
-       0.0, -1.0,  0.0,
-       0.0, -1.0,  0.0,
-
-       1.0,  0.0,  0.0,
-       1.0,  0.0,  0.0,
-       1.0,  0.0,  0.0,
-       1.0,  0.0,  0.0,
-
-      -1.0,  0.0,  0.0,
-      -1.0,  0.0,  0.0,
-      -1.0,  0.0,  0.0,
-      -1.0,  0.0,  0.0
-    ];
-
-shape_cube_indices = [
-            0, 1, 2,      0, 2, 3,
-            4, 5, 6,      4, 6, 7,
-            8, 9, 10,     8, 10, 11,
-            12, 13, 14,   12, 14, 15,
-            16, 17, 18,   16, 18, 19,
-            20, 21, 22,   20, 22, 23
-        ];
-
-shape_cube_textureCoords = [
-      0.0, 0.0,
-      1.0, 0.0,
-      1.0, 1.0,
-      0.0, 1.0,
-
-      1.0, 0.0,
-      1.0, 1.0,
-      0.0, 1.0,
-      0.0, 0.0,
-
-      0.0, 1.0,
-      0.0, 0.0,
-      1.0, 0.0,
-      1.0, 1.0,
-
-      1.0, 1.0,
-      0.0, 1.0,
-      0.0, 0.0,
-      1.0, 0.0,
-
-      1.0, 0.0,
-      1.0, 1.0,
-      0.0, 1.0,
-      0.0, 0.0,
-
-      0.0, 0.0,
-      1.0, 0.0,
-      1.0, 1.0,
-      0.0, 1.0
-    ];
-
-shape_cube_uvmap = UVMap::shape_cube_textureCoords;
-
-shape_cube_mesh = Mesh::(shape_cube_vertices, normals=shape_cube_normals, indices=shape_cube_indices, kind="triangles");
-
-Cube is Shape::(shape_cube_mesh, $1, uvmap=uvmap if uvmap else shape_cube_uvmap);
-
-
 ${{
 	Curve = function (x1, y1, x2, y2, r, elasticity, theta1, theta2, mid, overshoot, dirSwitch, colours, drawingOptions) {
 		this.x1 = x1;
@@ -4855,577 +4737,6 @@ func imageWithZones {
 	return items;
 }
 
-${{
-EdenUI.edgeTable = new Int32Array([
-0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
-0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
-0x190, 0x99 , 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c,
-0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93, 0xf99, 0xe90,
-0x230, 0x339, 0x33 , 0x13a, 0x636, 0x73f, 0x435, 0x53c,
-0xa3c, 0xb35, 0x83f, 0x936, 0xe3a, 0xf33, 0xc39, 0xd30,
-0x3a0, 0x2a9, 0x1a3, 0xaa , 0x7a6, 0x6af, 0x5a5, 0x4ac,
-0xbac, 0xaa5, 0x9af, 0x8a6, 0xfaa, 0xea3, 0xda9, 0xca0,
-0x460, 0x569, 0x663, 0x76a, 0x66 , 0x16f, 0x265, 0x36c,
-0xc6c, 0xd65, 0xe6f, 0xf66, 0x86a, 0x963, 0xa69, 0xb60,
-0x5f0, 0x4f9, 0x7f3, 0x6fa, 0x1f6, 0xff , 0x3f5, 0x2fc,
-0xdfc, 0xcf5, 0xfff, 0xef6, 0x9fa, 0x8f3, 0xbf9, 0xaf0,
-0x650, 0x759, 0x453, 0x55a, 0x256, 0x35f, 0x55 , 0x15c,
-0xe5c, 0xf55, 0xc5f, 0xd56, 0xa5a, 0xb53, 0x859, 0x950,
-0x7c0, 0x6c9, 0x5c3, 0x4ca, 0x3c6, 0x2cf, 0x1c5, 0xcc ,
-0xfcc, 0xec5, 0xdcf, 0xcc6, 0xbca, 0xac3, 0x9c9, 0x8c0,
-0x8c0, 0x9c9, 0xac3, 0xbca, 0xcc6, 0xdcf, 0xec5, 0xfcc,
-0xcc , 0x1c5, 0x2cf, 0x3c6, 0x4ca, 0x5c3, 0x6c9, 0x7c0,
-0x950, 0x859, 0xb53, 0xa5a, 0xd56, 0xc5f, 0xf55, 0xe5c,
-0x15c, 0x55 , 0x35f, 0x256, 0x55a, 0x453, 0x759, 0x650,
-0xaf0, 0xbf9, 0x8f3, 0x9fa, 0xef6, 0xfff, 0xcf5, 0xdfc,
-0x2fc, 0x3f5, 0xff , 0x1f6, 0x6fa, 0x7f3, 0x4f9, 0x5f0,
-0xb60, 0xa69, 0x963, 0x86a, 0xf66, 0xe6f, 0xd65, 0xc6c,
-0x36c, 0x265, 0x16f, 0x66 , 0x76a, 0x663, 0x569, 0x460,
-0xca0, 0xda9, 0xea3, 0xfaa, 0x8a6, 0x9af, 0xaa5, 0xbac,
-0x4ac, 0x5a5, 0x6af, 0x7a6, 0xaa , 0x1a3, 0x2a9, 0x3a0,
-0xd30, 0xc39, 0xf33, 0xe3a, 0x936, 0x83f, 0xb35, 0xa3c,
-0x53c, 0x435, 0x73f, 0x636, 0x13a, 0x33 , 0x339, 0x230,
-0xe90, 0xf99, 0xc93, 0xd9a, 0xa96, 0xb9f, 0x895, 0x99c,
-0x69c, 0x795, 0x49f, 0x596, 0x29a, 0x393, 0x99 , 0x190,
-0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c,
-0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0])
-
-EdenUI.triTable = new Int32Array([
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 1, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-1, 8, 3, 9, 8, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-1, 2, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 8, 3, 1, 2, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-9, 2, 10, 0, 2, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-2, 8, 3, 2, 10, 8, 10, 9, 8, -1, -1, -1, -1, -1, -1, -1,
-3, 11, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 11, 2, 8, 11, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-1, 9, 0, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-1, 11, 2, 1, 9, 11, 9, 8, 11, -1, -1, -1, -1, -1, -1, -1,
-3, 10, 1, 11, 10, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 10, 1, 0, 8, 10, 8, 11, 10, -1, -1, -1, -1, -1, -1, -1,
-3, 9, 0, 3, 11, 9, 11, 10, 9, -1, -1, -1, -1, -1, -1, -1,
-9, 8, 10, 10, 8, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-4, 7, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-4, 3, 0, 7, 3, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 1, 9, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-4, 1, 9, 4, 7, 1, 7, 3, 1, -1, -1, -1, -1, -1, -1, -1,
-1, 2, 10, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-3, 4, 7, 3, 0, 4, 1, 2, 10, -1, -1, -1, -1, -1, -1, -1,
-9, 2, 10, 9, 0, 2, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1,
-2, 10, 9, 2, 9, 7, 2, 7, 3, 7, 9, 4, -1, -1, -1, -1,
-8, 4, 7, 3, 11, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-11, 4, 7, 11, 2, 4, 2, 0, 4, -1, -1, -1, -1, -1, -1, -1,
-9, 0, 1, 8, 4, 7, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1,
-4, 7, 11, 9, 4, 11, 9, 11, 2, 9, 2, 1, -1, -1, -1, -1,
-3, 10, 1, 3, 11, 10, 7, 8, 4, -1, -1, -1, -1, -1, -1, -1,
-1, 11, 10, 1, 4, 11, 1, 0, 4, 7, 11, 4, -1, -1, -1, -1,
-4, 7, 8, 9, 0, 11, 9, 11, 10, 11, 0, 3, -1, -1, -1, -1,
-4, 7, 11, 4, 11, 9, 9, 11, 10, -1, -1, -1, -1, -1, -1, -1,
-9, 5, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-9, 5, 4, 0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 5, 4, 1, 5, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-8, 5, 4, 8, 3, 5, 3, 1, 5, -1, -1, -1, -1, -1, -1, -1,
-1, 2, 10, 9, 5, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-3, 0, 8, 1, 2, 10, 4, 9, 5, -1, -1, -1, -1, -1, -1, -1,
-5, 2, 10, 5, 4, 2, 4, 0, 2, -1, -1, -1, -1, -1, -1, -1,
-2, 10, 5, 3, 2, 5, 3, 5, 4, 3, 4, 8, -1, -1, -1, -1,
-9, 5, 4, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 11, 2, 0, 8, 11, 4, 9, 5, -1, -1, -1, -1, -1, -1, -1,
-0, 5, 4, 0, 1, 5, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1,
-2, 1, 5, 2, 5, 8, 2, 8, 11, 4, 8, 5, -1, -1, -1, -1,
-10, 3, 11, 10, 1, 3, 9, 5, 4, -1, -1, -1, -1, -1, -1, -1,
-4, 9, 5, 0, 8, 1, 8, 10, 1, 8, 11, 10, -1, -1, -1, -1,
-5, 4, 0, 5, 0, 11, 5, 11, 10, 11, 0, 3, -1, -1, -1, -1,
-5, 4, 8, 5, 8, 10, 10, 8, 11, -1, -1, -1, -1, -1, -1, -1,
-9, 7, 8, 5, 7, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-9, 3, 0, 9, 5, 3, 5, 7, 3, -1, -1, -1, -1, -1, -1, -1,
-0, 7, 8, 0, 1, 7, 1, 5, 7, -1, -1, -1, -1, -1, -1, -1,
-1, 5, 3, 3, 5, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-9, 7, 8, 9, 5, 7, 10, 1, 2, -1, -1, -1, -1, -1, -1, -1,
-10, 1, 2, 9, 5, 0, 5, 3, 0, 5, 7, 3, -1, -1, -1, -1,
-8, 0, 2, 8, 2, 5, 8, 5, 7, 10, 5, 2, -1, -1, -1, -1,
-2, 10, 5, 2, 5, 3, 3, 5, 7, -1, -1, -1, -1, -1, -1, -1,
-7, 9, 5, 7, 8, 9, 3, 11, 2, -1, -1, -1, -1, -1, -1, -1,
-9, 5, 7, 9, 7, 2, 9, 2, 0, 2, 7, 11, -1, -1, -1, -1,
-2, 3, 11, 0, 1, 8, 1, 7, 8, 1, 5, 7, -1, -1, -1, -1,
-11, 2, 1, 11, 1, 7, 7, 1, 5, -1, -1, -1, -1, -1, -1, -1,
-9, 5, 8, 8, 5, 7, 10, 1, 3, 10, 3, 11, -1, -1, -1, -1,
-5, 7, 0, 5, 0, 9, 7, 11, 0, 1, 0, 10, 11, 10, 0, -1,
-11, 10, 0, 11, 0, 3, 10, 5, 0, 8, 0, 7, 5, 7, 0, -1,
-11, 10, 5, 7, 11, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-10, 6, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 8, 3, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-9, 0, 1, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-1, 8, 3, 1, 9, 8, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1,
-1, 6, 5, 2, 6, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-1, 6, 5, 1, 2, 6, 3, 0, 8, -1, -1, -1, -1, -1, -1, -1,
-9, 6, 5, 9, 0, 6, 0, 2, 6, -1, -1, -1, -1, -1, -1, -1,
-5, 9, 8, 5, 8, 2, 5, 2, 6, 3, 2, 8, -1, -1, -1, -1,
-2, 3, 11, 10, 6, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-11, 0, 8, 11, 2, 0, 10, 6, 5, -1, -1, -1, -1, -1, -1, -1,
-0, 1, 9, 2, 3, 11, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1,
-5, 10, 6, 1, 9, 2, 9, 11, 2, 9, 8, 11, -1, -1, -1, -1,
-6, 3, 11, 6, 5, 3, 5, 1, 3, -1, -1, -1, -1, -1, -1, -1,
-0, 8, 11, 0, 11, 5, 0, 5, 1, 5, 11, 6, -1, -1, -1, -1,
-3, 11, 6, 0, 3, 6, 0, 6, 5, 0, 5, 9, -1, -1, -1, -1,
-6, 5, 9, 6, 9, 11, 11, 9, 8, -1, -1, -1, -1, -1, -1, -1,
-5, 10, 6, 4, 7, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-4, 3, 0, 4, 7, 3, 6, 5, 10, -1, -1, -1, -1, -1, -1, -1,
-1, 9, 0, 5, 10, 6, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1,
-10, 6, 5, 1, 9, 7, 1, 7, 3, 7, 9, 4, -1, -1, -1, -1,
-6, 1, 2, 6, 5, 1, 4, 7, 8, -1, -1, -1, -1, -1, -1, -1,
-1, 2, 5, 5, 2, 6, 3, 0, 4, 3, 4, 7, -1, -1, -1, -1,
-8, 4, 7, 9, 0, 5, 0, 6, 5, 0, 2, 6, -1, -1, -1, -1,
-7, 3, 9, 7, 9, 4, 3, 2, 9, 5, 9, 6, 2, 6, 9, -1,
-3, 11, 2, 7, 8, 4, 10, 6, 5, -1, -1, -1, -1, -1, -1, -1,
-5, 10, 6, 4, 7, 2, 4, 2, 0, 2, 7, 11, -1, -1, -1, -1,
-0, 1, 9, 4, 7, 8, 2, 3, 11, 5, 10, 6, -1, -1, -1, -1,
-9, 2, 1, 9, 11, 2, 9, 4, 11, 7, 11, 4, 5, 10, 6, -1,
-8, 4, 7, 3, 11, 5, 3, 5, 1, 5, 11, 6, -1, -1, -1, -1,
-5, 1, 11, 5, 11, 6, 1, 0, 11, 7, 11, 4, 0, 4, 11, -1,
-0, 5, 9, 0, 6, 5, 0, 3, 6, 11, 6, 3, 8, 4, 7, -1,
-6, 5, 9, 6, 9, 11, 4, 7, 9, 7, 11, 9, -1, -1, -1, -1,
-10, 4, 9, 6, 4, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-4, 10, 6, 4, 9, 10, 0, 8, 3, -1, -1, -1, -1, -1, -1, -1,
-10, 0, 1, 10, 6, 0, 6, 4, 0, -1, -1, -1, -1, -1, -1, -1,
-8, 3, 1, 8, 1, 6, 8, 6, 4, 6, 1, 10, -1, -1, -1, -1,
-1, 4, 9, 1, 2, 4, 2, 6, 4, -1, -1, -1, -1, -1, -1, -1,
-3, 0, 8, 1, 2, 9, 2, 4, 9, 2, 6, 4, -1, -1, -1, -1,
-0, 2, 4, 4, 2, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-8, 3, 2, 8, 2, 4, 4, 2, 6, -1, -1, -1, -1, -1, -1, -1,
-10, 4, 9, 10, 6, 4, 11, 2, 3, -1, -1, -1, -1, -1, -1, -1,
-0, 8, 2, 2, 8, 11, 4, 9, 10, 4, 10, 6, -1, -1, -1, -1,
-3, 11, 2, 0, 1, 6, 0, 6, 4, 6, 1, 10, -1, -1, -1, -1,
-6, 4, 1, 6, 1, 10, 4, 8, 1, 2, 1, 11, 8, 11, 1, -1,
-9, 6, 4, 9, 3, 6, 9, 1, 3, 11, 6, 3, -1, -1, -1, -1,
-8, 11, 1, 8, 1, 0, 11, 6, 1, 9, 1, 4, 6, 4, 1, -1,
-3, 11, 6, 3, 6, 0, 0, 6, 4, -1, -1, -1, -1, -1, -1, -1,
-6, 4, 8, 11, 6, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-7, 10, 6, 7, 8, 10, 8, 9, 10, -1, -1, -1, -1, -1, -1, -1,
-0, 7, 3, 0, 10, 7, 0, 9, 10, 6, 7, 10, -1, -1, -1, -1,
-10, 6, 7, 1, 10, 7, 1, 7, 8, 1, 8, 0, -1, -1, -1, -1,
-10, 6, 7, 10, 7, 1, 1, 7, 3, -1, -1, -1, -1, -1, -1, -1,
-1, 2, 6, 1, 6, 8, 1, 8, 9, 8, 6, 7, -1, -1, -1, -1,
-2, 6, 9, 2, 9, 1, 6, 7, 9, 0, 9, 3, 7, 3, 9, -1,
-7, 8, 0, 7, 0, 6, 6, 0, 2, -1, -1, -1, -1, -1, -1, -1,
-7, 3, 2, 6, 7, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-2, 3, 11, 10, 6, 8, 10, 8, 9, 8, 6, 7, -1, -1, -1, -1,
-2, 0, 7, 2, 7, 11, 0, 9, 7, 6, 7, 10, 9, 10, 7, -1,
-1, 8, 0, 1, 7, 8, 1, 10, 7, 6, 7, 10, 2, 3, 11, -1,
-11, 2, 1, 11, 1, 7, 10, 6, 1, 6, 7, 1, -1, -1, -1, -1,
-8, 9, 6, 8, 6, 7, 9, 1, 6, 11, 6, 3, 1, 3, 6, -1,
-0, 9, 1, 11, 6, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-7, 8, 0, 7, 0, 6, 3, 11, 0, 11, 6, 0, -1, -1, -1, -1,
-7, 11, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-7, 6, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-3, 0, 8, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 1, 9, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-8, 1, 9, 8, 3, 1, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1,
-10, 1, 2, 6, 11, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-1, 2, 10, 3, 0, 8, 6, 11, 7, -1, -1, -1, -1, -1, -1, -1,
-2, 9, 0, 2, 10, 9, 6, 11, 7, -1, -1, -1, -1, -1, -1, -1,
-6, 11, 7, 2, 10, 3, 10, 8, 3, 10, 9, 8, -1, -1, -1, -1,
-7, 2, 3, 6, 2, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-7, 0, 8, 7, 6, 0, 6, 2, 0, -1, -1, -1, -1, -1, -1, -1,
-2, 7, 6, 2, 3, 7, 0, 1, 9, -1, -1, -1, -1, -1, -1, -1,
-1, 6, 2, 1, 8, 6, 1, 9, 8, 8, 7, 6, -1, -1, -1, -1,
-10, 7, 6, 10, 1, 7, 1, 3, 7, -1, -1, -1, -1, -1, -1, -1,
-10, 7, 6, 1, 7, 10, 1, 8, 7, 1, 0, 8, -1, -1, -1, -1,
-0, 3, 7, 0, 7, 10, 0, 10, 9, 6, 10, 7, -1, -1, -1, -1,
-7, 6, 10, 7, 10, 8, 8, 10, 9, -1, -1, -1, -1, -1, -1, -1,
-6, 8, 4, 11, 8, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-3, 6, 11, 3, 0, 6, 0, 4, 6, -1, -1, -1, -1, -1, -1, -1,
-8, 6, 11, 8, 4, 6, 9, 0, 1, -1, -1, -1, -1, -1, -1, -1,
-9, 4, 6, 9, 6, 3, 9, 3, 1, 11, 3, 6, -1, -1, -1, -1,
-6, 8, 4, 6, 11, 8, 2, 10, 1, -1, -1, -1, -1, -1, -1, -1,
-1, 2, 10, 3, 0, 11, 0, 6, 11, 0, 4, 6, -1, -1, -1, -1,
-4, 11, 8, 4, 6, 11, 0, 2, 9, 2, 10, 9, -1, -1, -1, -1,
-10, 9, 3, 10, 3, 2, 9, 4, 3, 11, 3, 6, 4, 6, 3, -1,
-8, 2, 3, 8, 4, 2, 4, 6, 2, -1, -1, -1, -1, -1, -1, -1,
-0, 4, 2, 4, 6, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-1, 9, 0, 2, 3, 4, 2, 4, 6, 4, 3, 8, -1, -1, -1, -1,
-1, 9, 4, 1, 4, 2, 2, 4, 6, -1, -1, -1, -1, -1, -1, -1,
-8, 1, 3, 8, 6, 1, 8, 4, 6, 6, 10, 1, -1, -1, -1, -1,
-10, 1, 0, 10, 0, 6, 6, 0, 4, -1, -1, -1, -1, -1, -1, -1,
-4, 6, 3, 4, 3, 8, 6, 10, 3, 0, 3, 9, 10, 9, 3, -1,
-10, 9, 4, 6, 10, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-4, 9, 5, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 8, 3, 4, 9, 5, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1,
-5, 0, 1, 5, 4, 0, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1,
-11, 7, 6, 8, 3, 4, 3, 5, 4, 3, 1, 5, -1, -1, -1, -1,
-9, 5, 4, 10, 1, 2, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1,
-6, 11, 7, 1, 2, 10, 0, 8, 3, 4, 9, 5, -1, -1, -1, -1,
-7, 6, 11, 5, 4, 10, 4, 2, 10, 4, 0, 2, -1, -1, -1, -1,
-3, 4, 8, 3, 5, 4, 3, 2, 5, 10, 5, 2, 11, 7, 6, -1,
-7, 2, 3, 7, 6, 2, 5, 4, 9, -1, -1, -1, -1, -1, -1, -1,
-9, 5, 4, 0, 8, 6, 0, 6, 2, 6, 8, 7, -1, -1, -1, -1,
-3, 6, 2, 3, 7, 6, 1, 5, 0, 5, 4, 0, -1, -1, -1, -1,
-6, 2, 8, 6, 8, 7, 2, 1, 8, 4, 8, 5, 1, 5, 8, -1,
-9, 5, 4, 10, 1, 6, 1, 7, 6, 1, 3, 7, -1, -1, -1, -1,
-1, 6, 10, 1, 7, 6, 1, 0, 7, 8, 7, 0, 9, 5, 4, -1,
-4, 0, 10, 4, 10, 5, 0, 3, 10, 6, 10, 7, 3, 7, 10, -1,
-7, 6, 10, 7, 10, 8, 5, 4, 10, 4, 8, 10, -1, -1, -1, -1,
-6, 9, 5, 6, 11, 9, 11, 8, 9, -1, -1, -1, -1, -1, -1, -1,
-3, 6, 11, 0, 6, 3, 0, 5, 6, 0, 9, 5, -1, -1, -1, -1,
-0, 11, 8, 0, 5, 11, 0, 1, 5, 5, 6, 11, -1, -1, -1, -1,
-6, 11, 3, 6, 3, 5, 5, 3, 1, -1, -1, -1, -1, -1, -1, -1,
-1, 2, 10, 9, 5, 11, 9, 11, 8, 11, 5, 6, -1, -1, -1, -1,
-0, 11, 3, 0, 6, 11, 0, 9, 6, 5, 6, 9, 1, 2, 10, -1,
-11, 8, 5, 11, 5, 6, 8, 0, 5, 10, 5, 2, 0, 2, 5, -1,
-6, 11, 3, 6, 3, 5, 2, 10, 3, 10, 5, 3, -1, -1, -1, -1,
-5, 8, 9, 5, 2, 8, 5, 6, 2, 3, 8, 2, -1, -1, -1, -1,
-9, 5, 6, 9, 6, 0, 0, 6, 2, -1, -1, -1, -1, -1, -1, -1,
-1, 5, 8, 1, 8, 0, 5, 6, 8, 3, 8, 2, 6, 2, 8, -1,
-1, 5, 6, 2, 1, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-1, 3, 6, 1, 6, 10, 3, 8, 6, 5, 6, 9, 8, 9, 6, -1,
-10, 1, 0, 10, 0, 6, 9, 5, 0, 5, 6, 0, -1, -1, -1, -1,
-0, 3, 8, 5, 6, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-10, 5, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-11, 5, 10, 7, 5, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-11, 5, 10, 11, 7, 5, 8, 3, 0, -1, -1, -1, -1, -1, -1, -1,
-5, 11, 7, 5, 10, 11, 1, 9, 0, -1, -1, -1, -1, -1, -1, -1,
-10, 7, 5, 10, 11, 7, 9, 8, 1, 8, 3, 1, -1, -1, -1, -1,
-11, 1, 2, 11, 7, 1, 7, 5, 1, -1, -1, -1, -1, -1, -1, -1,
-0, 8, 3, 1, 2, 7, 1, 7, 5, 7, 2, 11, -1, -1, -1, -1,
-9, 7, 5, 9, 2, 7, 9, 0, 2, 2, 11, 7, -1, -1, -1, -1,
-7, 5, 2, 7, 2, 11, 5, 9, 2, 3, 2, 8, 9, 8, 2, -1,
-2, 5, 10, 2, 3, 5, 3, 7, 5, -1, -1, -1, -1, -1, -1, -1,
-8, 2, 0, 8, 5, 2, 8, 7, 5, 10, 2, 5, -1, -1, -1, -1,
-9, 0, 1, 5, 10, 3, 5, 3, 7, 3, 10, 2, -1, -1, -1, -1,
-9, 8, 2, 9, 2, 1, 8, 7, 2, 10, 2, 5, 7, 5, 2, -1,
-1, 3, 5, 3, 7, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 8, 7, 0, 7, 1, 1, 7, 5, -1, -1, -1, -1, -1, -1, -1,
-9, 0, 3, 9, 3, 5, 5, 3, 7, -1, -1, -1, -1, -1, -1, -1,
-9, 8, 7, 5, 9, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-5, 8, 4, 5, 10, 8, 10, 11, 8, -1, -1, -1, -1, -1, -1, -1,
-5, 0, 4, 5, 11, 0, 5, 10, 11, 11, 3, 0, -1, -1, -1, -1,
-0, 1, 9, 8, 4, 10, 8, 10, 11, 10, 4, 5, -1, -1, -1, -1,
-10, 11, 4, 10, 4, 5, 11, 3, 4, 9, 4, 1, 3, 1, 4, -1,
-2, 5, 1, 2, 8, 5, 2, 11, 8, 4, 5, 8, -1, -1, -1, -1,
-0, 4, 11, 0, 11, 3, 4, 5, 11, 2, 11, 1, 5, 1, 11, -1,
-0, 2, 5, 0, 5, 9, 2, 11, 5, 4, 5, 8, 11, 8, 5, -1,
-9, 4, 5, 2, 11, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-2, 5, 10, 3, 5, 2, 3, 4, 5, 3, 8, 4, -1, -1, -1, -1,
-5, 10, 2, 5, 2, 4, 4, 2, 0, -1, -1, -1, -1, -1, -1, -1,
-3, 10, 2, 3, 5, 10, 3, 8, 5, 4, 5, 8, 0, 1, 9, -1,
-5, 10, 2, 5, 2, 4, 1, 9, 2, 9, 4, 2, -1, -1, -1, -1,
-8, 4, 5, 8, 5, 3, 3, 5, 1, -1, -1, -1, -1, -1, -1, -1,
-0, 4, 5, 1, 0, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-8, 4, 5, 8, 5, 3, 9, 0, 5, 0, 3, 5, -1, -1, -1, -1,
-9, 4, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-4, 11, 7, 4, 9, 11, 9, 10, 11, -1, -1, -1, -1, -1, -1, -1,
-0, 8, 3, 4, 9, 7, 9, 11, 7, 9, 10, 11, -1, -1, -1, -1,
-1, 10, 11, 1, 11, 4, 1, 4, 0, 7, 4, 11, -1, -1, -1, -1,
-3, 1, 4, 3, 4, 8, 1, 10, 4, 7, 4, 11, 10, 11, 4, -1,
-4, 11, 7, 9, 11, 4, 9, 2, 11, 9, 1, 2, -1, -1, -1, -1,
-9, 7, 4, 9, 11, 7, 9, 1, 11, 2, 11, 1, 0, 8, 3, -1,
-11, 7, 4, 11, 4, 2, 2, 4, 0, -1, -1, -1, -1, -1, -1, -1,
-11, 7, 4, 11, 4, 2, 8, 3, 4, 3, 2, 4, -1, -1, -1, -1,
-2, 9, 10, 2, 7, 9, 2, 3, 7, 7, 4, 9, -1, -1, -1, -1,
-9, 10, 7, 9, 7, 4, 10, 2, 7, 8, 7, 0, 2, 0, 7, -1,
-3, 7, 10, 3, 10, 2, 7, 4, 10, 1, 10, 0, 4, 0, 10, -1,
-1, 10, 2, 8, 7, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-4, 9, 1, 4, 1, 7, 7, 1, 3, -1, -1, -1, -1, -1, -1, -1,
-4, 9, 1, 4, 1, 7, 0, 8, 1, 8, 7, 1, -1, -1, -1, -1,
-4, 0, 3, 7, 4, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-4, 8, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-9, 10, 8, 10, 11, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-3, 0, 9, 3, 9, 11, 11, 9, 10, -1, -1, -1, -1, -1, -1, -1,
-0, 1, 10, 0, 10, 8, 8, 10, 11, -1, -1, -1, -1, -1, -1, -1,
-3, 1, 10, 11, 3, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-1, 2, 11, 1, 11, 9, 9, 11, 8, -1, -1, -1, -1, -1, -1, -1,
-3, 0, 9, 3, 9, 11, 1, 2, 9, 2, 11, 9, -1, -1, -1, -1,
-0, 2, 11, 8, 0, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-3, 2, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-2, 3, 8, 2, 8, 10, 10, 8, 9, -1, -1, -1, -1, -1, -1, -1,
-9, 10, 2, 0, 9, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-2, 3, 8, 2, 8, 10, 0, 1, 8, 1, 10, 8, -1, -1, -1, -1,
-1, 10, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-1, 3, 8, 9, 1, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
-}}$
-
-
-${{
-
-}}$
-
-func IsoSurfaceSN {
-	para values,size,axisMin,axisRange;
-	${{ var tet = surfaceNets(size, values,axisMin,axisRange);
-	return [tet.positions,tet.normals]; }}$;
-}
-
-func IsoSurfaceMC {
-	para values,size,axisMin,axisRange;
-
-	${{
-	// Marching Cubes Algorithm
-	console.time("IsoSurface");
-	
-	var size2 = size * size;
-	// Vertices may occur along edges of cube, when the values at the edge's endpoints
-	//   straddle the isolevel value.
-	// Actual position along edge weighted according to function values.
-	var vlist = new Array(12);
-	
-	var vertexIndex = 0;
-
-	//var points = [];
-	var vertices = [];
-	var normals = [];
-
-	var delta = axisRange / (size);
-
-	/*for (var k = 0; k < size; k++)
-	for (var j = 0; j < size; j++)
-	for (var i = 0; i < size; i++)
-	{
-		// actual values
-		var x = axisMin + axisRange * i / (size - 1);
-		var y = axisMin + axisRange * j / (size - 1);
-		var z = axisMin + axisRange * k / (size - 1);
-		points.push( new Point3D(x,y,z) );
-	}*/
-
-	var point_x = axisMin;
-	var point_y = axisMin;
-	var point_z = axisMin;
-	
-	for (var z = 0; z < size - 1; z++) {
-	for (var y = 0; y < size - 1; y++) {
-	for (var x = 0; x < size - 1; x++)
-	{
-		// index of base point, and also adjacent points on cube
-		var p    = x + size * y + size2 * z,
-			px   = p   + 1,
-			py   = p   + size,
-			pxy  = py  + 1,
-			pz   = p   + size2,
-			pxz  = px  + size2,
-			pyz  = py  + size2,
-			pxyz = pxy + size2;
-		
-		// store scalar values corresponding to vertices
-		var value0 = values[ p    ],
-			value1 = values[ px   ],
-			value2 = values[ py   ],
-			value3 = values[ pxy  ],
-			value4 = values[ pz   ],
-			value5 = values[ pxz  ],
-			value6 = values[ pyz  ],
-			value7 = values[ pxyz ];
-		
-		// place a "1" in bit positions corresponding to vertices whose
-		//   isovalue is less than given constant.
-		
-		var isolevel = 0;
-		
-		var cubeindex = 0;
-		if ( value0 >= isolevel ) cubeindex |= 1;
-		if ( value1 >= isolevel ) cubeindex |= 2;
-		if ( value2 >= isolevel ) cubeindex |= 8;
-		if ( value3 >= isolevel ) cubeindex |= 4;
-		if ( value4 >= isolevel ) cubeindex |= 16;
-		if ( value5 >= isolevel ) cubeindex |= 32;
-		if ( value6 >= isolevel ) cubeindex |= 128;
-		if ( value7 >= isolevel ) cubeindex |= 64;
-		
-		// bits = 12 bit number, indicates which edges are crossed by the isosurface
-		var bits = EdenUI.edgeTable[ cubeindex ];
-		
-		// if none are crossed, proceed to next iteration
-		if ( bits === 0 ) {
-			point_x += delta;
-			continue;
-		}
-		
-		// check which edges are crossed, and estimate the point location
-		//    using a weighted average of scalar values at edge endpoints.
-		// store the vertex in an array for use later.
-		var mu = 0.5; 
-		
-		// bottom of the cube
-		if ( bits & 1 )
-		{
-			mu = ( isolevel - value0 ) / ( value1 - value0 );
-			//vlist[0] = points[p].lerp( points[px], mu );
-			vlist[0] = [point_x + mu*delta, point_y, point_z];
-		}
-		if ( bits & 2 )
-		{
-			mu = ( isolevel - value1 ) / ( value3 - value1 );
-			//vlist[1] = points[px].lerp( points[pxy], mu );
-			vlist[1] = [point_x+delta, point_y + mu*delta, point_z];
-		}
-		if ( bits & 4 )
-		{
-			mu = ( isolevel - value2 ) / ( value3 - value2 );
-			//vlist[2] = points[py].lerp( points[pxy], mu );
-			vlist[2] = [point_x+mu*delta, point_y+delta,point_z];
-		}
-		if ( bits & 8 )
-		{
-			mu = ( isolevel - value0 ) / ( value2 - value0 );
-			//vlist[3] = points[p].lerp( points[py], mu );
-			vlist[3] = [point_x,point_y+mu*delta,point_z];
-		}
-		// top of the cube
-		if ( bits & 16 )
-		{
-			mu = ( isolevel - value4 ) / ( value5 - value4 );
-			//vlist[4] = points[pz].lerp( points[pxz], mu );
-			vlist[4] = [point_x+mu*delta,point_y,point_z+delta];
-		}
-		if ( bits & 32 )
-		{
-			mu = ( isolevel - value5 ) / ( value7 - value5 );
-			//vlist[5] = points[pxz].lerp( points[pxyz], mu );
-			vlist[5] = [point_x+delta,point_y+mu*delta,point_z+delta];
-		}
-		if ( bits & 64 )
-		{
-			mu = ( isolevel - value6 ) / ( value7 - value6 );
-			//vlist[6] = points[pyz].lerp( points[pxyz], mu );
-			vlist[6] = [point_x+mu*delta,point_y+delta,point_z+delta];
-		}
-		if ( bits & 128 )
-		{
-			mu = ( isolevel - value4 ) / ( value6 - value4 );
-			//vlist[7] = points[pz].lerp( points[pyz], mu );
-			vlist[7] = [point_x,point_y+mu*delta,point_z+delta];
-		}
-		// vertical lines of the cube
-		if ( bits & 256 )
-		{
-			mu = ( isolevel - value0 ) / ( value4 - value0 );
-			//vlist[8] = points[p].lerp( points[pz], mu );
-			vlist[8] = [point_x,point_y,point_z+mu*delta];
-		}
-		if ( bits & 512 )
-		{
-			mu = ( isolevel - value1 ) / ( value5 - value1 );
-			//vlist[9] = points[px].lerp( points[pxz], mu );
-			vlist[9] = [point_x+delta,point_y,point_z+mu*delta];
-		}
-		if ( bits & 1024 )
-		{
-			mu = ( isolevel - value3 ) / ( value7 - value3 );
-			//vlist[10] = points[pxy].lerp( points[pxyz], mu );
-			vlist[10] = [point_x+delta,point_y+delta,point_z+mu*delta];
-		}
-		if ( bits & 2048 )
-		{
-			mu = ( isolevel - value2 ) / ( value6 - value2 );
-			//vlist[11] = points[py].lerp( points[pyz], mu );
-			vlist[11] = [point_x,point_y+delta,point_z+mu*delta];
-		}
-		
-		// construct triangles -- get correct vertices from triTable.
-		var i = 0;
-		cubeindex <<= 4;  // multiply by 16... 
-		// "Re-purpose cubeindex into an offset into triTable." 
-		//  since each row really isn't a row.
-		// the while loop should run at most 5 times,
-		//   since the 16th entry in each row is a -1.
-		while ( EdenUI.triTable[ cubeindex + i ] != -1 ) 
-		{
-			var index1 = EdenUI.triTable[cubeindex + i];
-			var index2 = EdenUI.triTable[cubeindex + i + 1];
-			var index3 = EdenUI.triTable[cubeindex + i + 2];
-
-			//if (vlist[index3].z < 0 && z >= 49) zcount++;
-			
-			vertices.push( vlist[index1][0], vlist[index1][1], vlist[index1][2] );
-			vertices.push( vlist[index2][0], vlist[index2][1], vlist[index2][2] );
-			vertices.push( vlist[index3][0], vlist[index3][1], vlist[index3][2] );
-			vertexIndex += 3;
-			i += 3;
-
-			var norm = Point3D.normal(vlist[index1],vlist[index2],vlist[index3]);
-			normals.push(norm.x,norm.y,norm.z);
-			normals.push(norm.x,norm.y,norm.z);
-			normals.push(norm.x,norm.y,norm.z);
-		}
-		point_x += delta;
-	}
-		point_x = axisMin;
-		point_y += delta;
-	}
-		point_x = axisMin;
-		point_y = axisMin;
-		point_z += delta;
-	}
-
-	console.timeEnd("IsoSurface");
-	return [vertices,normals];
-	}}$
-}
-
-## Copyright (c) 2013, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
-
-${{
-Light = function(direction, colour) {
-	this.x = direction.x;
-	this.y = direction.y;
-	this.z = direction.z;
-	this.colour = (colour) ? colour : "white";
-}
-
-}}$;
-
-#! Creates a cube that can be coloured and displayed on a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
-#
-# ##Usage Example
-#  `Cube::(Point3D::(x,y,z),Point(width,height));`
-# 
-#  #canvas #rectangle #drawingoptions #square #box #shape #draw
-Light is ${{ new Light }}$ ($1,$2);
-
-${{
-
-Light.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
-	 context.uniform1i(shader.useLightingUniform, true);
-
-	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
-			var r = colorobj.red() / 255;
-			var g = colorobj.green() / 255;
-			var b = colorobj.blue() / 255;
-
-	context.uniform3f(
-        shader.directionalColorUniform,
-        r,
-        g,
-        b
-      );
-
-	var normalMatrix = mat3.create();
-    mat3.fromMat4(normalMatrix,mvMatrix);
-	mat3.invert(normalMatrix,normalMatrix);
-    mat3.transpose(normalMatrix,normalMatrix);
-
-	var lightingDirection = vec3.create();
-	vec3.set(lightingDirection,this.x,this.y,this.z);
-	vec3.transformMat3(lightingDirection, lightingDirection, normalMatrix);
-      var adjustedLD = vec3.create();
-      vec3.normalize(adjustedLD,lightingDirection);
-      vec3.scale(adjustedLD,adjustedLD, -1);
-      context.uniform3fv(shader.lightingDirectionUniform, adjustedLD);
-};
-
-Light.prototype.isHit = function (context, scale, x, y) {
-	return false;
-}
-
-}}$;
-
 ## Copyright (c) 2013, Empirical Modelling Group
 ## All rights reserved.
 ##
@@ -5665,164 +4976,6 @@ func angleTurned {
 }
 semicircleAngle ~> [angleTurned];
 
-## Copyright (c) 2013, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
-
-
-${{
-Line3D = function(start, end, colour, width) {
-	this.start = start;
-	this.end = end;
-	this.colour = (colour)?colour:"black";
-	this.width = (width)?width:2;
-
-	this.vbufs = {};
-	this.nbufs = {};
-	this.mbufs = {};
-	this.ibufs = {};
-}
-
-Line3D.makeShader = function(gl, viewname) {
-	// Per fragment lighting
-	var fragmentShader = EdenUI.plugins.Canvas2D.getShader(gl, `
-#ifdef GL_ES
-precision mediump float;
-#endif
-
-uniform vec3 color;
-uniform float inner;
-varying float edge;
-
-const vec3 color2 = vec3(0.8);
-
-void main() {
-  float v = 1.0 - abs(edge);
-  v = smoothstep(0.65, 0.7, v*inner); 
-  gl_FragColor = mix(vec4(color, 1.0), vec4(0.0), v);
-}
-`,"fragment");
-
-	var vertexShader = EdenUI.plugins.Canvas2D.getShader(gl,`
-attribute vec2 position;
-attribute vec2 normal;
-attribute float miter; 
-uniform mat4 projection;
-uniform mat4 modelview;
-uniform float thickness;
-varying float edge;
-
-void main() {
-  edge = sign(miter);
-  vec2 pointPos = position.xy + vec2(normal * thickness/2.0 * miter);
-  gl_Position = projection * modelview * vec4(pointPos, 0.0, 1.0);
-  gl_PointSize = 1.0;
-}
-`,"vertex");
-
-
-    shaderProgram = gl.createProgram();
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
-    gl.linkProgram(shaderProgram);
-
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-      alert("Could not initialise shaders");
-    }
-
-    gl.useProgram(shaderProgram);
-
-	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "position");
-    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-	shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
-    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
-	shaderProgram.miterAttribute = gl.getAttribLocation(shaderProgram, "miter");
-   	gl.enableVertexAttribArray(shaderProgram.miterAttribute);
-
-	shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "projection");
-    shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "modelview");
-	shaderProgram.thicknessUniform = gl.getUniformLocation(shaderProgram, "thickness");
-	shaderProgram.innerUniform = gl.getUniformLocation(shaderProgram, "inner");
-	shaderProgram.colourUniform = gl.getUniformLocation(shaderProgram, "color");
-	Line3D.shaders[viewname] = shaderProgram;
-	return shaderProgram;
-}
-
-Line3D.shaders = {};
-
-}}$;
-
-#! Draw a line in 3D space. #library
-Line3D is ${{ new Line3D }}$ ($1, $2, colour, width);
-
-
-${{
-
-Line3D.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
-	var lineshader = Line3D.shaders[viewname];
-	if (!lineshader) lineshader = Line3D.makeShader(context, viewname);
-	context.useProgram(lineshader);
-
-	// Actually set the transform into the shader
-	context.uniformMatrix4fv(lineshader.mvMatrixUniform, false, mvMatrix);
-	context.uniformMatrix4fv(lineshader.pMatrixUniform, false, pMatrix);
-	context.uniform1f(lineshader.thicknessUniform, this.width);
-	context.uniform1f(lineshader.innerUniform, 0);
-
-	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
-			var r = colorobj.red() / 255;
-			var g = colorobj.green() / 255;
-			var b = colorobj.blue() / 255;
-
-	context.uniform3f(
-        lineshader.colourUniform,
-        r,
-        g,
-        b
-      );
-
-
-	if (this.vbufs[viewname] === undefined) {
-		this.vbufs[viewname] = context.createBuffer();
-		this.nbufs[viewname] = context.createBuffer();
-		this.mbufs[viewname] = context.createBuffer();
-		this.ibufs[viewname] = context.createBuffer();
-	}
-
-	var vertices = [
-		this.start.x, this.start.y,
-		this.end.x, this.end.y,
-		this.start.x, this.start.y,
-		this.end.x, this.end.y
-	];
-
-	var dx = this.end.x - this.start.x;
-	var dy = this.end.y - this.start.y;
-	var normals = [-dy,dx,dy,-dx,-dy,dx,dy,-dx];
-
-	var miters = [1,1,-1,-1];
-	var indices = [0,1,3,1,2,0];
-
-	context.bindBuffer(context.ARRAY_BUFFER, this.vbufs[viewname]);
-	context.bufferData(context.ARRAY_BUFFER, new Float32Array(vertices), context.DYNAMIC_DRAW);
-	context.vertexAttribPointer(lineshader.vertexPositionAttribute, 2, context.FLOAT, false, 0, 0);
-	context.bindBuffer(context.ARRAY_BUFFER, this.nbufs[viewname]);
-	context.bufferData(context.ARRAY_BUFFER, new Float32Array(normals), context.DYNAMIC_DRAW);
-	context.vertexAttribPointer(lineshader.vertexNormalAttribute, 2, context.FLOAT, false, 0, 0);
-	context.bindBuffer(context.ARRAY_BUFFER, this.mbufs[viewname]);
-	context.bufferData(context.ARRAY_BUFFER, new Float32Array(miters), context.DYNAMIC_DRAW);
-	context.vertexAttribPointer(lineshader.miterAttribute, 1, context.FLOAT, false, 0, 0);
-	context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, this.ibufs[viewname]);
-	context.bufferData(context.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), context.DYNAMIC_DRAW);
-
-	context.drawElements(context.TRIANGLES, 6, context.UNSIGNED_SHORT, 0);
-
-	context.useProgram(shader);
-};
-
-}}$;
-
 # Copyright (c) 2015, Empirical Modelling Group
 # All rights reserved.
 #
@@ -6046,168 +5199,6 @@ LineSequence.prototype.getEdenCode = LineSequence.prototype.toString;
 ## See LICENSE.txt
 
 ${{
-Material = function(texture,colour,toff,tscale) {
-	this.texture = texture;
-	this.colour = colour;
-	this.toff = toff;
-	this.tscale = tscale;
-}
-
-}}$;
-
-#! Creates a cube that can be coloured and displayed on a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
-#
-# ##Usage Example
-#  `Cube::(Point3D::(x,y,z),Point(width,height));`
-# 
-#  #canvas #rectangle #drawingoptions #square #box #shape #draw
-Light is ${{ (new Light(
-	scope.value("$1"),
-	scope.value("$2"))) }}$ ::
-		$1=$1,
-		$2=$2;
-
-${{
-
-Light.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
-	 context.uniform1i(shader.useLightingUniform, true);
-
-	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
-			var r = colorobj.red() / 255;
-			var g = colorobj.green() / 255;
-			var b = colorobj.blue() / 255;
-
-	context.uniform3f(
-        shader.directionalColorUniform,
-        r,
-        g,
-        b
-      );
-
-	var normalMatrix = mat3.create();
-    mat3.fromMat4(normalMatrix,mvMatrix);
-	mat3.invert(normalMatrix,normalMatrix);
-    mat3.transpose(normalMatrix,normalMatrix);
-
-	var lightingDirection = vec3.create();
-	vec3.set(lightingDirection,this.x,this.y,this.z);
-	vec3.transformMat3(lightingDirection, lightingDirection, normalMatrix);
-      var adjustedLD = vec3.create();
-      vec3.normalize(adjustedLD,lightingDirection);
-      vec3.scale(adjustedLD,adjustedLD, -1);
-      context.uniform3fv(shader.lightingDirectionUniform, adjustedLD);
-};
-
-Light.prototype.isHit = function (context, scale, x, y) {
-	return false;
-}
-
-}}$;
-
-/* Copyright (c) 2013, Empirical Modelling Group
- * All rights reserved.
- *
- * See LICENSE.txt
- */
-
-${{
-Mesh = function(vertices, normals, indices, kind) {
-	console.log("CONSTRUCT MESH", vertices.length);
-	this.name = eden.root.currentObservableName();
-	this.vertices = vertices;
-	this.normals = normals;
-	this.indices = indices;
-	this.kind = kind;
-
-	this.vbufs = {};
-	this.nbufs = {};
-	this.ibufs = {};
-}
-
-Mesh.prototype.createBuffer = function(gl, viewName) {
-	console.log("MAKE BUFFER",this.name);
-	this.vbufs[viewName] = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbufs[viewName]);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW);
-    this.vbufs[viewName].itemSize = 3;
-    this.vbufs[viewName].numItems = this.vertices.length / 3;
-
-	console.log("Mesh has " + (this.vertices.length/2) + " vertices");
-
-	this.nbufs[viewName] = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.nbufs[viewName]);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.normals), gl.STATIC_DRAW);
-    this.nbufs[viewName].itemSize = 3;
-    this.nbufs[viewName].numItems = this.normals.length / 3;
-
-	if (this.indices) {
-		this.ibufs[viewName] = gl.createBuffer();
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibufs[viewName]);
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
-		this.ibufs[viewName].itemSize = 1;
-		this.ibufs[viewName].numItems = this.indices.length;
-	}
-}
-
-}}$;
-
-Mesh is ${{ new Mesh }}$ ($1,normals,indices,kind) :: kind=kind if kind!=@ else "triangles";
-
-
-${{
-
-Mesh.prototype.draw = function (context, viewName, mvMatrix, shader) {
-	if (!this.vbufs[viewName]) {
-		this.createBuffer(context, viewName);
-	}
-
-	context.bindBuffer(context.ARRAY_BUFFER, this.vbufs[viewName]);
-    context.vertexAttribPointer(shader.vertexPositionAttribute, this.vbufs[viewName].itemSize, context.FLOAT, false, 0, 0);
-
-	context.bindBuffer(context.ARRAY_BUFFER, this.nbufs[viewName]);
-    context.vertexAttribPointer(shader.vertexNormalAttribute, this.nbufs[viewName].itemSize, context.FLOAT, false, 0, 0);
-
-	if (this.indices) {
-		context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, this.ibufs[viewName]);
-	}
-
-	// Actually set the transform into the shader
-	context.uniformMatrix4fv(shader.mvMatrixUniform, false, mvMatrix);
-
-	// Calculate the normals transform and set that into shader
-	var normalMatrix = mat3.create();
-    mat3.fromMat4(normalMatrix,mvMatrix);
-	mat3.invert(normalMatrix,normalMatrix);
-    mat3.transpose(normalMatrix,normalMatrix);
-    context.uniformMatrix3fv(shader.nMatrixUniform, false, normalMatrix);
-
-	// Do the actual draw...
-	if (this.indices) {
-		switch (this.kind) {
-		case "triangles":	context.drawElements(context.TRIANGLES, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
-		case "trianglestrip":	context.drawElements(context.TRIANGLE_STRIP, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
-		case "lines":	context.drawElements(context.LINES, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
-		case "lineloop": context.drawElements(context.LINE_LOOP, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
-		}
-	} else {
-		switch (this.kind) {
-		case "triangles":	context.drawArrays(context.TRIANGLES, 0, this.vbufs[viewName].numItems); break;
-		case "lines":	context.drawArrays(context.LINES, 0, this.vbufs[viewName].numItems); break;
-		case "lineloop": context.drawArrays(context.LINE_LOOP, 0, this.vbufs[viewName].numItems); break;
-		case "linestrip": context.drawArrays(context.LINE_STRIP, 0, this.vbufs[viewName].numItems); break;
-		case "points": context.drawArrays(context.POINTS, 0, this.vbufs[viewName].numItems); break;
-		}
-	}
-};
-
-}}$;
-
-## Copyright (c) 2013, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
-
-${{
 Pixel = function(x, y, colour) {
   this.x = x;
   this.y = y;
@@ -6244,158 +5235,6 @@ Pixel.prototype.draw = function(context) {
   context.fillRect( this.x, this.y, 1, 1);
 };
 }}$;
-## Copyright (c) 2015, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
-
-/*
- * Returns a PixelList drawable.  The ptrToData argument should be a pointer to a list of
- * integers.  The first four elements of the list represent the red, green, blue and
- * alpha components of the first pixel respectively (all in the range 0-255).  The
- * next four elements represent the second pixel, going from left to right along the
- * top line of the block.  The data list should contain data for an exact number
- * of rows of the specified width.  Although cumbersome a PixelList performs far
- * faster than trying to map each pixel to an individual EDEN observable for a
- * block of any significant size.
- * 
- * N.B. Unfortunately the alpha values are not true transparency.  That is, you
- * you can't see through to other objects drawn underneath on the canvas.  Alpha
- * values less than 255 just make the colours lighter.
- * 
- * Example:
- * ```
- * 	func colourMap {
- * 		para b;
- * 		auto data, i, j;
- * 		data = [];
- * 		for (j = 0; j <= 255; j++) {
- * 			for (i = 0; i <= 255; i++) {
- * 			append data, i;
- * 			append data, j;
- * 			append data, b;
- * 			append data, 255;
- * 		}
- * 		}
- * 	return data;
- *  }
- *  
- *  blue = 50;
- *  pixelData is colourMap(blue);
- *  pixels is PixelList(&pixelData, 20, 20, 256);
- *  picture is [pixels];
- *  
- *  @param [name]
- *  @param ptrToData pointer to list of R,G,B,Alpha values
- *  @param x x-position
- *  @param y y-position
- *  @param width
- *  
- * #canvas #pixellist
- */
-
-
-func PixelList {
-	${{
-		var name;
-		var argsProcessed;
-		if (typeof(arguments[0]) == "string") {
-			name = arguments[0];
-			argsProcessed = 1;
-		} else {
-			argsProcessed = 0;
-		}
-		var ptrToData = arguments[argsProcessed];
-		argsProcessed++;
-		var x = arguments[argsProcessed];
-		argsProcessed++;
-		var y = arguments[argsProcessed];
-		argsProcessed++;
-		var width = arguments[argsProcessed];
-		argsProcessed++;
-		return new PixelList(name, ptrToData, x, y, width);
-	}}$;
-}
-
-${{
-PixelList = function(name, ptrToData, x, y, width) {
-	this.name = edenUI.plugins.Canvas2D.initZoneFromName(name, "PixelList");
-	this.obsName = root.currentObservableName();
-	this.ptr = ptrToData;
-	this.data = ptrToData instanceof Symbol? ptrToData.value() : [];
-	this.x = x;
-	this.y = y;
-	this.width = width;
-	this.height = this.data.length / (4 * width);
-}
-
-PixelList.prototype.draw = function (context) {
-	var imageData = context.createImageData(this.width, this.height);
-	var imageArr = imageData.data;
-	var dataArr = this.data;
-	var arrayLen = dataArr.length;
-	for (var i = 0; i < arrayLen; i++) {
-		imageArr[i] = dataArr[i];
-	}
-	context.putImageData(imageData, this.x, this.y);
-}
-
-PixelList.prototype.isHit = function (context, scale, x, y) {
-	return x >= this.x && x < this.x + this.width && y >= this.y && y < this.y + this.height;
-}
-
-PixelList.prototype.toString = function() {
-	var s = "PixelList(";
-	if (this.name !== undefined) {
-		s = s + Eden.edenCodeForValue(this.name) + ", ";
-	}
-	s = s + Eden.edenCodeForValues(this.ptr, this.x, this.y, this.width) + ")";
-	return s;
-}
-
-PixelList.prototype.getEdenCode = PixelList.prototype.toString;
-
-}}$;
-
-/* Copyright (c) 2013, Empirical Modelling Group
- * All rights reserved.
- *
- * See LICENSE.txt
- */
-
-shape_plane_vertices = [
-            -1.0, -1.0,  0.0,
-             1.0, -1.0,  0.0,
-             1.0,  1.0,  0.0,
-            -1.0,  1.0,  0.0
-        ];
-
-shape_plane_normals = [
-       0.0,  0.0,  1.0,
-       0.0,  0.0,  1.0,
-       0.0,  0.0,  1.0,
-       0.0,  0.0,  1.0
-    ];
-
-shape_plane_indices = [
-            0, 1, 2,      0, 2, 3
-        ];
-
-shape_plane_textureCoords = [
-      0.0, 0.0,
-      1.0, 0.0,
-      1.0, 1.0,
-      0.0, 1.0
-    ];
-
-shape_plane_uvmap = UVMap::shape_plane_textureCoords;
-
-shape_plane_mesh = Mesh::(shape_plane_vertices, normals=shape_plane_normals, indices=shape_plane_indices, kind="triangles");
-
-#! A 2D rectangular plane in 3D space. #library
-Plane is Shape::(shape_plane_mesh, $1, uvmap=uvmap if uvmap else shape_plane_uvmap);
-
-
 ## Copyright (c) 2013, Empirical Modelling Group
 ## All rights reserved.
 ##
@@ -7887,138 +6726,6 @@ ${{
 ##
 ## See LICENSE.txt
 
-
-${{
-Shape = function(mesh, pos, scale, rot, material, uvmap, ortho) {
-	this.mesh = mesh;
-	this.position = pos;
-	this.scale = scale;
-	this.rotation = rot;
-	this.material = (material) ? material : "orange";
-	this.obsName = root.currentObservableName();
-	this.uvmap = uvmap;
-	this.ortho = ortho;
-
-	this.texture = {};
-}
-
-}}$;
-
-Shape is ${{ new Shape }}$ ($1, $2, scale, rotation, material, uvmap, ortho);
-
-${{
-
-Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pMatrix, canvas, id) {
-	if (this.ortho) {
-		mat4.identity(mvMatrix);
-	}
-
-	var translation = vec3.create();
-	vec3.set (translation, this.position.x, this.position.y, this.position.z);
-	mat4.translate(mvMatrix,mvMatrix,translation);
-
-	if (this.scale) {
-		var scale = vec3.create();
-		vec3.set(scale, this.scale.x, this.scale.y, this.scale.z);
-		mat4.scale(mvMatrix,mvMatrix,scale);
-	}
-
-
-	if (this.rotation) {
-		var rot = vec3.create();
-		if (this.rotation.x) {
-			vec3.set(rot, 1, 0, 0);
-			mat4.rotate(mvMatrix, mvMatrix, this.rotation.x * Math.PI / 180, rot);
-		}
-		if (this.rotation.y) {
-			vec3.set(rot, 0, 1, 0);
-			mat4.rotate(mvMatrix, mvMatrix, this.rotation.y * Math.PI / 180, rot);
-		}
-		if (this.rotation.z) {
-			vec3.set(rot, 0, 0, 1);
-			mat4.rotate(mvMatrix, mvMatrix, this.rotation.z * Math.PI / 180, rot);
-		}
-	}
-
-	if (this.material instanceof Texture) {
-		if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
-
-		context.activeTexture(context.TEXTURE0);
-
-		if (this.material.loaded) {
-			//console.log("LOADED TEXTURE");
-			this.material.bind(context,viewname, shader);
-		} else {
-			this.material.bind(context,viewname, shader);
-
-			if (!this.texture[viewname]) {
-				this.texture[viewname] = context.createTexture();
-				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
-				context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
-							  new Uint8Array([100, 100, 100, 255]));
-			} else {
-				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
-			}
-		}
-    	context.uniform1i(shader.samplerUniform, 0);
-	} else {
-		if (!this.texture[viewname]) {
-			var colorobj = jQuery.Color( (typeof this.material == "string") ? this.material : "orange" );
-			var r = colorobj.red();
-			var g = colorobj.green();
-			var b = colorobj.blue();
-
-			//console.log("Making colour texture");
-
-			var rgbstr = "rgb("+r+","+g+","+b+")";
-			if (!Texture.textures[viewname]) Texture.textures[viewname] = {};
-			if (Texture.textures[viewname][rgbstr]) {
-				if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
-				this.texture[viewname] = Texture.textures[viewname][rgbstr];
-				context.activeTexture(context.TEXTURE0);
-				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
-				//console.log("Reuse colour");
-			} else {
-				this.texture[viewname] = context.createTexture();
-				Texture.textures[viewname][rgbstr] = this.texture[viewname];
-
-				if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
-				console.log("New colour being made");
-				context.activeTexture(context.TEXTURE0);
-				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
-				context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
-							  new Uint8Array([r, g, b, 255]));
-				context.uniform1i(shader.samplerUniform, 0);
-				console.log("New colour made");
-			}
-		} else {
-			if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
-			//console.log("UVMAP",this.uvmap.texCoords.length/2,this.mesh.vertices.length/3);
-
-			context.activeTexture(context.TEXTURE0);
-	   		context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
-			context.uniform1i(shader.samplerUniform, 0);
-		}
-	}
-
-	//console.log("MESH DRAW",this.mesh.vertices.length/3);
-
-	if (this.ortho) {
-		context.uniformMatrix4fv(shader.pMatrixUniform, false, canvas.oMatrix);
-		this.mesh.draw(context, viewname, mvMatrix, shader);
-		context.uniformMatrix4fv(shader.pMatrixUniform, false, canvas.pMatrix);
-	} else {
-		this.mesh.draw(context, viewname, mvMatrix, shader);
-	}
-};
-
-}}$;
-
-## Copyright (c) 2013, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
-
 ${{
 Slider = function(name, min, max, step, labelInterval, tickMarkInterval, labelDivisor, x, y, length, orientation, enabled) {
 	this.name = name;
@@ -8404,314 +7111,6 @@ Slider.prototype.getEdenCode = Slider.prototype.toString;
 
 }}$;
 
-/* Copyright (c) 2013, Empirical Modelling Group
- * All rights reserved.
- *
- * See LICENSE.txt
- */
-
-shape_sphere_longitudes = 30;
-shape_sphere_latitudes = 30;
-shape_sphere_theta is lat * 180 / shape_sphere_latitudes;
-shape_sphere_phi is longi * 360 / shape_sphere_longitudes;
-shape_sphere_cosphi is cos(shape_sphere_phi);
-shape_sphere_sinphi is sin(shape_sphere_phi);
-shape_sphere_costheta is cos(shape_sphere_theta);
-shape_sphere_sintheta is sin(shape_sphere_theta);
-shape_sphere_x is shape_sphere_cosphi * shape_sphere_sintheta;
-shape_sphere_y is shape_sphere_costheta;
-shape_sphere_z is shape_sphere_sinphi * shape_sphere_sintheta;
-shape_sphere_u is 1 - (longi / shape_sphere_longitudes);
-shape_sphere_v is 1 - (lat / shape_sphere_latitudes);
-
-test_lib_load = sin != @;
-
-shape_sphere_first is (lat * (shape_sphere_longitudes + 1)) + longi;
-shape_sphere_second is shape_sphere_first + shape_sphere_longitudes + 1;
-
-shape_sphere_vertices is concat(
-	([shape_sphere_x, shape_sphere_y, shape_sphere_z]::lat in 0..shape_sphere_latitudes, longi in 0..shape_sphere_longitudes)
-);
-
-shape_sphere_normals is concat(
-	([shape_sphere_x, shape_sphere_y, shape_sphere_z]::lat in 0..shape_sphere_latitudes, longi in 0..shape_sphere_longitudes)
-);
-
-shape_sphere_texCoords is concat(
-	([shape_sphere_u, shape_sphere_v]::lat in 0..shape_sphere_latitudes, longi in 0..shape_sphere_longitudes)
-);
-
-shape_sphere_indices is concat(
-	([shape_sphere_first, shape_sphere_second, shape_sphere_first+1, shape_sphere_second,
-		shape_sphere_second+1,shape_sphere_first+1]::lat in 0..shape_sphere_latitudes-1, longi in 0..shape_sphere_longitudes-1)
-);
-
-shape_sphere_uvmap = UVMap::shape_sphere_texCoords;
-
-shape_sphere_mesh is Mesh::(shape_sphere_vertices, normals=shape_sphere_normals, indices=shape_sphere_indices, kind="triangles");
-shape_sphere_lod_1 = shape_sphere_mesh;
-shape_sphere_lod_2 = shape_sphere_mesh :: shape_sphere_longitudes=10, shape_sphere_latitudes=10;
-
-#! Create a Sphere #library
-Sphere is Shape::(shape_sphere_lod_1 if lod==@ else shape_sphere_lod_2, $1, uvmap=uvmap if uvmap else shape_sphere_uvmap);
-
-
-## Copyright (c) 2013, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
-
-${{
-SpotLight = function(position, colour) {
-	this.x = position.x;
-	this.y = position.y;
-	this.z = position.z;
-	this.colour = (colour) ? colour : "white";
-}
-
-}}$;
-
-#! Create a spot light for a 3D scene #library
-SpotLight is ${{ new SpotLight}}$ ($1,$2);
-
-${{
-
-SpotLight.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
-	 context.uniform1i(shader.useLightingUniform, true);
-
-	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
-			var r = colorobj.red() / 255;
-			var g = colorobj.green() / 255;
-			var b = colorobj.blue() / 255;
-
-	context.uniform3f(
-        shader.pointLightingColorUniform,
-        r,
-        g,
-        b
-      );
-
-	var lightingPos = vec3.create();
-	vec3.set(lightingPos,this.x,this.y,this.z);
-	vec3.transformMat4(lightingPos, lightingPos, mvMatrix);
-	context.uniform3fv(shader.pointLightingLocationUniform, lightingPos);
-
-	/*context.uniform3f(
-        shader.pointLightingLocationUniform,
-        this.x,
-        this.y,
-        this.z
-      );*/
-
-	/*var normalMatrix = mat3.create();
-    mat3.fromMat4(normalMatrix,mvMatrix);
-	mat3.invert(normalMatrix,normalMatrix);
-    mat3.transpose(normalMatrix,normalMatrix);
-
-	var lightingDirection = vec3.create();
-	vec3.set(lightingDirection,this.x,this.y,this.z);
-	vec3.transformMat3(lightingDirection, lightingDirection, normalMatrix);
-      var adjustedLD = vec3.create();
-      vec3.normalize(adjustedLD,lightingDirection);
-      vec3.scale(adjustedLD,adjustedLD, -1);
-      context.uniform3fv(shader.lightingDirectionUniform, adjustedLD);*/
-};
-
-
-}}$;
-
-## Copyright (c) 2016, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
-
-func TableLayout {
-${{
-	var x = arguments[0];
-	var y = arguments[1];
-	var width, content, drawingOptions;
-
-	var argsProcessed = 2;
-	var arg = arguments[2];
-
-	if (Array.isArray(arg)) {
-		content = arg;
-		argsProcessed++;
-	} else {
-		width = arg;
-		argsProcessed++;
-		arg = arguments[argsProcessed];
-		content = arg;
-		argsProcessed++;
-	}
-
-	arg = arguments[argsProcessed];
-
-	if (typeof(arg) == "object") {
-		drawingOptions = arg;
-	}
-
-	return new TableLayout(x, y, width, content, drawingOptions);
-}}$;
-}
-
-${{
-	TableLayout = function (x, y, width, content, drawingOptions) {
-		this.obsName = root.currentObservableName();
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.content = content;
-		this.drawingOptions = drawingOptions;
-
-		var rows = [ [] ];
-		var numRows = 1;
-		if (Array.isArray(this.content)) {
-			var maxCol = 0;
-			for (var i = 0; i < this.content.length; i++) {
-				var item = this.content[i];
-				var columnNo = item.x;
-				var rowNo = item.y;
-				if (columnNo !== undefined && rowNo !== undefined) {
-					columnNo--;
-					rowNo--;
-					if (rowNo > numRows - 1) {
-						for (var j = numRows; j <= rowNo; j++) {
-							rows[j] = [];
-						}
-						numRows = rowNo + 1;
-					}
-					var row = rows[rowNo];
-					var numColumns = row.length;
-					if (columnNo > numColumns - 1) {
-						for (var j = numColumns; j <= columnNo; j++) {
-							row[j] = [];
-						}
-						if (columnNo > maxCol) {
-							maxCol = columnNo;
-						}
-					}
-					var cell = row[columnNo];
-					cell.push(item);
-				}
-			}
-		}
-		this.rows = rows;
-		this.maxCol = maxCol;
-	}
-
-	TableLayout.prototype.hash = function () {
-		var hash = this.x + "$$" +
-			this.y + "$$" +
-			this.width + "$$";
-
-		if (Array.isArray(this.content)) {
-			for (var i = 0; i < this.content.length; i++) {
-				var item = this.content[i];
-				if (item.elements === undefined) {
-					return hash + Math.random();
-				} else {
-					hash = hash + item.hash() + "$$";
-				}
-			}
-		}
-		
-		if (this.drawingOptions !== undefined) {
-
-		}
-
-		return hash;
-	};
-
-	TableLayout.prototype.toString = function () {
-		return "TableLayout(" + Eden.edenCodeForValues(this.x, this.y, this.width, this.content,
-			this.drawingOptions) + ")";
-	};
-
-	TableLayout.prototype.draw = function (context, scale, viewName) {
-		if (this.elements === undefined && Array.isArray(this.content)) {
-			var me = this;
-
-			var tableJQ = $(
-				'<table class="canvashtml-item canvashtml-table-layout-item" ' +
-					'style="left: ' + this.x + 'px; top: ' + this.y + 'px"' +
-				'></table>'				
-			);
-
-			for (var j = 0; j < this.rows.length; j++) {
-				var rowItems = this.rows[j];
-				var rowJQ = $('<tr class="canvashtml-table-layout-row"></tr>');
-				tableJQ.append(rowJQ);
-				var rowLength = rowItems.length;
-				for (var i = 0; i < rowLength; i++) {
-					var cellJQ = $('<td class="canvashtml-table-layout-cell"></td>');
-					rowJQ.append(cellJQ);
-					var cellItems = rowItems[i];
-					var numItems = cellItems.length;
-					for (var k = 0; k < numItems; k++) {
-						var item = cellItems[k];
-						item.draw(context, scale, viewName);
-						cellJQ.append(item.elements);
-						if (k != numItems - 1) {
-							cellJQ.append('<br/>');
-						}
-					}
-				}
-				for (i = rowLength; i <= this.maxCol; i++) {
-					rowJQ.append('<td class="canvashtml-table-layout-cell">&nbsp;</td>');
-				}
-			}
-
-			this.elements = tableJQ;
-		}
-	}
-
-	TableLayout.prototype.resize = function () {
-		var scale = this.cachedScale;
-		if (scale === undefined) {
-			//Not yet added drawn onto a canvas.
-			return;
-		}
-
-		var element = this.elements[0];
-		var style = element.style;
-		var autoWidth = this.width === undefined;
-
-		var agent = root.lookup("TableLayout");
-		var widthSymName = this.obsName + "_width";
-		var heightSymName = this.obsName + "_height";
-
-		if (autoWidth || widthSymName in root.symbols) {
-			root.lookup(widthSymName).assign(element.offsetWidth / scale, agent);
-		}
-		root.lookup(heightSymName).assign(element.offsetHeight / scale, agent);	
-	}
-
-	TableLayout.prototype.scale = function (scale, zoom, origin) {
-		if (!Array.isArray(this.content)) {
-			return;
-		}
-
-		var container = this.elements;
-		var containerStyle = container[0].style;
-		if (this.width !== undefined) {
-			containerStyle.width = Math.round(this.width * scale) + "px";
-		}
-		containerStyle.left = Math.round((this.x + origin.x) * scale) + "px";
-		containerStyle.top =  Math.round((this.y + origin.y) * scale) + "px";
-
-		var children = container.children();
-		for (var i = 0; i < this.content.length; i++) {
-			var item = this.content[i];
-			item.scale(scale, zoom, origin);
-		}
-
-		this.cachedScale = scale;
-		this.resize();
-	}
-
-	TableLayout.prototype.getEdenCode = TableLayout.prototype.toString;
-}}$;
 ## Copyright (c) 2013, Empirical Modelling Group
 ## All rights reserved.
 ##
@@ -9175,6 +7574,198 @@ func textHeight {
 	}}$;
 }
 
+## Copyright (c) 2016, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+func TableLayout {
+${{
+	var x = arguments[0];
+	var y = arguments[1];
+	var width, content, drawingOptions;
+
+	var argsProcessed = 2;
+	var arg = arguments[2];
+
+	if (Array.isArray(arg)) {
+		content = arg;
+		argsProcessed++;
+	} else {
+		width = arg;
+		argsProcessed++;
+		arg = arguments[argsProcessed];
+		content = arg;
+		argsProcessed++;
+	}
+
+	arg = arguments[argsProcessed];
+
+	if (typeof(arg) == "object") {
+		drawingOptions = arg;
+	}
+
+	return new TableLayout(x, y, width, content, drawingOptions);
+}}$;
+}
+
+${{
+	TableLayout = function (x, y, width, content, drawingOptions) {
+		this.obsName = root.currentObservableName();
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.content = content;
+		this.drawingOptions = drawingOptions;
+
+		var rows = [ [] ];
+		var numRows = 1;
+		if (Array.isArray(this.content)) {
+			var maxCol = 0;
+			for (var i = 0; i < this.content.length; i++) {
+				var item = this.content[i];
+				var columnNo = item.x;
+				var rowNo = item.y;
+				if (columnNo !== undefined && rowNo !== undefined) {
+					columnNo--;
+					rowNo--;
+					if (rowNo > numRows - 1) {
+						for (var j = numRows; j <= rowNo; j++) {
+							rows[j] = [];
+						}
+						numRows = rowNo + 1;
+					}
+					var row = rows[rowNo];
+					var numColumns = row.length;
+					if (columnNo > numColumns - 1) {
+						for (var j = numColumns; j <= columnNo; j++) {
+							row[j] = [];
+						}
+						if (columnNo > maxCol) {
+							maxCol = columnNo;
+						}
+					}
+					var cell = row[columnNo];
+					cell.push(item);
+				}
+			}
+		}
+		this.rows = rows;
+		this.maxCol = maxCol;
+	}
+
+	TableLayout.prototype.hash = function () {
+		var hash = this.x + "$$" +
+			this.y + "$$" +
+			this.width + "$$";
+
+		if (Array.isArray(this.content)) {
+			for (var i = 0; i < this.content.length; i++) {
+				var item = this.content[i];
+				if (item.elements === undefined) {
+					return hash + Math.random();
+				} else {
+					hash = hash + item.hash() + "$$";
+				}
+			}
+		}
+		
+		if (this.drawingOptions !== undefined) {
+
+		}
+
+		return hash;
+	};
+
+	TableLayout.prototype.toString = function () {
+		return "TableLayout(" + Eden.edenCodeForValues(this.x, this.y, this.width, this.content,
+			this.drawingOptions) + ")";
+	};
+
+	TableLayout.prototype.draw = function (context, scale, viewName) {
+		if (this.elements === undefined && Array.isArray(this.content)) {
+			var me = this;
+
+			var tableJQ = $(
+				'<table class="canvashtml-item canvashtml-table-layout-item" ' +
+					'style="left: ' + this.x + 'px; top: ' + this.y + 'px"' +
+				'></table>'				
+			);
+
+			for (var j = 0; j < this.rows.length; j++) {
+				var rowItems = this.rows[j];
+				var rowJQ = $('<tr class="canvashtml-table-layout-row"></tr>');
+				tableJQ.append(rowJQ);
+				var rowLength = rowItems.length;
+				for (var i = 0; i < rowLength; i++) {
+					var cellJQ = $('<td class="canvashtml-table-layout-cell"></td>');
+					rowJQ.append(cellJQ);
+					var cellItems = rowItems[i];
+					var numItems = cellItems.length;
+					for (var k = 0; k < numItems; k++) {
+						var item = cellItems[k];
+						item.draw(context, scale, viewName);
+						cellJQ.append(item.elements);
+						if (k != numItems - 1) {
+							cellJQ.append('<br/>');
+						}
+					}
+				}
+				for (i = rowLength; i <= this.maxCol; i++) {
+					rowJQ.append('<td class="canvashtml-table-layout-cell">&nbsp;</td>');
+				}
+			}
+
+			this.elements = tableJQ;
+		}
+	}
+
+	TableLayout.prototype.resize = function () {
+		var scale = this.cachedScale;
+		if (scale === undefined) {
+			//Not yet added drawn onto a canvas.
+			return;
+		}
+
+		var element = this.elements[0];
+		var style = element.style;
+		var autoWidth = this.width === undefined;
+
+		var agent = root.lookup("TableLayout");
+		var widthSymName = this.obsName + "_width";
+		var heightSymName = this.obsName + "_height";
+
+		if (autoWidth || widthSymName in root.symbols) {
+			root.lookup(widthSymName).assign(element.offsetWidth / scale, agent);
+		}
+		root.lookup(heightSymName).assign(element.offsetHeight / scale, agent);	
+	}
+
+	TableLayout.prototype.scale = function (scale, zoom, origin) {
+		if (!Array.isArray(this.content)) {
+			return;
+		}
+
+		var container = this.elements;
+		var containerStyle = container[0].style;
+		if (this.width !== undefined) {
+			containerStyle.width = Math.round(this.width * scale) + "px";
+		}
+		containerStyle.left = Math.round((this.x + origin.x) * scale) + "px";
+		containerStyle.top =  Math.round((this.y + origin.y) * scale) + "px";
+
+		var children = container.children();
+		for (var i = 0; i < this.content.length; i++) {
+			var item = this.content[i];
+			item.scale(scale, zoom, origin);
+		}
+
+		this.cachedScale = scale;
+		this.resize();
+	}
+
+	TableLayout.prototype.getEdenCode = TableLayout.prototype.toString;
+}}$;
 ## Copyright (c) 2013, Empirical Modelling Group
 ## All rights reserved.
 ##
@@ -9359,87 +7950,6 @@ Textbox.prototype.getEdenCode = Textbox.prototype.toString;
 
 }}$;
 
-/* Copyright (c) 2013, Empirical Modelling Group
- * All rights reserved.
- *
- * See LICENSE.txt
- */
-
-#Taints the canvas if the file is located on another domain.
-
-${{
-Texture = function (file, clamp, mipmap, nearest, format, glow) {
-	this.clamp = clamp;
-	this.mipmap = mipmap;
-	this.nearest = nearest;
-	this.format = format;
-	this.glow = glow;
-	this.image = new Image();
-	//this.image.setAttribute("crossorigin","anonymous");	
-	this.canvasesToRepaint = {};
-	this.loaded = false;
-	
-	var me = this;
-
-	this.texture = undefined;
-	
-	this.image.onload = function() {
-		me.loaded = true;
-		for (var viewName in me.canvasesToRepaint) {
-			edenUI.plugins.Canvas2D.drawPicture(viewName);
-		}
-	}
-	this.image.src = file;
-};
-
-Texture.textures = {};
-}}$;
-
-#! Load a texture for a surface. #library
-Texture is ${{ new Texture }}$ ($1,clamp || true,mipmap || true, nearest,format || "rgba",glow);
-
-${{
-function isPowerOf2(value) {
-  return (value & (value - 1)) == 0;
-};
-
-
-Texture.prototype.bind = function(context, viewName, shader) {
-	if (this.loaded) {
-		if (!this.texture) {
-			this.texture = context.createTexture();
-			context.bindTexture(context.TEXTURE_2D, this.texture);
-			context.pixelStorei(context.UNPACK_FLIP_Y_WEBGL, true);
-			context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, context.RGBA, context.UNSIGNED_BYTE, this.image);
-
-			if (isPowerOf2(this.image.width) && isPowerOf2(this.image.height)) { // && this.mipmap) {
-				// the dimensions are power of 2 so generate mips and turn on 
-				// tri-linear filtering.
-				context.generateMipmap(context.TEXTURE_2D);
-				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR_MIPMAP_LINEAR);
-			  } else {
-				// at least one of the dimensions is not a power of 2 so set the filtering
-				// so WebGL will render it.
-				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
-				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
-				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR);
-			  }
-
-			console.log("IMAGE TEXTURE MADE");
-
-			//context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
-			//context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
-			//context.bindTexture(context.TEXTURE_2D, null);
-		} else {
-			context.bindTexture(context.TEXTURE_2D, this.texture);
-		}
-	} else {
-		this.canvasesToRepaint[viewName] = true;
-	}
-};
-
-}}$;
-
 ## Copyright (c) 2015, Empirical Modelling Group
 ## All rights reserved.
 ##
@@ -9535,52 +8045,6 @@ func Translate {
 		return new Translation(centreX, centreY, x, y, items);
 	}}$;
 }
-
-/* Copyright (c) 2013, Empirical Modelling Group
- * All rights reserved.
- *
- * See LICENSE.txt
- */
-
-${{
-UVMap = function(texCoords) {
-	this.name = eden.root.currentObservableName();
-	this.texCoords = texCoords;
-	//this.off = off;
-	//this.scale = scale;
-
-	this.tbufs = {};
-}
-
-UVMap.prototype.createBuffer = function(gl, viewName) {
-	this.tbufs[viewName] = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.tbufs[viewName]);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCoords), gl.STATIC_DRAW);
-    this.tbufs[viewName].itemSize = 2;
-    this.tbufs[viewName].numItems = this.texCoords.length / 2;
-
-	//console.log("UVMAP length = ", this.texCoords.length/2);
-}
-
-}}$;
-
-#! Make a texture coordinate map #library
-UVMap is ${{ new UVMap }}$ ($1);
-
-
-${{
-
-UVMap.prototype.bind = function (context, viewName, mvMatrix, shader) {
-	if (!this.tbufs[viewName]) {
-		this.createBuffer(context, viewName);
-	}
-
-	context.bindBuffer(context.ARRAY_BUFFER, this.tbufs[viewName]);
-	context.vertexAttribPointer(shader.textureCoordAttribute, this.tbufs[viewName].itemSize, context.FLOAT, false, 0, 0);
-	//console.log("Bind UV for "+this.name+" = "+this.tbufs[viewName].numItems);
-};
-
-}}$;
 
 # Copyright (c) 2015, Empirical Modelling Group
 # All rights reserved.
@@ -10475,6 +8939,1429 @@ View.prototype.toString = function() {
 View.prototype.getEdenCode = function () {
 	var s = "View(" + Eden.edenCodeForValues(this.name, this.type, this.x, this.y, this.width, this.height)+")";
 	return s;
+};
+
+}}$;
+
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+${{
+UVMap = function(texCoords) {
+	this.name = eden.root.currentObservableName();
+	this.texCoords = texCoords;
+	//this.off = off;
+	//this.scale = scale;
+
+	this.tbufs = {};
+}
+
+UVMap.prototype.createBuffer = function(gl, viewName) {
+	this.tbufs[viewName] = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.tbufs[viewName]);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCoords), gl.STATIC_DRAW);
+    this.tbufs[viewName].itemSize = 2;
+    this.tbufs[viewName].numItems = this.texCoords.length / 2;
+
+	//console.log("UVMAP length = ", this.texCoords.length/2);
+}
+
+}}$;
+
+#! Make a texture coordinate map #library
+UVMap is ${{ new UVMap }}$ ($1);
+
+
+${{
+
+UVMap.prototype.bind = function (context, viewName, mvMatrix, shader) {
+	if (!this.tbufs[viewName]) {
+		this.createBuffer(context, viewName);
+	}
+
+	context.bindBuffer(context.ARRAY_BUFFER, this.tbufs[viewName]);
+	context.vertexAttribPointer(shader.textureCoordAttribute, this.tbufs[viewName].itemSize, context.FLOAT, false, 0, 0);
+	//console.log("Bind UV for "+this.name+" = "+this.tbufs[viewName].numItems);
+};
+
+}}$;
+
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+${{
+Mesh = function(vertices, normals, indices, kind) {
+	console.log("CONSTRUCT MESH", vertices.length);
+	this.name = eden.root.currentObservableName();
+	this.vertices = vertices;
+	this.normals = normals;
+	this.indices = indices;
+	this.kind = kind;
+
+	this.vbufs = {};
+	this.nbufs = {};
+	this.ibufs = {};
+}
+
+Mesh.prototype.createBuffer = function(gl, viewName) {
+	console.log("MAKE BUFFER",this.name);
+	this.vbufs[viewName] = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbufs[viewName]);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW);
+    this.vbufs[viewName].itemSize = 3;
+    this.vbufs[viewName].numItems = this.vertices.length / 3;
+
+	console.log("Mesh has " + (this.vertices.length/2) + " vertices");
+
+	this.nbufs[viewName] = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.nbufs[viewName]);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.normals), gl.STATIC_DRAW);
+    this.nbufs[viewName].itemSize = 3;
+    this.nbufs[viewName].numItems = this.normals.length / 3;
+
+	if (this.indices) {
+		this.ibufs[viewName] = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibufs[viewName]);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
+		this.ibufs[viewName].itemSize = 1;
+		this.ibufs[viewName].numItems = this.indices.length;
+	}
+}
+
+}}$;
+
+Mesh is ${{ new Mesh }}$ ($1,normals,indices,kind) :: kind=kind if kind!=@ else "triangles";
+
+
+${{
+
+Mesh.prototype.draw = function (context, viewName, mvMatrix, shader) {
+	if (!this.vbufs[viewName]) {
+		this.createBuffer(context, viewName);
+	}
+
+	context.bindBuffer(context.ARRAY_BUFFER, this.vbufs[viewName]);
+    context.vertexAttribPointer(shader.vertexPositionAttribute, this.vbufs[viewName].itemSize, context.FLOAT, false, 0, 0);
+
+	context.bindBuffer(context.ARRAY_BUFFER, this.nbufs[viewName]);
+    context.vertexAttribPointer(shader.vertexNormalAttribute, this.nbufs[viewName].itemSize, context.FLOAT, false, 0, 0);
+
+	if (this.indices) {
+		context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, this.ibufs[viewName]);
+	}
+
+	// Actually set the transform into the shader
+	context.uniformMatrix4fv(shader.mvMatrixUniform, false, mvMatrix);
+
+	// Calculate the normals transform and set that into shader
+	var normalMatrix = mat3.create();
+    mat3.fromMat4(normalMatrix,mvMatrix);
+	mat3.invert(normalMatrix,normalMatrix);
+    mat3.transpose(normalMatrix,normalMatrix);
+    context.uniformMatrix3fv(shader.nMatrixUniform, false, normalMatrix);
+
+	// Do the actual draw...
+	if (this.indices) {
+		switch (this.kind) {
+		case "triangles":	context.drawElements(context.TRIANGLES, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
+		case "trianglestrip":	context.drawElements(context.TRIANGLE_STRIP, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
+		case "lines":	context.drawElements(context.LINES, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
+		case "lineloop": context.drawElements(context.LINE_LOOP, this.ibufs[viewName].numItems, context.UNSIGNED_SHORT, 0); break;
+		}
+	} else {
+		switch (this.kind) {
+		case "triangles":	context.drawArrays(context.TRIANGLES, 0, this.vbufs[viewName].numItems); break;
+		case "lines":	context.drawArrays(context.LINES, 0, this.vbufs[viewName].numItems); break;
+		case "lineloop": context.drawArrays(context.LINE_LOOP, 0, this.vbufs[viewName].numItems); break;
+		case "linestrip": context.drawArrays(context.LINE_STRIP, 0, this.vbufs[viewName].numItems); break;
+		case "points": context.drawArrays(context.POINTS, 0, this.vbufs[viewName].numItems); break;
+		}
+	}
+};
+
+}}$;
+
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+SpotLight = function(position, colour) {
+	this.x = position.x;
+	this.y = position.y;
+	this.z = position.z;
+	this.colour = (colour) ? colour : "white";
+}
+
+}}$;
+
+#! Create a spot light for a 3D scene #library
+SpotLight is ${{ new SpotLight}}$ ($1,$2);
+
+${{
+
+SpotLight.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
+	 context.uniform1i(shader.useLightingUniform, true);
+
+	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
+			var r = colorobj.red() / 255;
+			var g = colorobj.green() / 255;
+			var b = colorobj.blue() / 255;
+
+	context.uniform3f(
+        shader.pointLightingColorUniform,
+        r,
+        g,
+        b
+      );
+
+	var lightingPos = vec3.create();
+	vec3.set(lightingPos,this.x,this.y,this.z);
+	vec3.transformMat4(lightingPos, lightingPos, mvMatrix);
+	context.uniform3fv(shader.pointLightingLocationUniform, lightingPos);
+
+	/*context.uniform3f(
+        shader.pointLightingLocationUniform,
+        this.x,
+        this.y,
+        this.z
+      );*/
+
+	/*var normalMatrix = mat3.create();
+    mat3.fromMat4(normalMatrix,mvMatrix);
+	mat3.invert(normalMatrix,normalMatrix);
+    mat3.transpose(normalMatrix,normalMatrix);
+
+	var lightingDirection = vec3.create();
+	vec3.set(lightingDirection,this.x,this.y,this.z);
+	vec3.transformMat3(lightingDirection, lightingDirection, normalMatrix);
+      var adjustedLD = vec3.create();
+      vec3.normalize(adjustedLD,lightingDirection);
+      vec3.scale(adjustedLD,adjustedLD, -1);
+      context.uniform3fv(shader.lightingDirectionUniform, adjustedLD);*/
+};
+
+
+}}$;
+
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+Light = function(direction, colour) {
+	this.x = direction.x;
+	this.y = direction.y;
+	this.z = direction.z;
+	this.colour = (colour) ? colour : "white";
+}
+
+}}$;
+
+#! Creates a cube that can be coloured and displayed on a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
+#
+# ##Usage Example
+#  `Cube::(Point3D::(x,y,z),Point(width,height));`
+# 
+#  #canvas #rectangle #drawingoptions #square #box #shape #draw
+Light is ${{ new Light }}$ ($1,$2);
+
+${{
+
+Light.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
+	 context.uniform1i(shader.useLightingUniform, true);
+
+	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
+			var r = colorobj.red() / 255;
+			var g = colorobj.green() / 255;
+			var b = colorobj.blue() / 255;
+
+	context.uniform3f(
+        shader.directionalColorUniform,
+        r,
+        g,
+        b
+      );
+
+	var normalMatrix = mat3.create();
+    mat3.fromMat4(normalMatrix,mvMatrix);
+	mat3.invert(normalMatrix,normalMatrix);
+    mat3.transpose(normalMatrix,normalMatrix);
+
+	var lightingDirection = vec3.create();
+	vec3.set(lightingDirection,this.x,this.y,this.z);
+	vec3.transformMat3(lightingDirection, lightingDirection, normalMatrix);
+      var adjustedLD = vec3.create();
+      vec3.normalize(adjustedLD,lightingDirection);
+      vec3.scale(adjustedLD,adjustedLD, -1);
+      context.uniform3fv(shader.lightingDirectionUniform, adjustedLD);
+};
+
+Light.prototype.isHit = function (context, scale, x, y) {
+	return false;
+}
+
+}}$;
+
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+${{
+Material = function(texture,colour,toff,tscale) {
+	this.texture = texture;
+	this.colour = colour;
+	this.toff = toff;
+	this.tscale = tscale;
+}
+
+}}$;
+
+#! Creates a cube that can be coloured and displayed on a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
+#
+# ##Usage Example
+#  `Cube::(Point3D::(x,y,z),Point(width,height));`
+# 
+#  #canvas #rectangle #drawingoptions #square #box #shape #draw
+Light is ${{ (new Light(
+	scope.value("$1"),
+	scope.value("$2"))) }}$ ::
+		$1=$1,
+		$2=$2;
+
+${{
+
+Light.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
+	 context.uniform1i(shader.useLightingUniform, true);
+
+	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
+			var r = colorobj.red() / 255;
+			var g = colorobj.green() / 255;
+			var b = colorobj.blue() / 255;
+
+	context.uniform3f(
+        shader.directionalColorUniform,
+        r,
+        g,
+        b
+      );
+
+	var normalMatrix = mat3.create();
+    mat3.fromMat4(normalMatrix,mvMatrix);
+	mat3.invert(normalMatrix,normalMatrix);
+    mat3.transpose(normalMatrix,normalMatrix);
+
+	var lightingDirection = vec3.create();
+	vec3.set(lightingDirection,this.x,this.y,this.z);
+	vec3.transformMat3(lightingDirection, lightingDirection, normalMatrix);
+      var adjustedLD = vec3.create();
+      vec3.normalize(adjustedLD,lightingDirection);
+      vec3.scale(adjustedLD,adjustedLD, -1);
+      context.uniform3fv(shader.lightingDirectionUniform, adjustedLD);
+};
+
+Light.prototype.isHit = function (context, scale, x, y) {
+	return false;
+}
+
+}}$;
+
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+#Taints the canvas if the file is located on another domain.
+
+${{
+Texture = function (file, clamp, mipmap, nearest, format, glow) {
+	this.clamp = clamp;
+	this.mipmap = mipmap;
+	this.nearest = nearest;
+	this.format = format;
+	this.glow = glow;
+	this.image = new Image();
+	//this.image.setAttribute("crossorigin","anonymous");	
+	this.canvasesToRepaint = {};
+	this.loaded = false;
+	
+	var me = this;
+
+	this.texture = undefined;
+	
+	this.image.onload = function() {
+		me.loaded = true;
+		for (var viewName in me.canvasesToRepaint) {
+			edenUI.plugins.Canvas2D.drawPicture(viewName);
+		}
+	}
+	this.image.src = file;
+};
+
+Texture.textures = {};
+}}$;
+
+#! Load a texture for a surface. #library
+Texture is ${{ new Texture }}$ ($1,clamp || true,mipmap || true, nearest,format || "rgba",glow);
+
+${{
+function isPowerOf2(value) {
+  return (value & (value - 1)) == 0;
+};
+
+
+Texture.prototype.bind = function(context, viewName, shader) {
+	if (this.loaded) {
+		if (!this.texture) {
+			this.texture = context.createTexture();
+			context.bindTexture(context.TEXTURE_2D, this.texture);
+			context.pixelStorei(context.UNPACK_FLIP_Y_WEBGL, true);
+			context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, context.RGBA, context.UNSIGNED_BYTE, this.image);
+
+			if (isPowerOf2(this.image.width) && isPowerOf2(this.image.height)) { // && this.mipmap) {
+				// the dimensions are power of 2 so generate mips and turn on 
+				// tri-linear filtering.
+				context.generateMipmap(context.TEXTURE_2D);
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR_MIPMAP_LINEAR);
+			  } else {
+				// at least one of the dimensions is not a power of 2 so set the filtering
+				// so WebGL will render it.
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR);
+			  }
+
+			console.log("IMAGE TEXTURE MADE");
+
+			//context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
+			//context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
+			//context.bindTexture(context.TEXTURE_2D, null);
+		} else {
+			context.bindTexture(context.TEXTURE_2D, this.texture);
+		}
+	} else {
+		this.canvasesToRepaint[viewName] = true;
+	}
+};
+
+}}$;
+
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+
+${{
+Shape = function(mesh, pos, scale, rot, material, uvmap, ortho) {
+	this.mesh = mesh;
+	this.position = pos;
+	this.scale = scale;
+	this.rotation = rot;
+	this.material = (material) ? material : "orange";
+	this.obsName = root.currentObservableName();
+	this.uvmap = uvmap;
+	this.ortho = ortho;
+
+	this.texture = {};
+}
+
+}}$;
+
+Shape is ${{ new Shape }}$ ($1, $2, scale, rotation, material, uvmap, ortho);
+
+${{
+
+Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pMatrix, canvas, id) {
+	if (this.ortho) {
+		mat4.identity(mvMatrix);
+	}
+
+	var translation = vec3.create();
+	vec3.set (translation, this.position.x, this.position.y, this.position.z);
+	mat4.translate(mvMatrix,mvMatrix,translation);
+
+	if (this.scale) {
+		var scale = vec3.create();
+		vec3.set(scale, this.scale.x, this.scale.y, this.scale.z);
+		mat4.scale(mvMatrix,mvMatrix,scale);
+	}
+
+
+	if (this.rotation) {
+		var rot = vec3.create();
+		if (this.rotation.x) {
+			vec3.set(rot, 1, 0, 0);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.x * Math.PI / 180, rot);
+		}
+		if (this.rotation.y) {
+			vec3.set(rot, 0, 1, 0);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.y * Math.PI / 180, rot);
+		}
+		if (this.rotation.z) {
+			vec3.set(rot, 0, 0, 1);
+			mat4.rotate(mvMatrix, mvMatrix, this.rotation.z * Math.PI / 180, rot);
+		}
+	}
+
+	if (this.material instanceof Texture) {
+		if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
+
+		context.activeTexture(context.TEXTURE0);
+
+		if (this.material.loaded) {
+			//console.log("LOADED TEXTURE");
+			this.material.bind(context,viewname, shader);
+		} else {
+			this.material.bind(context,viewname, shader);
+
+			if (!this.texture[viewname]) {
+				this.texture[viewname] = context.createTexture();
+				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
+				context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
+							  new Uint8Array([100, 100, 100, 255]));
+			} else {
+				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
+			}
+		}
+    	context.uniform1i(shader.samplerUniform, 0);
+	} else {
+		if (!this.texture[viewname]) {
+			var colorobj = jQuery.Color( (typeof this.material == "string") ? this.material : "orange" );
+			var r = colorobj.red();
+			var g = colorobj.green();
+			var b = colorobj.blue();
+
+			//console.log("Making colour texture");
+
+			var rgbstr = "rgb("+r+","+g+","+b+")";
+			if (!Texture.textures[viewname]) Texture.textures[viewname] = {};
+			if (Texture.textures[viewname][rgbstr]) {
+				if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
+				this.texture[viewname] = Texture.textures[viewname][rgbstr];
+				context.activeTexture(context.TEXTURE0);
+				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
+				//console.log("Reuse colour");
+			} else {
+				this.texture[viewname] = context.createTexture();
+				Texture.textures[viewname][rgbstr] = this.texture[viewname];
+
+				if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
+				console.log("New colour being made");
+				context.activeTexture(context.TEXTURE0);
+				context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
+				context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, 1, 1, 0, context.RGBA, context.UNSIGNED_BYTE,
+							  new Uint8Array([r, g, b, 255]));
+				context.uniform1i(shader.samplerUniform, 0);
+				console.log("New colour made");
+			}
+		} else {
+			if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
+			//console.log("UVMAP",this.uvmap.texCoords.length/2,this.mesh.vertices.length/3);
+
+			context.activeTexture(context.TEXTURE0);
+	   		context.bindTexture(context.TEXTURE_2D, this.texture[viewname]);
+			context.uniform1i(shader.samplerUniform, 0);
+		}
+	}
+
+	//console.log("MESH DRAW",this.mesh.vertices.length/3);
+
+	if (this.ortho) {
+		context.uniformMatrix4fv(shader.pMatrixUniform, false, canvas.oMatrix);
+		this.mesh.draw(context, viewname, mvMatrix, shader);
+		context.uniformMatrix4fv(shader.pMatrixUniform, false, canvas.pMatrix);
+	} else {
+		this.mesh.draw(context, viewname, mvMatrix, shader);
+	}
+};
+
+}}$;
+
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+shape_sphere_longitudes = 30;
+shape_sphere_latitudes = 30;
+shape_sphere_theta is lat * 180 / shape_sphere_latitudes;
+shape_sphere_phi is longi * 360 / shape_sphere_longitudes;
+shape_sphere_cosphi is cos(shape_sphere_phi);
+shape_sphere_sinphi is sin(shape_sphere_phi);
+shape_sphere_costheta is cos(shape_sphere_theta);
+shape_sphere_sintheta is sin(shape_sphere_theta);
+shape_sphere_x is shape_sphere_cosphi * shape_sphere_sintheta;
+shape_sphere_y is shape_sphere_costheta;
+shape_sphere_z is shape_sphere_sinphi * shape_sphere_sintheta;
+shape_sphere_u is 1 - (longi / shape_sphere_longitudes);
+shape_sphere_v is 1 - (lat / shape_sphere_latitudes);
+
+test_lib_load = sin != @;
+
+shape_sphere_first is (lat * (shape_sphere_longitudes + 1)) + longi;
+shape_sphere_second is shape_sphere_first + shape_sphere_longitudes + 1;
+
+shape_sphere_vertices is concat(
+	([shape_sphere_x, shape_sphere_y, shape_sphere_z]::lat in 0..shape_sphere_latitudes, longi in 0..shape_sphere_longitudes)
+);
+
+shape_sphere_normals is concat(
+	([shape_sphere_x, shape_sphere_y, shape_sphere_z]::lat in 0..shape_sphere_latitudes, longi in 0..shape_sphere_longitudes)
+);
+
+shape_sphere_texCoords is concat(
+	([shape_sphere_u, shape_sphere_v]::lat in 0..shape_sphere_latitudes, longi in 0..shape_sphere_longitudes)
+);
+
+shape_sphere_indices is concat(
+	([shape_sphere_first, shape_sphere_second, shape_sphere_first+1, shape_sphere_second,
+		shape_sphere_second+1,shape_sphere_first+1]::lat in 0..shape_sphere_latitudes-1, longi in 0..shape_sphere_longitudes-1)
+);
+
+shape_sphere_uvmap = UVMap::shape_sphere_texCoords;
+
+shape_sphere_mesh is Mesh::(shape_sphere_vertices, normals=shape_sphere_normals, indices=shape_sphere_indices, kind="triangles");
+shape_sphere_lod_1 = shape_sphere_mesh;
+shape_sphere_lod_2 = shape_sphere_mesh :: shape_sphere_longitudes=10, shape_sphere_latitudes=10;
+
+#! Create a Sphere #library
+Sphere is Shape::(shape_sphere_lod_1 if lod==@ else shape_sphere_lod_2, $1, uvmap=uvmap if uvmap else shape_sphere_uvmap);
+
+
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+shape_cube_vertices = [
+            -1.0, -1.0,  1.0,
+             1.0, -1.0,  1.0,
+             1.0,  1.0,  1.0,
+            -1.0,  1.0,  1.0,
+
+            -1.0, -1.0, -1.0,
+            -1.0,  1.0, -1.0,
+             1.0,  1.0, -1.0,
+             1.0, -1.0, -1.0,
+
+            -1.0,  1.0, -1.0,
+            -1.0,  1.0,  1.0,
+             1.0,  1.0,  1.0,
+             1.0,  1.0, -1.0,
+
+            -1.0, -1.0, -1.0,
+             1.0, -1.0, -1.0,
+             1.0, -1.0,  1.0,
+            -1.0, -1.0,  1.0,
+
+             1.0, -1.0, -1.0,
+             1.0,  1.0, -1.0,
+             1.0,  1.0,  1.0,
+             1.0, -1.0,  1.0,
+
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0,  1.0,
+            -1.0,  1.0,  1.0,
+            -1.0,  1.0, -1.0
+        ];
+
+shape_cube_normals = [
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0,
+
+       0.0,  0.0, -1.0,
+       0.0,  0.0, -1.0,
+       0.0,  0.0, -1.0,
+       0.0,  0.0, -1.0,
+
+       0.0,  1.0,  0.0,
+       0.0,  1.0,  0.0,
+       0.0,  1.0,  0.0,
+       0.0,  1.0,  0.0,
+
+       0.0, -1.0,  0.0,
+       0.0, -1.0,  0.0,
+       0.0, -1.0,  0.0,
+       0.0, -1.0,  0.0,
+
+       1.0,  0.0,  0.0,
+       1.0,  0.0,  0.0,
+       1.0,  0.0,  0.0,
+       1.0,  0.0,  0.0,
+
+      -1.0,  0.0,  0.0,
+      -1.0,  0.0,  0.0,
+      -1.0,  0.0,  0.0,
+      -1.0,  0.0,  0.0
+    ];
+
+shape_cube_indices = [
+            0, 1, 2,      0, 2, 3,
+            4, 5, 6,      4, 6, 7,
+            8, 9, 10,     8, 10, 11,
+            12, 13, 14,   12, 14, 15,
+            16, 17, 18,   16, 18, 19,
+            20, 21, 22,   20, 22, 23
+        ];
+
+shape_cube_textureCoords = [
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+      0.0, 0.0,
+
+      0.0, 1.0,
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+
+      1.0, 1.0,
+      0.0, 1.0,
+      0.0, 0.0,
+      1.0, 0.0,
+
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+      0.0, 0.0,
+
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0
+    ];
+
+shape_cube_uvmap = UVMap::shape_cube_textureCoords;
+
+shape_cube_mesh = Mesh::(shape_cube_vertices, normals=shape_cube_normals, indices=shape_cube_indices, kind="triangles");
+
+Cube is Shape::(shape_cube_mesh, $1, uvmap=uvmap if uvmap else shape_cube_uvmap);
+
+
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+shape_plane_vertices = [
+            -1.0, -1.0,  0.0,
+             1.0, -1.0,  0.0,
+             1.0,  1.0,  0.0,
+            -1.0,  1.0,  0.0
+        ];
+
+shape_plane_normals = [
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0
+    ];
+
+shape_plane_indices = [
+            0, 1, 2,      0, 2, 3
+        ];
+
+shape_plane_textureCoords = [
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0
+    ];
+
+shape_plane_uvmap = UVMap::shape_plane_textureCoords;
+
+shape_plane_mesh = Mesh::(shape_plane_vertices, normals=shape_plane_normals, indices=shape_plane_indices, kind="triangles");
+
+#! A 2D rectangular plane in 3D space. #library
+Plane is Shape::(shape_plane_mesh, $1, uvmap=uvmap if uvmap else shape_plane_uvmap);
+
+
+${{
+EdenUI.edgeTable = new Int32Array([
+0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
+0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
+0x190, 0x99 , 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c,
+0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93, 0xf99, 0xe90,
+0x230, 0x339, 0x33 , 0x13a, 0x636, 0x73f, 0x435, 0x53c,
+0xa3c, 0xb35, 0x83f, 0x936, 0xe3a, 0xf33, 0xc39, 0xd30,
+0x3a0, 0x2a9, 0x1a3, 0xaa , 0x7a6, 0x6af, 0x5a5, 0x4ac,
+0xbac, 0xaa5, 0x9af, 0x8a6, 0xfaa, 0xea3, 0xda9, 0xca0,
+0x460, 0x569, 0x663, 0x76a, 0x66 , 0x16f, 0x265, 0x36c,
+0xc6c, 0xd65, 0xe6f, 0xf66, 0x86a, 0x963, 0xa69, 0xb60,
+0x5f0, 0x4f9, 0x7f3, 0x6fa, 0x1f6, 0xff , 0x3f5, 0x2fc,
+0xdfc, 0xcf5, 0xfff, 0xef6, 0x9fa, 0x8f3, 0xbf9, 0xaf0,
+0x650, 0x759, 0x453, 0x55a, 0x256, 0x35f, 0x55 , 0x15c,
+0xe5c, 0xf55, 0xc5f, 0xd56, 0xa5a, 0xb53, 0x859, 0x950,
+0x7c0, 0x6c9, 0x5c3, 0x4ca, 0x3c6, 0x2cf, 0x1c5, 0xcc ,
+0xfcc, 0xec5, 0xdcf, 0xcc6, 0xbca, 0xac3, 0x9c9, 0x8c0,
+0x8c0, 0x9c9, 0xac3, 0xbca, 0xcc6, 0xdcf, 0xec5, 0xfcc,
+0xcc , 0x1c5, 0x2cf, 0x3c6, 0x4ca, 0x5c3, 0x6c9, 0x7c0,
+0x950, 0x859, 0xb53, 0xa5a, 0xd56, 0xc5f, 0xf55, 0xe5c,
+0x15c, 0x55 , 0x35f, 0x256, 0x55a, 0x453, 0x759, 0x650,
+0xaf0, 0xbf9, 0x8f3, 0x9fa, 0xef6, 0xfff, 0xcf5, 0xdfc,
+0x2fc, 0x3f5, 0xff , 0x1f6, 0x6fa, 0x7f3, 0x4f9, 0x5f0,
+0xb60, 0xa69, 0x963, 0x86a, 0xf66, 0xe6f, 0xd65, 0xc6c,
+0x36c, 0x265, 0x16f, 0x66 , 0x76a, 0x663, 0x569, 0x460,
+0xca0, 0xda9, 0xea3, 0xfaa, 0x8a6, 0x9af, 0xaa5, 0xbac,
+0x4ac, 0x5a5, 0x6af, 0x7a6, 0xaa , 0x1a3, 0x2a9, 0x3a0,
+0xd30, 0xc39, 0xf33, 0xe3a, 0x936, 0x83f, 0xb35, 0xa3c,
+0x53c, 0x435, 0x73f, 0x636, 0x13a, 0x33 , 0x339, 0x230,
+0xe90, 0xf99, 0xc93, 0xd9a, 0xa96, 0xb9f, 0x895, 0x99c,
+0x69c, 0x795, 0x49f, 0x596, 0x29a, 0x393, 0x99 , 0x190,
+0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c,
+0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0])
+
+EdenUI.triTable = new Int32Array([
+-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 1, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+1, 8, 3, 9, 8, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+1, 2, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 8, 3, 1, 2, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+9, 2, 10, 0, 2, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+2, 8, 3, 2, 10, 8, 10, 9, 8, -1, -1, -1, -1, -1, -1, -1,
+3, 11, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 11, 2, 8, 11, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+1, 9, 0, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+1, 11, 2, 1, 9, 11, 9, 8, 11, -1, -1, -1, -1, -1, -1, -1,
+3, 10, 1, 11, 10, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 10, 1, 0, 8, 10, 8, 11, 10, -1, -1, -1, -1, -1, -1, -1,
+3, 9, 0, 3, 11, 9, 11, 10, 9, -1, -1, -1, -1, -1, -1, -1,
+9, 8, 10, 10, 8, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+4, 7, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+4, 3, 0, 7, 3, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 1, 9, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+4, 1, 9, 4, 7, 1, 7, 3, 1, -1, -1, -1, -1, -1, -1, -1,
+1, 2, 10, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+3, 4, 7, 3, 0, 4, 1, 2, 10, -1, -1, -1, -1, -1, -1, -1,
+9, 2, 10, 9, 0, 2, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1,
+2, 10, 9, 2, 9, 7, 2, 7, 3, 7, 9, 4, -1, -1, -1, -1,
+8, 4, 7, 3, 11, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+11, 4, 7, 11, 2, 4, 2, 0, 4, -1, -1, -1, -1, -1, -1, -1,
+9, 0, 1, 8, 4, 7, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1,
+4, 7, 11, 9, 4, 11, 9, 11, 2, 9, 2, 1, -1, -1, -1, -1,
+3, 10, 1, 3, 11, 10, 7, 8, 4, -1, -1, -1, -1, -1, -1, -1,
+1, 11, 10, 1, 4, 11, 1, 0, 4, 7, 11, 4, -1, -1, -1, -1,
+4, 7, 8, 9, 0, 11, 9, 11, 10, 11, 0, 3, -1, -1, -1, -1,
+4, 7, 11, 4, 11, 9, 9, 11, 10, -1, -1, -1, -1, -1, -1, -1,
+9, 5, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+9, 5, 4, 0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 5, 4, 1, 5, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+8, 5, 4, 8, 3, 5, 3, 1, 5, -1, -1, -1, -1, -1, -1, -1,
+1, 2, 10, 9, 5, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+3, 0, 8, 1, 2, 10, 4, 9, 5, -1, -1, -1, -1, -1, -1, -1,
+5, 2, 10, 5, 4, 2, 4, 0, 2, -1, -1, -1, -1, -1, -1, -1,
+2, 10, 5, 3, 2, 5, 3, 5, 4, 3, 4, 8, -1, -1, -1, -1,
+9, 5, 4, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 11, 2, 0, 8, 11, 4, 9, 5, -1, -1, -1, -1, -1, -1, -1,
+0, 5, 4, 0, 1, 5, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1,
+2, 1, 5, 2, 5, 8, 2, 8, 11, 4, 8, 5, -1, -1, -1, -1,
+10, 3, 11, 10, 1, 3, 9, 5, 4, -1, -1, -1, -1, -1, -1, -1,
+4, 9, 5, 0, 8, 1, 8, 10, 1, 8, 11, 10, -1, -1, -1, -1,
+5, 4, 0, 5, 0, 11, 5, 11, 10, 11, 0, 3, -1, -1, -1, -1,
+5, 4, 8, 5, 8, 10, 10, 8, 11, -1, -1, -1, -1, -1, -1, -1,
+9, 7, 8, 5, 7, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+9, 3, 0, 9, 5, 3, 5, 7, 3, -1, -1, -1, -1, -1, -1, -1,
+0, 7, 8, 0, 1, 7, 1, 5, 7, -1, -1, -1, -1, -1, -1, -1,
+1, 5, 3, 3, 5, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+9, 7, 8, 9, 5, 7, 10, 1, 2, -1, -1, -1, -1, -1, -1, -1,
+10, 1, 2, 9, 5, 0, 5, 3, 0, 5, 7, 3, -1, -1, -1, -1,
+8, 0, 2, 8, 2, 5, 8, 5, 7, 10, 5, 2, -1, -1, -1, -1,
+2, 10, 5, 2, 5, 3, 3, 5, 7, -1, -1, -1, -1, -1, -1, -1,
+7, 9, 5, 7, 8, 9, 3, 11, 2, -1, -1, -1, -1, -1, -1, -1,
+9, 5, 7, 9, 7, 2, 9, 2, 0, 2, 7, 11, -1, -1, -1, -1,
+2, 3, 11, 0, 1, 8, 1, 7, 8, 1, 5, 7, -1, -1, -1, -1,
+11, 2, 1, 11, 1, 7, 7, 1, 5, -1, -1, -1, -1, -1, -1, -1,
+9, 5, 8, 8, 5, 7, 10, 1, 3, 10, 3, 11, -1, -1, -1, -1,
+5, 7, 0, 5, 0, 9, 7, 11, 0, 1, 0, 10, 11, 10, 0, -1,
+11, 10, 0, 11, 0, 3, 10, 5, 0, 8, 0, 7, 5, 7, 0, -1,
+11, 10, 5, 7, 11, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+10, 6, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 8, 3, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+9, 0, 1, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+1, 8, 3, 1, 9, 8, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1,
+1, 6, 5, 2, 6, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+1, 6, 5, 1, 2, 6, 3, 0, 8, -1, -1, -1, -1, -1, -1, -1,
+9, 6, 5, 9, 0, 6, 0, 2, 6, -1, -1, -1, -1, -1, -1, -1,
+5, 9, 8, 5, 8, 2, 5, 2, 6, 3, 2, 8, -1, -1, -1, -1,
+2, 3, 11, 10, 6, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+11, 0, 8, 11, 2, 0, 10, 6, 5, -1, -1, -1, -1, -1, -1, -1,
+0, 1, 9, 2, 3, 11, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1,
+5, 10, 6, 1, 9, 2, 9, 11, 2, 9, 8, 11, -1, -1, -1, -1,
+6, 3, 11, 6, 5, 3, 5, 1, 3, -1, -1, -1, -1, -1, -1, -1,
+0, 8, 11, 0, 11, 5, 0, 5, 1, 5, 11, 6, -1, -1, -1, -1,
+3, 11, 6, 0, 3, 6, 0, 6, 5, 0, 5, 9, -1, -1, -1, -1,
+6, 5, 9, 6, 9, 11, 11, 9, 8, -1, -1, -1, -1, -1, -1, -1,
+5, 10, 6, 4, 7, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+4, 3, 0, 4, 7, 3, 6, 5, 10, -1, -1, -1, -1, -1, -1, -1,
+1, 9, 0, 5, 10, 6, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1,
+10, 6, 5, 1, 9, 7, 1, 7, 3, 7, 9, 4, -1, -1, -1, -1,
+6, 1, 2, 6, 5, 1, 4, 7, 8, -1, -1, -1, -1, -1, -1, -1,
+1, 2, 5, 5, 2, 6, 3, 0, 4, 3, 4, 7, -1, -1, -1, -1,
+8, 4, 7, 9, 0, 5, 0, 6, 5, 0, 2, 6, -1, -1, -1, -1,
+7, 3, 9, 7, 9, 4, 3, 2, 9, 5, 9, 6, 2, 6, 9, -1,
+3, 11, 2, 7, 8, 4, 10, 6, 5, -1, -1, -1, -1, -1, -1, -1,
+5, 10, 6, 4, 7, 2, 4, 2, 0, 2, 7, 11, -1, -1, -1, -1,
+0, 1, 9, 4, 7, 8, 2, 3, 11, 5, 10, 6, -1, -1, -1, -1,
+9, 2, 1, 9, 11, 2, 9, 4, 11, 7, 11, 4, 5, 10, 6, -1,
+8, 4, 7, 3, 11, 5, 3, 5, 1, 5, 11, 6, -1, -1, -1, -1,
+5, 1, 11, 5, 11, 6, 1, 0, 11, 7, 11, 4, 0, 4, 11, -1,
+0, 5, 9, 0, 6, 5, 0, 3, 6, 11, 6, 3, 8, 4, 7, -1,
+6, 5, 9, 6, 9, 11, 4, 7, 9, 7, 11, 9, -1, -1, -1, -1,
+10, 4, 9, 6, 4, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+4, 10, 6, 4, 9, 10, 0, 8, 3, -1, -1, -1, -1, -1, -1, -1,
+10, 0, 1, 10, 6, 0, 6, 4, 0, -1, -1, -1, -1, -1, -1, -1,
+8, 3, 1, 8, 1, 6, 8, 6, 4, 6, 1, 10, -1, -1, -1, -1,
+1, 4, 9, 1, 2, 4, 2, 6, 4, -1, -1, -1, -1, -1, -1, -1,
+3, 0, 8, 1, 2, 9, 2, 4, 9, 2, 6, 4, -1, -1, -1, -1,
+0, 2, 4, 4, 2, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+8, 3, 2, 8, 2, 4, 4, 2, 6, -1, -1, -1, -1, -1, -1, -1,
+10, 4, 9, 10, 6, 4, 11, 2, 3, -1, -1, -1, -1, -1, -1, -1,
+0, 8, 2, 2, 8, 11, 4, 9, 10, 4, 10, 6, -1, -1, -1, -1,
+3, 11, 2, 0, 1, 6, 0, 6, 4, 6, 1, 10, -1, -1, -1, -1,
+6, 4, 1, 6, 1, 10, 4, 8, 1, 2, 1, 11, 8, 11, 1, -1,
+9, 6, 4, 9, 3, 6, 9, 1, 3, 11, 6, 3, -1, -1, -1, -1,
+8, 11, 1, 8, 1, 0, 11, 6, 1, 9, 1, 4, 6, 4, 1, -1,
+3, 11, 6, 3, 6, 0, 0, 6, 4, -1, -1, -1, -1, -1, -1, -1,
+6, 4, 8, 11, 6, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+7, 10, 6, 7, 8, 10, 8, 9, 10, -1, -1, -1, -1, -1, -1, -1,
+0, 7, 3, 0, 10, 7, 0, 9, 10, 6, 7, 10, -1, -1, -1, -1,
+10, 6, 7, 1, 10, 7, 1, 7, 8, 1, 8, 0, -1, -1, -1, -1,
+10, 6, 7, 10, 7, 1, 1, 7, 3, -1, -1, -1, -1, -1, -1, -1,
+1, 2, 6, 1, 6, 8, 1, 8, 9, 8, 6, 7, -1, -1, -1, -1,
+2, 6, 9, 2, 9, 1, 6, 7, 9, 0, 9, 3, 7, 3, 9, -1,
+7, 8, 0, 7, 0, 6, 6, 0, 2, -1, -1, -1, -1, -1, -1, -1,
+7, 3, 2, 6, 7, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+2, 3, 11, 10, 6, 8, 10, 8, 9, 8, 6, 7, -1, -1, -1, -1,
+2, 0, 7, 2, 7, 11, 0, 9, 7, 6, 7, 10, 9, 10, 7, -1,
+1, 8, 0, 1, 7, 8, 1, 10, 7, 6, 7, 10, 2, 3, 11, -1,
+11, 2, 1, 11, 1, 7, 10, 6, 1, 6, 7, 1, -1, -1, -1, -1,
+8, 9, 6, 8, 6, 7, 9, 1, 6, 11, 6, 3, 1, 3, 6, -1,
+0, 9, 1, 11, 6, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+7, 8, 0, 7, 0, 6, 3, 11, 0, 11, 6, 0, -1, -1, -1, -1,
+7, 11, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+7, 6, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+3, 0, 8, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 1, 9, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+8, 1, 9, 8, 3, 1, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1,
+10, 1, 2, 6, 11, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+1, 2, 10, 3, 0, 8, 6, 11, 7, -1, -1, -1, -1, -1, -1, -1,
+2, 9, 0, 2, 10, 9, 6, 11, 7, -1, -1, -1, -1, -1, -1, -1,
+6, 11, 7, 2, 10, 3, 10, 8, 3, 10, 9, 8, -1, -1, -1, -1,
+7, 2, 3, 6, 2, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+7, 0, 8, 7, 6, 0, 6, 2, 0, -1, -1, -1, -1, -1, -1, -1,
+2, 7, 6, 2, 3, 7, 0, 1, 9, -1, -1, -1, -1, -1, -1, -1,
+1, 6, 2, 1, 8, 6, 1, 9, 8, 8, 7, 6, -1, -1, -1, -1,
+10, 7, 6, 10, 1, 7, 1, 3, 7, -1, -1, -1, -1, -1, -1, -1,
+10, 7, 6, 1, 7, 10, 1, 8, 7, 1, 0, 8, -1, -1, -1, -1,
+0, 3, 7, 0, 7, 10, 0, 10, 9, 6, 10, 7, -1, -1, -1, -1,
+7, 6, 10, 7, 10, 8, 8, 10, 9, -1, -1, -1, -1, -1, -1, -1,
+6, 8, 4, 11, 8, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+3, 6, 11, 3, 0, 6, 0, 4, 6, -1, -1, -1, -1, -1, -1, -1,
+8, 6, 11, 8, 4, 6, 9, 0, 1, -1, -1, -1, -1, -1, -1, -1,
+9, 4, 6, 9, 6, 3, 9, 3, 1, 11, 3, 6, -1, -1, -1, -1,
+6, 8, 4, 6, 11, 8, 2, 10, 1, -1, -1, -1, -1, -1, -1, -1,
+1, 2, 10, 3, 0, 11, 0, 6, 11, 0, 4, 6, -1, -1, -1, -1,
+4, 11, 8, 4, 6, 11, 0, 2, 9, 2, 10, 9, -1, -1, -1, -1,
+10, 9, 3, 10, 3, 2, 9, 4, 3, 11, 3, 6, 4, 6, 3, -1,
+8, 2, 3, 8, 4, 2, 4, 6, 2, -1, -1, -1, -1, -1, -1, -1,
+0, 4, 2, 4, 6, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+1, 9, 0, 2, 3, 4, 2, 4, 6, 4, 3, 8, -1, -1, -1, -1,
+1, 9, 4, 1, 4, 2, 2, 4, 6, -1, -1, -1, -1, -1, -1, -1,
+8, 1, 3, 8, 6, 1, 8, 4, 6, 6, 10, 1, -1, -1, -1, -1,
+10, 1, 0, 10, 0, 6, 6, 0, 4, -1, -1, -1, -1, -1, -1, -1,
+4, 6, 3, 4, 3, 8, 6, 10, 3, 0, 3, 9, 10, 9, 3, -1,
+10, 9, 4, 6, 10, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+4, 9, 5, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 8, 3, 4, 9, 5, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1,
+5, 0, 1, 5, 4, 0, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1,
+11, 7, 6, 8, 3, 4, 3, 5, 4, 3, 1, 5, -1, -1, -1, -1,
+9, 5, 4, 10, 1, 2, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1,
+6, 11, 7, 1, 2, 10, 0, 8, 3, 4, 9, 5, -1, -1, -1, -1,
+7, 6, 11, 5, 4, 10, 4, 2, 10, 4, 0, 2, -1, -1, -1, -1,
+3, 4, 8, 3, 5, 4, 3, 2, 5, 10, 5, 2, 11, 7, 6, -1,
+7, 2, 3, 7, 6, 2, 5, 4, 9, -1, -1, -1, -1, -1, -1, -1,
+9, 5, 4, 0, 8, 6, 0, 6, 2, 6, 8, 7, -1, -1, -1, -1,
+3, 6, 2, 3, 7, 6, 1, 5, 0, 5, 4, 0, -1, -1, -1, -1,
+6, 2, 8, 6, 8, 7, 2, 1, 8, 4, 8, 5, 1, 5, 8, -1,
+9, 5, 4, 10, 1, 6, 1, 7, 6, 1, 3, 7, -1, -1, -1, -1,
+1, 6, 10, 1, 7, 6, 1, 0, 7, 8, 7, 0, 9, 5, 4, -1,
+4, 0, 10, 4, 10, 5, 0, 3, 10, 6, 10, 7, 3, 7, 10, -1,
+7, 6, 10, 7, 10, 8, 5, 4, 10, 4, 8, 10, -1, -1, -1, -1,
+6, 9, 5, 6, 11, 9, 11, 8, 9, -1, -1, -1, -1, -1, -1, -1,
+3, 6, 11, 0, 6, 3, 0, 5, 6, 0, 9, 5, -1, -1, -1, -1,
+0, 11, 8, 0, 5, 11, 0, 1, 5, 5, 6, 11, -1, -1, -1, -1,
+6, 11, 3, 6, 3, 5, 5, 3, 1, -1, -1, -1, -1, -1, -1, -1,
+1, 2, 10, 9, 5, 11, 9, 11, 8, 11, 5, 6, -1, -1, -1, -1,
+0, 11, 3, 0, 6, 11, 0, 9, 6, 5, 6, 9, 1, 2, 10, -1,
+11, 8, 5, 11, 5, 6, 8, 0, 5, 10, 5, 2, 0, 2, 5, -1,
+6, 11, 3, 6, 3, 5, 2, 10, 3, 10, 5, 3, -1, -1, -1, -1,
+5, 8, 9, 5, 2, 8, 5, 6, 2, 3, 8, 2, -1, -1, -1, -1,
+9, 5, 6, 9, 6, 0, 0, 6, 2, -1, -1, -1, -1, -1, -1, -1,
+1, 5, 8, 1, 8, 0, 5, 6, 8, 3, 8, 2, 6, 2, 8, -1,
+1, 5, 6, 2, 1, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+1, 3, 6, 1, 6, 10, 3, 8, 6, 5, 6, 9, 8, 9, 6, -1,
+10, 1, 0, 10, 0, 6, 9, 5, 0, 5, 6, 0, -1, -1, -1, -1,
+0, 3, 8, 5, 6, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+10, 5, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+11, 5, 10, 7, 5, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+11, 5, 10, 11, 7, 5, 8, 3, 0, -1, -1, -1, -1, -1, -1, -1,
+5, 11, 7, 5, 10, 11, 1, 9, 0, -1, -1, -1, -1, -1, -1, -1,
+10, 7, 5, 10, 11, 7, 9, 8, 1, 8, 3, 1, -1, -1, -1, -1,
+11, 1, 2, 11, 7, 1, 7, 5, 1, -1, -1, -1, -1, -1, -1, -1,
+0, 8, 3, 1, 2, 7, 1, 7, 5, 7, 2, 11, -1, -1, -1, -1,
+9, 7, 5, 9, 2, 7, 9, 0, 2, 2, 11, 7, -1, -1, -1, -1,
+7, 5, 2, 7, 2, 11, 5, 9, 2, 3, 2, 8, 9, 8, 2, -1,
+2, 5, 10, 2, 3, 5, 3, 7, 5, -1, -1, -1, -1, -1, -1, -1,
+8, 2, 0, 8, 5, 2, 8, 7, 5, 10, 2, 5, -1, -1, -1, -1,
+9, 0, 1, 5, 10, 3, 5, 3, 7, 3, 10, 2, -1, -1, -1, -1,
+9, 8, 2, 9, 2, 1, 8, 7, 2, 10, 2, 5, 7, 5, 2, -1,
+1, 3, 5, 3, 7, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 8, 7, 0, 7, 1, 1, 7, 5, -1, -1, -1, -1, -1, -1, -1,
+9, 0, 3, 9, 3, 5, 5, 3, 7, -1, -1, -1, -1, -1, -1, -1,
+9, 8, 7, 5, 9, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+5, 8, 4, 5, 10, 8, 10, 11, 8, -1, -1, -1, -1, -1, -1, -1,
+5, 0, 4, 5, 11, 0, 5, 10, 11, 11, 3, 0, -1, -1, -1, -1,
+0, 1, 9, 8, 4, 10, 8, 10, 11, 10, 4, 5, -1, -1, -1, -1,
+10, 11, 4, 10, 4, 5, 11, 3, 4, 9, 4, 1, 3, 1, 4, -1,
+2, 5, 1, 2, 8, 5, 2, 11, 8, 4, 5, 8, -1, -1, -1, -1,
+0, 4, 11, 0, 11, 3, 4, 5, 11, 2, 11, 1, 5, 1, 11, -1,
+0, 2, 5, 0, 5, 9, 2, 11, 5, 4, 5, 8, 11, 8, 5, -1,
+9, 4, 5, 2, 11, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+2, 5, 10, 3, 5, 2, 3, 4, 5, 3, 8, 4, -1, -1, -1, -1,
+5, 10, 2, 5, 2, 4, 4, 2, 0, -1, -1, -1, -1, -1, -1, -1,
+3, 10, 2, 3, 5, 10, 3, 8, 5, 4, 5, 8, 0, 1, 9, -1,
+5, 10, 2, 5, 2, 4, 1, 9, 2, 9, 4, 2, -1, -1, -1, -1,
+8, 4, 5, 8, 5, 3, 3, 5, 1, -1, -1, -1, -1, -1, -1, -1,
+0, 4, 5, 1, 0, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+8, 4, 5, 8, 5, 3, 9, 0, 5, 0, 3, 5, -1, -1, -1, -1,
+9, 4, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+4, 11, 7, 4, 9, 11, 9, 10, 11, -1, -1, -1, -1, -1, -1, -1,
+0, 8, 3, 4, 9, 7, 9, 11, 7, 9, 10, 11, -1, -1, -1, -1,
+1, 10, 11, 1, 11, 4, 1, 4, 0, 7, 4, 11, -1, -1, -1, -1,
+3, 1, 4, 3, 4, 8, 1, 10, 4, 7, 4, 11, 10, 11, 4, -1,
+4, 11, 7, 9, 11, 4, 9, 2, 11, 9, 1, 2, -1, -1, -1, -1,
+9, 7, 4, 9, 11, 7, 9, 1, 11, 2, 11, 1, 0, 8, 3, -1,
+11, 7, 4, 11, 4, 2, 2, 4, 0, -1, -1, -1, -1, -1, -1, -1,
+11, 7, 4, 11, 4, 2, 8, 3, 4, 3, 2, 4, -1, -1, -1, -1,
+2, 9, 10, 2, 7, 9, 2, 3, 7, 7, 4, 9, -1, -1, -1, -1,
+9, 10, 7, 9, 7, 4, 10, 2, 7, 8, 7, 0, 2, 0, 7, -1,
+3, 7, 10, 3, 10, 2, 7, 4, 10, 1, 10, 0, 4, 0, 10, -1,
+1, 10, 2, 8, 7, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+4, 9, 1, 4, 1, 7, 7, 1, 3, -1, -1, -1, -1, -1, -1, -1,
+4, 9, 1, 4, 1, 7, 0, 8, 1, 8, 7, 1, -1, -1, -1, -1,
+4, 0, 3, 7, 4, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+4, 8, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+9, 10, 8, 10, 11, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+3, 0, 9, 3, 9, 11, 11, 9, 10, -1, -1, -1, -1, -1, -1, -1,
+0, 1, 10, 0, 10, 8, 8, 10, 11, -1, -1, -1, -1, -1, -1, -1,
+3, 1, 10, 11, 3, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+1, 2, 11, 1, 11, 9, 9, 11, 8, -1, -1, -1, -1, -1, -1, -1,
+3, 0, 9, 3, 9, 11, 1, 2, 9, 2, 11, 9, -1, -1, -1, -1,
+0, 2, 11, 8, 0, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+3, 2, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+2, 3, 8, 2, 8, 10, 10, 8, 9, -1, -1, -1, -1, -1, -1, -1,
+9, 10, 2, 0, 9, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+2, 3, 8, 2, 8, 10, 0, 1, 8, 1, 10, 8, -1, -1, -1, -1,
+1, 10, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+1, 3, 8, 9, 1, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
+}}$
+
+
+${{
+
+}}$
+
+func IsoSurfaceSN {
+	para values,size,axisMin,axisRange;
+	${{ var tet = surfaceNets(size, values,axisMin,axisRange);
+	return [tet.positions,tet.normals]; }}$;
+}
+
+func IsoSurfaceMC {
+	para values,size,axisMin,axisRange;
+
+	${{
+	// Marching Cubes Algorithm
+	console.time("IsoSurface");
+	
+	var size2 = size * size;
+	// Vertices may occur along edges of cube, when the values at the edge's endpoints
+	//   straddle the isolevel value.
+	// Actual position along edge weighted according to function values.
+	var vlist = new Array(12);
+	
+	var vertexIndex = 0;
+
+	//var points = [];
+	var vertices = [];
+	var normals = [];
+
+	var delta = axisRange / (size);
+
+	/*for (var k = 0; k < size; k++)
+	for (var j = 0; j < size; j++)
+	for (var i = 0; i < size; i++)
+	{
+		// actual values
+		var x = axisMin + axisRange * i / (size - 1);
+		var y = axisMin + axisRange * j / (size - 1);
+		var z = axisMin + axisRange * k / (size - 1);
+		points.push( new Point3D(x,y,z) );
+	}*/
+
+	var point_x = axisMin;
+	var point_y = axisMin;
+	var point_z = axisMin;
+	
+	for (var z = 0; z < size - 1; z++) {
+	for (var y = 0; y < size - 1; y++) {
+	for (var x = 0; x < size - 1; x++)
+	{
+		// index of base point, and also adjacent points on cube
+		var p    = x + size * y + size2 * z,
+			px   = p   + 1,
+			py   = p   + size,
+			pxy  = py  + 1,
+			pz   = p   + size2,
+			pxz  = px  + size2,
+			pyz  = py  + size2,
+			pxyz = pxy + size2;
+		
+		// store scalar values corresponding to vertices
+		var value0 = values[ p    ],
+			value1 = values[ px   ],
+			value2 = values[ py   ],
+			value3 = values[ pxy  ],
+			value4 = values[ pz   ],
+			value5 = values[ pxz  ],
+			value6 = values[ pyz  ],
+			value7 = values[ pxyz ];
+		
+		// place a "1" in bit positions corresponding to vertices whose
+		//   isovalue is less than given constant.
+		
+		var isolevel = 0;
+		
+		var cubeindex = 0;
+		if ( value0 >= isolevel ) cubeindex |= 1;
+		if ( value1 >= isolevel ) cubeindex |= 2;
+		if ( value2 >= isolevel ) cubeindex |= 8;
+		if ( value3 >= isolevel ) cubeindex |= 4;
+		if ( value4 >= isolevel ) cubeindex |= 16;
+		if ( value5 >= isolevel ) cubeindex |= 32;
+		if ( value6 >= isolevel ) cubeindex |= 128;
+		if ( value7 >= isolevel ) cubeindex |= 64;
+		
+		// bits = 12 bit number, indicates which edges are crossed by the isosurface
+		var bits = EdenUI.edgeTable[ cubeindex ];
+		
+		// if none are crossed, proceed to next iteration
+		if ( bits === 0 ) {
+			point_x += delta;
+			continue;
+		}
+		
+		// check which edges are crossed, and estimate the point location
+		//    using a weighted average of scalar values at edge endpoints.
+		// store the vertex in an array for use later.
+		var mu = 0.5; 
+		
+		// bottom of the cube
+		if ( bits & 1 )
+		{
+			mu = ( isolevel - value0 ) / ( value1 - value0 );
+			//vlist[0] = points[p].lerp( points[px], mu );
+			vlist[0] = [point_x + mu*delta, point_y, point_z];
+		}
+		if ( bits & 2 )
+		{
+			mu = ( isolevel - value1 ) / ( value3 - value1 );
+			//vlist[1] = points[px].lerp( points[pxy], mu );
+			vlist[1] = [point_x+delta, point_y + mu*delta, point_z];
+		}
+		if ( bits & 4 )
+		{
+			mu = ( isolevel - value2 ) / ( value3 - value2 );
+			//vlist[2] = points[py].lerp( points[pxy], mu );
+			vlist[2] = [point_x+mu*delta, point_y+delta,point_z];
+		}
+		if ( bits & 8 )
+		{
+			mu = ( isolevel - value0 ) / ( value2 - value0 );
+			//vlist[3] = points[p].lerp( points[py], mu );
+			vlist[3] = [point_x,point_y+mu*delta,point_z];
+		}
+		// top of the cube
+		if ( bits & 16 )
+		{
+			mu = ( isolevel - value4 ) / ( value5 - value4 );
+			//vlist[4] = points[pz].lerp( points[pxz], mu );
+			vlist[4] = [point_x+mu*delta,point_y,point_z+delta];
+		}
+		if ( bits & 32 )
+		{
+			mu = ( isolevel - value5 ) / ( value7 - value5 );
+			//vlist[5] = points[pxz].lerp( points[pxyz], mu );
+			vlist[5] = [point_x+delta,point_y+mu*delta,point_z+delta];
+		}
+		if ( bits & 64 )
+		{
+			mu = ( isolevel - value6 ) / ( value7 - value6 );
+			//vlist[6] = points[pyz].lerp( points[pxyz], mu );
+			vlist[6] = [point_x+mu*delta,point_y+delta,point_z+delta];
+		}
+		if ( bits & 128 )
+		{
+			mu = ( isolevel - value4 ) / ( value6 - value4 );
+			//vlist[7] = points[pz].lerp( points[pyz], mu );
+			vlist[7] = [point_x,point_y+mu*delta,point_z+delta];
+		}
+		// vertical lines of the cube
+		if ( bits & 256 )
+		{
+			mu = ( isolevel - value0 ) / ( value4 - value0 );
+			//vlist[8] = points[p].lerp( points[pz], mu );
+			vlist[8] = [point_x,point_y,point_z+mu*delta];
+		}
+		if ( bits & 512 )
+		{
+			mu = ( isolevel - value1 ) / ( value5 - value1 );
+			//vlist[9] = points[px].lerp( points[pxz], mu );
+			vlist[9] = [point_x+delta,point_y,point_z+mu*delta];
+		}
+		if ( bits & 1024 )
+		{
+			mu = ( isolevel - value3 ) / ( value7 - value3 );
+			//vlist[10] = points[pxy].lerp( points[pxyz], mu );
+			vlist[10] = [point_x+delta,point_y+delta,point_z+mu*delta];
+		}
+		if ( bits & 2048 )
+		{
+			mu = ( isolevel - value2 ) / ( value6 - value2 );
+			//vlist[11] = points[py].lerp( points[pyz], mu );
+			vlist[11] = [point_x,point_y+delta,point_z+mu*delta];
+		}
+		
+		// construct triangles -- get correct vertices from triTable.
+		var i = 0;
+		cubeindex <<= 4;  // multiply by 16... 
+		// "Re-purpose cubeindex into an offset into triTable." 
+		//  since each row really isn't a row.
+		// the while loop should run at most 5 times,
+		//   since the 16th entry in each row is a -1.
+		while ( EdenUI.triTable[ cubeindex + i ] != -1 ) 
+		{
+			var index1 = EdenUI.triTable[cubeindex + i];
+			var index2 = EdenUI.triTable[cubeindex + i + 1];
+			var index3 = EdenUI.triTable[cubeindex + i + 2];
+
+			//if (vlist[index3].z < 0 && z >= 49) zcount++;
+			
+			vertices.push( vlist[index1][0], vlist[index1][1], vlist[index1][2] );
+			vertices.push( vlist[index2][0], vlist[index2][1], vlist[index2][2] );
+			vertices.push( vlist[index3][0], vlist[index3][1], vlist[index3][2] );
+			vertexIndex += 3;
+			i += 3;
+
+			var norm = Point3D.normal(vlist[index1],vlist[index2],vlist[index3]);
+			normals.push(norm.x,norm.y,norm.z);
+			normals.push(norm.x,norm.y,norm.z);
+			normals.push(norm.x,norm.y,norm.z);
+		}
+		point_x += delta;
+	}
+		point_x = axisMin;
+		point_y += delta;
+	}
+		point_x = axisMin;
+		point_y = axisMin;
+		point_z += delta;
+	}
+
+	console.timeEnd("IsoSurface");
+	return [vertices,normals];
+	}}$
+}
+
+## Copyright (c) 2013, Empirical Modelling Group
+## All rights reserved.
+##
+## See LICENSE.txt
+
+
+${{
+Line3D = function(start, end, colour, width) {
+	this.start = start;
+	this.end = end;
+	this.colour = (colour)?colour:"black";
+	this.width = (width)?width:2;
+
+	this.vbufs = {};
+	this.nbufs = {};
+	this.mbufs = {};
+	this.ibufs = {};
+}
+
+Line3D.makeShader = function(gl, viewname) {
+	// Per fragment lighting
+	var fragmentShader = EdenUI.plugins.Canvas2D.getShader(gl, `
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+uniform vec3 color;
+uniform float inner;
+varying float edge;
+
+const vec3 color2 = vec3(0.8);
+
+void main() {
+  float v = 1.0 - abs(edge);
+  v = smoothstep(0.65, 0.7, v*inner); 
+  gl_FragColor = mix(vec4(color, 1.0), vec4(0.0), v);
+}
+`,"fragment");
+
+	var vertexShader = EdenUI.plugins.Canvas2D.getShader(gl,`
+attribute vec2 position;
+attribute vec2 normal;
+attribute float miter; 
+uniform mat4 projection;
+uniform mat4 modelview;
+uniform float thickness;
+varying float edge;
+
+void main() {
+  edge = sign(miter);
+  vec2 pointPos = position.xy + vec2(normal * thickness/2.0 * miter);
+  gl_Position = projection * modelview * vec4(pointPos, 0.0, 1.0);
+  gl_PointSize = 1.0;
+}
+`,"vertex");
+
+
+    shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+      alert("Could not initialise shaders");
+    }
+
+    gl.useProgram(shaderProgram);
+
+	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "position");
+    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+	shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
+    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+	shaderProgram.miterAttribute = gl.getAttribLocation(shaderProgram, "miter");
+   	gl.enableVertexAttribArray(shaderProgram.miterAttribute);
+
+	shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "projection");
+    shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "modelview");
+	shaderProgram.thicknessUniform = gl.getUniformLocation(shaderProgram, "thickness");
+	shaderProgram.innerUniform = gl.getUniformLocation(shaderProgram, "inner");
+	shaderProgram.colourUniform = gl.getUniformLocation(shaderProgram, "color");
+	Line3D.shaders[viewname] = shaderProgram;
+	return shaderProgram;
+}
+
+Line3D.shaders = {};
+
+}}$;
+
+#! Draw a line in 3D space. #library
+Line3D is ${{ new Line3D }}$ ($1, $2, colour, width);
+
+
+${{
+
+Line3D.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
+	var lineshader = Line3D.shaders[viewname];
+	if (!lineshader) lineshader = Line3D.makeShader(context, viewname);
+	context.useProgram(lineshader);
+
+	// Actually set the transform into the shader
+	context.uniformMatrix4fv(lineshader.mvMatrixUniform, false, mvMatrix);
+	context.uniformMatrix4fv(lineshader.pMatrixUniform, false, pMatrix);
+	context.uniform1f(lineshader.thicknessUniform, this.width);
+	context.uniform1f(lineshader.innerUniform, 0);
+
+	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
+			var r = colorobj.red() / 255;
+			var g = colorobj.green() / 255;
+			var b = colorobj.blue() / 255;
+
+	context.uniform3f(
+        lineshader.colourUniform,
+        r,
+        g,
+        b
+      );
+
+
+	if (this.vbufs[viewname] === undefined) {
+		this.vbufs[viewname] = context.createBuffer();
+		this.nbufs[viewname] = context.createBuffer();
+		this.mbufs[viewname] = context.createBuffer();
+		this.ibufs[viewname] = context.createBuffer();
+	}
+
+	var vertices = [
+		this.start.x, this.start.y,
+		this.end.x, this.end.y,
+		this.start.x, this.start.y,
+		this.end.x, this.end.y
+	];
+
+	var dx = this.end.x - this.start.x;
+	var dy = this.end.y - this.start.y;
+	var normals = [-dy,dx,dy,-dx,-dy,dx,dy,-dx];
+
+	var miters = [1,1,-1,-1];
+	var indices = [0,1,3,1,2,0];
+
+	context.bindBuffer(context.ARRAY_BUFFER, this.vbufs[viewname]);
+	context.bufferData(context.ARRAY_BUFFER, new Float32Array(vertices), context.DYNAMIC_DRAW);
+	context.vertexAttribPointer(lineshader.vertexPositionAttribute, 2, context.FLOAT, false, 0, 0);
+	context.bindBuffer(context.ARRAY_BUFFER, this.nbufs[viewname]);
+	context.bufferData(context.ARRAY_BUFFER, new Float32Array(normals), context.DYNAMIC_DRAW);
+	context.vertexAttribPointer(lineshader.vertexNormalAttribute, 2, context.FLOAT, false, 0, 0);
+	context.bindBuffer(context.ARRAY_BUFFER, this.mbufs[viewname]);
+	context.bufferData(context.ARRAY_BUFFER, new Float32Array(miters), context.DYNAMIC_DRAW);
+	context.vertexAttribPointer(lineshader.miterAttribute, 1, context.FLOAT, false, 0, 0);
+	context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, this.ibufs[viewname]);
+	context.bufferData(context.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), context.DYNAMIC_DRAW);
+
+	context.drawElements(context.TRIANGLES, 6, context.UNSIGNED_SHORT, 0);
+
+	context.useProgram(shader);
 };
 
 }}$;
