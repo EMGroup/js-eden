@@ -91,8 +91,10 @@ Eden.Peer = function(master, id) {
 	}
 
 	function processRegister(obj) {
+		console.log("Register peer",obj.id,obj.username);
 		Eden.Peer.emit("user", [obj.id,obj.username]);
 		eden.root.lookup("jseden_p2p_"+obj.id+"_name").assign(obj.username, eden.root.scope, EdenSymbol.localJSAgent);
+		me.connections[obj.id].connection.send(JSON.stringify({cmd: "status", status: "Connected", code: 1}));
 	}
 
 	function processGetSnapshot(obj) {
@@ -108,7 +110,9 @@ Eden.Peer = function(master, id) {
 			// Auto share state.
 			if (eden.project) {
 				var script = eden.project.generate();
-				pconn.connection.send(JSON.stringify({cmd: "restore", script: script}));
+				pconn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
+					vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
+					name: eden.project.name, title: eden.project.title}));
 			}
 			pconn.connection.send(JSON.stringify({cmd: "callback", data: true, cbid: obj.cbid}));
 			Eden.Peer.emit("share", [obj.id]);
@@ -163,6 +167,7 @@ Eden.Peer = function(master, id) {
 		case "restore"		: if (pconn.observe) processRestore(obj); break;
 		case "execstatus"	: if (pconn.observe) processExecStatus(obj); break;
 		case "register"		: processRegister(obj); break;
+		case "status"		: Eden.Peer.emit("status", [obj.status, obj.code]); break;
 		case "getsnapshot"	: processGetSnapshot(obj); break;
 		case "callback"		: processCallback(obj); break;
 		case "reqshare"		: processReqShare(obj); break;
@@ -201,7 +206,7 @@ Eden.Peer = function(master, id) {
 						eden.root.lookup("jseden_p2p_newconnections").append(conn.peer, eden.root.scope, EdenSymbol.localJSAgent);
 
 						// Register
-						conn.send(JSON.stringify({cmd: "register", username: Eden.DB.username, id: id}));
+						conn.send(JSON.stringify({cmd: "register", username: name, id: id}));
 					});
 				}
 			});
@@ -217,7 +222,9 @@ Eden.Peer = function(master, id) {
 					if (me.config.share) {
 						// Auto share state.
 						var script = eden.project.generate();
-						conn.send(JSON.stringify({cmd: "restore", script: script}));
+						conn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
+							vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
+							name: eden.project.name, title: eden.project.title}));
 					}
 				});
 			});
@@ -259,7 +266,7 @@ Eden.Peer = function(master, id) {
 	}
 	
 	Eden.DB.listenTo("login", this, init);
-	if (Eden.DB.isLoggedIn()) init(Eden.DB.username);
+	if (master || Eden.DB.isLoggedIn() && id) init((Eden.DB.username) ? Eden.DB.username : "Anonymous");
 
 	var capInSym = eden.root.lookup("jseden_p2p_captureinput");
 	capInSym.addJSObserver("p2p", function(sym, value) {

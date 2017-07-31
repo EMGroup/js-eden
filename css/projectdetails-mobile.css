@@ -80,6 +80,7 @@ div.jseden-dialog-plisting {
 			flex-direction: row;
 			flex-wrap: wrap;
 			overflow: hidden;
+			justify-content: center;
 		}
 
 		div.jseden-project-cat {
@@ -89,8 +90,9 @@ div.jseden-dialog-plisting {
 			/*font-weight: bold;*/
 			/*background: #416d77;*/
 			padding: 0 15px;
-			/*border-bottom: 1px solid #bbb;*/
-			margin-top: 10px;
+			border-bottom: 1px solid #bbb;
+			margin-bottom: 10px;
+			display: flex;
 		}
 
 		hr.jseden-project-cat {
@@ -99,12 +101,13 @@ div.jseden-dialog-plisting {
 
 div.projectsearchouter {
 	display: inline-block;
-	margin-left: 30px;
-	margin-right: 5px;
 	/*margin-top: 5px*/;
 	/*z-index: 2001;*/
-	position: relative;
-	top: -4px;
+	/*position: relative;
+	top: -4px;*/
+	width: 100%;
+	text-align: center;
+	margin-bottom: 10px;
 }
 
 div.projectsearchouter:before {
@@ -117,11 +120,11 @@ div.projectsearchouter:before {
 	background: none;
 	margin-top: 0;
 	/*z-index: 2001;*/
-	z-index: 2;
+	/*z-index: 2;*/
 	color: #bbb;
-	font-size: 14pt;
+	font-size: 16pt;
 	/*left: -285px;*/
-	top: 3px;
+	top: 2px;
 }
 
 select.projectsort {

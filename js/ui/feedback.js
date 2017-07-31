@@ -8,6 +8,9 @@ EdenUI.Feedback = function() {
 	this.odialog = document.createElement("div");
 	this.odialog.className = "feedback-dialog";
 	this.odialog.style.display = "none";
+	if (mobilecheck()) {
+		this.odialog.style.width = "90%";
+	}
 	document.getElementById("jseden-views").appendChild(this.odialog);
 
 	this.dialog = document.createElement("div");
