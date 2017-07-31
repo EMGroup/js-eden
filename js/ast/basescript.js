@@ -77,7 +77,7 @@ Eden.AST.BaseScript.insertBefore = function(before, ast) {
 		this.errors.push.apply(this.errors, ast.errors);
 	}
 
-	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
+	//if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
 }
 
 Eden.AST.BaseScript.removeChild = function(child) {
@@ -95,7 +95,7 @@ Eden.AST.BaseScript.removeChild = function(child) {
 	if (child.nextSibling) child.nextSibling.previousSibling = child.previousSibling;
 	if (child.previousSibling) child.previousSibling.nextSibling = child.nextSibling;
 	child.destroy();
-	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
+	//if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
 }
 
 Eden.AST.BaseScript.replaceChild = function(oldchild, newchild) {

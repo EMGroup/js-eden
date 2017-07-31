@@ -43,6 +43,11 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 		p = p.parent;
 	}
 
+	var added = [];
+	var removed = [];
+
+	var path = Eden.Selectors.getID(this);
+
 	// Transfer state
 	var statindex = {};
 	for (var i=0; i<this.statements.length; i++) {
@@ -53,23 +58,30 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 	for (var i=0; i<ast.statements.length; i++) {
 		var stat = ast.statements[i];
 		stat.buildID();
+
+		// Replace existing ... no change
 		if (statindex[stat.id] && statindex[stat.id].length > 0) {
 			//this.ast.script.statements[i] = statindex[stat.id];
 			ast.replaceChild(i, statindex[stat.id][0]);
 			statindex[stat.id].shift();
 			if (statindex[stat.id].length == 0) delete statindex[stat.id];
+		// Insert new statement
 		} else {
 			if (stat.type != "dummy" && this.indexed) stat.addIndex();
+			added.push({index: i, path: path, source: stat.getSource()});
 			//var stats = Eden.Selectors.queryWithin([stat], ">>");
 			//for (var j=0; j<stats.length; j++) Eden.Index.update(stats[j]);
 		}
 	}
+
+	// Remove any remaining
 	for (var x in statindex) {
 		var stats = statindex[x];
 		for (var i=0; i<stats.length; i++) {
 			if (stats[i].type == "when" && stats[i].enabled) {
 				eden.project.removeAgent(stats[i]);
 			}
+			removed.push({path: path, id: stats[i].id});
 			if (this.indexed && stats[i].executed == 0) {
 				//console.log("Remove index for",statindex[x]);
 				stats[i].removeIndex();
@@ -118,6 +130,8 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 	//for (var x in ast.scripts) {
 	//	p.base.scripts[x] = ast.scripts[x];
 	//}
+
+	return [added, removed];
 }
 
 Eden.AST.Script.prototype.patchOuter = function(node) {
