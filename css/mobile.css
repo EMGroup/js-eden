@@ -1,0 +1,152 @@
+
+
+
+div#loadoptions {
+	position: relative;
+	top: 40px;
+}
+
+
+
+div.project-content {
+	/*position: relative;
+	left: 5px;
+	width: calc(100% - 10px);*/
+	font-family: "Source Sans Pro",Arial,sans-serif;
+	font-size: 13pt;
+	line-height: 150%;
+}
+
+div.cadence-plisting-login {
+	/*width: 200px;
+	height: 150px;*/
+	margin: 5px;
+	background: #f5f5f5;
+	cursor: pointer;
+	color: #424249;
+	font-size: 18pt;
+	font-weight: bold;
+	font-family: "Source Sans Pro",Arial,sans-serif;
+	text-align: center;
+	border: 1px solid #ddd;
+	padding: 10px 30px;
+	/*text-shadow: 0 0 5px silver;*/
+}
+
+span.cadence-plisting-loginicon {
+	font-family: "FontAwesome";
+	margin-right: 10px;
+}
+
+
+div.importdialog {
+	position: absolute;
+	top: 65px;
+	right: 150px;
+	width: 400px;
+	height: 200px;
+	background: #f5f5f5;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
+	font-size: 12pt;
+	color: black;
+}
+
+span.importdialog-icon {
+	font-family: "FontAwesome";
+	margin-right: 20px;
+}
+
+div.importdialog-title {
+	font-size: 16pt;
+	font-weight: bold;
+	margin-top: 20px;
+	margin-left: 20px;
+	color: #666;
+}
+
+div.importdialog-content {
+	margin: 20px;
+	color: black;
+}
+
+input.projectsearch {
+	width: 70%;
+	background: white;
+	color: #222;
+	font-size: 14pt;
+	padding: 6px;
+	padding-left: 40px;
+	padding-top: 8px;
+	border: 1px solid #bbb;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+input.projectsearch:hover {
+	background: white;
+}
+
+input.projectsearch:focus {
+	background: white;
+}
+
+div.projectsearch:before {
+	color: white;
+	font-size: 14pt;
+	/*left: -285px;*/
+	top: 3px;
+}
+
+div#project-browser {
+	margin-top: 20px;
+}
+
+div.popular-tags {
+	font-size: 8pt;
+	margin-left: 35px;
+}
+
+div.popular-tags a {
+	margin-right: 5px;
+}
+
+div#projectbuttons {
+	background: #29454B;
+	vertical-align: middle;
+	/*line-height: 100px;*/
+	height: 300px;
+	color: white;
+	justify-content: center;
+	align-content: center;
+	flex-direction: column;
+	padding: 0 50px;
+}
+
+div#projectbuttons button {
+	background: #1a5e6d;
+	margin-bottom: 20px;
+	border: 2px solid white;
+	border-radius: 5px;
+	color: white;
+	outline: none;
+	height: 50px;
+	font-size: 14pt;
+	font-weight: bold;
+}
+
+div#projectbuttons button:hover {
+	background: #268ba1;
+}
+
+div#projectbuttons img {
+	margin-bottom: 40px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+span.icon {
+	font-family: 'FontAwesome';
+	margin-right: 10px;
+}

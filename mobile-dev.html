@@ -8,7 +8,7 @@ See LICENSE.txt
 
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=0.9">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="theme-color" content="#29454B" />
 	<title>JS-EDEN</title>
@@ -49,6 +49,7 @@ See LICENSE.txt
 	<link rel="stylesheet" type="text/css" href="plugins/observable-palette/observable-palette.css" />
 	<link rel="stylesheet" type="text/css" href="plugins/debugger/debugger.css" />
 	<link rel="stylesheet" type="text/css" media="print" href="css/print.css" />
+	<link rel="stylesheet" type="text/css" href="css/mobile.css">
 
 	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
 	<script type="text/javascript" src="js/lib/jquery-ui-1.12.1.min.js"></script>
@@ -71,204 +72,6 @@ See LICENSE.txt
 		.ui-dialog {
 			z-index: 9999;
 		}
-	</style>
-		<style type="text/css">
-
-		
-
-		div#loadoptions {
-			position: relative;
-			top: 40px;
-		}
-
-		
-
-		div.project-content {
-			/*position: relative;
-			left: 5px;
-			width: calc(100% - 10px);*/
-			font-family: "Source Sans Pro",Arial,sans-serif;
-			font-size: 13pt;
-			line-height: 150%;
-		}
-
-		div.cadence-plisting-login {
-			/*width: 200px;
-			height: 150px;*/
-			margin: 5px;
-			background: #f5f5f5;
-			cursor: pointer;
-			color: #424249;
-			font-size: 18pt;
-			font-weight: bold;
-			font-family: "Source Sans Pro",Arial,sans-serif;
-			text-align: center;
-			border: 1px solid #ddd;
-			padding: 10px 30px;
-			/*text-shadow: 0 0 5px silver;*/
-		}
-
-		span.cadence-plisting-loginicon {
-			font-family: "FontAwesome";
-			margin-right: 10px;
-		}
-
-
-		div.importdialog {
-			position: absolute;
-			top: 65px;
-			right: 150px;
-			width: 400px;
-			height: 200px;
-			background: #f5f5f5;
-			border-bottom-left-radius: 6px;
-			border-bottom-right-radius: 6px;
-			box-shadow: 0 0 15px #4a6887;
-			font-size: 12pt;
-			color: black;
-		}
-
-		span.importdialog-icon {
-			font-family: "FontAwesome";
-			margin-right: 20px;
-		}
-
-		div.importdialog-title {
-			font-size: 16pt;
-			font-weight: bold;
-			margin-top: 20px;
-			margin-left: 20px;
-			color: #666;
-		}
-
-		div.importdialog-content {
-			margin: 20px;
-			color: black;
-		}
-
-		input.projectsearch {
-			width: 200px;
-			background: #eee;
-			color: #222;
-			font-size: 10pt;
-			padding: 4px;
-			padding-left: 40px;
-			border: 1px solid #bbb;
-		}
-
-		input.projectsearch:hover {
-			background: white;
-		}
-
-		input.projectsearch:focus {
-			background: white;
-		}
-
-		div.projectsearch:before {
-			color: white;
-			font-size: 14pt;
-			/*left: -285px;*/
-			top: 3px;
-		}
-
-		div#welcometext {
-			text-align: justify;
-		}
-
-		button.welcomesignin {
-			font-size: 14pt;
-			font-weight: bold;
-			height: initial;
-			padding: 5px 10px;
-			background-color: #4B2945;
-			border-radius: 20px;
-			display: inline;
-			margin: 0;
-		}
-
-		button.welcomesignin span.icon {
-			font-family: "FontAwesome";
-			margin-right: 8px;
-		}
-
-		div.welcomelinks {
-			border-radius: 20px;
-			border: 1px solid #ccc;
-			background: white;
-			box-sizing: border-box;
-			display: inline-block;
-			margin-top: 20px;
-			margin-bottom: 20px;
-			font-size: 12pt;
-		}
-
-		div.welcomelinks a {
-			display: inline-block;
-			height: 100%;
-			padding: 0 10px;
-			border-right: 1px solid #ddd;
-		}
-
-		div.welcomelinks a:last-child {
-			border:right: none;
-		}
-
-		div.welcomelinks a:hover {
-			/*background: #ddd;*/
-		}
-
-		div#project-browser {
-			margin-top: 20px;
-		}
-
-		div.popular-tags {
-			font-size: 8pt;
-			margin-left: 35px;
-		}
-
-		div.popular-tags a {
-			margin-right: 5px;
-		}
-
-		div#projectbuttons {
-			background: #29454B;
-			vertical-align: middle;
-			/*line-height: 100px;*/
-			height: 400px;
-			color: white;
-			justify-content: center;
-			align-content: center;
-			flex-direction: column;
-			padding: 0 50px;
-		}
-
-		div#projectbuttons button {
-			background: #1a5e6d;
-			margin-bottom: 20px;
-			border: 2px solid white;
-			border-radius: 5px;
-			color: white;
-			outline: none;
-			height: 50px;
-			font-size: 14pt;
-			font-weight: bold;
-		}
-
-		div#projectbuttons button:hover {
-			background: #268ba1;
-		}
-
-		div#projectbuttons img {
-			margin-bottom: 40px;
-			margin-left: auto;
-			margin-right: auto;
-		}
-
-		span.icon {
-			font-family: 'FontAwesome';
-			margin-right: 10px;
-		}
-
 	</style>
 </head>
 <body>
@@ -528,97 +331,15 @@ See LICENSE.txt
 			});
 
 			lopts.css("display","block");
-			lopts.on("click","#restoreold",function() {
-				Eden.Project.restore();
-				lopts.css("display","none");
-			})
-			.on("click","#loadnew",function() {
-				Eden.Project.newFromExisting("NewProject");
-				lopts.css("display","none");
-			})
-			.on("click","#importfile",function() {
-				//Eden.loadFromURL("library2/NewProject.js-e");
-				lopts.css("display","none");
-				var importfile = $("#importdialog");
-				importfile.css("display","block");
-
-				importfile.on("click","#closeimport",function() {
-					importfile.css("display","none");
-					lopts.css("display","block");
-				})
-				.on("click","#openfile",function() {
-					var fileinput = $("#theimportfile").get(0);
-					var file = fileinput.files[0];
-					var filename = file.name;
-					filename = filename.substring(0,filename.lastIndexOf("."));
-					filename = filename.replace(/\([0-9]+\)/,"");
-					console.log("FILE",file);
-					var reader = new FileReader();
-					reader.onload = function(e) {
-						//Eden.loadFromString(e.target.result);
-						eden.project = new Eden.Project(undefined, filename, e.target.result.replace(/\r/g,""));
-						eden.project.start();
-						importfile.css("display","none");
-					};
-					reader.readAsText(file);
-				});
-			})
-			.on("click","#plist-login", function() {
-				if (Eden.DB.isConnected()) {
-					lopts.find("#jseden-private-projects").html("<div style=\"background: white; padding: 10px; border-radius: 5px;\"><div class=\"menubar-sharebox-title\"><span class=\"menubar-shareicon\">&#xf090;</span>Login</div><iframe frameborder=\"0\" src=\""+Eden.DB.remoteURL+"/login"+"\" name=\"logintarget\" width=\"550\" height=\"400\" class=\"menubar-login-iframe\"></iframe></div>");
-				}
-			})
-			.on("keyup",".search", function(e) {
-				var filter = e.currentTarget.parentNode.parentNode.getAttribute("data-filter");
-				var sortby = e.currentTarget.parentNode.nextElementSibling.value;
-				//console.log("Sort by " + sortby);
-
-				switch(sortby) {
-				case "Popular": sortby = "downloads"; break;
-				case "Rating": sortby = "rating"; break;
-				default: sortby = "";
-				}
-
-				//console.log("FILTER: " + filter);
-				//searchstr = e.currentTarget.value;
-				updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling.nextElementSibling);
-				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
+			lopts.on("keyup",".search", function(e) {
+				var sortby = "downloads";
+				var out = document.getElementById("project-searchresults");
+				updateSearch2(e.currentTarget.value, sortby, out);
 			})
 			.on("change",".search", function(e) {
-				var filter = e.currentTarget.parentNode.parentNode.getAttribute("data-filter");
-				var sortby = e.currentTarget.parentNode.nextElementSibling.value;
-				//console.log("Sort by " + sortby);
-
-				switch(sortby) {
-				case "Popular": sortby = "downloads"; break;
-				case "Rating": sortby = "rating"; break;
-				default: sortby = "";
-				}
-
-				//console.log("FILTER: " + filter);
-				//searchstr = e.currentTarget.value;
-				updateSearch2(filter+" "+e.currentTarget.value, sortby, e.currentTarget.parentNode.parentNode.nextElementSibling.nextElementSibling);
-				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
-			})
-			.on("change", ".projectsort", function(e) {
-				var filter = e.currentTarget.parentNode.getAttribute("data-filter");
-				var count = e.currentTarget.parentNode.getAttribute("data-count");
-				var sortby = e.currentTarget.value;
-				//console.log("Sort by " + sortby);
-
-				if (count === null || count == "") count = 10
-				else if (typeof count == "string") count = parseInt(count);
-
-				switch(sortby) {
-				case "Popular": sortby = "downloads"; break;
-				case "Rating": sortby = "rating"; break;
-				default: sortby = "";
-				}
-
-				//console.log("FILTER: " + filter);
-				//searchstr = e.currentTarget.value;
-				updateSearch2(filter + " " + e.currentTarget.previousElementSibling.firstChild.value, sortby, e.currentTarget.parentNode.nextElementSibling, count);
-				//console.log(e.currentTarget.parentNode.parentNode.nextElementSibling);
+				var sortby = "downloads";
+				var out = document.getElementById("project-searchresults");
+				updateSearch2(e.currentTarget.value, sortby, out);
 			})
 			.on("click",".projectmore", function(e) {
 				var filter = e.currentTarget.parentNode.getAttribute("data-filter");
@@ -674,24 +395,12 @@ See LICENSE.txt
 				var cat = document.createElement("div");
 				cat.className = "jseden-project-cat";
 				cat.setAttribute("data-filter",filter);
-				cat.innerHTML = title+'<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search '+name+'..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select><button class="script-button projectmore">See More</button>';
-				var poptags = document.createElement("div");
-				poptags.className = "popular-tags";
-				if (filter) {
-					Eden.DB.getPopularTags(filter.replace("#",""), function(tags) {
-						var html = "";
-						var count = (tags.length > 20) ? 20 : tags.length;
-						for (var i=0; i<count; i++) {
-							html += '<a href="#" onclick="this.parentNode.previousSibling.childNodes[1].childNodes[0].value = \''+tags[i]+'\'; return false;">'+tags[i]+'</a> ';
-						}
-						poptags.innerHTML = html;
-					});
-				}
+				cat.innerHTML = title+'<button style="display: inline-block;" class="script-button projectmore">See More</button>';
 				var cont = document.createElement("div");
 				cont.className = "jseden-dialog-plisting";
 				cont.id = "jseden-"+name+"-projects";
 				browser.appendChild(cat);
-				browser.appendChild(poptags);
+				//browser.appendChild(poptags);
 				browser.appendChild(cont);
 
 				displayProjects(name, filter, sortby);
@@ -743,7 +452,7 @@ See LICENSE.txt
 				}
 			} else {
 				//$("#welcometext").get(0).style.display = "block";
-				$("#project-browser").html('<p>Construal store: <span style="color:red; font-weight: bold;">offline</span>. Our server is undergoing maintenance, try again later or look at the selected examples below.</p><div class="jseden-project-cat">Examples:</div><div id="jseden-offline-projects" class="jseden-dialog-plisting"></div>');
+				$("#project-browser").html('<p>Construal store: <span style="color:red; font-weight: bold;">offline</span>. You are offline or our server is undergoing maintenance, try again later or look at the selected examples below.</p><div class="jseden-project-cat">Examples:</div><div id="jseden-offline-projects" class="jseden-dialog-plisting"></div>');
 				var plist = lopts.find("#jseden-offline-projects");
 
 				var projects = [];
@@ -811,25 +520,16 @@ See LICENSE.txt
 			<img width="278" src="images/construit_logo_5.png"/>
 			<button onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-In</button>
 			<button><span class="icon">&#xf0c1;</span>P2P Connect</button>
-			<button><span class="icon">&#xf002;</span>Browse</button>
 		</div>
-		<div id="project-browser" style="clear: right;">
+		<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search..."></input></div>
+		<div id="project-searchresults" class="jseden-dialog-plisting"></div>
+		<div id="project-browser">
 			<div id="privateprojects" style="display: none">
 			<div class="jseden-project-cat" data-filter=":me">Your Projects<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
 			<div id="jseden-private-projects" class="jseden-dialog-plisting">
 			</div>
 			</div>
 		</div>
-		</div>
-	</div>
-</div>
-
-<div id="importdialog" class="modal" style="display: none">
-	<div class="modal-content" style="width: 300px;">
-		<div class="importdialog-title"><span class="importdialog-icon">&#xf07c;</span>Import File</div>
-		<div class="importdialog-content">
-		<input id="theimportfile" type="file"></input><br/><br/>
-		<div style="text-align: center; margin-top: 20px;"><button class="jseden" id="openfile">Import</button><button class="jseden" id="closeimport">Cancel</button></div>
 		</div>
 	</div>
 </div>
