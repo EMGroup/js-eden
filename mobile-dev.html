@@ -491,6 +491,12 @@ See LICENSE.txt
 				//$("#welcometext").get(0).style.display = "none";
 				$("#privateprojects").get(0).style.display = "block";
 				//$("#projectbuttons").get(0).style.display = "flex";
+
+				document.getElementById("p2plisten").disabled = false;
+				document.getElementById("mobilelogin").style.display = "none";
+				document.getElementById("mobilelogout").style.display = "initial";
+
+				document.getElementById("menubar-obscurer").style.display = "none";
 			});
 
 			Eden.DB.listenTo("logout", this, function() {
@@ -502,8 +508,13 @@ See LICENSE.txt
 					plist.removeChild(node);
 					node = next;
 				}
+				document.getElementById("privateprojects").style.display = "none";
 
-				$("#welcometext").get(0).style.display = "block";
+				document.getElementById("p2plisten").disabled = true;
+				document.getElementById("mobilelogin").style.display = "initial";
+				document.getElementById("mobilelogout").style.display = "none";
+
+				//$("#welcometext").get(0).style.display = "block";
 				//displayProjects(true);
 			});
 
@@ -539,7 +550,8 @@ See LICENSE.txt
 		</div>
 		<div id="projectbuttons" class="jseden-dialog-plisting">
 			<img width="278" src="images/construit_logo_5.png"/>
-			<button onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-In</button>
+			<button id="mobilelogin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-In</button>
+			<button id="mobilelogout" style="display: none;" onclick="Eden.DB.logOut();"><span class="icon">&#xf08b;</span>Sign-Out</button>
 			<button onclick="document.getElementById('p2pconnect').style.display = 'flex';"><span class="icon">&#xf0c1;</span>P2P Connect</button>
 		</div>
 		<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search..."></input></div>
@@ -560,8 +572,8 @@ See LICENSE.txt
 	<input id="p2ppeer" type="text" placeholder="Peer Name..."></input>
 	<input id="p2proles" type="text" placeholder="Your Roles..."></input>
 	<button id="p2pgo"><span class="icon">&#xf0c1;</span>Connect</button>
-	<button id="p2plisten"><span class="icon">&#xf017;</span>Listen</button>
-	<button><span class="icon">&#xf00d;</span>Cancel</button>
+	<button id="p2plisten" disabled><span class="icon">&#xf017;</span>Listen</button>
+	<button onclick="document.getElementById('p2pconnect').style.display = 'none';"><span class="icon">&#xf00d;</span>Cancel</button>
 </div>
 
 <div id="p2pconnected" class="mobile-dialog" style="display: none;">
