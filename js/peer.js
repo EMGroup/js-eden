@@ -44,7 +44,7 @@ Eden.Peer = function(master, id) {
 		//sym.define(eval(obj.code), EdenSymbol.netAgent, obj.dependencies, obj.source);
 		var stat = Eden.AST.parseStatement(obj.source);
 		stat.local = true;
-		console.log("Define", obj.source, stat);
+		//console.log("Define", obj.source, stat);
 		stat.execute({}, EdenSymbol.netAgent, eden.root.scope);
 		me.broadcastExcept(obj.id, obj);
 	}
@@ -76,6 +76,7 @@ Eden.Peer = function(master, id) {
 		eden.project.authorid = obj.owner;
 		eden.project.start(function() {
 			Eden.Project.emit("load", [eden.project]);
+			me.loading = false;
 		});
 	}
 
@@ -160,6 +161,7 @@ Eden.Peer = function(master, id) {
 	function processData(conn, data) {
 		var obj = JSON.parse(data);
 		obj.id = conn.peer;
+		//console.log("P2P DATA",obj);
 		var pconn = me.connections[obj.id];
 		//console.log(obj.cmd,obj.symbol);
 
@@ -319,6 +321,7 @@ Eden.Peer.prototype.broadcast = function(msg) {
 	for (var x in this.connections) {
 		var pconn = this.connections[x];
 		if (pconn.share) {
+			//console.log("Send DATA",x,msg);
 			pconn.connection.send(msg);
 		}
 	}
@@ -426,10 +429,13 @@ Eden.Peer.prototype.requestObserve = function(id, cb) {
 		pconn.share = true;
 		pconn.connection.send(JSON.stringify({cmd: "reqobserve", value: true, cbid: this.addCallback(cb)}));
 		// Auto share state.
-		var script = eden.project.generate(); //Eden.Generator.getScript();
-		pconn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
-			vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
-			name: eden.project.name, title: eden.project.title}));
+
+		if (eden.project) {
+			var script = eden.project.generate(); //Eden.Generator.getScript();
+			pconn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
+				vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
+				name: eden.project.name, title: eden.project.title}));
+		}
 	}
 }
 
