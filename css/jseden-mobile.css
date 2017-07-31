@@ -12,7 +12,7 @@ div#jseden-views {
 	flex-basis: 70%;
 	flex-shrink: 2;
 	overflow: auto;
-	position: relative;
+	/*position: relative;*/
 }
 
 div#eden-logo {
