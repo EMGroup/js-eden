@@ -364,6 +364,19 @@ See LICENSE.txt
 				window.history.pushState({query: searchstr},"","?q="+encodeURIComponent(searchstr));
 			});
 
+			// P2P Dialog
+			var p2p = $('#p2pconnect');
+			p2p.on("click", "#p2pgo", function(e) {
+				var p2ppeer = document.getElementById("p2ppeer");
+				var p2proles = document.getElementById("p2proles");
+				//document.location = "?master="+p2ppeer.value;
+				eden.peer = new Eden.Peer(p2ppeer.value, undefined);
+			})
+			.on("click", "#p2plisten", function(e) {
+				var p2ppeer = document.getElementById("p2ppeer");
+				eden.peer = new Eden.Peer(undefined, p2ppeer.value);
+			});
+
 			function setLoadObserver() {
 				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
 					if (value) {
@@ -497,6 +510,14 @@ See LICENSE.txt
 			Eden.Project.listenTo("load", this, function() {
 				$(".loadmodal").hide();
 			});
+
+			Eden.Peer.listenTo("status", this, function(msg, code) {
+				document.getElementById("p2pconnect").style.display = "none";
+				var ele = document.getElementById("p2pconnected");
+				if (code == 1) {
+					ele.style.display = "flex";
+				}
+			});
 		}
 	});
 </script>
@@ -519,19 +540,33 @@ See LICENSE.txt
 		<div id="projectbuttons" class="jseden-dialog-plisting">
 			<img width="278" src="images/construit_logo_5.png"/>
 			<button onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-In</button>
-			<button><span class="icon">&#xf0c1;</span>P2P Connect</button>
+			<button onclick="document.getElementById('p2pconnect').style.display = 'flex';"><span class="icon">&#xf0c1;</span>P2P Connect</button>
 		</div>
 		<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search..."></input></div>
 		<div id="project-searchresults" class="jseden-dialog-plisting"></div>
 		<div id="project-browser">
 			<div id="privateprojects" style="display: none">
-			<div class="jseden-project-cat" data-filter=":me">Your Projects<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search yours..."></input></div><select class="projectsort"><option>Recent</option><option>Popular</option><option>Rating</option></select><button class="script-button projectmore">See More</button></div>
+			<div class="jseden-project-cat" data-filter=":me">Your Projects<button class="script-button projectmore">See More</button></div>
 			<div id="jseden-private-projects" class="jseden-dialog-plisting">
 			</div>
 			</div>
 		</div>
 		</div>
 	</div>
+</div>
+
+<div id="p2pconnect" class="mobile-dialog" style="display: none;">
+	<img width="278" src="images/construit_logo_5.png"/>
+	<input id="p2ppeer" type="text" placeholder="Peer Name..."></input>
+	<input id="p2proles" type="text" placeholder="Your Roles..."></input>
+	<button id="p2pgo"><span class="icon">&#xf0c1;</span>Connect</button>
+	<button id="p2plisten"><span class="icon">&#xf017;</span>Listen</button>
+	<button><span class="icon">&#xf00d;</span>Cancel</button>
+</div>
+
+<div id="p2pconnected" class="mobile-dialog" style="display: none;">
+	<div>P2P Connected</div>
+	<button onclick="document.getElementById('p2pconnected').style.display = 'none';">Continue</button>
 </div>
 
 <div id="tooltip" style="display:none"></div>

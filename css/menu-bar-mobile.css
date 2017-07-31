@@ -698,10 +698,11 @@ div.error-source {
 
 
 #menubar-mainitem-notifications {
-	width: 500px;
-	left: -458px;
+	position: absolute;
+	width: 80%;
+	left: 10%;
 	cursor: initial;
-	min-height: 100px;
+	min-height: 100px;s
 }
 
 #errors-dialog:empty:before {

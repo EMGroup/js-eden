@@ -150,3 +150,50 @@ span.icon {
 	font-family: 'FontAwesome';
 	margin-right: 10px;
 }
+
+div.mobile-dialog {
+	display: flex;
+	background: #29454B;
+	flex-direction: column;
+	justify-content: start;
+	align-content: center;
+	position: absolute;
+	top: 45px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 0 50px;
+}
+
+div.mobile-dialog button {
+	background: #1a5e6d;
+	margin-bottom: 20px;
+	border: 2px solid white;
+	border-radius: 5px;
+	color: white;
+	outline: none;
+	height: 50px;
+	font-size: 14pt;
+	font-weight: bold;
+}
+
+div.mobile-dialog button:hover {
+	background: #268ba1;
+}
+
+div.mobile-dialog input {
+	font-size: 14pt;
+	padding: 4px 15px;
+	outline: none;
+	height: 50px;
+	border: 2px solid #bbb;
+	margin-bottom: 20px;
+	border-radius: 5px;
+}
+
+div.mobile-dialog img {
+	margin-bottom: 40px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
