@@ -416,7 +416,7 @@ EdenSymbol.prototype.define = function (definition, origin, subscriptions, sourc
 		this.context.expireEdenSymbol(this);
 	}
 
-	if (eden.peer && source) eden.peer.define(origin, this.name, source, subscriptions);
+	if (eden.peer) eden.peer.define(origin, this.name, origin.getSource(), subscriptions);
 
 	return this;
 };

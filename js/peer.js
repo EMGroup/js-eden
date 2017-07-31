@@ -41,7 +41,11 @@ Eden.Peer = function(master, id) {
 	function processDefine(obj) {
 		var sym = eden.root.lookup(obj.symbol);
 		//sym.eden_definition = obj.source;
-		sym.define(eval(obj.code), EdenSymbol.netAgent, obj.dependencies, obj.source);
+		//sym.define(eval(obj.code), EdenSymbol.netAgent, obj.dependencies, obj.source);
+		var stat = Eden.AST.parseStatement(obj.source);
+		stat.local = true;
+		console.log("Define", obj.source, stat);
+		stat.execute({}, EdenSymbol.netAgent, eden.root.scope);
 		me.broadcastExcept(obj.id, obj);
 	}
 
@@ -365,9 +369,9 @@ Eden.Peer.prototype.assign = function(agent, sym, value) {
 	}
 }
 
-Eden.Peer.prototype.define = function(agent, sym, source, rhs, deps) {
+Eden.Peer.prototype.define = function(agent, sym, source, deps) {
 	if (agent && !agent.loading && !agent.local) {
-		this.broadcast({cmd: "define", symbol: sym, source: source, code: rhs, dependencies: deps});
+		this.broadcast({cmd: "define", symbol: sym, source: source, dependencies: deps});
 	}
 }
 
