@@ -123,6 +123,7 @@ EdenUI.ProjectDetails = function(projectid,newtab) {
 
 		buttons.on("click",".openproject", function() {
 			me.remove();
+
 			if (!me.newtab) {
 				$(".loadmodal").show();
 				Eden.DB.log("open", {pid: projectid});

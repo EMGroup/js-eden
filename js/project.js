@@ -185,6 +185,22 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 				if (meta.projectMetaData !== null) {
 					var extra = JSON.parse(meta.projectMetaData);
 					eden.project.desc = extra.description;
+
+					if (extra.env) {
+						// Verify the environment matches requirements
+						if (!Eden.Project.verifyEnvironment(extra.env)) {
+							var validenv = Eden.Project.findEnvironment(extra.env);
+							if (validenv) {
+								document.location = validenv + URLUtil.updateQueryString({
+									load: eden.project.id,
+									vid: eden.project.vid,
+									r: (readPassword) ? "&r=" + readPassword : ""
+								});
+							} else {
+								alert("This project needs a different version of JS-Eden");
+							}
+						}
+					}
 				}
 				// TODO More meta
 				// rebuild doxy comment
@@ -193,7 +209,11 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 					Eden.Project.emit("load", [me]);
 				});
 
-				var url = "?load="+eden.project.id+"&vid="+eden.project.vid + ((readPassword) ? "&r=" + readPassword : "");
+				var url = URLUtil.updateQueryString({
+									load: eden.project.id,
+									vid: eden.project.vid,
+									r: (readPassword) ? "&r=" + readPassword : ""
+								});
 				window.history.pushState({id: eden.project.id, vid: eden.project.vid},"",url);
 
 				//Eden.Project.emit("load", [me]);
@@ -203,6 +223,37 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 	//});
 
 	if (cb) cb();
+}
+
+Eden.Project.verifyEnvironment = function(env) {
+	for (var x in env) {
+		var val = eden.root.lookup("jseden_"+x).value();
+		if (typeof env[x] == "string") {
+			var ch0 = env[x].charAt(0);
+
+			switch (ch0) {
+			case ">"	:	if (val <= parseInt(env[x].substring(1))) return false; break;
+			case "<"	:	if (val >= parseInt(env[x].substring(1))) return false; break;
+			case ">="	:	if (val < parseInt(env[x].substring(1))) return false; break;
+			case "<="	:	if (val > parseInt(env[x].substring(1))) return false; break;
+			case "="	:	if (val !== parseInt(env[x].substring(1))) return false; break;
+			default		:	if (val != env[x]) return false;
+			}
+		} else if (val != env[x]) return false;
+	}
+	return true;
+}
+
+Eden.Project.findEnvironment = function(env) {
+	return null;
+}
+
+Eden.Project.prototype.environment = function() {
+	return {
+		version_major: eden.root.lookup("jseden_version_major").value(),
+		webgl: eden.root.lookup("jseden_webgl").value(),
+		p2p_constructs: eden.root.lookup("jseden_p2p_constructs").value()
+	};
 }
 
 Eden.Project.prototype.start = function(cb) {
