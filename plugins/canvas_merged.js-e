@@ -9313,6 +9313,61 @@ Texture.prototype.bind = function(context, viewName, shader) {
 
 }}$;
 
+/* Copyright (c) 2013, Empirical Modelling Group
+ * All rights reserved.
+ *
+ * See LICENSE.txt
+ */
+
+${{
+STLModel = function (file) {
+	this.canvasesToRepaint = {};
+	this.loaded = false;
+	
+	var me = this;
+
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', file, true);
+	xhr.responseType = 'arraybuffer';
+	 
+	xhr.onload = function(e) {
+	 // console.log("XHR",xhr.status,e);
+	  if (this.status == 200) {
+		// get binary data as a response
+		var blob = this.response;
+
+		let stlReader = new stlreader.stlreader();
+		let facets = stlReader.read(blob);
+
+		me.mesh = new Mesh(facets.vertices, facets.normals, undefined, "triangles");
+		console.log("STL",facets);
+
+		me.loaded = true;
+		for (var viewName in me.canvasesToRepaint) {
+			edenUI.plugins.Canvas2D.drawPicture(viewName);
+		}
+	  }
+	};
+	 
+	xhr.send();
+
+	this.mesh = null;
+};
+}}$;
+
+#! Load an STL Model. #library
+STLModel is ${{ new STLModel }}$ ($1);
+
+${{
+
+STLModel.prototype.draw = function (context, viewName, mvMatrix, shader) {
+	if (this.loaded) {
+		this.mesh.draw(context, viewName, mvMatrix, shader);
+	}
+}
+
+}}$;
+
 ## Copyright (c) 2013, Empirical Modelling Group
 ## All rights reserved.
 ##
@@ -9370,6 +9425,8 @@ Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pM
 			mat4.rotate(mvMatrix, mvMatrix, this.rotation.z * Math.PI / 180, rot);
 		}
 	}
+
+	if (!this.uvmap) context.disableVertexAttribArray(shader.textureCoordAttribute);
 
 	if (this.material instanceof Texture) {
 		if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
@@ -9441,6 +9498,8 @@ Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pM
 	} else {
 		this.mesh.draw(context, viewname, mvMatrix, shader);
 	}
+
+	if (!this.uvmap) context.enableVertexAttribArray(shader.textureCoordAttribute);
 };
 
 }}$;

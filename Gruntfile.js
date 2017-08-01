@@ -69,6 +69,7 @@ module.exports = function (grunt) {
 			"plugins/canvas/light.js-e",
 			"plugins/canvas/material.js-e",
 			"plugins/canvas/texture.js-e",
+			"plugins/canvas/stlmodel.js-e",
 			"plugins/canvas/shape.js-e",
 			"plugins/canvas/sphere.js-e",
 			"plugins/canvas/cube.js-e",

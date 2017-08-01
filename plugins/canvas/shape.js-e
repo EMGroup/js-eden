@@ -56,6 +56,8 @@ Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pM
 		}
 	}
 
+	if (!this.uvmap) context.disableVertexAttribArray(shader.textureCoordAttribute);
+
 	if (this.material instanceof Texture) {
 		if (this.uvmap) this.uvmap.bind(context, viewname, mvMatrix, shader);
 
@@ -126,6 +128,8 @@ Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pM
 	} else {
 		this.mesh.draw(context, viewname, mvMatrix, shader);
 	}
+
+	if (!this.uvmap) context.enableVertexAttribArray(shader.textureCoordAttribute);
 };
 
 }}$;
