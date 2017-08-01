@@ -351,13 +351,13 @@ See LICENSE.txt
 			})
 			.on("click","#importfile",function() {
 				//Eden.loadFromURL("library2/NewProject.js-e");
-				lopts.css("display","none");
+				//lopts.css("display","none");
 				var importfile = $("#importdialog");
 				importfile.css("display","block");
 
 				importfile.on("click","#closeimport",function() {
 					importfile.css("display","none");
-					lopts.css("display","block");
+					//lopts.css("display","block");
 				})
 				.on("click","#openfile",function() {
 					var fileinput = $("#theimportfile").get(0);
@@ -464,6 +464,23 @@ See LICENSE.txt
 
 				window.history.pushState({query: searchstr},"","?q="+encodeURIComponent(searchstr));
 			});
+
+
+			// P2P Dialog
+			var p2p = $('#p2pconnect');
+			p2p.on("click", "#p2pgo", function(e) {
+				var p2ppeer = document.getElementById("p2ppeer");
+				var p2proles = document.getElementById("p2proles");
+				//document.location = "?master="+p2ppeer.value;
+				eden.peer = new Eden.Peer(p2ppeer.value, undefined);
+			})
+			.on("click", "#p2plisten", function(e) {
+				var p2ppeer = document.getElementById("p2ppeer");
+				p2p.get(0).style.display = "none";
+				eden.peer = new Eden.Peer(undefined, p2ppeer.value);
+			});
+
+
 
 			function setLoadObserver() {
 				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
@@ -595,6 +612,7 @@ See LICENSE.txt
 
 				displayProjects("private",":me");
 
+				document.getElementById("p2plisten").disabled = false;
 				$("#welcometext").get(0).style.display = "none";
 				$("#welcomelinks").get(0).style.display = "none";
 				$("#privateprojects").get(0).style.display = "block";
@@ -611,6 +629,7 @@ See LICENSE.txt
 					node = next;
 				}
 
+				document.getElementById("p2plisten").disabled = true;
 				$("#welcometext").get(0).style.display = "block";
 				$("#welcomelinks").get(0).style.display = "block";
 				$("#privateprojects").get(0).style.display = "none";
@@ -620,6 +639,14 @@ See LICENSE.txt
 
 			Eden.Project.listenTo("load", this, function() {
 				$(".loadmodal").hide();
+			});
+
+			Eden.Peer.listenTo("status", this, function(msg, code) {
+				document.getElementById("p2pconnect").style.display = "none";
+				var ele = document.getElementById("p2pconnected");
+				if (code == 1) {
+					ele.style.display = "block";
+				}
 			});
 		}
 	});
@@ -638,6 +665,11 @@ See LICENSE.txt
 
 <div id="loadoptions" class="" style="display: none;">
 	<div class="project-content" style="padding: 20px 0;">
+		<div id="projectbuttons">
+			<button id="loadnew"><span title="New blank project" class="icon">&#xf067;</span>New</button>
+			<button id="importfile"><span title="Import a file" class="icon">&#xf07c;</span>File</button>
+			<button id="p2p" onclick="document.getElementById('p2pconnect').style.display = 'block';"><span title="Peer-2-Peer Connection" class="icon">&#xf0c1;</span>P2P</button>
+		</div>
 		<div id="defaultcontent">
 		<div id="welcometext">
 		<!--div class="videobox">
@@ -657,11 +689,6 @@ Free and open-source as part of an EU Erasmus+ Project</div>
 		</div--></div>
 		<div id="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-in</button>
 		<a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/construit/conference/draftcall/moreaboutconstruals/">Learn More</a><a href="http://edumotiva.eu/construit2017/">Conference 2017</a><a href="javascript:changePage('teachers');">Teachers</a><a href="javascript:changePage('students');">Students</a><a href="javascript:changePage('lifelong');">Lifelong</a><a href="http://construit.org">Erasmus+ Project</a>
-		</div>
-		<div id="projectbuttons" class="jseden-dialog-plisting" style="padding: 10px; height: 80px; display: none;">
-			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
-			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special">&#xf07c;</div></div>
-			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
 		</div>
 		<div id="project-browser" style="clear: right;">
 			<div id="privateprojects" style="display: none">
@@ -696,6 +723,23 @@ Free and open-source as part of an EU Erasmus+ Project</div>
 		<div style="text-align: center; margin-top: 20px;"><button class="jseden" id="openfile">Import</button><button class="jseden" id="closeimport">Cancel</button></div>
 		</div>
 	</div>
+</div>
+
+<div id="p2pconnect" class="modal" style="display: none;">
+<div class="modal-content p2pmodal" style="width: 300px;">
+	<input id="p2ppeer" type="text" placeholder="Peer Name..."></input>
+	<input id="p2proles" type="text" placeholder="Your Roles..."></input>
+	<button id="p2pgo"><span class="icon">&#xf0c1;</span>Connect</button>
+	<button id="p2plisten" disabled><span class="icon">&#xf017;</span>Listen</button>
+	<button onclick="document.getElementById('p2pconnect').style.display = 'none';"><span class="icon">&#xf00d;</span>Cancel</button>
+</div>
+</div>
+
+<div id="p2pconnected" class="modal" style="display: none;">
+<div class="modal-content p2pmodal" style="width: 300px;">
+	<div>P2P Connected</div>
+	<button onclick="document.getElementById('p2pconnected').style.display = 'none';">Continue</button>
+</div>
 </div>
 
 <div id="tooltip" style="display:none"></div>
