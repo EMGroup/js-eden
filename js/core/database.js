@@ -277,7 +277,10 @@ Eden.DB.save = function(project, ispublic, callback) {
 					from: project.vid,
 					image: project.thumb,
 					listed: ispublic,
-					metadata: JSON.stringify({description: project.desc}),
+					metadata: JSON.stringify({
+						description: project.desc,
+						env: project.environment()
+					}),
 					parentProject: project.parentid
 			},
 			success: function(data){

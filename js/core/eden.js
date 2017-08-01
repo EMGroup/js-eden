@@ -572,7 +572,7 @@
 				this.tags[tags[i]].push(name);
 			}
 		}*/
-		if (eden.peer && !net) eden.peer.doxy(name, comment);
+		//if (eden.peer && !net) eden.peer.doxy(name, comment);
 	}
 
 	Eden.prototype.isValidIdentifier = function (name) {

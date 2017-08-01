@@ -159,3 +159,21 @@ URLUtil.downloadFile = function (settings) {
 		return $.ajax(settings);
 	}
 }
+
+URLUtil.updateQueryString = function(changes) {
+	var current = URLUtil.getParameters();
+	for (var x in changes) {
+		current[x] = encodeURI(changes[x]);
+	}
+
+	var res = "?";
+	var start = true;
+	for (var x in current) {
+		if (!start) res += "&";
+		start = false;
+		res += x + "=" + current[x]
+	}
+
+	return res;
+}
+

@@ -7,7 +7,7 @@ EdenUI.MenuBar = function() {
 	var ismobile = mobilecheck();
 
 	var obscurer = $('<div id=\"menubar-obscurer\" class=\"login-subdialog modal\" style=\"display: block;\"></div>');
-	obscurer.html(`<div class="modal-content" style="width: 550px; height: 400px;"><div class="menubar-sharebox-title"><span class="menubar-shareicon">&#xf090;</span>${Language.ui.menu_bar.signin}</div><iframe frameborder="0" name="logintarget" width="540px" height="300px" class="menubar-login-iframe"></iframe><button class="jseden button-cancel">${Language.ui.menu_bar.cancel}</button></div>`);
+	obscurer.html(`<div class="modal-content" style="width: 350px; height: 400px;"><div class="menubar-sharebox-title"><span class="menubar-shareicon">&#xf090;</span>${Language.ui.menu_bar.signin}</div><iframe frameborder="0" name="logintarget" width="340px" height="300px" class="menubar-login-iframe"></iframe><button class="jseden button-cancel">${Language.ui.menu_bar.cancel}</button></div>`);
 	obscurer.hide();
 
 	if (Eden.AST) eden.execute2("views_number_created = 0;", EdenSymbol.defaultAgent);

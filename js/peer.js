@@ -147,15 +147,40 @@ Eden.Peer = function(master, id) {
 	}
 
 	function processPatch(obj) {
+		//console.log("Patching", obj);
+		var frags = {};
+
+		// First remove old
+		for (var i=0; i<obj.remove.length; i++) {
+			var node = Eden.Selectors.query(obj.remove[i].path)[0];
+			if (!node) continue;
+			frags[obj.remove[i].path] = node;
+			var stat; // = Eden.Index.getByID(obj.remove[i].id)[0];
+			for (var j=0; j<node.statements.length; j++) {
+				if (node.statements[j].id == obj.remove[i].id) {
+					stat = node.statements[j];
+					break;
+				}
+			}
+			//console.log("Remove stat", stat);
+			if (stat) node.removeChild(stat);
+		}
+
+		// Second, add new
+		for (var i=0; i<obj.add.length; i++) {
+			var node = Eden.Selectors.query(obj.remove[i].path)[0];
+			if (!node) continue;
+			frags[obj.remove[i].path] = node;
+			var stat = Eden.AST.parseStatement(obj.add[i].source);
+			if (node.statements[obj.add[i].index]) node.insertBefore(node.statements[obj.add[i].index], stat);
+			else node.appendChild(stat);
+		}
+
+		for (var x in frags) {
+			Eden.Fragment.emit("patch", [undefined, frags[x]]);
+		}
+
 		//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
-	}
-
-	function processOwnership(obj) {
-		//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.setOwned(obj.owned, "net"); });
-	}
-
-	function processDoxy(obj) {
-		//eden.updateDictionary(obj.symbol, new Eden.AST.DoxyComment(obj.content,0,0), true);
 	}
 
 	function processData(conn, data) {
@@ -168,7 +193,7 @@ Eden.Peer = function(master, id) {
 		switch(obj.cmd) {
 		case "assign"		: if (pconn.observe) processAssign(obj); break;
 		case "define"		: if (pconn.observe) processDefine(obj); break;
-		case "import"		: if (pconn.observe) processImport(obj); break;
+		case "do"			: if (pconn.observe) processDo(obj); break;
 		case "listassign"	: if (pconn.observe) processListAssign(obj); break;
 		case "restore"		: if (pconn.observe) processRestore(obj); break;
 		case "execstatus"	: if (pconn.observe) processExecStatus(obj); break;
@@ -179,8 +204,8 @@ Eden.Peer = function(master, id) {
 		case "reqshare"		: processReqShare(obj); break;
 		case "reqobserve"	: processReqObserve(obj); break;
 		case "patch"		: processPatch(obj); break;
-		case "ownership"	: processOwnership(obj); break;
-		case "doxy"			: processDoxy(obj); break;
+		//case "ownership"	: processOwnership(obj); break;
+		//case "doxy"			: processDoxy(obj); break;
 		}
 
 		if (me.config.logging) {
@@ -248,13 +273,14 @@ Eden.Peer = function(master, id) {
 			});
 		}
 
-		/*Eden.Fragment.listenTo('changed',this,function(origin,patch,lineno){
-			if(origin && me.capturepatch) {
-				var data = {cmd: "patch", name: origin.name, patch: patch, lineno: lineno};
+		Eden.Fragment.listenTo('patch',this,function(frag,ast,changes){
+			if(changes && changes.length > 0 && me.capturepatch) {
+				var data = {cmd: "patch", remove: changes[1], add: changes[0]};
 				me.broadcast(data);
+				console.log("Patch changes", data);
 			}
 		});
-		Eden.Agent.listenTo("owned", this, function(origin, cause) {
+		/*Eden.Agent.listenTo("owned", this, function(origin, cause) {
 			if (cause == "net" || !me.capturepatch) return;
 			me.broadcast({cmd: "ownership", name: origin.name, owned: origin.owned});
 		});
@@ -361,10 +387,6 @@ Eden.Peer.prototype.authoriseWhen = function(when) {
 	}
 }
 
-Eden.Peer.prototype.doxy = function(name, comment) {
-	//this.broadcast({cmd: "doxy", symbol: name, value: comment.content});
-}
-
 Eden.Peer.prototype.assign = function(agent, sym, value) {
 	if (agent && !agent.loading && !agent.local) {
 		//console.log("P2P Assign "+sym + " = " + Eden.edenCodeForValue(value));
@@ -378,10 +400,10 @@ Eden.Peer.prototype.define = function(agent, sym, source, deps) {
 	}
 }
 
-Eden.Peer.prototype.imports = function(agent, path, tag, options) {
-	//if (agent && !agent.loading && !agent.local) {
-	//	this.broadcast({cmd: "import", path: path, tag: tag, options: options});
-	//}
+Eden.Peer.prototype.doExec = function(agent, selector) {
+	if (agent && !agent.loading && !agent.local) {
+		this.broadcast({cmd: "do", selector: selector});
+	}
 }
 
 Eden.Peer.prototype.listAssign = function(agent, sym, value, components) {

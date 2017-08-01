@@ -343,8 +343,8 @@ Eden.Fragment.prototype.setSource = function(src) {
 		if (this.originast) {
 			// Patch the origin...
 			var parent = this.originast.parent;
-			this.originast.patchInner(this.ast.script);
-			Eden.Fragment.emit("patch", [this, this.originast]);
+			var changes = this.originast.patchInner(this.ast.script);
+			Eden.Fragment.emit("patch", [this, this.originast, changes]);
 
 			// Notify all parent fragments of patch
 			while (parent) {
