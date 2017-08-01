@@ -101,6 +101,7 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
 
   void main(void) {
     vec4 mvPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+	vec4 mvLightLocation = uMVMatrix*vec4(uPointLightingLocation,1.0);
     gl_Position = uPMatrix * mvPosition;
 
     vTextureCoord = aTextureCoord;
@@ -108,15 +109,13 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
     if (!uUseLighting) {
       vLightWeighting = vec3(1.0, 1.0, 1.0);
     } else {
-      vec3 lightDirection = normalize(uPointLightingLocation - mvPosition.xyz);
-      vec3 transformedNormal = uNMatrix * aVertexNormal;
-      float directionalLightWeighting = max(dot(transformedNormal, uLightingDirection), 0.0);
-      float pointLightWeighting = max(dot(transformedNormal, lightDirection), 0.0);
+      vec3 lightDirection = normalize(mvLightLocation.xyz - aVertexPosition.xyz);
+      vec4 transformedNormal = normalize(uMVMatrix* vec4(aVertexNormal,1.0));
+      float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightingDirection), 0.0);
+      float pointLightWeighting = max(dot(transformedNormal.xyz, lightDirection), 0.0);
       vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting + uPointLightingColor * pointLightWeighting;
     }
   }`, "vertex");
-
-
 
 
 	// Per fragment lighting
@@ -181,7 +180,6 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
     vTransformedNormal = uNMatrix * aVertexNormal;
   }
 `,"vertex");
-
 
 
 

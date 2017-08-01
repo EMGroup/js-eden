@@ -9251,7 +9251,7 @@ Texture = function (file, clamp, mipmap, nearest, format, glow) {
 	
 	var me = this;
 
-	this.texture = undefined;
+	this.texture = {};
 	
 	this.image.onload = function() {
 		me.loaded = true;
@@ -9276,9 +9276,9 @@ function isPowerOf2(value) {
 
 Texture.prototype.bind = function(context, viewName, shader) {
 	if (this.loaded) {
-		if (!this.texture) {
-			this.texture = context.createTexture();
-			context.bindTexture(context.TEXTURE_2D, this.texture);
+		if (!this.texture[viewName]) {
+			this.texture[viewName] = context.createTexture();
+			context.bindTexture(context.TEXTURE_2D, this.texture[viewName]);
 			context.pixelStorei(context.UNPACK_FLIP_Y_WEBGL, true);
 			context.texImage2D(context.TEXTURE_2D, 0, context.RGBA, context.RGBA, context.UNSIGNED_BYTE, this.image);
 
@@ -9288,20 +9288,23 @@ Texture.prototype.bind = function(context, viewName, shader) {
 				context.generateMipmap(context.TEXTURE_2D);
 				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR_MIPMAP_LINEAR);
 			  } else {
+				console.log("Non-p of 2");
 				// at least one of the dimensions is not a power of 2 so set the filtering
 				// so WebGL will render it.
 				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
 				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
-				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR);
+				//context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR);
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
+				context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
 			  }
 
-			console.log("IMAGE TEXTURE MADE");
+			console.log("IMAGE TEXTURE MADE FOR", viewName);
 
 			//context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
 			//context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
 			//context.bindTexture(context.TEXTURE_2D, null);
 		} else {
-			context.bindTexture(context.TEXTURE_2D, this.texture);
+			context.bindTexture(context.TEXTURE_2D, this.texture[viewName]);
 		}
 	} else {
 		this.canvasesToRepaint[viewName] = true;
