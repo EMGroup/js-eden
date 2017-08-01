@@ -174,7 +174,7 @@ function Construit(options,callback) {
 		Eden.Project.init();
 
 		eden.ismobile = mobilecheck();
-		eden.root.lookup("jseden_mobile").assign(eden.ismobile, eden.root.scope, Symbol.defaultAgent);
+		eden.root.lookup("jseden_mobile").assign(eden.ismobile, eden.root.scope, EdenSymbol.localJSAgent);
 
 		// Put JS-EDEN version number or name in top-right corner.
 		$.ajax({
