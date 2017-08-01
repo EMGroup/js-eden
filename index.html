@@ -434,16 +434,21 @@ See LICENSE.txt
 
 <div id="loadoptions" class="" style="display: none;">
 	<div class="project-content" style="padding: 20px 0;">
+		<div id="projectbuttons">
+			<button id="loadnew"><span title="New blank project" class="icon">&#xf067;</span>New</button>
+			<button id="importfile"><span title="Import a file" class="icon">&#xf07c;</span>File</button>
+			<button id="p2pconnect"><span title="Peer-2-Peer Connection" class="icon">&#xf0c1;</span>P2P</button>
+		</div>
 		<div id="defaultcontent">
-			<div id="welcometext">
-				<div class="videobox">
-					<iframe width="260" height="146" src="https://www.youtube.com/embed/0i7lNddcXIc" frameborder="0" allowfullscreen></iframe>
-					<iframe width="260" height="146" src="https://www.youtube.com/embed/xa63K878zYc" frameborder="0" allowfullscreen></iframe>
-					<iframe width="260" height="146" src="https://www.youtube.com/embed/isRrihy40uE" frameborder="0" allowfullscreen></iframe>
-				</div>
-			<div>
-			<img src="images/hexsun.png" style="position: absolute; z-index: 2;">
-			<img src="images/construit_logo_2.png" width="400" id="welcometitle">
+		<div id="welcometext">
+		<div class="videobox">
+		<iframe width="260" height="146" src="https://www.youtube.com/embed/0i7lNddcXIc" frameborder="0" allowfullscreen></iframe>
+		<iframe width="260" height="146" src="https://www.youtube.com/embed/xa63K878zYc" frameborder="0" allowfullscreen></iframe>
+		<iframe width="260" height="146" src="https://www.youtube.com/embed/isRrihy40uE" frameborder="0" allowfullscreen></iframe>
+		</div>
+		<div>
+		<img src="images/hexsun.png" style="position: absolute; z-index: 2;">
+		<img src="images/construit_logo_2.png" width="400" id="welcometitle">
 		<div id="welcomecontent">Learn to digitally model the world, real or imaginary<br>
 Adaptable artefacts and work environments for lessons<br>
 Live and intuitive paradigm using dependency and agency<br>
@@ -453,11 +458,6 @@ Free and open-source as part of an EU Erasmus+ Project</div>
 		</div></div>
 		<div id="welcomelinks"><button class="script-button welcomesignin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-in</button>
 		<a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/construit/conference/draftcall/moreaboutconstruals/">Learn More</a><a href="http://edumotiva.eu/construit2017/">Conference 2017</a><a href="javascript:changePage('teachers');">Teachers</a><a href="javascript:changePage('students');">Students</a><a href="javascript:changePage('lifelong');">Lifelong</a><a href="http://construit.org">Erasmus+ Project</a>
-		</div>
-		<div id="projectbuttons" class="jseden-dialog-plisting" style="padding: 10px; height: 80px; display: none;">
-			<div id="loadnew" class="cadence-plisting-entry noselect special"><div title="New blank project" class="cadence-plisting-icon special">&#xf067;</div></div>
-			<div id="importfile" class="cadence-plisting-entry noselect special"><div title="Import a file" class="cadence-plisting-icon special">&#xf07c;</div></div>
-			<div id="restoreold" class="cadence-plisting-entry noselect special"><div title="Restore last project" class="cadence-plisting-icon special">&#xf01e;</div></div>
 		</div>
 		<div id="project-browser" style="clear: right;">
 			<div id="privateprojects" style="display: none">
@@ -471,7 +471,14 @@ Free and open-source as part of an EU Erasmus+ Project</div>
 	</div>
 
 	<div id="footer">
-		<div style="float: right">
+		<div id="footerlogo"><img width="200" src="images/erasmus.png"></div>
+		<div id="footerlinks">
+			<a href="http://www2.warwick.ac.uk/fac/sci/dcs/research/em/">Empirical Modelling</a><br>
+			<a href="http://construit.org">Construit Project</a><br>
+			<a href="http://edumotiva.eu/construit2017/">Conference 2017</a><br>
+			<a href="https://github.com/EMGroup/js-eden">Source Code</a><br>
+		</div>
+		<div id="footerfunding">
 		This project has been funded with support from the European Commission under the ERASMUS+ Programme 2014, KA2, project number: 2014-1-UK01-KA200-001818. This website reflects the views only of the author, and the Commission cannot be held responsible for any use which may be made of the information contained therein.
 		</div>
 	</div>

@@ -138,7 +138,8 @@ div#footerlinks a:hover {
 			padding: 40px 40px;
 			/*border-bottom: 1px solid #ddd;*/
 			color: #444;
-			height: 440px;
+			height: 415px;
+			padding-right: 0;
 		}
 
 		div#welcometext h1 {
@@ -254,7 +255,7 @@ div#footerlinks a:hover {
 			width: 100%;
 			background: white;
 			box-sizing: border-box;
-			display: inline-block;
+			
 			font-size: 12pt;
 			text-align: center;
 		}
@@ -303,12 +304,13 @@ div#footerlinks a:hover {
 			background: #888;
 			display: flex;
 			flex-direction: column;
-			position: absolute;
-			top: 45px;
+			position: relative;
+			top: -40px;
 			right: 0;
 			height: 495px;
 			box-sizing: border-box;
 			justify-content: space-between;
+			float: right;
 		}
 
 		div.videobox iframe {
@@ -322,3 +324,44 @@ div#footerlinks a:hover {
 		div.jseden-project-cat.tmpitem {
 			margin-top: 50px;
 		}
+
+div#projectbuttons {
+	width: 100%;
+	height: 60px;
+	display: flex;
+	background: #29454B;
+	color: white;
+	margin-top: 25px;
+	padding-top: 10px;
+	justify-content: flex-end;
+}
+
+div#projectbuttons button {
+	background: #1a5e6d;
+	margin-right: 20px;
+	border: 2px solid white;
+	border-radius: 5px;
+	color: white;
+	outline: none;
+	height: 40px;
+	font-size: 14pt;
+	font-weight: bold;
+	width: 120px;
+}
+
+div#projectbuttons button:hover {
+	background: #268ba1;
+}
+
+div#projectbuttons button:disabled {
+	border: 2px solid #aaa;
+	color: #aaa;
+	background: #29454B;
+}
+
+span.icon {
+	font-family: 'FontAwesome';
+	margin-right: 10px;
+}
+
+
