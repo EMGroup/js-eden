@@ -25,7 +25,7 @@ STLModel = function (file) {
 		let facets = stlReader.read(blob);
 
 		me.mesh = new Mesh(facets.vertices, facets.normals, undefined, "triangles");
-		console.log("STL",facets);
+		//console.log("STL",facets);
 
 		me.loaded = true;
 		for (var viewName in me.canvasesToRepaint) {
