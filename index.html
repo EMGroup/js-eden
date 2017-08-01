@@ -522,6 +522,23 @@ Free and open-source as part of an EU Erasmus+ Project</div>
 	</div>
 </div>
 
+<div id="p2pconnect" class="modal" style="display: none;">
+<div class="modal-content p2pmodal" style="width: 300px;">
+	<input id="p2ppeer" type="text" placeholder="Peer Name..."></input>
+	<input id="p2proles" type="text" placeholder="Your Roles..."></input>
+	<button id="p2pgo"><span class="icon">&#xf0c1;</span>Connect</button>
+	<button id="p2plisten" disabled><span class="icon">&#xf017;</span>Listen</button>
+	<button onclick="document.getElementById('p2pconnect').style.display = 'none';"><span class="icon">&#xf00d;</span>Cancel</button>
+</div>
+</div>
+
+<div id="p2pconnected" class="modal" style="display: none;">
+<div class="modal-content p2pmodal" style="width: 300px;">
+	<div>P2P Connected</div>
+	<button onclick="document.getElementById('p2pconnected').style.display = 'none';">Continue</button>
+</div>
+</div>
+
 <div id="tooltip" style="display:none"></div>
 </body>
 </html>
