@@ -9166,10 +9166,10 @@ Light = function(direction, colour) {
 
 }}$;
 
-#! Creates a cube that can be coloured and displayed on a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
+#! Creates a directional light.
 #
 # ##Usage Example
-#  `Cube::(Point3D::(x,y,z),Point(width,height));`
+#  `Light::(Point3D::(x,y,z),"white");`
 # 
 #  #canvas #rectangle #drawingoptions #square #box #shape #draw
 Light is ${{ new Light }}$ ($1,$2);
@@ -9178,6 +9178,7 @@ ${{
 
 Light.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
 	 context.uniform1i(shader.useLightingUniform, true);
+	console.log("Use uniform lighting");
 
 	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
 			var r = colorobj.red() / 255;
@@ -9226,54 +9227,7 @@ Material = function(texture,colour,toff,tscale) {
 
 }}$;
 
-#! Creates a cube that can be coloured and displayed on a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
-#
-# ##Usage Example
-#  `Cube::(Point3D::(x,y,z),Point(width,height));`
-# 
-#  #canvas #rectangle #drawingoptions #square #box #shape #draw
-Light is ${{ (new Light(
-	scope.value("$1"),
-	scope.value("$2"))) }}$ ::
-		$1=$1,
-		$2=$2;
 
-${{
-
-Light.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
-	 context.uniform1i(shader.useLightingUniform, true);
-
-	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
-			var r = colorobj.red() / 255;
-			var g = colorobj.green() / 255;
-			var b = colorobj.blue() / 255;
-
-	context.uniform3f(
-        shader.directionalColorUniform,
-        r,
-        g,
-        b
-      );
-
-	var normalMatrix = mat3.create();
-    mat3.fromMat4(normalMatrix,mvMatrix);
-	mat3.invert(normalMatrix,normalMatrix);
-    mat3.transpose(normalMatrix,normalMatrix);
-
-	var lightingDirection = vec3.create();
-	vec3.set(lightingDirection,this.x,this.y,this.z);
-	vec3.transformMat3(lightingDirection, lightingDirection, normalMatrix);
-      var adjustedLD = vec3.create();
-      vec3.normalize(adjustedLD,lightingDirection);
-      vec3.scale(adjustedLD,adjustedLD, -1);
-      context.uniform3fv(shader.lightingDirectionUniform, adjustedLD);
-};
-
-Light.prototype.isHit = function (context, scale, x, y) {
-	return false;
-}
-
-}}$;
 
 /* Copyright (c) 2013, Empirical Modelling Group
  * All rights reserved.
@@ -9513,6 +9467,8 @@ test_lib_load = sin != @;
 shape_sphere_first is (lat * (shape_sphere_longitudes + 1)) + longi;
 shape_sphere_second is shape_sphere_first + shape_sphere_longitudes + 1;
 
+do lib;
+
 shape_sphere_vertices is concat(
 	([shape_sphere_x, shape_sphere_y, shape_sphere_z]::lat in 0..shape_sphere_latitudes, longi in 0..shape_sphere_longitudes)
 );
@@ -9530,11 +9486,11 @@ shape_sphere_indices is concat(
 		shape_sphere_second+1,shape_sphere_first+1]::lat in 0..shape_sphere_latitudes-1, longi in 0..shape_sphere_longitudes-1)
 );
 
-shape_sphere_uvmap = UVMap::shape_sphere_texCoords;
+shape_sphere_uvmap is UVMap::shape_sphere_texCoords;
 
 shape_sphere_mesh is Mesh::(shape_sphere_vertices, normals=shape_sphere_normals, indices=shape_sphere_indices, kind="triangles");
-shape_sphere_lod_1 = shape_sphere_mesh;
-shape_sphere_lod_2 = shape_sphere_mesh :: shape_sphere_longitudes=10, shape_sphere_latitudes=10;
+shape_sphere_lod_1 is shape_sphere_mesh;
+shape_sphere_lod_2 is shape_sphere_mesh :: shape_sphere_longitudes=10, shape_sphere_latitudes=10;
 
 #! Create a Sphere #library
 Sphere is Shape::(shape_sphere_lod_1 if lod==@ else shape_sphere_lod_2, $1, uvmap=uvmap if uvmap else shape_sphere_uvmap);

@@ -13,10 +13,10 @@ Light = function(direction, colour) {
 
 }}$;
 
-#! Creates a cube that can be coloured and displayed on a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
+#! Creates a directional light.
 #
 # ##Usage Example
-#  `Cube::(Point3D::(x,y,z),Point(width,height));`
+#  `Light::(Point3D::(x,y,z),"white");`
 # 
 #  #canvas #rectangle #drawingoptions #square #box #shape #draw
 Light is ${{ new Light }}$ ($1,$2);
@@ -25,6 +25,7 @@ ${{
 
 Light.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMatrix) {
 	 context.uniform1i(shader.useLightingUniform, true);
+	console.log("Use uniform lighting");
 
 	var colorobj = jQuery.Color( (typeof this.colour == "string") ? this.colour : "orange" );
 			var r = colorobj.red() / 255;

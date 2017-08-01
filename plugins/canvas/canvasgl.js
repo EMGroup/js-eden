@@ -134,6 +134,9 @@ EdenUI.plugins.Canvas2D.initShaders = function(gl) {
 
   uniform vec3 uPointLightingLocation;
   uniform vec3 uPointLightingColor;
+  uniform vec3 uLightingDirection;
+  uniform vec3 uDirectionalColor;
+
 
   uniform sampler2D uSampler;
 

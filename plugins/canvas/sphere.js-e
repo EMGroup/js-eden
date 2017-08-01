@@ -23,6 +23,8 @@ test_lib_load = sin != @;
 shape_sphere_first is (lat * (shape_sphere_longitudes + 1)) + longi;
 shape_sphere_second is shape_sphere_first + shape_sphere_longitudes + 1;
 
+do lib;
+
 shape_sphere_vertices is concat(
 	([shape_sphere_x, shape_sphere_y, shape_sphere_z]::lat in 0..shape_sphere_latitudes, longi in 0..shape_sphere_longitudes)
 );
@@ -40,11 +42,11 @@ shape_sphere_indices is concat(
 		shape_sphere_second+1,shape_sphere_first+1]::lat in 0..shape_sphere_latitudes-1, longi in 0..shape_sphere_longitudes-1)
 );
 
-shape_sphere_uvmap = UVMap::shape_sphere_texCoords;
+shape_sphere_uvmap is UVMap::shape_sphere_texCoords;
 
 shape_sphere_mesh is Mesh::(shape_sphere_vertices, normals=shape_sphere_normals, indices=shape_sphere_indices, kind="triangles");
-shape_sphere_lod_1 = shape_sphere_mesh;
-shape_sphere_lod_2 = shape_sphere_mesh :: shape_sphere_longitudes=10, shape_sphere_latitudes=10;
+shape_sphere_lod_1 is shape_sphere_mesh;
+shape_sphere_lod_2 is shape_sphere_mesh :: shape_sphere_longitudes=10, shape_sphere_latitudes=10;
 
 #! Create a Sphere #library
 Sphere is Shape::(shape_sphere_lod_1 if lod==@ else shape_sphere_lod_2, $1, uvmap=uvmap if uvmap else shape_sphere_uvmap);

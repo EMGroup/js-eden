@@ -14,6 +14,8 @@
 EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	var me = this;
 
+	eden.root.lookup("jseden_webgl").assign(true, eden.root.scope, EdenSymbol.localJSAgent);
+
 	/**Font size at default text size. See css/eden.css. */
 	this.defaultFontSizePx = 13.3;
 	/**Line height at default text size. See css/eden.css. */
