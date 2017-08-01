@@ -84,6 +84,7 @@ See LICENSE.txt
 
 	$(".loadmodal").show();
 	Construit(undefined, function(loaded) {
+		changePage("welcome");
 		// Place to record projects by tag.
 		Eden.projecttags = {};
 		var cachedprojects;
@@ -147,13 +148,13 @@ See LICENSE.txt
 			})
 			.on("click","#importfile",function() {
 				//Eden.loadFromURL("library2/NewProject.js-e");
-				lopts.css("display","none");
+				//lopts.css("display","none");
 				var importfile = $("#importdialog");
 				importfile.css("display","block");
 
 				importfile.on("click","#closeimport",function() {
 					importfile.css("display","none");
-					lopts.css("display","block");
+					//lopts.css("display","block");
 				})
 				.on("click","#openfile",function() {
 					var fileinput = $("#theimportfile").get(0);
@@ -261,6 +262,23 @@ See LICENSE.txt
 				window.history.pushState({query: searchstr},"","?q="+encodeURIComponent(searchstr));
 			});
 
+
+			// P2P Dialog
+			var p2p = $('#p2pconnect');
+			p2p.on("click", "#p2pgo", function(e) {
+				var p2ppeer = document.getElementById("p2ppeer");
+				var p2proles = document.getElementById("p2proles");
+				//document.location = "?master="+p2ppeer.value;
+				eden.peer = new Eden.Peer(p2ppeer.value, undefined);
+			})
+			.on("click", "#p2plisten", function(e) {
+				var p2ppeer = document.getElementById("p2ppeer");
+				p2p.get(0).style.display = "none";
+				eden.peer = new Eden.Peer(undefined, p2ppeer.value);
+			});
+
+
+
 			function setLoadObserver() {
 				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
 					if (value) {
@@ -294,7 +312,7 @@ See LICENSE.txt
 				var cat = document.createElement("div");
 				cat.className = "jseden-project-cat";
 				cat.setAttribute("data-filter",filter);
-				cat.innerHTML = title+'<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search '+name+'..."></input></div><button class="script-button projectmore">See More</button>';
+				cat.innerHTML = title+`<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search ${name}..."></input></div><button class="script-button projectmore">${Language.ui.categories.seemore}</button>`;
 				var poptags = document.createElement("div");
 				/*poptags.className = "popular-tags";
 				if (filter) {
@@ -391,6 +409,7 @@ See LICENSE.txt
 
 				displayProjects("private",":me");
 
+				document.getElementById("p2plisten").disabled = false;
 				$("#welcometext").get(0).style.display = "none";
 				$("#welcomelinks").get(0).style.display = "none";
 				$("#privateprojects").get(0).style.display = "block";
@@ -407,6 +426,7 @@ See LICENSE.txt
 					node = next;
 				}
 
+				document.getElementById("p2plisten").disabled = true;
 				$("#welcometext").get(0).style.display = "block";
 				$("#welcomelinks").get(0).style.display = "block";
 				$("#privateprojects").get(0).style.display = "none";
@@ -416,6 +436,14 @@ See LICENSE.txt
 
 			Eden.Project.listenTo("load", this, function() {
 				$(".loadmodal").hide();
+			});
+
+			Eden.Peer.listenTo("status", this, function(msg, code) {
+				document.getElementById("p2pconnect").style.display = "none";
+				var ele = document.getElementById("p2pconnected");
+				if (code == 1) {
+					ele.style.display = "block";
+				}
 			});
 		}
 	});

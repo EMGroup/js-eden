@@ -364,4 +364,56 @@ span.icon {
 	margin-right: 10px;
 }
 
+div.modal-content.p2pmodal {
+	display: flex;
+	background: white;
+	flex-direction: column;
+	justify-content: start;
+	align-content: center;
+	padding: 0 50px;
+	padding-top: 20px;
+	color: #222;
+	font-family: "Source Sans Pro";
+	font-size: 20pt;
+}
+
+div.modal-content.p2pmodal button {
+	background: #1a5e6d;
+	margin-bottom: 20px;
+	border: 2px solid #666;
+	border-radius: 5px;
+	color: white;
+	outline: none;
+	height: 40px;
+	font-size: 14pt;
+	font-weight: bold;
+}
+
+div.modal-content.p2pmodal button:hover {
+	background: #268ba1;
+}
+
+div.modal-content.p2pmodal button:disabled {
+	border: 2px solid #aaa;
+	color: #aaa;
+	background: #29454B;
+}
+
+div.modal-content.p2pmodal input {
+	font-size: 14pt;
+	padding: 4px 15px;
+	outline: none;
+	height: 40px;
+	border: 2px solid #bbb;
+	margin-bottom: 20px;
+	border-radius: 5px;
+}
+
+div.modal-content.p2pmodal img {
+	margin-bottom: 40px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+
 
