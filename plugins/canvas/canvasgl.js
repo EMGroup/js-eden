@@ -63,6 +63,68 @@ EdenUI.plugins.Canvas2D.getShader = function(gl, str, kind) {
       return shader;
   }
 
+vec3.unproject = function(out, a, viewport, invProjectionView) {
+    var viewX = viewport[0],
+        viewY = viewport[1],
+        viewWidth = viewport[2],
+        viewHeight = viewport[3];
+
+    var x = a[0], 
+        y = a[1],
+        z = a[2];
+
+    x = x - viewX;
+    y = viewHeight - y - 1;
+    y = y - viewY;
+
+	var b = vec3.create();
+	vec3.set(b, 
+    	(2 * x) / viewWidth - 1,
+    	(2 * y) / viewHeight - 1,
+    	2 * z - 1);
+
+    return vec3.project(out, b, invProjectionView);
+};
+
+vec3.project = function (out, vector, projection) {
+  let x = vector[0]
+  let y = vector[1]
+  let z = vector[2]
+  let m = projection
+  let a00 = m[0]
+  let a01 = m[1]
+  let a02 = m[2]
+  let a03 = m[3]
+  let a10 = m[4]
+  let a11 = m[5]
+  let a12 = m[6]
+  let a13 = m[7]
+  let a20 = m[8]
+  let a21 = m[9]
+  let a22 = m[10]
+  let a23 = m[11]
+  let a30 = m[12]
+  let a31 = m[13]
+  let a32 = m[14]
+  let a33 = m[15]
+
+  let lw = 1 / (x * a03 + y * a13 + z * a23 + a33)
+
+  vec3.set(
+    out,
+    (x * a00 + y * a10 + z * a20 + a30) * lw,
+    (x * a01 + y * a11 + z * a21 + a31) * lw,
+    (x * a02 + y * a12 + z * a22 + a32) * lw
+  )
+  return out
+}
+
+EdenUI.plugins.Canvas2D.shapeAtCentre = function(viewname) {
+	// Get view details
+	//var camerapos = eden.root.lookup("view_"+viewname+"_camera_position").value();
+	//var camerapos = eden.root.lookup("view_"+viewname+"_camera_rotation").value();
+}
+
 EdenUI.plugins.Canvas2D.initShaders = function(gl) {
     var fragmentShader = EdenUI.plugins.Canvas2D.getShader(gl, `precision mediump float;
 

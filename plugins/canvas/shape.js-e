@@ -5,7 +5,7 @@
 
 
 ${{
-Shape = function(mesh, pos, scale, rot, material, uvmap, ortho) {
+Shape = function(mesh, pos, scale, rot, material, uvmap, ortho, name) {
 	this.mesh = mesh;
 	this.position = pos;
 	this.scale = scale;
@@ -14,13 +14,18 @@ Shape = function(mesh, pos, scale, rot, material, uvmap, ortho) {
 	this.obsName = root.currentObservableName();
 	this.uvmap = uvmap;
 	this.ortho = ortho;
+	this.name = name;
 
 	this.texture = {};
+
+	this.sx = 0;
+	this.sy = 0;
+	this.sz = 0.0;
 }
 
 }}$;
 
-Shape is ${{ new Shape }}$ ($1, $2, scale, rotation, material, uvmap, ortho);
+Shape is ${{ new Shape }}$ ($1, $2, scale, rotation, material, uvmap, ortho, name);
 
 ${{
 
@@ -120,6 +125,27 @@ Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pM
 	}
 
 	//console.log("MESH DRAW",this.mesh.vertices.length/3);
+	var posVec = vec3.create();
+	vec3.set(posVec, this.position.x, this.position.y, this.position.z);
+	vec3.transformMat4(posVec, posVec, mvMatrix);
+	vec3.transformMat4(posVec, posVec, canvas.pMatrix);
+	this.sx = Math.floor(((posVec[0] + 1.0) / 2.0) * canvas.width);
+	this.sy = Math.floor(((-posVec[1] + 1.0) / 2.0) * canvas.height);
+
+	if (this.sx >= 0 && this.sx <= canvas.width && this.sy >= 0 && this.sy <= canvas.height) {
+		//console.log("Shape Screen Pos", this.sx, this.sy);
+		this.sz = posVec[2];
+		if (this.name) {
+			var visobjs_sym = eden.root.lookup("view_"+viewname+"_visibleobjects");
+			var visobjs = visobjs_sym.value();
+			visobjs.push(this);
+			visobjs_sym.assign(visobjs, eden.root.scope, EdenSymbol.defaultAgent);
+		}
+	} else {
+		this.sx = -1;
+		this.sy = -1;
+	}
+	
 
 	if (this.ortho) {
 		context.uniformMatrix4fv(shader.pMatrixUniform, false, canvas.oMatrix);

@@ -261,6 +261,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 					context.uniform1i(canvas.shader.useLightingUniform, false);
 
+					eden.root.lookup("view_"+viewName+"_visibleobjects").assign([],eden.root.scope,EdenSymbol.defaultAgent);
+
 					var hash;
 					for (hash in previousElements) {
 						previousElements[hash][0].setAttribute("data-garbage", true);

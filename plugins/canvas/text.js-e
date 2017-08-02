@@ -197,6 +197,7 @@ Text.prototype.draw = function (context, scale, viewname, mvMatrix, shader, pMat
 	ele.style.top = this.y + "px";
 	ele.style.left = this.x + "px";
 	ele.style.fontSize = this.size+"px";
+	ele.style.color = this.fillcolour;
 };
 
 Text.prototype.scale = function (scale, zoom , origin) {
