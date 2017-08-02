@@ -6,22 +6,16 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 		var graph = undefined;
 		
 		//Create new Graph
-		graph = new Springy.Graph();
-		graph.previousNodes = [];
-		graph.previousEdges = [];
-		graph.newNodes = [];
-		graph.newEdges = [];
+		var nodes = new vis.DataSet([]);
+		var edges = new vis.DataSet([]);
+		var data = {nodes: nodes, edges: edges};
 		
 		var content = $('<div id="' + name + '" style="overflow: hidden"></div>');
 
-		var canvas = $('<canvas></canvas>')
-			.springy({
-				graph: graph,
-				nodeSelected: function (node) {
-					//console.log(node);
-				}
-			});
-		content.append(canvas);
+		var container = $('<div class="dependency-map-content"></div>');
+		content.append(container);
+
+		var graph = new vis.Network(container.get(0), data, {}); //{layout: {hierarchical: true}});
 
 		var controls = $('<div class="dependency-map-controls"></div>');
 		content.append(controls);
@@ -56,11 +50,56 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 			dialogClass: "dependency-map-dialog"
 		});
 	}
+
+	function makeNode(sym) {
+		var val = sym.value();
+		var type = typeof val;
+		var icon = null;
+
+		if (val === undefined) {
+			icon = {code: '\uf06a'};
+		} else if (type == "number") {
+			icon = {code: Math.round(val), face: 'arial'};
+		} else if (type == "string") {
+			icon = {code: '\uf10d'};
+		} else if (type == "boolean") {
+			icon = {code: (val) ? '\uf00c' : '\uf00d'};
+		} else if (type == "function") {
+			icon = {code: '\uf1c9'};
+		} else {
+			if (Array.isArray(val)) {
+				icon = {code: '\uf03a'};
+			} else if (val instanceof CanvasImage) {
+				icon = {code: '\uf03e'};
+			} else if (val instanceof Text) {
+				icon = {code: '\uf031'};
+			} else {
+				icon = {code: '\uf1b2'};
+			}
+		}
+
+		return {
+			id: sym.name,
+			label: sym.name,
+			shape: 'icon',
+			icon: icon
+		};
+	}
+
+	function makeAgentNode(sym) {
+		if (sym instanceof EdenSymbol) {
+			return makeNode(sym);
+		} else {
+			return {id: sym.id, label: "when", shape: 'icon', icon: {code: '\uf007'}};
+		}
+	}
 		
 	this.updateGraph = function(graph, re) {
 		graph.re = re;
 		graph.newNodes = [];
 		graph.newEdges = [];
+		var nodelog = {};
+
 		for(var i in root.symbols){
 		
 			var nodeSym = root.symbols[i];
@@ -70,9 +109,10 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 				//Get the nodes which are now in the graph
 				
 				//If its not in the graph and it passed the regex
-				if((graph.newNodes).indexOf(nodename)==-1){
+				if(!nodelog[nodename]){
 					//push it
-					graph.newNodes.push(nodename);
+					nodelog[nodename] = true;
+					graph.newNodes.push(makeNode(nodeSym));
 				}
 				else{
 					//Do nothing
@@ -82,13 +122,14 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 				for (var ii in depArray) {
 					var nodename2 = depArray[ii].name;
 
-					if((graph.newNodes).indexOf(nodename2)==-1){
-						graph.newNodes.push(nodename2);
+					if(!nodelog[nodename2]){
+						nodelog[nodename2] = true;
+						graph.newNodes.push(makeNode(depArray[ii]));
 					}
-					graph.newEdges.push([nodename2,nodename, false]);
+					graph.newEdges.push({from: nodename2, to: nodename, arrows: "to"});
 				}
 
-				depArray = nodeSym.dynamicDependencies;
+				/*depArray = nodeSym.dynamicDependencies;
 				for (var ii in depArray) {
 					var nodename2 = depArray[ii].name;
 
@@ -106,7 +147,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 						graph.newNodes.push(nodename2);
 					}
 					graph.newEdges.push([nodename2,nodename, false]);
-				}				
+				}	*/			
 				
 				
 				//outward nodes
@@ -115,59 +156,30 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 					var subscriber = subArray[ii];
 					var nodename2 = subscriber.name;
 					
-					if((graph.newNodes).indexOf(nodename2)==-1){
-						graph.newNodes.push(nodename2);
+					if(!nodelog[nodename2]){
+						nodelog[nodename2] = true;
+						graph.newNodes.push(makeNode(subArray[ii]));
 					}
 					var dashed = nodeSym.name in subscriber.dynamicDependencies;
-					graph.newEdges.push([nodename,nodename2, dashed]);
+					graph.newEdges.push({from: nodename, to: nodename2, arrows: "to"});
 				}
 				subArray = nodeSym.observers;
 				for (var ii in subArray) {
-					var nodename2 = subArray[ii].name;
+					var nodename2 = subArray[ii].id;
 					
-					if((graph.newNodes).indexOf(nodename2)==-1){
-						graph.newNodes.push(nodename2);
+					if(!nodelog[nodename2]){
+						nodelog[nodename2] = true;
+						graph.newNodes.push(makeAgentNode(subArray[ii]));
 					}
-					graph.newEdges.push([nodename,nodename2, false]);
+					graph.newEdges.push({from: nodename, to: nodename2, arrows: "to"});
 				}
 			}
 		}
 		
-		//Get the edges which are now in the graph
-		//if the set of nodes and edges are different from before
-		if(arrayCompare(graph.previousNodes, graph.newNodes) && arrayCompare(graph.previousEdges, graph.newEdges)){
-			//Don't do anything
-			return;
-		}
-
-		//Make the new ones previous also
-		graph.previousNodes = graph.newNodes;
-		graph.previousEdges = graph.newEdges;
-		
-		//Clear the graph
-		graph.filterEdges(function(e){return false;})
-		graph.filterNodes(function(n){return false;});
-		//graph.filterNodes(function(n){return re.test(n);});
-		
-		graph.nodeObjectsStore = {};
-
-		for(var i in graph.previousNodes){
-			//Add all the new Nodes to the graph and add to a node store
-			var aboutname = graph.previousNodes[i];
-			graph.nodeObjectsStore[aboutname] = graph.newNode({label: aboutname},{color: '#6A4A3C'});
-		}
-				
-		for(var ii in graph.previousEdges){
-			//Add all the edges
-			var aboutedge1 = graph.previousEdges[ii][0];
-			var aboutedge2 = graph.previousEdges[ii][1];
-			var attributes = {};
-			if (graph.previousEdges[ii][2]) {
-				attributes.dashes = [10, 10];
-			}
-			graph.newEdge(graph.nodeObjectsStore[aboutedge1], graph.nodeObjectsStore[aboutedge2], attributes);
-		}
-
+		var nodes = new vis.DataSet(graph.newNodes);
+		var edges = new vis.DataSet(graph.newEdges);
+		var data = {nodes: nodes, edges: edges};
+		graph.setData(data);
 		
 	}
 	
