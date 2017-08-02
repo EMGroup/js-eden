@@ -8974,6 +8974,10 @@ UVMap.prototype.createBuffer = function(gl, viewName) {
 #! Make a texture coordinate map #library
 UVMap is ${{ new UVMap }}$ ($1);
 
+_scaledTCoords is ($1[ix]*$2 if ix % 2 == 1 else $1[ix]*$3) :: ix in 1..$1#;
+
+#! Scale texture coordinates into a UVMap. #library
+ScaledUVMap is UVMap::_scaledTCoords;
 
 ${{
 
@@ -9062,8 +9066,8 @@ Mesh.prototype.draw = function (context, viewName, mvMatrix, shader) {
 	// Calculate the normals transform and set that into shader
 	var normalMatrix = mat3.create();
     mat3.fromMat4(normalMatrix,mvMatrix);
-	mat3.invert(normalMatrix,normalMatrix);
-    mat3.transpose(normalMatrix,normalMatrix);
+	//mat3.invert(normalMatrix,normalMatrix);
+    //mat3.transpose(normalMatrix,normalMatrix);
     context.uniformMatrix3fv(shader.nMatrixUniform, false, normalMatrix);
 
 	// Do the actual draw...
@@ -9320,7 +9324,7 @@ Texture.prototype.bind = function(context, viewName, shader) {
  */
 
 ${{
-STLModel = function (file) {
+STLModel = function (file, flipnorm) {
 	this.canvasesToRepaint = {};
 	this.loaded = false;
 	
@@ -9339,6 +9343,13 @@ STLModel = function (file) {
 		let stlReader = new stlreader.stlreader();
 		let facets = stlReader.read(blob);
 
+		// Flip Normals!!!!
+		if (flipnorm) {
+			for (var i=0; i<facets.normals.length; i++) {
+				facets.normals[i] = -facets.normals[i];
+			}
+		}
+
 		me.mesh = new Mesh(facets.vertices, facets.normals, undefined, "triangles");
 		//console.log("STL",facets);
 
@@ -9356,7 +9367,7 @@ STLModel = function (file) {
 }}$;
 
 #! Load an STL Model. #library
-STLModel is ${{ new STLModel }}$ ($1);
+STLModel is ${{ new STLModel }}$ ($1, flip);
 
 ${{
 
@@ -9398,7 +9409,7 @@ Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pM
 	if (this.ortho) {
 		mat4.identity(mvMatrix);
 	}
-
+	
 	var translation = vec3.create();
 	vec3.set (translation, this.position.x, this.position.y, this.position.z);
 	mat4.translate(mvMatrix,mvMatrix,translation);

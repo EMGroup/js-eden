@@ -29,6 +29,10 @@ UVMap.prototype.createBuffer = function(gl, viewName) {
 #! Make a texture coordinate map #library
 UVMap is ${{ new UVMap }}$ ($1);
 
+_scaledTCoords is ($1[ix]*$2 if ix % 2 == 1 else $1[ix]*$3) :: ix in 1..$1#;
+
+#! Scale texture coordinates into a UVMap. #library
+ScaledUVMap is UVMap::_scaledTCoords;
 
 ${{
 

@@ -28,7 +28,7 @@ Shape.prototype.draw = function (context, pscale, viewname, mvMatrix, shader, pM
 	if (this.ortho) {
 		mat4.identity(mvMatrix);
 	}
-
+	
 	var translation = vec3.create();
 	vec3.set (translation, this.position.x, this.position.y, this.position.z);
 	mat4.translate(mvMatrix,mvMatrix,translation);

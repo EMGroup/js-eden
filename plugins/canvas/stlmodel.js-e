@@ -5,7 +5,7 @@
  */
 
 ${{
-STLModel = function (file) {
+STLModel = function (file, flipnorm) {
 	this.canvasesToRepaint = {};
 	this.loaded = false;
 	
@@ -24,6 +24,13 @@ STLModel = function (file) {
 		let stlReader = new stlreader.stlreader();
 		let facets = stlReader.read(blob);
 
+		// Flip Normals!!!!
+		if (flipnorm) {
+			for (var i=0; i<facets.normals.length; i++) {
+				facets.normals[i] = -facets.normals[i];
+			}
+		}
+
 		me.mesh = new Mesh(facets.vertices, facets.normals, undefined, "triangles");
 		//console.log("STL",facets);
 
@@ -41,7 +48,7 @@ STLModel = function (file) {
 }}$;
 
 #! Load an STL Model. #library
-STLModel is ${{ new STLModel }}$ ($1);
+STLModel is ${{ new STLModel }}$ ($1, flip);
 
 ${{
 

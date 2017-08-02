@@ -71,8 +71,8 @@ Mesh.prototype.draw = function (context, viewName, mvMatrix, shader) {
 	// Calculate the normals transform and set that into shader
 	var normalMatrix = mat3.create();
     mat3.fromMat4(normalMatrix,mvMatrix);
-	mat3.invert(normalMatrix,normalMatrix);
-    mat3.transpose(normalMatrix,normalMatrix);
+	//mat3.invert(normalMatrix,normalMatrix);
+    //mat3.transpose(normalMatrix,normalMatrix);
     context.uniformMatrix3fv(shader.nMatrixUniform, false, normalMatrix);
 
 	// Do the actual draw...
