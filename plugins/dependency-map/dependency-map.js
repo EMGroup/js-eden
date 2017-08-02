@@ -85,6 +85,14 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 			icon: icon
 		};
 	}
+
+	function makeAgentNode(sym) {
+		if (sym instanceof EdenSymbol) {
+			return makeNode(sym);
+		} else {
+			return {id: sym.id, label: "when", shape: 'icon', icon: {code: '\uf007'}};
+		}
+	}
 		
 	this.updateGraph = function(graph, re) {
 		graph.re = re;
@@ -155,15 +163,16 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 					var dashed = nodeSym.name in subscriber.dynamicDependencies;
 					graph.newEdges.push({from: nodename, to: nodename2, arrows: "to"});
 				}
-				/*subArray = nodeSym.observers;
+				subArray = nodeSym.observers;
 				for (var ii in subArray) {
-					var nodename2 = subArray[ii].name;
+					var nodename2 = subArray[ii].id;
 					
-					if((graph.newNodes).indexOf(nodename2)==-1){
-						graph.newNodes.push(nodename2);
+					if(!nodelog[nodename2]){
+						nodelog[nodename2] = true;
+						graph.newNodes.push(makeAgentNode(subArray[ii]));
 					}
-					graph.newEdges.push([nodename,nodename2, false]);
-				}*/
+					graph.newEdges.push({from: nodename, to: nodename2, arrows: "to"});
+				}
 			}
 		}
 		
