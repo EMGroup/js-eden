@@ -168,9 +168,9 @@ Eden.Peer = function(master, id) {
 
 		// Second, add new
 		for (var i=0; i<obj.add.length; i++) {
-			var node = Eden.Selectors.query(obj.remove[i].path)[0];
+			var node = Eden.Selectors.query(obj.add[i].path)[0];
 			if (!node) continue;
-			frags[obj.remove[i].path] = node;
+			frags[obj.add[i].path] = node;
 			var stat = Eden.AST.parseStatement(obj.add[i].source);
 			if (node.statements[obj.add[i].index]) node.insertBefore(node.statements[obj.add[i].index], stat);
 			else node.appendChild(stat);

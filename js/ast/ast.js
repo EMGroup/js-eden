@@ -292,6 +292,9 @@ Eden.AST.parseStatement = function(src, origin) {
 	var ast = new Eden.AST(src, undefined, (origin) ? origin : {}, {noparse: true, noindex: true});
 	ast.next();
 	var stat = ast.pSTATEMENT();
+	if (stat === undefined) {
+		stat = new AST.DummyStatement();
+	}
 	stat.base = ast;
 	stat.setSource(0,src.length, src);
 	stat.stamp = ast.stamp;
