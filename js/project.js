@@ -244,7 +244,15 @@ Eden.Project.verifyEnvironment = function(env) {
 	return true;
 }
 
+// TODO This shouldn't be hard coded.
 Eden.Project.findEnvironment = function(env) {
+	if (env.webgl && !eden.root.lookup("jseden_webgl").value()) {
+		// Try the webgl version
+		return "http://jseden.dcs.warwick.ac.uk/webgl/index.html";
+	} else if (!env.webgl && eden.root.lookup("jseden_webgl").value()) {
+		// Try non-webgl version
+		return "http://jseden.dcs.warwick.ac.uk/construit/index.html";
+	}
 	return null;
 }
 

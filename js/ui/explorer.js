@@ -82,6 +82,7 @@ EdenUI.Explorer = function() {
 	this.addSetting(curset, "jseden_parser_noexprover", "No override expressions", "", "boolean");
 	this.addSetting(curset, "jseden_parser_warndeprecate", "Show deprecation warnings", "", "boolean");
 	this.addSetting(curset, "jseden_parser_errordeprecate", "Make deprecated an error", "", "boolean");
+	this.addSetting(curset, "jseden_parser_cs3", "ConstruitScript3 Support", "", "boolean");
 
 	curset = this.expsettings.find('#explorerscriptviewsettings').get(0);
 	this.addSetting(curset, "jseden_script_query", "Default browse query", "", "text");
