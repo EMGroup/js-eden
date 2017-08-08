@@ -293,7 +293,9 @@ Eden.AST.parseStatement = function(src, origin) {
 	ast.next();
 	var stat = ast.pSTATEMENT();
 	if (stat === undefined) {
-		stat = new AST.DummyStatement();
+		stat = new Eden.AST.DummyStatement();
+		console.error("Invalid statement: ",src);
+		//return undefined;
 	}
 	stat.base = ast;
 	stat.setSource(0,src.length, src);

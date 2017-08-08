@@ -149,21 +149,44 @@ Eden.Peer = function(master, id) {
 	function processPatch(obj) {
 		//console.log("Patching", obj);
 		var frags = {};
+		var todorm = [];
 
 		// First remove old
 		for (var i=0; i<obj.remove.length; i++) {
 			var node = Eden.Selectors.query(obj.remove[i].path)[0];
 			if (!node) continue;
 			frags[obj.remove[i].path] = node;
-			var stat; // = Eden.Index.getByID(obj.remove[i].id)[0];
+			var stat = undefined; // = Eden.Index.getByID(obj.remove[i].id)[0];
 			for (var j=0; j<node.statements.length; j++) {
 				if (node.statements[j].id == obj.remove[i].id) {
-					stat = node.statements[j];
+					if (obj.remove[i].ws) {
+						stat = node.statements[j].nextSibling;
+						//console.log("STAT BEING REMOVED", stat);
+						if (stat && stat.type != "dummy") stat = undefined;
+					} else {
+						stat = node.statements[j];
+					}
 					break;
 				}
 			}
 			//console.log("Remove stat", stat);
-			if (stat) node.removeChild(stat);
+			if (stat) {
+				for (var j=0; j<obj.add.length; j++) {
+					if (obj.add[j].ws && obj.add[j].id == stat.id) {
+						obj.add[j].id = (stat.previousSibling) ? stat.previousSibling.id : 0;
+						//console.log("FIXUP");
+					}
+				}
+
+				// TODO Adding new may be relative to removed node ... fix this
+
+				//node.removeChild(stat);
+				todorm.push([node,stat]);
+			}
+		}
+
+		for (var i=0; i<todorm.length; i++) {
+			todorm[i][0].removeChild(todorm[i][1]);
 		}
 
 		// Second, add new
@@ -171,15 +194,44 @@ Eden.Peer = function(master, id) {
 			var node = Eden.Selectors.query(obj.add[i].path)[0];
 			if (!node) continue;
 			frags[obj.add[i].path] = node;
-			var stat = Eden.AST.parseStatement(obj.add[i].source);
-			if (node.statements[obj.add[i].index]) node.insertBefore(node.statements[obj.add[i].index], stat);
-			else node.appendChild(stat);
+
+			if (!obj.add[i].ws) {
+				var stat = Eden.AST.parseStatement(obj.add[i].source);
+				if (node.statements[obj.add[i].index]) node.insertBefore(node.statements[obj.add[i].index], stat);
+				else node.appendChild(stat);
+			} else {
+				var stat = new Eden.AST.DummyStatement();
+				stat.source = obj.add[i].source;
+
+				if (obj.add[i].id == 0) {
+					if (node.statements[0]) node.insertBefore(nodes.statements[0], stat);
+					else node.appendChild(stat);
+				} else {
+					for (var j=0; j<node.statements.length; j++) {
+						if (node.statements[j].id == obj.add[i].id) {
+							//console.log("INSERTAFTER", node.statements[j]);
+							var nstat = node.statements[j].nextSibling;
+							if (nstat) node.insertBefore(nstat, stat);
+							else node.appendChild(stat);
+							//if (stat && stat.type != "dummy") stat = undefined;
+							stat = undefined;
+							break;
+						}
+					}
+
+					if (stat) node.appendChild(stat);
+				}
+
+				//if (node.statements[obj.add[i].index]) node.insertBefore(node.statements[obj.add[i].index], stat);
+				//else node.appendChild(stat);
+			}
 		}
 
 		for (var x in frags) {
 			Eden.Fragment.emit("patch", [undefined, frags[x]]);
 		}
 
+		me.broadcastExcept(obj.id, obj);
 		//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
 	}
 
@@ -277,7 +329,7 @@ Eden.Peer = function(master, id) {
 			if(changes && changes.length > 0 && me.capturepatch) {
 				var data = {cmd: "patch", remove: changes[1], add: changes[0]};
 				me.broadcast(data);
-				console.log("Patch changes", data);
+				//console.log("Patch changes", data);
 			}
 		});
 		/*Eden.Agent.listenTo("owned", this, function(origin, cause) {
@@ -355,7 +407,7 @@ Eden.Peer.prototype.broadcast = function(msg) {
 
 Eden.Peer.prototype.broadcastExcept = function(id, msg) {
 	//console.log(msg); return;
-	if (this.loading) return;
+	if (this.loading || this.id === undefined) return;
 	msg = JSON.stringify(msg);
 
 	for (var x in this.connections) {

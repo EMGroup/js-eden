@@ -76,7 +76,8 @@ Eden.AST.prototype.pSCRIPT = function() {
 	dummy.numlines = dummy.source.match(/\n/g);
 	if (dummy.numlines === null) dummy.numlines = 0;
 	else dummy.numlines = dummy.numlines.length;
-	ast.append(dummy);	
+	ast.append(dummy);
+	var lastStat = dummy;	
 
 	while (this.token != "EOF") {
 		var statement = this.pSTATEMENT();
@@ -89,7 +90,14 @@ Eden.AST.prototype.pSCRIPT = function() {
 			}
 
 			var end = statement.end;
-			ast.appendChild(statement);
+
+			if (statement.type == "dummy" && lastStat && lastStat.type == "dummy") {
+				lastStat.setSource(statement.start, statement.end, statement.source);
+				lastStat.numlines += statement.numlines;
+			} else {
+				ast.appendChild(statement);
+				lastStat = statement;
+			}
 
 			var ws = this.stream.code.substring(end, this.stream.prevposition);
 			if (ws.length > 0) {
@@ -98,7 +106,15 @@ Eden.AST.prototype.pSCRIPT = function() {
 				dummy.numlines = dummy.source.match(/\n/g);
 				if (dummy.numlines === null) dummy.numlines = 0;
 				else dummy.numlines = dummy.numlines.length;
-				ast.appendChild(dummy);
+				//ast.appendChild(dummy);
+
+				if (lastStat && lastStat.type == "dummy") {
+					lastStat.setSource(dummy.start, dummy.end, dummy.source);
+					lastStat.numlines += dummy.numlines;
+				} else {
+					ast.appendChild(dummy);
+					lastStat = dummy;
+				}
 			}
 		} else {
 			/*if (this.depth > 0) {

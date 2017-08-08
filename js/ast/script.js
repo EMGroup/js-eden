@@ -68,7 +68,12 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 		// Insert new statement
 		} else {
 			if (stat.type != "dummy" && this.indexed) stat.addIndex();
-			added.push({index: i, path: path, source: stat.getSource()});
+
+			if (stat.type == "dummy") {
+				added.push({index: i, path: path, source: stat.getSource(), id: (stat.previousSibling) ? stat.previousSibling.id : 0, ws: true});
+			} else {
+				added.push({index: i, path: path, source: stat.getSource(), ws: false});
+			}
 			//var stats = Eden.Selectors.queryWithin([stat], ">>");
 			//for (var j=0; j<stats.length; j++) Eden.Index.update(stats[j]);
 		}
@@ -81,7 +86,11 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 			if (stats[i].type == "when" && stats[i].enabled) {
 				eden.project.removeAgent(stats[i]);
 			}
-			removed.push({path: path, id: stats[i].id});
+			if (stats[i].type == "dummy") {
+				removed.push({path: path, id: (stats[i].previousSibling) ? stats[i].previousSibling.id : 0, ws: true});
+			} else {
+				removed.push({path: path, id: stats[i].id, ws: false});
+			}
 			if (this.indexed && stats[i].executed == 0) {
 				//console.log("Remove index for",statindex[x]);
 				stats[i].removeIndex();

@@ -65,6 +65,15 @@ Eden.AST.BaseScript.insertBefore = function(before, ast) {
 		if (this.statements[ix] === before) break;
 	}
 	if (ix < this.statements.length) {
+		if (ix > 0) {
+			ast.nextSibling = this.statements[ix];
+			ast.previousSibling = this.statements[ix-1];
+			this.statements[ix].previousSibling = ast;
+			this.statements[ix-1].nextSibling = ast;
+		} else {
+			ast.nextSibling = this.statements[ix];
+			this.statements[ix].previousSibling = ast;
+		}
 		this.statements.splice(ix, 0, ast);
 	} else {
 		eden.emit("error", [new Eden.RuntimeError(undefined, Eden.RuntimeError.NOCHILD, this, "Statement is not a child when using insertBefore")]);
