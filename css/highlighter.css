@@ -380,3 +380,12 @@ div.eden-hl-play {
 	cursor: pointer;
 }
 
+span.html-tagname {
+	color: #729fcf;
+}
+
+span.html-attributename {
+	color: #73d216;
+}
+
+

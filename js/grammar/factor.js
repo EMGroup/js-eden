@@ -113,6 +113,8 @@ Eden.AST.prototype.pFACTOR = function() {
 		this.next();
 		var negop = new Eden.AST.UnaryOp("-", this.pFACTOR());
 		return negop;
+	} else if (this.token == "<" && eden.root.lookup("jseden_parser_cs3").value()) {
+		return this.pHTML();
 	// Heredoc for multiline strings
 	} else if (this.token == "<<") {
 		this.next();

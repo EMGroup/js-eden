@@ -107,7 +107,9 @@
 		"comment-ul": "eden-comment-ul",
 		"comment-blockquote": "eden-comment-blockquote",
 		"script": "eden-script",
-		"notexist": "eden-notexist"
+		"notexist": "eden-notexist",
+		"htmltag": "html-tagname",
+		"htmlattribute": "html-attributename"
 	}
 
 	EdenUI.Highlight.prototype.pushLine = function() {

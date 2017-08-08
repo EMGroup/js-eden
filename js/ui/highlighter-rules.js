@@ -290,6 +290,18 @@ EdenUI.Highlight.prototype.START = function() {
 						this.pushMode();
 						this.mode = "SELECTOR";
 						break;
+	case "<"		:	if (this.prevtoken != "OBSERVABLE" && this.prevtoken != ")") {
+							this.classes.push("htmltag");
+							this.pushMode();
+							this.mode = "HTML";
+						} else {
+							this.classes.push("operator");
+						}
+						break;
+	case "</"		:	this.pushMode();
+						this.mode = "HTML_CLOSE";
+						this.classes.push("htmltag");
+						break;
 	case "<<"		:	var t = this.stream.readToken();
 						var obs = this.stream.tokenText();
 						this.tokentext += obs;
