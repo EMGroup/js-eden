@@ -23,6 +23,8 @@ EdenUI.Explorer = function() {
 	<div id="explorerprojectsettings" class="explorer-settings-list"></div>
 	<h1>Menu Bar</h1>
 	<div id="explorermenusettings" class="explorer-settings-list"></div>
+	<h1>Peer-2-Peer</h1>
+	<div id="explorerp2psettings" class="explorer-settings-list"></div>
 	<h1>Search</h1>
 	<div id="explorersearchsettings" class="explorer-settings-list"></div>
 	<h1>Parser</h1>
@@ -62,6 +64,11 @@ EdenUI.Explorer = function() {
 	this.addSetting(curset, "jseden_menu_showexisting", "Show Existing", "", "boolean");
 	this.addSetting(curset, "jseden_menu_showshare", "Show Share", "", "boolean");
 	this.addSetting(curset, "jseden_explorer_enabled", "Allow Spanner Panel", "", "boolean");
+
+	var curset = this.expsettings.find('#explorerp2psettings').get(0);
+	this.addSetting(curset, "jseden_p2p_captureedits", "Send script edits", "", "boolean");
+	this.addSetting(curset, "jseden_p2p_captureinput", "Send UI Events (Mouse...)", "", "boolean");
+	this.addSetting(curset, "jseden_p2p_doactive", "Copy all state on connect", "", "boolean");
 
 	curset = this.expsettings.find('#explorersearchsettings').get(0);
 	this.addSetting(curset, "jseden_search_history", "Include Historic", "", "boolean");
@@ -227,9 +234,9 @@ EdenUI.Explorer.prototype.addSetting = function(root, obs, plabel, tip, type) {
 
 	input.onchange = function(e) {
 		if (type == "boolean") {
-			sym.assign(input.checked, eden.root.scope, EdenSymbol.localJSAgent);
+			sym.assign(input.checked, eden.root.scope, EdenSymbol.jsAgent);
 		} else {
-			sym.assign(input.value, eden.root.scope, EdenSymbol.localJSAgent);
+			sym.assign(input.value, eden.root.scope, EdenSymbol.jsAgent);
 		}
 	}
 

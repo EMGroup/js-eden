@@ -384,16 +384,18 @@ Eden.Project.prototype.setDescription = function(text) {
 	this.triggers[d].push({statement: when, scope: scope});
 }*/
 
-Eden.Project.prototype.registerAgent = function(when) {
+Eden.Project.prototype.registerAgent = function(when, net) {
 	//console.log("REGISTER WHEN", when.id, when);
 	for (var x in when.dependencies) {
 		//if (this.triggers[x] === undefined) this.triggers[x] = [];
 		//this.triggers[x].push({statement: when, scope: eden.root.scope});
 		eden.root.lookup(x).addObserver(when.id, when);
 	}
+
+	if (!net && eden.peer) eden.peer.activateWhen(when.id);
 }
 
-Eden.Project.prototype.removeAgent = function(when) {
+Eden.Project.prototype.removeAgent = function(when, net) {
 	//console.log("REMOVE WHEN", when);
 	for (var x in when.dependencies) {
 		/*var t = this.triggers[x];
@@ -407,5 +409,7 @@ Eden.Project.prototype.removeAgent = function(when) {
 		}*/
 		eden.root.lookup(x).removeObserver(when.id);
 	}
+
+	if (!net && eden.peer) eden.peer.deactivateWhen(when.id);
 }
 

@@ -213,6 +213,14 @@
 			agent = {name: '/loadPlugin'};
 		}
 
+		if (EdenUI.plugins[name] === undefined) {
+			this.eden.error("Plugin '"+name+"' does not exist");
+			success && success.call(agent, false);
+			return false;
+		}
+
+		if (eden.peer) eden.peer.doRequire(name);
+
 		var me = this;
 		var wrappedSuccess = function () {
 			me.emit('loadPlugin', [name]);
@@ -638,7 +646,7 @@
 	 */
 	Eden.prototype.error = function (error, origin) {
 
-		eden.emit("error", [Symbol.jsAgent, new Eden.RuntimeError(undefined, 0, undefined, error)]);
+		eden.emit("error", [EdenSymbol.jsAgent, new Eden.RuntimeError(undefined, 0, undefined, error)]);
 		return;
 
 		/*if (origin != "error") {

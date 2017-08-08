@@ -25,6 +25,9 @@ Eden.Peer = function(master, id) {
 	if (eden.root.lookup("jseden_p2p_errors").value() === undefined) {
 		eden.root.lookup("jseden_p2p_errors").assign([], eden.root.scope, EdenSymbol.defaultAgent);
 	}
+	if (eden.root.lookup("jseden_p2p_doactive").value() === undefined) {
+		eden.root.lookup("jseden_p2p_doactive").assign(true, eden.root.scope, EdenSymbol.defaultAgent);
+	}
 
 	//Eden.Agent.importAgent("lib/p2p","default",[],function() {});
 	Eden.Selectors.execute("lib > p2p");
@@ -64,6 +67,9 @@ Eden.Peer = function(master, id) {
 
 	function processRestore(obj) {
 		me.loading = true;
+
+		eden.root.lookup("jseden_project_mode").assign((eden.root.lookup("jseden_p2p_doactive").value()) ? "restore" : "normal", eden.root.scope, Symbol.defaultAgent);
+
 		// TODO Must reset environment first!
 		/*Eden.DB.load(undefined, undefined, obj, function() {
 			me.loading = false;
@@ -146,6 +152,24 @@ Eden.Peer = function(master, id) {
 		delete me.callbacks[obj.cbid];
 	}
 
+	function processWhen(obj) {
+		console.log("ProcessWhen", obj);
+		var whens = Eden.Selectors.query(".id("+obj.id+")");
+		for (var i=0; i<whens.length; i++) {
+			if (obj.status) {
+				eden.project.registerAgent(whens[i], true);
+			} else {
+				eden.project.removeAgent(whens[i], true);
+			}
+		}
+		// TODO BroadcastExcept
+	}
+
+	function processRequire(obj) {
+		edenUI.loadPlugin(obj.name);
+		// TODO BroadcastExcept
+	}
+
 	function processPatch(obj) {
 		//console.log("Patching", obj);
 		var frags = {};
@@ -157,16 +181,20 @@ Eden.Peer = function(master, id) {
 			if (!node) continue;
 			frags[obj.remove[i].path] = node;
 			var stat = undefined; // = Eden.Index.getByID(obj.remove[i].id)[0];
-			for (var j=0; j<node.statements.length; j++) {
-				if (node.statements[j].id == obj.remove[i].id) {
-					if (obj.remove[i].ws) {
-						stat = node.statements[j].nextSibling;
-						//console.log("STAT BEING REMOVED", stat);
-						if (stat && stat.type != "dummy") stat = undefined;
-					} else {
-						stat = node.statements[j];
+			if (obj.remove[i].id == 0) {
+				stat = node.statements[0];
+			} else {
+				for (var j=0; j<node.statements.length; j++) {
+					if (node.statements[j].id == obj.remove[i].id) {
+						if (obj.remove[i].ws) {
+							stat = node.statements[j].nextSibling;
+							//console.log("STAT BEING REMOVED", stat);
+							if (stat && stat.type != "dummy") stat = undefined;
+						} else {
+							stat = node.statements[j];
+						}
+						break;
 					}
-					break;
 				}
 			}
 			//console.log("Remove stat", stat);
@@ -204,8 +232,9 @@ Eden.Peer = function(master, id) {
 				stat.source = obj.add[i].source;
 
 				if (obj.add[i].id == 0) {
-					if (node.statements[0]) node.insertBefore(nodes.statements[0], stat);
+					if (node.statements[0]) node.insertBefore(node.statements[0], stat);
 					else node.appendChild(stat);
+					stat.buildID();
 				} else {
 					for (var j=0; j<node.statements.length; j++) {
 						if (node.statements[j].id == obj.add[i].id) {
@@ -219,7 +248,10 @@ Eden.Peer = function(master, id) {
 						}
 					}
 
-					if (stat) node.appendChild(stat);
+					if (stat) {
+						node.appendChild(stat);
+						stat.buildID();
+					}
 				}
 
 				//if (node.statements[obj.add[i].index]) node.insertBefore(node.statements[obj.add[i].index], stat);
@@ -256,6 +288,8 @@ Eden.Peer = function(master, id) {
 		case "reqshare"		: processReqShare(obj); break;
 		case "reqobserve"	: processReqObserve(obj); break;
 		case "patch"		: processPatch(obj); break;
+		case "when"			: processWhen(obj); break;
+		case "require"		: processRequire(obj); break;
 		//case "ownership"	: processOwnership(obj); break;
 		//case "doxy"			: processDoxy(obj); break;
 		}
@@ -452,11 +486,27 @@ Eden.Peer.prototype.define = function(agent, sym, source, deps) {
 	}
 }
 
-Eden.Peer.prototype.doExec = function(agent, selector) {
+Eden.Peer.prototype.doRequire = function(str) {
+	this.broadcast({cmd: "require", name: str});
+}
+
+Eden.Peer.prototype.doImport = function(agent, selector) {
+
+}
+
+Eden.Peer.prototype.activateWhen = function(whenid) {
+	this.broadcast({cmd: "when", status: true, id: whenid});
+}
+
+Eden.Peer.prototype.deactivateWhen = function(whenid) {
+	this.broadcast({cmd: "when", status: false, id: whenid});
+}
+
+/*Eden.Peer.prototype.doExec = function(agent, selector) {
 	if (agent && !agent.loading && !agent.local) {
 		this.broadcast({cmd: "do", selector: selector});
 	}
-}
+}*/
 
 Eden.Peer.prototype.listAssign = function(agent, sym, value, components) {
 	if (agent && !agent.loading && !agent.local) {
