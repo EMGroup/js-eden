@@ -290,7 +290,7 @@ EdenUI.Highlight.prototype.START = function() {
 						this.pushMode();
 						this.mode = "SELECTOR";
 						break;
-	case "<"		:	if (this.prevtoken != "OBSERVABLE" && this.prevtoken != ")") {
+	case "<"		:	if (this.prevtoken != "OBSERVABLE" && this.prevtoken != ")" && this.prevtoken != "]" && this.prevtoken != "}") {
 							this.classes.push("htmltag");
 							this.pushMode();
 							this.mode = "HTML";

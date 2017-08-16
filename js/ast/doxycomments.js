@@ -39,7 +39,7 @@ Eden.AST.DoxyComment.prototype.getHashTags = function() {
  */
 Eden.AST.DoxyComment.prototype.hasTag = function(tag) {
 	if (this.tags === undefined) this.getHashTags();
-	return (this.tags[tag]) ? true : false;
+	return (this.tags && this.tags[tag]) ? true : false;
 }
 
 Eden.AST.DoxyComment.prototype.getControls = function() {

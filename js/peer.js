@@ -15,6 +15,9 @@ Eden.Peer = function(master, id) {
 	this.callbacks = {};
 	this.callbackid = 0;
 	this.capturepatch = false;
+	this.record = false;
+	this.startrecordtime = 0;
+	this.log = null;
 
 	if (eden.root.lookup("jseden_p2p_newconnections").value() === undefined) {
 		eden.root.lookup("jseden_p2p_newconnections").assign([], eden.root.scope, EdenSymbol.defaultAgent);
@@ -402,6 +405,15 @@ Eden.Peer = function(master, id) {
 		me.capturepatch = value;
 	});
 
+	var recordSym = eden.root.lookup("jseden_p2p_record");
+	recordSym.addJSObserver("p2p", function(sym, value) {
+		me.record = value;
+		if (value) {
+			me.startrecordtime = Date.now();
+			me.log = [];
+		}
+	});
+
 	function createDialog(name, title) {
 		var viewName = name.slice(0,-7); //remove -dialog suffix
 
@@ -429,6 +441,10 @@ Eden.Peer.prototype.broadcast = function(msg) {
 	//console.log(msg); return;
 	if (this.loading) return;
 	msg = JSON.stringify(msg);
+
+	if (this.record) {
+		this.log.push('{"timestamp": ' + (Date.now() - this.startrecordtime) + ', "message": "'+msg+'"}');
+	}
 
 	for (var x in this.connections) {
 		var pconn = this.connections[x];
