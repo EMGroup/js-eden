@@ -53,7 +53,7 @@ EdenUI.Explorer = function() {
 	this.addSetting(curset, "jseden_leaveprompt", "Enable a leave page prompt", "", "boolean");
 
 	var curset = this.expsettings.find('#explorerprojectsettings').get(0);
-	this.addSetting(curset, "jseden_project_nocomments", "Disable comments", "", "boolean");
+	this.addSetting(curset, "jseden_feedback_disabled", "Disable comments", "", "boolean");
 	this.addSetting(curset, "jseden_project_noforking", "Disable forking", "", "boolean");
 
 	var curset = this.expsettings.find('#explorermenusettings').get(0);

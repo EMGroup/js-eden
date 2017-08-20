@@ -24,6 +24,12 @@ EdenUI.Feedback = function() {
 
 	var visSym = eden.root.lookup("jseden_feedback_visible");
 	var widthSym = eden.root.lookup("jseden_feedback_width");
+	var disabledSym = eden.root.lookup("jseden_feedback_disabled");
+
+	disabledSym.addJSObserver("feedback", function(sym, val) {
+		if (val) icon.style.display = "none";
+		else icon.style.display = "inherit";
+	});
 	
 	var me = this;
 	icon.addEventListener("click", function(e) {
