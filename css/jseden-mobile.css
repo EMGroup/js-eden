@@ -7,6 +7,10 @@ div#jseden-main {
 	display: flex;
 }
 
+div#jseden-main.nomenu {
+	top: 0;
+}
+
 div#jseden-views {
 	flex-grow: 1;
 	flex-basis: 70%;

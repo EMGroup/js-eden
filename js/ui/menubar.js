@@ -598,6 +598,16 @@ EdenUI.MenuBar = function() {
 		else me.element.find(".menubar-button.maker").hide();
 	});
 
+	eden.root.lookup("jseden_menu_visible").addJSObserver("menubar", function(sym, value) {
+		if (value) {
+			me.element.show();
+			$('#jseden-main').removeClass("nomenu");
+		} else {
+			me.element.hide();
+			$('#jseden-main').addClass("nomenu");
+		}
+	});
+
 	eden.root.lookup("jseden_menu_showshare").addJSObserver("menubar", function(sym, value) {
 		if (value) me.element.find(".menubar-button.share").show();
 		else me.element.find(".menubar-button.share").hide();
