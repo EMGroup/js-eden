@@ -1148,17 +1148,14 @@ views_unit_y = ${{ edenUI.gridSizeY }}$;
 /** The maximum width a view can be if it fits within the browser window without scrolling.
  *  @oracle
  */
-screenWidth = ${{ window.innerWidth }}$ - 2;
+screenWidth is ${{ document.getElementById("jseden-views").clientWidth }}$ || jseden_menu_visible || browser_resize;
 /** The maximum height a view can be if it fits within the browser window without scrolling.
  *  @oracle
  */
-screenHeight = ${{ window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2}}$;
+screenHeight is ${{ document.getElementById("jseden-views").clientHeight }}$ || jseden_menu_visible || browser_resize;
 ${{
 	window.addEventListener("resize", function (event) {
-		root.beginAutocalcOff();
-		root.lookup("screenWidth").assign(window.innerWidth - 2, root.scope, EdenSymbol.defaultAgent);
-		root.lookup("screenHeight").assign(window.innerHeight - edenUI.menuBarHeight - edenUI.dialogFrameHeight - edenUI.scrollBarSize2, root.scope, EdenSymbol.defaultAgent);
-		root.endAutocalcOff();
+		root.lookup("browser_resize").assign(new Point(window.innerWidth,window.innerHeight), root.scope, EdenSymbol.defaultAgent);
 	});
 }}$;
 
