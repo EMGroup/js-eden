@@ -1,0 +1,380 @@
+<!doctype html>
+<!--
+Copyright (c) 2013, Empirical Modelling Group
+All rights reserved.
+
+See LICENSE.txt
+-->
+
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=0.9">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="theme-color" content="#29454B" />
+	<title>JS-EDEN</title>
+
+	<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.12.1.min.css">
+	<link rel="stylesheet" type="text/css" href="css/jseden-mobile.css">
+	<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="css/eden.css">
+	<link rel="stylesheet" type="text/css" href="css/menu-bar-mobile.css">
+	<link rel="stylesheet" type="text/css" href="css/explorer.css">
+	<link rel="stylesheet" type="text/css" href="css/scriptbox.css">
+	<link rel="stylesheet" type="text/css" href="css/projectdetails-mobile.css">
+	<link rel="stylesheet" type="text/css" href="css/feedback.css">
+	<link rel="stylesheet" type="text/css" href="css/contextmenu.css" />
+	<link rel="stylesheet" type="text/css" href="css/highlighter.css" />
+	<link rel="stylesheet" type="text/css" href="css/markdown.css">
+	<link rel="stylesheet" type="text/css" href="plugins/jseden-plugins.min.css">
+	<link rel="stylesheet" type="text/css" media="print" href="css/print.css" />
+	<link rel="stylesheet" type="text/css" href="css/mobile.css">
+
+	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery-ui-1.12.1.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.dialogextend.min.js"></script>
+	<style type="text/css">
+		/*If we ever upgrade to jquery.ui version 1.10 or later then remove the following rule. */
+		.ui-front {
+			/*z-index: 10000 !important;*/
+		}
+
+		.ui-top {
+			z-index: 200000 !important;
+		}
+
+		/* Used to force a dialog to the back */
+		.ui-back {
+			z-index: 9000 !important;
+		}
+
+		.ui-dialog {
+			z-index: 9999;
+		}
+	</style>
+</head>
+<body>
+
+<script src="js/lib/jquery.color.js"></script>
+<script src="js/lib/jquery.hotkeys.js"></script>
+<script src="js/lib/json2.js"></script>
+<script src="js/lib/diff_match_patch.js"></script>
+<script src="js/lib/showdown.min.js"></script>
+<script src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
+<script src="js/core/jseden.min.js"></script>
+<script src="js/ui/jseden-ui.min.js"></script>
+<script src="js/dummyconsole.js"></script>
+<script src="js/arrayCompareFix.js"></script>
+<script src="plugins/jseden-plugins.min.js"></script>
+
+<script type="text/javascript">
+	var projects;
+
+	$(".loadmodal").show();
+	Construit(undefined, function(loaded) {
+		// Place to record projects by tag.
+		Eden.projecttags = {};
+		var cachedprojects;
+		var maxres = URLUtil.getParameterByName("max");
+		var searchstr = "";
+		maxres = (maxres && maxres != "") ? parseInt(maxres) : undefined;
+
+		$(".loadmodal").hide();
+		if (!loaded) {
+			var q = URLUtil.getParameterByName("q");
+			var lopts = $("#loadoptions");
+
+			function updateSearch() {
+				var pbrowser = lopts.find("#project-browser");
+
+				pbrowser.get(0).style.display = "none";
+				var plist = pbrowser.get(0).previousSibling;
+				//console.log(plist);
+				if (plist === null || plist.nodeName == "#text" || plist.getAttribute("id") != "jseden-project-search") {
+					var pliste = document.createElement("div");
+					pliste.setAttribute("id", "jseden-project-search");
+					pliste.style.height = "initial";
+					pbrowser.get(0).parentNode.insertBefore(pliste, pbrowser.get(0));
+					plist = pliste;
+					pliste.className = "jseden-dialog-plisting";
+				}
+
+				//console.log("Load projects: " + path);
+
+				Eden.DB.search(searchstr, 1, 50, undefined, function(data) {
+					//console.log("SEARCH",searchstr,data,plist);
+					//var pliste = plist.get(0);
+					while (plist.lastChild) plist.removeChild(plist.lastChild);
+					EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, 50, 1, false);
+				});
+			}
+
+			function updateSearch2(searchstr, sortby, plist, count) {
+				if (count === undefined) count = 10;
+				Eden.DB.search(searchstr, 1, count, sortby, function(data) {
+					//console.log("SEARCH",searchstr,data,plist);
+					//var pliste = plist.get(0);
+					while (plist.lastChild) plist.removeChild(plist.lastChild);
+					EdenUI.ProjectDetails._searchProjects(searchstr, $(plist), true, data, count, 1, false);
+				});
+			}
+
+			Eden.Project.listenTo("loading", this, function() {
+				lopts.css("display","none");
+			});
+
+			lopts.css("display","block");
+			lopts.on("keyup",".search", function(e) {
+				var sortby = "downloads";
+				var out = document.getElementById("project-searchresults");
+				updateSearch2(e.currentTarget.value, sortby, out);
+			})
+			.on("change",".search", function(e) {
+				var sortby = "downloads";
+				var out = document.getElementById("project-searchresults");
+				updateSearch2(e.currentTarget.value, sortby, out);
+			})
+			.on("click",".projectmore", function(e) {
+				var filter = e.currentTarget.parentNode.getAttribute("data-filter");
+				console.log("FILTER: " + filter);
+				searchstr = filter;
+				//updateSearch();
+
+				//lopts.find(".searchouter").remove();
+				var content = lopts.find(".project-content");
+				var pbrowser = $("#defaultcontent");
+				pbrowser.get(0).style.display = "none";
+				//var welcometext = $("#welcometext");
+				//welcometext.get(0).style.display = "none";
+				//content[0].removeChild(content[0].firstChild);
+				var newblock = $('<div class="jseden-project-cat tmpitem" data-count="50" data-filter="'+searchstr+'">'+searchstr+'<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search..."></input></div><select class="projectsort"><option>Popular</option><option>Recent</option><option>Rating</option></select></div>');
+				var newres = $('<div id="jseden-custom-projects" style="height: initial;" class="jseden-dialog-plisting tmpitem">');
+				//content.html("");
+				content.prepend(newres);
+				content.prepend(newblock);
+				EdenUI.ProjectDetails.searchProjects(newres, searchstr, 50, undefined, false, "downloads");
+
+				window.history.pushState({query: searchstr},"","?q="+encodeURIComponent(searchstr));
+			});
+
+			// P2P Dialog
+			var p2p = $('#p2pconnect');
+			p2p.on("click", "#p2pgo", function(e) {
+				var p2ppeer = document.getElementById("p2ppeer");
+				var p2proles = document.getElementById("p2proles");
+				//document.location = "?master="+p2ppeer.value;
+				eden.peer = new Eden.Peer(p2ppeer.value, undefined);
+			})
+			.on("click", "#p2plisten", function(e) {
+				var p2ppeer = document.getElementById("p2ppeer");
+				eden.peer = new Eden.Peer(undefined, p2ppeer.value);
+			});
+
+			function setLoadObserver() {
+				eden.root.lookup("_jseden_loaded").addJSObserver("hideProjects", function(sym, value) {
+					if (value) {
+						lopts.css("display","none");
+						$(".loadmessage").html("Loading...");
+						$(".loadmodal").hide();
+					}
+				});
+			}
+			setLoadObserver();
+
+			window.addEventListener("popstate", function(e) {
+				if (!e.state || !e.state.id) {
+					if (eden.project) window.location.reload();
+					else {
+						setLoadObserver();
+						lopts.css("display","block");
+						$(".tmpitem").remove();
+						var pbrowser = $("#defaultcontent");
+						pbrowser.get(0).style.display = "block";
+					}
+				} else {
+					lopts.css("display","none");
+				}
+			});
+
+			function addCategory(name, title, filter, sortby) {
+				var browser = $("#project-browser").get(0);
+				var cat = document.createElement("div");
+				cat.className = "jseden-project-cat";
+				cat.setAttribute("data-filter",filter);
+				cat.innerHTML = title+'<button style="display: inline-block;" class="script-button projectmore">See More</button>';
+				var cont = document.createElement("div");
+				cont.className = "jseden-dialog-plisting";
+				cont.id = "jseden-"+name+"-projects";
+				browser.appendChild(cat);
+				//browser.appendChild(poptags);
+				browser.appendChild(cont);
+
+				displayProjects(name, filter, sortby);
+			}
+
+			function displayProjects(id, query, sortby, cb) {
+				var plist = lopts.find("#jseden-"+id+"-projects");
+				EdenUI.ProjectDetails.searchProjects(plist, query, 10, cb, false, sortby);
+			}
+
+			if (Eden.DB.isConnected()) {
+				if (q && q != "") {
+					//searchstr = q;
+					//updateSearch();
+					//displayProjects(true, function() {
+						//updateSearch(q);
+					//});
+					lopts.find(".searchouter").remove();
+					var content = lopts.find(".project-content");
+					//content[0].removeChild(content[0].firstChild);
+					var newblock = $('<div class="jseden-project-cat">'+q+':</div>');
+					var newres = $('<div id="jseden-custom-projects" class="jseden-dialog-plisting">');
+					content.html("");
+					content.prepend(newres);
+					content.prepend(newblock);
+					EdenUI.ProjectDetails.searchProjects(newres, q, 10);
+					//displayProjects("featured", "#featured");
+					//displayProjects("recent");
+				} else {
+					/*displayProjects("featured", "#featured", "downloads");
+					displayProjects("recent");
+					displayProjects("starter", "#starter", "downloads");
+					displayProjects("ref", "#documentation", "downloads");
+					displayProjects("conf", "#construit2017", "downloads");
+					displayProjects("games", "#game", "downloads");
+					displayProjects("oers", "#OERs", "downloads");*/
+
+					addCategory("featured", "Featured Construals", "#featured", "downloads");
+					addCategory("starter", "Starter Examples", "#starter", "downloads");
+					addCategory("recent", "All Construals", "", undefined);
+					addCategory("ref", "Reference", "#documentation", "downloads");
+					addCategory("conf", "Construit 2017", "#construit2017", "downloads");
+					addCategory("games", "Games", "#game", "downloads");
+					addCategory("oers", "Educational Resources", "#OERs", "downloads");
+				}
+
+				if (Eden.DB.isLoggedIn() == false) {
+					//$("#welcometext").get(0).style.display = "block";
+				}
+			} else {
+				//$("#welcometext").get(0).style.display = "block";
+				$("#project-browser").html('<p>Construal store: <span style="color:red; font-weight: bold;">offline</span>. You are offline or our server is undergoing maintenance, try again later or look at the selected examples below.</p><div class="jseden-project-cat">Examples:</div><div id="jseden-offline-projects" class="jseden-dialog-plisting"></div>');
+				var plist = lopts.find("#jseden-offline-projects");
+
+				var projects = [];
+				for (var x in Eden.Project.local) {
+					Eden.Project.local[x].name = x;
+					if (Eden.Project.local[x].listed) projects.push(Eden.Project.local[x]);
+				}
+				EdenUI.ProjectDetails.localProjects(plist, projects, false);
+			}
+
+			Eden.DB.listenTo("login", this, function(name) {
+				var plist = lopts.find("#jseden-private-projects").get(0);
+				if (!plist) return;
+				var node = plist.firstChild;
+				while (node) {
+					var next = node.nextSibling;
+					plist.removeChild(node);
+					node = next;
+				}
+
+				displayProjects("private",":me");
+
+				//$("#welcometext").get(0).style.display = "none";
+				$("#privateprojects").get(0).style.display = "block";
+				//$("#projectbuttons").get(0).style.display = "flex";
+
+				document.getElementById("p2plisten").disabled = false;
+				document.getElementById("mobilelogin").style.display = "none";
+				document.getElementById("mobilelogout").style.display = "initial";
+
+				document.getElementById("menubar-obscurer").style.display = "none";
+			});
+
+			Eden.DB.listenTo("logout", this, function() {
+				var plist = lopts.find("#jseden-private-projects").get(0);
+				if (!plist) return;
+				var node = plist.firstChild;
+				while (node) {
+					var next = node.nextSibling;
+					plist.removeChild(node);
+					node = next;
+				}
+				document.getElementById("privateprojects").style.display = "none";
+
+				document.getElementById("p2plisten").disabled = true;
+				document.getElementById("mobilelogin").style.display = "initial";
+				document.getElementById("mobilelogout").style.display = "none";
+
+				//$("#welcometext").get(0).style.display = "block";
+				//displayProjects(true);
+			});
+
+			Eden.Project.listenTo("load", this, function() {
+				$(".loadmodal").hide();
+			});
+
+			Eden.Peer.listenTo("status", this, function(msg, code) {
+				document.getElementById("p2pconnect").style.display = "none";
+				var ele = document.getElementById("p2pconnected");
+				if (code == 1) {
+					ele.style.display = "flex";
+				}
+			});
+		}
+	});
+</script>
+
+<div id="jseden-main">
+<div id="jseden-views"></div>
+</div>
+
+<div class="loadmodal modal" style="display: block">
+	<div class="loaddialog">
+		<div class="mainloader">Loading...</div>
+		<div class="loadmessage">Loading...</div>
+	</div>
+</div>
+
+<div id="loadoptions" class="" style="display: none;">
+	<div class="project-content">
+		<div id="defaultcontent">
+		</div>
+		<div id="projectbuttons" class="jseden-dialog-plisting">
+			<img width="278" src="images/construit_logo_5.png"/>
+			<button id="mobilelogin" onclick="edenUI.menu.showLogin();"><span class="icon">&#xf090;</span>Sign-In</button>
+			<button id="mobilelogout" style="display: none;" onclick="Eden.DB.logOut();"><span class="icon">&#xf08b;</span>Sign-Out</button>
+			<button onclick="document.getElementById('p2pconnect').style.display = 'flex';"><span class="icon">&#xf0c1;</span>P2P Connect</button>
+		</div>
+		<div class="projectsearchouter"><input type="text" class="search projectsearch" placeholder="Search..."></input></div>
+		<div id="project-searchresults" class="jseden-dialog-plisting"></div>
+		<div id="project-browser">
+			<div id="privateprojects" style="display: none">
+			<div class="jseden-project-cat" data-filter=":me">Your Projects<button class="script-button projectmore">See More</button></div>
+			<div id="jseden-private-projects" class="jseden-dialog-plisting">
+			</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>
+
+<div id="p2pconnect" class="mobile-dialog" style="display: none;">
+	<img width="278" src="images/construit_logo_5.png"/>
+	<input id="p2ppeer" type="text" placeholder="Peer Name..."></input>
+	<input id="p2proles" type="text" placeholder="Your Roles..."></input>
+	<button id="p2pgo"><span class="icon">&#xf0c1;</span>Connect</button>
+	<button id="p2plisten" disabled><span class="icon">&#xf017;</span>Listen</button>
+	<button onclick="document.getElementById('p2pconnect').style.display = 'none';"><span class="icon">&#xf00d;</span>Cancel</button>
+</div>
+
+<div id="p2pconnected" class="mobile-dialog" style="display: none;">
+	<div>P2P Connected</div>
+	<button onclick="document.getElementById('p2pconnected').style.display = 'none';">Continue</button>
+</div>
+
+<div id="tooltip" style="display:none"></div>
+</body>
+</html>
