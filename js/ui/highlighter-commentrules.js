@@ -820,11 +820,11 @@ EdenUI.Highlight.prototype.COMMENT_HTML = function() {
 }
 
 EdenUI.Highlight.prototype.COMMENT_HTML_CONTENT = function() {
-	if (this.token != "<") {
+	if (this.token != "</") {
 		this.COMMENT();
 	} else if (this.cacheddata) {
 		var linestr = this.stream.peekLine();
-		var endtag = "/"+this.cacheddata.tagname+">";
+		var endtag = this.cacheddata.tagname+">";
 		var endix = linestr.indexOf(endtag);
 
 		if (endix == -1) {
