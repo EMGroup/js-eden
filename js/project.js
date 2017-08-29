@@ -169,6 +169,28 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 		Eden.DB.load(pid, vid, readPassword, function(data) {
 			if (data) {
 				var meta = data;
+				var extra;
+
+				if (meta.projectMetaData !== null) {
+					extra = JSON.parse(meta.projectMetaData);
+
+					if (extra.env) {
+						// Verify the environment matches requirements
+						if (!Eden.Project.verifyEnvironment(extra.env)) {
+							var validenv = Eden.Project.findEnvironment(extra.env);
+							if (validenv) {
+								document.location = validenv + URLUtil.updateQueryString({
+									load: pid,
+									vid: data.saveID,
+									r: (readPassword) ? "&r=" + readPassword : ""
+								});
+							} else {
+								alert("This project needs a different version of JS-Eden");
+							}
+						}
+					}
+				}
+
 				eden.project = new Eden.Project(pid, meta.minimisedTitle, data.source);
 				console.log("LOAD PROJECT",data);
 				eden.project.vid = data.saveID;
@@ -182,25 +204,8 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 				eden.root.lookup("jseden_project_name").assign(meta.minimisedTitle, eden.root.scope, EdenSymbol.localJSAgent);	
 				eden.root.lookup("jseden_project_thumb").assign(meta.image, eden.root.scope, EdenSymbol.localJSAgent);
 				eden.root.lookup("jseden_project_author").assign(meta.ownername, eden.root.scope, EdenSymbol.localJSAgent);
-				if (meta.projectMetaData !== null) {
-					var extra = JSON.parse(meta.projectMetaData);
+				if (extra) {
 					eden.project.desc = extra.description;
-
-					if (extra.env) {
-						// Verify the environment matches requirements
-						if (!Eden.Project.verifyEnvironment(extra.env)) {
-							var validenv = Eden.Project.findEnvironment(extra.env);
-							if (validenv) {
-								document.location = validenv + URLUtil.updateQueryString({
-									load: eden.project.id,
-									vid: eden.project.vid,
-									r: (readPassword) ? "&r=" + readPassword : ""
-								});
-							} else {
-								alert("This project needs a different version of JS-Eden");
-							}
-						}
-					}
 				}
 				// TODO More meta
 				// rebuild doxy comment
@@ -228,7 +233,9 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 Eden.Project.verifyEnvironment = function(env) {
 	for (var x in env) {
 		var val = eden.root.lookup("jseden_"+x).value();
-		if (typeof env[x] == "string") {
+		if (x == "parser_cs3") {
+			eden.root.lookup("jseden_parser_cs3").assign(true, eden.root.scope, EdenSymbol.defaultAgent);
+		} else if (typeof env[x] == "string") {
 			var ch0 = env[x].charAt(0);
 
 			switch (ch0) {
@@ -260,7 +267,8 @@ Eden.Project.prototype.environment = function() {
 	return {
 		version_major: eden.root.lookup("jseden_version_major").value(),
 		webgl: eden.root.lookup("jseden_webgl").value(),
-		p2p_constructs: eden.root.lookup("jseden_p2p_constructs").value()
+		p2p_constructs: eden.root.lookup("jseden_p2p_constructs").value(),
+		parser_cs3: eden.root.lookup("jseden_parser_cs3").value()
 	};
 }
 

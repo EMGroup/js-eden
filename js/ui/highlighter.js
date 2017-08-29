@@ -66,6 +66,8 @@
 		this.incomment = false;
 		this.brline = (options && options.brline);
 
+		this.cs3 = eden.root.lookup("jseden_parser_cs3").value();
+
 		this.styleExtensions = {};
 
 		this.metrics = {};
@@ -543,6 +545,8 @@
 		var token = "INVALID";
 		var prevtoken = "INVALID";
 		var stream = this.stream;
+
+		this.cs3 = eden.root.lookup("jseden_parser_cs3").value();
 
 		//var curtop = (options && options.spacing && options.spacing[0]) ? options.spacing[0] : 20;
 

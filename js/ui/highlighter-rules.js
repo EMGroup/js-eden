@@ -290,7 +290,7 @@ EdenUI.Highlight.prototype.START = function() {
 						this.pushMode();
 						this.mode = "SELECTOR";
 						break;
-	case "<"		:	if (this.prevtoken != "OBSERVABLE" && this.prevtoken != ")" && this.prevtoken != "]" && this.prevtoken != "}") {
+	case "<"		:	if (this.cs3 && this.prevtoken != "OBSERVABLE" && this.prevtoken != ")" && this.prevtoken != "]" && this.prevtoken != "}") {
 							this.classes.push("htmltag");
 							this.pushMode();
 							this.mode = "HTML";
@@ -298,9 +298,11 @@ EdenUI.Highlight.prototype.START = function() {
 							this.classes.push("operator");
 						}
 						break;
-	case "</"		:	this.pushMode();
-						this.mode = "HTML_CLOSE";
-						this.classes.push("htmltag");
+	case "</"		:	if (this.cs3) {
+							this.pushMode();
+							this.mode = "HTML_CLOSE";
+							this.classes.push("htmltag");
+						}
 						break;
 	case "<<"		:	var t = this.stream.readToken();
 						var obs = this.stream.tokenText();
