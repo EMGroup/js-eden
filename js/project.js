@@ -222,7 +222,7 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 		});
 	//});
 
-	if (cb) cb();
+	//if (cb) cb();
 }
 
 Eden.Project.verifyEnvironment = function(env) {
