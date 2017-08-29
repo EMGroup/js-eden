@@ -14,6 +14,7 @@ Div = function (html, x, y, width, height, id, classNames, style) {
 	this.obsName = root.currentObservableName();
 	this.classNames = classNames;
 	this.style = style;
+	this.transformCSS = null;
 
 	//Separate font-size from other CSS information.
 	var styleType = typeof(style);
@@ -265,7 +266,8 @@ Div.prototype.scale = function (scale, zoom , origin) {
 		}
 	}*/
 	//if (scale != this.cachedScale) {
-		style.transform = "scale("+zoom+")";
+		//style.transform = "scale("+zoom+")";
+		this.transformCSS = "scale("+zoom+")";
 	//}
 	this.cachedScale = scale;
 	this.resize();

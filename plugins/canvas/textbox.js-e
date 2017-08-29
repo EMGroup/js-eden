@@ -166,6 +166,7 @@ Textbox.prototype.scale = function (scale, zoom, origin) {
 		style.height = (rows * lineHeight * zoom) + "px";
 	}
 	style.fontSize = (edenUI.plugins.Canvas2D.defaultFontSizePx * zoom) + "px";
+	style.transform = "scale("+zoom+")";
 };
 
 Textbox.prototype.toString = function() {

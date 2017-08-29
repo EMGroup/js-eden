@@ -314,6 +314,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 								if (htmlEl) {
 									//var htmlJQ = $(htmlEl);
 									//htmlJQ.css("transform", cssTransform);
+									htmlEl[0].style.transform = ((item.transformCSS) ? item.transformCSS+" " : "") + cssTransform;
 									htmlEl[0].setAttribute("data-garbage", false);
 									if (!existingEl) {
 										if (content.length <= contentindex) {
