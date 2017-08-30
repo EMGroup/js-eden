@@ -300,7 +300,7 @@ Eden.AST.parseStatement = function(src, origin) {
 	stat.base = ast;
 	stat.setSource(0,src.length, src);
 	stat.stamp = ast.stamp;
-	var numlines = src.match("\n");
+	var numlines = (stat.prefix) ? (stat.prefix+stat.postfix).match("\n") : src.match("\n");
 	if (numlines === null) stat.numlines = 0;
 	else stat.numlines = numlines.length;
 	return stat;
