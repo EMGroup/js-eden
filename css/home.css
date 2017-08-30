@@ -140,6 +140,7 @@ div#footerlinks a:hover {
 			color: #444;
 			height: 415px;
 			padding-right: 0;
+			position: relative;
 		}
 
 		div#welcometext h1 {
@@ -149,13 +150,13 @@ div#footerlinks a:hover {
 		img#welcometitle {
 			/*font-family: 'Allerta Stencil', sans-serif;*/
 			position: absolute;
-			top: 150px;
+			top: 60px;
 			left: 540px;
 		}
 
 		div#welcomecontent {
 			position: absolute;
-			top: 300px;
+			top: 220px;
 			left: 550px;
 			color: #222;
 			font-size: 16pt;
