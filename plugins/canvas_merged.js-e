@@ -9081,6 +9081,7 @@ View.prototype.scale = function (scale, zoom , origin) {
 	}*/
 	if (scale != this.cachedScale) {
 		style.transform = "scale("+scale+")";
+		this.transformCSS = "scale("+scale+")";
 	}
 	this.cachedScale = scale;
 	this.resize();
