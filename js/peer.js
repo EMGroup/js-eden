@@ -233,6 +233,7 @@ Eden.Peer = function(master, id) {
 			} else {
 				var stat = new Eden.AST.DummyStatement();
 				stat.source = obj.add[i].source;
+				stat.numlines = stat.source.split("\n").length-1;
 
 				if (obj.add[i].id == 0) {
 					if (node.statements[0]) node.insertBefore(node.statements[0], stat);

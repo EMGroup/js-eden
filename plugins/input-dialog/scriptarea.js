@@ -149,6 +149,10 @@ EdenUI.ScriptArea.prototype.refresh = function() {
 		//this.intextarea.focus();
 		//this.checkScroll();
 
+		//console.log("Refresh script area");
+
+		//this.gutter.clear();
+
 		//this.gutter.setBaseAST(frag.ast.script);
 	}
 }
