@@ -155,9 +155,18 @@ Eden.Peer = function(master, id) {
 		delete me.callbacks[obj.cbid];
 	}
 
+	function processCall(obj) {
+		var p = eden.root.lookup(obj.name);
+		try {
+			p.value().apply(p, obj.args);
+		} catch(e) {
+
+		}
+	}
+
 	function processWhen(obj) {
 		console.log("ProcessWhen", obj);
-		var whens = Eden.Selectors.query(".id("+obj.id+")");
+		var whens = Eden.Selectors.query(".id("+obj.wid+")");
 		for (var i=0; i<whens.length; i++) {
 			if (obj.status) {
 				eden.project.registerAgent(whens[i], true);
@@ -294,6 +303,7 @@ Eden.Peer = function(master, id) {
 		case "patch"		: processPatch(obj); break;
 		case "when"			: processWhen(obj); break;
 		case "require"		: processRequire(obj); break;
+		case "call"			: processCall(obj); break;
 		//case "ownership"	: processOwnership(obj); break;
 		//case "doxy"			: processDoxy(obj); break;
 		}
@@ -511,12 +521,16 @@ Eden.Peer.prototype.doImport = function(agent, selector) {
 
 }
 
+Eden.Peer.prototype.callProcedure = function(name, args) {
+	this.broadcast({cmd: "call", name: name, args: args});
+}
+
 Eden.Peer.prototype.activateWhen = function(whenid) {
-	this.broadcast({cmd: "when", status: true, id: whenid});
+	this.broadcast({cmd: "when", status: true, wid: whenid});
 }
 
 Eden.Peer.prototype.deactivateWhen = function(whenid) {
-	this.broadcast({cmd: "when", status: false, id: whenid});
+	this.broadcast({cmd: "when", status: false, wid: whenid});
 }
 
 /*Eden.Peer.prototype.doExec = function(agent, selector) {

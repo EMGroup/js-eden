@@ -401,6 +401,7 @@ Eden.Project.prototype.setDescription = function(text) {
 }*/
 
 Eden.Project.prototype.registerAgent = function(when, net) {
+	when.executed = 1;
 	//console.log("REGISTER WHEN", when.id, when);
 	for (var x in when.dependencies) {
 		//if (this.triggers[x] === undefined) this.triggers[x] = [];
@@ -412,6 +413,8 @@ Eden.Project.prototype.registerAgent = function(when, net) {
 }
 
 Eden.Project.prototype.removeAgent = function(when, net) {
+	when.executed = 0;
+
 	//console.log("REMOVE WHEN", when);
 	for (var x in when.dependencies) {
 		/*var t = this.triggers[x];

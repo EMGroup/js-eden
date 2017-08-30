@@ -20,6 +20,18 @@ Eden.AST.FunctionCall.prototype.left = function(lvalue) {
 	}
 };
 
+Eden.AST.FunctionCall.prototype.generateArgs = function(ctx, scope) {
+	var res = "[";
+	if (this.params) {
+		for (var i=0; i<this.params.length; i++) {
+			var express = this.params[i].generate(ctx, scope, {bound: false});
+			res += "("+express+")";
+			if (i != this.params.length-1) res += ",";
+		}
+	}
+	return res + "]";
+}
+
 Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 	if (this.lvalue === undefined) {
 		var res = "(";
@@ -47,8 +59,18 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 }
 
 Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
+	if (!this.lvalue) return;
+
 	this.executed = 1;
-	var func = "(function(context,scope) { return " + this.generate(ctx, "scope") + "; })";
+	var func = "(function(context,scope) { ";
+	func += "let name = "+this.lvalue.generate(ctx,scope)+";\n";
+	func += "let args = "+this.generateArgs(ctx, "scope")+";\n";
+
+	if (eden.peer) {
+		func += "eden.peer.callProcedure(name, args);\n";
+	}
+
+	func += "return scope.value(name).apply(context.lookup(name),args); })";
 
 	try {
 		return eval(func).call(ctx,eden.root,scope);
@@ -57,6 +79,7 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 		this.errors.push(err);
 		err.line = this.line;
 		eden.emit("error", [agent,err]);
+		console.error(func);
 		//throw e;
 	}
 }

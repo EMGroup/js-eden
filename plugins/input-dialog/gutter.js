@@ -354,6 +354,7 @@ EdenScriptGutter.prototype.executeSelected = function() {
 
 
 EdenScriptGutter.prototype.showBrace = function(start, end) {
+	console.log("Show brace",start,end);
 	this.brace.style.display = "block";
 	var top = this.lineelements.childNodes[start].offsetTop;
 	this.brace.style.top = top + "px";
