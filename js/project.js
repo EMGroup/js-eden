@@ -182,7 +182,7 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 								document.location = validenv + URLUtil.updateQueryString({
 									load: pid,
 									vid: data.saveID,
-									r: (readPassword) ? "&r=" + readPassword : ""
+									r: (readPassword) ? readPassword : ""
 								});
 							} else {
 								alert("This project needs a different version of JS-Eden");
@@ -217,9 +217,11 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 				var url = URLUtil.updateQueryString({
 									load: eden.project.id,
 									vid: eden.project.vid,
-									r: (readPassword) ? "&r=" + readPassword : ""
+									r: (readPassword) ? readPassword : ""
 								});
-				window.history.pushState({id: eden.project.id, vid: eden.project.vid},"",url);
+				if (document.location.search != url) {
+					window.history.pushState({id: eden.project.id, vid: eden.project.vid},"",url);
+				}
 
 				//Eden.Project.emit("load", [me]);
 			}
