@@ -1,6 +1,7 @@
 Eden.AST.DummyStatement = function() {
 	this.type = "dummy";
 	Eden.AST.BaseStatement.apply(this);
+	this.start = -1;
 }
 
 Eden.AST.DummyStatement.prototype.generate = function() {
@@ -13,7 +14,7 @@ Eden.AST.DummyStatement.prototype.execute = function() {
 Eden.AST.registerStatement(Eden.AST.DummyStatement);
 
 Eden.AST.DummyStatement.prototype.setSource = function(start, end, src) {
-	this.start = Math.max(this.start, start);
+	this.start = (this.start < 0) ? start : this.start;
 	this.end = end;
 	if (this.source) {
 		this.source += src;
