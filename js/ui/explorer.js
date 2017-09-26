@@ -69,6 +69,7 @@ EdenUI.Explorer = function() {
 	this.addSetting(curset, "jseden_p2p_captureedits", "Send script edits", "", "boolean");
 	this.addSetting(curset, "jseden_p2p_captureinput", "Send UI Events (Mouse...)", "", "boolean");
 	this.addSetting(curset, "jseden_p2p_doactive", "Copy all state on connect", "", "boolean");
+	this.addSetting(curset, "jseden_p2p_clone", "Send project on connect", "", "boolean");
 	this.addSetting(curset, "jseden_p2p_record", "Record collaboration", "", "boolean");
 
 	curset = this.expsettings.find('#explorersearchsettings').get(0);

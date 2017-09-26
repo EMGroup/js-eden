@@ -16,6 +16,7 @@ Eden.Peer = function(master, id) {
 	this.callbackid = 0;
 	this.capturepatch = false;
 	this.record = false;
+	this.clone = true;
 	this.startrecordtime = 0;
 	this.log = null;
 
@@ -122,7 +123,7 @@ Eden.Peer = function(master, id) {
 		if (obj.value) {
 			pconn.share = true;
 			// Auto share state.
-			if (eden.project) {
+			if (eden.project && me.clone) {
 				var script = eden.project.generate();
 				pconn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
 					vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
@@ -350,7 +351,7 @@ Eden.Peer = function(master, id) {
 				eden.root.lookup("jseden_p2p_newconnections").append(conn.peer, eden.root.scope, EdenSymbol.localJSAgent);
 
 				conn.on('open', function() {
-					if (me.config.share) {
+					if (me.config.share && me.clone) {
 						// Auto share state.
 						var script = eden.project.generate();
 						conn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
@@ -408,6 +409,16 @@ Eden.Peer = function(master, id) {
 		} else {
 			EdenSymbol.hciAgent.local = true;
 			EdenSymbol.localJSAgent.local = true;
+		}
+	});
+
+	var cloneSym = eden.root.lookup("jseden_p2p_clone");
+	if (cloneSym.value() === undefined) cloneSym.assign(true, eden.root.scope, EdenSymbol.defaultAgent);
+	cloneSym.addJSObserver("p2p", function(sym, value) {
+		if (value) {
+			me.clone = true;
+		} else {
+			me.clone = false;
 		}
 	});
 
@@ -585,7 +596,7 @@ Eden.Peer.prototype.requestObserve = function(id, cb) {
 		pconn.connection.send(JSON.stringify({cmd: "reqobserve", value: true, cbid: this.addCallback(cb)}));
 		// Auto share state.
 
-		if (eden.project) {
+		if (eden.project && this.clone) {
 			var script = eden.project.generate(); //Eden.Generator.getScript();
 			pconn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
 				vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
@@ -615,7 +626,7 @@ Eden.Peer.prototype.requestCollaborate = function(id, cb) {
 			me.requestObserve(id, cb);
 		})}));
 
-		if (eden.project) {
+		if (eden.project && me.clone) {
 			// Auto share state.
 			var script = eden.project.generate(); //Eden.Generator.getScript();
 			pconn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
