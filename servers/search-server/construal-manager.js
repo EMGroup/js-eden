@@ -269,7 +269,7 @@ var app = express();
   app.use(flash());
   
   app.use(function(req, res, next) {
-	  var allowedOrigins = ["http://localhost:8000","http://127.0.0.1:8000","http://emgroup.github.io","http://jseden.dcs.warwick.ac.uk"];
+	  var allowedOrigins = ["http://localhost:8000","http://127.0.0.1:8000","http://emgroup.github.io","http://jseden.dcs.warwick.ac.uk", "http://construit.co.uk"];
 	  var corsOrigin = "http://localhost:8000";
 	  if(typeof(req.headers.origin) != 'undefined' && allowedOrigins.indexOf(req.headers.origin) > -1){
 		corsOrigin = req.headers.origin;
