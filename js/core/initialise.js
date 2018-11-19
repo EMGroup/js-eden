@@ -235,6 +235,8 @@ function Construit(options,callback) {
 				if (menuBar) {
 					edenUI.menu = new EdenUI.MenuBar();
 					//eden.execute2("jseden_project_subtitle is \"Version \" // jseden_version_name;", Symbol.defaultAgent);
+				} else {
+					eden.root.lookup("jseden_nomenu").assign(true, eden.root.scope, Symbol.defaultAgent);
 				}
 
 				if (!options || !options.noload) {

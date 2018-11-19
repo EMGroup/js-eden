@@ -338,7 +338,7 @@
 				title = title + " (" + viewData.titleBarInfo + ")";
 			}
 			diag.dialog("option", "title", title);
-			edenUI.menu.updateViewsMenu();
+			if (edenUI.menu) edenUI.menu.updateViewsMenu();
 		}
 		titleSym.addJSObserver("updateTitleBar", updateTitleBar);
 		if (title === undefined) {
