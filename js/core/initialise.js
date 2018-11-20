@@ -236,6 +236,7 @@ function Construit(options,callback) {
 					edenUI.menu = new EdenUI.MenuBar();
 					//eden.execute2("jseden_project_subtitle is \"Version \" // jseden_version_name;", Symbol.defaultAgent);
 				} else {
+					document.getElementById("jseden-main").style.top = "0"; // Expand view area
 					eden.root.lookup("jseden_nomenu").assign(true, eden.root.scope, Symbol.defaultAgent);
 				}
 
