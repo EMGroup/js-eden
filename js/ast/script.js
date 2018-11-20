@@ -6,6 +6,8 @@ Eden.AST.Script = function() {
 	this.base = undefined;
 	this.prefix = "";
 	this.postfix = "";
+	this.readables = null;
+	this.writables = null;
 };
 
 Eden.AST.registerScript(Eden.AST.Script);
@@ -180,6 +182,14 @@ Eden.AST.Script.prototype.error = Eden.AST.fnEdenASTerror;
 Eden.AST.Script.prototype.setName = function(base, name) {
 	this.name = name;
 	this.shortName = name;
+}
+
+Eden.AST.Script.prototype.setReadables = function(readables) {
+	this.readables = readables;
+}
+
+Eden.AST.Script.prototype.setWritables = function(writables) {
+	this.writables = writables;
 }
 
 Eden.AST.Script.prototype.setSource = function(start, end, src) {

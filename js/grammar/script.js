@@ -15,6 +15,26 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		this.next();
 	}
 
+	let readables,writables;
+	if (this.token == "(") {
+		this.next();
+		if (this.token == "oracle") {
+			this.next();
+			readables = this.pCODESELECTOR();
+		}
+		if (this.token == ";") this.next();
+		if (this.token == "handle") {
+			this.next();
+			writables = this.pCODESELECTOR();
+		}
+		if (this.token != ")") {
+			var script = new Eden.AST.Script();
+			script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+			return script;
+		}
+		this.next();
+	}
+
 	if (this.token == "is") {
 		this.next();
 		var alias = new Eden.AST.Alias();
@@ -40,6 +60,8 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	if (script.errors.length > 0) return script;
 
 	script.setName(this,name);
+	if (readables) script.setReadables(readables);
+	if (writables) script.setWritables(writables);
 
 	if (this.token != "}") {
 		script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
