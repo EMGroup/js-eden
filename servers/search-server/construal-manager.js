@@ -964,7 +964,7 @@ app.get('/project/get', function(req,res){
 						var source = ret.source;
 						var date = ret.date;
 						if(req.query.from){
-							sendDiff(req.query.from,source,req.query.projectID,res,metaRow);
+							sendDiff(req.query.from,source,req.query.projectID,targetSaveID,res,metaRow);
 						}else{
 							var srcRow = {saveID: saveID, projectID: projectID,source:source, date:date, meta: metaRow};
 							res.json(Object.assign(srcRow,metaRow));
@@ -988,7 +988,7 @@ app.get('/project/get', function(req,res){
 							var source = ret.source;
 							var date = ret.date;
 							if(req.query.from){
-								sendDiff(req.query.from,source,req.query.projectID,res,metaRow);
+								sendDiff(req.query.from,source,req.query.projectID,saveID,res,metaRow);
 							}else{
 								var srcRow = {saveID: saveID, projectID: req.query.projectID,source:source, date:date, meta: metaRow};
 								res.json(Object.assign(srcRow,metaRow));
@@ -1015,7 +1015,7 @@ function sendDiff(fromID,toSource,projectID,toID,res,metaRow){
 			var p = dmp.patch_make(source,toSource,d);
 			var patchText = dmp.patch_toText(p);
 			var srcRow = {from: fromID, projectID: projectID, to: toID, patch: patchText};
-			res.json(Object.assing(srcRow,metaRow));
+			res.json(Object.assign(srcRow,metaRow));
 		});
 	});
 }
