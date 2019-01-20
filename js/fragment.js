@@ -68,6 +68,8 @@ Eden.Fragment = function(selector) {
 			var line = child.getStartLine(ast);
 			Eden.Fragment.emit("gotoline", [me, line]);
 			return true;
+		} else if (ast === undefined) {
+			this.setSourceInitial(child.source);
 		}
 		return false;
 	});

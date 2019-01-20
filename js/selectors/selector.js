@@ -750,7 +750,9 @@ Eden.Selectors.goto = function(selector) {
 				var id = (res[0].type == "script") ? selector : Eden.Selectors.getID(res[0].parent);
 				tabs.push(id);
 				eden.root.lookup("view_"+x+"_tabs").assign(tabs, eden.root.scope, EdenSymbol.localJSAgent);
-				success = Eden.Fragment.emit("goto", [nodes[i], res[0]]);
+				Eden.Fragment.emit("goto", [undefined, res[0]]);
+				eden.root.lookup("view_"+x+"_current").assign(tabs.length-1, eden.root.scope, EdenSymbol.localJSAgent);
+				success = true;
 				break;
 			}
 		}
