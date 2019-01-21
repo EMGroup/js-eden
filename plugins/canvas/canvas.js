@@ -286,7 +286,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 										}
 									} catch (e) {
 										if (item !== undefined) {
-											console.log(e);
+											console.error(item, e);
 											//var debug = root.lookup("debug").value();
 											//if (typeof(debug) == "object" && debug.jsExceptions) {
 											//	debugger;

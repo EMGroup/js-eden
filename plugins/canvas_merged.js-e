@@ -1140,6 +1140,8 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 	this.sy = sy1;
 	this.smoothed = smoothed;
 
+	this.canvasesToRepaint = {};
+
 	if (CanvasImage.cache[file]) {
 		this.image = CanvasImage.cache[file];
 		this.loaded = this.image.complete;
@@ -1165,7 +1167,6 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 	} else {
 		this.image = new Image();
 		//this.image.setAttribute("crossorigin","anonymous");	
-		this.canvasesToRepaint = {};
 		this.loaded = false;
 	
 		var me = this;
