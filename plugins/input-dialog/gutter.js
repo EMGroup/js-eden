@@ -559,6 +559,9 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 			} else if (stat.executed == 3) {
 				className += " errorblock";
 				doupdate = true;
+			} else if (stat.type != "section") {
+				className += " unexecuted";
+				doupdate = true;
 			}
 
 			// Need to remove any old error messages
