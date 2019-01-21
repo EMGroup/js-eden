@@ -6,6 +6,8 @@ var express = require('express')
  , methodOverride = require("method-override")
 , session = require("express-session");
 Eden = {};
+global.EdenSymbol = function(){};
+EdenSymbol.prototype.value = function(){};
 edenFunctions = {};
 var config = require("./config.js");
 
