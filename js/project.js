@@ -308,12 +308,12 @@ Eden.Project.prototype.start = function(cb) {
 	});
 }
 
-Eden.Project.prototype.diff = function() {
+function _diff(a,b) {
 	var dmp = new diff_match_patch();
-	var newsrc = this.generate();
-	var d = dmp.diff_main(this.ast.stream.code, newsrc);
+	//var newsrc = this.generate();
+	var d = dmp.diff_main(a, b);
 	dmp.diff_cleanupSemantic(d);
-	var diffhtml = dmp.diff_prettyHtml(d);
+	//var diffhtml = dmp.diff_prettyHtml(d);
 
 	var res = "";
 	var line = 0;
@@ -325,16 +325,20 @@ Eden.Project.prototype.diff = function() {
 			continue;
 		} else if (d[i][0] == 1) {
 			var html = EdenUI.Highlight.html(d[i][1]);
-			res += 'line:'+(line+1)+' + <span style="background: #ddffdd;">'+html+'</span>';
+			res += '<div>line:'+(line+1)+' + <span style="background: #ddffdd;">'+html+'</span></div>';
 			if (linechars !== null) line += linechars.length;
 		} else if (d[i][1] == 2) {
 			var html = EdenUI.Highlight.html(d[i][1]);
-			res += 'line:'+(line+1)+' - <span style="background: #ffdddd;">'+html+'</span>';
+			res += '<div>line:'+(line+1)+' - <span style="background: #ffdddd;">'+html+'</span></div>';
 			if (linechars !== null) line -= linechars.length;
 		}
 	}
 
 	return res;
+}
+
+Eden.Project.prototype.diff = function(o, n) {
+	return _diff((!o) ? this.ast.stream.code : o, (!n) ? this.generate() : n);
 }
 
 Eden.Project.prototype.save = function(pub, callback) {

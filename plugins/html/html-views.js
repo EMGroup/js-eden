@@ -52,7 +52,14 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 			if (value === undefined) {
 				code_entry.html('<div class="htmlviews-undefined">Give view_' + viewName +'_content a value to display HTML formatted text here.</div>');
 			} else {
-				code_entry.html(value);
+				if (typeof value == "string") {
+					code_entry.html(value);
+				} else {
+					var ele = code_entry[0];
+					// Remove all
+					while (ele.lastChild) ele.removeChild(ele.lastChild);
+					ele.appendChild(value);
+				}
 			}
 		};
 		updateView(contentSym, contentSym.value());
