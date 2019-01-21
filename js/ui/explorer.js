@@ -77,6 +77,7 @@ EdenUI.Explorer = function() {
 	this.addSetting(curset, "jseden_search_external", "Always include external", "", "boolean");
 	this.addSetting(curset, "jseden_search_all", "Don't make unique", "", "boolean");
 	this.addSetting(curset, "jseden_search_nosort", "Don't sort by time", "", "boolean");
+	this.addSetting(curset, "jseden_search_projects", "Include projects in results", "", "boolean");
 
 	curset = this.expsettings.find('#explorerparsersettings').get(0);
 	this.addSetting(curset, "jseden_parser_strict", "Strict mode", "", "boolean");
@@ -89,6 +90,7 @@ EdenUI.Explorer = function() {
 	curset = this.expsettings.find('#explorerscriptviewsettings').get(0);
 	this.addSetting(curset, "jseden_script_query", "Default browse query", "", "text");
 	this.addSetting(curset, "jseden_script_buttons", "Show buttons", "", "boolean");
+	this.addSetting(curset, "jseden_script_diffs", "Enable diff feature", "", "boolean");
 	this.addSetting(curset, "jseden_script_highlighting", "Disable highlighting", "", "boolean");
 	this.addSetting(curset, "jseden_script_styling", "Disable comment styling", "", "boolean");
 	this.addSetting(curset, "jseden_script_hidecomments", "Hide all comments", "", "boolean");

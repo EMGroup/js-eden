@@ -415,6 +415,10 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (curtab >= 0) {
 				var html = '<button class="script-button script-run" title="Run the entire script"><span class="explorer-control-icon">&#xf04b;</span>Run</button>';
 
+				if (eden.root.lookup("jseden_script_diffs").value()) {
+					html += '<button class="script-button script-changes" title="Show recent changes"><span class="explorer-control-icon">&#xf044;</span>Edits</button>';
+				}
+
 				var frag = tab_frags[curtab];
 
 				if (frag && frag.scratch && !frag.edited) {

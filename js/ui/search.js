@@ -263,11 +263,12 @@ EdenUI.SearchBox.prototype.updateSearch = function(q) {
 			var i = 0;
 			var MAXRES = 8;
 			var count = 0;
+			var include_projects = eden.root.lookup("jseden_search_projects").value();
 
 			//console.log(res);
 
 			for (i=0; i<res.length; i++) {
-				if (res[i].parent === undefined && res[i].executed == 0) continue;
+				if (!include_projects && res[i].parent === undefined && res[i].executed == 0) continue;
 				if (count >= MAXRES) break;
 				count++;
 				var ele;

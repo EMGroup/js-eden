@@ -415,9 +415,11 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 	this.edits = diff;
 	var lineshift = 0;
 
-	while (this.gutter.firstChild) {
-		this.gutter.removeChild(this.gutter.firstChild);
-	}
+	console.log(diff,this.ast);
+
+	//while (this.gutter.firstChild) {
+	//	this.gutter.removeChild(this.gutter.firstChild);
+	//}
 
 	if (diff === undefined) return;
 
@@ -425,17 +427,17 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 
 	var nline = 0;
 	var oline = 0;
-	var total = this.ast.lines.length + Object.keys(diff.remove).length;
+	var total = this.lines.length + Object.keys(diff.remove).length;
 	var waspartial = false;
 
 	for (var i=0; i<total; i++) {
 		if (diff.remove[oline] && diff.remove[oline].nline <= nline) {
-			var ele = document.createElement("div");
+			var ele = this.gutter.childNodes[i];
 			var classname = "eden-gutter-item removed";
 			ele.className = classname;
 			//ele.innerHTML = EdenUI.Highlight.html(diff.remove[oline].rline);
 			ele.textContent = diff.remove[oline].rline;
-			this.gutter.appendChild(ele);
+			//this.gutter.appendChild(ele);
 
 			// Highlight exact remove point
 			var entries = diff.remove[oline].chars;
@@ -459,7 +461,8 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 			}
 		}
 
-		var ele = document.createElement("div");
+		//var ele = document.createElement("div");
+		var ele = this.gutter.childNodes[i];
 		var classname = "eden-gutter-item";
 		if (waspartial || diff.insert[nline]) {
 			classname += " inserted";
@@ -476,7 +479,7 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 					hlight.style.width = ""+(entries[j].length*this.textwidth)+"px";
 					waszero = waszero || (entries[j].length == 0 && !diff.insert[nline].partial);
 					hlight.style.top = "0px";
-					hlight.style.left = ""+(entries[j].start*this.textwidth + 43)+"px";
+					hlight.style.left = ""+(entries[j].start*this.textwidth + 53)+"px";
 					ele.appendChild(hlight);
 				}
 			}
@@ -487,7 +490,7 @@ EdenScriptGutter.prototype.setDiffs = function(diff) {
 		waspartial = false;
 		ele.className = classname;
 		ele.setAttribute("data-line", ""+nline);
-		this.gutter.appendChild(ele);
+		//this.gutter.appendChild(ele);
 		nline++;
 
 		if (this.lines[nline] === undefined) this.lines[nline] = {selected: false, live: false};
