@@ -6,6 +6,7 @@ EdenUI.Explorer = function() {
 	<div class=\"explore-tab-container\">
 		<div class=\"explore-tab explore-tab-current\" data-name="state">${Language.ui.explorer.state}</div>
 		<div class="explore-tab explore-tab-notcurrent" data-name="scripts">Agents</div>
+		<div class="explore-tab explore-tab-notcurrent" data-name="debug">Debug</div>
 		<div class="explore-tab explore-tab-notcurrent" data-name="settings">Settings</div>
 `+
 		 //<div class=\"explore-tab explore-tab-notcurrent\" data-name="palette">Palette</div>
@@ -14,6 +15,8 @@ EdenUI.Explorer = function() {
 <div class="explore-state">
 </div>
 <div class="explore-script" style="display: none">
+</div>
+<div class="explore-debug" style="display: none">
 </div>
 <div class="explore-settings" style="display: none">
 	<div style="font-size: 8pt">Note: Many of these do not work yet.</div>
@@ -45,6 +48,7 @@ EdenUI.Explorer = function() {
 	this.consoleele = this.element.find(".explore-console-code");
 	this.expscripts = this.element.find(".explore-script");
 	this.expstate = this.element.find(".explore-state");
+	this.expdebug = this.element.find(".explore-debug");
 	this.expsettings = this.element.find(".explore-settings");
 
 	// Make the settings
@@ -108,6 +112,7 @@ EdenUI.Explorer = function() {
 	// Make the console...
 	this.console = new EdenUI.ScriptBox(this.consoleele.get(0), {nobuttons: true});
 	this.state = new EdenUI.ExplorerState(this.expstate);
+	this.debug = new EdenUI.ExplorerDebug(this.expdebug);
 	//this.scripts = new EdenUI.ExplorerScripts(this.expscripts);
 
 	this.element.on("click", ".clear-button", function(e) {
@@ -126,9 +131,16 @@ EdenUI.Explorer = function() {
 			me.expstate.css("display","flex");
 			me.expscripts.css("display", "none");
 			me.expsettings.css("display","none");
+			me.expdebug.css("display","none");
 		} else if (name == "scripts") {
 			me.expstate.css("display","none");
 			me.expscripts.css("display","flex");
+			me.expsettings.css("display","none");
+			me.expdebug.css("display","none");
+		} else if (name == "debug") {
+			me.expstate.css("display","none");
+			me.expscripts.css("display","none");
+			me.expdebug.css("display","flex");
 			me.expsettings.css("display","none");
 		} else if (name == "palette") {
 
@@ -136,6 +148,7 @@ EdenUI.Explorer = function() {
 			me.expstate.css("display","none");
 			me.expsettings.css("display","block");
 			me.expscripts.css("display", "none");
+			me.expdebug.css("display","none");
 		}
 	});	
 
