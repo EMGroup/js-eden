@@ -56,9 +56,12 @@ EdenUI.plugins.HTMLContent = function(edenUI, success) {
 					code_entry.html(value);
 				} else {
 					var ele = code_entry[0];
-					// Remove all
-					while (ele.lastChild) ele.removeChild(ele.lastChild);
-					ele.appendChild(value);
+					if (ele.firstChild === ele.lastChild === value) {
+					} else {
+						// Remove all
+						while (ele.lastChild) ele.removeChild(ele.lastChild);
+						ele.appendChild(value);
+					}
 				}
 			}
 		};
