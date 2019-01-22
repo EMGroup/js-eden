@@ -71,8 +71,11 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 
 		var debugStepFn = function (data) {
 			var agent = data.agent;
+			console.log("DEBUG", data);
 
-			var statement = generateSource(agent);
+			if (data.statement && data.statement.type == "dummy") return data.next();
+
+			//var statement = (agent === eden.project) ? data.statement.source : agent.source; //generateSource(data.statement);
 
 			if (agentcapture[agent.id]) {
 				var output = agentcapture[agent.id].html;
@@ -82,13 +85,13 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 				docapture = false;
 
 				if (output) {
-					var ast = new Eden.AST(statement, undefined, agent);
-					var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
-					hl.highlight(ast, -1, -1);
+					//var ast = new Eden.AST(statement, undefined, agent);
+					//var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
+					//hl.highlight(ast, -1, -1);
 
-					if (data.statement) {
+					if (data.statement !== agent) {
 						// Now highlight correct line number...
-						var line = data.statement.line - agent.getLine();
+						var line = data.statement.getStartLine(agent);
 						var lineele = output.get(0).childNodes[1].childNodes[line+1];
 						if (lineele) {
 							//lineele.style.background = "#c67f6c";
@@ -111,15 +114,23 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 		var debugBeginFn = function(data) {
 			var agent = data.agent;
 
-			if (agent.id !== undefined) {
-				debugEndFn(data);
-				console.log("WHEN ALREADY LOGGED");
+
+			console.log("BEGIN DEBUG", agent.id);
+			//if (agent.id !== undefined) {
+			//	debugEndFn(data);
+			//	console.log("WHEN ALREADY LOGGED");
+			//}
+			//agent.id = agentid;
+			//agentid++;
+
+			var output;
+			if (!agentcapture.hasOwnProperty(agent.id)) {
+				output = $('<div class="debugger-agent" data-agent="'+agent.id+'"><div class="debugger-agent-controls"></div><div class="debugger-code"></div></div>');
+				script.append(output);
+				agentcapture[agent.id] = {html: output, data: data};
+			} else {
+				output = agentcapture[agent.id].html;
 			}
-			agent.id = agentid;
-			agentid++;
-			var output = $('<div class="debugger-agent" data-agent="'+agent.id+'"><div class="debugger-agent-controls"></div><div class="debugger-code"></div></div>');
-			script.append(output);
-			agentcapture[agent.id] = {html: output, data: data};
 
 			if (active_agent === undefined) {
 				active_agent = agentcapture[agent.id];
@@ -136,6 +147,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 
 		var debugEndFn = function(data) {
 			var agent = data.agent;
+			console.log("END DEBUG", agent.id);
 			if (agent.id === undefined) return;
 			if (agentcapture[agent.id] === undefined) return;
 
@@ -144,18 +156,18 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 				active_agent = undefined;
 			}
 
-			var statement = generateSource(agent);
-			var output = agentcapture[agent.id].html;
+			//var statement = generateSource(agent);
+			//var output = agentcapture[agent.id].html;
 
-			var ast = new Eden.AST(statement, undefined, agent);
-			var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
-			hl.highlight(ast, -1, -1);
+			//var ast = new Eden.AST(statement, undefined, agent);
+			//var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
+			//hl.highlight(ast, -1, -1);
 
 
 			//setTimeout(function() {
-				agentcapture[agent.id].html.remove();
-				delete agentcapture[agent.id];
-				agent.id = undefined;
+				//agentcapture[agent.id].html.remove();
+				//delete agentcapture[agent.id];
+				//agent.id = undefined;
 			//}, 2000);
 		}
 		Eden.AST.debug_end_cb = debugEndFn;
