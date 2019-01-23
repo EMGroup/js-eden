@@ -112,7 +112,6 @@ function Construit(options,callback) {
 		"ScriptInput",
 		"SymbolLookUpTable",
 		"SymbolViewer",
-		"Debugger",
 		"VersionViewer"
 	];
 

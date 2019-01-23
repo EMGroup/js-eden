@@ -65,7 +65,7 @@ module.exports = function (grunt) {
 					'plugins/adm/adm-input.css',
 					'plugins/dbview/dbview.css',
 					'plugins/script-generator/script-generator.css',
-					'plugins/debugger/debugger.css'
+					'css/debugger.css'
 				]
 			}
 		}
@@ -211,6 +211,7 @@ module.exports = function (grunt) {
 					'./js/ui/explorer.js',
 					'./js/ui/explorer-state.js',
 					'./js/ui/explorer-script.js',
+					'./js/ui/debugger.js',
 					'./js/ui/markdown.js',
 					'./js/ui/projectdetails.js',
 					'./js/ui/feedback.js'
@@ -248,7 +249,6 @@ module.exports = function (grunt) {
 					'./plugins/dbview/dbview.js',
 					'./plugins/speech-synthesis/speech-synthesis.js',
 					'./plugins/midi/midi.js',
-					'./plugins/debugger/debugger.js',
 					'./plugins/midi/emulation/midi.js-bridge.js',
 					'./plugins/midi/emulation/midi-file.js'
 				]}

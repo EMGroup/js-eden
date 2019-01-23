@@ -2,14 +2,21 @@
 	/*display: flex;
 	box-sizing: border-box;
 	flex-direction: column;*/
-	height: 100%;
+	flex-grow: 2;
+	min-height: 200px;
+	width: 100%;
+}
+
+.explore-debug {
+	flex-grow: 2;
+	background-color: #efefef;
 }
 
 .debugger-controls {
-	position: absolute;
+	/*position: absolute;
 	top: 0;
 	left: 0;
-	right: 0;
+	right: 0;*/
 	background: #f1f1f1;
 	box-shadow: 0 0 10px #4a6887;
 	border-bottom: 1px solid #777;
@@ -17,7 +24,11 @@
 }
 
 div.debugger-line {
-	background-color: #f3bbac;
+	position: relative;
+	left: -15px;
+	padding-left: 20px;
+	width: 1000px;
+	background-color: #ffe0e0;
 }
 
 div.debugger-code {
@@ -42,12 +53,13 @@ div.debugger-code {
 }
 
 div.debugger-agents {
-	position: absolute;
+	/*position: absolute;
 	top: 41px;
 	bottom: 0;
 	left: 0;
-	right: 0;
+	right: 0;*/
 	overflow-y: scroll;
+	min-height: 200px;
 }
 
 div.debugger-agent {

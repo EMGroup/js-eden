@@ -5,11 +5,7 @@
  * See LICENSE.txt
  */
 
-EdenUI.plugins.Debugger = function (edenUI, success) {
-	var me = this;
-
-	this.createDialog = function (name, mtitle) {
-		var viewName = name.slice(0,-7); //remove -dialog suffix
+EdenUI.ExplorerDebug = function(element) {
 
 		var debug_play = false;
 		var active_agent = undefined;
@@ -53,7 +49,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 
 		function generateSource(agent) {
 			var statement = "";
-			if (agent.type == "when" && agent.base && agent.base.origin) {
+			/*if (agent.type == "when" && agent.base && agent.base.origin) {
 				statement += "## " + agent.base.origin.name;
 				if (agent.line) {
 					statement += ":" + (agent.line+1);
@@ -61,7 +57,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 				statement += "\n";
 			} else if (agent.name) {
 				statement += "## " + agent.name + "\n";
-			}
+			}*/
 
 			if (agent.getSource) statement += agent.getSource();
 			return statement;
@@ -89,10 +85,13 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 					//var hl = new EdenUI.Highlight(output.get(0).childNodes[1]);
 					//hl.highlight(ast, -1, -1);
 
+					if (agentcapture[agent.id].lastline) agentcapture[agent.id].lastline.className = "eden-line";
+
 					if (data.statement !== agent) {
 						// Now highlight correct line number...
 						var line = data.statement.getStartLine(agent);
-						var lineele = output.get(0).childNodes[1].childNodes[line+1];
+						var lineele = output.get(0).childNodes[1].childNodes[line];
+						agentcapture[agent.id].lastline = lineele;
 						if (lineele) {
 							//lineele.style.background = "#c67f6c";
 							lineele.className = "eden-line debugger-line";
@@ -185,7 +184,7 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 		//updateFileChooser();
 		//updateScript();
 
-		$('<div id="' + name + '"></div>')
+		/*$('<div id="' + name + '"></div>')
 		.html(content)
 		.dialog({
 			appendTo: "#jseden-views",
@@ -195,7 +194,8 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			minHeight: 120,
 			minWidth: 230,
 			dialogClass: "debugger-dialog"
-		});
+		});*/
+		element[0].appendChild(content[0]);
 
 		controls.on("click", ".play", function(e) {
 			debug_play = !debug_play;
@@ -228,17 +228,5 @@ EdenUI.plugins.Debugger = function (edenUI, success) {
 			active_agent.html.get(0).className = "debugger-agent active";
 		});
 
-		return {destroy: function() {
-			Eden.AST.debug = false;
-		}};
-	};
-
-	edenUI.views["Debugger"] = {dialog: this.createDialog, title: "Debugger", category: edenUI.viewCategories.history};
-	success();
 };
-
-/* Plugin meta information */
-EdenUI.plugins.Debugger.title = "Debugger";
-EdenUI.plugins.Debugger.description = "";
-EdenUI.plugins.Debugger.originalAuthor = "Nicolas Pope";
 

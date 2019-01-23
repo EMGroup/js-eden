@@ -118,6 +118,9 @@ Eden.Fragment.prototype.reset = function(cb) {
 		if (me.results && me.results.length == 1 && me.results[0].type == "script") {
 			//console.log(res);
 			me.originast = me.results[0];
+		} else if (me.results && me.results.length == 1 && me.results[0].type == "assignment") {
+			me.originast = undefined;
+			//me.source = 
 		} else if (me.results && me.results.length > 1) {
 			var src = "";
 			for (var i=0; i<me.results.length; i++) {
