@@ -105,7 +105,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 						modifiedEvent.charIndex = current.endOffset;
 						modifiedEvent.elapsedTime = event.elapsedTime;
 						modifiedEvent.name = "word";
-						utterance.onboundary(modifiedEvent);				
+						utterance.onboundary(modifiedEvent);
 					}
 					if (!utterance.cancelled) {
 						console.log(next);
@@ -123,8 +123,8 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 			}
 			var lastUtterance = utterances[utterances.length - 1];
 			utterances[0].onstart = utterance.onstart;
-			
-			lastUtterance.onend = utterance.onend;	
+
+			lastUtterance.onend = utterance.onend;
 		}
 
 		console.log(utterances[0]);
@@ -138,7 +138,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 		window.speechSynthesis.cancel();
 		if (paused) {
 			window.speechSynthesis.pause();
-		}	
+		}
 	}
 
 	function nextSpeech(completionState, advance) {
@@ -170,7 +170,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 			if (completionState == "finished") {
 				var prevText = textSym.value();
 				if (typeof(prevText) == "string") {
-					charIndexSym.assign(prevText.length + 1, agent);
+					charIndexSym.assign(prevText.length + 1, root.scope, agent);
 				}
 			} else if (completionState == "interrupted") {
 				interrupted = true;
@@ -178,20 +178,20 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 
 			id = idSym.value();
 			if (eden.isValidIdentifier(id)) {
-				root.lookup(id + "_status").assign(completionState, agent);
+				root.lookup(id + "_status").assign(completionState, root.scope, agent);
 			}
 		}
 		if (advance) {
 			queueIndex++;
 		}
 
-		charIndexSym.assign(1, agent);
-		root.lookup("speakingTime").assign(0, agent);
+		charIndexSym.assign(1, root.scope, agent);
+		root.lookup("speakingTime").assign(0, root.scope, agent);
 
 		if (Array.isArray(queue) && queueIndex <= queue.length) {
 
 			if (!isSpeakingSym.value()) {
-				isSpeakingSym.assign(true, agent);
+				isSpeakingSym.assign(true, root.scope, agent);
 			}
 
 			var next = queue[queueIndex - 1];
@@ -203,28 +203,28 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 			var utter = next.utterance;
 
 			id = next.id;
-			idSym.assign(id, agent);
+			idSym.assign(id, root.scope, agent);
 			if (eden.isValidIdentifier(id)) {
-				root.lookup(id + "_status").assign("speaking", agent);
+				root.lookup(id + "_status").assign("speaking", root.scope, agent);
 			}
 
-			textSym.assign(utter.text, agent);
-			speechSym.assign(next, agent);
+			textSym.assign(utter.text, root.scope, agent);
+			speechSym.assign(next, root.scope, agent);
 			if (advance) {
-				queueIndexSym.assign(queueIndex, agent);
+				queueIndexSym.assign(queueIndex, root.scope, agent);
 			}
 			next.hasBeenSpoken = true;
 			window.speechSynthesis.speak(utter);
 
 		} else {
 
-			isSpeakingSym.assign(false, agent);
-			idSym.assign("", agent);
-			textSym.assign("", agent);
-			speechSym.assign(undefined, agent);
+			isSpeakingSym.assign(false, root.scope, agent);
+			idSym.assign("", root.scope, agent);
+			textSym.assign("", root.scope, agent);
+			speechSym.assign(undefined, root.scope, agent);
 
 			if (Array.isArray(queue)) {
-				queueIndexSym.assign(queue.length + 1, agent);
+				queueIndexSym.assign(queue.length + 1, root.scope, agent);
 			}
 		}
 	}
@@ -236,7 +236,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 			var index = indexSym.value();
 			if (index > queue.length + 1) {
 				//Index shouldn't be bigger than list length + 1.
-				indexSym.assign(queue.length + 1, agent);
+				indexSym.assign(queue.length + 1, root.scope, agent);
 			} else if (index <= queue.length) {
 				for (var i = index < 1? 0 : index - 1; i < queue.length; i++) {
 					var item = queue[i];
@@ -244,7 +244,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 						item.prepareUtterance();
 						var id = item.id;
 						if (eden.isValidIdentifier(id)) {
-							root.lookup(id + "_status").assign("waiting", agent);
+							root.lookup(id + "_status").assign("waiting", root.scope, agent);
 						}
 					}
 				}
@@ -332,7 +332,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 					}
 				}
 			}
-			
+
 			if (searchStr && regExp.test(voice.name)) {
 				searchMatches = true;
 			}
@@ -485,16 +485,16 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 			set: function (value) {
 				thisCancelled = value;
 				if (thisCancelled && me.id) {
-					root.lookup(me.id + "_status").assign("cancelled", {name: "/SpeakingWords"});
+					root.lookup(me.id + "_status").assign("cancelled", root.scope, root.lookup("SpeakingWords"));
 				}
 			},
 			enumerable: true
 		});
 		this.toString = function () {
-			var s = "SpeakingWords(" + 
+			var s = "SpeakingWords(" +
 				Eden.edenCodeForValue(id) + ", " +
 				"\"" + me.utterance.text + "\", ";
-			
+
 			if (defaultedLang) {
 				s = s + "@, ";
 			} else {
@@ -526,11 +526,11 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 		} else {
 			this.lang = lang;
 		}
-		
+
 		if (eden.isValidIdentifier(id)) {
 			var idSym = root.lookup(id + "_status");
 			if (idSym.value() === undefined) {
-				idSym.assign("not queued", {name: "/speakingWords"});
+				idSym.assign("not queued", root.scope, root.lookup("SpeakingWords"));
 			}
 		}
 
@@ -551,11 +551,11 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 			}
 		}
 		this.utterance.onboundary = function (event) {
-			var agent = {name: "/speak"};
-			root.lookup("speakingCharIndex").assign(event.charIndex + 1, agent);
+			var agent = root.lookup("speak");
+			root.lookup("speakingCharIndex").assign(event.charIndex + 1, root.scope, agent);
 			var time = event.elapsedTime;
 			if (time <= 10000000) {
-				root.lookup("speakingTime").assign(time, agent);
+				root.lookup("speakingTime").assign(time, root.scope, agent);
 			}
 		};
 		this.utterance.onend = function () {
@@ -567,7 +567,10 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 
 	}
 
-	edenUI.eden.include("plugins/speech-synthesis/speech-synthesis.js-e", success);
+	Eden.Selectors.execute("plugins > speech-synthesis > speech-synthesis", function() {
+		eden.root.lookup("plugins_speech_sythesis_loaded").assign(true, eden.root.scope, EdenSymbol.localJSAgent);
+		if (success) success();
+	});
 }
 
 EdenUI.plugins.SpeechSynthesis.title = "Speech Synthesis";

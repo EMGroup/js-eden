@@ -3982,13 +3982,13 @@ ${{
  * the paragraph and its items are the words. The items are placed one after another, left to right,
  * wrapping onto another line if necessary.
  * At present only HTML items are supported (so use Div instead of Text, HTMLImage instead of Image).
- * 
+ *
  * @param x x-position
  * @param y y-position
  * @param [width]
  * @param items List of items to be displayed
- * @param [drawingOptions] List of drawing options 
- * 
+ * @param [drawingOptions] List of drawing options
+ *
  * #flowlayout #canvas #picture #drawingoptions
  */
 func FlowLayout {
@@ -4049,7 +4049,7 @@ ${{
 				}
 			}
 		}
-		
+
 		if (this.drawingOptions !== undefined) {
 			hash = hash +
 				this.drawingOptions.align + "$$" +
@@ -4075,7 +4075,7 @@ ${{
 				'style="left: ' + this.x + 'px; top: ' + this.y + 'px"' +
 				'></div>'
 			);
-			
+
 			if (this.drawingOptions !== undefined) {
 				var align = this.drawingOptions.align;
 				if (align == "right") {
@@ -4094,7 +4094,7 @@ ${{
 					container.css("align-items", "center");
 				}
 			} else {
-				container.css("align-items", "center");			
+				container.css("align-items", "center");
 			}
 
 			for (var i = 0; i < this.content.length; i++) {
@@ -4106,7 +4106,7 @@ ${{
 			}
 
 			var objectElement = document.createElement("object");
-			objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; " + 
+			objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; " +
 				"height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
 
 			objectElement.onload = function () {
@@ -4148,10 +4148,10 @@ ${{
 		}
 
 		if (autoWidth || widthSymName in root.symbols) {
-			root.lookup(widthSymName).assign((element.offsetWidth - spacing) / scale, agent);
+			root.lookup(widthSymName).assign((element.offsetWidth - spacing) / scale, root.scope, agent);
 		}
 
-		root.lookup(heightSymName).assign((element.offsetHeight - vSpacing) / scale, agent);
+		root.lookup(heightSymName).assign((element.offsetHeight - vSpacing) / scale, root.scope, agent);
 	};
 
 	FlowLayout.prototype.scale = function(scale, zoom, origin) {
@@ -4232,6 +4232,7 @@ ${{
 
 	FlowLayout.prototype.getEdenCode = FlowLayout.prototype.toString;
 }}$;
+
 ## Copyright (c) 2015, Empirical Modelling Group
 ## All rights reserved.
 ##
@@ -7367,7 +7368,7 @@ ${{
 				}
 			}
 		}
-		
+
 		if (this.drawingOptions !== undefined) {
 
 		}
@@ -7387,7 +7388,7 @@ ${{
 			var tableJQ = $(
 				'<table class="canvashtml-item canvashtml-table-layout-item" ' +
 					'style="left: ' + this.x + 'px; top: ' + this.y + 'px"' +
-				'></table>'				
+				'></table>'
 			);
 
 			for (var j = 0; j < this.rows.length; j++) {
@@ -7434,9 +7435,9 @@ ${{
 		var heightSymName = this.obsName + "_height";
 
 		if (autoWidth || widthSymName in root.symbols) {
-			root.lookup(widthSymName).assign(element.offsetWidth / scale, agent);
+			root.lookup(widthSymName).assign(element.offsetWidth / scale, eden.root.scope, agent);
 		}
-		root.lookup(heightSymName).assign(element.offsetHeight / scale, agent);	
+		root.lookup(heightSymName).assign(element.offsetHeight / scale, eden.root.scope, agent);
 	}
 
 	TableLayout.prototype.scale = function (scale, zoom, origin) {
@@ -7464,6 +7465,7 @@ ${{
 
 	TableLayout.prototype.getEdenCode = TableLayout.prototype.toString;
 }}$;
+
 ## Copyright (c) 2013, Empirical Modelling Group
 ## All rights reserved.
 ##

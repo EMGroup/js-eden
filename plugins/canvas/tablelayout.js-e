@@ -93,7 +93,7 @@ ${{
 				}
 			}
 		}
-		
+
 		if (this.drawingOptions !== undefined) {
 
 		}
@@ -113,7 +113,7 @@ ${{
 			var tableJQ = $(
 				'<table class="canvashtml-item canvashtml-table-layout-item" ' +
 					'style="left: ' + this.x + 'px; top: ' + this.y + 'px"' +
-				'></table>'				
+				'></table>'
 			);
 
 			for (var j = 0; j < this.rows.length; j++) {
@@ -160,9 +160,9 @@ ${{
 		var heightSymName = this.obsName + "_height";
 
 		if (autoWidth || widthSymName in root.symbols) {
-			root.lookup(widthSymName).assign(element.offsetWidth / scale, agent);
+			root.lookup(widthSymName).assign(element.offsetWidth / scale, eden.root.scope, agent);
 		}
-		root.lookup(heightSymName).assign(element.offsetHeight / scale, agent);	
+		root.lookup(heightSymName).assign(element.offsetHeight / scale, eden.root.scope, agent);
 	}
 
 	TableLayout.prototype.scale = function (scale, zoom, origin) {

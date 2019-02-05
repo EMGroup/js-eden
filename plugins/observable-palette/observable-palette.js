@@ -122,7 +122,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			} else if (value == "string") {
 				initValue = "";
 			}
-			symbol.assign(initValue, EdenSymbol.hciAgent, true);
+			symbol.assign(initValue, root.scope, EdenSymbol.hciAgent, true);
 		}
 		typeList.on("change", changeType);
 
@@ -232,7 +232,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 					numDependencies++;
 				} else {
 //TODO handle dependencies defined in terms of dependencies.
-					
+
 				}
 			}
 			if (numDependencies < 2) {
@@ -247,7 +247,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 					headingHyperlink.html(Eden.prettyPrintValue("", value, maxHeadingLength, false, false));
 					if (newDefinition !== edenDefinition) {
 //TODO adjust nested panels to match new definition
-					
+
 					}
 				}
 			};
@@ -302,7 +302,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			var slider = sliderJQ[0];
 
 			sliderJQ.on("input", function (event) {
-				symbol.assign(parseFloat(slider.value), EdenSymbol.hciAgent, true);
+				symbol.assign(parseFloat(slider.value), root.scope, EdenSymbol.hciAgent, true);
 			});
 
 			var table = $('<table class="observable-palette-number-controls"></table>');
@@ -326,7 +326,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 					slider.min = minStr;
 					var value = symbol.value();
 					if (min >= 0 && value < min) {
-						symbol.assign(min, EdenSymbol.hciAgent, true);
+						symbol.assign(min, root.scope, EdenSymbol.hciAgent, true);
 					}
 				}
 			});
@@ -359,7 +359,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 					maxElem.value = newMax;
 					var value = symbol.value();
 					if (value < min) {
-						symbol.assign(min, EdenSymbol.hciAgent, true);
+						symbol.assign(min, root.scope, EdenSymbol.hciAgent, true);
 					}
 				}
 			});
@@ -378,7 +378,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 				var valueStr = event.target.value;
 				if (valueStr != "") {
 					slider.value = valueStr;
-					symbol.assign(parseFloat(valueStr), EdenSymbol.hciAgent, true);
+					symbol.assign(parseFloat(valueStr), root.scope, EdenSymbol.hciAgent, true);
 				}
 			});
 			valueInput.on("focus", function (event) {
@@ -388,7 +388,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			valueInput.on("blur", function (event) {
 				var valueStr = event.target.value;
 				if (valueStr == "") {
-					symbol.assign(parseFloat(valueStrOnEntry), EdenSymbol.hciAgent, true);
+					symbol.assign(parseFloat(valueStrOnEntry), root.scope, EdenSymbol.hciAgent, true);
 				} else {
 					var value = symbol.value();
 					var min = parseFloat(slider.min);
@@ -516,11 +516,11 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			}
 			checkboxJQ.on("change", function (event) {
 				var value = checkbox.checked;
-				symbol.assign(value, symbol.hciAgent, true);
+				symbol.assign(value, root.scope, EdenSymbol.hciAgent, true);
 			});
 			jsObserver = function (symbol, value) {
 				if ((value !== true && value !== false) || symbol.eden_definition !== undefined) {
-					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);					
+					makeUIForObservable(dialogName, obsName, widgetNum, obsPanel, functions, readOnly);
 				} else {
 					checkbox.checked = value;
 					setLabel(value);
@@ -540,7 +540,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 
 			textboxJQ.on("input", function (event) {
 				var value = textbox.value;
-				symbol.assign(value, EdenSymbol.hciAgent, true);
+				symbol.assign(value, root.scope, EdenSymbol.hciAgent, true);
 				textbox.style.height = "";
 				textbox.style.height = String(textbox.scrollHeight + 4) + "px";
 			});
@@ -656,7 +656,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		var advancedSym = root.lookup("_view_" + viewName + "_advanced");
 		var initialAdvanced = advancedSym.value();
 		if (initialAdvanced === undefined) {
-			advancedSym.assign(false, agent);
+			advancedSym.assign(false, root.scope, agent);
 			content.addClass("observable-palette-no-advanced");
 		} else if (!initialAdvanced) {
 			content.addClass("observable-palette-no-advanced");
@@ -666,7 +666,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 			advancedCheckboxElem.checked = value;
 		});
 		advancedCheckbox.on("change", function (event) {
-			advancedSym.assign(event.target.checked, agent);
+			advancedSym.assign(event.target.checked, root.scope, agent);
 		});
 
 		var toolbox = $('<div class="observable-palette-toolbox"></div>');

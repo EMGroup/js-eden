@@ -262,5 +262,5 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-gh-pages');
 
   grunt.registerTask('build', ['uglify', 'cssmin', 'concat']);
-  grunt.registerTask('default', ['build', 'connect', 'watch']);
+  grunt.registerTask('default', ['build']);
 };
