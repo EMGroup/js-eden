@@ -31,6 +31,7 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	case "/"	: opstr = "divide"; break;
 	case "*"	: opstr = "multiply"; break;
 	case "=="	: opstr = "equal"; break;
+	case "!="	: opstr = "notequal"; break;
 	case "%"	: opstr = "mod"; break;
 	case "^"	: opstr = "pow"; break;
 	default		: opstr = "RAW";

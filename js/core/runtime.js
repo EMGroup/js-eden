@@ -57,6 +57,8 @@ var rt = {
 
 		return false;
 	},
+	
+	notequal: function(a,b) { return !rt.equal(a,b); },
 
 	add: function (a, b) {
 		if (a === undefined || b === undefined) {
