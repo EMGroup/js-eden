@@ -105,6 +105,7 @@ module.exports = function (grunt) {
 					'./js/ast/basescript.js',
 					'./js/ast/basecontext.js',
 					'./js/ast/append.js',
+					'./js/ast/shift.js',
 					'./js/ast/assignment.js',
 					'./js/ast/after.js',
 					'./js/ast/binaryop.js',
