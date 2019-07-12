@@ -57,24 +57,24 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 		var icon = null;
 
 		if (val === undefined) {
-			icon = {code: '\uf06a'};
+			icon = {code: '\uf06a', face: "FontAwesome"};
 		} else if (type == "number") {
 			icon = {code: Math.round(val), face: 'arial'};
 		} else if (type == "string") {
-			icon = {code: '\uf10d'};
+			icon = {code: '\uf10d', face: "FontAwesome"};
 		} else if (type == "boolean") {
-			icon = {code: (val) ? '\uf00c' : '\uf00d'};
+			icon = {code: (val) ? '\uf00c' : '\uf00d', face: "FontAwesome"};
 		} else if (type == "function") {
-			icon = {code: '\uf1c9'};
+			icon = {code: '\uf1c9', face: "FontAwesome"};
 		} else {
 			if (Array.isArray(val)) {
-				icon = {code: '\uf03a'};
+				icon = {code: '\uf03a', face: "FontAwesome"};
 			} else if (val instanceof CanvasImage) {
-				icon = {code: '\uf03e'};
+				icon = {code: '\uf03e', face: "FontAwesome"};
 			} else if (val instanceof Text) {
-				icon = {code: '\uf031'};
+				icon = {code: '\uf031', face: "FontAwesome"};
 			} else {
-				icon = {code: '\uf1b2'};
+				icon = {code: '\uf1b2', face: "FontAwesome"};
 			}
 		}
 
@@ -90,7 +90,7 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 		if (sym instanceof EdenSymbol) {
 			return makeNode(sym);
 		} else {
-			return {id: sym.id, label: "when", shape: 'icon', icon: {code: '\uf007'}};
+			return {id: sym.id, label: "when", shape: 'icon', icon: {code: '\uf007', face: "FontAwesome"}};
 		}
 	}
 		
