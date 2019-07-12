@@ -803,9 +803,25 @@ function getVersionInfo(saveID,projectID,userID, readPassword, res, callback){
 				res.json({error: ERROR_PROJECT_NOT_MATCHED, description: "No matching saveID"});
 		}
 	});
-
 }
 
+function getProjectMetaDataFromSaveID(saveID, res, callback){
+	getProjectIDFromSaveID(saveID,res,function(projectID){
+		getProjectMetaData(projectID,null,callback);
+	});
+}
+
+function getProjectIDFromSaveID(saveID,res,callback){
+	var query = db.prepare('SELECT projectID FROM projectversions WHERE saveID = ?');
+	query.get(saveID,function(err,row){
+		if(err){
+			logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err});
+			return;
+		}else{
+			callback(row.projectID);
+		}
+	});
+}
 function getProjectMetaData(projectID, userID, res,callback){
 	var metadataQuery = db.prepare('SELECT projects.projectID, title, minimisedTitle, image, owner, oauthusers.name as ownername, publicVersion, parentProject, projectMetaData, '
 		+ '(" " || group_concat(tag, " ") || " " ) as tags, stars as myrating '
