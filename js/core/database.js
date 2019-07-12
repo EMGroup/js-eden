@@ -14,13 +14,13 @@ Eden.DB = {
 	userid: undefined,
 	// Note: reverse order, last is popped off to try first
 	repositories: [
-		"http://jseden.dcs.warwick.ac.uk/construalmanager",
+		document.location.protocol+"//jseden.dcs.warwick.ac.uk/construalmanager",
 		"http://localhost:18882"
 	],
 	repoindex: 0,
 	retrycount: 0,
 	connected: false,
-	searchServer: "http://jseden.dcs.warwick.ac.uk",
+	searchServer: document.location.protocol+"//jseden.dcs.warwick.ac.uk",
 	querycache: null,
 	qcacheloaded: false,
 	qcachetimeout: undefined
@@ -251,7 +251,6 @@ Eden.DB.localSave = function(project) {
 		window.localStorage.setItem(prefix+"_tags", project.tags.join(" "));
 
 		var plist = JSON.parse(window.localStorage.getItem("project_list"));
-
 		if (plist === null) plist = {};
 		plist[project.id] = true;
 		window.localStorage.setItem("project_list", JSON.stringify(plist));
@@ -259,8 +258,6 @@ Eden.DB.localSave = function(project) {
 }
 
 Eden.DB.save = function(project, ispublic, callback) {
-	Eden.DB.localSave(project);
-
 	if (Eden.DB.isConnected()) {
 		$.ajax({
 			url: this.remoteURL+"/project/add",
@@ -388,6 +385,7 @@ Eden.DB.hasLocal = function(pid, vid) {
 	return false;
 }
 
+
 function removeActive(src) {
 	var ix = src.indexOf("action ACTIVE {");
 	var count = 1;
@@ -402,6 +400,7 @@ function removeActive(src) {
 
 	return src.substring(0,ix) + src.substring(i);
 }
+
 
 Eden.DB.load = function(pid, vid, readPassword, callback) {
 	if(arguments.length == 3){
