@@ -244,7 +244,7 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 
 		case ".author"	:	return statements;
 
-		case ".version"	:	return statements;
+		case ".version"	:	return [];
 
 		case ".source"	:	if (this.isreg) {
 								return statements.filter(function(stat) {

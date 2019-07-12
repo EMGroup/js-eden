@@ -241,7 +241,7 @@ function reindexProject(projectID){
 function loadVersion(saveID, res, cb) {
 	getProjectIDFromSaveID(saveID, undefined, (pid) => {
 		getProjectMetaData(pid, undefined, undefined, (meta) => {
-			getFullVersion(saveID, null,meta,function(data){
+			getFullVersion(saveID, pid,meta,function(data){
 				var tmpAst = new Eden.AST(data.source,undefined,{id: pid, saveID: saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
 				cb(tmpAst.script);
 			});
