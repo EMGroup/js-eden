@@ -314,6 +314,9 @@ Eden.Selectors.PropertyNode.prototype.construct = function() {
 	switch (this.name) {
 	case ".type"		:	stats = Eden.Index.getByType(this.value); break;
 	case ".id"			:	stats = Eden.Index.getByID(this.value); break;
+	case ".v"			:
+	case ".vid"			:
+	case ".version"		:	stats = []; break;  // Local version always is empty
 	case ".name"		:	if (this.param === undefined) {
 								stats = Eden.Index.getAllWithName();
 							} else if (this.isreg) {
