@@ -238,7 +238,7 @@ function reindexProject(projectID){
 	});
 }
 
-function loadVersion(saveID, res, cb) {
+function loadVersion(saveID, cb) {
 	getProjectIDFromSaveID(saveID, undefined, (pid) => {
 		getProjectMetaData(pid, undefined, undefined, (meta) => {
 			getFullVersion(saveID, pid,meta,function(data){
