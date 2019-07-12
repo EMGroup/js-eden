@@ -239,8 +239,6 @@ module.exports = function (grunt) {
 					'./plugins/observable-mining/observable-mining.js',
 					'./plugins/observable-palette/observable-palette.js',
 					'./plugins/script-generator/script-generator.js',
-					'./plugins/dependency-map/springy/springy.js',
-					'./plugins/dependency-map/springy/springyui.js',
 					'./plugins/dependency-map/dependency-map.js',
 					'./plugins/state-timeline/state-timeline.js',
 					'./plugins/state-listener/state-listener.js',
