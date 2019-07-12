@@ -238,24 +238,45 @@ function reindexProject(projectID){
 	});
 }
 
+function loadVersion(saveID, cb) {
+	getFullVersion(saveID, null,{},function(data){
+		var tmpAst = new Eden.AST(data.source,undefined,{id: row.projectID, saveID: row.saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
+
+		cb(tmpAst.script);
+	});
+}
+
 Eden.Selectors.PropertyNode.prototype.construct = function() {
+	let result;
+
 	switch (this.name) {
-	case ".type"		:	return Eden.Index.getByType(this.value);
-	case ".id"			:	return Eden.Index.getByID(this.value);
+	case ".type"		:	result = Eden.Index.getByType(this.value); break;
+	case ".id"			:	result = Eden.Index.getByID(this.value); break;
 	case ".name"		:	if (this.param === undefined) {
-								return Eden.Index.getAllWithName();
+								result = Eden.Index.getAllWithName();
 							} else if (this.isreg) {
-								return Eden.Index.getByNameRegex(this.value);
+								result = Eden.Index.getByNameRegex(this.value);
 							} else {
-								return Eden.Index.getByName(this.value);
+								result = Eden.Index.getByName(this.value);
 							}
+							break;
+	case ".v"			:
+	case ".vid"			:
+	case ".version"		:	return new Promise((resolve, reject) => {
+								loadVersion(this.value, (ast) => {
+									resolve(ast);
+								});
+							});
 	// TODO this doesn't capture executes.
 	case ":remote"		:
-	case ":root"		:	return Object.keys(allKnownProjects).map(function(e) { return allKnownProjects[e]; });
-	case ":project"		:	return [];
+	case ":root"		:	result = Object.keys(allKnownProjects).map(function(e) { return allKnownProjects[e]; }); break;
+	case ":project"		:	result = []; break;
+	default				:	result = Eden.Index.getAll();
 	}
 
-	return Eden.Index.getAll();
+	return new Promise((resolve, reject) => {
+		resolve(result);
+	});
 }
 
 var flash = require('connect-flash');
@@ -762,12 +783,14 @@ app.get('/code/search', function(req, res){
 		if (sast.local) {
 			res.json([]);
 		} else {
-			var nodelist = Eden.Selectors.unique(sast.filter());
-			var outtype = "source";
-			if(req.query.outtype !== undefined)
-				outtype = req.query.outtype;
-			var srcList = Eden.Selectors.processResults(nodelist, outtype);
-			res.json(srcList);
+			sast.filter().then((p) => {
+				var nodelist = Eden.Selectors.unique(p);
+				var outtype = "source";
+				if(req.query.outtype !== undefined)
+					outtype = req.query.outtype;
+				var srcList = Eden.Selectors.processResults(nodelist, outtype);
+				res.json(srcList);
+			});
 		}
 });
 
