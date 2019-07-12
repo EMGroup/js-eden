@@ -50,7 +50,6 @@ module.exports = function (grunt) {
 					'plugins/observable-mining/observable-mining.css',
 					'plugins/observable-palette/observable-palette.css',
 					'plugins/symbol-lookup-table/symbol-lookup-table.css',
-					'plugins/dependency-map/dependency-map.css',
 					'plugins/html/html-views.css',
 					'plugins/external-html-content/external-html-content.css',
 					'plugins/state-timeline/state-timeline.css',
@@ -65,7 +64,8 @@ module.exports = function (grunt) {
 					'plugins/adm/adm-input.css',
 					'plugins/dbview/dbview.css',
 					'plugins/script-generator/script-generator.css',
-					'css/debugger.css'
+					'css/debugger.css',
+					'plugins/dependency-map/dependency-map.css'
 				]
 			}
 		}
@@ -239,7 +239,6 @@ module.exports = function (grunt) {
 					'./plugins/observable-mining/observable-mining.js',
 					'./plugins/observable-palette/observable-palette.js',
 					'./plugins/script-generator/script-generator.js',
-					'./plugins/dependency-map/dependency-map.js',
 					'./plugins/state-timeline/state-timeline.js',
 					'./plugins/state-listener/state-listener.js',
 					'./plugins/network-remote/network-remote.js',
@@ -249,7 +248,8 @@ module.exports = function (grunt) {
 					'./plugins/speech-synthesis/speech-synthesis.js',
 					'./plugins/midi/midi.js',
 					'./plugins/midi/emulation/midi.js-bridge.js',
-					'./plugins/midi/emulation/midi-file.js'
+					'./plugins/midi/emulation/midi-file.js',
+					'./plugins/dependency-map/dependency-map.js'
 				]}
 		}
 	}
