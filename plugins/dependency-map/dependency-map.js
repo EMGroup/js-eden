@@ -82,7 +82,8 @@ EdenUI.plugins.DependencyMap = function(edenUI, success){
 			id: sym.name,
 			label: sym.name,
 			shape: 'icon',
-			icon: icon
+			icon: icon,
+			face: "FontAwesome"
 		};
 	}
 
