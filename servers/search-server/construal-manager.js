@@ -267,7 +267,7 @@ Eden.Selectors.PropertyNode.prototype.construct = function() {
 	case ".vid"			:
 	case ".version"		:	return new Promise((resolve, reject) => {
 								loadVersion(this.value, (ast) => {
-									resolve(ast);
+									resolve([ast]);
 								});
 							});
 	// TODO this doesn't capture executes.
