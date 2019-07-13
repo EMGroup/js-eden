@@ -7,7 +7,15 @@ Eden.Selectors.TagNode = function(tag) {
 }
 
 Eden.Selectors.TagNode.prototype.filter = function(statements) {
-	if (!statements) return this.construct();
+	return new Promise((resolve, reject) => {
+		if (!statements) statements = this.construct().then((statements) => {
+			resolve(this._filter(statements));
+		});
+		else resolve(this._filter(statements));
+	});
+}
+
+Eden.Selectors.TagNode.prototype._filter = function(statements) {
 	var me = this;
 	return statements.filter(function(stat) {
 		return stat.doxyComment && stat.doxyComment.hasTag(me.tag);

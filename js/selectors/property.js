@@ -132,7 +132,15 @@ Eden.Selectors.PropertyNode.prototype.prepend = function(node) {
 }
 
 Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
-	if (!statements) statements = this.construct();
+	return new Promise((resolve, reject) => {
+		if (!statements) this.construct().then((s) => {
+			this._filter(s, resolve);
+		});
+		else this._filter(statements, resolve);
+	});
+}
+
+Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 	var me = this;
 	var param = this.value;
 	var command = this.name;
@@ -145,125 +153,126 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 	} else {
 		switch(command) {
 		case ".name"	:	if (!param) {
-								return statements.filter(function(stat) {
+								resolve(statements.filter(function(stat) {
 									return (stat.lvalue !== undefined || stat.name !== undefined);
-								});
+								})); return;
 							}
 							var regex = edenUI.regExpFromStr(param);
-							return statements.filter(function(stat) {
+							resolve(statements.filter(function(stat) {
 								return (stat.lvalue && regex.test(stat.lvalue.name)) || (stat.name && regex.test(stat.name));
-							});
+							})); return;
 
-		case ".id"		:	return statements.filter(function(stat) {
+		case ".id"		:	resolve(statements.filter(function(stat) {
 								if (stat.id == 0) stat.buildID();
 								return stat.id == param;
-							});
+							})); return;
 
 		case ".type"	:	if (!param) break;
-							return statements.filter(function(stat) {
+							resolve(statements.filter(function(stat) {
 								return stat.type == param;
-							});
+							})); return;
 
-		case ".datatype":	return statements.filter(function(stat) {
+		case ".datatype":	resolve(statements.filter(function(stat) {
 								return (stat.expression && Eden.Selectors.testType(stat.expression) == param) ||
 										(stat.expression && stat.expression.type == "scope" && stat.expression.range && param == "list");
-							});
+							})); return;
 
-		case ".lines"	:	return statements;
+		case ".lines"	:	resolve(statements); return;
 
-		case ":line"	:	return statements;
+		case ":line"	:	resolve(statements); return;
 
 		case ".op"			:
-		case ".operator"	: return statements;
+		case ".operator"	: resolve(statements); return;
 
 		// Match an expression pattern
-		case ":pattern"		: return statements;
+		case ":pattern"		: resolve(statements); return;
 
-		case ":determines"	: return statements;
+		case ":determines"	: resolve(statements); return;
 
 		case ".depends"	:	//var regex = edenUI.regExpFromStr(param);
-							return statements.filter(function(stat) {
+							resolve(statements.filter(function(stat) {
 								return (stat.type == "definition" || stat.type == "when") && stat.dependencies[param];
-							});
+							})); return;
 
-		case ":active"	:	return statements.filter(function(stat) {
+		case ":active"	:	resolve(statements.filter(function(stat) {
 								if (stat.type == "definition" || stat.type == "assignment") {
 									var sym = eden.root.symbols[stat.lvalue.name];
 
 									return sym && (sym.origin === stat || (sym.origin && sym.origin.id == stat.id));
 								} else if (stat.type == "when") return stat.enabled;
 								return false;
-							});
+							})); return;
 
-		case ":first"	:	return (statements.length > 0) ? [statements[0]] : [];
-		case ":last"	:	return (statements.length > 0) ? [statements[statements.length-1]] : [];
+		case ":first"	:	resolve((statements.length > 0) ? [statements[0]] : []); return;
+		case ":last"	:	resolve((statements.length > 0) ? [statements[statements.length-1]] : []);
 
-		case ":unexecuted"	:	return statements.filter(function(stat) {
+		case ":unexecuted"	:	resolve(statements.filter(function(stat) {
 									return stat.executed == 0;
-								});
-		case ":executed":	return statements.filter(function(stat) {
+								})); return;
+		case ":executed":	resolve(statements.filter(function(stat) {
 								return stat.executed == 1;
-							});
+							})); return
 
 		/*case "has-name"	:	return statements.filter(function(stat) {
 								return stat.name !== undefined;
 							});*/
 
 		//case ":no-parent":
-		case ":root"	:	return statements.filter(function(stat) {
+		case ":root"	:	resolve(statements.filter(function(stat) {
 								return stat.parent === undefined;
-							});
+							})); return;
 
-		case ":project"	:	return [eden.project.ast.script];
+		case ":project"	:	resolve([eden.project.ast.script]); return;
 
-		case ":nth"		:	return statements.filter(function(stat) {
+		case ":nth"		:	resolve(statements.filter(function(stat) {
 								return stat.parent && Eden.Selectors.getChildren([stat.parent], false)[me.value-1] === stat;
-							});
+							})); return;
 
-		case ":value"	:	return statements;
+		case ":value"	:	resolve(statements); return;
 
 		// Additional selector unions to check
 		case ":"		:
 		case ":matches"	:	var sast = Eden.Selectors.parse(this.param);
-							if (sast) return sast.filter(statements);
-							return [];
+							if (sast) sast.filter(statements).then(s => resolve(s));
+							else resolve([]);
+							return;
 
 		case ".title"	:	if (this.isreg) {
-								return statements.filter(function(stat) {
+								resolve(statements.filter(function(stat) {
 									if (!stat.doxyComment) return false;
 									var title = stat.doxyComment.getProperty("title");
 									return title && me.value.test(title);
-								});
+								})); return;
 							} else {
-								return statements.filter(function(stat) {
+								resolve(statements.filter(function(stat) {
 									if (!stat.doxyComment) return false;
 									var title = stat.doxyComment.getProperty("title");
 									return title && title == me.value;
-								});
+								})); return;
 							}
 
-		case ".author"	:	return statements;
+		case ".author"	:	resolve(statements); return;
 
-		case ".version"	:	return statements;
+		case ".version"	:	resolve(statements); return;
 
 		case ".source"	:	if (this.isreg) {
-								return statements.filter(function(stat) {
+								resolve(statements.filter(function(stat) {
 									return me.value.test(stat.getSource());
-								});
+								})); return;
 							} else {
-								return statements.filter(function(stat) {
+								resolve(statements.filter(function(stat) {
 									return stat.getSource() == me.value;
-								});
+								})); return;
 							}
 
 		case ".comment"	:	if (this.isreg) {
-								return statements.filter(function(stat) {
+								resolve(statements.filter(function(stat) {
 									return stat.doxyComment && me.value.test(stat.doxyComment.stripped());
-								});
+								})); return;
 							} else {
-								return statements.filter(function(stat) {
+								resolve(statements.filter(function(stat) {
 									return stat.doxyComment && stat.doxyComment.stripped() == me.value;
-								});
+								})); return;
 							}
 
 		// How long ago from now
@@ -272,71 +281,73 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 							var diff = now - ts;
 							console.log("AGE",ts,now,diff);
 							if (this.compare === undefined || this.compare == "<") {
-								return statements.filter(function(stat) {
+								resolve(statements.filter(function(stat) {
 									return stat.stamp > diff;
-								});
+								})); return;
 							} else {
-								return statements.filter(function(stat) {
+								resolve(statements.filter(function(stat) {
 									return stat.stamp < diff;
-								});
+								})); return;
 							}
 
 		// Absolute time
 		case ".time"		:
-		case ".date"		:	return statements;
+		case ".date"		:	resolve(statements); return;
 
-		case ":remote"	:	return statements.filter(function(stat) {
+		case ":remote"	:	resolve(statements.filter(function(stat) {
 								var p = stat;
 								while(p.parent) p = p.parent;
 								if (!p.base || !p.base.origin) return false;
 								return p.base.origin.remote == true;
-							});
+							})); return;
 
 		case ":not"		:	if (this.param) {
-							var positive = Eden.Selectors.parse(this.param).filter(statements);
-							return statements.filter(function(stat) {
-								for (var i=0; i<positive.length; i++) {
-									if (stat === positive[i]) return false;
-								}
-								return true;
-							});
+							Eden.Selectors.parse(this.param).filter(statements).then(positive => {
+								resolve(statements.filter(function(stat) {
+									for (var i=0; i<positive.length; i++) {
+										if (stat === positive[i]) return false;
+									}
+									return true;
+								}));
+							}); return;
 							}
 
-		default: return [];
+		default: resolve([]);
 		}
 	}
-	return [];
 }
 
 Eden.Selectors.PropertyNode.prototype.construct = function() {
-	var stats;
+	return new Promise((resolve, reject) => {
+		var stats;
 
-	switch (this.name) {
-	case ".type"		:	stats = Eden.Index.getByType(this.value); break;
-	case ".id"			:	stats = Eden.Index.getByID(this.value); break;
-	case ".v"			:
-	case ".vid"			:
-	case ".version"		:	stats = []; break;  // Local version always is empty
-	case ".name"		:	if (this.param === undefined) {
-								stats = Eden.Index.getAllWithName();
-							} else if (this.isreg) {
-								stats = Eden.Index.getByNameRegex(this.value);
-							} else {
-								stats = Eden.Index.getByName(this.value);
-							} break;
-	// TODO this doesn't capture executes.
-	case ":root"		:	stats = [eden.project.ast.script].concat(Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; })); break;
-	case ":remote"		:	stats = Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; }); break;
-	case ":project"		:	stats = [eden.project.ast.script]; break;
-	default				:	stats = Eden.Index.getAll();
-	}
+		switch (this.name) {
+		case ".type"		:	stats = Eden.Index.getByType(this.value); break;
+		case ".id"			:	stats = Eden.Index.getByID(this.value); break;
+		case ".v"			:
+		case ".vid"			:
+		case ".version"		:	stats = []; break;  // Local version always is empty
+		case ".name"		:	if (this.param === undefined) {
+									stats = Eden.Index.getAllWithName();
+								} else if (this.isreg) {
+									stats = Eden.Index.getByNameRegex(this.value);
+								} else {
+									stats = Eden.Index.getByName(this.value);
+								} break;
+		// TODO this doesn't capture executes.
+		case ":root"		:	stats = [eden.project.ast.script].concat(Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; })); break;
+		case ":remote"		:	stats = Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; }); break;
+		case ":project"		:	stats = [eden.project.ast.script]; break;
+		default				:	stats = Eden.Index.getAll();
+		}
 
-	if (!this.options || !this.options.history) {
-		return stats.filter(function(e) {
-			return e.executed >= 0;
-		});
-	}
+		if (!this.options || !this.options.history) {
+			resolve(stats.filter(function(e) {
+				return e.executed >= 0;
+			})); return;
+		}
 
-	return stats;
+		resolve(stats);
+	});
 }
 

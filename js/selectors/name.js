@@ -7,7 +7,15 @@ Eden.Selectors.NameNode = function(name) {
 }
 
 Eden.Selectors.NameNode.prototype.filter = function(statements) {
-	if (!statements) return this.construct();
+	return new Promise((resolve, reject) => {
+		if (!statements) statements = this.construct().then((s) => {
+			resolve(this._filter(s));
+		});
+		else resolve(this._filter(statements));
+	});
+}
+
+Eden.Selectors.NameNode.prototype._filter = function(statements) {
 	var name = this.name;
 
 	if (this.isreg) {
@@ -23,28 +31,31 @@ Eden.Selectors.NameNode.prototype.filter = function(statements) {
 }
 
 Eden.Selectors.NameNode.prototype.construct = function() {
-	if (this.isreg) {
-		var reg = Eden.Selectors.makeRegex(this.name);
-		stats = Eden.Index.getByNameRegex(reg);
-	} else {
-		stats = Eden.Index.getByName(this.name);
-		var tags = this.name.toLowerCase().split(" ");
-		//console.log("SEARCH TAGS",tags);
-		var tagres = Eden.Index.getByTag("#"+tags[0]);
-		for (var i=1; i<tags.length; i++) {
-			tagres = tagres.filter(function(stat) {
-				return (!eden.project || stat !== eden.project.ast.script) && stat.doxyComment && stat.doxyComment.hasTag("#"+tags[i]);
-			});
+	return new Promise((resolve,reject) => {
+		if (this.isreg) {
+			var reg = Eden.Selectors.makeRegex(this.name);
+			stats = Eden.Index.getByNameRegex(reg);
+		} else {
+			stats = Eden.Index.getByName(this.name);
+			var tags = this.name.toLowerCase().split(" ");
+			//console.log("SEARCH TAGS",tags);
+			var tagres = Eden.Index.getByTag("#"+tags[0]);
+			for (var i=1; i<tags.length; i++) {
+				tagres = tagres.filter(function(stat) {
+					return (!eden.project || stat !== eden.project.ast.script) && stat.doxyComment && stat.doxyComment.hasTag("#"+tags[i]);
+				});
+			}
+			stats.push.apply(stats, tagres);
 		}
-		stats.push.apply(stats, tagres);
-	}
 
-	if (!this.options || !this.options.history) {
-		return stats.filter(function(e) {
-			return e.executed >= 0;
-		});
-	}
-	return stats;
+		if (!this.options || !this.options.history) {
+			resolve(stats.filter(function(e) {
+				return e.executed >= 0;
+			}));
+			return;
+		}
+		resolve(stats);
+	});
 }
 
 Eden.Selectors.NameNode.prototype.append = Eden.Selectors.PropertyNode.prototype.append;

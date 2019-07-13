@@ -282,6 +282,7 @@ Eden.Project.prototype.start = function(cb) {
 			// Find the active action and replace
 			for (var i=0; i<me.ast.script.statements.length; i++) {
 				if (me.ast.script.statements[i] === me.ast.scripts["ACTIVE"]) {
+					console.log(me.ast.script.statements[i]);
 					me.ast.script.statements[i].removeIndex();
 					me.ast.script.statements[i].destroy();
 

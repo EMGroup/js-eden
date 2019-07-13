@@ -282,17 +282,6 @@ Eden.Selectors.PropertyNode.prototype.construct = function() {
 	});
 }
 
-Eden.Selectors.PropertyNode.prototype._filter = Eden.Selectors.PropertyNode.prototype.filter;
-
-Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
-	return new Promise((resolve, reject) => {
-		if (!statements) statements = this.construct().then((statements) => {
-			resolve(this._filter(statements));
-		});
-		else resolve(this._filter(statements));
-	});
-}
-
 var flash = require('connect-flash');
 var app = express();
 

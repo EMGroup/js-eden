@@ -25,13 +25,21 @@ Eden.Selectors.IntersectionNode.prototype.prepend = function(node) {
 }
 
 Eden.Selectors.IntersectionNode.prototype.filter = function(statements, context) {
-	//if (!statements) return this.construct();
+	return new Promise((resolve,reject) => {
+		//if (!statements) return this.construct();
 
-	for (var i=0; i<this.children.length; i++) {
-		statements = this.children[i].filter(statements, context);
-	}
+		let p1 = (i, s) => {
+			if (i < this.children.length) {
+				this.children[i].filter(s, context).then(ss => {
+					p1(++i, ss);
+				});
+			} else {
+				resolve((statements) ? statements : []);
+			}
+		};
 
-	return (statements) ? statements : [];
+		p1(0, statements);
+	});
 }
 
 Eden.Selectors.IntersectionNode.prototype.construct = function() {
