@@ -512,22 +512,25 @@ Eden.Selectors.sort = function(stats) {
 Eden.Selectors.queryWithin = function(within, s, o, cb) {
 	if (!cb) console.error("QUERY WITHIN WITHOUT CB");
 	var sast = Eden.Selectors.parse(s);
+	var res = [];
+
 	sast.filter(within).then(s => {
 		var statements = Eden.Selectors.unique(s);
-		var res = (o) ? Eden.Selectors.processResults(statements, o) : statements;
-		cb(res);
+		res = (o) ? Eden.Selectors.processResults(statements, o) : statements;
+		if (cb) cb(res);
 	});
+
+	return res;
 }
 
 Eden.Selectors.query = function(s, o, options, cb) {
 	var ctx;
 	var num;
 
-	console.log("QUERY: ", s);
+	var statements = [];
 
 	if (!cb) {
-		console.error("Selector query without callback not supported");
-		return [];
+		console.warn("Selector query without callback: ", s);
 	}
 
 	if (options) {
@@ -539,23 +542,24 @@ Eden.Selectors.query = function(s, o, options, cb) {
 	if (typeof num == "boolean") console.trace("Bool");
 	if (typeof s != "string" || s == "") {
 		var res = [];
-		cb(res);
-		//return res;
+		console.log("Invalid selector")
+		if (cb) cb(res);
+		return res;
 	}
-
-	var script;
 
 	// Generate a selector AST from the string.
 	var sast = Eden.Selectors.parse(s.trim(), (options) ? options.options : undefined);
 	if (sast === undefined) {
-		cb([]);
-		//return [];
+		console.log("Selector parse error");
+		if (cb) cb([]);
+		return [];
 	}
 
 	let p1 = (stmts) => {
-		var statements = stmts;
+		statements = stmts;
+		//if (statements === undefined) statements = [];
+
 		if (!sast.options || !sast.options.remote) {
-			if (statements === undefined) statements = [];
 
 			// Make sure results are unique by id
 			if (!sast.options || !sast.options.all) {
@@ -571,11 +575,10 @@ Eden.Selectors.query = function(s, o, options, cb) {
 			statements = Eden.Selectors.processResults(statements, o, num);
 		}
 
-		console.log("Statement length", stmts.length);
-
 		// If there are still no results and the query is not a local only
 		// query, then look elsewhere. Only possible if a callback is given.
-		if (sast.local == false && (!num || (statements.length < num))) {
+		if (sast.local == false && cb && (!num || (statements.length < num))) {
+			console.log("Selector remote path");
 
 			var pathix = s.search(/[\s\.\:\#\@\>]/);
 			if (pathix == -1) pathix = s.length;
@@ -603,19 +606,22 @@ Eden.Selectors.query = function(s, o, options, cb) {
 						var res = [(new Eden.AST(data, undefined, {name: urlparts[urlparts.length-1], remote: true})).script];
 						Eden.Selectors.cache[s] = res[0];
 						//Eden.Index.update(res[0]);
-						statements = res;
 						//statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
-						res = Eden.Selectors.processResults(statements, o);
-						cb(res);
+						statements = Eden.Selectors.processResults(res, o);
+						console.log("ajax result", statements);
+						cb(statements);
 					},
 					error: function() {
+						statements = [];
 						cb([]);
 					}
 				});
 			// Only search the server if an external query is requested
 			} else if (sast.options && sast.options.external) {
+				console.log("Selector search path");
 				//Then need to do a remote search
 				Eden.DB.searchSelector(s, (o === undefined) ? ["outersource","path"] : o, function(stats) {
+					console.log("searchSelector result");
 					if (o === undefined && stats.length > 0) {
 						// Need to generate an AST for each result
 						// Loop and do all...
@@ -640,6 +646,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 									// Find inner most statement...?
 									//console.log("PATH:",stats[i][1],script);
 									Eden.Selectors.queryWithin([script],stats[i][1], null, (r) => {
+										console.log("QWithin result");
 										var innerscript = r[0];
 										if (innerscript) {
 											statements.push(innerscript);
@@ -663,6 +670,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 					} else if (stats === undefined || stats.length == 0) {
 						if (Eden.Project.local && Eden.Project.local[path]) {
 							$.get(Eden.Project.local[path].file, function(data) {
+								console.log("local2 result");
 								var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 								Eden.Selectors.cache[path] = res[0];
 								//Eden.Index.update(res[0]);
@@ -676,12 +684,14 @@ Eden.Selectors.query = function(s, o, options, cb) {
 							cb(statements);
 						}
 					} else {
+						console.log("Append remote results");
 						statements.push.apply(statements,stats);
 						cb(statements);
 					}
 				});
 			} else if (Eden.Project.local && Eden.Project.local[path]) {
 				$.get(Eden.Project.local[path].file, function(data) {
+					console.log("local result");
 					var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 					Eden.Selectors.cache[path] = res[0];
 					//Eden.Index.update(res[0]);
@@ -692,11 +702,13 @@ Eden.Selectors.query = function(s, o, options, cb) {
 					});
 				}, "text");
 			} else {
+				console.log("No extra results");
 				cb([]);
 			}
 
 			//return;
 		} else {
+			console.log("No remote check", statements);
 			//var res = Eden.Selectors.processResults(statements, o);
 			cb(statements);
 			//return statements;
@@ -706,7 +718,11 @@ Eden.Selectors.query = function(s, o, options, cb) {
 	if (!sast.options || !sast.options.remote) {
 		// If a context is given, search in this first unless told otherwise
 		if (ctx && ctx.type == "script" && (!sast.options || !sast.options.indexed)) {
-			sast.filter(ctx.statements).then(s => { p1(s); });
+			sast.filter(ctx.statements).then(s => {
+				if (!s || s.length == 0) {
+					sast.filter().then(s => { p1(s); });
+				} else  p1(s);
+			});
 		} else {
 
 		// If there are still no results, do an indexed searched
@@ -717,6 +733,9 @@ Eden.Selectors.query = function(s, o, options, cb) {
 	} else {
 		p1([]);
 	}
+
+	console.log("Q", sast, statements);
+	return statements;
 }
 
 

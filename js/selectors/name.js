@@ -32,6 +32,8 @@ Eden.Selectors.NameNode.prototype._filter = function(statements) {
 
 Eden.Selectors.NameNode.prototype.construct = function() {
 	return new Promise((resolve,reject) => {
+		var stats = [];
+
 		if (this.isreg) {
 			var reg = Eden.Selectors.makeRegex(this.name);
 			stats = Eden.Index.getByNameRegex(reg);
@@ -44,8 +46,8 @@ Eden.Selectors.NameNode.prototype.construct = function() {
 				tagres = tagres.filter(function(stat) {
 					return (!eden.project || stat !== eden.project.ast.script) && stat.doxyComment && stat.doxyComment.hasTag("#"+tags[i]);
 				});
+				stats.push.apply(stats, tagres);
 			}
-			stats.push.apply(stats, tagres);
 		}
 
 		if (!this.options || !this.options.history) {
