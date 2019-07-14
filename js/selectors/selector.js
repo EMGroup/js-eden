@@ -579,8 +579,6 @@ Eden.Selectors.query = function(s, o, options, cb) {
 		// query, then look elsewhere. Only possible if a callback is given.
 		if (sast.local == false && cb && (num === undefined || (statements.length < num))) {
 
-			console.log("FILTERED", num);
-
 			var pathix = s.search(/[\s\.\:\#\@\>]/);
 			if (pathix == -1) pathix = s.length;
 			var path = s.substring(0,pathix).trim();
