@@ -240,9 +240,13 @@ function reindexProject(projectID){
 
 function loadVersion(saveID, cb) {
 	getProjectIDFromSaveID(saveID, undefined, (pid) => {
+		if (!pid) {
+			cb();
+			return;
+		}
 		getProjectMetaData(pid, undefined, undefined, (meta) => {
 			getFullVersion(saveID, pid,meta,function(data){
-				var tmpAst = new Eden.AST(data.source,undefined,{id: pid, saveID: saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: data.meta.tags.split(" "), author: data.meta.authorname, stamp: data.meta.stamp});
+				var tmpAst = new Eden.AST(data.source,undefined,{id: pid, saveID: saveID, name: data.meta.minimisedTitle, title: data.meta.title, tags: (data.meta.tags) ? data.meta.tags.split(" ") : [], author: data.meta.authorname, stamp: data.meta.stamp});
 				cb(tmpAst.script);
 			});
 		});
@@ -267,7 +271,7 @@ Eden.Selectors.PropertyNode.prototype.construct = function() {
 	case ".vid"			:
 	case ".version"		:	return new Promise((resolve, reject) => {
 								loadVersion(this.value, (ast) => {
-									resolve([ast]);
+									resolve((ast) ? [ast] : []);
 								});
 							});
 	// TODO this doesn't capture executes.
@@ -844,7 +848,7 @@ function getProjectIDFromSaveID(saveID,res,callback){
 			logErrorTime(err); res.json({error: ERROR_SQL, description: "SQL Error", err: err});
 			return;
 		}else{
-			callback(row.projectID);
+			callback((row) ? row.projectID : undefined);
 		}
 	});
 }
