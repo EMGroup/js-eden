@@ -513,6 +513,7 @@ Eden.Selectors.queryWithin = function(within, s, o, cb) {
 	if (!cb) console.error("QUERY WITHIN WITHOUT CB");
 	var sast = Eden.Selectors.parse(s);
 	var res = [];
+	if (!sast) return res;
 
 	sast.filter(within).then(s => {
 		var statements = Eden.Selectors.unique(s);
