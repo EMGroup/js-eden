@@ -38,7 +38,29 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	if (this.token == "is") {
 		this.next();
 		var alias = new Eden.AST.Alias();
+
+		// For now it must be a query
+		if (this.token != "?") {
+			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ALIASQUERY));
+			return alias;
+		}
+		this.next();
+
+		if (this.token != "(") {
+			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYOPEN));
+			return alias;
+		}
+		this.next();
+	
 		alias.setSelector(this.pCODESELECTOR());
+	
+		if (this.token != ")") {
+			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYCLOSE));
+			return alias;
+		}
+		this.next();
+
+		//alias.setSelector(this.pCODESELECTOR());
 		alias.setName(name);
 
 		if (this.token != ";") {

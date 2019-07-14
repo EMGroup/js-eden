@@ -62,7 +62,7 @@ Object.defineProperty(Eden.AST.Alias.prototype, "statements", {
 				this._statements = (r.length == 1 && r[0].type == "script") ? r[0].statements : r;
 
 				for (let i=0; i<this._statements.length; i++) {
-					this._statements[i].addIndex();
+					if (this._statements[i].type != "dummy") this._statements[i].addIndex();
 				}
 			});
 		} return (this._statements) ? this._statements : []; }

@@ -340,6 +340,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_WHENROLE */ [
 	"A role must be a valid identifier"
+],
+/* EDEN_ERROR_WHENROLE */ [
+	"Alias action must use ? selector query"
 ]
 ];
 
