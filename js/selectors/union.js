@@ -7,15 +7,24 @@ Eden.Selectors.UnionNode = function() {
 Eden.Selectors.UnionNode.prototype.filter = function(statements, context) {
 	//if (!statements) return this.construct();
 
-	var map = {};
-	for (var i=0; i<this.children.length; i++) {
-		var stats = this.children[i].filter(statements, context);
-		for (var j=0; j<stats.length; j++) {
-			map[stats[j].id] = stats[j];
-		}
-	}
+	return new Promise((resolve,reject) => {
+		var map = {};
 
-	return Object.keys(map).map(function(e) { return map[e]; });
+		let p1 = (i) => {
+			if (i < this.children.length) {
+				this.children[i].filter(statements, context).then(stats => {
+					for (var j=0; j<stats.length; j++) {
+						map[stats[j].id] = stats[j];
+					}
+					p1(++i);
+				});
+			} else {
+				resolve(Object.keys(map).map(function(e) { return map[e]; }));
+			}
+		};
+
+		p1(0);
+	});
 }
 
 Eden.Selectors.UnionNode.prototype.construct = function() {

@@ -572,7 +572,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 			}
 
 			// Convert AST node results into requested attributes...
-			statements = Eden.Selectors.processResults(statements, o, num);
+			//statements = Eden.Selectors.processResults(statements, o, num);
 		}
 
 		// If there are still no results and the query is not a local only
@@ -700,7 +700,8 @@ Eden.Selectors.query = function(s, o, options, cb) {
 			//return;
 		} else {
 			//var res = Eden.Selectors.processResults(statements, o);
-			cb(statements);
+			statements = Eden.Selectors.processResults(statements, o, num);
+			if (cb) cb(statements);
 			//return statements;
 		}
 	};

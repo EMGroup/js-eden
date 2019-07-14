@@ -378,35 +378,37 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (path == "") path = "*";
 			var selector = eden.root.lookup("view_"+name+"_query").value();
 			if (selector === undefined) selector = ".type(script).name";
-			var scripts = Eden.Selectors.query(selector, "path,name,remote,executed,type"); //path + " .type(script).name:not(:remote)","id");
-			scriptarea.outdiv.innerHTML = "";
-			for (var i=0; i<scripts.length; i++) {
-				var nname = scripts[i][1]
-				//nname = nname[nname.length-1];
-				var iconclass = "";
-				var icon;
-				if (nname == eden.project.name) {
-					iconclass = " project";
-					icon = "&#xf0f6;";
-				} else if (nname == "ACTIVE") {
-					iconclass = " root";
-					icon = "&#xf0e7;";
-				} else if (scripts[i][2]) {
-					icon = "&#xf08e;";
-				} else {
-					switch(scripts[i][4]) {
-					case "script"	: icon = "&#xf0f6;"; break;
-					case "when"		: icon = "&#xf1ae;"; break;
-					default			: icon = "&#xf128;";
+			Eden.Selectors.query(selector, "path,name,remote,executed,type", null, (scripts) => { //path + " .type(script).name:not(:remote)","id");
+				scriptarea.outdiv.innerHTML = "";
+				console.log("BROWSE", scripts);
+				for (var i=0; i<scripts.length; i++) {
+					var nname = scripts[i][1]
+					//nname = nname[nname.length-1];
+					var iconclass = "";
+					var icon;
+					if (nname == eden.project.name) {
+						iconclass = " project";
+						icon = "&#xf0f6;";
+					} else if (nname == "ACTIVE") {
+						iconclass = " root";
+						icon = "&#xf0e7;";
+					} else if (scripts[i][2]) {
+						icon = "&#xf08e;";
+					} else {
+						switch(scripts[i][4]) {
+						case "script"	: icon = "&#xf0f6;"; break;
+						case "when"		: icon = "&#xf1ae;"; break;
+						default			: icon = "&#xf128;";
+						}
+						if (scripts[i][3]) iconclass = " executed";
+						else iconclass="";
 					}
-					if (scripts[i][3]) iconclass = " executed";
-					else iconclass="";
+					var ele = $('<div class="browse-entry" data-path="'+scripts[i][0]+'"><div class="browse-icon'+iconclass+'">'+icon+'</div>'+nname+'</div>');
+					scriptarea.outdiv.appendChild(ele.get(0));
 				}
-				var ele = $('<div class="browse-entry" data-path="'+scripts[i][0]+'"><div class="browse-icon'+iconclass+'">'+icon+'</div>'+nname+'</div>');
-				scriptarea.outdiv.appendChild(ele.get(0));
-			}
+			});
 
-			var folder = {};
+			//var folder = {};
 		}
 
 
