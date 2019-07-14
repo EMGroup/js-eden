@@ -23,19 +23,20 @@ Eden.Selectors.TagNode.prototype._filter = function(statements) {
 }
 
 Eden.Selectors.TagNode.prototype.construct = function() {
-	if (this.isreg) {
-		var reg = Eden.Selectors.makeRegex(this.tag);
-		stats = Eden.Index.getByTagRegex(reg);
-	} else {
-		stats = Eden.Index.getByTag(this.tag);
-	}
+	return new Promise((resolve, reject) => {
+		if (this.isreg) {
+			var reg = Eden.Selectors.makeRegex(this.tag);
+			stats = Eden.Index.getByTagRegex(reg);
+		} else {
+			stats = Eden.Index.getByTag(this.tag);
+		}
 
-	if (!this.options || !this.options.history) {
-		return stats.filter(function(e) {
-			return e.executed >= 0;
-		});
-	}
-	return stats;
+		if (!this.options || !this.options.history) {
+			resolve(stats.filter(function(e) {
+				return e.executed >= 0;
+			}));
+		} else resolve(stats);
+	});
 }
 
 Eden.Selectors.TagNode.prototype.append = Eden.Selectors.PropertyNode.prototype.append;

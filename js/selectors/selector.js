@@ -712,7 +712,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 		if (ctx && ctx.type == "script" && (!sast.options || !sast.options.indexed)) {
 			sast.filter(ctx.statements).then(s => {
 				if (!s || s.length == 0) {
-					sast.filter().then(s => { p1(s); });
+					sast.filter().then(ss => { p1(ss); });
 				} else  p1(s);
 			});
 		} else {

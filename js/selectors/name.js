@@ -9,7 +9,8 @@ Eden.Selectors.NameNode = function(name) {
 Eden.Selectors.NameNode.prototype.filter = function(statements) {
 	return new Promise((resolve, reject) => {
 		if (!statements) statements = this.construct().then((s) => {
-			resolve(this._filter(s));
+			//resolve(this._filter(s));
+			resolve(s);
 		});
 		else resolve(this._filter(statements));
 	});
@@ -40,14 +41,13 @@ Eden.Selectors.NameNode.prototype.construct = function() {
 		} else {
 			stats = Eden.Index.getByName(this.name);
 			var tags = this.name.toLowerCase().split(" ");
-			//console.log("SEARCH TAGS",tags);
 			var tagres = Eden.Index.getByTag("#"+tags[0]);
 			for (var i=1; i<tags.length; i++) {
 				tagres = tagres.filter(function(stat) {
 					return (!eden.project || stat !== eden.project.ast.script) && stat.doxyComment && stat.doxyComment.hasTag("#"+tags[i]);
 				});
-				stats.push.apply(stats, tagres);
 			}
+			stats.push.apply(stats, tagres);
 		}
 
 		if (!this.options || !this.options.history) {
