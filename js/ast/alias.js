@@ -60,6 +60,10 @@ Object.defineProperty(Eden.AST.Alias.prototype, "statements", {
 			var stats = this.selector.execute(this, eden.project.ast, eden.root.scope, this);
 			Eden.Selectors.query(stats, undefined, {minimum: 1}, (r) => {
 				this._statements = (r.length == 1 && r[0].type == "script") ? r[0].statements : r;
+
+				for (let i=0; i<this._statements.length; i++) {
+					this._statements[i].addIndex();
+				}
 			});
 		} return (this._statements) ? this._statements : []; }
 });
@@ -73,10 +77,21 @@ Eden.AST.Alias.removeIndex = function() {
 	Eden.Index.remove(this);
 }
 
-Eden.AST.Alias.destroy = function() {
+Eden.AST.Alias.prototype.destroy = function() {
 	if (this.executed < 1) Eden.Index.remove(this);
-	this.parent = undefined;
+
+	if (this._statements) {
+		for (var i=0; i<this._statements.length; i++) {
+			this._statements[i].destroy();
+		}
+	}
 	this.executed = -1;
+	// Note, means can't search historical scripts structurally.
+	this._statements = undefined;
+	this.base = undefined;
+	this.parent = undefined;
+	this.nextSibling = undefined;
+	this.previousSibling = undefined;
 }
 
 Eden.AST.Alias.prototype.getInnerSource = function() {
