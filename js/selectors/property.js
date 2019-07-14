@@ -78,6 +78,7 @@ Eden.Selectors.PropertyNode.attributes = {
 	"title":	{local: false,	indexed: false, rank: 10},
 	"author":	{local: false,	indexed: false, rank: 10},
 	"v":		{local: false,	indexed: false, rank: 20},
+	"vid":		{local: false,	indexed: false, rank: 20},
 	"version":	{local: false,	indexed: false, rank: 20},
 	"source":	{local: true,	indexed: false, rank: 50},	// Local only because of performance
 	"comment":	{local: true,	indexed: false, rank: 50}
@@ -253,6 +254,8 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 
 		case ".author"	:	resolve(statements); return;
 
+		case ".v"		:
+		case ".vid"		:
 		case ".version"	:	resolve(statements); return;
 
 		case ".source"	:	if (this.isreg) {
