@@ -124,11 +124,15 @@ Eden.AST.debug_end_cb = undefined;
 
 
 Eden.AST.fromNode = function(node, origin) {
-	var ast = new Eden.AST(node.getInnerSource(), undefined, origin, {noindex: true, noparse: true});
-	ast.script = node;
-	ast.whens = Eden.Selectors.queryWithin([node], ">>.type(when)");
-	ast.errors = node.errors;
-	return ast;
+	return new Promise((resolve, reject) => {
+		var ast = new Eden.AST(node.getInnerSource(), undefined, origin, {noindex: true, noparse: true});
+		ast.script = node;
+		ast.errors = node.errors;
+		Eden.Selectors.queryWithin([node], ">>.type(when)", null, (s) => {
+			ast.whens = s;
+			resolve(ast);
+		});
+	});
 }
 
 

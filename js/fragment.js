@@ -137,31 +137,37 @@ Eden.Fragment.prototype.reset = function(cb) {
 			me.name = (me.originast.name) ? me.originast.name : me.selector;
 			//me.source = me.originast.getInnerSource();
 			//me.ast = new Eden.AST(me.source, undefined, me);
-			me.ast = Eden.AST.fromNode(me.originast,me);
-			me.source = me.ast.stream.code;
-			var p = me.originast;
-			while (p && p.parent) p = p.parent;
-			me.origin = (p.base) ? p.base.origin : {remote: true};
-			me.remote = me.origin.remote;
-			me.locked = me.originast.lock > 0 || me.remote;
+			Eden.AST.fromNode(me.originast,me).then(s => {
+				me.ast = s;
+				me.source = me.ast.stream.code;
+				var p = me.originast;
+				while (p && p.parent) p = p.parent;
+				me.origin = (p.base) ? p.base.origin : {remote: true};
+				me.remote = me.origin.remote;
+				me.locked = me.originast.lock > 0 || me.remote;
 
-			var dcom = me.originast.doxyComment;
-			if (dcom) {
-				me.doxy = dcom;
-				var ctrls = dcom.getControls();
-				if (ctrls["@title"]) {
-					me.title = ctrls["@title"][0];
+				var dcom = me.originast.doxyComment;
+				if (dcom) {
+					me.doxy = dcom;
+					var ctrls = dcom.getControls();
+					if (ctrls["@title"]) {
+						me.title = ctrls["@title"][0];
+					}
+				} else {
+					me.doxy = undefined;
 				}
-			} else {
-				me.doxy = undefined;
-			}
 
-			Eden.Fragment.emit("changed", [me]);
-			//Eden.Fragment.emit("status", [me]);
+				Eden.Fragment.emit("changed", [me]);
+				//Eden.Fragment.emit("status", [me]);
 
-			if (me.locked) {
-				Eden.Fragment.emit("locked", [me]);
-			}
+				if (me.locked) {
+					Eden.Fragment.emit("locked", [me]);
+				}
+
+				me.lock();
+				me.snapshot = me.source;
+				if (cb) cb();
+			});
 		} else {
 			console.log("Make scratch fragment");
 			// Scratch
@@ -174,11 +180,11 @@ Eden.Fragment.prototype.reset = function(cb) {
 			me.scratch = true;
 
 			Eden.Fragment.emit("changed", [me]);
-		}
-		me.lock();
 
-		me.snapshot = me.source;
-		if (cb) cb();
+			me.lock();
+			me.snapshot = me.source;
+			if (cb) cb();
+		}
 	});
 }
 

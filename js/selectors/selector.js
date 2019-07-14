@@ -578,7 +578,6 @@ Eden.Selectors.query = function(s, o, options, cb) {
 		// If there are still no results and the query is not a local only
 		// query, then look elsewhere. Only possible if a callback is given.
 		if (sast.local == false && cb && (!num || (statements.length < num))) {
-			console.log("Selector remote path");
 
 			var pathix = s.search(/[\s\.\:\#\@\>]/);
 			if (pathix == -1) pathix = s.length;
@@ -608,7 +607,6 @@ Eden.Selectors.query = function(s, o, options, cb) {
 						//Eden.Index.update(res[0]);
 						//statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
 						statements = Eden.Selectors.processResults(res, o);
-						console.log("ajax result", statements);
 						cb(statements);
 					},
 					error: function() {
@@ -618,10 +616,8 @@ Eden.Selectors.query = function(s, o, options, cb) {
 				});
 			// Only search the server if an external query is requested
 			} else if (sast.options && sast.options.external) {
-				console.log("Selector search path");
 				//Then need to do a remote search
 				Eden.DB.searchSelector(s, (o === undefined) ? ["outersource","path"] : o, function(stats) {
-					console.log("searchSelector result");
 					if (o === undefined && stats.length > 0) {
 						// Need to generate an AST for each result
 						// Loop and do all...
@@ -646,7 +642,6 @@ Eden.Selectors.query = function(s, o, options, cb) {
 									// Find inner most statement...?
 									//console.log("PATH:",stats[i][1],script);
 									Eden.Selectors.queryWithin([script],stats[i][1], null, (r) => {
-										console.log("QWithin result");
 										var innerscript = r[0];
 										if (innerscript) {
 											statements.push(innerscript);
@@ -670,7 +665,6 @@ Eden.Selectors.query = function(s, o, options, cb) {
 					} else if (stats === undefined || stats.length == 0) {
 						if (Eden.Project.local && Eden.Project.local[path]) {
 							$.get(Eden.Project.local[path].file, function(data) {
-								console.log("local2 result");
 								var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 								Eden.Selectors.cache[path] = res[0];
 								//Eden.Index.update(res[0]);
@@ -684,14 +678,12 @@ Eden.Selectors.query = function(s, o, options, cb) {
 							cb(statements);
 						}
 					} else {
-						console.log("Append remote results");
 						statements.push.apply(statements,stats);
 						cb(statements);
 					}
 				});
 			} else if (Eden.Project.local && Eden.Project.local[path]) {
 				$.get(Eden.Project.local[path].file, function(data) {
-					console.log("local result");
 					var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 					Eden.Selectors.cache[path] = res[0];
 					//Eden.Index.update(res[0]);
@@ -702,13 +694,11 @@ Eden.Selectors.query = function(s, o, options, cb) {
 					});
 				}, "text");
 			} else {
-				console.log("No extra results");
 				cb([]);
 			}
 
 			//return;
 		} else {
-			console.log("No remote check", statements);
 			//var res = Eden.Selectors.processResults(statements, o);
 			cb(statements);
 			//return statements;
@@ -734,7 +724,6 @@ Eden.Selectors.query = function(s, o, options, cb) {
 		p1([]);
 	}
 
-	console.log("Q", sast, statements);
 	return statements;
 }
 
