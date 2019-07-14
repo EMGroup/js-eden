@@ -231,3 +231,16 @@ Eden.AST.BaseScript.getNumberOfLines = function() {
 	return ln;
 }
 
+Eden.AST.BaseScript.getNumberOfInnerLines = function() {
+	// Add self lines.
+	// And sum of child lines.
+	if (this.statements === undefined) {
+		console.error("No Statements",this);
+	}
+
+	var ln = 0;
+	for (var i=0; i<this.statements.length; i++) {
+		ln += this.statements[i].getNumberOfLines();
+	}
+	return ln;
+}

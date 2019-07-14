@@ -5,6 +5,7 @@ Eden.AST.Alias = function() {
 	this.active = false;
 	this.selector = undefined;
 	this._statements = null;
+	this.lock = 1;
 };
 
 Eden.AST.Alias.prototype.setName = function(name) {

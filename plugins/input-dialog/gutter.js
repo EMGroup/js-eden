@@ -635,7 +635,7 @@ EdenScriptGutter.prototype.generate = function(ast, lineno) {
 	if (this.edits) return;
 
 	var globaldoupdate = false;
-	var numlines = ast.getNumberOfLines()+1;
+	var numlines = ast.getNumberOfInnerLines()+1;
 
 	if (numlines > this.lineelements.childNodes.length) {
 		numlines = this.lineelements.childNodes.length;

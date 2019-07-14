@@ -99,6 +99,10 @@ Eden.AST.BaseStatement.getNumberOfLines = function() {
 	return this.numlines;
 }
 
+Eden.AST.BaseStatement.getNumberOfInnerLines = function() {
+	return this.numlines;
+}
+
 /** Get start line relative to immediate parent. */
 Eden.AST.BaseStatement.getStartLine = function(relative) {
 	return (this.parent) ? this.parent.getRelativeLine(this, relative) : -1;
