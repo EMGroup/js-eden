@@ -291,7 +291,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					if (oldix >= 0) {
 						tab_frags.push(oldfrags[oldix]);
 					} else {
-						tab_frags.push(new Eden.Fragment(value[i]));
+						tab_frags.push(new Eden.Fragment(value[i], () => {
+							curChanged(curSym, curSym.value());
+						}));
 					}
 				}
 
@@ -378,10 +380,12 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (path == "") path = "*";
 			var selector = eden.root.lookup("view_"+name+"_query").value();
 			if (selector === undefined) selector = ".type(script).name";
-			console.log("BROWSE",selector);
+			//console.log("BROWSE",selector);
 			Eden.Selectors.query(selector, "path,name,remote,executed,type", {minimum: 0}, (scripts) => { //path + " .type(script).name:not(:remote)","id");
+				if (curtab != -1) return;
+
 				scriptarea.outdiv.innerHTML = "";
-				console.log("BROWSE", scripts);
+				//console.log("BROWSE", scripts);
 				for (var i=0; i<scripts.length; i++) {
 					var nname = scripts[i][1]
 					//nname = nname[nname.length-1];

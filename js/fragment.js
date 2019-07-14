@@ -1,4 +1,4 @@
-Eden.Fragment = function(selector) {
+Eden.Fragment = function(selector, cb) {
 	this.name = selector;
 	this.selector = selector;
 	this.originast = undefined;
@@ -19,59 +19,62 @@ Eden.Fragment = function(selector) {
 
 	//console.error("FRAGMENT");
 
-	this.reset();
 	var me = this;
 
-	Eden.Fragment.listenTo("aststatus", this, function(ast) {
-		if (ast === me.originast) {
-			var dcom = me.originast.doxyComment;
-			if (dcom) {
-				var ctrls = dcom.getControls();
-				if (ctrls["@title"]) {
-					me.title = ctrls["@title"][0];
+	this.reset(() => {
+		Eden.Fragment.listenTo("aststatus", this, function(ast) {
+			if (ast === me.originast) {
+				var dcom = me.originast.doxyComment;
+				if (dcom) {
+					var ctrls = dcom.getControls();
+					if (ctrls["@title"]) {
+						me.title = ctrls["@title"][0];
+					}
 				}
+				Eden.Fragment.emit("status", [me]);
 			}
-			Eden.Fragment.emit("status", [me]);
-		}
-	});
+		});
+	
+		Eden.Fragment.listenTo("patch", this, function(frag, ast) {
+			if (frag === me) return;
+			if (ast === me.originast) {
+				//console.log("FRAG PATCH",me.name);
+				me.source = me.originast.getInnerSource();
+				//me.ast = new Eden.AST(me.source, undefined, me);
+				me.ast = Eden.AST.fromNode(me.originast,me);
+				Eden.Fragment.emit("changed", [me]);
+			}
+		});
+	
+		Eden.Fragment.listenTo("lock", this, function(frag, ast) {
+			if (ast === me.originast) {
+				me.locked = true;
+				Eden.Fragment.emit("locked", [me]);
+			}
+		});
+	
+		Eden.Fragment.listenTo("unlock", this, function(frag, ast) {
+			if (ast === me.originast) {
+				//console.log("IVE BECOME LOCKED", me.name);
+				me.locked = false;
+				Eden.Fragment.emit("unlocked", [me]);
+			}
+		});
+	
+		Eden.Fragment.listenTo("goto", this, function(ast, child) {
+			if (this.originast === ast) {
+				//console.log("Found goto",me);
+				console.log("Goto line", child.getStartLine(ast));
+				var line = child.getStartLine(ast);
+				Eden.Fragment.emit("gotoline", [me, line]);
+				return true;
+			} else if (ast === undefined) {
+				this.setSourceInitial(child.source);
+			}
+			return false;
+		});
 
-	Eden.Fragment.listenTo("patch", this, function(frag, ast) {
-		if (frag === me) return;
-		if (ast === me.originast) {
-			//console.log("FRAG PATCH",me.name);
-			me.source = me.originast.getInnerSource();
-			//me.ast = new Eden.AST(me.source, undefined, me);
-			me.ast = Eden.AST.fromNode(me.originast,me);
-			Eden.Fragment.emit("changed", [me]);
-		}
-	});
-
-	Eden.Fragment.listenTo("lock", this, function(frag, ast) {
-		if (ast === me.originast) {
-			me.locked = true;
-			Eden.Fragment.emit("locked", [me]);
-		}
-	});
-
-	Eden.Fragment.listenTo("unlock", this, function(frag, ast) {
-		if (ast === me.originast) {
-			//console.log("IVE BECOME LOCKED", me.name);
-			me.locked = false;
-			Eden.Fragment.emit("unlocked", [me]);
-		}
-	});
-
-	Eden.Fragment.listenTo("goto", this, function(ast, child) {
-		if (this.originast === ast) {
-			//console.log("Found goto",me);
-			console.log("Goto line", child.getStartLine(ast));
-			var line = child.getStartLine(ast);
-			Eden.Fragment.emit("gotoline", [me, line]);
-			return true;
-		} else if (ast === undefined) {
-			this.setSourceInitial(child.source);
-		}
-		return false;
+		if (cb) cb();
 	});
 }
 

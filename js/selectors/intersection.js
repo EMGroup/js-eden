@@ -35,7 +35,6 @@ Eden.Selectors.IntersectionNode.prototype.filter = function(statements, context)
 					p1(++i, ss);
 				});
 			} else {
-				console.log("INTERSECTION", s);
 				resolve((s) ? s : []);
 			}
 		};
