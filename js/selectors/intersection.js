@@ -27,6 +27,7 @@ Eden.Selectors.IntersectionNode.prototype.prepend = function(node) {
 Eden.Selectors.IntersectionNode.prototype.filter = function(statements, context) {
 	return new Promise((resolve,reject) => {
 		//if (!statements) return this.construct();
+		//if (!statements) statements = [];
 
 		let p1 = (i, s) => {
 			if (i < this.children.length) {
@@ -34,6 +35,7 @@ Eden.Selectors.IntersectionNode.prototype.filter = function(statements, context)
 					p1(++i, ss);
 				});
 			} else {
+				console.log("INTERSECTION", s);
 				resolve((s) ? s : []);
 			}
 		};

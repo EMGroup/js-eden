@@ -378,7 +378,8 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (path == "") path = "*";
 			var selector = eden.root.lookup("view_"+name+"_query").value();
 			if (selector === undefined) selector = ".type(script).name";
-			Eden.Selectors.query(selector, "path,name,remote,executed,type", null, (scripts) => { //path + " .type(script).name:not(:remote)","id");
+			console.log("BROWSE",selector);
+			Eden.Selectors.query(selector, "path,name,remote,executed,type", {minimum: 0}, (scripts) => { //path + " .type(script).name:not(:remote)","id");
 				scriptarea.outdiv.innerHTML = "";
 				console.log("BROWSE", scripts);
 				for (var i=0; i<scripts.length; i++) {

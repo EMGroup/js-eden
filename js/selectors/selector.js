@@ -527,7 +527,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 	var ctx;
 	var num;
 
-	var statements = [];
+	var statements;
 
 	if (!cb) {
 		console.warn("Selector query without callback: ", s);
@@ -577,7 +577,9 @@ Eden.Selectors.query = function(s, o, options, cb) {
 
 		// If there are still no results and the query is not a local only
 		// query, then look elsewhere. Only possible if a callback is given.
-		if (sast.local == false && cb && (!num || (statements.length < num))) {
+		if (sast.local == false && cb && (num === undefined || (statements.length < num))) {
+
+			console.log("FILTERED", num);
 
 			var pathix = s.search(/[\s\.\:\#\@\>]/);
 			if (pathix == -1) pathix = s.length;
