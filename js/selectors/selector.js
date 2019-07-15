@@ -617,7 +617,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 					}
 				});
 			// Only search the server if an external query is requested
-			} else if (sast.options && !sast.options.local) {
+			} else if (!sast.options || !sast.options.local) {
 				//Then need to do a remote search
 				Eden.DB.searchSelector(s, (o === undefined) ? ["outersource","path"] : o, function(stats) {
 					if (o === undefined && stats.length > 0) {

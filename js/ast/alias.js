@@ -57,7 +57,7 @@ Eden.AST.Alias.prototype.getNumberOfLines = function() {
 Object.defineProperty(Eden.AST.Alias.prototype, "statements", {
 	get: function() {
 		if (!this._statements && this.selector) {
-			var stats = this.selector.execute(this, eden.project.ast, eden.root.scope, this);
+			var stats = this.selector.execute(this, (eden.project) ? eden.project.ast : {}, eden.root.scope, this);
 			Eden.Selectors.query(stats, undefined, {minimum: 1}, (r) => {
 				this._statements = (r.length == 1 && r[0].type == "script") ? r[0].statements : r;
 
