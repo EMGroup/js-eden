@@ -614,6 +614,38 @@ Eden.DB.patch = function(selector, src) {
 	});
 }
 
+Eden.DB.getSelector = function(q, timestamp, callback) {
+	if (Eden.DB.isConnected()) {
+		$.ajax({
+			url: this.remoteURL+"/code/get?selector="+q.replace("#","%23")+"&timestamp="+timestamp,
+			type: "get",
+			crossDomain: true,
+			xhrFields:{
+				withCredentials: true
+			},
+			success: function(data){
+				if (data === null || data.error) {
+					Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
+					callback({});			
+				} if (data) {
+					callback(data);
+					return;
+				} else {
+					callback({});
+				}
+			},
+			error: function(a,status,err){
+				//console.error(a);
+				callback({});
+				Eden.DB.handleError(a,status,err);
+				//Eden.DB.disconnect(true);
+			}
+		});
+	} else {
+		callback({});
+	}
+}
+
 Eden.DB.searchSelector = function(q, kind, callback) {
 	if (Eden.DB.isConnected()) {
 		$.ajax({
