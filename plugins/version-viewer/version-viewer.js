@@ -63,11 +63,11 @@ EdenUI.plugins.VersionViewer = function (edenUI, success) {
 			var loadNum = URLUtil.getParameterByName("load");
 			$.get(Eden.DB.remoteURL + "/project/versions",{projectID: loadNum},function(data){
 				var listTable = content.find(".version-viewer-list").html("");
-				var row = $("<tr><th>Vid</th><th>Date</th><th>ParentDiff</th></tr>");
+				var row = $("<tr><th>Vid</th><th>Date</th><th>ParentDiff</th><th>Private</th></tr>");
 				listTable.append(row);
 				
 				$(data).each(function(i,v){
-					var row = $("<tr><td><a href=\"?load="+ loadNum + "&vid=" +v.saveID + "\">" + v.saveID + "</td><td>" + v.date + "</td><td>"+ v.parentDiff+"</td></tr>");
+					var row = $("<tr><td><a href=\"?load="+ loadNum + "&vid=" +v.saveID + "\">" + v.saveID + "</td><td>" + v.date + "</td><td>"+ v.parentDiff+"</td><td>" + v.private + "</td></tr>");
 					listTable.append(row);
 				});
 				
