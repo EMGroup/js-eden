@@ -585,6 +585,35 @@ Eden.DB.rate = function(projectid, stars) {
 	});
 }
 
+Eden.DB.patch = function(selector, src) {
+	$.ajax({
+		url: this.remoteURL+"/project/patch",
+		type: "post",
+		crossDomain: true,
+		xhrFields:{
+			withCredentials: true
+		},
+		data:{	selector: selector,
+				source: src
+		},
+		success: function(data){
+			if (data === null || data.error) {
+				console.error(data);
+				Eden.DB.emit("error", [(data) ? data.description : "No response from server"]);
+				//if (callback) callback(false);
+			} else {
+				
+			}
+		},
+		error: function(a,status,err){
+			//console.error(a);
+			//eden.error(a);
+			Eden.DB.handleError(a,status,err);
+			//if (callback) callback(false);
+		}
+	});
+}
+
 Eden.DB.searchSelector = function(q, kind, callback) {
 	if (Eden.DB.isConnected()) {
 		$.ajax({
