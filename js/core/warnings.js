@@ -56,6 +56,7 @@ Eden.RuntimeWarning = function(node, warnno, extra) {
 Eden.RuntimeWarning.UNKNOWN = 0;
 Eden.RuntimeWarning.EMPTYDO = 1;
 Eden.RuntimeWarning.UNDEFINED = 2;
+Eden.RuntimeWarning.AMBIGUITY = 3;
 
 Eden.RuntimeWarning.prototype.messageText = function() {
 	var res;

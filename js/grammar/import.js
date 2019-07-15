@@ -30,6 +30,8 @@ Eden.AST.prototype.pREQUIRE = function() {
 Eden.AST.prototype.pIMPORT = function() {
 	var imp = new Eden.AST.Import();
 
+	imp.warning = new Eden.SyntaxWarning(this, imp, Eden.SyntaxWarning.DEPRECATED, "use of import, use action alias instead");
+
 	var path = this.pCODESELECTOR();
 	if (path === undefined || path.errors.length > 0) {
 		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.IMPORTPATH));

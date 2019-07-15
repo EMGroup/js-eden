@@ -143,6 +143,7 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 
 Eden.Selectors.allowedOptions = {
 	"external": true,	// If no results, allow an external server search
+	"local": true,		// Force local only search
 	"history": true,	// Include historic results
 	"all": true,		// Don't apply a "unique" to the results
 	"indexed": true,	// Ignore any context and use an indexed search
@@ -616,7 +617,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 					}
 				});
 			// Only search the server if an external query is requested
-			} else if (sast.options && sast.options.external) {
+			} else if (sast.options && !sast.options.local) {
 				//Then need to do a remote search
 				Eden.DB.searchSelector(s, (o === undefined) ? ["outersource","path"] : o, function(stats) {
 					if (o === undefined && stats.length > 0) {
