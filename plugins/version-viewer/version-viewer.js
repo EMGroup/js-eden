@@ -67,7 +67,11 @@ EdenUI.plugins.VersionViewer = function (edenUI, success) {
 				listTable.append(row);
 				
 				$(data).each(function(i,v){
-					var row = $("<tr><td><a href=\"?load="+ loadNum + "&vid=" +v.saveID + "\">" + v.saveID + "</td><td>" + v.date + "</td><td>"+ v.parentDiff+"</td><td>" + v.private + "</td></tr>");
+					var thisPrivate = "";
+					if(v.private){
+						thisPrivate = "&#xf023;";
+					}
+					var row = $("<tr><td><a href=\"?load="+ loadNum + "&vid=" +v.saveID + "\">" + v.saveID + "</td><td>" + v.date + "</td><td>"+ v.parentDiff+"</td><td style=\"font-family:'FontAwesome'; font-size:20pt; color:gold\">" + thisPrivate + "</td></tr>");
 					listTable.append(row);
 				});
 				
