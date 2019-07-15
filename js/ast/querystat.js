@@ -5,12 +5,15 @@ Eden.AST.Query = function() {
 	this.restypes = [];
 	this.modexpr = undefined;
 	this.kind = "=";
+	this._expr = undefined;
 }
 
 Eden.AST.Query.prototype.setSelector = function(selector) {
 	this.selector = selector;
 	if (selector && selector.errors.length > 0) {
 		this.errors.push.apply(this.errors, selector.errors);
+	} else {
+
 	}
 }
 
@@ -27,7 +30,29 @@ Eden.AST.Query.prototype.setModify = function(expr, kind) {
 }
 
 Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
-	var res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", \""+this.restypes.join(",")+"\")";
+	var res;
+	
+	if (this.restypes.length == 0) {
+		//res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", null, {minimum: 1}, (r) => {})";
+		if (!this._expr) {
+			let s = this.selector.execute(ctx,this,scope,this);
+			console.trace("Delayed Generate", s);
+			Eden.Selectors.query(s, undefined, {minimum: 1}, (r) => {
+				if (r.length > 0 && r[0].expression) {
+					this._expr = r[0];
+					// How to re-expire containing definition?
+					//let g = r[0].expression.generate(ctx, scope, options);
+					//console.log("EXPIRE GEN CTX", s, ctx, g);
+					ctx.execute(ctx, this, scope, this);
+					console.log("RE EXECUTE");
+				}
+			});
+		} else {
+			res = this._expr.expression.generate(ctx, scope, options);
+		}
+	} else {
+		res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", \""+this.restypes.join(",")+"\")";
+	}
 	console.log("QUERY",res);
 
 	if (options.bound) {
@@ -41,9 +66,17 @@ Eden.AST.Query.prototype.execute = function(ctx,base,scope, agent) {
 	this.executed = 1;
 
 	if (this.modexpr === undefined) {
-		var res = Eden.Selectors.query(this.selector.execute(ctx,base,scope,agent), this.restypes);
-		//console.log(res);
-		base.lastresult = res;
+		if (!this._expr) {
+			Eden.Selectors.query(this.selector.execute(ctx,base,scope,agent), this.restypes, {minimum: 1}, (res) => {
+				//console.log(res);
+				base.lastresult = res;
+				this._expr = res[0];
+				// How to re-expire containing definition?
+				console.log("EXPIRE CTX", ctx);
+			});
+		} else {
+			return this._expr.execute(ctx,base,scope,agent);
+		}
 	} else {
 		var selector = this.selector.execute(ctx,base,scope,agent);
 		var modexpr = this.modexpr.execute(ctx,base,scope,agent);

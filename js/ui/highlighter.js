@@ -88,6 +88,7 @@
 		"selector": "eden-selector",
 		"selector2": "eden-selector2",
 		"selector3": "eden-selector3",
+		"selector4": "eden-selector4",
 		"function": "eden-function",
 		"type": "eden-type",
 		"special": "eden-special",

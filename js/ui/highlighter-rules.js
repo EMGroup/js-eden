@@ -407,6 +407,8 @@ EdenUI.Highlight.prototype.SELECTOR2 = function() {
 		this.classes.push("keyword");
 		//this.mode = this.startmode;
 		this.popMode();
+	} else if (this.token == "OBSERVABLE" && this.prevtoken == "@" && (Eden.Selectors.PropertyNode.attributes[this.tokentext] || Eden.Selectors.allowedOptions[this.tokentext])) {
+		this.classes.push("selector4");
 	} else if (this.token == "OBSERVABLE" && (this.prevtoken == "." || this.prevtoken == ":") && (Eden.Selectors.PropertyNode.attributes[this.tokentext] || Eden.Selectors.PropertyNode.pseudo[this.tokentext])) {
 		this.classes.push("selector2");
 	} else {
