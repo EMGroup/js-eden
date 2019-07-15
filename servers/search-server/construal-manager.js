@@ -1371,7 +1371,7 @@ function getListQueryStr(targetTable){
 app.get('/project/versions', function(req, res){
 	logErrorTime("Project versions");
 	if(req.query.projectID !== undefined){
-		var listProjectIDStmt = db.prepare("select projectid, saveID, date, parentDiff,author,name from projectversions left join oauthusers ON author = userid where projectid = ?;");
+		var listProjectIDStmt = db.prepare("select projectid, saveID, date, parentDiff,author,name, case ifnull(readpassword,0) when 0 then 0 else 1 end as private from projectversions left join oauthusers ON author = userid where projectid = ?;");
 		listProjectIDStmt.all(req.query.projectID,function(err,rows){
 			for(var i = 0; i < rows.length; i++){
 				if(rows[i].author === undefined || rows[i].author == null)
@@ -1380,7 +1380,7 @@ app.get('/project/versions', function(req, res){
 			res.json(rows);
 		});
 	}else if(req.query.userID !== undefined){
-		var listProjectStmt = db.prepare("select projects.projectid, saveID, date, parentDiff from projectversions,projects where projects.projectid = projectversions.projectid AND owner = ? ORDER BY date;");
+		var listProjectStmt = db.prepare("select projects.projectid, saveID, date, parentDiff, case ifnull(readpassword,0) when 0 then 0 else 1 end as private from projectversions,projects where projects.projectid = projectversions.projectid AND owner = ? ORDER BY date;");
 		listProjectStmt.all(req.user.id,function(err,rows){
 			res.json(rows);
 		});
