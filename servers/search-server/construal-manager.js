@@ -844,6 +844,7 @@ function runAddVersion(addVersionStmt, listed, params,req,res){
 app.get('/code/search', function(req, res){
 	logErrorTime("Code search");
 		var sast = Eden.Selectors.parse(req.query.selector);
+
 		if (sast.local) {
 			res.json([]);
 		} else {
@@ -853,7 +854,32 @@ app.get('/code/search', function(req, res){
 				if(req.query.outtype !== undefined)
 					outtype = req.query.outtype;
 				var srcList = Eden.Selectors.processResults(nodelist, outtype);
+
 				res.json(srcList);
+			});
+		}
+});
+
+app.get('/code/get', function(req, res){
+	logErrorTime("Code get");
+		var sast = Eden.Selectors.parse(req.query.selector);
+
+		if (sast.local) {
+			res.json([]);
+		} else {
+			sast.filter().then((p) => {
+				var nodelist = Eden.Selectors.unique(p);
+				var srcList = Eden.Selectors.processResults(nodelist, "source");
+
+				if(srcList.length == 0){
+					res.json({"error":"Not found"});
+					return;
+				}
+				if(parseInt(req.query.timestamp) < nodelist[0].stamp){
+					res.json({timestamp: nodelist[0].stamp, src: srcList[0]});
+					return;
+				}
+				res.json({});
 			});
 		}
 });
