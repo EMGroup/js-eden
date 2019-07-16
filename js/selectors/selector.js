@@ -33,10 +33,13 @@ Eden.Selectors.getID = function(stat) {
 		//else 
 		if (p.type == "script" && p.name) {
 			if (p.parent === undefined) {
+				// Use server generated project id if available
 				if (p.base && p.base.origin && p.base.origin.id) {
 					path.splice(0,0,p.name+".id("+p.base.origin.id+")");
+				// Otherwise if current project then use :project
 				} else if (eden.project && p === eden.project.ast.script) {
 					path.splice(0,0,":project");
+				// Failing that use the script nodes own id
 				} else {
 					path.splice(0,0,p.name+".id("+p.id+")");
 				}

@@ -165,7 +165,8 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 
 		case ".id"		:	resolve(statements.filter(function(stat) {
 								if (stat.id == 0) stat.buildID();
-								return stat.id == param;
+								return (stat.parent === undefined && stat.base && stat.base.origin && stat.base.origin.id) ?
+									stat.base.origin.id == param : stat.id == param;
 							})); return;
 
 		case ".type"	:	if (!param) break;
