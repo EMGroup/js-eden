@@ -217,7 +217,7 @@ Eden.Fragment.prototype.setSourceInitial = function(src) {
 	this.ast = new Eden.AST(src, undefined, this);
 }
 
-Eden.Fragment.AUTOSAVE_INTERVAL = 500;
+Eden.Fragment.AUTOSAVE_INTERVAL = 2000;
 
 Eden.Fragment.prototype.undo = function() {
 	if (this.index < 0) return;
@@ -283,7 +283,7 @@ Eden.Fragment.prototype.autoSave = function() {
 		return;
 	}
 
-	if (this.originast) {
+	/*if (this.originast) {
 		// Patch the origin...
 		var parent = this.originast.parent;
 		this.originast.patchScript(this.ast);
@@ -295,7 +295,11 @@ Eden.Fragment.prototype.autoSave = function() {
 		}
 	}
 
-	Eden.Fragment.emit("changed", [this]);
+	Eden.Fragment.emit("changed", [this]);*/
+
+	console.log("AUTOSAVE", Eden.Selectors.getID(this.originast));
+	Eden.DB.patch(Eden.Selectors.getID(this.originast), this.ast.script.getInnerSource());
+	this.autosavetimer = undefined;
 
 	/*var savedmp = new diff_match_patch();
 
@@ -317,7 +321,7 @@ Eden.Fragment.prototype.autoSave = function() {
 	this.addHistory(redo,undo);
 	this.snapshot = this.ast.stream.code;
 
-	this.autosavetimer = undefined;
+	
 
 	//eden.root.lookup(this.obsname+"_autosave").assign(true, eden.root.scope, Symbol.localJSAgent);*/
 	//Eden.Fragment.emit("autosave", [this]);
@@ -351,8 +355,8 @@ Eden.Fragment.prototype.setSource = function(src) {
 	//oldast.destroy();
 
 	if (this.ast.errors.length == 0) {
-		//clearTimeout(this.autosavetimer);
-		//this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Fragment.AUTOSAVE_INTERVAL);
+		clearTimeout(this.autosavetimer);
+		this.autosavetimer = setTimeout(function() { me.autoSave(); }, Eden.Fragment.AUTOSAVE_INTERVAL);
 
 		if (this.originast) {
 			// Patch the origin...

@@ -29,10 +29,11 @@ Eden.Selectors.getID = function(stat) {
 	var p = stat;
 	var path = [];
 	while (p) {
-		if (eden.project && p === eden.project.ast.script) path.splice(0,0,":project");
-		else if (p.type == "script" && p.name) {
+		//if (eden.project && p === eden.project.ast.script) path.splice(0,0,":project");
+		//else 
+		if (p.type == "script" && p.name) {
 			if (p.parent === undefined) {
-				path.splice(0,0,p.name+".id("+p.id+")");
+				path.splice(0,0,p.name+".id("+((p.base && p.base.origin) ? p.base.origin.id : p.id)+")");
 			} else {
 				path.splice(0,0,p.name);
 			}
