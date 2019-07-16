@@ -33,7 +33,13 @@ Eden.Selectors.getID = function(stat) {
 		//else 
 		if (p.type == "script" && p.name) {
 			if (p.parent === undefined) {
-				path.splice(0,0,p.name+".id("+((p.base && p.base.origin) ? p.base.origin.id : p.id)+")");
+				if (p.base && p.base.origin && p.base.origin.id) {
+					path.splice(0,0,p.name+".id("+p.base.origin.id+")");
+				} else if (eden.project && p === eden.project.ast.script) {
+					path.splice(0,0,":project");
+				} else {
+					path.splice(0,0,p.name+".id("+p.id+")");
+				}
 			} else {
 				path.splice(0,0,p.name);
 			}

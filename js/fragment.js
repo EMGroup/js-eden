@@ -283,6 +283,13 @@ Eden.Fragment.prototype.autoSave = function() {
 		return;
 	}
 
+	if (!this.originast || this.scratch) return;
+
+	var p = this.originast;
+	while (p.parent) p = p.parent;
+	if (!p.base || !p.base.origin) return;  // Not a valid project script
+	if (!p.base.origin.authorid != Eden.DB.userid) return;  // Not authorised to save
+
 	/*if (this.originast) {
 		// Patch the origin...
 		var parent = this.originast.parent;
@@ -297,7 +304,7 @@ Eden.Fragment.prototype.autoSave = function() {
 
 	Eden.Fragment.emit("changed", [this]);*/
 
-	console.log("AUTOSAVE", Eden.Selectors.getID(this.originast));
+	console.log("AUTOSAVE", this.selector);
 	Eden.DB.patch(Eden.Selectors.getID(this.originast), this.ast.script.getInnerSource());
 	this.autosavetimer = undefined;
 
