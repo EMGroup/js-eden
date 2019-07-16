@@ -238,6 +238,9 @@ function reindexProject(projectID){
 	});
 }
 
+
+// pid, source, location within AST. Reindex then patch
+
 function loadVersion(saveID, cb) {
 	getProjectIDFromSaveID(saveID, undefined, (pid) => {
 		if (!pid) {
@@ -563,15 +566,66 @@ app.post('/project/add', ensureAuthenticated, function(req, res){
 	
 });
 
+/*
+ * Title: Project Add
+ * URL: /project/add
+ * Method: POST
+ * Data Params:
+ * {
+ *  source: [string],
+ *  selector: [string]
+ * }
+ * 
+ * Success response: 
+ * Reindex then patch AST
+ * 
+ */
+app.post('/project/patch', ensureAuthenticated, function(req, res){
+	logErrorTime("Adding project");
+	if(typeof req.user == "undefined")
+		return res.json({error: ERROR_UNAUTHENTICATED, description: "Unauthenticated"});
+
+		var sast = Eden.Selectors.parse(req.body.selector);
+		if (sast.local) {
+			res.json([]);
+		} else {
+			sast.filter().then((p) => {
+				var astres = Eden.Selectors.unique(p);
+
+				if(astres.length != 1 || astres[0].type != "script"){
+					return false;
+				}
+				var parent = astres[0];
+				while(parent.parent){
+					parent = parent.parent;
+				}
+				checkOwner(req,res,function(){
+					var newnode = Eden.AST.parseScript(req.body.source);
+					astres[0].patchInner(newnode);
+					res.json({status:"updated", projectID: parent.id});
+				},function(errstr){
+					res.json({error:"error", description: "Error patching project" + errstr,projectID: parent.id});
+				},parent.id);
+		
+			});
+		}
+});
+
+
 function log(str){
 	console.log(new Date().toISOString() + ": " + str);
 }
 
-function checkOwner(req,res,callback){
+function checkOwner(req,res,callback, failedcallback,pid){
 	logErrorTime("checking Owner");
+	logErrorTime("pid" + pid);
 	var checkStmt = db.prepare("SELECT owner,writePassword FROM projects WHERE projectID = @projectID");
 	var qValues = {};
-	qValues["@projectID"] = req.body.projectID;
+	if(pid){
+		qValues["@projectID"] = pid;
+	}else{
+		qValues["@projectID"] = req.body.projectID;
+	}
 	checkStmt.all(qValues,function(err,rows){
 		if(rows.length == 0){
 			db.run("ROLLBACK");
@@ -582,6 +636,9 @@ function checkOwner(req,res,callback){
 				callback();
 			}else{
 				db.run("ROLLBACK");
+				if(failedcallback){
+					failedcallback("You do not own this project");
+				}
 				res.json({error: ERROR_USER_NOT_OWNER, description: "User does not own this project"});
 			}
 		}
@@ -787,6 +844,7 @@ function runAddVersion(addVersionStmt, listed, params,req,res){
 app.get('/code/search', function(req, res){
 	logErrorTime("Code search");
 		var sast = Eden.Selectors.parse(req.query.selector);
+
 		if (sast.local) {
 			res.json([]);
 		} else {
@@ -796,7 +854,32 @@ app.get('/code/search', function(req, res){
 				if(req.query.outtype !== undefined)
 					outtype = req.query.outtype;
 				var srcList = Eden.Selectors.processResults(nodelist, outtype);
+
 				res.json(srcList);
+			});
+		}
+});
+
+app.get('/code/get', function(req, res){
+	logErrorTime("Code get");
+		var sast = Eden.Selectors.parse(req.query.selector);
+
+		if (sast.local) {
+			res.json([]);
+		} else {
+			sast.filter().then((p) => {
+				var nodelist = Eden.Selectors.unique(p);
+				var srcList = Eden.Selectors.processResults(nodelist, "source");
+
+				if(srcList.length == 0){
+					res.json({"error":"Not found"});
+					return;
+				}
+				if(parseInt(req.query.timestamp) < nodelist[0].stamp){
+					res.json({timestamp: nodelist[0].stamp, src: srcList[0]});
+					return;
+				}
+				res.json({});
 			});
 		}
 });
