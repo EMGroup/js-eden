@@ -691,7 +691,7 @@ EdenUI.Highlight.prototype.COMMENT_LINK_END = function() {
 			this.stream.position += endix+1;
 			this.classes.push("hidden-comment");
 			this.popMode();
-			if (remaining.startsWith("http://")) {
+			if (remaining.startsWith("http://") || remaining.startsWith("https://")) {
 				this.lineelement.setAttribute("href", remaining);
 			} else {
 				this.lineelement.setAttribute("href", "javascript: Eden.Selectors.goto('"+remaining+"');");
