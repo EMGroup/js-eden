@@ -622,7 +622,7 @@ EdenUI.Highlight.prototype.COMMENT_QUERY = function() {
 			//ele.className += this.styles["comment-query"]; // + " " + this.styles["comment"];
 			this.applyClasses(ele, ["comment-query"]);
 			this.lineelement.appendChild(ele);
-			Eden.Selectors.query(qstr,(this.cacheddata) ? this.cacheddata : "value", null, (res) => {
+			Eden.Selectors.query(qstr,(this.cacheddata) ? this.cacheddata : "value", {minimum: 1}, (res) => {
 				if (res.length == 1) res = res[0];
 				else if (res.length > 1) res = res.join(", ");
 				else res = "";

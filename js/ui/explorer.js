@@ -59,6 +59,7 @@ EdenUI.Explorer = function() {
 	var curset = this.expsettings.find('#explorerprojectsettings').get(0);
 	this.addSetting(curset, "jseden_feedback_disabled", "Disable comments", "", "boolean");
 	this.addSetting(curset, "jseden_project_noforking", "Disable forking", "", "boolean");
+	this.addSetting(curset, "jseden_project_liveupdate", "Live update of imported scripts", "", "boolean");
 
 	var curset = this.expsettings.find('#explorermenusettings').get(0);
 	this.addSetting(curset, "jseden_menu_visible", "Menu visible", "", "boolean");
@@ -99,6 +100,7 @@ EdenUI.Explorer = function() {
 	this.addSetting(curset, "jseden_script_styling", "Disable comment styling", "", "boolean");
 	this.addSetting(curset, "jseden_script_hidecomments", "Hide all comments", "", "boolean");
 	this.addSetting(curset, "jseden_script_readonly", "All readonly", "", "boolean");
+	this.addSetting(curset, "jseden_script_livepatch", "Auto share edits with others", "", "boolean");
 
 	this.element.resizable({
 		handles: "w",

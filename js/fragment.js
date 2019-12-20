@@ -304,8 +304,10 @@ Eden.Fragment.prototype.autoSave = function() {
 
 	Eden.Fragment.emit("changed", [this]);*/
 
-	console.log("AUTOSAVE", this.selector);
-	Eden.DB.patch(Eden.Selectors.getID(this.originast), this.ast.script.getInnerSource());
+	if (eden.root.lookup("jseden_script_livepatch").value()) {
+		console.log("AUTOSAVE", this.selector);
+		Eden.DB.patch(Eden.Selectors.getID(this.originast), this.ast.script.getInnerSource());
+	}
 	this.autosavetimer = undefined;
 
 	/*var savedmp = new diff_match_patch();
