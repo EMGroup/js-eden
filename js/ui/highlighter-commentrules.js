@@ -486,6 +486,8 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 		case "italic": name = "font-style"; val = "italic"; break;
 		}
 
+		console.log("NAME", name, "VALUE", val);
+
 		if (css_color_names[name] || name.charAt(0) == "#") {
 			val = name;
 			name = "color";
@@ -532,12 +534,22 @@ EdenUI.Highlight.prototype.COMMENT_ATTRS = function() {
 			// Record the fact that this is a query line
 			if (this.metrics[this.line] == undefined) this.metrics[this.line] = {};
 			this.metrics[this.line].squery = true;
+			
+			let ele = this.lineelement.lastChild;
+			/*if (!ele) ele =this.lineelement;
+			else ele = ele.previousSibling;
+			if (!ele) ele =this.lineelement;
+			else ele = ele.previousSibling;*/
+			if (!ele) ele = this.lineelement;
+			
+			//while (ele && ele.classList && ele.classList.contains("eden-comment-hidden")) ele = ele.previousSibling;
 
-			var res = this.parseQuery(attrs);
-			if (res) {
-				res = res.join(" ");
-				this.parseAttrs(res);
-			}
+			var res = this.parseQuery(attrs, (res) => {
+				if (res) {
+					res = res.join(" ");
+					this.parseAttrs(res, ele);
+				}
+			});
 		} else {
 			this.parseAttrs(attrs);
 		}
@@ -547,7 +559,7 @@ EdenUI.Highlight.prototype.COMMENT_ATTRS = function() {
 	}
 }
 
-EdenUI.Highlight.prototype.parseQuery = function(q) {
+EdenUI.Highlight.prototype.parseQuery = function(q, cb) {
 	var linestr = q.substring(2);
 	var count = 0;
 	var endix = -1;
@@ -566,8 +578,8 @@ EdenUI.Highlight.prototype.parseQuery = function(q) {
 		return undefined;
 	} else {
 		var qstr = linestr.substring(0,endix);
-		var res = Eden.Selectors.query(qstr,"value");
-		return res;
+		Eden.Selectors.query(qstr,"value", {minimum: 0}, cb);
+	
 		//this.metrics[this.line].qelements.push(ele);
 	}
 }
