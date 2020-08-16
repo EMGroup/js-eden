@@ -187,7 +187,7 @@ Eden.Peer = function(master, id) {
 		//console.log("Patching", obj);
 		var frags = {};
 		var todorm = [];
-
+		// console.log("Processing patch",obj);
 		// First remove old
 		for (var i=0; i<obj.remove.length; i++) {
 			var node = Eden.Selectors.query(obj.remove[i].path)[0];
@@ -282,7 +282,7 @@ Eden.Peer = function(master, id) {
 	}
 
 	function processData(conn, data) {
-		var obj = JSON.parse(data);
+ 		var obj = JSON.parse(data);
 		obj.id = conn.peer;
 		//console.log("P2P DATA",obj);
 		var pconn = me.connections[obj.id];
@@ -320,9 +320,9 @@ Eden.Peer = function(master, id) {
 			var myid = name.replace(/[ \!\'\-\?\&]/g, "");
 			var peer;
 			if (id) {
-				peer = new Peer(id, {key: 'w2cjkz0cpw6x0f6r', config: { iceServers: [{url:'stun:stun.l.google.com:19302'}]}});
+				peer = new Peer(id, {config: { iceServers: [{url:'stun:stun.l.google.com:19302'}]}});
 			} else {
-				peer = new Peer({key: 'w2cjkz0cpw6x0f6r', config: { iceServers: [{url:'stun:stun.l.google.com:19302'}]}});
+				peer = new Peer({config: { iceServers: [{url:'stun:stun.l.google.com:19302'}]}});
 			}
 
 			if (id || master) me.enabled = true;
