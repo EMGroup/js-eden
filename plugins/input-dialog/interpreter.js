@@ -318,11 +318,22 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 		Eden.Fragment.listenTo("changed", scriptarea, function(frag) {
 			if (frag === tab_frags[curtab]) {
-				//curChanged(curSym, curSym.value());
-				rebuildTabs();
-				updateControls();
-				//scriptarea.setFragment(tab_frags[curtab]);
-				scriptarea.refresh();
+				if(typeof frag.ast.then !== 'undefined'){
+					frag.ast.then(function(v){
+						//curChanged(curSym, curSym.value());
+						frag.ast = v;
+						rebuildTabs();
+						updateControls();
+						//scriptarea.setFragment(tab_frags[curtab]);
+						scriptarea.refresh();
+					});
+				}else{
+					//curChanged(curSym, curSym.value());
+					rebuildTabs();
+					updateControls();
+					//scriptarea.setFragment(tab_frags[curtab]);
+					scriptarea.refresh();
+				}
 			}
 		});
 

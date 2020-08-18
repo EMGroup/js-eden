@@ -20,6 +20,9 @@ Eden.Peer = function(master, id) {
 	this.startrecordtime = 0;
 	this.log = null;
 
+	this.frags = {};
+	this.todorm = [];
+
 	if (eden.root.lookup("jseden_p2p_newconnections").value() === undefined) {
 		eden.root.lookup("jseden_p2p_newconnections").assign([], eden.root.scope, EdenSymbol.defaultAgent);
 	}
@@ -167,14 +170,16 @@ Eden.Peer = function(master, id) {
 
 	function processWhen(obj) {
 		console.log("ProcessWhen", obj);
-		var whens = Eden.Selectors.query(".id("+obj.wid+")");
-		for (var i=0; i<whens.length; i++) {
-			if (obj.status) {
-				eden.project.registerAgent(whens[i], true);
-			} else {
-				eden.project.removeAgent(whens[i], true);
+
+		Eden.Selectors.query(".id("+obj.wid+")",undefined,undefined,function(whens){
+			for (var i=0; i<whens.length; i++) {
+				if (obj.status) {
+					eden.project.registerAgent(whens[i], true);
+				} else {
+					eden.project.removeAgent(whens[i], true);
+				}
 			}
-		}
+		});
 		// TODO BroadcastExcept
 	}
 
@@ -183,16 +188,35 @@ Eden.Peer = function(master, id) {
 		// TODO BroadcastExcept
 	}
 
-	function processPatch(obj) {
-		//console.log("Patching", obj);
-		var frags = {};
-		var todorm = [];
-		// console.log("Processing patch",obj);
+	function removePatchParts(obj){
 		// First remove old
-		for (var i=0; i<obj.remove.length; i++) {
-			var node = Eden.Selectors.query(obj.remove[i].path)[0];
-			if (!node) continue;
-			frags[obj.remove[i].path] = node;
+		removePatchPart(0,obj, function(){
+			console.log("After removePatchParts");
+			console.log("After removePatchParts, frags",this.frags);
+			console.log(todorm);
+			for (var i=0; i<this.todorm.length; i++) {
+				this.todorm[i][0].removeChild(this.todorm[i][1]);
+			}
+			addPatchParts(obj);	
+		});
+	}
+
+	function removePatchPart(i,obj,callback){
+		Eden.Selectors.query(obj.remove[i].path,undefined,undefined,function(nodeList){
+			var node = nodeList[0];
+			if (!node){
+				if(i < obj.remove.length - 1)
+					removePatchPart(i+1,obj,callback);
+				else{
+					console.log("Calling back from remove, frags",this.frags);
+					callback();
+				}
+				return;
+			}
+			this.frags[obj.remove[i].path] = node;
+			console.log("Deleted from path " + obj.remove[i].path);
+			console.log(node.statements[1].source);
+			
 			var stat = undefined; // = Eden.Index.getByID(obj.remove[i].id)[0];
 			if (obj.remove[i].id == 0) {
 				stat = node.statements[0];
@@ -218,24 +242,44 @@ Eden.Peer = function(master, id) {
 						//console.log("FIXUP");
 					}
 				}
-
+	
 				// TODO Adding new may be relative to removed node ... fix this
-
+	
 				//node.removeChild(stat);
-				todorm.push([node,stat]);
+				this.todorm.push([node,stat]);
+			}	
+			if(i < obj.remove.length - 1)
+				removePatchPart(i+1,obj,callback);
+			else{
+				callback();
 			}
-		}
+		});		
+	}
 
-		for (var i=0; i<todorm.length; i++) {
-			todorm[i][0].removeChild(todorm[i][1]);
-		}
-
+	function addPatchParts(obj){
 		// Second, add new
-		for (var i=0; i<obj.add.length; i++) {
-			var node = Eden.Selectors.query(obj.add[i].path)[0];
-			if (!node) continue;
-			frags[obj.add[i].path] = node;
-
+		addPatchPart(0,obj,function(){
+			console.log("Fragments is");
+			console.log(this.frags);
+			for (var x in this.frags) {
+				Eden.Fragment.emit("patch", [undefined, this.frags[x]]);
+			}	
+			me.broadcastExcept(obj.id, obj);
+		});
+	}
+	
+	function addPatchPart(i,obj,callback){
+		Eden.Selectors.query(obj.add[i].path,undefined,undefined,function(nodeList){
+			var node = nodeList[0];
+			if (!node){
+				if(i < obj.add.length -1){
+					addPatchPart(i+1,obj,callback);
+				}else{
+					callback();
+				}
+				return;
+			}
+			this.frags[obj.add[i].path] = node;
 			if (!obj.add[i].ws) {
 				var stat = Eden.AST.parseStatement(obj.add[i].source);
 				if (node.statements[obj.add[i].index]) node.insertBefore(node.statements[obj.add[i].index], stat);
@@ -244,7 +288,7 @@ Eden.Peer = function(master, id) {
 				var stat = new Eden.AST.DummyStatement();
 				stat.source = obj.add[i].source;
 				stat.numlines = stat.source.split("\n").length-1;
-
+	
 				if (obj.add[i].id == 0) {
 					if (node.statements[0]) node.insertBefore(node.statements[0], stat);
 					else node.appendChild(stat);
@@ -261,30 +305,39 @@ Eden.Peer = function(master, id) {
 							break;
 						}
 					}
-
+	
 					if (stat) {
 						node.appendChild(stat);
 						stat.buildID();
 					}
 				}
-
+	
 				//if (node.statements[obj.add[i].index]) node.insertBefore(node.statements[obj.add[i].index], stat);
 				//else node.appendChild(stat);
 			}
-		}
+			if(i < obj.add.length -1){
+				addPatchPart(i+1,obj,callback);
+			}else{
+				callback();
+			}
+		});
 
-		for (var x in frags) {
-			Eden.Fragment.emit("patch", [undefined, frags[x]]);
-		}
+	}
 
-		me.broadcastExcept(obj.id, obj);
+	function processPatch(obj) {
+		//console.log("Patching", obj);
+		this.frags = {};
+		this.todorm = [];
+		
+		removePatchParts(obj);
+
 		//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
 	}
 
 	function processData(conn, data) {
- 		var obj = JSON.parse(data);
+		var obj = JSON.parse(data);
 		obj.id = conn.peer;
-		//console.log("P2P DATA",obj);
+		// console.log("P2P DATA",obj);
 		var pconn = me.connections[obj.id];
 		//console.log(obj.cmd,obj.symbol);
 
