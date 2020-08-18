@@ -191,9 +191,6 @@ Eden.Peer = function(master, id) {
 	function removePatchParts(obj){
 		// First remove old
 		removePatchPart(0,obj, function(){
-			console.log("After removePatchParts");
-			console.log("After removePatchParts, frags",this.frags);
-			console.log(todorm);
 			for (var i=0; i<this.todorm.length; i++) {
 				this.todorm[i][0].removeChild(this.todorm[i][1]);
 			}
@@ -208,14 +205,11 @@ Eden.Peer = function(master, id) {
 				if(i < obj.remove.length - 1)
 					removePatchPart(i+1,obj,callback);
 				else{
-					console.log("Calling back from remove, frags",this.frags);
 					callback();
 				}
 				return;
 			}
 			this.frags[obj.remove[i].path] = node;
-			console.log("Deleted from path " + obj.remove[i].path);
-			console.log(node.statements[1].source);
 			
 			var stat = undefined; // = Eden.Index.getByID(obj.remove[i].id)[0];
 			if (obj.remove[i].id == 0) {
@@ -259,8 +253,6 @@ Eden.Peer = function(master, id) {
 	function addPatchParts(obj){
 		// Second, add new
 		addPatchPart(0,obj,function(){
-			console.log("Fragments is");
-			console.log(this.frags);
 			for (var x in this.frags) {
 				Eden.Fragment.emit("patch", [undefined, this.frags[x]]);
 			}	
