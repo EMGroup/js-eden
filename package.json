@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "abcjs": "5.6.2",
-    "electron": "~4.0.1",
+    "electron": "~9.2.0",
     "electron-rebuild": "^1.5.11",
     "grunt-contrib-uglify-es": "git://github.com/gruntjs/grunt-contrib-uglify.git#harmony",
     "serialport": "^7.1.4",
