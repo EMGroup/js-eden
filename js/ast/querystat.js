@@ -53,7 +53,7 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 			res = this._expr.expression.generate(ctx, scope, options);
 		}
 	} else {
-		res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", \""+this.restypes.join(",")+"\")";
+		res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", \""+this.restypes.join(",")+"\", null, s => { cache.value = s; this.expireSubscribers(); this.context.expireEdenSymbol(this); })";
 	}
 	console.log("QUERY",res);
 

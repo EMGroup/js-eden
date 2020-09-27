@@ -668,7 +668,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 								//}
 								
 							} else {
-								cb(statements);
+								cb(den.Selectors.processResults(statements, o));
 							}
 						};
 
@@ -687,11 +687,11 @@ Eden.Selectors.query = function(s, o, options, cb) {
 								});
 							}, "text");
 						} else {
-							cb(statements);
+							cb(Eden.Selectors.processResults(statements, o));
 						}
 					} else {
 						statements.push.apply(statements,stats);
-						cb(statements);
+						cb(Eden.Selectors.processResults(statements, o));
 					}
 				});
 			} else if (Eden.Project.local && Eden.Project.local[path]) {
