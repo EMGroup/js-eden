@@ -668,7 +668,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 								//}
 								
 							} else {
-								cb(den.Selectors.processResults(statements, o));
+								cb(Eden.Selectors.processResults(statements, o));
 							}
 						};
 
