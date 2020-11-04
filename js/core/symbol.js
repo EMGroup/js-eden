@@ -138,6 +138,7 @@ EdenSymbol.CREATED = 1;
 EdenSymbol.EXPIRED = 2;
 EdenSymbol.REDEFINED = 3;
 EdenSymbol.ASSIGNED = 4;
+EdenSymbol.ASYN_UPDATE = 5;
 
 /**
  * Get the value of this EdenSymbol bound with the scope the value was
@@ -428,6 +429,13 @@ EdenSymbol.prototype.expireSubscribers = function() {
 	}
 }
 
+EdenSymbol.prototype.expireAsync = function() {
+	if (this.context) {
+		this.needsGlobalNotify = EdenSymbol.ASYNC_UPDATE;
+		this.context.expireEdenSymbol(this);
+	}
+}
+
 /**
  * Watch another EdenSymbol for changes.
  *
@@ -674,7 +682,7 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 		}
 
 
-		if (this.definition) {
+		if (this.definition && this.needsGlobalNotify != EdenSymbol.ASYNC_UPDATE) {
 			// TODO, Also mark all active scopes for this EdenSymbol as out-of-date.
 			this.cache.up_to_date = false;
 			this.has_evaled = false;
