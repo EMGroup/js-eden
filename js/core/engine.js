@@ -235,9 +235,10 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 
 	// Reset the dummy context;
 	Eden.AST.DummyContext.locals = undefined;
+	let ctx = {cb: cb};
 
 	try {
-		var gen = this.executeGenerator([statement], Eden.AST.DummyContext ,this, eden.root.scope, agent);
+		var gen = this.executeGenerator([statement], ctx ,this, eden.root.scope, agent);
 		runEdenAction.call(this,agent, gen, function() {
 			// Debug callback to end block
 			if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {

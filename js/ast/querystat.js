@@ -70,11 +70,12 @@ Eden.AST.Query.prototype.execute = function(ctx,base,scope, agent) {
 	if (this.modexpr === undefined) {
 		if (!this._expr) {
 			Eden.Selectors.query(this.selector.execute(ctx,base,scope,agent), this.restypes, {minimum: 1}, (res) => {
-				//console.log(res);
+				console.log(res);
 				base.lastresult = res;
 				this._expr = res[0];
 				// How to re-expire containing definition?
 				console.log("EXPIRE CTX", ctx);
+				if (ctx.cb) ctx.cb(res);
 			});
 		} else {
 			return this._expr.execute(ctx,base,scope,agent);

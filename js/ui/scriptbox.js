@@ -92,10 +92,11 @@ EdenUI.ScriptBox = function(element, options) {
 			$(me.outdiv).find(".fake-caret").remove();
 			me.$codearea.append($('<div class="scriptbox-historic">'+me.outdiv.innerHTML+'</div>'));
 
-			me.ast.execute(EdenUI.ScriptBox.consoleAgent, function() {
-				if (me.ast.lastresult !== undefined) {
-					console.log("Result",me.ast.lastresult);
-					me.$codearea.append($('<div class="scriptbox-value">'+EdenUI.Highlight.html(Eden.edenCodeForValue(me.ast.lastresult))+'</div>'));
+			me.ast.execute(EdenUI.ScriptBox.consoleAgent, function(res) {
+				let result = (res) ? res : me.ast.lastresult;
+				if (result !== undefined) {
+					console.log("Result",result);
+					me.$codearea.append($('<div class="scriptbox-value">'+EdenUI.Highlight.html(Eden.edenCodeForValue(result))+'</div>'));
 				}
 			});
 
