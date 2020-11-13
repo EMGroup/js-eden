@@ -9,7 +9,8 @@ Eden.Selectors.TagNode = function(tag) {
 Eden.Selectors.TagNode.prototype.filter = function(statements) {
 	return new Promise((resolve, reject) => {
 		if (!statements) statements = this.construct().then((statements) => {
-			resolve(this._filter(statements));
+			//resolve(this._filter(statements));
+			resolve(statements);
 		});
 		else resolve(this._filter(statements));
 	});
