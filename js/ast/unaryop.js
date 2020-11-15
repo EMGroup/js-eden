@@ -22,11 +22,12 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 		res = "!("+r+")";
 	} else if (this.op == "&") {
 		res = "context.lookup("+r+")";
+		if (ctx && ctx.dependencies && this.r.name) ctx.dependencies[this.r.name] = true;
 	} else if (this.op == "-") {
 		res = "-("+r+")";
 	} else if (this.op == "*") {
-		//res = r + ".value("+scope+")";
-		res = "this.subscribeDynValue(0, " + r + ", "+scope+")";
+		res = r + ".value("+scope+")";
+		//res = "this.subscribeDynValue(0, " + r + ", "+scope+")";
 	}
 
 	if (options.bound) {
