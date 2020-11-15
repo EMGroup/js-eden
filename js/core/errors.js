@@ -113,6 +113,8 @@ Eden.SyntaxError.BLOCKCOMMENT = 86;
 Eden.SyntaxError.NEWLINE = 87;
 Eden.SyntaxError.WHENROLE = 88;
 Eden.SyntaxError.ALIASQUERY = 89;
+Eden.SyntaxError.EVALOPEN = 90;
+Eden.SyntaxError.EVALCLOSE = 91;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -581,6 +583,14 @@ Eden.SyntaxError.db = [
 		suggestion: {expected: [], next: []}
 	},
 /* EDEN_ERROR_ALIASQUERY */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_EVALOPEN */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_EVALCLOSE */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	}

@@ -341,8 +341,14 @@ Language.errors = [
 /* EDEN_ERROR_WHENROLE */ [
 	"A role must be a valid identifier"
 ],
-/* EDEN_ERROR_WHENROLE */ [
+/* EDEN_ERROR_ALIASQUERY */ [
 	"Alias action must use ? selector query"
+],
+/* EDEN_ERROR_EVALOPEN */ [
+	"Missing an open ( in 'eval' expression"
+],
+/* EDEN_ERROR_EVALCLOSE */ [
+	"Missing a close ) in 'eval' expression"
 ]
 ];
 

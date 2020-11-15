@@ -10,6 +10,11 @@ Eden.AST.UnaryOp = function(op, right) {
 Eden.AST.UnaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
+	if (this.op == "eval") {
+		var val = this.r.execute(ctx, null, eden.root.scope);
+		return Eden.edenCodeForValue(val);
+	}
+
 	var r = this.r.generate(ctx, scope, {bound: false, usevar: options.usevar});
 	var res;	
 

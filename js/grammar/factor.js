@@ -207,6 +207,27 @@ Eden.AST.prototype.pFACTOR = function() {
 		this.next();
 		var lvalue = this.pFACTOR();
 		return new Eden.AST.UnaryOp("*", lvalue);
+	} else if (this.token == "eval") {
+		this.next();
+		var una = new Eden.AST.UnaryOp("eval", {errors: []});
+
+		if (this.token != "(") {
+			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALOPEN));
+			return una;
+		}
+		this.next();
+
+		var exp = this.pEXPRESSION();
+
+		if (this.token != ")") {
+			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
+			return una;
+		}
+		this.next();
+
+		una.r = exp;
+		una.errors = exp.errors;
+		return una;
 	// Otherwise it must be some primary (observable or backticks)
 	} else {
 		var primary = this.pPRIMARY();

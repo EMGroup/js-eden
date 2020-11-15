@@ -111,7 +111,8 @@ var Language = {
 		"with": "with",
 		"and": "and",
 		"or": "or",
-		"not": "not"
+		"not": "not",
+		"eval": "eval"
 	},
 	symbols: {
 		"int": "int",
