@@ -825,7 +825,7 @@ Eden.Selectors.goto = function(selector) {
  * Edit AST nodes that match a query.
  */
 Eden.Selectors.assign = function(selector, attributes, values) {
-	var res = Eden.Selectors.query(selector);
+	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true}, function(res) {
 
 	var attribs = (typeof attributes == "string") ? attributes.split(",") : attributes;
 	var vals = (Array.isArray(values)) ? values : [values];
@@ -910,13 +910,14 @@ Eden.Selectors.assign = function(selector, attributes, values) {
 			}
 		}
 	}
+	});
 }
 
 /**
  * Edit AST nodes that match a query.
  */
 Eden.Selectors.append = function(selector, attributes, values) {
-	var res = Eden.Selectors.query(selector);
+	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true}, function(res) {
 
 	var attribs = (typeof attributes == "string") ? attributes.split(",") : attributes;
 	var vals = (Array.isArray(values)) ? values : [values];
@@ -984,6 +985,7 @@ Eden.Selectors.append = function(selector, attributes, values) {
 			}
 		}
 	}
+	});
 }
 
 
