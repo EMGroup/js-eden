@@ -17,6 +17,19 @@ Eden.AST.prototype.pDO = function() {
 	var parent = this.parent;
 	this.parent = w;
 
+	// Allow for execution attributes
+	if (this.token == "[") {
+		this.next();
+		this.pDO_ATTRIBUTES(w);
+
+		if (this.token != "]") {
+			w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOATTRIBCLOSE));
+			this.parent = parent;
+			return w;
+		}
+		this.next();
+	}
+
 	// Direct script block
 	if (this.token == "{") {
 		this.next();
@@ -81,5 +94,24 @@ Eden.AST.prototype.pDO = function() {
 
 	this.parent = parent;
 	return w;
+}
+
+Eden.AST.prototype.pDO_ATTRIBUTES = function(stat) {
+	while (true) {
+		if (this.token != "OBSERVABLE") {
+			stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+			return;
+		}
+
+		switch (this.data.value) {
+		case "atomic": stat.setAttribute(this.data.value, true); break;
+		case "nonatomic":	stat.setAttribute(this.data.value, true); stat.setAttribute("atomic", false); break;
+		default: stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)); return;
+		}
+
+		this.next();
+		if (this.token != ",") break;
+		this.next();
+	}
 }
 

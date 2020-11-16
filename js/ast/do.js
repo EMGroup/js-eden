@@ -10,6 +10,12 @@ Eden.AST.Do = function() {
 	this.compScope = undefined;
 	this.nscope = undefined;
 	this.selector = undefined;
+	this.attribs = {atomic: true};
+};
+
+Eden.AST.Do.attributes = {
+	"atomic": true,
+	"nonatomic": true
 };
 
 Eden.AST.Do.prototype.addParameter = function(express) {
@@ -24,6 +30,11 @@ Eden.AST.Do.prototype.setScript = function(script) {
 	if (this.script && this.script.errors.length > 0) {
 		this.errors.push.apply(this.errors, script.errors);
 	}
+}
+
+Eden.AST.Do.prototype.setAttribute = function(name, value) {
+	if (!this.attribs) this.attribs = {};
+	this.attribs[name] = value;
 }
 
 Eden.AST.Do.prototype.setName = function(name) {

@@ -168,7 +168,7 @@ function runEdenAction(source, action, cb) {
 						// Allow for execution in a different scope.
 						var nscope = delay.value.nscope;
 
-						if (!Eden.AST.debug) eden.root.beginAutocalcOff();
+						if (delay.value.attribs.atomic) eden.root.beginAutocalcOff();
 
 						if (nscope.range) {
 							nscope.range = false;
@@ -182,12 +182,12 @@ function runEdenAction(source, action, cb) {
 
 							nscope.range = true;
 							me.executeStatements(sscripts, undefined, source, function() {
-								if (!Eden.AST.debug) eden.root.endAutocalcOff();
+								if (delay.value.attribs.atomic) eden.root.endAutocalcOff();
 								runEdenAction.call(me,source, action, cb);
 							}, {parameters: params}, nscope);
 						} else {
 							me.executeStatements(stats, undefined, source, function() {
-								if (!Eden.AST.debug) eden.root.endAutocalcOff();
+								if (delay.value.attribs.atomic) eden.root.endAutocalcOff();
 								runEdenAction.call(me,source, action, cb);
 							}, {parameters: params}, nscope);
 						}
@@ -197,7 +197,7 @@ function runEdenAction(source, action, cb) {
 						//delay.value.errors.push(err);
 						delay.value.warning = err;
 						eden.emit("warning", [source,err]);
-						if (!Eden.AST.debug) eden.root.endAutocalcOff();
+						if (delay.value.attribs.atomic) eden.root.endAutocalcOff();
 						runEdenAction.call(me,source, action, cb);
 					}
 				}

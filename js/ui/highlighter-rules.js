@@ -379,14 +379,36 @@ EdenUI.Highlight.prototype.ENDBACKTICK = function() {
 }
 
 EdenUI.Highlight.prototype.SELECTOR = function() {
-	this.pushLine();
-	var nline = document.createElement("span");
-	//nline.className = this.styles["pathblock"];
-	this.applyClasses(nline, ["pathblock"]);
-	this.lineelement.appendChild(nline);
-	this.lineelement = nline;
-	this.mode = "SELECTOR2";
-	this.SELECTOR2();
+	if (this.token == "[") {
+		this.pushLine();
+		var nline = document.createElement("span");
+		//nline.className = this.styles["pathblock"];
+		this.applyClasses(nline, ["pathblock"]);
+		this.lineelement.appendChild(nline);
+		this.lineelement = nline;
+		this.mode = "DO_ATTRIBS";
+		this.DO_ATTRIBS();
+	} else {
+		this.pushLine();
+		var nline = document.createElement("span");
+		//nline.className = this.styles["pathblock"];
+		this.applyClasses(nline, ["pathblock"]);
+		this.lineelement.appendChild(nline);
+		this.lineelement = nline;
+		this.mode = "SELECTOR2";
+		this.SELECTOR2();
+	}
+}
+
+EdenUI.Highlight.prototype.DO_ATTRIBS = function() {
+	if (this.token == "OBSERVABLE" && Eden.AST.Do.attributes[this.tokentext]) {
+		this.classes.push("selector3");
+	} else if (this.token == "]") {
+		this.classes.push("selector");
+		this.mode = "SELECTOR";
+	} else {
+		this.classes.push("selector");
+	}
 }
 
 EdenUI.Highlight.prototype.SELECTOR2 = function() {

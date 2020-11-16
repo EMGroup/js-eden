@@ -349,6 +349,12 @@ Language.errors = [
 ],
 /* EDEN_ERROR_EVALCLOSE */ [
 	"Missing a close ) in 'eval' expression"
+],
+/* EDEN_ERROR_DOATTRIBCLOSE */ [
+	"Missing a close ] for 'do' attributes list"
+],
+/* EDEN_ERROR_DOBADATTRIB */ [
+	"Invalid 'do' attribute name"
 ]
 ];
 
