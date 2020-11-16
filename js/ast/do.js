@@ -10,7 +10,7 @@ Eden.AST.Do = function() {
 	this.compScope = undefined;
 	this.nscope = undefined;
 	this.selector = undefined;
-	this.attribs = {atomic: true};
+	this.attribs = {atomic: false};
 };
 
 Eden.AST.Do.attributes = {
