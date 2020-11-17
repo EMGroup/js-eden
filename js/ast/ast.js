@@ -64,6 +64,7 @@ Eden.AST = function(code, imports, origin, options) {
 	this.lastresult = undefined;
 	this.depth = 0;
 	this.localStatus = false;
+	this.isdynamic = false;
 
 	if (!origin) console.error("NO ORIGIN", code);
 

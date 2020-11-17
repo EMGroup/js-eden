@@ -389,7 +389,13 @@ EdenSymbol.prototype.clearDynamicDependencies = function () {
 
 EdenSymbol.prototype.getSource = function() {
 	//if (this.origin && !this.origin.internal && !this.origin.getSource) console.log("NO GETSOURCE",this);
-	if (this.origin && !this.origin.internal) return this.origin.getSource();
+	if (this.origin && !this.origin.internal) {
+		if (this.origin.sources) {
+			return this.origin.sources[this.name];
+		} else {
+			return this.origin.getSource();
+		}
+	}
 	return this.name + " = " + Eden.edenCodeForValue(this.value()) + ";";
 }
 

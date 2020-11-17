@@ -4,6 +4,7 @@ Eden.AST.Definition = function() {
 
 	this.expression = undefined;
 	this.lvalue = undefined;
+	this.sources = null;
 };
 
 Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
@@ -32,6 +33,7 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	this.locals = (ctx) ? ctx.locals : undefined;
 	this.params = (ctx) ? ctx.params : undefined;
 	this.backtickCount = 0;
+	this.dynamic_source = "";
 	var express = this.expression.generate(this, "scope", {bound: dobound, indef: true});
 
 	if (this.backtickCount > 0) {
@@ -142,6 +144,12 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			for (var d in this.dependencies) {
 				deps.push(d);
 			}
+
+			if (this.isdynamic) {
+				if (!this.sources) this.sources = {};
+				this.sources[sym.name] = sym.name + " is " + this.dynamic_source + ";";
+			}
+
 			//sym.eden_definition = this.getSource();
 			//if (agent === undefined) {
 			//	console.trace("UNDEF AGENT: " + source);

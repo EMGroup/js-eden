@@ -209,6 +209,7 @@ Eden.AST.prototype.pFACTOR = function() {
 		return new Eden.AST.UnaryOp("*", lvalue);
 	} else if (this.token == "eval") {
 		this.next();
+		this.isdynamic = true;
 		var una = new Eden.AST.UnaryOp("eval", {errors: []});
 
 		if (this.token != "(") {

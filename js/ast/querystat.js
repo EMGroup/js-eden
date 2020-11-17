@@ -31,6 +31,8 @@ Eden.AST.Query.prototype.setModify = function(expr, kind) {
 
 Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 	var res = "";
+
+	if (ctx && ctx.isdynamic) ctx.dynamic_source += "?(";
 	
 	if (this.restypes.length == 0) {
 		//res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", null, {minimum: 1}, (r) => {})";
@@ -56,6 +58,13 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 		res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", \""+this.restypes.join(",")+"\", null, s => { cache.value = s; this.expireAsync(); })";
 	}
 	console.log("QUERY",res);
+
+	if (ctx && ctx.isdynamic) {
+		ctx.dynamic_source += ")";
+		if (this.restypes.length > 0) {
+			ctx.dynamic_source += "[" + this.restypes.join(",") + "]";
+		}
+	}
 
 	if (options.bound) {
 		return "new BoundValue("+res+","+scope+")";

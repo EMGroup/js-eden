@@ -76,7 +76,9 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				res = JSON.stringify(ctx.locals[this.observable].value()); //"ctx.locals[\""+this.observable+"\"]";
 			} else {
 				//res = ctx.locals[this.observable].value();
-				res = Eden.edenCodeForValue(ctx.locals[this.observable].value());
+				var val = Eden.edenCodeForValue(ctx.locals[this.observable].value());
+				if (ctx && ctx.isdynamic) ctx.dynamic_source += val;
+				res = val;
 			}
 			for (var i=0; i<this.extras.length; i++) {
 				res += this.extras[i].generate(ctx, scope, {bound: false});
@@ -118,11 +120,14 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		//}
 
 		var tmpdeplog;
+		var tmpdynsrc;
 		
 		if (ctx) {
 			tmpdeplog = ctx.isconstant;
 			ctx.isconstant = true;
+			tmpdynsrc = ctx.dynamic_source;
 		}
+
 		var btickgen = this.backtick.generate(ctx, scope,{bound: false, usevar: options.usevar});
 
 		if (!ctx || ctx.isconstant || ctx.type != "definition") {
@@ -131,7 +136,10 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				console.log("Constant bticks: ", btickgen);
 				ctx.dependencies[btickgen] = true;
 				tmpdeplog = false;
+				if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc + btickgen;
 				btickgen = Eden.edenCodeForValue(btickgen);
+			} else {
+				if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc;
 			}
 			res = btickgen;
 		} else {
@@ -147,6 +155,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			ctx.dependencies[this.observable] = true;
 			ctx.isconstant = false;
 		}
+		if (ctx && ctx.isdynamic) ctx.dynamic_source += this.observable;
 		res = "\""+this.observable+"\"";
 	}
 

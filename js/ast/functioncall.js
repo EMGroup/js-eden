@@ -34,18 +34,24 @@ Eden.AST.FunctionCall.prototype.generateArgs = function(ctx, scope) {
 
 Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 	if (this.lvalue === undefined) {
+		if (ctx && ctx.isdynamic) ctx.dynamic_source += "(";
 		var res = "(";
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
 				var express = this.params[i].generate(ctx, scope, {bound: false});
 				res += "("+express+")";
-				if (i != this.params.length-1) res += ",";
+				if (i != this.params.length-1) {
+					if (ctx && ctx.isdynamic) ctx.dynamic_source += ", ";
+					res += ",";
+				}
 			}
 		}
+		if (ctx && ctx.isdynamic) ctx.dynamic_source += ")";
 		return res + ")";
 	} else {
 		var lvalstr = this.lvalue.generate(ctx,scope);
 		var res = scope + ".value("+lvalstr+").call(context.lookup("+lvalstr+")";
+
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
 				res += ",";
@@ -54,6 +60,7 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 				//if (i != this.params.length-1) res += ",";
 			}
 		}
+		
 		return res + ");";
 	}
 }

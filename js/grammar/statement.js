@@ -19,8 +19,13 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		var def = new Eden.AST.Definition();
 		var parent = this.parent;
 		this.parent = def;
+		this.isdynamic = false;
 		var expr = this.pEXPRESSION();
 		def.setExpression(expr);
+
+		// The source code of this definition is dynamic in nature
+		if (this.isdynamic) def.isdynamic = true;
+
 		//def.expression = expr;
 		//def.errors = expr.errors;
 		this.parent = parent;
