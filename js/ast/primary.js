@@ -75,7 +75,8 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			} else if (options.indef) {
 				res = JSON.stringify(ctx.locals[this.observable].value()); //"ctx.locals[\""+this.observable+"\"]";
 			} else {
-				res = ctx.locals[this.observable].value();
+				//res = ctx.locals[this.observable].value();
+				res = Eden.edenCodeForValue(ctx.locals[this.observable].value());
 			}
 			for (var i=0; i<this.extras.length; i++) {
 				res += this.extras[i].generate(ctx, scope, {bound: false});
@@ -108,23 +109,44 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 
 	// We have a backticks expression? Use that instead...
 	if (this.observable == "__BACKTICKS__") {
-		var id = 0;
+		//var id = 0;
 		//console.log("CTX",ctx);
 		// Need to give each backtick a unique number in a given context.
-		if (ctx && ctx.backtickCount !== undefined) {
-			id = ctx.backtickCount;
-			ctx.backtickCount++;
+		//if (ctx && ctx.backtickCount !== undefined) {
+		//	id = ctx.backtickCount;
+		//	ctx.backtickCount++;
+		//}
+
+		var tmpdeplog;
+		
+		if (ctx) {
+			tmpdeplog = ctx.isconstant;
+			ctx.isconstant = true;
+		}
+		var btickgen = this.backtick.generate(ctx, scope,{bound: false, usevar: options.usevar});
+
+		if (!ctx || ctx.isconstant || ctx.type != "definition") {
+			if (ctx && ctx.isconstant && ctx.type == "definition") {
+				btickgen = eval(btickgen);
+				console.log("Constant bticks: ", btickgen);
+				ctx.dependencies[btickgen] = true;
+				tmpdeplog = false;
+				btickgen = Eden.edenCodeForValue(btickgen);
+			}
+			res = btickgen;
+		} else {
+			// A dynamic dependency must be added if we are in a definition
+			res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";
 		}
 
-		// A dynamic dependency must be added if we are in a definition
-		if (ctx && ctx.type == "definition") {
-			res = "this.subscribeDynamic(btick++," + this.backtick.generate(ctx, scope,{bound: false, usevar: options.usevar})+", "+scope+")";
-		} else {
-			res = this.backtick.generate(ctx,scope, {bound: false, usevar: options.usevar});
-		}
+		if (ctx) ctx.isconstant = tmpdeplog;
+
 	} else {
 		// Record the use of this primary as a dependency
-		if (ctx && ctx.dependencies) ctx.dependencies[this.observable] = true;
+		if (ctx && ctx.dependencies) {
+			ctx.dependencies[this.observable] = true;
+			ctx.isconstant = false;
+		}
 		res = "\""+this.observable+"\"";
 	}
 

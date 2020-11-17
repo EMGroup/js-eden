@@ -22,6 +22,7 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope) {
 		if (this.statements[i].type == "declarations" && this.statements[i].kind == "oracle") {
 			for (var j=0; j<this.statements[i].list.length; j++) {
 				ctx.dependencies[this.statements[i].list[j]] = true;
+				ctx.isconstant = false;
 			}
 		}
 		result = result + this.statements[i].generate(this, "escope", {bound: false});

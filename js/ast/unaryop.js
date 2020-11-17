@@ -11,7 +11,12 @@ Eden.AST.UnaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 	if (this.op == "eval") {
+		var tmpconst = ctx.isconstant;
+		var tmpdep = ctx.dependencies;
+		ctx.dependencies = {};
 		var val = this.r.execute(ctx, null, eden.root.scope);
+		ctx.isconstant = tmpconst;
+		ctx.dependencies = tmpdep;
 		return Eden.edenCodeForValue(val);
 	}
 
@@ -22,7 +27,10 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 		res = "!("+r+")";
 	} else if (this.op == "&") {
 		res = "context.lookup("+r+")";
-		if (ctx && ctx.dependencies && this.r.name) ctx.dependencies[this.r.name] = true;
+		if (ctx && ctx.dependencies && this.r.name) {
+			ctx.dependencies[this.r.name] = true;
+			ctx.isconstant = false;
+		}
 	} else if (this.op == "-") {
 		res = "-("+r+")";
 	} else if (this.op == "*") {
