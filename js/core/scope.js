@@ -142,6 +142,20 @@ Scope.prototype.refresh = function() {
 	}
 }
 
+Scope.prototype.rebuildForce = function() {
+	/* Process the overrides */
+	for (var i = 0; i < this.overrides.length; i++) {
+		this.updateSubscriberForce(this.overrides[i]);
+	}
+}
+
+Scope.prototype.rebuildForceAll = function() {
+	this.rebuildForce();
+	if (this.parent && this.parent !== eden.root.scope) {
+		this.parent.rebuildForceAll();
+	}
+}
+
 Scope.prototype.cloneAt = function(index) {
 	var nover = [];
 
@@ -324,6 +338,21 @@ Scope.prototype.updateSubscriber = function(name) {
 		this.cache[name].up_to_date = false;
 		this.cache[name].value = undefined;
 		this.cache[name].scope = this;
+	}
+}
+
+Scope.prototype.updateSubscriberForce = function(name) {
+	//console.log("Adding scope subscriber...: " + name);
+	if (this.cache[name] === undefined) {
+		this.cache[name] = new ScopeCache( false, undefined, this);
+	} else {
+		this.cache[name].up_to_date = false;
+		this.cache[name].value = undefined;
+		this.cache[name].scope = this;
+	}
+	var sym = this.context.lookup(name);
+	for (var d in sym.subscribers) {
+		this.updateSubscriberForce(d);
 	}
 }
 

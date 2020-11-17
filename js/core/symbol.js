@@ -318,7 +318,9 @@ EdenSymbol.prototype.subscribe = function () {
 
 EdenSymbol.prototype.subscribeDynValue = function (position, sym, scope) {
 	let dependency = sym.name;
+	//if (!(dependency in scope.cache)) scope.cache[dependency] = new ScopeCache(false, undefined, undefined, false);
 	this.subscribeDynamic(position, dependency, scope);
+	//scope.rebuildForceAll();
 	return sym.value(scope);
 }
 
