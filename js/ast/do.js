@@ -77,14 +77,10 @@ Eden.AST.Do.prototype.setStatement = function(statement) {
 
 
 Eden.AST.Do.prototype.generate = function(ctx) {
-	/*var res = "do\n";
-	res += this.statement.generate(ctx) + "\n";
-	res += "while (" + this.condition.generate(ctx,"scope");
-	if (this.condition.doesReturnBound && this.doesReturnBound()) {
-		res += ".value";
-	}
-	res += ");";
-	return res;*/
+	var err = new Eden.RuntimeError(EdenSymbol.localJSAgent, Eden.RuntimeError.ACTIONNAME, this, "Cannot use 'do' here");
+	err.line = this.line;
+	this.errors.push(err);
+	eden.emit("error", [err]);
 	return "";
 }
 

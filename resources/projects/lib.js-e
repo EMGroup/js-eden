@@ -959,6 +959,15 @@ func isString {
 
 action core {
 /**
+ * New alternative to execute.
+ */
+action executeCode {
+	action scratch {}
+	?(executeCode > scratch)[innersource] = $1;
+	do executeCode > scratch;
+}
+
+/**
  * Core library functions such as createView.
  *
  * @title Core Library
