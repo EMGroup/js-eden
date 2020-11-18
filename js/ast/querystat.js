@@ -31,11 +31,6 @@ Eden.AST.Query.prototype.setModify = function(expr, kind) {
 
 Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 	var res = "";
-
-	var err = new Eden.RuntimeError(null, Eden.RuntimeError.ACTIONNAME, this, "Cannot use '?' here");
-	err.line = this.line;
-	this.errors.push(err);
-	return "";
 	
 	if (this.restypes.length == 0) {
 		//res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", null, {minimum: 1}, (r) => {})";
@@ -69,7 +64,7 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 			case "//="	: res = "Eden.Selectors.concat("+selsrc+", \""+this.restypes.join(",")+"\", "+modexpr+")"; break;
 			}
 		} else {
-			//res = "Eden.Selectors.query("+selsrc+", \""+this.restypes.join(",")+"\", null, s => { cache.value = s; this.expireAsync(); })";
+			res = "Eden.Selectors.query("+selsrc+", \""+this.restypes.join(",")+"\", null, s => { cache.value = s; this.expireAsync(); })";
 		}
 	}
 	console.log("QUERY",res);
