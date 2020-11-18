@@ -109,6 +109,8 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 		} else {
 			res += ", undefined, undefined, "+over.isin+"),";
 		}
+
+		if (ctx && ctx.isdynamic) ctx.dynamic_source += ", ";  // FIXME: Remove last comma.
 	}
 	// remove last comma
 	res = res.slice(0,-1);
