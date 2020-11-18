@@ -55,7 +55,19 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 			res = this._expr.expression.generate(ctx, scope, options);
 		}
 	} else {
-		res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", \""+this.restypes.join(",")+"\", null, s => { cache.value = s; this.expireAsync(); })";
+		var selsrc = this.selector.generate(ctx,scope,{bound: false});
+
+		if (this.modexpr) {
+			var modexpr = this.modexpr.generate(ctx,scope,{bound: false});
+
+			switch (this.kind) {
+			case "="	: res = "Eden.Selectors.assign("+selsrc+", \""+this.restypes.join(",")+"\", "+modexpr+")"; break;
+			case "+="	: res = "Eden.Selectors.append("+selsrc+", \""+this.restypes.join(",")+"\", "+modexpr+")"; break;
+			case "//="	: res = "Eden.Selectors.concat("+selsrc+", \""+this.restypes.join(",")+"\", "+modexpr+")"; break;
+			}
+		} else {
+			res = "Eden.Selectors.query("+selsrc+", \""+this.restypes.join(",")+"\", null, s => { cache.value = s; this.expireAsync(); })";
+		}
 	}
 	console.log("QUERY",res);
 
@@ -79,11 +91,11 @@ Eden.AST.Query.prototype.execute = function(ctx,base,scope, agent) {
 	if (this.modexpr === undefined) {
 		if (!this._expr) {
 			Eden.Selectors.query(this.selector.execute(ctx,base,scope,agent), this.restypes, {minimum: 1}, (res) => {
-				console.log(res);
+				//console.log(res);
 				base.lastresult = res;
 				this._expr = res[0];
 				// How to re-expire containing definition?
-				console.log("EXPIRE CTX", ctx);
+				//console.log("EXPIRE CTX", ctx);
 				if (ctx.cb) ctx.cb(res);
 			});
 		} else {

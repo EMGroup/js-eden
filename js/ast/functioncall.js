@@ -69,7 +69,7 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 	if (!this.lvalue) return;
 
 	this.executed = 1;
-	var func = "(function(context,scope) { ";
+	var func = "(function(context,scope,cache) { ";
 	func += "let name = "+this.lvalue.generate(ctx,scope)+";\n";
 	func += "let args = "+this.generateArgs(ctx, "scope")+";\n";
 
@@ -80,7 +80,7 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 	func += "return scope.value(name).apply(context.lookup(name),args); })";
 
 	try {
-		return eval(func).call(ctx,eden.root,scope);
+		return eval(func).call(ctx,eden.root,scope,scope.cache);
 	} catch(e) {
 		var err = new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e);
 		this.errors.push(err);

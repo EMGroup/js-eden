@@ -25,7 +25,7 @@ Eden.AST.CodeBlock.prototype.setScript = function(script) {
 }
 
 Eden.AST.CodeBlock.prototype.generate = function(ctx) {
-	var res = "(function(context, scope) {\n";
+	var res = "(function(context, scope, cache) {\n";
 	//res += "var lscope = new Scope(context,pscope,[";
 	if (this.locals && this.locals.list) {
 		for (var i=0; i<this.locals.list.length; i++) {
