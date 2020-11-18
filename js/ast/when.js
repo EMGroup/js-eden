@@ -99,7 +99,10 @@ Eden.AST.When.prototype.setStatement = function (statement) {
 	}
 }
 
-Eden.AST.When.prototype.generate = function() {
+Eden.AST.When.prototype.generate = function(ctx) {
+	var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'when' here");
+	this.errors.push(err);
+	eden.emit("error", [EdenSymbol.defaultAgent,err]);
 	return "";
 }
 

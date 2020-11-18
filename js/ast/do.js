@@ -77,10 +77,9 @@ Eden.AST.Do.prototype.setStatement = function(statement) {
 
 
 Eden.AST.Do.prototype.generate = function(ctx) {
-	var err = new Eden.RuntimeError(EdenSymbol.localJSAgent, Eden.RuntimeError.ACTIONNAME, this, "Cannot use 'do' here");
-	err.line = this.line;
+	var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'do' here");
 	this.errors.push(err);
-	eden.emit("error", [err]);
+	eden.emit("error", [EdenSymbol.defaultAgent,err]);
 	return "";
 }
 
