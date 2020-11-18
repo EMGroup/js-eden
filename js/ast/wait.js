@@ -23,7 +23,11 @@ Eden.AST.Wait.prototype.compile = function(ctx) {
 }
 
 Eden.AST.Wait.prototype.generate = function(ctx, scope) {
-	return "yield "+this.delay+";";
+	var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'wait' here");
+	this.errors.push(err);
+	eden.emit("error", [EdenSymbol.defaultAgent,err]);
+	return "";
+	//return "yield "+this.delay+";";
 }
 
 Eden.AST.registerStatement(Eden.AST.Wait);

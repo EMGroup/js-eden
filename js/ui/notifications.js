@@ -79,9 +79,10 @@ EdenUI.Notifications = function(element, jewel) {
 		}
 	}
 
+	eden.listenTo("error", undefined, errhandler);
+
 	if (Eden.Fragment) {
 		Eden.Fragment.listenTo("error", undefined, errhandler);
-		eden.listenTo("error", undefined, errhandler);
 
 		Eden.Fragment.listenTo("warning", undefined, function(agent,err) {
 			if (err) {

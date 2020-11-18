@@ -122,7 +122,6 @@ Scope.prototype.resetCache = function() {
 
 Scope.prototype.rebuild = function() {
 	if (this.cache !== undefined) return;
-	//console.log("REBUILD");
 	this.cache = {};
 
 	this.add("cause");
@@ -130,8 +129,22 @@ Scope.prototype.rebuild = function() {
 	this.add("from");
 
 	/* Process the overrides */
-	for (var i = 0; i < this.overrides.length; i++) {
+	/*for (var i = 0; i < this.overrides.length; i++) {
 		this.addOverride(this.overrides[i]);
+	}*/
+
+	for (var i = 0; i < this.overrides.length; i++) {
+		this.updateOverride(this.overrides[i]);
+	}
+
+	if (this.context) {
+		for (var i = 0; i < this.overrides.length; i++) {
+			var sym = this.context.lookup(this.overrides[i].name);
+			//console.log(sym);
+			for (var d in sym.subscribers) {
+				this.addSubscriber(d);
+			}
+		}
 	}
 }
 
@@ -323,6 +336,17 @@ Scope.prototype.updateOverride = function(override) {
 		this.cache[name].up_to_date = true;
 		this.cache[name].override = true;
 		return true;
+	}
+}
+
+Scope.prototype.addSubscriber = function(name) {
+	//console.log("Adding scope subscriber...: " + name);
+	if (this.cache[name] === undefined) {
+		this.cache[name] = new ScopeCache( false, undefined, this);
+		var sym = this.context.lookup(name);
+		for (var d in sym.subscribers) {
+			this.addSubscriber(d);
+		}
 	}
 }
 
