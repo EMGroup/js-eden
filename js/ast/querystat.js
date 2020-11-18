@@ -71,7 +71,7 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 			case "//="	: res = "Eden.Selectors.concat("+selsrc+", \""+this.restypes.join(",")+"\", "+modexpr+")"; break;
 			}
 		} else {
-			if (ctx.type != "definition") {
+			if (ctx.type != "definition" && ctx.type != "assignment") {
 				var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use '?' here");
 				this.errors.push(err);
 				eden.emit("error", [EdenSymbol.defaultAgent,err]);

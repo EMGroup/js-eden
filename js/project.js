@@ -277,6 +277,14 @@ Eden.Project.prototype.environment = function() {
 Eden.Project.prototype.start = function(cb) {
 	var me = this;
 
+	if (this.ast.errors.length > 0) {
+		for (var i=0; i<this.ast.errors.length; ++i) {
+			console.error("Project parse error: ", this.ast.errors[i].toString());
+		}
+		if (cb) cb();
+		return;
+	}
+
 	this.ast.execute(this, function() {
 		if (me.ast.scripts["ACTIVE"]) {
 			// Find the active action and replace

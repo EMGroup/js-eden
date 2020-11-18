@@ -20,7 +20,7 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		var parent = this.parent;
 		this.parent = def;
 		this.isdynamic = false;
-		var expr = this.pEXPRESSION();
+		var expr = this.pEXPRESSION_ALIAS();
 		def.setExpression(expr);
 
 		// The source code of this definition is dynamic in nature
@@ -59,7 +59,7 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		return range;
 	} else if (this.token == "=") {
 		this.next();
-		return new Eden.AST.Assignment(this.pEXPRESSION());
+		return new Eden.AST.Assignment(this.pEXPRESSION_ALIAS());
 	} else if (this.token == "+=") {
 		this.next();
 		return new Eden.AST.Modify("+=", this.pEXPRESSION());
