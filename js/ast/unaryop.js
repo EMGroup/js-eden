@@ -13,12 +13,13 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 	if (this.op == "eval") {
 		var tmpconst = ctx.isconstant;
 		var tmpdep = ctx.dependencies;
+		var tmpdynsrc = ctx.dynamic_source;
 		ctx.dependencies = {};
 		var val = this.r.execute(ctx, null, eden.root.scope);
 		ctx.isconstant = tmpconst;
 		ctx.dependencies = tmpdep;
 		val = Eden.edenCodeForValue(val);
-		if (ctx && ctx.isdynamic) ctx.dynamic_source += val;
+		if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc + val;
 		return val;
 	}
 

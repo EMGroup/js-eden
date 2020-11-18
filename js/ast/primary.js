@@ -145,6 +145,8 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		} else {
 			// A dynamic dependency must be added if we are in a definition
 			res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";
+
+			if (ctx && ctx.isdynamic) ctx.dynamic_source = "`" + ctx.dynamic_source + "`";
 		}
 
 		if (ctx) ctx.isconstant = tmpdeplog;
@@ -178,7 +180,13 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 
 		// Generate each extra
 		for (var i=0; i<this.extras.length; i++) {
+			if (ctx && ctx.isdynamic) {
+				if (this.extras[i].type == "index") ctx.dynamic_source += "[";
+			}
 			res += this.extras[i].generate(ctx, scope,{bound: false, usevar: options.usevar});
+			if (ctx && ctx.isdynamic) {
+				if (this.extras[i].type == "index") ctx.dynamic_source += "]";
+			}
 		}
 
 		// If a bound value is requested, then generate a new/fake one.
