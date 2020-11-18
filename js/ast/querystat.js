@@ -101,7 +101,7 @@ Eden.AST.Query.prototype.execute = function(ctx,base,scope, agent) {
 				if (ctx.cb) ctx.cb(res);
 			});
 		} else {
-			return this._expr.execute(ctx,base,scope,agent);
+			return this._expr; //.execute(ctx,base,scope,agent);
 		}
 	} else {
 		var selector = this.selector.execute(ctx,base,scope,agent);
