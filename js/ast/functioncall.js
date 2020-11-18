@@ -35,8 +35,9 @@ Eden.AST.FunctionCall.prototype.generateArgs = function(ctx, scope) {
 Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 	if (this.lvalue === undefined) {
 		if (ctx && ctx.isdynamic) ctx.dynamic_source += "(";
-		var res = "(";
+		var res = ".call(this";
 		if (this.params) {
+			if (this.params.length > 0) res += ",";
 			for (var i=0; i<this.params.length; i++) {
 				var express = this.params[i].generate(ctx, scope, {bound: false});
 				res += "("+express+")";

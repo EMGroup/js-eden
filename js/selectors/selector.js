@@ -257,7 +257,7 @@ Eden.Selectors.processResults = function(statements, o) {
 									break;
 				case "innersource"	:	if (stat.type == "script") {
 											val = stat.getInnerSource();
-										} else {
+										} else if (stat && stat.getSource()) {
 											val = stat.getSource();
 										} break;
 				case "outersource"	:	val = stat.getOuterSource();

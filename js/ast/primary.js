@@ -76,9 +76,10 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				res = JSON.stringify(ctx.locals[this.observable].value()); //"ctx.locals[\""+this.observable+"\"]";
 			} else {
 				//res = ctx.locals[this.observable].value();
-				var val = Eden.edenCodeForValue(ctx.locals[this.observable].value());
-				if (ctx && ctx.isdynamic) ctx.dynamic_source += val;
-				res = val;
+				var val = ctx.locals[this.observable].value();
+				if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(val);
+				res = JSON.stringify(val);
+				if (val === undefined) console.error("Local variable undefined", this.observable);
 			}
 			for (var i=0; i<this.extras.length; i++) {
 				res += this.extras[i].generate(ctx, scope, {bound: false});
@@ -132,16 +133,23 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 
 		if (!ctx || ctx.isconstant || ctx.type != "definition") {
 			if (ctx && ctx.isconstant && ctx.type == "definition") {
-				btickgen = eval(btickgen);
-				console.log("Constant bticks: ", btickgen);
+				console.log("Constant bticks: ", btickgen, this.backtick);
+				try {
+					btickgen = eval(btickgen);
+				} catch (e) {
+					console.error(e);
+					return "\"ERROR\"";
+				}
 				ctx.dependencies[btickgen] = true;
 				tmpdeplog = false;
 				if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc + btickgen;
-				btickgen = Eden.edenCodeForValue(btickgen);
+				//btickgen = Eden.edenCodeForValue(btickgen);
+				btickgen = JSON.stringify(btickgen);
 			} else {
 				if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc;
 			}
-			res = btickgen;
+			//res = btickgen;
+			res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";
 		} else {
 			// A dynamic dependency must be added if we are in a definition
 			res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";
