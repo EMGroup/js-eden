@@ -133,7 +133,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 
 		if (!ctx || ctx.isconstant || ctx.type != "definition") {
 			if (ctx && ctx.isconstant && ctx.type == "definition") {
-				console.log("Constant bticks: ", btickgen, this.backtick);
+				//console.log("Constant bticks: ", btickgen, this.backtick);
 				try {
 					btickgen = eval(btickgen);
 				} catch (e) {
@@ -148,8 +148,8 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			} else {
 				if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc;
 			}
-			//res = btickgen;
-			res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";
+			res = btickgen;
+			//res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";
 		} else {
 			// A dynamic dependency must be added if we are in a definition
 			res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";

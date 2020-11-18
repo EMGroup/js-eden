@@ -24,17 +24,47 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 	}
 
 	if (ctx && ctx.isdynamic) ctx.dynamic_source += this.op;
+
+	var tmpconst;
+	if (ctx) {
+		tmpconst = ctx.isconstant;
+		ctx.isconstant = true;
+	}
+
 	var r = this.r.generate(ctx, scope, {bound: false, usevar: options.usevar});
-	var res;	
+	var res;
+	
+	var wasconst = false;
+
+	if (ctx) {
+		wasconst = ctx.isconstant;
+		ctx.isconstant = tmpconst && wasconst;
+	}
 
 	if (this.op == "!") {
 		res = "!("+r+")";
 	} else if (this.op == "&") {
-		res = "context.lookup("+r+")";
-		if (ctx && ctx.dependencies && this.r.name) {
-			ctx.dependencies[this.r.name] = true;
-			ctx.isconstant = false;
+		if (ctx && ctx.dependencies) {
+			if (this.r.name) {
+				ctx.dependencies[this.r.name] = true;
+				ctx.isconstant = false;
+			} else if (wasconst) {
+				var btickval = "ERROR";
+				try {
+					btickval = eval(r);
+				} catch (e) {
+
+				}
+				if (ctx.dependencies) ctx.dependencies[btickval] = true;
+				btickval = JSON.stringify(btickval);
+				r = btickval;
+				ctx.isconstant = false;
+			} else {
+				r = "this.subscribeDynValue(0, " + r + ", "+scope+")";
+				ctx.isconstant = false;
+			}
 		}
+		res = "context.lookup("+r+")";
 	} else if (this.op == "-") {
 		res = "-("+r+")";
 	} else if (this.op == "*") {
