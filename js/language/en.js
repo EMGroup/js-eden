@@ -355,6 +355,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_DOBADATTRIB */ [
 	"Invalid 'do' attribute name"
+],
+/* EDEN_ERROR_QUERYNOTALLOWED */ [
+	"A query is not allowed here"
 ]
 ];
 

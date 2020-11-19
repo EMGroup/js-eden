@@ -176,7 +176,7 @@ Eden.Fragment.prototype.reset = function(cb) {
 			// Scratch
 			me.locked = false;
 			me.remote = false;
-			me.ast = new Eden.AST(me.source, undefined, me, {noindex: true});
+			me.ast = new Eden.AST(me.source, undefined, me, {noindex: true, strict: true});
 			me.originast = me.ast.script;
 			me.name = "*Scratch*";
 			me.title = me.name;
@@ -214,7 +214,7 @@ Eden.Fragment.prototype.makeReal = function(name) {
 Eden.Fragment.prototype.setSourceInitial = function(src) {
 	this.source = src;
 	this.snapshot = src;
-	this.ast = new Eden.AST(src, undefined, this);
+	this.ast = new Eden.AST(src, undefined, this, {strict: true});
 }
 
 Eden.Fragment.AUTOSAVE_INTERVAL = 2000;
@@ -358,7 +358,7 @@ Eden.Fragment.prototype.setSource = function(src) {
 	this.edited = true;
 
 	// Build a new AST
-	this.ast = new Eden.AST(src, undefined, this, {noindex: true});
+	this.ast = new Eden.AST(src, undefined, this, {noindex: true, strict: true});
 
 	// TODO Transfer execution/when status...
 	//oldast.destroy();

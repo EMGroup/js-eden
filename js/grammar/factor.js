@@ -101,18 +101,21 @@ Eden.AST.prototype.pFACTOR = function() {
 	// Query
 	} else if (this.token == "?") {
 		// TODO: Disable following
-		this.next();
-		var q = this.pQUERY();
-		if (this.token == "[") {
-			var indexed = this.pINDEXED();
-			indexed.setExpression(q);
-			return indexed;
+		if (!this.strict) {
+			this.next();
+			var q = this.pQUERY();
+			if (this.token == "[") {
+				var indexed = this.pINDEXED();
+				indexed.setExpression(q);
+				return indexed;
+			}
+			return q;
 		}
-		return q;
+
+		this.next();
 
 		var lit = new Eden.AST.Literal("UNDEFINED", "@");
-		lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN));  // FIXME: Replace this error code
-		//lit.warning = new Eden.SyntaxWarning(this, lit, Eden.SyntaxWarning.UNKNOWN, "Query cannot be used here");
+		lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYNOTALLOWED));
 		return lit;
 	// Unary negation operator
 	} else if (this.token == "-") {

@@ -79,7 +79,9 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 	var expr;
 
 	// TODO: Remove, this is for backward compat.
-	return this.pEXPRESSION();
+	if (!this.strict) {
+		return this.pEXPRESSION();
+	}
 
 	// Query
 	if (this.token == "?") {
@@ -92,6 +94,11 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 			expr = indexed;
 		} else {
 			expr = q;
+		}
+
+		if (this.token != "with" && this.token != "::" && this.token != ";") {
+			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYNOTALLOWED));
+			return expr;
 		}
 	} else if (this.token == "{") {
 		this.next();
