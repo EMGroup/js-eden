@@ -362,6 +362,14 @@ div.eden-line {
 	/*z-index: 2;*/
 }
 
+div.eden-customline {
+	margin-left: -5px;
+	padding-left: 5px;
+	margin-right: 20px;
+	line-height: 20px;
+	background: lightyellow;
+}
+
 div.eden-comment-blockquote {
 	border-left: 2px solid #2b4957;
 	background-color: #eee;

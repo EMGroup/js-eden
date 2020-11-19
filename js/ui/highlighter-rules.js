@@ -316,6 +316,25 @@ EdenUI.Highlight.prototype.START = function() {
 							if (p != 10 && p != 32) {
 								var t = this.stream.readToken();
 								var obs = this.stream.tokenText();
+								
+								if (!this.custom.hasOwnProperty(obs)) {
+
+									var obj = {keywords:null};
+									this.custom[obs] = obj;
+								}
+								this.current_custom = this.custom[obs];
+
+								if (!this.current_custom.keywords) {
+									var kwrds = eden.root.lookup("script_"+obs+"_keywords").value();
+									if (Array.isArray(kwrds)) {
+										this.current_custom.keywords = {};
+										for (var i=0; i<kwrds.length; ++i) {
+											console.log("ADD KEYWORD ",kwrds[i]);
+											this.current_custom.keywords[kwrds[i]] = true;
+										}
+									}
+								}
+
 								this.tokentext += obs;
 								this.heredocend = "eden";
 								this.classes.push("storage");
@@ -352,6 +371,92 @@ EdenUI.Highlight.prototype.START = function() {
 
 	default			:	if (this.type == "keyword") {
 							this.classes.push("keyword");
+						} else {
+							// Bind negative to number if no whitespace.
+							if (this.token == "-" && this.stream.isNumeric(this.stream.peek())) {
+								this.token = this.stream.readToken();
+								this.tokentext = "-" + this.stream.tokenText();
+								this.classes.push("number");
+							} else if (this.token == "/*") {
+								if (this.stream.peek() == 42) {
+									this.mode = "DOXY_COMMENT";
+									this.classes.push("block-comment");
+								} else {
+									this.mode = "BLOCK_COMMENT";
+									this.classes.push("block-comment");
+								}
+							} else {
+								this.classes.push("operator");
+							}
+						}
+	}
+}
+
+EdenUI.Highlight.prototype.START_MINIMAL = function() {
+	switch(this.token) {
+	case "##"		:
+	case "#"		:	if (this.prevtoken == "INVALID" || this.prevtoken == ";") {
+							var isdoxy = this.stream.peek() == 33;
+							if (isdoxy) {
+								this.tokentext += "!";
+								this.stream.position++;
+							}
+							this.classes.push("hidden-comment");
+							this.mode = "COMMENT";
+							this.incomment = true;
+
+							if (this.prevtoken == "INVALID") this.lineelement.style.marginLeft = "0";
+							//else {
+								var nline = document.createElement("div");
+								//nline.className = (isdoxy) ? this.styles["comment-line"]+ " " + this.styles["doxycomment"] : this.styles["comment-line"];
+								this.applyClasses(nline, (isdoxy) ? ["comment-line","doxycomment"] : ["comment-line"]);
+								this.pushLine();
+								this.lineelement.appendChild(nline);
+								this.lineelement = nline;
+							//}
+							// Remove a single space if it exists.
+							if (this.stream.peek() == 32) {
+								this.tokentext += " ";
+								this.stream.position++;
+							}
+						} else {
+							this.classes.push("operator");
+						}
+						break;
+
+	case "NUMBER"	:	this.classes.push("number"); break;
+	case "STRING"	:	this.classes.push("string"); break;
+	case "BOOLEAN"	:	this.classes.push("constant"); break;
+	case "CHARACTER":	this.classes.push("string"); break;
+	
+	case "OBSERVABLE":	/*if (edenFunctions[this.stream.data.value]) {
+							this.classes.push("function");
+						} else if (EdenUI.Highlight.isType(this.stream.data.value)) {
+							this.classes.push("type");
+						} else if (edenValues[this.stream.data.value]) {
+							this.classes.push("constant");
+						} else if (edenSpecials[this.stream.data.value]) {
+							this.classes.push("special");
+						} else if (this.stream.data.value.charAt(0) == "$") {
+							this.classes.push("parameter");
+						} else {*/
+						if (this.current_custom.keywords && this.current_custom.keywords[this.stream.data.value]) {
+							this.classes.push("keyword");
+						} else {
+							this.classes.push("observable");
+						}
+							/*if (!Eden.Index.name_index.hasOwnProperty(this.stream.data.value) && !eden.root.symbols.hasOwnProperty(this.stream.data.value)) {
+								this.classes.push("notexist");
+							}
+						}*/
+						break;
+
+	default			:	if (this.type == "keyword") {
+							if (this.current_custom.keywords && this.current_custom.keywords[this.stream.data.value]) {
+								this.classes.push("keyword");
+							} else {
+								this.classes.push("observable");
+							}
 						} else {
 							// Bind negative to number if no whitespace.
 							if (this.token == "-" && this.stream.isNumeric(this.stream.peek())) {
@@ -491,5 +596,7 @@ EdenUI.Highlight.prototype.CUSTOMBLOCK = function() {
 		}
 	}
 
-	this.classes.push("javascript");
+	this.START_MINIMAL();
+	this.outerline = "eden-customline";
+	//this.classes.push("javascript");
 }
