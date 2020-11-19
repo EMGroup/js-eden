@@ -66,6 +66,9 @@
 		this.incomment = false;
 		this.brline = (options && options.brline);
 
+		this.custom = {};
+		this.current_custom = null;
+
 		this.cs3 = eden.root.lookup("jseden_parser_cs3").value();
 
 		this.styleExtensions = {};

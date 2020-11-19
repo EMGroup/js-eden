@@ -14,20 +14,24 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 	var res;
 
 	switch (this.datatype) {
-	case "NUMBER"	:	res = this.value; break;
-	case "LIST"		:	res = "[";
+	case "NUMBER"	:	res = this.value; if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(this.value); break;
+	case "LIST"		:	res = "["; if (ctx && ctx.isdynamic) ctx.dynamic_source += "[";
 						// Loop over each element and generate that also.
 						for (var i=0; i<this.value.length; i++) {
 							res += this.value[i].generate(ctx,scope, {bound: false});
-							if (i != this.value.length-1) res += ",";
+							if (i != this.value.length-1) {
+								res += ",";
+								if (ctx && ctx.isdynamic) ctx.dynamic_source += ", ";
+							}
 						}
-						res += "]";
+						res += "]"; if (ctx && ctx.isdynamic) ctx.dynamic_source += "]";
 						break;
 	case "CHARACTER":
 	case "STRING"	:	var str = this.value.replace(/\n/g,"\\n");
-						res = "\""+str+"\""; break;
-	case "BOOLEAN"	:	res = this.value; break;
-	case "JAVASCRIPT"	: res = this.value; break;
+						res = "\""+str+"\""; if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(this.value); break;
+	case "BOOLEAN"	:	res = this.value; if (ctx && ctx.isdynamic) ctx.dynamic_source += (this.value) ? "true" : "false"; break;
+	case "JAVASCRIPT"	: res = this.value; if (ctx && ctx.isdynamic) ctx.dynamic_source += "${{ " + this.value + " }}$"; break;
+	case "UNDEFINED"	: if (ctx && ctx.isdynamic) ctx.dynamic_source += "@"; break;
 	}
 
 	if (options.bound) {

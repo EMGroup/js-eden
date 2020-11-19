@@ -30,6 +30,7 @@ Eden.AST.prototype.pPRIMARY = function() {
 
 		primary.setBackticks(btick);
 		primary.setObservable("__BACKTICKS__");
+		this.isdynamic = true;
 		return primary;	
 	// Plain observable
 	} else if (this.token == "OBSERVABLE") {
@@ -78,6 +79,7 @@ Eden.AST.prototype.pPRIMARY = function() {
 			primary = this.pPRIMARY_P();
 			primary.setBackticks(expr);
 			primary.setObservable("__BACKTICKS__");
+			this.isdynamic = true;
 		} else {
 			// Check for '.', '[' and '('... plus 'with'
 			primary = this.pPRIMARY_P();

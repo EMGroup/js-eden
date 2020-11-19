@@ -100,14 +100,23 @@ Eden.AST.prototype.pFACTOR = function() {
 		return lit
 	// Query
 	} else if (this.token == "?") {
-		this.next();
-		var q = this.pQUERY();
-		if (this.token == "[") {
-			var indexed = this.pINDEXED();
-			indexed.setExpression(q);
-			return indexed;
+		// TODO: Disable following
+		if (!this.strict) {
+			this.next();
+			var q = this.pQUERY();
+			if (this.token == "[") {
+				var indexed = this.pINDEXED();
+				indexed.setExpression(q);
+				return indexed;
+			}
+			return q;
 		}
-		return q;
+
+		this.next();
+
+		var lit = new Eden.AST.Literal("UNDEFINED", "@");
+		lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYNOTALLOWED));
+		return lit;
 	// Unary negation operator
 	} else if (this.token == "-") {
 		this.next();
@@ -140,7 +149,7 @@ Eden.AST.prototype.pFACTOR = function() {
 			var cachepos = this.stream.position;
 			var line = this.stream.readLine();
 			if (line.startsWith(endtoken)) {
-				this.stream.position = cachepos + 3;
+				this.stream.position = cachepos + endtoken.length;
 				break;
 			}
 			res += line;
@@ -209,6 +218,7 @@ Eden.AST.prototype.pFACTOR = function() {
 		return new Eden.AST.UnaryOp("*", lvalue);
 	} else if (this.token == "eval") {
 		this.next();
+		this.isdynamic = true;
 		var una = new Eden.AST.UnaryOp("eval", {errors: []});
 
 		if (this.token != "(") {

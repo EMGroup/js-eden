@@ -551,7 +551,7 @@ EdenUI.ScriptBox.prototype.enable = function() {
 EdenUI.ScriptBox.prototype.setSource = function(src) {
 	//if (this.currentstatement === undefined) return;
 	this.intextarea.value = src;
-	this.ast = new Eden.AST(src,undefined,EdenUI.ScriptBox.consoleAgent, {noindex: true});
+	this.ast = new Eden.AST(src,undefined,EdenUI.ScriptBox.consoleAgent, {noindex: true, strict: true});
 	this.highlightContent(this.ast, -1, 0);
 	this.intextarea.focus();
 	if (this.ast.script && this.ast.script.errors.length == 0) {
@@ -583,7 +583,7 @@ EdenUI.ScriptBox.prototype.updateLineHighlight = function() {
 		lineno = this.getLineNumber(this.intextarea);
 	}
 
-	this.ast = new Eden.AST(this.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent, {noindex: true});
+	this.ast = new Eden.AST(this.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent, {noindex: true, strict: true});
 	//scriptagent.setSource(intextarea.value, false, lineno);
 	this.highlighter.ast = this.ast;
 
@@ -626,7 +626,7 @@ EdenUI.ScriptBox.prototype.updateLineCachedHighlight = function() {
  * could be such changes), for example when pasting.
  */
 EdenUI.ScriptBox.prototype.updateEntireHighlight = function(rerun) {
-	this.ast = new Eden.AST(this.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent, {noindex: true});
+	this.ast = new Eden.AST(this.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent, {noindex: true, strict: true});
 	this.highlighter.ast = this.ast;
 	var pos = -1;
 	if (document.activeElement === this.intextarea) {
@@ -712,7 +712,7 @@ EdenUI.ScriptBox.prototype.highlightContent = function(ast, lineno, position) {
 					me.replaceLine(me.dragline, content);
 
 					//me.setSource(me.intextarea.value, false, dragline);
-					me.ast = new Eden.AST(me.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent, {noindex: true});
+					me.ast = new Eden.AST(me.intextarea.value, undefined, EdenUI.ScriptBox.consoleAgent, {noindex: true, strict: true});
 					me.highlighter.ast = me.ast;
 
 					//console.log("Dragline: " + dragline);

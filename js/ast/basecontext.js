@@ -5,4 +5,7 @@ Eden.AST.BaseContext = function() {
 	this.locals = undefined;
 	this.params = undefined;
 	this.dependencies = {};
+	this.isconstant = true;
+	this.isdynamic = false;
+	this.dynamic_source = "";
 }

@@ -21,3 +21,45 @@ Eden.AST.prototype.pSECTION = function() {
 	//this.lastDoxyComment = undefined;
 	return stat;
 }
+
+Eden.AST.prototype.pCUSTOM_SECTION = function() {
+	this.next();
+	if (this.token != "OBSERVABLE") {
+		var lit = new Eden.AST.Literal("STRING", this.data.value);
+		lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.HEREDOCTOKEN));
+		return lit;
+	}
+
+	var endtoken = this.data.value;
+
+	// Must be at end of a line
+	if (this.stream.get() != 10) {
+		var lit = new Eden.AST.Literal("STRING", this.data.value);
+		lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.HEREDOCTOKEN));
+		return lit;
+	}
+	//this.stream.line++;
+
+	// Scan looking for endtoken
+	var res = "";
+	while (this.stream.valid()) {
+		var cachepos = this.stream.position;
+		var line = this.stream.readLine();
+		if (line.startsWith("%eden")) {
+			this.stream.position = cachepos + 5;
+			break;
+		}
+		res += line;
+	}
+
+	if (!this.stream.valid()) {
+		this.errors.push(new Eden.SyntaxError(this,Eden.SyntaxError.NEWLINE));
+	}
+
+	this.next();
+
+	var block = new Eden.AST.CustomBlock();
+	block.text = res; //JSON.stringify(res); //res.slice(0,-1).replace(/\\/g,"\\\\").replace(/"/g, "\\\""));
+	block.setName(endtoken);
+	return block;
+}

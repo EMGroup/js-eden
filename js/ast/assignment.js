@@ -128,7 +128,7 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	if (this.expression === undefined) return;
 	this.executed = 1;
-	this.compile(ctx);
+	this.compile(ctx);  // FIXME: ctx needed for local variable assign, but not ideal otherwise
 
 	if (this.doxyComment) {
 		//eden.dictionary[this.lvalue.name] = this.doxyComment;

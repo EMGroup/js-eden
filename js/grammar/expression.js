@@ -75,6 +75,54 @@ Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 }
 
 
+Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
+	var expr;
+
+	// TODO: Remove, this is for backward compat.
+	if (!this.strict) {
+		return this.pEXPRESSION();
+	}
+
+	// Query
+	if (this.token == "?") {
+		this.next();
+		var q = this.pQUERY();
+		if (this.token == "[") {
+			var indexed = this.pINDEXED();
+			indexed.setExpression(q);
+			this.next();
+			expr = indexed;
+		} else {
+			expr = q;
+		}
+
+		if (this.token != "with" && this.token != "::" && this.token != ";") {
+			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYNOTALLOWED));
+			return expr;
+		}
+	} else if (this.token == "{") {
+		this.next();
+		//var expr = new Eden.AST.World(this.pSCRIPT());
+		expr = this.pSCRIPTEXPR();
+		if (this.token != "}") {
+			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+			return expr;
+		}
+		this.next();
+	} else {
+		expr = this.pEXPRESSION_PLAIN();
+	}
+
+	if (this.token == "with" || this.token == "::") {
+		this.next();
+		var scope = this.pSCOPE();
+		scope.setExpression(expr);
+		return scope;
+	} else {
+		return expr;
+	}
+}
+
 
 /**
  * Scoped Expression Production

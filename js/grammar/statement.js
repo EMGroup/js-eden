@@ -19,8 +19,13 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		var def = new Eden.AST.Definition();
 		var parent = this.parent;
 		this.parent = def;
-		var expr = this.pEXPRESSION();
+		this.isdynamic = false;
+		var expr = this.pEXPRESSION_ALIAS();
 		def.setExpression(expr);
+
+		// The source code of this definition is dynamic in nature
+		if (this.isdynamic) def.isdynamic = true;
+
 		//def.expression = expr;
 		//def.errors = expr.errors;
 		this.parent = parent;
@@ -54,7 +59,7 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		return range;
 	} else if (this.token == "=") {
 		this.next();
-		return new Eden.AST.Assignment(this.pEXPRESSION());
+		return new Eden.AST.Assignment(this.pEXPRESSION_ALIAS());
 	} else if (this.token == "+=") {
 		this.next();
 		return new Eden.AST.Modify("+=", this.pEXPRESSION());
@@ -249,6 +254,12 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							stat.setDoxyComment(this.lastDoxyComment.shift());
 							//this.lastDoxyComment = this.parentDoxy;
 						}
+						break;
+
+	case "%"		:	stat = this.pCUSTOM_SECTION();
+						//if (this.lastDoxyComment.length > 0 && this.lastline == this.lastDoxyComment[0].startline-1) {
+						//	stat.setDoxyComment(this.lastDoxyComment.shift());
+						//}
 						break;
 						
 	case "return"	:	this.next();

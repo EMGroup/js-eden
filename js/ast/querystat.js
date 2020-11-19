@@ -31,6 +31,8 @@ Eden.AST.Query.prototype.setModify = function(expr, kind) {
 
 Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 	var res = "";
+
+	if (ctx && ctx.isdynamic) ctx.dynamic_source += "?(";
 	
 	if (this.restypes.length == 0) {
 		//res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", null, {minimum: 1}, (r) => {})";
@@ -69,7 +71,7 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 			case "//="	: res = "Eden.Selectors.concat("+selsrc+", \""+this.restypes.join(",")+"\", "+modexpr+")"; break;
 			}
 		} else {
-			if (ctx.type != "definition") {
+			if (ctx.type != "definition" && ctx.type != "assignment") {
 				var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use '?' here");
 				this.errors.push(err);
 				eden.emit("error", [EdenSymbol.defaultAgent,err]);
@@ -79,6 +81,13 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 		}
 	}
 	console.log("QUERY",res);
+
+	if (ctx && ctx.isdynamic) {
+		ctx.dynamic_source += ")";
+		if (this.restypes.length > 0) {
+			ctx.dynamic_source += "[" + this.restypes.join(",") + "]";
+		}
+	}
 
 	if (options.bound) {
 		return "new BoundValue("+res+","+scope+")";

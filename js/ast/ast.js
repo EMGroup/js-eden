@@ -5,6 +5,9 @@
  * See LICENSE.txt
  */
 
+// TODO: Find out why this is here?!
+//const { option } = require("grunt");
+
 /**
  * Abstract Syntax Tree Structures
  *
@@ -64,6 +67,7 @@ Eden.AST = function(code, imports, origin, options) {
 	this.lastresult = undefined;
 	this.depth = 0;
 	this.localStatus = false;
+	this.isdynamic = false;
 
 	if (!origin) console.error("NO ORIGIN", code);
 
@@ -76,6 +80,8 @@ Eden.AST = function(code, imports, origin, options) {
 	if(this.stream) this.stream.data = this.data;
 
 	this.stamp = Date.now();
+
+	this.strict = (options && options.strict);
 
 	// Start parse with SCRIPT production
 	if (!options || !options.noparse) {

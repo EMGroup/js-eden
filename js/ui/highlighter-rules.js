@@ -311,6 +311,66 @@ EdenUI.Highlight.prototype.START = function() {
 						this.classes.push("storage");
 						this.mode = "HEREDOC";
 						break;
+	case "%"		:	if (this.stream.isBEOL()) {
+							var p = this.stream.peek();
+							if (p != 10 && p != 32) {
+								var t = this.stream.readToken();
+								var obs = this.stream.tokenText();
+								
+								if (!this.custom.hasOwnProperty(obs)) {
+
+									var obj = {keywords:null,operators:null,specials:null,typenames:null};
+									this.custom[obs] = obj;
+								}
+								this.current_custom = this.custom[obs];
+
+								if (!this.current_custom.keywords) {
+									var kwrds = eden.root.lookup("script_"+obs+"_keywords").value();
+									if (Array.isArray(kwrds)) {
+										this.current_custom.keywords = {};
+										for (var i=0; i<kwrds.length; ++i) {
+											this.current_custom.keywords[kwrds[i]] = true;
+										}
+									}
+								}
+
+								if (!this.current_custom.operators) {
+									var kwrds = eden.root.lookup("script_"+obs+"_operators").value();
+									if (Array.isArray(kwrds)) {
+										this.current_custom.operators = {};
+										for (var i=0; i<kwrds.length; ++i) {
+											this.current_custom.operators[kwrds[i]] = true;
+										}
+									}
+								}
+
+								if (!this.current_custom.specials) {
+									var kwrds = eden.root.lookup("script_"+obs+"_specials").value();
+									if (Array.isArray(kwrds)) {
+										this.current_custom.specials = {};
+										for (var i=0; i<kwrds.length; ++i) {
+											this.current_custom.specials[kwrds[i]] = true;
+										}
+									}
+								}
+
+								if (!this.current_custom.typenames) {
+									var kwrds = eden.root.lookup("script_"+obs+"_types").value();
+									if (Array.isArray(kwrds)) {
+										this.current_custom.typenames = {};
+										for (var i=0; i<kwrds.length; ++i) {
+											this.current_custom.typenames[kwrds[i]] = true;
+										}
+									}
+								}
+
+								this.tokentext += obs;
+								this.heredocend = "eden";
+								this.classes.push("storage");
+								this.mode = "CUSTOMBLOCK";
+								//this.startmode = "CUSTOMBLOCK";
+							}
+						} break;
 	case "OBSERVABLE":	if (edenFunctions[this.stream.data.value]) {
 							this.classes.push("function");
 						} else if (EdenUI.Highlight.isType(this.stream.data.value)) {
@@ -349,14 +409,88 @@ EdenUI.Highlight.prototype.START = function() {
 								this.classes.push("number");
 							} else if (this.token == "/*") {
 								if (this.stream.peek() == 42) {
+									this.pushMode();
 									this.mode = "DOXY_COMMENT";
 									this.classes.push("block-comment");
 								} else {
+									this.pushMode();
 									this.mode = "BLOCK_COMMENT";
 									this.classes.push("block-comment");
 								}
 							} else {
 								this.classes.push("operator");
+							}
+						}
+	}
+}
+
+EdenUI.Highlight.prototype.START_MINIMAL = function() {
+	switch(this.token) {
+	/*case "##"		:
+	case "#"		:	if (this.prevtoken == "INVALID" || this.prevtoken == ";") {
+							var isdoxy = this.stream.peek() == 33;
+							if (isdoxy) {
+								this.tokentext += "!";
+								this.stream.position++;
+							}
+							this.classes.push("hidden-comment");
+							this.mode = "COMMENT";
+							this.incomment = true;
+
+							if (this.prevtoken == "INVALID") this.lineelement.style.marginLeft = "0";
+							//else {
+								var nline = document.createElement("div");
+								//nline.className = (isdoxy) ? this.styles["comment-line"]+ " " + this.styles["doxycomment"] : this.styles["comment-line"];
+								this.applyClasses(nline, (isdoxy) ? ["comment-line","doxycomment"] : ["comment-line"]);
+								this.pushLine();
+								this.lineelement.appendChild(nline);
+								this.lineelement = nline;
+							//}
+							// Remove a single space if it exists.
+							if (this.stream.peek() == 32) {
+								this.tokentext += " ";
+								this.stream.position++;
+							}
+						} else {
+							this.classes.push("operator");
+						}
+						break;*/
+
+	case "NUMBER"	:	this.classes.push("number"); break;
+	case "STRING"	:	this.classes.push("string"); break;
+	case "BOOLEAN"	:	this.classes.push("constant"); break;
+	case "CHARACTER":	this.classes.push("string"); break;
+
+	case "OBSERVABLE":
+	default			:	
+						// Bind negative to number if no whitespace.
+						if (this.token == "-" && this.stream.isNumeric(this.stream.peek())) {
+							this.token = this.stream.readToken();
+							this.tokentext = "-" + this.stream.tokenText();
+							this.classes.push("number");
+						} else if (this.token == "/*") {
+							//if (this.stream.peek() == 42) {
+							//	this.mode = "DOXY_COMMENT";
+							//	this.classes.push("block-comment");
+							//} else {
+								this.pushMode();
+								this.mode = "BLOCK_COMMENT";
+								this.classes.push("block-comment");
+							//}
+						} else {
+							var val = (this.type == "keyword" || this.type == "operator" || this.type == "separator") ? this.token : this.stream.data.value;
+
+							if (this.current_custom.keywords && this.current_custom.keywords[val]) {
+								this.classes.push("keyword");
+							} else if (this.current_custom.operators && this.current_custom.operators[val]) {
+								this.classes.push("operator");
+							} else if (this.current_custom.specials && this.current_custom.specials[val]) {
+								this.classes.push("special");
+							} else if (this.current_custom.typenames && this.current_custom.typenames[val]) {
+								console.log("highlight",val);
+								this.classes.push("storage");	
+							} else {
+								this.classes.push("observable");
 							}
 						}
 	}
@@ -463,4 +597,26 @@ EdenUI.Highlight.prototype.HEREDOC = function() {
 	} else {
 		this.classes.push("string");
 	}
+}
+
+EdenUI.Highlight.prototype.CUSTOMBLOCK = function() {
+	if (this.token == "%") {
+		var p = this.stream.peek();
+		if (p != 10 && p != 32) {
+			var t = this.stream.readToken();
+			var obs = this.stream.tokenText();
+			this.tokentext += obs;
+			if (this.tokentext == "%"+this.heredocend) {
+				this.classes.push("storage");
+				//this.startmode = "START";
+				this.outerline = "eden-line";
+				this.mode = this.startmode;
+				return;
+			}
+		}
+	}
+
+	//this.outerline = "eden-line eden-customline";
+	this.START_MINIMAL();
+	this.classes.push("javascript");
 }

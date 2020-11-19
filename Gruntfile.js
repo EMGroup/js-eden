@@ -159,6 +159,7 @@ module.exports = function (grunt) {
 					'./js/ast/alias.js',
 					'./js/ast/indexed.js',
 					'./js/ast/section.js',
+					'./js/ast/customblock.js',
 					'./js/ast/cs3_html.js',
 					'./js/grammar/actionbody.js',
 					'./js/grammar/after.js',

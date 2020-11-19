@@ -253,11 +253,13 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "comment"	:	if (stat.doxyComment) {
 										val = stat.doxyComment.stripped();
 									} break;
-				case "source"	:	val = stat.getSource();
+				case "source"	:	val = (stat && stat.getSource) ? stat.getSource() : "";
 									break;
 				case "innersource"	:	if (stat.type == "script") {
 											val = stat.getInnerSource();
-										} else {
+										} else if (stat.type == "custom") {
+											val = stat.text;
+										} else if (stat && stat.getSource) {
 											val = stat.getSource();
 										} break;
 				case "outersource"	:	val = stat.getOuterSource();
@@ -324,7 +326,7 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "root"		:	val = stat.parent === undefined; break;
 				}
 
-				ires.push(val);
+				if (val !== undefined) ires.push(val);
 
 			}
 			if (kinds.length > 1) {

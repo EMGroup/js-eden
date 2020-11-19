@@ -79,14 +79,25 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 	for (var o in this.overrides) {
 		var over = this.overrides[o];
 		var startstr;
+
+		if (ctx && ctx.isdynamic) {
+			ctx.dynamic_source += o;
+			if (over.isin && !over.end) ctx.dynamic_source += " in ";
+			else ctx.dynamic_source += " = ";
+		}
+
 		// TODO Don't use main range
 		if (this.range) {
 			startstr = over.start.generate(ctx,scope,{bound: false});
 		} else {
 			startstr = over.start.generate(ctx,scope,{bound: false}); //over.start.type == "primary" || over.start.type == "scope"});
 		}
+
 		res += "new ScopeOverride(\""+o+"\", " + startstr;
 		if (over.end) {
+			if (ctx && ctx.isdynamic) {
+				ctx.dynamic_source += "..";
+			}
 			var endstr = this.overrides[o].end.generate(ctx,scope, {bound: false});
 
 			if (over.increment) {
@@ -98,6 +109,8 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 		} else {
 			res += ", undefined, undefined, "+over.isin+"),";
 		}
+
+		if (ctx && ctx.isdynamic) ctx.dynamic_source += ", ";  // FIXME: Remove last comma.
 	}
 	// remove last comma
 	res = res.slice(0,-1);
@@ -171,6 +184,14 @@ Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex
 Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 	// Add the scope generation string the the array of scopes in this context
 	ctx.scopes.push(this.generateConstructor(ctx,scope));
+
+	var res = "";
+	var dynsrctmp;
+	if (ctx && ctx.isdynamic) {
+		dynsrctmp = ctx.dynamic_source;
+		ctx.dynamic_source = "";
+	}
+
 	if (this.range) {
 		// Check for any isin
 		var isin = false;
@@ -187,14 +208,17 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 		}
 
 		if (isin || rangeindex.length != 1) {
-			return this._generate_plain_range(ctx,options);
+			res = this._generate_plain_range(ctx,options);
 		} else {
-			return this._generate_loop_opti(ctx,options,rangeindex);
+			res = this._generate_loop_opti(ctx,options,rangeindex);
 		}
 	} else {
 		// Return the expression using the newly generated scope.
-		return this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
+		res = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
 	}
+
+	if (ctx && ctx.isdynamic) ctx.dynamic_source += " with (" + dynsrctmp + ")";
+	return res;
 }
 
 Eden.AST.Scope.prototype.execute = function(ctx, base, scope) {

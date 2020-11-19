@@ -6,8 +6,6 @@ Eden.AST.After = function () {
 	Eden.AST.BaseStatement.apply(this);
 	this.expression = undefined;
 	this.statement = undefined;
-
-	console.error("DEPRECATED USE OF AFTER");
 }
 
 Eden.AST.After.prototype.setExpression = function(express) {
@@ -19,7 +17,7 @@ Eden.AST.After.prototype.setExpression = function(express) {
 
 Eden.AST.After.prototype.setStatement = function(state) {
 	this.statement = state;
-	if (state.errors.length > 0) {
+	if (state && state.errors.length > 0) {
 		this.errors.push.apply(this.errors,state.errors);
 	}
 }
