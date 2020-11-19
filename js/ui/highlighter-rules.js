@@ -311,6 +311,17 @@ EdenUI.Highlight.prototype.START = function() {
 						this.classes.push("storage");
 						this.mode = "HEREDOC";
 						break;
+	case "%"		:	if (this.stream.isBEOL()) {
+							var p = this.stream.peek();
+							if (p != 10 && p != 32) {
+								var t = this.stream.readToken();
+								var obs = this.stream.tokenText();
+								this.tokentext += obs;
+								this.heredocend = "eden";
+								this.classes.push("storage");
+								this.mode = "CUSTOMBLOCK";
+							}
+						} break;
 	case "OBSERVABLE":	if (edenFunctions[this.stream.data.value]) {
 							this.classes.push("function");
 						} else if (EdenUI.Highlight.isType(this.stream.data.value)) {
@@ -463,4 +474,22 @@ EdenUI.Highlight.prototype.HEREDOC = function() {
 	} else {
 		this.classes.push("string");
 	}
+}
+
+EdenUI.Highlight.prototype.CUSTOMBLOCK = function() {
+	if (this.token == "%") {
+		var p = this.stream.peek();
+		if (p != 10 && p != 32) {
+			var t = this.stream.readToken();
+			var obs = this.stream.tokenText();
+			this.tokentext += obs;
+			if (this.tokentext == "%"+this.heredocend) {
+				this.classes.push("storage");
+				this.mode = this.startmode;
+				return;
+			}
+		}
+	}
+
+	this.classes.push("javascript");
 }

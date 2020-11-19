@@ -255,6 +255,12 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							//this.lastDoxyComment = this.parentDoxy;
 						}
 						break;
+
+	case "%"		:	stat = this.pCUSTOM_SECTION();
+						//if (this.lastDoxyComment.length > 0 && this.lastline == this.lastDoxyComment[0].startline-1) {
+						//	stat.setDoxyComment(this.lastDoxyComment.shift());
+						//}
+						break;
 						
 	case "return"	:	this.next();
 						var ret = new Eden.AST.Return();

@@ -149,7 +149,7 @@ Eden.AST.prototype.pFACTOR = function() {
 			var cachepos = this.stream.position;
 			var line = this.stream.readLine();
 			if (line.startsWith(endtoken)) {
-				this.stream.position = cachepos + 3;
+				this.stream.position = cachepos + endtoken.length;
 				break;
 			}
 			res += line;
