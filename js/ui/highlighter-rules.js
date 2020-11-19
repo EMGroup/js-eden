@@ -409,6 +409,7 @@ EdenUI.Highlight.prototype.START = function() {
 								this.classes.push("number");
 							} else if (this.token == "/*") {
 								if (this.stream.peek() == 42) {
+									this.pushMode();
 									this.mode = "DOXY_COMMENT";
 									this.classes.push("block-comment");
 								} else {
