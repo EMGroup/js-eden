@@ -54,7 +54,13 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		result += "this.def_scope = _scopes;\n";
 	}
 
-	if (dobound) {
+	if (this.expression.type == "async") {
+		result += "\tif (cache) cache.scope = scope;\n";
+		result += "\tvar _r = " + express + ";\n";
+		//result += "\tvar _me = this;"
+		result += "\t_r.then(rr => { cache.value = rr; this.expireAsync(); });\n";
+		result += "\treturn cache.value;\n}";
+	} else if (dobound) {
 		result += "\t var result = "+express+";\n";
 
 		// Save the resulting values scope binding into the cache entry.

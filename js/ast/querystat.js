@@ -77,10 +77,10 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 				eden.emit("error", [EdenSymbol.defaultAgent,err]);
 				return "";	
 			}
-			res = "Eden.Selectors.query("+selsrc+", \""+this.restypes.join(",")+"\", null, s => { cache.value = s; this.expireAsync(); })";
+			res = "Eden.Selectors.queryPromise("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1})";
+			//res = "Eden.Selectors.query("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1, returnvalue: cache.value}, (s) => { cache.value = s; this.expireAsync(); })";
 		}
 	}
-	console.log("QUERY",res);
 
 	if (ctx && ctx.isdynamic) {
 		ctx.dynamic_source += ")";

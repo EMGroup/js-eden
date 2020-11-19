@@ -74,6 +74,39 @@ Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 	return left;
 }
 
+Eden.AST.prototype.pEXPRESSION_ASYNC = function() {
+	var expr;
+
+	if (this.token == "sync") {
+		this.next();
+		expr = new Eden.AST.Async();
+
+		/*if (this.token != "(") {
+			expression.error(new Eden.SyntaxError(this, Eden.SyntaxError.EXPCLOSEBRACKET));
+			return expression;
+		}
+		this.next();*/
+
+		expr.setExpression(this.pEXPRESSION_ALIAS());
+
+		/*if (this.token != ")") {
+			expression.error(new Eden.SyntaxError(this, Eden.SyntaxError.EXPCLOSEBRACKET));
+			return expression;
+		}
+		this.next();*/
+	} else {
+		expr = this.pEXPRESSION_ALIAS();
+	}
+
+	if (this.token == "with" || this.token == "::") {
+		this.next();
+		var scope = this.pSCOPE();
+		scope.setExpression(expr);
+		return scope;
+	} else {
+		return expr;
+	}
+}
 
 Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 	var expr;
@@ -96,7 +129,7 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 			expr = q;
 		}
 
-		if (this.token != "with" && this.token != "::" && this.token != ";") {
+		if (this.token != "with" && this.token != "::" && this.token != ";" && this.token != ")") {
 			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYNOTALLOWED));
 			return expr;
 		}
@@ -113,14 +146,16 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 		expr = this.pEXPRESSION_PLAIN();
 	}
 
-	if (this.token == "with" || this.token == "::") {
+	return expr;
+
+	/*if (this.token == "with" || this.token == "::") {
 		this.next();
 		var scope = this.pSCOPE();
 		scope.setExpression(expr);
 		return scope;
 	} else {
 		return expr;
-	}
+	}*/
 }
 
 

@@ -7,13 +7,13 @@ Eden.Selectors.NameNode = function(name) {
 }
 
 Eden.Selectors.NameNode.prototype.filter = function(statements) {
-	return new Promise((resolve, reject) => {
-		if (!statements) statements = this.construct().then((s) => {
+	//return new Promise((resolve, reject) => {
+		if (!statements) return this.construct(); //.then((s) => {
 			//resolve(this._filter(s));
-			resolve(s);
-		});
-		else resolve(this._filter(statements));
-	});
+			//return Promise.resolve(s);
+		//});
+		else return Promise.resolve(this._filter(statements));
+	//});
 }
 
 Eden.Selectors.NameNode.prototype._filter = function(statements) {
@@ -32,7 +32,7 @@ Eden.Selectors.NameNode.prototype._filter = function(statements) {
 }
 
 Eden.Selectors.NameNode.prototype.construct = function() {
-	return new Promise((resolve,reject) => {
+	//return new Promise((resolve,reject) => {
 		var stats = [];
 
 		if (this.isreg) {
@@ -51,13 +51,12 @@ Eden.Selectors.NameNode.prototype.construct = function() {
 		}
 
 		if (!this.options || !this.options.history) {
-			resolve(stats.filter(function(e) {
+			return Promise.resolve(stats.filter(function(e) {
 				return e.executed >= 0;
 			}));
-			return;
 		}
-		resolve(stats);
-	});
+		return Promise.resolve(stats);
+	//});
 }
 
 Eden.Selectors.NameNode.prototype.append = Eden.Selectors.PropertyNode.prototype.append;
