@@ -339,6 +339,7 @@ EdenUI.Highlight.prototype.START = function() {
 								this.heredocend = "eden";
 								this.classes.push("storage");
 								this.mode = "CUSTOMBLOCK";
+								this.startmode = "CUSTOMBLOCK";
 							}
 						} break;
 	case "OBSERVABLE":	if (edenFunctions[this.stream.data.value]) {
@@ -394,7 +395,7 @@ EdenUI.Highlight.prototype.START = function() {
 
 EdenUI.Highlight.prototype.START_MINIMAL = function() {
 	switch(this.token) {
-	case "##"		:
+	/*case "##"		:
 	case "#"		:	if (this.prevtoken == "INVALID" || this.prevtoken == ";") {
 							var isdoxy = this.stream.peek() == 33;
 							if (isdoxy) {
@@ -422,7 +423,7 @@ EdenUI.Highlight.prototype.START_MINIMAL = function() {
 						} else {
 							this.classes.push("operator");
 						}
-						break;
+						break;*/
 
 	case "NUMBER"	:	this.classes.push("number"); break;
 	case "STRING"	:	this.classes.push("string"); break;
@@ -464,13 +465,13 @@ EdenUI.Highlight.prototype.START_MINIMAL = function() {
 								this.tokentext = "-" + this.stream.tokenText();
 								this.classes.push("number");
 							} else if (this.token == "/*") {
-								if (this.stream.peek() == 42) {
-									this.mode = "DOXY_COMMENT";
-									this.classes.push("block-comment");
-								} else {
+								//if (this.stream.peek() == 42) {
+								//	this.mode = "DOXY_COMMENT";
+								//	this.classes.push("block-comment");
+								//} else {
 									this.mode = "BLOCK_COMMENT";
 									this.classes.push("block-comment");
-								}
+								//}
 							} else {
 								this.classes.push("operator");
 							}
@@ -590,13 +591,15 @@ EdenUI.Highlight.prototype.CUSTOMBLOCK = function() {
 			this.tokentext += obs;
 			if (this.tokentext == "%"+this.heredocend) {
 				this.classes.push("storage");
+				this.startmode = "START";
+				this.outerline = "eden-line";
 				this.mode = this.startmode;
 				return;
 			}
 		}
 	}
 
+	this.outerline = "eden-line eden-customline";
 	this.START_MINIMAL();
-	this.outerline = "eden-customline";
 	//this.classes.push("javascript");
 }
