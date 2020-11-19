@@ -319,7 +319,7 @@ EdenUI.Highlight.prototype.START = function() {
 								
 								if (!this.custom.hasOwnProperty(obs)) {
 
-									var obj = {keywords:null};
+									var obj = {keywords:null,operators:null,specials:null,typenames:null};
 									this.custom[obs] = obj;
 								}
 								this.current_custom = this.custom[obs];
@@ -329,8 +329,37 @@ EdenUI.Highlight.prototype.START = function() {
 									if (Array.isArray(kwrds)) {
 										this.current_custom.keywords = {};
 										for (var i=0; i<kwrds.length; ++i) {
-											console.log("ADD KEYWORD ",kwrds[i]);
 											this.current_custom.keywords[kwrds[i]] = true;
+										}
+									}
+								}
+
+								if (!this.current_custom.operators) {
+									var kwrds = eden.root.lookup("script_"+obs+"_operators").value();
+									if (Array.isArray(kwrds)) {
+										this.current_custom.operators = {};
+										for (var i=0; i<kwrds.length; ++i) {
+											this.current_custom.operators[kwrds[i]] = true;
+										}
+									}
+								}
+
+								if (!this.current_custom.specials) {
+									var kwrds = eden.root.lookup("script_"+obs+"_specials").value();
+									if (Array.isArray(kwrds)) {
+										this.current_custom.specials = {};
+										for (var i=0; i<kwrds.length; ++i) {
+											this.current_custom.specials[kwrds[i]] = true;
+										}
+									}
+								}
+
+								if (!this.current_custom.typenames) {
+									var kwrds = eden.root.lookup("script_"+obs+"_types").value();
+									if (Array.isArray(kwrds)) {
+										this.current_custom.typenames = {};
+										for (var i=0; i<kwrds.length; ++i) {
+											this.current_custom.typenames[kwrds[i]] = true;
 										}
 									}
 								}
@@ -339,7 +368,7 @@ EdenUI.Highlight.prototype.START = function() {
 								this.heredocend = "eden";
 								this.classes.push("storage");
 								this.mode = "CUSTOMBLOCK";
-								this.startmode = "CUSTOMBLOCK";
+								//this.startmode = "CUSTOMBLOCK";
 							}
 						} break;
 	case "OBSERVABLE":	if (edenFunctions[this.stream.data.value]) {
@@ -383,6 +412,7 @@ EdenUI.Highlight.prototype.START = function() {
 									this.mode = "DOXY_COMMENT";
 									this.classes.push("block-comment");
 								} else {
+									this.pushMode();
 									this.mode = "BLOCK_COMMENT";
 									this.classes.push("block-comment");
 								}
@@ -429,51 +459,37 @@ EdenUI.Highlight.prototype.START_MINIMAL = function() {
 	case "STRING"	:	this.classes.push("string"); break;
 	case "BOOLEAN"	:	this.classes.push("constant"); break;
 	case "CHARACTER":	this.classes.push("string"); break;
-	
-	case "OBSERVABLE":	/*if (edenFunctions[this.stream.data.value]) {
-							this.classes.push("function");
-						} else if (EdenUI.Highlight.isType(this.stream.data.value)) {
-							this.classes.push("type");
-						} else if (edenValues[this.stream.data.value]) {
-							this.classes.push("constant");
-						} else if (edenSpecials[this.stream.data.value]) {
-							this.classes.push("special");
-						} else if (this.stream.data.value.charAt(0) == "$") {
-							this.classes.push("parameter");
-						} else {*/
-						if (this.current_custom.keywords && this.current_custom.keywords[this.stream.data.value]) {
-							this.classes.push("keyword");
-						} else {
-							this.classes.push("observable");
-						}
-							/*if (!Eden.Index.name_index.hasOwnProperty(this.stream.data.value) && !eden.root.symbols.hasOwnProperty(this.stream.data.value)) {
-								this.classes.push("notexist");
-							}
-						}*/
-						break;
 
-	default			:	if (this.type == "keyword") {
-							if (this.current_custom.keywords && this.current_custom.keywords[this.stream.data.value]) {
+	case "OBSERVABLE":
+	default			:	
+						// Bind negative to number if no whitespace.
+						if (this.token == "-" && this.stream.isNumeric(this.stream.peek())) {
+							this.token = this.stream.readToken();
+							this.tokentext = "-" + this.stream.tokenText();
+							this.classes.push("number");
+						} else if (this.token == "/*") {
+							//if (this.stream.peek() == 42) {
+							//	this.mode = "DOXY_COMMENT";
+							//	this.classes.push("block-comment");
+							//} else {
+								this.pushMode();
+								this.mode = "BLOCK_COMMENT";
+								this.classes.push("block-comment");
+							//}
+						} else {
+							var val = (this.type == "keyword" || this.type == "operator" || this.type == "separator") ? this.token : this.stream.data.value;
+
+							if (this.current_custom.keywords && this.current_custom.keywords[val]) {
 								this.classes.push("keyword");
+							} else if (this.current_custom.operators && this.current_custom.operators[val]) {
+								this.classes.push("operator");
+							} else if (this.current_custom.specials && this.current_custom.specials[val]) {
+								this.classes.push("special");
+							} else if (this.current_custom.typenames && this.current_custom.typenames[val]) {
+								console.log("highlight",val);
+								this.classes.push("storage");	
 							} else {
 								this.classes.push("observable");
-							}
-						} else {
-							// Bind negative to number if no whitespace.
-							if (this.token == "-" && this.stream.isNumeric(this.stream.peek())) {
-								this.token = this.stream.readToken();
-								this.tokentext = "-" + this.stream.tokenText();
-								this.classes.push("number");
-							} else if (this.token == "/*") {
-								//if (this.stream.peek() == 42) {
-								//	this.mode = "DOXY_COMMENT";
-								//	this.classes.push("block-comment");
-								//} else {
-									this.mode = "BLOCK_COMMENT";
-									this.classes.push("block-comment");
-								//}
-							} else {
-								this.classes.push("operator");
 							}
 						}
 	}
@@ -591,7 +607,7 @@ EdenUI.Highlight.prototype.CUSTOMBLOCK = function() {
 			this.tokentext += obs;
 			if (this.tokentext == "%"+this.heredocend) {
 				this.classes.push("storage");
-				this.startmode = "START";
+				//this.startmode = "START";
 				this.outerline = "eden-line";
 				this.mode = this.startmode;
 				return;
@@ -599,7 +615,7 @@ EdenUI.Highlight.prototype.CUSTOMBLOCK = function() {
 		}
 	}
 
-	this.outerline = "eden-line eden-customline";
+	//this.outerline = "eden-line eden-customline";
 	this.START_MINIMAL();
-	//this.classes.push("javascript");
+	this.classes.push("javascript");
 }

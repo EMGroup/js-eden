@@ -3487,6 +3487,24 @@ action notifications {
 
 }
 
+action extend_javascript {
+script_javascript_keywords = ["if","while","for","function","break",
+	"continue","switch","do","return","else","class","throw",
+	"throws","in","new","static","const","public","try","catch","private","yield"];
+script_javascript_operators = ["+","-","/","*",">",">=","<=","==","!=","?",":",">>","<<","===","!===",".",","];
+script_javascript_types = ["var", "let"];
+
+when (script_javascript_execute) {
+	${{
+	try {
+		eval(eden.root.lookup("script_javascript_execute").value());
+	} catch(e) {
+		console.error("Javascript Execute:",e);
+	}
+	}}$;
+}
+}
+
 action defaults {
 #jseden_project_title = "CONSTRUIT";
 /** Maker mode @oracle @handle */
@@ -3522,6 +3540,7 @@ do lib > list;
 do lib > scoping;
 do lib > notifications;
 do lib > defaults;
+do lib > extend_javascript;
 
 action algebra {
 

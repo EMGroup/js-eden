@@ -61,6 +61,5 @@ Eden.AST.prototype.pCUSTOM_SECTION = function() {
 	var block = new Eden.AST.CustomBlock();
 	block.text = res; //JSON.stringify(res); //res.slice(0,-1).replace(/\\/g,"\\\\").replace(/"/g, "\\\""));
 	block.setName(endtoken);
-	console.log("CUSTOM BLOCK", block);
 	return block;
 }

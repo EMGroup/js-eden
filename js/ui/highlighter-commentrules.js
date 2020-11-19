@@ -89,7 +89,8 @@ EdenUI.Highlight.prototype.SECTION_TITLE_H4 = function() {
 EdenUI.Highlight.prototype.BLOCK_COMMENT = function() {
 
 	switch(this.token) {
-	case "*/"		:	this.mode = this.startmode;
+	case "*/"		:	//this.mode = this.startmode;
+						this.popMode();
 						this.classes.push("block-comment");
 						break;
 	default			:	this.classes.push("block-comment");
