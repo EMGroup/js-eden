@@ -140,7 +140,8 @@ function Construit(options,callback) {
 
 	$(document).ready(function () {
 		// Browser version checks
-		var browser = $.browser;
+		// FIXME: This doesn't work in jQuery 3
+		/*var browser = $.browser;
 		var bversion = browser.version.split(".");
 		bversion = parseInt(bversion[0]);
 
@@ -161,7 +162,7 @@ function Construit(options,callback) {
 			invalidVersion("Opera is not supported, use Chrome or Firefox.");
 		} else {
 			invalidVersion("Your browser is not supported by JS-Eden, use Firefox or Chrome.");
-		}
+		}*/
 
 		//document.addEventListener("touchstart", touchHandler, true);
 		//document.addEventListener("touchmove", touchHandler, true);
