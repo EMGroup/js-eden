@@ -59,7 +59,7 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		return range;
 	} else if (this.token == "=") {
 		this.next();
-		var s = new Eden.AST.Assignment(this.pEXPRESSION_ALIAS());
+		var s = new Eden.AST.Assignment(this.pEXPRESSION());
 		if (s.expression && s.expression.type == "query") {
 			s.warning = new Eden.SyntaxWarning(this, s, Eden.SyntaxWarning.MISSINGSYNC, "This is an asynchronous statement");
 		}

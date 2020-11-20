@@ -101,7 +101,7 @@ Eden.AST.prototype.pFACTOR = function() {
 	// Query
 	} else if (this.token == "?") {
 		// TODO: Disable following
-		if (!this.strict) {
+		//if (!this.strict) {
 			this.next();
 			var q = this.pQUERY();
 			if (this.token == "[") {
@@ -110,13 +110,13 @@ Eden.AST.prototype.pFACTOR = function() {
 				return indexed;
 			}
 			return q;
-		}
+		//}
 
-		this.next();
+		/*this.next();
 
 		var lit = new Eden.AST.Literal("UNDEFINED", "@");
 		lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYNOTALLOWED));
-		return lit;
+		return lit;*/
 	// Unary negation operator
 	} else if (this.token == "-") {
 		this.next();

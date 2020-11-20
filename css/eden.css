@@ -65,6 +65,11 @@ a[onclick] {
 	font-size: 1.2em;
 }
 
+.result_name.async-observable {
+	font-size: 1.2em;
+	color: blue;
+}
+
 .result_separator {
 	font-weight: bold;
 }

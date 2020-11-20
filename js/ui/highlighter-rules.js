@@ -545,11 +545,19 @@ EdenUI.Highlight.prototype.DO_ATTRIBS = function() {
 	}
 }
 
+EdenUI.Highlight.prototype.SUB_EXPRESSION = function() {
+	if (this.token == "}") {
+		this.popMode();
+	} else {
+		this[this.startmode]();
+	}
+}
+
 EdenUI.Highlight.prototype.SELECTOR2 = function() {
 	if (this.token == "{") {
 		this.classes.push("operator");
 		this.pushMode();
-		this.mode = this.startmode;
+		this.mode = "SUB_EXPRESSION";
 	} else if (this.token == "[") {
 		this.classes.push("selector");
 		this.mode = "SELECTOR_TYPES";
@@ -577,7 +585,8 @@ EdenUI.Highlight.prototype.SELECTOR_TYPES = function() {
 		this.classes.push("selector3");
 	} else if (this.token == "]") {
 		this.classes.push("selector");
-		this.mode = "SELECTOR2";
+		//this.mode = "SELECTOR2";
+		this.popMode();
 	} else {
 		this.classes.push("selector");
 	}

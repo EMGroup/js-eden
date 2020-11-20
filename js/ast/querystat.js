@@ -2,6 +2,7 @@ Eden.AST.Query = function() {
 	this.type = "query";
 	Eden.AST.BaseStatement.apply(this);
 	this.selector = undefined;
+	this.observable = undefined;
 	this.restypes = [];
 	this.modexpr = undefined;
 	this.kind = "=";
@@ -98,6 +99,14 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 
 Eden.AST.Query.prototype.execute = function(ctx,base,scope, agent) {
 	this.executed = 1;
+
+	if (this.observable) {
+		var val = eden.root.lookup(this.observable).value(scope);
+		console.log(val);
+		base.lastresult = val;
+		//if (ctx.cb) ctx.cb(val);
+		return;
+	}
 
 	if (this.modexpr === undefined) {
 		if (!this._expr) {

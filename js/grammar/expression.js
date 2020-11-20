@@ -87,7 +87,7 @@ Eden.AST.prototype.pEXPRESSION_ASYNC = function() {
 		}
 		this.next();*/
 
-		expr.setExpression(this.pEXPRESSION_ALIAS());
+		expr.setExpression(this.pEXPRESSION());
 
 		/*if (this.token != ")") {
 			expression.error(new Eden.SyntaxError(this, Eden.SyntaxError.EXPCLOSEBRACKET));
@@ -95,7 +95,7 @@ Eden.AST.prototype.pEXPRESSION_ASYNC = function() {
 		}
 		this.next();*/
 	} else {
-		expr = this.pEXPRESSION_ALIAS();
+		expr = this.pEXPRESSION();
 	}
 
 	return expr;
@@ -110,7 +110,7 @@ Eden.AST.prototype.pEXPRESSION_ASYNC = function() {
 	}*/
 }
 
-Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
+/*Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 	var expr;
 
 	// TODO: Remove, this is for backward compat.
@@ -164,7 +164,7 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 	} else {
 		return expr;
 	}
-}
+}*/
 
 
 /**
@@ -176,6 +176,12 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
  */
 Eden.AST.prototype.pEXPRESSION = function() {
 	var expr;
+
+	if (this.token == "sync") {
+		expr = new Eden.AST.Async();
+		expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SYNCNOTALLOWED));
+		return expr;
+	}
 
 	if (this.token == "{") {
 		this.next();
