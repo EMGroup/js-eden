@@ -98,14 +98,16 @@ Eden.AST.prototype.pEXPRESSION_ASYNC = function() {
 		expr = this.pEXPRESSION_ALIAS();
 	}
 
-	if (this.token == "with" || this.token == "::") {
+	return expr;
+
+	/*if (this.token == "with" || this.token == "::") {
 		this.next();
 		var scope = this.pSCOPE();
 		scope.setExpression(expr);
 		return scope;
 	} else {
 		return expr;
-	}
+	}*/
 }
 
 Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
@@ -146,16 +148,16 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 		expr = this.pEXPRESSION_PLAIN();
 	}
 
-	return expr;
+	//return expr;
 
-	/*if (this.token == "with" || this.token == "::") {
+	if (this.token == "with" || this.token == "::") {
 		this.next();
 		var scope = this.pSCOPE();
 		scope.setExpression(expr);
 		return scope;
 	} else {
 		return expr;
-	}*/
+	}
 }
 
 

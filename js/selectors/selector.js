@@ -181,7 +181,8 @@ Eden.Selectors.resultTypes = {
 	"root": true,
 	"enabled": true,
 	"executed": true,
-	"exprtree": true
+	"exprtree": true,
+	"single": true
 };
 
 Eden.Selectors.expressionToLists = function(expr) {
@@ -239,6 +240,8 @@ Eden.Selectors.processResults = function(statements, o) {
 
 		var res = [];
 
+		var single = false;
+
 		for (var i=0; i<statements.length; i++) {
 			var stat = statements[i];
 			var ires = [];
@@ -247,6 +250,7 @@ Eden.Selectors.processResults = function(statements, o) {
 				var val = undefined;
 
 				switch(kinds[j]) {
+				case "single"	:	single = true; break;
 				case "brief"	:	if (stat.doxyComment) {
 										val = stat.doxyComment.brief();
 									} break;
@@ -329,13 +333,13 @@ Eden.Selectors.processResults = function(statements, o) {
 				if (val !== undefined) ires.push(val);
 
 			}
-			if (kinds.length > 1) {
+			if (ires.length > 1) {
 				res.push(ires);
-			} else if (kinds.length == 1 && ires.length > 0) {
+			} else if (ires.length == 1) {
 				res.push(ires[0]);
 			}
 		}
-		return res;
+		return (single) ? res[0] : res;
 	}
 	return statements;
 }

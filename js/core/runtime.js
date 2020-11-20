@@ -26,6 +26,20 @@ var rt = {
 		}
 	},
 
+	flattenPromise: function(p) {
+		if (p instanceof Promise) {
+			return p;
+		} else if (Array.isArray(p)) {
+			if (p.length > 0 && p[0] instanceof Promise) {
+				return Promise.all(p);
+			} else {
+				return Promise.resolve(p);
+			}
+		} else {
+			return Promise.resolve(p);
+		}
+	},
+
 	length: function (value) {
 		if (value === null || value === undefined) {
 			return undefined;
