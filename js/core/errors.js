@@ -118,6 +118,7 @@ Eden.SyntaxError.EVALCLOSE = 91;
 Eden.SyntaxError.DOATTRIBCLOSE = 92;
 Eden.SyntaxError.DOBADATTRIB = 93;
 Eden.SyntaxError.QUERYNOTALLOWED = 94;
+Eden.SyntaxError.SYNCNOTALLOWED = 95;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -606,6 +607,10 @@ Eden.SyntaxError.db = [
 		suggestion: {expected: [], next: []}
 	},
 /* EDEN_ERROR_QUERYNOTALLOWED */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_SYNCNOTALLOWED */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
 	}

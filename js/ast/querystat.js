@@ -71,12 +71,12 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 			case "//="	: res = "Eden.Selectors.concat("+selsrc+", \""+this.restypes.join(",")+"\", "+modexpr+")"; break;
 			}
 		} else {
-			if (ctx.type != "definition" && ctx.type != "assignment") {
+			/*if (ctx.type != "definition" && ctx.type != "assignment") {
 				var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use '?' here");
 				this.errors.push(err);
 				eden.emit("error", [EdenSymbol.defaultAgent,err]);
 				return "";	
-			}
+			}*/
 			res = "Eden.Selectors.queryPromise("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1})";
 			//res = "Eden.Selectors.query("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1, returnvalue: cache.value}, (s) => { cache.value = s; this.expireAsync(); })";
 		}

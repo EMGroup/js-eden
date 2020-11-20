@@ -59,7 +59,11 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		return range;
 	} else if (this.token == "=") {
 		this.next();
-		return new Eden.AST.Assignment(this.pEXPRESSION_ASYNC());
+		var s = new Eden.AST.Assignment(this.pEXPRESSION_ALIAS());
+		if (s.expression && s.expression.type == "query") {
+			s.warning = new Eden.SyntaxWarning(this, s, Eden.SyntaxWarning.MISSINGSYNC, "This is an asynchronous statement");
+		}
+		return s;
 	} else if (this.token == "+=") {
 		this.next();
 		return new Eden.AST.Modify("+=", this.pEXPRESSION());

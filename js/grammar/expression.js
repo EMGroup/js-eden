@@ -118,6 +118,12 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 		return this.pEXPRESSION();
 	}
 
+	if (this.token == "sync") {
+		expr = new Eden.AST.Async();
+		expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SYNCNOTALLOWED));
+		return expr;
+	}
+
 	// Query
 	if (this.token == "?") {
 		this.next();
