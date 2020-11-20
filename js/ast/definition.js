@@ -58,8 +58,9 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		result += "\tif (cache) cache.scope = scope;\n";
 		result += "\tvar _r = rt.flattenPromise(" + express + ");\n";
 		//result += "\tvar _me = this;"
-		result += "\t_r.then(rr => { cache.value = rr; this.expireAsync(); });\n";
-		result += "\treturn cache.value;\n}";
+		//result += "\t_r.then(rr => { cache.value = rr; this.expireAsync(); });\n";
+		//result += "\treturn cache.value;\n}";
+		result += "\treturn _r;\n}";
 	} else if (dobound) {
 		result += "\t var result = "+express+";\n";
 
@@ -161,6 +162,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			//	console.trace("UNDEF AGENT: " + source);
 			//}
 			//console.log("DEF",rhs);
+			sym.isasync = (this.expression.type == "async");
 			sym.define(eval(rhs), this, deps, rhs);
 		}
 	} catch(e) {

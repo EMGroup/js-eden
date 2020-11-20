@@ -753,7 +753,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 Eden.Selectors.queryPromise = function(s, o, options) {
 	return new Promise((resolve, reject) => {
 		Eden.Selectors.query(s,o,options, ss => {
-			console.log("PROMISE RESOLVE", ss);
+			//console.log("PROMISE RESOLVE", ss);
 			resolve(ss);
 		});
 	});
