@@ -330,12 +330,13 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "root"		:	val = stat.parent === undefined; break;
 				}
 
-				if (val !== undefined) ires.push(val);
+				//if (val !== undefined)
+				ires.push(val);
 
 			}
 			if (ires.length > 1) {
 				res.push(ires);
-			} else if (ires.length == 1) {
+			} else if (ires.length == 1 && ires[0] !== undefined) {
 				res.push(ires[0]);
 			}
 		}
