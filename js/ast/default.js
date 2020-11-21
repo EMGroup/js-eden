@@ -14,5 +14,5 @@ Eden.AST.Default.prototype.execute = function(ctx,base,scope,agent) {
 	Eden.Agent.emit("error", [agent,err]);
 }
 
-Eden.AST.registerStatement(Eden.AST.Declarations);
+Eden.AST.registerStatement(Eden.AST.Default);
 
