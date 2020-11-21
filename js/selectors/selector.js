@@ -827,7 +827,7 @@ Eden.Selectors.goto = function(selector) {
 /**
  * Edit AST nodes that match a query.
  */
-Eden.Selectors.assign = function(selector, attributes, values) {
+Eden.Selectors.assign = function(selector, attributes, values, cb) {
 	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true}, function(res) {
 
 	var attribs = (typeof attributes == "string") ? attributes.split(",") : attributes;
@@ -835,6 +835,7 @@ Eden.Selectors.assign = function(selector, attributes, values) {
 
 	if (vals.length < attribs.length) {
 		console.error("Not enough values");
+		if (cb) cb([]);
 		return;
 	}
 
@@ -913,13 +914,15 @@ Eden.Selectors.assign = function(selector, attributes, values) {
 			}
 		}
 	}
+
+	if (cb) cb(res);
 	});
 }
 
 /**
  * Edit AST nodes that match a query.
  */
-Eden.Selectors.append = function(selector, attributes, values) {
+Eden.Selectors.append = function(selector, attributes, values, cb) {
 	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true}, function(res) {
 
 	var attribs = (typeof attributes == "string") ? attributes.split(",") : attributes;
@@ -927,6 +930,7 @@ Eden.Selectors.append = function(selector, attributes, values) {
 
 	if (vals.length < attribs.length) {
 		console.error("Not enough values");
+		if (cb) cb([]);
 		return;
 	}
 
@@ -988,6 +992,8 @@ Eden.Selectors.append = function(selector, attributes, values) {
 			}
 		}
 	}
+
+	if (cb) cb(res);
 	});
 }
 

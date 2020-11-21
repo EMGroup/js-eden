@@ -51,6 +51,11 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 				//statements.splice.apply(statements, [i, 1].concat(statements[i].statements));
 				//i--;
 			}
+		} else if (statements[i].type == "query" && statements[i].modexpr) {
+			statements[i].executed = 1;
+			statements[i]._selector = statements[i].selector.execute(ctx, base, scope, agent);
+			statements[i]._modexpr = statements[i].modexpr.execute(ctx, base, scope, agent);
+			yield statements[i];
 		} else if (statements[i].type == "do") {
 			statements[i].executed = 1;
 			statements[i].selector = (statements[i].name) ? statements[i].name.execute(ctx, base, scope, agent) : undefined;
@@ -155,6 +160,20 @@ function runEdenAction(source, action, cb) {
 					// Continue execution.
 					runEdenAction.call(me,source, action, cb);
 				});
+
+			} else if (delay.value.type == "query") {
+				function docb(stats) {
+					runEdenAction.call(me,source, action, cb);
+				}
+
+				switch(delay.value.kind) {
+				case "="	:	Eden.Selectors.assign(delay.value._selector, delay.value.restypes, delay.value._modexpr, docb);
+								break;
+				case "+="	:	Eden.Selectors.append(delay.value._selector, delay.value.restypes, delay.value._modexpr, docb);
+								break;
+				case "//="	:	Eden.Selectors.concat(delay.value._selector, delay.value.restypes, delay.value._modexpr, docb);
+								break;
+				}
 
 			// Call another action and block until done
 			} else if (delay.value.type == "do") {
