@@ -1,17 +1,17 @@
 #menubar-main {
-	position: fixed;
+	/*position: fixed;
 	left: 0px;
 	right: 0px;
-	top: 0px;
-	height: 45px;
+	top: 0px;*/
+	height: 50px;
 	background-color: #29454B; /*#132023;*/
-	color:	white;
-	font-size: 14px;
+	/*color:	white;*/
+	/*font-size: 14px;*/
 	font-family: 'Source Sans Pro', 'arial', sans-serif;
-	padding-left: 20px;
+	/*padding-left: 20px;*/
 	/*padding-top: 4px;*/
-	padding-right: 20px;
-	z-index: 2147483646; /* One less than max so that fullscreen works */
+	/*padding-right: 20px;*/
+	/*z-index: 2147483646;*/ /* One less than max so that fullscreen works */
 	/*box-shadow: 0 0 15px black;*/ /*#4a6887*/
 }
 
@@ -108,7 +108,7 @@ div.menubar-button {
 	-webkit-user-select: none;
 	-ms-user-select: none;
 	display: inline-block;
-	float: left;
+	/*float: left;*/
 	text-shadow: 0px 3px 3px black;
 	font-family: "FontAwesome";
 	font-size: 20px;
@@ -256,9 +256,8 @@ div.menubar-button:hover {
 
 
 a#eden-logo {
-	position: absolute;
-	/*top: 8px;*/
-	left: 30px;
+	/*position: absolute;
+	left: 30px;*/
 	background-image: url('../images/construit_logo_4.png');
 	background-repeat: no-repeat;
 	width: 150px;
@@ -268,9 +267,9 @@ a#eden-logo {
 div.jseden-title {
 	font-size: 18pt;
 	font-weight: bold;
-	position: absolute;
+	/*position: absolute;
 	top: 0;
-	left: 190px;
+	left: 190px;*/
 	color: white;
 	box-sizing: border-box;
 	padding-left: 5px;
@@ -280,9 +279,9 @@ div.jseden-title {
 div.jseden-title[contenteditable] {
 	font-size: 18pt;
 	font-weight: bold;
-	position: absolute;
+	/*position: absolute;
 	top: 5px;
-	left: 200px;
+	left: 200px;*/
 	color: white;
 	box-sizing: border-box;
 	border: 1px solid #29454B;
@@ -298,9 +297,9 @@ div.jseden-title[contenteditable]:hover {
 div.jseden-subtitle {
 	font-size: 8pt;
 	/*font-weight: bold;*/
-	position: absolute;
+	/*position: absolute;
 	top: 29px;
-	left: 107px;
+	left: 107px;*/
 	color: #777;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -768,20 +767,22 @@ span.error-icon {
 
 input.menusearch {
 	width: 300px;
-	background: #0f191b;
+	padding-left: 40px;
+	display: inline;
+
+	/*background: #0f191b;
 	color: white;
 	font-size: 10pt;
 	padding: 5px;
-	padding-left: 40px;
 	border: 1px solid #666;
-	border-radius: 5px;
+	border-radius: 5px;*/
 }
 
 input.menusearch:hover {
 	border-color: #bbb;
 }
 
-div.menusearch:before {
+input.menusearch:before {
 	color: #bbb;
 	font-size: 12pt;
 	left: 30px;
@@ -791,10 +792,10 @@ div.menusearch {
 	/*position: absolute;
 	left: 300px;
 	top: 7px;*/
-	margin-top: 10px;
+	/*margin-top: 10px;
 	float: right;
 	margin-right: 40px;
-	width: 320px;
+	width: 320px;*/
 }
 
 #menubar-mainitem-sharebox {

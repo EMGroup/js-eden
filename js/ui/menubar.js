@@ -16,19 +16,23 @@ EdenUI.MenuBar = function() {
 	//<div class="jseden-subtitle">by Some Author</div>
 
 	if (ismobile) {
-		this.element = $('<div id="menubar-main" class="no-print">\
+		/*this.element = $('<div id="menubar-main" class="no-print">\
 			<div class="menubar-buttons">\
 				<div class="menubar-button enabled main share" data-obs="sharebox" title="Save or share" style="display: none;">&#xf1e0;<div id="menubar-mainitem-sharebox" class="menubar-menu"></div></div>\
 				<div class="menubar-button enabled main notifications" data-obs="notifications" title="Notifications">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div>\
 				<div class="menubar-button enabled main more" data-obs="more" title="More Options">&#xf0c9;</div></div>\
 			<div class="searchouter menusearch" style="display: none;"><input type="text" class="search menusearch" placeholder="Search..." spellcheck="false"></input>\
 				<div id="menubar-searchresults"></div>\
-			</div></div>');
+			</div></div>');*/
 	} else {
-		this.element = $(`<div id="menubar-main" class="no-print">
-			<a id="eden-logo" title="${Language.ui.tooltips.home_logo}" href="${window.location.pathname}" target="_blank" style="display: block"></a>
+		this.element = $("#menubar-main");
+		this.element.html(`
+			<a id="eden-logo" class="navbar-brand" title="${Language.ui.tooltips.home_logo}" href="${window.location.pathname}" target="_blank" style="display: block"></a>
 			<div class="jseden-title" title="${Language.ui.tooltips.rename}"></div>
-			<div id="menubar-login"><span class="icon">&#xf05e;</span>${Language.ui.menu_bar.notconnected}</div>
+			<div class="searchouter menusearch" style="display: none;">
+				<input type="text" class="search menusearch form-control form-control-dark" placeholder="${Language.ui.menu_bar.search}" spellcheck="false"></input>
+				<div id="menubar-searchresults"></div>
+			</div>
 			<div class="menubar-buttons">
 				<div class="menubar-button enabled main share" data-obs="sharebox" title="${Language.ui.tooltips.save}" style="display: none;">&#xf1e0;<div id="menubar-mainitem-sharebox" class="menubar-menu"></div></div>
 				<div class="menubar-button enabled main create" data-obs="views" title="${Language.ui.tooltips.create}" style="display: none;">&#xf067;<div id="menubar-mainitem-views" class="menubar-menu"></div></div>
@@ -44,11 +48,10 @@ EdenUI.MenuBar = function() {
 				</div></div>
 				<div class="menubar-button enabled main notifications" data-obs="notifications" title="${Language.ui.tooltips.notifications}">&#xf0f3;<span class="menubar-notification-jewel"></span><div id="menubar-mainitem-notifications" class="menubar-menu"></div></div>
 				<div class="menubar-button enabled main maker" data-obs="maker" title="${Language.ui.tooltips.maker}" style="display: none;">&#xf0ad;</div></div>
-			<div class="searchouter menusearch" style="display: none;"><input type="text" class="search menusearch" placeholder="${Language.ui.menu_bar.search}" spellcheck="false"></input>
-				<div id="menubar-searchresults"></div>
-			</div></div>`);
+			
+			<div id="menubar-login"><span class="icon">&#xf05e;</span>${Language.ui.menu_bar.notconnected}</div>`);
 	}
-	$(document.body).append(this.element);
+	//$(document.body).append(this.element);
 
 	// Login Button
 	var loginButton = this.element.find("#menubar-login"); //$('<div id="menubar-login"><span class="icon">&#xf05e;</span>Not Connected</div>');

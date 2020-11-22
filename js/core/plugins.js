@@ -68,8 +68,8 @@
 	EdenUI.prototype.createView = function (name, type, creatingAgent) {
 		if (this.viewInstances[name]) return this.viewInstances[name];
 		var eview;
-		if (edenUI.views[type].embed) eview = edenUI.views[type].embed(name, name, "");
-		else if (edenUI.views[type].embedded) eview = edenUI.views[type].embedded(name, name, "");
+		if (edenUI.views[type].embed) eview = edenUI.views[type].embed(name, name, name);
+		else if (edenUI.views[type].embedded) eview = edenUI.views[type].embedded(name, name, name);
 		if (eview) {
 			let viewinst = new EdenUI.View(eview);
 			this.viewInstances[name] = viewinst;

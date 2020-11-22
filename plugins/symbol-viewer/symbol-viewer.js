@@ -57,7 +57,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			edenUI.eden.root, content.find(".symbollist-results")[0], type
 		);
 
-		$dialog = $('<div id="' + name + '"></div>')
+		/*$dialog = $('<div id="' + name + '"></div>')
 			.append(content)
 			.dialog({
 				appendTo: "#jseden-views",
@@ -67,7 +67,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 				minHeight: 200,
 				minWidth: 200,
 				classes: {"ui-dialog": "symbollist-dialog ui-front"}
-			});
+			});*/
 
 		me.instances.push(symbollist);
 		numInstances++;
@@ -157,6 +157,7 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 		//}
 
 		var viewData = {
+			contents: content,
 			destroy: function () {
 				var index = me.instances.indexOf(symbollist);
 				me.instances.splice(index, 1);
@@ -296,10 +297,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 	};
 
 	// Add views supported by this plugin.
-	edenUI.views["ObservableList"] = {dialog: this.createObservableDialog, title: "Observable List", category: edenUI.viewCategories.comprehension, menuPriority: 0};
-	edenUI.views["FunctionList"] = {dialog: this.createFunctionDialog, title: "Function List", category: edenUI.viewCategories.comprehension, menuPriority: 0};
-	edenUI.views["AgentList"] = {dialog: this.createAgentDialog, title: "Agent List", category: edenUI.viewCategories.comprehension, menuPriority: 0};
-	edenUI.views["SymbolList"] = {dialog: this.createSymbolDialog, title: "Symbol List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
+	edenUI.views["ObservableList"] = {embed: this.createObservableDialog, title: "Observable List", category: edenUI.viewCategories.comprehension, menuPriority: 0};
+	edenUI.views["FunctionList"] = {embed: this.createFunctionDialog, title: "Function List", category: edenUI.viewCategories.comprehension, menuPriority: 0};
+	edenUI.views["AgentList"] = {embed: this.createAgentDialog, title: "Agent List", category: edenUI.viewCategories.comprehension, menuPriority: 0};
+	edenUI.views["SymbolList"] = {embed: this.createSymbolDialog, title: "Symbol List", category: edenUI.viewCategories.comprehension, menuPriority: 1};
 
 	//$(document).tooltip();
 	eden.root.lookup("plugins_symbolviewer_loaded").assign(true, eden.root.scope);

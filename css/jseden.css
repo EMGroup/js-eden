@@ -1,9 +1,10 @@
 div#jseden-main {
-	position: absolute;
+	/*position: absolute;
 	top: 45px;
 	bottom: 0;
 	left: 0;
-	right: 0;
+	right: 0;*/
+	margin-top: 50px;
 	display: flex;
 }
 
@@ -16,7 +17,7 @@ div#jseden-views {
 	flex-basis: 70%;
 	flex-shrink: 2;
 	overflow: auto;
-	position: relative;
+	/*position: relative;*/
 }
 
 div#eden-logo {
@@ -51,14 +52,13 @@ input.search-box {
 
 div.searchouter {
 	/*display: inline-block;*/
-	float: left;
+	/*float: left;
 	margin-left: 30px;
 	margin-right: 5px;
-	/*margin-top: 5px*/;
-	z-index: 2001;
+	z-index: 2001;*/
 }
 
-input.search {
+/*input.search {
 	border: 1px solid #b5b5f5;
 	border-radius: 20px;
 	padding: 5px;
@@ -67,7 +67,7 @@ input.search {
 	width: 250px;
 	outline: none;
 	box-sizing: border-box;
-}
+}*/
 
 div.searchouter:before {
 	color: #5555bb;
