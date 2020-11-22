@@ -59,6 +59,7 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 		console.log("No result");
 		return;
 	}
+	//console.log(ast);
 
 	ast = ast[0];
 	var id = ast[0];

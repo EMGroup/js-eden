@@ -236,8 +236,10 @@ Eden.Selectors.listsToExpression = function(lists) {
 
 Eden.Selectors.processResults = function(statements, o) {
 	// Check what kind of result we are to return
-	if (o !== undefined) {
+	if (o) {
 		var kinds = (Array.isArray(o)) ? o : o.split(",");
+
+		console.log("RESULTS", statements, kinds);
 
 		var res = [];
 
@@ -542,10 +544,17 @@ Eden.Selectors.queryWithin = function(within, s, o, cb) {
 }
 
 Eden.Selectors.query = function(s, o, options, cb) {
+	if (!cb) return [];
+	Eden.Selectors._query(s, o, options, (ss,processed) => {
+		cb((processed) ? ss : Eden.Selectors.processResults(ss, o));
+	});
+}
+
+Eden.Selectors._query = function(s, o, options, cb) {
 	var ctx;
 	var num;
 
-	var statements;
+	var statements = [];
 
 	if (!cb) {
 		console.warn("Selector query without callback: ", s);
@@ -624,8 +633,8 @@ Eden.Selectors.query = function(s, o, options, cb) {
 						Eden.Selectors.cache[s] = res[0];
 						//Eden.Index.update(res[0]);
 						//statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
-						statements = Eden.Selectors.processResults(res, o);
-						cb(statements);
+						//statements = Eden.Selectors.processResults(res, o);
+						cb(res);
 					},
 					error: function() {
 						statements = [];
@@ -674,7 +683,8 @@ Eden.Selectors.query = function(s, o, options, cb) {
 								//}
 								
 							} else {
-								cb(Eden.Selectors.processResults(statements, o));
+								//cb(Eden.Selectors.processResults(statements, o));
+								cb(statements);
 							}
 						};
 
@@ -689,15 +699,15 @@ Eden.Selectors.query = function(s, o, options, cb) {
 								//statements = res;
 								sast.filter(res).then(s => {
 									var u = Eden.Selectors.unique(s);
-									cb(Eden.Selectors.processResults(u, o));
+									cb(u);
 								});
 							}, "text");
 						} else {
-							cb(Eden.Selectors.processResults(statements, o));
+							cb(statements);
 						}
 					} else {
 						statements.push.apply(statements,stats);
-						cb(Eden.Selectors.processResults(statements, o));
+						cb(statements, true);
 					}
 				});
 			} else if (Eden.Project.local && Eden.Project.local[path]) {
@@ -708,7 +718,7 @@ Eden.Selectors.query = function(s, o, options, cb) {
 					statements = res;
 					sast.filter(res).then(s => {
 						var u = Eden.Selectors.unique(s);
-						cb(Eden.Selectors.processResults(u, o));
+						cb(u);
 					});
 				}, "text");
 			} else {
@@ -718,8 +728,8 @@ Eden.Selectors.query = function(s, o, options, cb) {
 			//return;
 		} else {
 			//var res = Eden.Selectors.processResults(statements, o);
-			statements = Eden.Selectors.processResults(statements, o, num);
-			if (cb) cb(statements);
+			//statements = Eden.Selectors.processResults(statements, o, num);
+			cb(statements);
 			//return statements;
 		}
 	};
