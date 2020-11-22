@@ -65,6 +65,20 @@
 		}
 	}
 
+	EdenUI.prototype.createView = function (name, type, creatingAgent) {
+		if (this.viewInstances[name]) return this.viewInstances[name];
+		var eview;
+		if (edenUI.views[type].embed) eview = edenUI.views[type].embed(name, name, "");
+		else if (edenUI.views[type].embedded) eview = edenUI.views[type].embedded(name, name, "");
+		if (eview) {
+			let viewinst = new EdenUI.View(eview);
+			this.viewInstances[name] = viewinst;
+			return viewinst;
+		} else {
+			return;
+		}
+	}
+
 	/**
 	 * A view is a window which appears in the JsEden UI.
 	 *
@@ -78,7 +92,7 @@
 	 * @param {string} name Unique identifier for the view.
 	 * @param {string} type Used to group different types of views.
 	 */
-	EdenUI.prototype.createView = function (name, type, creatingAgent) {
+	/*EdenUI.prototype.createView = function (name, type, creatingAgent) {
 		if (!(type in this.views)) {
 			this.eden.error(new Error("View type " + type + " is unavailable.  Check that the associated plug-in is loaded."));
 			return;
@@ -217,21 +231,8 @@
 			}
 		});
 		this.activeDialogs[name] = type;
-		/*dialogWindow.draggable("option", {
-			grid: [this.gridSizeX, this.gridSizeY]
-		});
-		dialogWindow.resizable("option", {
-			grid: [this.gridSizeX, this.gridSizeY]
-		});*/
 		
-		/* Initialize observables
-		 * _view_xxx_width and _view_xxx_height are the width and height respectively of the usable
-		 * client window area.  They don't include the space reserved for the title bar, scroll bars
-		 * and resizing widget.  The actual size of the window with these elements included is
-		 * bigger than the dimensions described these observables.  Thus:
-		 *   _view_b_x = _view_a_x + _view_a_width;
-		 * will position the windows with a slight overlap, though no information will be hidden.
-		 */
+
 		var typeSym = view(name, 'type');
 		if (typeSym.value() != type) {
 			typeSym.removeJSObserver("changeType");
@@ -313,10 +314,6 @@
 		}
 		visibilitySym.addJSObserver("changeState", updateVisibility);
 
-		/* Plug-ins can append status information to their title bar.  Only use if there is genuinely
-		 * no space to put the information inside the window (e.g. canvas) or an established precedent for
-		 * putting such information into the title bar (e.g. if other views also acquire a zoom facility).
-		 */
 		var theTitleBarInfo = viewData.titleBarInfo;
 		delete viewData.titleBarInfo;
 		Object.defineProperty(viewData, "titleBarInfo", {
@@ -400,70 +397,7 @@
 			this.unpinView(name);
 		}
 
-		//Allow mouse drags that position the dialog partially outside of the browser window but not over the menu bar.
-		diag.dialog("widget").draggable("option", "containment", [-Number.MAX_VALUE, desktopTop, Number.MAX_VALUE, Number.MAX_VALUE]);
-		diag.resizeExtend = 0;
-		/*diag.on("dialogresize", function (event, ui) {
-			var momentumX, momentumY;
-			if (diag.previousWidth !== undefined) {
-				momentumX = ui.size.width - diag.previousWidth;
-				momentumY = ui.size.height - diag.previousHeight;
-				if (momentumX > momentumY ) {
-					diag.momentum = momentumX;
-				} else {
-					diag.momentum = momentumY;
-				}
-			}
-			diag.previousWidth = ui.size.width;
-			diag.previousHeight = ui.size.height;
 
-			var provisionalTop = ui.position.top;
-			if (provisionalTop < desktopTop) {
-				ui.size.height = ui.size.height - (desktopTop - provisionalTop);
-				ui.position.top = desktopTop;
-			}
-			var scrollX = 0, scrollY = 0;
-			if (ui.position.left + ui.size.width < document.body.scrollLeft + me.gridSizeX) {
-				ui.size.width = ui.size.width - me.gridSizeX;
-				scrollX = -me.gridSizeX;
-			}
-			if (ui.position.top + ui.size.height < document.body.scrollTop + me.gridSizeY) {
-				ui.size.height = ui.size.height - me.gridSizeY;
-				scrollY = -me.gridSizeY;
-			} else if (ui.position.top < document.body.scrollTop + me.gridSizeY) {
-				scrollY = -me.gridSizeY;
-			}
-			if (diag.momentum >= 35 || diag.resizeExtend == 2) {
-				var setTimer = false;
-				if (ui.position.left + ui.size.width > document.body.scrollLeft + window.innerWidth - me.gridSizeX) {
-					if (diag.resizeExtend == 0) {
-						setTimer = true;
-					} else {
-						ui.size.width = ui.size.width + me.gridSizeX;
-						scrollX = me.gridSizeX;
-					}
-				}
-				if (ui.position.top + ui.size.height > document.body.scrollTop + window.innerHeight - me.gridSizeY) {
-					if (diag.resizeExtend == 0) {
-						setTimer = true;
-					} else {
-						ui.size.height = ui.size.height + me.gridSizeY;
-						scrollY = me.gridSizeY;
-					}
-				}
-				if (setTimer) {
-					diag.resizeExtend = 1;
-					setTimeout(function () {
-						if (diag.resizeExtend == 1) {
-							diag.resizeExtend = 2;
-						}
-					}, 850);
-				}
-			}
-			if (scrollX != 0 || scrollY != 0) {
-				window.scrollBy(scrollX, scrollY);
-			}
-		});*/
 
 		diag.on("dialogresizestop", function (event, ui) {
 			diag.previousWidth = undefined;
@@ -473,25 +407,14 @@
 			var widthSym = view(name, 'width');
 			var heightSym = view(name, 'height');
 
-			/*if (widthSym.eden_definition || heightSym.eden_definition) {
-				
-				return;
-			}*/
+
 
 			var root = me.eden.root;
 			root.beginAutocalcOff();
 			widthSym.assign(ui.size.width, root.scope, EdenSymbol.hciAgent); //  - me.scrollBarSize
 			heightSym.assign(ui.size.height - me.titleBarHeight, root.scope, EdenSymbol.hciAgent); //  - me.titleBarHeight + 2 * me.dialogBorderWidth
 
-			/*var xSym = view(name, "x");
-			if (xSym.value() != ui.position.left) {
-				xSym.assign(ui.position.left, eden.root.scope, Symbol.hciAgent);
-			}
-			var ySym = view(name, "y");
-			var possibleNewY = ui.position.top - desktopTop;
-			if (ySym.value() != possibleNewY) {
-				ySym.assign(possibleNewY, eden.root.scope, Symbol.hciAgent);
-			}*/
+
 			root.endAutocalcOff();
 		});
 		diag.on("dialogdragstop", function (event, ui) {
@@ -510,24 +433,6 @@
 			if (view(name, 'width').definition || view(name, 'height').definition) return false;
 		});
 
-
-		/*function viewEdenCode() {
-			var code = 'proc _View_'+name+'_position : _view_'+name+'_x, _view_'+name+'_y {\n' +
-					'${{ edenUI.moveView("'+name+'"); }}$;\n'+
-				'};\n' +
-				'proc _View_'+name+'_size : _view_'+name+'_width,_view_'+name+'_height {\n' +
-					'${{ edenUI.resizeView("'+name+'"); }}$; \n' +
-				'};';
-
-			if (position) {
-				code += '_view_'+name+'_position = [\"'+position.join('\", \"')+'\"];\n';
-			}
-
-			return code;
-		}
-
-		// Now construct eden agents and observables for dialog control.
-		this.eden.execute2(viewEdenCode(), Symbol.defaultAgent, noop);*/
 		this.eden.root.endAutocalcOff();
 		this.emit('createView', [name, type]);
 
@@ -535,7 +440,7 @@
 		if (!nostackSym.value()) diag.get(0).parentNode.className += " ui-front";
 		else diag.get(0).parentNode.className += " ui-back";
 		return viewData;
-	};
+	};*/
 
 	/**Simulates clicking a view's close button, prompting the user to confirm their intentions if necessary.
 	 *@return {boolean} True if the view's dialog should actually be closed now, or false if we need
@@ -640,12 +545,14 @@
 	 * @param {string} name Unique identifier for the view.
 	 */
 	EdenUI.prototype.showView = function (name) {
-		var diag = dialog(name);
+		/*var diag = dialog(name);
 		diag.dialog('open').dialog('moveToTop');
 		var state = diag.dialogExtend("state");
 		if (state != "normal" && state != "maximized") {
 			diag.dialogExtend('restore');
-		}
+		}*/
+		var view = this.viewInstances[name];
+		if (view) view.show();
 		return this.activeDialogs[name];
 	};
 
