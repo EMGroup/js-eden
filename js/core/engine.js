@@ -167,11 +167,11 @@ function runEdenAction(source, action, cb) {
 				}
 
 				switch(delay.value.kind) {
-				case "="	:	Eden.Selectors.assign(delay.value._selector, delay.value.restypes, delay.value._modexpr, docb);
+				case "="	:	Eden.Selectors.assign(delay.value._selector, delay.value.restypes, delay.value._modexpr, delay.value, docb);
 								break;
-				case "+="	:	Eden.Selectors.append(delay.value._selector, delay.value.restypes, delay.value._modexpr, docb);
+				case "+="	:	Eden.Selectors.append(delay.value._selector, delay.value.restypes, delay.value._modexpr, delay.value, docb);
 								break;
-				case "//="	:	Eden.Selectors.concat(delay.value._selector, delay.value.restypes, delay.value._modexpr, docb);
+				case "//="	:	Eden.Selectors.concat(delay.value._selector, delay.value.restypes, delay.value._modexpr, delay.value, docb);
 								break;
 				}
 
@@ -224,7 +224,7 @@ function runEdenAction(source, action, cb) {
 				// Note that getActionByName can return entire agents!
 				if (delay.value.name) {
 					// Get contextual root...
-					Eden.Selectors.query(delay.value.selector, undefined, {context: delay.value.parent, minimum: 1}, docb);
+					Eden.Selectors.query(delay.value.selector, undefined, {options: {self: delay.value}, context: delay.value.parent, minimum: 1}, docb);
 				} else {
 					stats = delay.value.script.statements;
 					docb(stats);

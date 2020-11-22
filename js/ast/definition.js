@@ -7,6 +7,11 @@ Eden.AST.Definition = function() {
 	this.sources = null;
 };
 
+Eden.AST.Definition.prototype.reset = function() {
+	this.executed = 0;
+}
+
+
 Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
 	if (this.parent && this.parent.getParameterByNumber) {
 		return this.parent.getParameterByNumber(index);

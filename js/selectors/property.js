@@ -101,7 +101,10 @@ Eden.Selectors.PropertyNode.pseudo = {
 	"not":			{local: false,	indexed: false,	rank: 100},
 	"active":		{local: true,	indexed: false, rank: 10},
 	"me":			{local: false,	indexed: false, rank: 20},
-	"listed":		{local: false,	indexed: false, rank: 20}
+	"listed":		{local: false,	indexed: false, rank: 20},
+	"prev":			{local: true, indexed: false, rank: 20},
+	"next":			{local: true, indexed: false, rank: 20},
+	"this":			{local: true, indexed: false, rank: 20}
 };
 
 Eden.Selectors.PropertyNode.prototype.append = function(node) {
@@ -133,11 +136,9 @@ Eden.Selectors.PropertyNode.prototype.prepend = function(node) {
 }
 
 Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
-	return new Promise((resolve, reject) => {
-		if (!statements) this.construct().then((s) => {
-			this._filter(s, resolve);
-		});
-		else this._filter(statements, resolve);
+	if (!statements) return this.construct();
+	else return new Promise((resolve, reject) => {
+		this._filter(statements, resolve);
 	});
 }
 
@@ -228,6 +229,18 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 
 		case ":nth"		:	resolve(statements.filter(function(stat) {
 								return stat.parent && Eden.Selectors.getChildren([stat.parent], false)[me.value-1] === stat;
+							})); return;
+
+		case ":prev"	:	resolve(statements.map(function(stat) {
+								let s = stat.previousSibling;
+								while (s && s.type == "dummy") s = s.previousSibling;
+								return s;
+							})); return;
+
+		case ":next"	:	resolve(statements.map(function(stat) {
+								let s = stat.nextSibling;
+								while (s && s.type == "dummy") s = s.nextSibling;
+								return s;
 							})); return;
 
 		case ":value"	:	resolve(statements); return;
@@ -322,7 +335,7 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 }
 
 Eden.Selectors.PropertyNode.prototype.construct = function() {
-	return new Promise((resolve, reject) => {
+	//return new Promise((resolve, reject) => {
 		var stats;
 
 		switch (this.name) {
@@ -342,16 +355,29 @@ Eden.Selectors.PropertyNode.prototype.construct = function() {
 		case ":root"		:	stats = [eden.project.ast.script].concat(Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; })); break;
 		case ":remote"		:	stats = Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; }); break;
 		case ":project"		:	stats = [eden.project.ast.script]; break;
+		case ":this"		:	stats = (this.options && this.options.self) ? [this.options.self] : []; break;
+		case ":prev"		:	stats = (this.options && this.options.self) ? [this.options.self] : [];
+								stats = stats.map(stat => {
+									let s = stat.previousSibling;
+									while (s && s.type == "dummy") s = s.previousSibling;
+									return s;
+								}); break;
+		case ":next"		:	stats = (this.options && this.options.self) ? [this.options.self] : [];
+								stats = stats.map(stat => {
+									let s = stat.nextSibling;
+									while (s && s.type == "dummy") s = s.nextSibling;
+									return s;
+								}); break;
 		default				:	stats = Eden.Index.getAll();
 		}
 
 		if (!this.options || !this.options.history) {
-			resolve(stats.filter(function(e) {
+			return Promise.resolve(stats.filter(function(e) {
 				return e.executed >= 0;
-			})); return;
+			}));
 		}
 
-		resolve(stats);
-	});
+		return Promise.resolve(stats);
+	//});
 }
 

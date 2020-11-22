@@ -728,7 +728,7 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 			//	for (var i=0; i<this.def_scope.length; i++) this.def_scope[i].reset();
 			//}
 
-			//this.clearDynamicDependencies();
+			this.clearDynamicDependencies();
 		}
 
 		this.needsGlobalNotify = EdenSymbol.EXPIRED;

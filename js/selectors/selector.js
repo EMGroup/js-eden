@@ -181,7 +181,8 @@ Eden.Selectors.resultTypes = {
 	"root": true,
 	"enabled": true,
 	"executed": true,
-	"exprtree": true
+	"exprtree": true,
+	"expression": true
 };
 
 Eden.Selectors.expressionToLists = function(expr) {
@@ -827,8 +828,8 @@ Eden.Selectors.goto = function(selector) {
 /**
  * Edit AST nodes that match a query.
  */
-Eden.Selectors.assign = function(selector, attributes, values, cb) {
-	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true}, function(res) {
+Eden.Selectors.assign = function(selector, attributes, values, ctx, cb) {
+	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true, options: {self: ctx}}, function(res) {
 
 	var attribs = (typeof attributes == "string") ? attributes.split(",") : attributes;
 	var vals = (Array.isArray(values)) ? values : [values];
@@ -870,6 +871,21 @@ Eden.Selectors.assign = function(selector, attributes, values, cb) {
 										}
 									} else {
 										console.error("Cannot replace innersource of non-script node");
+									}
+									break;
+			case "expression"	:	if (res[i].type == "definition" || res[i].type == "assignment") {
+										var newnode = Eden.AST.parseExpression(vals[j]);
+										res[i].expression = newnode;
+										res[i].reset();
+										res[i].source = res[i].lvalue.name + ((res[i].type == "definition") ? " is " : " = ") + vals[j] + ";";
+										var parent = res[i];
+										// Notify all parent fragments of patch
+										while (parent) {
+											Eden.Fragment.emit("patch", [undefined, parent]);
+											parent = parent.parent;
+										}
+									} else {
+										console.error("Cannot replace expression");
 									}
 									break;
 
@@ -922,8 +938,8 @@ Eden.Selectors.assign = function(selector, attributes, values, cb) {
 /**
  * Edit AST nodes that match a query.
  */
-Eden.Selectors.append = function(selector, attributes, values, cb) {
-	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true}, function(res) {
+Eden.Selectors.append = function(selector, attributes, values, ctx, cb) {
+	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true, options: {self: ctx}}, function(res) {
 
 	var attribs = (typeof attributes == "string") ? attributes.split(",") : attributes;
 	var vals = (Array.isArray(values)) ? values : [values];
