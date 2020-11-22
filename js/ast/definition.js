@@ -56,7 +56,8 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 			result += "if (this.def_scope) { _scopes["+i+"].mergeCache(this.def_scope["+i+"].cache); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
 		}
 
-		result += "this.def_scope = _scopes;\n";
+		// FIXME: Def scope is broken in dynamic contexts.
+		//result += "this.def_scope = _scopes;\n";
 	}
 
 	if (dobound) {
