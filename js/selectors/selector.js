@@ -239,8 +239,6 @@ Eden.Selectors.processResults = function(statements, o) {
 	if (o) {
 		var kinds = (Array.isArray(o)) ? o : o.split(",");
 
-		console.log("RESULTS", statements, kinds);
-
 		var res = [];
 
 		for (var i=0; i<statements.length; i++) {
