@@ -348,6 +348,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							stat.errors = lvalue.errors;
 							break;
 						}
+						lvalue.source = this.stream.code.substring(start,this.lastposition).trim();
 						var formula = this.pSTATEMENT_PP();
 						formula.left(lvalue);
 

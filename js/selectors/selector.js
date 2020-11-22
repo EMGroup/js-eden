@@ -182,7 +182,8 @@ Eden.Selectors.resultTypes = {
 	"enabled": true,
 	"executed": true,
 	"exprtree": true,
-	"expression": true
+	"expression": true,
+	"locked": true
 };
 
 Eden.Selectors.expressionToLists = function(expr) {
@@ -274,6 +275,7 @@ Eden.Selectors.processResults = function(statements, o) {
 									}
 									break;
 				case "type"		:	val = stat.type; break;
+				case "locked"	:	val = (stat.lock) ? true : false; break;
 				//case "path"		:
 				case "name"		:	if (stat.lvalue && stat.lvalue.name) {
 										val = stat.lvalue.name;
@@ -877,12 +879,25 @@ Eden.Selectors.assign = function(selector, attributes, values, ctx, cb) {
 										var newnode = Eden.AST.parseExpression(vals[j]);
 										res[i].expression = newnode;
 										res[i].reset();
-										res[i].source = res[i].lvalue.name + ((res[i].type == "definition") ? " is " : " = ") + vals[j] + ";";
+										res[i].source = res[i].lvalue.source + ((res[i].type == "definition") ? " is " : " = ") + vals[j] + ";";
 										var parent = res[i];
 										// Notify all parent fragments of patch
 										while (parent) {
 											Eden.Fragment.emit("patch", [undefined, parent]);
 											parent = parent.parent;
+										}
+									} else {
+										console.error("Cannot replace expression");
+									}
+									break;
+
+			case "locked"	:		if (res[i].type == "script") {
+										if (!vals[j]) {
+											res[i].lock = 0;
+											Eden.Fragment.emit("unlock", [undefined, res[i]]);
+										} else if (res[i].lock == 0) {
+											res[i].lock = 1;
+											Eden.Fragment.emit("lock", [undefined, res[i]]);
 										}
 									} else {
 										console.error("Cannot replace expression");
