@@ -80,7 +80,7 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 				eden.emit("error", [EdenSymbol.defaultAgent,err]);
 				return "";	
 			}*/
-			res = "Eden.Selectors.queryPromise("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1})";
+			res = "Eden.Selectors.queryPromise("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1, options: {self: this}})";
 			//res = "Eden.Selectors.query("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1, returnvalue: cache.value}, (s) => { cache.value = s; this.expireAsync(); })";
 		}
 	}

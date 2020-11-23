@@ -159,7 +159,8 @@ Eden.Selectors.allowedOptions = {
 	"indexed": true,	// Ignore any context and use an indexed search
 	"index": true,		// Automatically index any external results (import)
 	"nosort": true,		// Don't sort the results by time stamp.
-	"remote": true		// Force server search only (if external is also set).
+	"remote": true,		// Force server search only (if external is also set).
+	"depend": true
 };
 
 Eden.Selectors.resultTypes = {
@@ -528,6 +529,20 @@ Eden.Selectors.sort = function(stats) {
 	return stats.sort(function(a,b) {
 		return b.stamp - a.stamp;
 	});
+}
+
+Eden.Selectors._depend = function(p) {
+	if (this.options && this.options.depend && this.options.self && this.options.self instanceof EdenSymbol) {
+		return p.then(stats => {
+			for (var s of stats) {
+				console.log("Depends", s);
+				if (s.subscribeDynamic) this.options.self.subscribeDynamic(0, s.name);
+			}
+			return stats;
+		});
+	} else {
+		return p;
+	}
 }
 
 Eden.Selectors.queryWithin = function(within, s, o, cb) {

@@ -6,14 +6,11 @@ Eden.Selectors.NameNode = function(name) {
 	this.local = false;
 }
 
+Eden.Selectors.NameNode.prototype.depend = Eden.Selectors._depend;
+
 Eden.Selectors.NameNode.prototype.filter = function(statements) {
-	//return new Promise((resolve, reject) => {
-		if (!statements) return this.construct(); //.then((s) => {
-			//resolve(this._filter(s));
-			//return Promise.resolve(s);
-		//});
-		else return Promise.resolve(this._filter(statements));
-	//});
+	if (!statements) return this.depend(this.construct());
+	else return this.depend(Promise.resolve(this._filter(statements)));
 }
 
 Eden.Selectors.NameNode.prototype._filter = function(statements) {

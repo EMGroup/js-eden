@@ -135,11 +135,13 @@ Eden.Selectors.PropertyNode.prototype.prepend = function(node) {
 	return this;
 }
 
+Eden.Selectors.PropertyNode.prototype.depend = Eden.Selectors._depend;
+
 Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
-	if (!statements) return this.construct();
-	else return new Promise((resolve, reject) => {
+	if (!statements) return this.depend(this.construct());
+	else return this.depend(new Promise((resolve, reject) => {
 		this._filter(statements, resolve);
-	});
+	}));
 }
 
 Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
