@@ -193,7 +193,7 @@ Eden.AST.prototype.pPRIMARY_P = function() {
 			return primary;
 		}
 	// Scope path
-	/*} else if (this.token == ".") {
+	/*} else if (this.token == ":") {
 		this.next();
 		var rhs = this.pPRIMARY();
 		var scopepath = new Eden.AST.ScopePath();
