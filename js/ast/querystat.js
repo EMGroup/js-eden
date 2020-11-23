@@ -79,7 +79,7 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 				eden.emit("error", [EdenSymbol.defaultAgent,err]);
 				return "";	
 			}
-			res = "Eden.Selectors.query("+selsrc+", \""+this.restypes.join(",")+"\", null, s => { cache.value = s; this.expireAsync(); })";
+			res = "Eden.Selectors.query("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1}, s => { cache.value = s; this.expireAsync(); })";
 		}
 	}
 	console.log("QUERY",res);
