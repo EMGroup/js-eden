@@ -26,6 +26,19 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 						}
 						res += "]"; if (ctx && ctx.isdynamic) ctx.dynamic_source += "]";
 						break;
+	case "OBJECT"	:	res = "{"; if (ctx && ctx.isdynamic) ctx.dynamic_source += "{";
+						// Loop over each element and generate that also.
+						var keys = Object.keys(this.value);
+						for (var i=0; i<keys.length; ++i) {
+							res += keys[i] + ": ";
+							res += this.value[keys[i]].generate(ctx,scope, {bound: false});
+							if (i != keys.length-1) {
+								res += ",";
+								if (ctx && ctx.isdynamic) ctx.dynamic_source += ", ";
+							}
+						}
+						res += "}"; if (ctx && ctx.isdynamic) ctx.dynamic_source += "}";
+						break;
 	case "CHARACTER":
 	case "STRING"	:	var str = this.value.replace(/\n/g,"\\n");
 						res = "\""+str+"\""; if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(this.value); break;
@@ -51,6 +64,7 @@ Eden.AST.Literal.prototype.execute = function(ctx, base, scope) {
 	case "CHARACTER":
 	case "BOOLEAN"	:	return eval(this.value);
 	case "STRING"	:	return eval("\""+this.value+"\"");
+	case "OBJECT"	:
 	case "LIST"		:	var rhs = "(function(context,scope) { return ";
 						rhs += this.generate(ctx, "scope", {bound: false});
 						rhs += ";})";
