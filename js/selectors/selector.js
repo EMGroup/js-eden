@@ -251,7 +251,6 @@ Eden.Selectors.processResults = function(statements, o) {
 			var ires = [];
 
 			if (!stat) continue;
-			console.log("STAT", stat);
 
 			for (var j=0; j<kinds.length; j++) {
 				var val = undefined;

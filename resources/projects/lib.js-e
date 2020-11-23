@@ -1028,7 +1028,8 @@ func Point {
 	${{ return new Point(x, y); }}$;
 }
 
-jseden_ui_grid = [];
+jseden_ui_grid is *jseden_ui_cells[ix] :: ix = 1..jseden_ui_cells#;
+jseden_ui_cells = [];
 
 /**
  * Create new window of a particular type. Some examples of common types are:

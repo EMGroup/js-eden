@@ -65,6 +65,32 @@ EdenUI.Grid.prototype.getRangeGeometry = function(range) {
 	return [sx,sy,width,height];
 }
 
+EdenUI.Grid.prototype.updateElement = function(ele, value) {
+	var type = typeof value;
+
+	// TODO: Be clever, only change what needs to change
+	while (ele.lastChild) ele.removeChild(ele.lastChild);
+
+	if (type == "object" && !Array.isArray(value)) {
+		if (value.type) {
+			if (value.type == "view") {
+				ele.appendChild(value.viewData.contents[0]);
+			}
+		}
+	} else {
+		var code = Eden.edenCodeForValue(value);
+		var e = document.createElement("div");
+		e.classList.add("card-body");
+
+		var s = document.createElement("span");
+		s.innerHTML = code;
+		if (type == "string") s.classList.add("eden-string");
+		else if (type == "number") s.classList.add("eden-number");
+		e.appendChild(s);
+		ele.appendChild(e);
+	}
+}
+
 EdenUI.Grid.prototype.updateGrid = function (grid) {
 	while (this.gridElement.lastChild) this.gridElement.removeChild(this.gridElement.lastChild);
 
@@ -89,13 +115,12 @@ EdenUI.Grid.prototype.updateGrid = function (grid) {
 			
 			if (content instanceof EdenSymbol) {
 				var val = content.value();
-				if (val instanceof EdenUI.View) {
-					ele.appendChild(val.viewData.contents[0]);
-				} else {
-					console.error("View content is not view", val);
-				}
+				this.updateElement(ele, val);
+				content.addJSObserver("gridCell", (sym, value) => {
+					this.updateElement(ele, value);
+				});
 			} else {
-				console.error("View content is not symbol", content);
+				this.updateElement(ele, content);
 			}
 
 			this.gridElement.appendChild(ele);

@@ -1,6 +1,7 @@
 EdenUI.viewsID = "jseden-views";
 
 EdenUI.View = function(view) {
+	this.type = "view";
 	this.viewData = view;
 	this.element = document.createElement("div");
 	this.element.className = "card";
