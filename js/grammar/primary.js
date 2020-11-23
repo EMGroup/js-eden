@@ -193,12 +193,33 @@ Eden.AST.prototype.pPRIMARY_P = function() {
 			return primary;
 		}
 	// Scope path
-	} else if (this.token == ".") {
+	/*} else if (this.token == ".") {
 		this.next();
 		var rhs = this.pPRIMARY();
 		var scopepath = new Eden.AST.ScopePath();
 		scopepath.setPrimary(rhs);
-		return scopepath;
+		return scopepath;*/
+	} else if (this.token == ".") {
+		this.next();
+		var index = new Eden.AST.Index();
+
+		// Can't be empty, needs an index
+		if (this.token != "OBSERVABLE") {
+			var primary = new Eden.AST.Primary();
+			primary.prepend(index);
+			primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXEXP));
+			return primary;
+		}
+
+		var express = new Eden.AST.Literal("STRING", this.data.value);
+		this.next();
+
+		// And try to find more components...
+		var primary = this.pPRIMARY_PPP();
+		//if (primary.errors.length > 0) return primary;
+		index.setExpression(express);
+		primary.prepend(index);
+		return primary;
 	// Go to end, check for "with"
 	} else {
 		return this.pPRIMARY_PPPP();
