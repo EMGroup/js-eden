@@ -12,7 +12,7 @@ EdenUI.View = function(view) {
 	this.element.appendChild(this.body);
 	this.body.appendChild(view.contents[0]);
 
-	document.getElementById(EdenUI.viewsID).appendChild(this.element);
+	//document.getElementById(EdenUI.viewsID).appendChild(this.element);
 }
 
 EdenUI.View.prototype.update = function(data) {

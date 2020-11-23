@@ -9,9 +9,11 @@ if (jseden_project_mode == "restore") do :project > ACTIVE;
 if (jseden_project_mode != "safe") do :project > start;
 else createView("safemode","ScriptInput");
 
-action ACTIVE {views_list = ["myscript"];
+action ACTIVE {view_myscript_content = View("myscript","ScriptInput");
 view_myscript_type = "ScriptInput";
+view_myscript_range = "B2:Z20";
 view_myscript_tabs = [":project > start"];
 view_myscript_current = 0;
+jseden_ui_grid is [[view_myscript_range,&view_myscript_content]];
 jseden_project_title = "New Project";}
 

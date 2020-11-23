@@ -64,6 +64,8 @@
 		var me = this;
 		this.loaded = false;
 
+		this.grid = new EdenUI.Grid(".eden-grid");
+
 		this.branding = {};
 		/*$.ajax({
 			url: "branding.json",
@@ -946,7 +948,7 @@
 				}
 			}
 			if (code == "") {
-				if (value.toString != Object.prototype.toString) {
+				if (value.toString && value.toString != Object.prototype.toString) {
 					code = value.toString();
 					//If you've written a badly behaved toString() method somewhere that fails to
 					//actually return a string then the next statement will cause an error.

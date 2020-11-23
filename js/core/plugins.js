@@ -73,6 +73,7 @@
 		if (eview) {
 			let viewinst = new EdenUI.View(eview);
 			this.viewInstances[name] = viewinst;
+			console.log("Create View", name);
 			return viewinst;
 		} else {
 			return;

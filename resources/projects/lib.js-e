@@ -1022,6 +1022,8 @@ func Point {
 	${{ return new Point(x, y); }}$;
 }
 
+jseden_ui_grid = [];
+
 /**
  * Create new window of a particular type. Some examples of common types are:
  *   Canvas2D, ScriptView, SymbolList.
@@ -1032,7 +1034,13 @@ func Point {
  */
 proc createView {
 	para name, type;
-	${{ edenUI.createView(name, type, this); }}$;
+	view_{name}_content = ${{ edenUI.createView(name, type, this) }}$;
+	append jseden_ui_grid,["A1:P20",&view_{name}_content];
+}
+
+func View {
+	para name, type;
+	return ${{ edenUI.createView(name, type, this); }}$;
 }
 
 ${{
