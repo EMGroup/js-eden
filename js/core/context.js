@@ -74,6 +74,8 @@ function Folder(name, parent, root) {
 	 */
 	this.globalobservers = [];
 
+	this.subscribers = {};
+
 	/**
 	 * @type {boolean}
 	 * @private
@@ -127,6 +129,14 @@ function Folder(name, parent, root) {
 			return eden.project.ast.script;
 		}
 	});
+}
+
+Folder.prototype.addSubscriber = function(dependency) {
+	this.subscribers[dependency] = this.lookup(dependency);
+}
+
+Folder.prototype.removeSubscriber = function(dependency) {
+	delete this.subscribers[dependency];
 }
 
 Folder.prototype.getNumberOfLines = function() {
@@ -195,6 +205,9 @@ Folder.prototype.execute = function() {}
 Folder.prototype.lookup = function (name) {
 	if (this.symbols[name] === undefined) {
 		this.symbols[name] = new EdenSymbol(this, name);
+		for (var s in this.subscribers) {
+			this.expireEdenSymbol(this.subscribers[s]);
+		}
 		this.notifyGlobals(this.symbols[name], 1);
 	}
 	return this.symbols[name];

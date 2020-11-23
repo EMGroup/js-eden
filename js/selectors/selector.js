@@ -536,7 +536,7 @@ Eden.Selectors._depend = function(p) {
 		return p.then(stats => {
 			for (var s of stats) {
 				console.log("Depends", s);
-				if (s.subscribeDynamic) this.options.self.subscribeDynamic(0, s.name);
+				if (s.addSubscriber) this.options.self.subscribeDynamicSym(s);
 			}
 			return stats;
 		});

@@ -296,6 +296,15 @@ EdenSymbol.prototype.subscribeDynValue = function (position, sym, scope) {
 	return sym.value(scope);
 }
 
+EdenSymbol.prototype.subscribeDynamicSym = function (sym) {
+	if (!(sym.name in this.dependencies)) {
+		if (!(sym.name in this.dynamicDependencies)) {
+			sym.addSubscriber(this.name, this);
+			this.dynamicDependencies[sym.name] = sym;		
+		}
+	}
+}
+
 EdenSymbol.prototype.subscribeDynamic = function (position, dependency, scope) {
 	// To put the dependency on the outer scoped observable is in a scoping context
 	if (scope && scope !== eden.root.scope && scope.cause) {
