@@ -408,6 +408,10 @@ EdenSymbol.prototype.getDynamicSource = function() {
 	return this.name + " = " + Eden.edenCodeForValue(this.value()) + ";";
 }
 
+EdenSymbol.prototype.toString = function() {
+	return "&"+this.name;
+}
+
 
 /**
  * Set a definition for the EdenSymbol, which will be used to calculate it's value.
