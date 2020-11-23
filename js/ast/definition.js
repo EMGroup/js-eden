@@ -32,6 +32,23 @@ Eden.AST.Definition.prototype.left = function(lvalue) {
 	}
 };
 
+Eden.AST.Definition.prototype.locatePrimary = function(indices) {
+	var node = this.expression;
+
+	for (var i=0; i<indices.length; ++i) {
+		var ix = indices[i];
+		if (node.type == "literal" && node.datatype == "LIST") {
+			if (Array.isArray(node.value) && ix < node.value.length) {
+				node = node.value[ix];
+			} else return;
+		} else return;
+	}
+
+	if (node && node.type == "primary" && !node.backtick && node.extras.length == 0) {
+		return node.observable;
+	}
+}
+
 Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	var dobound = (this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";
 	var result = "function(context, scope, cache) {\n";
