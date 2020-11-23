@@ -15,6 +15,16 @@ Eden.AST.BaseStatement = function() {
 	this.previousSibling = undefined;
 	this.tags = undefined;
 	this.local = false;
+	this.subscribers = null;
+}
+
+Eden.AST.BaseStatement.addSubscriber = function(dependency) {
+	if (!this.subscribers) this.subscribers = {};
+	this.subscribers[dependency] = eden.root.lookup(dependency);
+}
+
+Eden.AST.BaseStatement.removeSubscriber = function(dependency) {
+	delete this.subscribers[dependency];
 }
 
 Eden.AST.BaseStatement.setDoxyComment = function(doxy) {

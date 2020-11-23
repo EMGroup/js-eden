@@ -354,6 +354,8 @@ Eden.AST.registerStatement = function(stat) {
 	stat.prototype.destroy = Eden.AST.BaseStatement.destroy;
 	stat.prototype.buildID = Eden.AST.BaseStatement.buildID;
 	stat.prototype.setDoxyComment = Eden.AST.BaseStatement.setDoxyComment;
+	stat.prototype.addSubscriber = Eden.AST.BaseStatement.addSubscriber;
+	stat.prototype.removeSubscriber = Eden.AST.BaseStatement.removeSubscriber;
 }
 
 Eden.AST.registerScript = function(stat) {

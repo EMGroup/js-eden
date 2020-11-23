@@ -127,6 +127,12 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 	this.statements = ast.statements;
 	//this.base = ast;
 
+	if (this.subscribers) {
+		for (var sub in this.subscribers) {
+			eden.root.expireEdenSymbol(this.subscribers[sub]);
+		}
+	}
+
 	// Make sure there is always a blank line after a # comment
 	/*if (this.statements.length > 0 && this.statements[this.statements.length-1].type == "dummy") {
 		var lstat = this.statements[this.statements.length-1];

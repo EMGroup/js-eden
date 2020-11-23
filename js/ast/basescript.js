@@ -130,6 +130,9 @@ Eden.AST.BaseScript.replaceChild = function(oldchild, newchild) {
 	newchild.previousSibling = this.statements[oix].previousSibling;
 	if (newchild.previousSibling) newchild.previousSibling.nextSibling = newchild;
 	this.statements[oix].destroy();
+
+	//var oldsub = this.statements[oix].subscribers;
+
 	this.statements[oix] = newchild;
 	newchild.parent = this;
 	if (newchild.type != "dummy" && this.indexed) newchild.addIndex();
