@@ -25,6 +25,7 @@ function EdenSymbol(context, name) {
 	this.extend = undefined;
 	this.needsGlobalNotify = 0;
 	this.has_evaled = false;
+	this.isasync = false;
 
 	// need to keep track of who we subscribe to so
 	// that we can unsubscribe from them when our definition changes
@@ -238,36 +239,6 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 				this.extend[e].code(this.context, scope, cache.value);
 			}
 		}
-
-		/*if (!this.evalResolved) {
-			var replacedDef = this.eden_definition;
-			//Replace eval() in EDEN definition with the actual value.
-			var re = /\beval\(/;
-			var searchIndex;
-			var searchFrom = 0;
-			while ((searchIndex = replacedDef.slice(searchFrom).search(re)) != -1) {
-				var combinedIndex = searchFrom + searchIndex;
-				var found = false;
-				for (var exp in this.evalIDs) {
-					var subString = replacedDef.slice(combinedIndex + 5, combinedIndex + exp.length + 6);
-					if (subString == exp + ")") {
-						var jsValue = this.context.getEval(this.evalIDs[exp]);
-						var edenValue = Eden.edenCodeForValue(jsValue);
-						replacedDef = replacedDef.slice(0, combinedIndex) +
-							edenValue +
-							replacedDef.slice(combinedIndex + exp.length + 6);
-						searchFrom = combinedIndex + edenValue.length;
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					searchFrom = combinedIndex + 5;
-				}
-			}
-			this.eden_definition = replacedDef;
-			this.evalResolved = true;
-		}*/
 	} catch (e) {
 		if (e instanceof Eden.RuntimeError) {
 			eden.emit("error", [this,e]);
@@ -709,39 +680,80 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 	//console.log("Expire",this.name,this.has_evaled,fullexpire);
 	if (this.has_evaled || (fullexpire && this.needsGlobalNotify != EdenSymbol.EXPIRED)) {
 
-		for (var observer_name in this.observers) {
-			actions_to_fire[observer_name] = this.observers[observer_name];
-		}
-
-
-		if (this.definition && this.needsGlobalNotify != EdenSymbol.ASYNC_UPDATE) {
-			// TODO, Also mark all active scopes for this EdenSymbol as out-of-date.
-			this.cache.up_to_date = false;
-			this.has_evaled = false;
-			EdenSymbols_to_force[this.name] = insertionIndex.value;
-			insertionIndex.value++;
-
-			// Need to rebuild the scope dependency path
-			if (fullexpire) {
-				//console.log("FULL EXPIRE",this.name);
-				this.def_scope = undefined;
-			} else {
-				//console.log("NORMAL EXPIRE",this.name);
+		if (this.isasync && this.definition && this.needsGlobalNotify != EdenSymbol.ASYNC_UPDATE) {
+			if (this.context) {
+				this.context.beginEvaluation(this);
 			}
-			//else if (this.def_scope) {
-			//	for (var i=0; i<this.def_scope.length; i++) this.def_scope[i].reset();
-			//}
+			//this.needsGlobalNotify = EdenSymbol.EXPIRED;
+			this.has_evaled = false;
 
-			this.clearDynamicDependencies();
-		}
+			//console.log("Expire ASYNC definition", this.name);
 
-		this.needsGlobalNotify = EdenSymbol.EXPIRED;
+			try {
+				this.clearDynamicDependencies();
 
-		// recursively mark out of date and collect
-		for (var subscriber_name in this.subscribers) {
-			var subscriber = this.subscribers[subscriber_name];
-			if (subscriber) {
-				subscriber.expire(EdenSymbols_to_force, insertionIndex, actions_to_fire,fullexpire);
+				this.definition.call(this,this.context, this.context.scope, this.cache).then(v => {
+					//console.log("PROMISE EVAL = ", v);
+					this.has_evaled = true;
+					this.cache.up_to_date = true;
+					this.cache.value = v;
+					this.expireAsync();
+				});
+		
+				// Post process with all extensions
+				/*if (this.extend) {
+					for (var e in this.extend) {
+						this.extend[e].code(this.context, scope, cache.value);
+					}
+				}*/
+			} catch (e) {
+				if (e instanceof Eden.RuntimeError) {
+					eden.emit("error", [this,e]);
+				}
+				//this.logError(e);
+				console.error(this.name, e);
+				this.cache.value = undefined;
+				this.cache.up_to_date = true;
+			}
+			if (this.context) {
+				this.context.endEvaluation(this);
+			}
+		} else {
+
+			for (var observer_name in this.observers) {
+				actions_to_fire[observer_name] = this.observers[observer_name];
+			}
+
+
+			if (this.definition && this.needsGlobalNotify != EdenSymbol.ASYNC_UPDATE) {
+				// TODO, Also mark all active scopes for this EdenSymbol as out-of-date.
+				this.cache.up_to_date = false;
+				this.has_evaled = false;
+				EdenSymbols_to_force[this.name] = insertionIndex.value;
+				insertionIndex.value++;
+
+				// Need to rebuild the scope dependency path
+				if (fullexpire) {
+					//console.log("FULL EXPIRE",this.name);
+					this.def_scope = undefined;
+				} else {
+					//console.log("NORMAL EXPIRE",this.name);
+				}
+				//else if (this.def_scope) {
+				//	for (var i=0; i<this.def_scope.length; i++) this.def_scope[i].reset();
+				//}
+
+				this.clearDynamicDependencies();
+			}
+
+			this.needsGlobalNotify = EdenSymbol.EXPIRED;
+
+			// recursively mark out of date and collect
+			for (var subscriber_name in this.subscribers) {
+				var subscriber = this.subscribers[subscriber_name];
+				if (subscriber) {
+					subscriber.expire(EdenSymbols_to_force, insertionIndex, actions_to_fire,fullexpire);
+				}
 			}
 		}
 	} else {

@@ -121,11 +121,36 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 	} else if (this.token == "(") {
 		var start = this.stream.position;
 		this.next();
-		while (this.stream.valid() && this.token != ")") this.next();
-		var end = this.stream.prevposition;
-		var str = "(" + this.stream.code.substring(start,end).replace(/[\r\n]*/g,"") + ")";
-		expr = new Eden.AST.Literal("STRING", str);
-		this.next();
+
+		if (this.token == "{") {
+			this.next();
+
+			var e = this.pEXPRESSION();
+
+			if (this.token != "}") {
+				e.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SELECTORBTICK));
+				return e;
+			}
+			this.next();
+			if (this.token != ")") {
+				e.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SELECTORBTICK));
+				return e;
+			}
+			this.next();
+
+			var nexpr = new Eden.AST.BinaryOp('//');
+			nexpr.left(new Eden.AST.BinaryOp('//'));
+			nexpr.l.left(new Eden.AST.Literal("STRING", "("));
+			nexpr.l.setRight(e);
+			nexpr.setRight(new Eden.AST.Literal("STRING", ")"));
+			expr = nexpr;
+		} else {
+			while (this.stream.valid() && this.token != ")") this.next();
+			var end = this.stream.prevposition;
+			var str = "(" + this.stream.code.substring(start,end).replace(/[\r\n]*/g,"") + ")";
+			expr = new Eden.AST.Literal("STRING", str);
+			this.next();
+		}
 	} else if (this.token == ")") {
 		return;
 	} else if (this.token == "*") {

@@ -20,7 +20,7 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		var parent = this.parent;
 		this.parent = def;
 		this.isdynamic = false;
-		var expr = this.pEXPRESSION_ALIAS();
+		var expr = this.pEXPRESSION_ASYNC();
 		def.setExpression(expr);
 
 		// The source code of this definition is dynamic in nature
@@ -59,7 +59,11 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		return range;
 	} else if (this.token == "=") {
 		this.next();
-		return new Eden.AST.Assignment(this.pEXPRESSION_ALIAS());
+		var s = new Eden.AST.Assignment(this.pEXPRESSION());
+		if (s.expression && s.expression.type == "query") {
+			s.warning = new Eden.SyntaxWarning(this, s, Eden.SyntaxWarning.MISSINGSYNC, "This is an asynchronous statement");
+		}
+		return s;
 	} else if (this.token == "+=") {
 		this.next();
 		return new Eden.AST.Modify("+=", this.pEXPRESSION());

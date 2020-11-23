@@ -3,6 +3,12 @@ Eden.AST.prototype.pQUERY = function() {
 
 	var restype = [];
 
+	if (this.token == "OBSERVABLE") {
+		stat.observable = this.data.value;
+		this.next();
+		return stat;
+	}
+
 	if (this.token != "(") {
 		stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYOPEN));
 		return stat;

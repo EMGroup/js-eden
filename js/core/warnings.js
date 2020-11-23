@@ -29,6 +29,7 @@ Eden.SyntaxWarning.DEPRECATED = 1;
 Eden.SyntaxWarning.NESTEDWHEN = 2;
 Eden.SyntaxWarning.DEFINWHEN = 3;
 Eden.SyntaxWarning.EXPRESSIONLIT = 4;
+Eden.SyntaxWarning.MISSINGSYNC = 5;
 
 Eden.SyntaxWarning.prototype.messageText = function() {
 	var res;

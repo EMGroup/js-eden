@@ -95,8 +95,15 @@ EdenUI.ScriptBox = function(element, options) {
 			me.ast.execute(EdenUI.ScriptBox.consoleAgent, function(res) {
 				let result = (res) ? res : me.ast.lastresult;
 				if (result !== undefined) {
-					console.log("Result",result);
-					me.$codearea.append($('<div class="scriptbox-value">'+EdenUI.Highlight.html(Eden.edenCodeForValue(result))+'</div>'));
+					if (result instanceof Promise) {
+						result.then(r => {
+							console.log("Result",r);
+							me.$codearea.append($('<div class="scriptbox-value">'+EdenUI.Highlight.html(Eden.edenCodeForValue(r))+'</div>'));
+						});
+					} else {
+						console.log("Result",result);
+						me.$codearea.append($('<div class="scriptbox-value">'+EdenUI.Highlight.html(Eden.edenCodeForValue(result))+'</div>'));
+					}
 				}
 			});
 

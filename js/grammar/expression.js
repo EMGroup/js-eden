@@ -74,13 +74,54 @@ Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 	return left;
 }
 
+Eden.AST.prototype.pEXPRESSION_ASYNC = function() {
+	var expr;
 
-Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
+	if (this.token == "sync") {
+		this.next();
+		expr = new Eden.AST.Async();
+
+		/*if (this.token != "(") {
+			expression.error(new Eden.SyntaxError(this, Eden.SyntaxError.EXPCLOSEBRACKET));
+			return expression;
+		}
+		this.next();*/
+
+		expr.setExpression(this.pEXPRESSION());
+
+		/*if (this.token != ")") {
+			expression.error(new Eden.SyntaxError(this, Eden.SyntaxError.EXPCLOSEBRACKET));
+			return expression;
+		}
+		this.next();*/
+	} else {
+		expr = this.pEXPRESSION();
+	}
+
+	return expr;
+
+	/*if (this.token == "with" || this.token == "::") {
+		this.next();
+		var scope = this.pSCOPE();
+		scope.setExpression(expr);
+		return scope;
+	} else {
+		return expr;
+	}*/
+}
+
+/*Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 	var expr;
 
 	// TODO: Remove, this is for backward compat.
 	if (!this.strict) {
 		return this.pEXPRESSION();
+	}
+
+	if (this.token == "sync") {
+		expr = new Eden.AST.Async();
+		expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SYNCNOTALLOWED));
+		return expr;
 	}
 
 	// Query
@@ -96,7 +137,7 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 			expr = q;
 		}
 
-		if (this.token != "with" && this.token != "::" && this.token != ";") {
+		if (this.token != "with" && this.token != "::" && this.token != ";" && this.token != ")") {
 			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYNOTALLOWED));
 			return expr;
 		}
@@ -113,6 +154,8 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 		expr = this.pEXPRESSION_PLAIN();
 	}
 
+	//return expr;
+
 	if (this.token == "with" || this.token == "::") {
 		this.next();
 		var scope = this.pSCOPE();
@@ -121,7 +164,7 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
 	} else {
 		return expr;
 	}
-}
+}*/
 
 
 /**
@@ -133,6 +176,12 @@ Eden.AST.prototype.pEXPRESSION_ALIAS = function() {
  */
 Eden.AST.prototype.pEXPRESSION = function() {
 	var expr;
+
+	if (this.token == "sync") {
+		expr = new Eden.AST.Async();
+		expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SYNCNOTALLOWED));
+		return expr;
+	}
 
 	if (this.token == "{") {
 		this.next();

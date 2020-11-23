@@ -358,6 +358,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_QUERYNOTALLOWED */ [
 	"A query is not allowed here"
+],
+/* EDEN_ERROR_SYNCNOTALLOWED */ [
+	"A 'sync' can only be used directly on 'is'"
 ]
 ];
 

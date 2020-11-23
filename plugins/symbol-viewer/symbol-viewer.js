@@ -736,12 +736,7 @@ function _formatVal(value) {
 	}
 };
 
-/**
- * Update the HTML output of a plain observable symbol. Detects the data type
- * of the observable to display its current value correctly.
- */
-EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
-	var val = this.symbol.value();
+EdenUI.plugins.SymbolViewer.Symbol.prototype._updateObservable = function(val,prom) {
 	var valhtml = _formatVal(val);
 
 	var namehtml;
@@ -751,7 +746,10 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 		namehtml = this.name;
 	}
 
-	var html = "<span class='result_name'>" + namehtml + "</span><span class='result_separator'> = </span> " +
+	var classes = "result_name";
+	if (prom) classes += " async-observable";
+
+	var html = "<span class='"+classes+"'>" + namehtml + "</span><span class='result_separator'> = </span> " +
 		"<span class='result_value'>" + valhtml + "</span>";
 
 	if (this.symbol.definition !== undefined) {
@@ -761,6 +759,21 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
 	}
 
 	this.element.html(html);
+}
+
+/**
+ * Update the HTML output of a plain observable symbol. Detects the data type
+ * of the observable to display its current value correctly.
+ */
+EdenUI.plugins.SymbolViewer.Symbol.prototype.updateObservable = function () {
+	var val = this.symbol.value();
+	if (val instanceof Promise) {
+		val.then(v => {
+			this._updateObservable(v, true);
+		});
+	} else {
+		this._updateObservable(val, false);
+	}
 };
 
 /**

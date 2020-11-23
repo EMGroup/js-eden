@@ -213,8 +213,13 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 			res = this._generate_loop_opti(ctx,options,rangeindex);
 		}
 	} else {
+		var expr = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
 		// Return the expression using the newly generated scope.
-		res = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]", options);
+		if (this.expression.type == "async") {
+			res = "(function(){ var _r = "+expr+"; _r.then(rr => { cache.value = rr; this.expireAsync(); }); return cache.value; }).call(this)";
+		} else {
+			res = expr;
+		}
 	}
 
 	if (ctx && ctx.isdynamic) ctx.dynamic_source += " with (" + dynsrctmp + ")";

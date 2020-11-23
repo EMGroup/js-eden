@@ -182,6 +182,7 @@ Eden.Selectors.resultTypes = {
 	"enabled": true,
 	"executed": true,
 	"exprtree": true,
+	"single": true,
 	"expression": true,
 	"locked": true,
 	"node": true,
@@ -243,6 +244,8 @@ Eden.Selectors.processResults = function(statements, o) {
 
 		var res = [];
 
+		var single = false;
+
 		for (var i=0; i<statements.length; i++) {
 			var stat = statements[i];
 			var ires = [];
@@ -256,6 +259,7 @@ Eden.Selectors.processResults = function(statements, o) {
 				switch(kinds[j]) {
 				case "node":		val = stat; break;
 				case "exprnode"	:	val = stat.expression; break;
+				case "single"	:	single = true; break;
 				case "brief"	:	if (stat.doxyComment) {
 										val = stat.doxyComment.brief();
 									} break;
@@ -346,7 +350,7 @@ Eden.Selectors.processResults = function(statements, o) {
 				res.push(ires[0]);
 			}
 		}
-		return res;
+		return (single) ? res[0] : res;
 	}
 	return statements;
 }
@@ -575,7 +579,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 	if (typeof s != "string" || s == "") {
 		var res = [];
 		console.log("Invalid selector")
-		if (cb) cb(res);
+		if (cb) cb(res,true);
 		return res;
 	}
 
@@ -583,7 +587,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 	var sast = Eden.Selectors.parse(s.trim(), (options) ? options.options : undefined);
 	if (sast === undefined) {
 		console.log("Selector parse error");
-		if (cb) cb([]);
+		if (cb) cb([],true);
 		return [];
 	}
 
@@ -642,7 +646,6 @@ Eden.Selectors._query = function(s, o, options, cb) {
 						cb(res);
 					},
 					error: function() {
-						statements = [];
 						cb([]);
 					}
 				});
@@ -712,7 +715,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 						}
 					} else {
 						statements.push.apply(statements,stats);
-						cb(statements, true);
+						cb(statements);
 					}
 				});
 			} else if (Eden.Project.local && Eden.Project.local[path]) {
@@ -727,7 +730,8 @@ Eden.Selectors._query = function(s, o, options, cb) {
 					});
 				}, "text");
 			} else {
-				cb([]);
+				//results.result = Eden.Selectors.processResults(statements, o, num);
+				cb(statements);
 			}
 
 			//return;
@@ -758,7 +762,22 @@ Eden.Selectors._query = function(s, o, options, cb) {
 		p1([]);
 	}
 
-	return statements;
+	return (options) ? options.returnvalue : undefined;
+}
+
+Eden.Selectors.queryPromise = function(s, o, options) {
+	return new Promise((resolve, reject) => {
+		Eden.Selectors.query(s,o,options, ss => {
+			//console.log("PROMISE RESOLVE", ss);
+			resolve(ss);
+		});
+	});
+}
+
+Eden.Selectors.querySync = async function(s, o, options) {
+	const result = await Eden.Selectors.queryPromise(s,o,options);
+	console.log("Result", result);
+	return result;
 }
 
 
