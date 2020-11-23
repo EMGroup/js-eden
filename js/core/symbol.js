@@ -941,7 +941,18 @@ EdenSymbol.prototype.addExtension = function(idstr, ext, source, modifying_agent
 }
 
 EdenSymbol.prototype.listAssign = function(value, scope, origin, pushToNetwork, indices) {
-	if (this.definition) {
+	if (this.definition) {		
+		// Attempt to find corresponding primary
+		if (this.origin && this.origin.type == "definition") {
+			var p = this.origin.locatePrimary(indices);
+			if (p) {
+				eden.root.lookup(p).assign(value, scope, origin);
+				return;
+			} else {
+				
+			}
+		}
+
 		throw new Error(Eden.RuntimeError.ASSIGNTODEFINED);
 		return;
 	}
