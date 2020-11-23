@@ -3566,6 +3566,20 @@ do lib > notifications;
 do lib > defaults;
 do lib > extend_javascript;
 do lib > dynamic;
+do lib > ui;
+
+action ui {
+action moveCell {
+	do [atomic] {
+	`$1 // "_x1"` = `$1 // "_x1"` + $2;
+	`$1 // "_x2"` = `$1 // "_x2"` + $2;
+	`$1 // "_y1"` = `$1 // "_y1"` + $3;
+	`$1 // "_y2"` = `$1 // "_y2"` + $3;
+	}
+}
+
+# do moveCell::("cell_2", -1, 0);
+}
 
 action algebra {
 
