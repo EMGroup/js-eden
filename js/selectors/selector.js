@@ -535,7 +535,7 @@ Eden.Selectors._depend = function(p) {
 	if (this.options && this.options.depend && this.options.self && this.options.self instanceof EdenSymbol) {
 		return p.then(stats => {
 			for (var s of stats) {
-				console.log("Depends", s);
+				// TODO: Also add all statements own dependencies?
 				if (s.addSubscriber) this.options.self.subscribeDynamicSym(s);
 			}
 			return stats;
