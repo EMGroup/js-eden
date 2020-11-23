@@ -343,6 +343,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							this.next();
 						}
 						break;
+	case "("		  :
 	case "`"		  :
 	case "*"		  :
 	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
