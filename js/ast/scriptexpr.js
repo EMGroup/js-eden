@@ -25,7 +25,7 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope) {
 				ctx.isconstant = false;
 			}
 		}
-		result = result + this.statements[i].generate(this, "escope", {bound: false});
+		result = result + this.statements[i].generate(ctx, "escope", {bound: false});
 	}
 	result = result + "}).call(this,new Scope(context,"+scope+",[],false,this,false))";
 	

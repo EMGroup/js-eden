@@ -704,6 +704,11 @@
 		success && success();
 	};
 
+	Eden.prototype.attribute = function(node, name) {
+		var sym = (typeof node == "string") ? eden.root.lookup(node) : node;
+		return Eden.Selectors.processResults([sym],name)[0];
+	}
+
 	/**
 	 * @param {string} code
 	 * @param {String?} agent The name of the agent to use/

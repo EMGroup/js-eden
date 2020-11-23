@@ -7,6 +7,11 @@ Eden.AST.Definition = function() {
 	this.sources = null;
 };
 
+Eden.AST.Definition.prototype.reset = function() {
+	this.executed = 0;
+}
+
+
 Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
 	if (this.parent && this.parent.getParameterByNumber) {
 		return this.parent.getParameterByNumber(index);
@@ -51,7 +56,8 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 			result += "if (this.def_scope) { _scopes["+i+"].mergeCache(this.def_scope["+i+"].cache); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
 		}
 
-		result += "this.def_scope = _scopes;\n";
+		// FIXME: Def scope is broken in dynamic contexts.
+		//result += "this.def_scope = _scopes;\n";
 	}
 
 	if (dobound) {

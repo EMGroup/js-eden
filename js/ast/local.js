@@ -1,5 +1,4 @@
 Eden.AST.Local = function(name) {
-	console.log("MAKE LOCAL",name);
 	this.name = name;
 	this.cvalue = undefined;
 	this.definition = undefined;

@@ -273,7 +273,8 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 			eden.emit("error", [this,e]);
 		}
 		//this.logError(e);
-		//console.error(this.name, e);
+		//if (this.context) console.error(this.context.currentObservables.map(x => { return x.name; }), e);
+		//else console.error(this.name, e);
 		cache.value = undefined;
 		cache.up_to_date = true;
 	}
@@ -405,6 +406,10 @@ EdenSymbol.prototype.getDynamicSource = function() {
 		}
 	}
 	return this.name + " = " + Eden.edenCodeForValue(this.value()) + ";";
+}
+
+EdenSymbol.prototype.toString = function() {
+	return "&"+this.name;
 }
 
 

@@ -383,9 +383,15 @@ func forgetAll {
 
 #! Generate an error notification.
 # @param msg Message to give with error.
-proc error {
+func error {
 	para msg;
-	append jseden_notifications,["error",msg];
+	local obss;
+	${{ obss = eden.root.currentObservables.map(s=>{ return s.name; }); }}$
+	if (obss && obss# > 0) {
+		append jseden_notifications,["error", "[" // obss[obss#] // "] " // msg];
+	} else {
+		append jseden_notifications,["error",msg];
+	}
 }
 
 #! Get the name of a symbol pointer.
@@ -3492,7 +3498,16 @@ action scoping {
 }
 
 action notifications {
+action notify {
+	${{ edenUI.menu.notifications.notification(scope.value("$1"),scope.value("$2")); }}$;
+}
 
+when (jseden_notifications# > 0) {
+	for (i=1; i<=jseden_notifications#; i++) {
+		do notify :: jseden_notifications[i][1], jseden_notifications[i][2];
+	}
+	jseden_notifications = [];
+}
 }
 
 action extend_javascript {
@@ -3549,6 +3564,7 @@ do lib > scoping;
 do lib > notifications;
 do lib > defaults;
 do lib > extend_javascript;
+do lib > dynamic;
 
 action algebra {
 
@@ -3712,7 +3728,10 @@ func scalePoint {
 }
 
 action dynamic {
-
+func _attribute {
+	para p1,p2;
+	return ${{ eden.attribute(p1,p2) }}$;
+}
 }
 
 /**

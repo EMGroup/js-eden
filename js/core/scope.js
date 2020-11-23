@@ -158,7 +158,7 @@ Scope.prototype.refresh = function() {
 Scope.prototype.rebuildForce = function() {
 	/* Process the overrides */
 	for (var i = 0; i < this.overrides.length; i++) {
-		this.updateSubscriberForce(this.overrides[i]);
+		this.updateSubscriberForce(this.overrides[i], true);
 	}
 }
 
@@ -342,7 +342,7 @@ Scope.prototype.updateOverride = function(override) {
 Scope.prototype.addSubscriber = function(name) {
 	//console.log("Adding scope subscriber...: " + name);
 	if (this.cache[name] === undefined) {
-		this.cache[name] = new ScopeCache( false, undefined, this);
+		this.cache[name] = new ScopeCache( false, undefined, this, false);
 		var sym = this.context.lookup(name);
 		for (var d in sym.subscribers) {
 			this.addSubscriber(d);
@@ -353,7 +353,7 @@ Scope.prototype.addSubscriber = function(name) {
 Scope.prototype.updateSubscriber = function(name) {
 	//console.log("Adding scope subscriber...: " + name);
 	if (this.cache[name] === undefined) {
-		this.cache[name] = new ScopeCache( false, undefined, this);
+		this.cache[name] = new ScopeCache( false, undefined, this, false);
 		var sym = this.context.lookup(name);
 		for (var d in sym.subscribers) {
 			this.updateSubscriber(d);
@@ -365,10 +365,10 @@ Scope.prototype.updateSubscriber = function(name) {
 	}
 }
 
-Scope.prototype.updateSubscriberForce = function(name) {
+Scope.prototype.updateSubscriberForce = function(name, override) {
 	//console.log("Adding scope subscriber...: " + name);
 	if (this.cache[name] === undefined) {
-		this.cache[name] = new ScopeCache( false, undefined, this);
+		this.cache[name] = new ScopeCache( false, undefined, this, override);
 	} else {
 		this.cache[name].up_to_date = false;
 		this.cache[name].value = undefined;
@@ -376,7 +376,7 @@ Scope.prototype.updateSubscriberForce = function(name) {
 	}
 	var sym = this.context.lookup(name);
 	for (var d in sym.subscribers) {
-		this.updateSubscriberForce(d);
+		this.updateSubscriberForce(d, false);
 	}
 }
 
@@ -416,7 +416,7 @@ Scope.prototype.mergeCache = function(prevcache) {
 		this.cache = {};
 		for (var o in prevcache) {
 			//if (prevcache[o].up_to_date) // TODO Check this works in all cache, ie. backticks
-			this.cache[o] = new ScopeCache(false, undefined, this);
+			this.cache[o] = new ScopeCache(false, undefined, this, false);
 		}
 	//} else {
 	//	this.cache = prevcache;

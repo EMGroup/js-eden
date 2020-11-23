@@ -46,8 +46,8 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 	} else if (this.op == "&") {
 		if (ctx && ctx.dependencies) {
 			if (this.r.name) {
-				ctx.dependencies[this.r.name] = true;
-				ctx.isconstant = false;
+				//ctx.dependencies[this.r.name] = true;
+				//ctx.isconstant = false;
 			} else if (wasconst) {
 				var btickval = "ERROR";
 				try {
@@ -55,13 +55,13 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 				} catch (e) {
 
 				}
-				if (ctx.dependencies) ctx.dependencies[btickval] = true;
+				//if (ctx.dependencies) ctx.dependencies[btickval] = true;
 				btickval = JSON.stringify(btickval);
 				r = btickval;
-				ctx.isconstant = false;
+				//ctx.isconstant = false;
 			} else {
-				r = "this.subscribeDynValue(0, " + r + ", "+scope+")";
-				ctx.isconstant = false;
+				//r = "this.subscribeDynValue(0, " + r + ", "+scope+")";
+				//ctx.isconstant = false;
 			}
 		}
 		res = "context.lookup("+r+")";
