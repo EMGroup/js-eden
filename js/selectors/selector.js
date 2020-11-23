@@ -182,7 +182,9 @@ Eden.Selectors.resultTypes = {
 	"enabled": true,
 	"executed": true,
 	"exprtree": true,
-	"single": true
+	"single": true,
+	"expression": true,
+	"locked": true
 };
 
 Eden.Selectors.expressionToLists = function(expr) {
@@ -235,7 +237,7 @@ Eden.Selectors.listsToExpression = function(lists) {
 
 Eden.Selectors.processResults = function(statements, o) {
 	// Check what kind of result we are to return
-	if (o !== undefined) {
+	if (o) {
 		var kinds = (Array.isArray(o)) ? o : o.split(",");
 
 		var res = [];
@@ -277,6 +279,7 @@ Eden.Selectors.processResults = function(statements, o) {
 									}
 									break;
 				case "type"		:	val = stat.type; break;
+				case "locked"	:	val = (stat.lock) ? true : false; break;
 				//case "path"		:
 				case "name"		:	if (stat.lvalue && stat.lvalue.name) {
 										val = stat.lvalue.name;
@@ -543,11 +546,17 @@ Eden.Selectors.queryWithin = function(within, s, o, cb) {
 }
 
 Eden.Selectors.query = function(s, o, options, cb) {
+	if (!cb) return [];
+	Eden.Selectors._query(s, o, options, (ss,processed) => {
+		cb((processed) ? ss : Eden.Selectors.processResults(ss, o));
+	});
+}
+
+Eden.Selectors._query = function(s, o, options, cb) {
 	var ctx;
 	var num;
 
-	var statements;
-	let results = {result: undefined, stillvalid:true};
+	var statements = [];
 
 	if (!cb) {
 		console.warn("Selector query without callback: ", s);
@@ -626,12 +635,11 @@ Eden.Selectors.query = function(s, o, options, cb) {
 						Eden.Selectors.cache[s] = res[0];
 						//Eden.Index.update(res[0]);
 						//statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
-						results.result = Eden.Selectors.processResults(res, o);
-						cb(results.result);
+						//statements = Eden.Selectors.processResults(res, o);
+						cb(res);
 					},
 					error: function() {
-						results.result = [];
-						cb([],results.stillvalid);
+						cb([]);
 					}
 				});
 			// Only search the server if an external query is requested
@@ -676,8 +684,8 @@ Eden.Selectors.query = function(s, o, options, cb) {
 								//}
 								
 							} else {
-								results.result = Eden.Selectors.processResults(statements, o);
-								cb(results.result,results.stillvalid);
+								//cb(Eden.Selectors.processResults(statements, o));
+								cb(statements);
 							}
 						};
 
@@ -692,16 +700,15 @@ Eden.Selectors.query = function(s, o, options, cb) {
 								//statements = res;
 								sast.filter(res).then(s => {
 									var u = Eden.Selectors.unique(s);
-									cb(Eden.Selectors.processResults(u, o));
+									cb(u);
 								});
 							}, "text");
 						} else {
-							cb(Eden.Selectors.processResults(statements, o));
+							cb(statements);
 						}
 					} else {
 						statements.push.apply(statements,stats);
-						results.result = Eden.Selectors.processResults(statements, o);
-						cb(results.result,results.stillvalid);
+						cb(statements);
 					}
 				});
 			} else if (Eden.Project.local && Eden.Project.local[path]) {
@@ -712,19 +719,19 @@ Eden.Selectors.query = function(s, o, options, cb) {
 					statements = res;
 					sast.filter(res).then(s => {
 						var u = Eden.Selectors.unique(s);
-						cb(Eden.Selectors.processResults(u, o));
+						cb(u);
 					});
 				}, "text");
 			} else {
-				results.result = Eden.Selectors.processResults(statements, o, num);
-				cb(results.result,results.stillvalid);
+				//results.result = Eden.Selectors.processResults(statements, o, num);
+				cb(statements);
 			}
 
 			//return;
 		} else {
 			//var res = Eden.Selectors.processResults(statements, o);
-			results.result = Eden.Selectors.processResults(statements, o, num);
-			if (cb) cb(results.result, results.stillvalid);
+			//statements = Eden.Selectors.processResults(statements, o, num);
+			cb(statements);
 			//return statements;
 		}
 	};
@@ -850,14 +857,15 @@ Eden.Selectors.goto = function(selector) {
 /**
  * Edit AST nodes that match a query.
  */
-Eden.Selectors.assign = function(selector, attributes, values) {
-	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true}, function(res) {
+Eden.Selectors.assign = function(selector, attributes, values, ctx, cb) {
+	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true, options: {self: ctx}}, function(res) {
 
 	var attribs = (typeof attributes == "string") ? attributes.split(",") : attributes;
 	var vals = (Array.isArray(values)) ? values : [values];
 
 	if (vals.length < attribs.length) {
 		console.error("Not enough values");
+		if (cb) cb([]);
 		return;
 	}
 
@@ -892,6 +900,34 @@ Eden.Selectors.assign = function(selector, attributes, values) {
 										}
 									} else {
 										console.error("Cannot replace innersource of non-script node");
+									}
+									break;
+			case "expression"	:	if (res[i].type == "definition" || res[i].type == "assignment") {
+										var newnode = Eden.AST.parseExpression(vals[j]);
+										res[i].expression = newnode;
+										res[i].reset();
+										res[i].source = res[i].lvalue.source + ((res[i].type == "definition") ? " is " : " = ") + vals[j] + ";";
+										var parent = res[i];
+										// Notify all parent fragments of patch
+										while (parent) {
+											Eden.Fragment.emit("patch", [undefined, parent]);
+											parent = parent.parent;
+										}
+									} else {
+										console.error("Cannot replace expression");
+									}
+									break;
+
+			case "locked"	:		if (res[i].type == "script") {
+										if (!vals[j]) {
+											res[i].lock = 0;
+											Eden.Fragment.emit("unlock", [undefined, res[i]]);
+										} else if (res[i].lock == 0) {
+											res[i].lock = 1;
+											Eden.Fragment.emit("lock", [undefined, res[i]]);
+										}
+									} else {
+										console.error("Cannot replace expression");
 									}
 									break;
 
@@ -936,20 +972,23 @@ Eden.Selectors.assign = function(selector, attributes, values) {
 			}
 		}
 	}
+
+	if (cb) cb(res);
 	});
 }
 
 /**
  * Edit AST nodes that match a query.
  */
-Eden.Selectors.append = function(selector, attributes, values) {
-	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true}, function(res) {
+Eden.Selectors.append = function(selector, attributes, values, ctx, cb) {
+	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true, options: {self: ctx}}, function(res) {
 
 	var attribs = (typeof attributes == "string") ? attributes.split(",") : attributes;
 	var vals = (Array.isArray(values)) ? values : [values];
 
 	if (vals.length < attribs.length) {
 		console.error("Not enough values");
+		if (cb) cb([]);
 		return;
 	}
 
@@ -1011,6 +1050,8 @@ Eden.Selectors.append = function(selector, attributes, values) {
 			}
 		}
 	}
+
+	if (cb) cb(res);
 	});
 }
 

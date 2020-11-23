@@ -182,7 +182,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	var endline = -1;
 	var stat = undefined;
 	var end = -1;
-	var doxy = (this.lastDoxyComment.length > 0) ? this.lastDoxyComment.pop() : undefined;
+	var doxy = (this.lastDoxyComment && this.lastDoxyComment.length > 0) ? this.lastDoxyComment.pop() : undefined;
 	if (this.lastDoxyComment.length == 0 && this.parentDoxy) this.lastDoxyComment.push(this.parentDoxy);
 
 	switch (this.token) {
@@ -352,6 +352,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							stat.errors = lvalue.errors;
 							break;
 						}
+						lvalue.source = this.stream.code.substring(start,this.lastposition).trim();
 						var formula = this.pSTATEMENT_PP();
 						formula.left(lvalue);
 
@@ -381,6 +382,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	stat.parent = this.parent;
 	stat.local = this.localStatus;
 	if (stat.doxyComment === undefined) {
+		if (!stat.setDoxyComment) console.error("Bad stat", stat);
 		stat.setDoxyComment(doxy);// (doxy && doxy.endline == curline-1) ? doxy : undefined;
 	}
 	stat.stamp = this.stamp;
@@ -426,7 +428,7 @@ Eden.AST.prototype.pSTATEXPR = function() {
 	var stat = undefined;
 	//var end = -1;
 	var doxy = this.lastDoxyComment;
-	this.lastDoxyComment = this.parentDoxy;
+	if (this.parentDoxy) this.lastDoxyComment = this.parentDoxy;
 
 	switch (this.token) {
 	case "proc"		:	

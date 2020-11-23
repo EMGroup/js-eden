@@ -6,6 +6,7 @@ Eden.AST.LValue = function() {
 	this.primary = undefined;
 	this.lvaluep = undefined;
 	this.islocal = false;
+	this.source = "";
 };
 
 Eden.AST.LValue.prototype.error = Eden.AST.fnEdenASTerror;

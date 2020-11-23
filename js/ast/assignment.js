@@ -24,6 +24,11 @@ Eden.AST.Assignment = function(expression) {
 	this.compiled = undefined;
 };
 
+Eden.AST.Assignment.prototype.reset = function() {
+	this.executed = 0;
+	this.dirty = true;
+}
+
 /*Eden.AST.Assignment.prototype.patchOuter = function(node) {
 	this.expression = node.expression;
 	this.executed = 0;

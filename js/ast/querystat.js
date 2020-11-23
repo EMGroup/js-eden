@@ -7,6 +7,8 @@ Eden.AST.Query = function() {
 	this.modexpr = undefined;
 	this.kind = "=";
 	this._expr = undefined;
+	this._selector = null;
+	this._modexpr = null;
 }
 
 Eden.AST.Query.prototype.setSelector = function(selector) {
