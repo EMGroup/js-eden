@@ -3571,12 +3571,24 @@ do lib > ui;
 action ui {
 action moveCell {
 	do [atomic] {
-	(*$1)[1][1][1] = (*$1)[1][1][1] + $2;
-	(*$1)[1][2][1] = (*$1)[1][2][1] + $2;
-	(*$1)[1][1][2] = (*$1)[1][1][2] + $3;
-	(*$1)[1][2][2] = (*$1)[1][2][2] + $3;
+	(*$1).range[1][1] = (*$1).range[1][1] + $2;
+	(*$1).range[2][1] = (*$1).range[2][1] + $2;
+	(*$1).range[1][2] = (*$1).range[1][2] + $3;
+	(*$1).range[2][2] = (*$1).range[2][2] + $3;
 	}
 }
+
+/*cell_2_content = ["hello",5];
+cell_2_x1 = 33;
+cell_2_y1 = 1;
+cell_2_x2 = 39;
+cell_2_y2 = 3;
+cell_2 is [
+	range: [[cell_2_x1,cell_2_y1],[cell_2_x2,cell_2_y2]],
+	content: &cell_2_content
+];
+
+append jseden_ui_cells,&cell_2;*/
 
 /* do moveCell::(&cell_2, -1, 0); */
 }

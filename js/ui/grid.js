@@ -96,12 +96,8 @@ EdenUI.Grid.prototype.updateGrid = function (grid) {
 
 	if (Array.isArray(grid)) {
 		for (var item of grid) {
-			if (!Array.isArray(item) || item.length != 2) {
-				continue;
-			}
 
-			var [range, content] = item;
-			var [x,y,width,height] = this.getRangeGeometry(range);
+			var [x,y,width,height] = this.getRangeGeometry(item.range);
 
 			console.log("Geometry", x, y, width, height);
 
@@ -113,14 +109,14 @@ EdenUI.Grid.prototype.updateGrid = function (grid) {
 			ele.style.top = ""+y+"em";
 			ele.style.left = ""+x+"em";
 			
-			if (content instanceof EdenSymbol) {
-				var val = content.value();
+			if (item.content instanceof EdenSymbol) {
+				var val = item.content.value();
 				this.updateElement(ele, val);
-				content.addJSObserver("gridCell", (sym, value) => {
+				item.content.addJSObserver("gridCell", (sym, value) => {
 					this.updateElement(ele, value);
 				});
 			} else {
-				this.updateElement(ele, content);
+				this.updateElement(ele, item.content);
 			}
 
 			this.gridElement.appendChild(ele);

@@ -14,7 +14,10 @@ view_myscript_type = "ScriptInput";
 view_myscript_range = "B2:Z20";
 view_myscript_tabs = [":project > start"];
 view_myscript_current = 0;
-view_myscript_cell is [view_myscript_range, &view_myscript_content];
+view_myscript_cell is [
+	range: view_myscript_range,
+	content: &view_myscript_content
+];
 append jseden_ui_cells,&view_myscript_cell;
 jseden_project_title = "New Project";}
 
