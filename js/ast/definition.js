@@ -13,6 +13,31 @@ Eden.AST.Definition.prototype.reset = function() {
 	this.executed = 0;
 }
 
+Eden.AST.Definition.prototype.rebuild = function(sym) {
+	this.dependencies = {};
+	console.log("Rebuilt " + sym.name);
+
+	this.dorebuild = true;
+
+	try {
+		var rhs = "("+this.generateDef(this)+")";
+		sym.definition = eval(rhs);
+		/*sym.clearObservees();
+		sym.clearDependencies();
+
+		var deps = [];
+		for (var d in this.dependencies) {
+			deps.push(d);
+		}
+
+		sym.subscribe(deps);*/
+	} catch(e) {
+		console.error(this, e);
+	}
+
+	this.dorebuild = false;
+}
+
 
 Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
 	if (this.parent && this.parent.getParameterByNumber) {
