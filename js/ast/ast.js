@@ -105,6 +105,10 @@ Eden.AST = function(code, imports, origin, options) {
 	}
 }
 
+Eden.AST.MODE_DYNAMIC = 1;
+Eden.AST.MODE_COMPILED = 2;
+Eden.AST.MODE_READABLE = 3;
+
 /* Generic functions to be reused */
 Eden.AST.fnEdenASTerror = function(err) {
 	this.errors.unshift(err);
