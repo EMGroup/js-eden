@@ -213,7 +213,7 @@ Eden.AST.Scope.prototype.findBySignature = function(ctx, params, replacements) {
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 	// Add the scope generation string the the array of scopes in this context
-	ctx.scopes.push(this.generateConstructor(ctx,scope));
+	/*ctx.scopes.push(this.generateConstructor(ctx,scope));
 
 	var res = "";
 	var dynsrctmp;
@@ -253,6 +253,38 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 	}
 
 	if (ctx && ctx.isdynamic) ctx.dynamic_source += " with (" + dynsrctmp + ")";
+	return res;*/
+
+	if (ctx.dorebuild) {
+		this.cleanUp();
+	}
+
+	// Any scope will cause a dirty assignment
+	ctx.dirty = true;
+
+	var transpile = this.findBySignature(ctx,[],[]);
+	// Make sure dependencies are carried forward.
+	if (ctx.dependencies) {
+		for (var x in transpile.uses) {
+			ctx.dependencies[x] = true;
+		}
+	}
+	
+	var res = "eden.s."+ transpile.name + "(";
+
+	if (mode === Eden.AST.MODE_COMPILED) {
+		for (var i=0; i<transpile.paramsList.length; i++) {
+			res += "o"+transpile.paramsList[i];
+			if (i < transpile.paramsList.length - 1) res += ", ";
+		}
+	} else {
+		for (var i=0; i<transpile.paramsList.length; i++) {
+			res += "eden.root.lookup(\""+transpile.paramsList[i]+"\").value()";
+			if (i < transpile.paramsList.length - 1) res += ", ";
+		}
+	}
+	res += ")";
+	//this.compiled = res;
 	return res;
 }
 
