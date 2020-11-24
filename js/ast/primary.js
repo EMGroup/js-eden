@@ -49,6 +49,14 @@ Eden.AST.Primary.prototype.prepend = function(extra) {
  */
 Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 	var res;
+	var obs = this.observable;
+	var subed = false;
+	var mode = (options && options.mode) ? options.mode : Eden.AST.MODE_DYNAMIC;
+
+	if (ctx.names && ctx.names[this.observable]) {
+		obs = ctx.names[this.observable];
+		subed = true;
+	}
 
 	// Check if this primary is a local variable in this context.
 	if (ctx && ctx.locals) {
@@ -166,14 +174,20 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			ctx.isconstant = false;
 		}
 		if (ctx && ctx.isdynamic) ctx.dynamic_source += this.observable;
-		res = "\""+this.observable+"\"";
+		//res = "\""+this.observable+"\"";
+
+		switch (mode) {
+		case Eden.AST.MODE_COMPILED		:	res = (!subed && ctx.prefix)?ctx.prefix+obs:obs; break;
+		case Eden.AST.MODE_DYNAMIC		:	res = (subed)?obs:scope+".value(\""+obs+"\")"; break;
+		default:
+		}
 	}
 
 	// Extras are the list indices or function calls
 	if (this.extras.length == 0) {
 		// No extras so check what kind of value is wanted
 		// Value only, scope only or both.
-		if (!options.bound) {
+		/*if (!options.bound) {
 			res = scope+".value("+res+")";
 		} else {
 			if (options.scopeonly) {
@@ -181,7 +195,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			} else {
 				res = scope+".boundValue("+res+")";
 			}
-		}
+		}*/
 	} else {
 		// List indices and function calls only work on values not scopes.
 		res = scope+".value("+res+")";

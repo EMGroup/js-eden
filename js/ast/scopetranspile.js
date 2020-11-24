@@ -79,7 +79,7 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 
 	var namesindex = {};
 	var exprctx = {name: ctx.name, dorebuild: ctx.dorebuild, dependencies: {}, scopes: [], names: namesindex, prefix: "o"};
-	var express = this.scope.expression.generate(exprctx,undefined,Eden.AST.MODE_COMPILED);
+	var express = this.scope.expression.generate(exprctx,undefined,{mode: Eden.AST.MODE_COMPILED});
 	var res = "";
 	var reruns = "";
 	var loopers = [];
@@ -174,7 +174,7 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 					loopreruns[loopreruns.length-1] += "var o"+x+" = " + exprs[0] + ";\n";*/
 				} else {
 					var tmpctx = {name: ctx.name, dorebuild: ctx.dorebuild, dependencies: {}, names: namesindex, prefix: "o"};
-					var src = expr.generate(tmpctx, undefined, Eden.AST.MODE_COMPILED);
+					var src = expr.generate(tmpctx, undefined, {mode: Eden.AST.MODE_COMPILED});
 
 					// If the symbol is still in a noop state, add our dependencies to it...
 					//if (sym.definition === noop) {
@@ -215,14 +215,14 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 	// Generate the override expressions and capture required dependencies
 	for (var x in this.scope.overrides) {
 		if (this.scope.overrides[x].end === undefined) {
-			res2 += "var o"+x+" = "+this.scope.overrides[x].start.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
+			res2 += "var o"+x+" = "+this.scope.overrides[x].start.generate(localctx,undefined,{mode: Eden.AST.MODE_COMPILED});
 			res2 += ";\n";
 			//namesindex[x] = this.scope.overrides[x].start.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
 		} else {
 			// Also add loop start/end variables
-			res2 += "const l"+x+"_start = "+this.scope.overrides[x].start.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
+			res2 += "const l"+x+"_start = "+this.scope.overrides[x].start.generate(localctx,undefined,{mode: Eden.AST.MODE_COMPILED});
 			res2 += ";\n";
-			res2 += "const l"+x+"_end = "+this.scope.overrides[x].end.generate(localctx,undefined,Eden.AST.MODE_COMPILED);
+			res2 += "const l"+x+"_end = "+this.scope.overrides[x].end.generate(localctx,undefined,{mode: Eden.AST.MODE_COMPILED});
 			res2 += ";\n";
 			res2 += "length += l" + x + "_end - l"+x+"_start + 1;\n";
 			loopers.push(x);
