@@ -26,6 +26,7 @@ function EdenSymbol(context, name) {
 	this.needsGlobalNotify = 0;
 	this.has_evaled = false;
 	this.isasync = false;
+	this.fullexp = true;
 
 	// need to keep track of who we subscribe to so
 	// that we can unsubscribe from them when our definition changes
@@ -229,6 +230,14 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 	try {
 		cache.up_to_date = true;
 		this.has_evaled = true;
+
+		if (this.fullexp && this.origin && this.origin.type == "definition") {
+			this.origin.rebuild(this);
+			this.fullexp = false;
+		} else {
+			this.fullexp = false;
+		}
+
 		//NOTE: Don't do copy here, be clever about it.
 		//cache.value = copy(this.definition(this.context, scope));
 		cache.value = this.definition.call(this,this.context, scope, cache);
@@ -425,6 +434,7 @@ EdenSymbol.prototype.define = function (definition, origin, subscriptions, sourc
 	this.definition = definition;
 	this.origin = origin;
 	this.needsGlobalNotify = EdenSymbol.REDEFINED;
+	this.fullexp = true;
 
 	// EdenSymbol no longer observes or depends on anything
 	this.clearObservees();
@@ -765,6 +775,7 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 				// Need to rebuild the scope dependency path
 				if (fullexpire) {
 					//console.log("FULL EXPIRE",this.name);
+					this.fullexp = true;
 					this.def_scope = undefined;
 				} else {
 					//console.log("NORMAL EXPIRE",this.name);
