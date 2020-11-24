@@ -7,6 +7,25 @@
 
 function noop() {}
 
+/**
+ * Generates a random string
+ * 
+ * @param int length_
+ * @return string
+ */
+function randomString(length_) {
+
+    var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
+    if (typeof length_ !== "number") {
+        length_ = Math.floor(Math.random() * chars.length_);
+    }
+    var str = '';
+    for (var i = 0; i < length_; i++) {
+        str += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return str;
+}
+
 function get_time_diff( timestamp )
 {
 	var datetime = timestamp * 1000;
