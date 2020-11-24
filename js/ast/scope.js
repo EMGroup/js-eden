@@ -212,6 +212,7 @@ Eden.AST.Scope.prototype.findBySignature = function(ctx, params, replacements) {
 }
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
+	var mode = (options && options.mode) ? options.mode : Eden.AST.MODE_COMPILED;
 	// Add the scope generation string the the array of scopes in this context
 	/*ctx.scopes.push(this.generateConstructor(ctx,scope));
 
