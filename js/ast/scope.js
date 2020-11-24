@@ -211,6 +211,28 @@ Eden.AST.Scope.prototype.findBySignature = function(ctx, params, replacements) {
 	return nsig;
 }
 
+Eden.AST.Scope.prototype.generateCustom = function(ctx, params, replacements) {
+	if (ctx.dorebuild) {
+		//delete eden.s[this.compiled];
+		//console.log("REMOVED SCOPECOMP",this.compiled);
+		// TODO Need to clean up if compilation fails.
+		//this.compiled = undefined;
+		this.cleanUp();
+	}
+
+	// Any scope will cause a dirty assignment
+	ctx.dirty = true;
+
+	var transpile = this.findBySignature(ctx,params,replacements);
+	// Make sure dependencies are carried forward.
+	if (ctx.dependencies) {
+		for (var x in transpile.uses) {
+			ctx.dependencies[x] = true;
+		}
+	}
+	return transpile;
+}
+
 Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 	var mode = (options && options.mode) ? options.mode : Eden.AST.MODE_COMPILED;
 	// Add the scope generation string the the array of scopes in this context
