@@ -200,6 +200,11 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		// List indices and function calls only work on values not scopes.
 		//res = scope+".value("+res+")";
 
+		// Function calls should embed compiled function references...
+		if (!subed && this.extras[0].type == "functioncall") {
+			res = "eden.f.func_"+obs;
+		}
+
 		// Generate each extra
 		for (var i=0; i<this.extras.length; i++) {
 			if (ctx && ctx.isdynamic) {
