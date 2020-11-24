@@ -5,6 +5,8 @@ Eden.AST.Definition = function() {
 	this.expression = undefined;
 	this.lvalue = undefined;
 	this.sources = null;
+	this.name = "__";
+	this.dorebuild = false;
 };
 
 Eden.AST.Definition.prototype.reset = function() {

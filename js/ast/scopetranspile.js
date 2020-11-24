@@ -37,7 +37,7 @@ Eden.AST.Scope.Transpile.prototype.split_expression = function(ctx, expr, mathre
 	} else {
 		expr1 = "expr_"+this.exprnum++;
 		var expr1_ctx = {dependencies: {}, name: expr1, mathreplace: mathreplace};
-		expr1_ctx.source = expr.l.generate(expr1_ctx, undefined, {bound: false, fulllocal: true});
+		expr1_ctx.source = expr.l.generate(expr1_ctx, undefined, {bound: false, fulllocal: true, mode: Eden.AST.MODE_COMPILED});
 		contexts.push(expr1_ctx);
 	}
 
@@ -48,7 +48,7 @@ Eden.AST.Scope.Transpile.prototype.split_expression = function(ctx, expr, mathre
 	} else {
 		expr2 = "expr_"+this.exprnum++;
 		var expr2_ctx = {dependencies: {}, name: expr2, mathreplace: mathreplace};
-		expr2_ctx.source = expr.r.generate(expr2_ctx, undefined, {bound: false, fulllocal: true});
+		expr2_ctx.source = expr.r.generate(expr2_ctx, undefined, {bound: false, fulllocal: true, mode: Eden.AST.MODE_COMPILED});
 		contexts.push(expr2_ctx);
 	}
 
