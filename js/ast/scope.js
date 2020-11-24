@@ -10,6 +10,10 @@ Eden.AST.Scope = function() {
 	this.range = false;
 	this.overrides = {};
 	this.expression = undefined; // = new Eden.AST.Primary();
+
+	this.compiled = undefined;
+	this.params = {};
+	this.transpiles = [];
 }
 
 Eden.AST.Scope.prototype.error = Eden.AST.fnEdenASTerror;
@@ -179,6 +183,29 @@ Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex
 		res += "return results;}).call(this)";
 	}
 	return res;
+}
+
+Eden.AST.Scope.prototype.cleanUp = function() {
+	for (var i=0; i<this.transpiles.length; i++) {
+		//this.transpiles[i].cleanUp();
+		console.log("Removing transpile", this.transpiles[i].name);
+	}
+	this.transpiles = [];
+}
+
+Eden.AST.Scope.prototype.findBySignature = function(ctx, params, replacements) {
+	for (var i=0; i<this.transpiles.length; i++) {
+		if (this.transpiles[i].test(params,replacements)) {
+			var tpile = this.transpiles[i];
+			console.log("Found existing: ",tpile.name);
+			return tpile;
+		}
+	}
+
+	var nsig = new Eden.AST.Scope.Transpile(this, ctx);
+	this.transpiles.push(nsig);
+	nsig.build(ctx);
+	return nsig;
 }
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
