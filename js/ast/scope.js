@@ -10,9 +10,12 @@ Eden.AST.Scope = function() {
 	this.range = false;
 	this.overrides = {};
 	this.expression = undefined; // = new Eden.AST.Primary();
-
+	this.mergeoptimised = false;
+	this.exprnum = 0;
+	this.exprs = {};
 	this.compiled = undefined;
 	this.params = {};
+
 	this.transpiles = [];
 }
 
