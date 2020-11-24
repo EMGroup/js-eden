@@ -28,12 +28,16 @@ Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 		eden.updateDictionary(this.name, this.doxyComment);
 	}
 
-	var body = this.body.generate(ctx,"scope");
+	var body = this.body.generateInner(ctx,"scope");
 	var sym = eden.root.lookup(this.name);
-	var func = eval(body);
-	sym.define(func, this,[]);
 
-	eden.f["func_"+this.name] = func;
+	try {
+		var func = eval(body);
+		sym.assign(func, scope, this);
+		eden.f["func_"+this.name] = func;
+	} catch(e) {
+		console.error("Function creation error", e);
+	}
 }
 
 Eden.AST.registerStatement(Eden.AST.Function);

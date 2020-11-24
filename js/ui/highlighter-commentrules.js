@@ -487,7 +487,7 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 		case "italic": name = "font-style"; val = "italic"; break;
 		}
 
-		console.log("NAME", name, "VALUE", val);
+		//console.log("NAME", name, "VALUE", val);
 
 		if (css_color_names[name] || name.charAt(0) == "#") {
 			val = name;
