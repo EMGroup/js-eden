@@ -383,6 +383,36 @@ EdenSymbol.prototype.toString = function() {
 	return "&"+this.name;
 }
 
+/* Find all indirect dependencies for this symbol. */
+EdenSymbol.prototype.indirectDependencies = function(obj) {
+	var result = (obj) ? obj : {};
+	for (var d in this.dependencies) {
+		var sym = this.dependencies[d];
+		result[d] = sym;
+		sym.indirectDependencies(result);
+	}
+
+	for (var d in this.dynamicDependencies) {
+		var sym = this.dynamicDependencies[d];
+		result[d] = sym;
+		sym.indirectDependencies(result);
+	}
+
+	return result;
+}
+
+/* Find all indirect dependees for this symbol. */
+EdenSymbol.prototype.indirectSubscribers = function(obj) {
+	var result = (obj) ? obj : {};
+	for (var d in this.subscribers) {
+		var sym = this.subscribers[d];
+		result[d] = sym;
+		sym.indirectSubscribers(result);
+	}
+
+	return result;
+}
+
 
 /**
  * Set a definition for the EdenSymbol, which will be used to calculate it's value.
