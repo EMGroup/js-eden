@@ -32,14 +32,14 @@ Eden.AST.FunctionCall.prototype.generateArgs = function(ctx, scope) {
 	return res + "]";
 }
 
-Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
+Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
 	if (this.lvalue === undefined) {
 		if (ctx && ctx.isdynamic) ctx.dynamic_source += "(";
 		var res = ".call(this";
 		if (this.params) {
 			if (this.params.length > 0) res += ",";
 			for (var i=0; i<this.params.length; i++) {
-				var express = this.params[i].generate(ctx, scope, {bound: false});
+				var express = this.params[i].generate(ctx, scope, {mode: options.mode, bound: false});
 				res += "("+express+")";
 				if (i != this.params.length-1) {
 					if (ctx && ctx.isdynamic) ctx.dynamic_source += ", ";
@@ -56,7 +56,7 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope) {
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
 				res += ",";
-				var express = this.params[i].generate(ctx, scope,{bound: false});
+				var express = this.params[i].generate(ctx, scope,{mode: options.mode, bound: false});
 				res += "("+express+")";
 				//if (i != this.params.length-1) res += ",";
 			}

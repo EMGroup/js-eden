@@ -193,7 +193,7 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 
 						// Append the expression to the correct loop level
 						if (looplevel[x] == 1) loopreruns[1] += "var ";
-						else loopreruns[1] += "var o"+x+";\n";
+						//else loopreruns[1] += "var o"+x+";\n";
 						loopreruns[looplevel[x]] += "o"+x + " = " + src + ";\n";
 					}
 				}
@@ -232,7 +232,7 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 	loopreruns[0] = "";
 	loopreruns[1] = "";
 	for (var i=0; i<loopers.length; i++) {
-		//looplevel[loopers[i]] = i+2;
+		looplevel[loopers[i]] = i+2;
 		loopreruns.push("");
 	}
 
@@ -273,7 +273,7 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 	if (loopers.length > 0) {
 		res = "var ix = 0;\nvar length = 0;\n" + res;
 		res += "var results = new Array(length);\n";
-		res += "console.time('scopefuncopti');\n";
+		//res += "console.time('scopefuncopti');\n";
 	}
 
 	// Make the for loops if there are any
@@ -299,7 +299,7 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 	// Return result(s).
 	if (loopers.length > 0) {
 		res += "results.length = ix;\n";
-		res += "console.timeEnd('scopefuncopti');\n";
+		//res += "console.timeEnd('scopefuncopti');\n";
 		res += "return results;\n";
 	} else {
 		res += "return res;\n";
@@ -320,7 +320,7 @@ Eden.AST.Scope.Transpile.prototype.buildSource = function(ctx) {
 	//res = pstring + res + "})";
 	
 
-	console.log("FUNC OPTI "+this.name,res);
+	console.log("FUNC OPTI "+this.name,ctx.lvalue,res,params);
 
 	return res;
 }
