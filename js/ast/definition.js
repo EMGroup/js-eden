@@ -58,7 +58,7 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	this.params = (ctx) ? ctx.params : undefined;
 	this.backtickCount = 0;
 	this.dynamic_source = "";
-	var express = this.expression.generate(this, "scope", {bound: dobound, indef: true});
+	var express = this.expression.generate(this, "scope", {bound: dobound, indef: true, mode: Eden.AST.MODE_DYNAMIC});
 
 	if (this.backtickCount > 0) {
 		result += "var btick = 0;\n";
@@ -162,7 +162,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 		if (this.lvalue.hasListIndices()) {
 			rhs = "(function(context,scope,value) { value";
 			rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
-			rhs += this.expression.generate(this, "scope", {bound: false});
+			rhs += this.expression.generate(this, "scope", {bound: false, mode: Eden.AST.MODE_DYNAMIC});
 			rhs += ";})";
 			var deps = [];
 			for (var d in this.dependencies) {

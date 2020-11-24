@@ -198,7 +198,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		}*/
 	} else {
 		// List indices and function calls only work on values not scopes.
-		res = scope+".value("+res+")";
+		//res = scope+".value("+res+")";
 
 		// Generate each extra
 		for (var i=0; i<this.extras.length; i++) {

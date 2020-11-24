@@ -45,7 +45,7 @@ Eden.AST.TernaryOp.prototype.left = function(pleft) {
 Eden.AST.TernaryOp.prototype.generate = function(ctx, scope, options) {
 	var first = this.first.generate(ctx, scope, options);
 	if (ctx && ctx.isdynamic) ctx.dynamic_source += " if ";
-	var cond = this.condition.generate(ctx, scope, {bound: false, usevar: options.usevar});
+	var cond = this.condition.generate(ctx, scope, {bound: false, usevar: options.usevar, mode: options.mode});
 	if (ctx && ctx.isdynamic) ctx.dynamic_source += " else ";
 	var second = this.second.generate(ctx, scope, options);
 
