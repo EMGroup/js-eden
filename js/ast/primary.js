@@ -65,7 +65,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				//console.log("OUT OF DATE DECLARATIONS");
 				res = this.observable;
 				for (var i=0; i<this.extras.length; i++) {
-					res += this.extras[i].generate(ctx, scope, {bound: false});
+					res += this.extras[i].generate(ctx, scope, {mode: mode, bound: false});
 				}
 				if (options.bound) {
 					return "new BoundValue("+res+","+scope+")";
@@ -90,7 +90,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				if (val === undefined) console.error("Local variable undefined", this.observable);
 			}
 			for (var i=0; i<this.extras.length; i++) {
-				res += this.extras[i].generate(ctx, scope, {bound: false});
+				res += this.extras[i].generate(ctx, scope, {mode: mode, bound: false});
 			}
 
 			if (options.bound) {
@@ -107,7 +107,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		if (ix != -1) {
 			res = this.observable;
 			for (var i=0; i<this.extras.length; i++) {
-				res += this.extras[i].generate(ctx, scope, {bound: false});
+				res += this.extras[i].generate(ctx, scope, {mode: mode, bound: false});
 			}
 
 			if (options.bound) {
@@ -137,7 +137,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			tmpdynsrc = ctx.dynamic_source;
 		}
 
-		var btickgen = this.backtick.generate(ctx, scope,{bound: false, usevar: options.usevar});
+		var btickgen = this.backtick.generate(ctx, scope,{mode: mode, bound: false, usevar: options.usevar});
 
 		if (!ctx || ctx.isconstant || ctx.type != "definition") {
 			if (ctx && ctx.isconstant && ctx.type == "definition") {
@@ -205,7 +205,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			if (ctx && ctx.isdynamic) {
 				if (this.extras[i].type == "index") ctx.dynamic_source += "[";
 			}
-			res += this.extras[i].generate(ctx, scope,{bound: false, usevar: options.usevar});
+			res += this.extras[i].generate(ctx, scope,{mode: mode, bound: false, usevar: options.usevar});
 			if (ctx && ctx.isdynamic) {
 				if (this.extras[i].type == "index") ctx.dynamic_source += "]";
 			}

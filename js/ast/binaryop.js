@@ -19,7 +19,7 @@ Eden.AST.BinaryOp.prototype.setRight = function(right) {
 }
 
 Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
-	var opts = {bound: false, usevar: options.usevar};
+	var opts = {bound: false, usevar: options.usevar, mode: (options) ? options.mode : Eden.AST.MODE_DYNAMIC};
 	if (ctx && ctx.isdynamic) ctx.dynamic_source += "(";
 	var left = this.l.generate(ctx, scope, opts);
 	if (ctx && ctx.isdynamic) ctx.dynamic_source += " " + this.op + " ";

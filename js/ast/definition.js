@@ -52,7 +52,7 @@ Eden.AST.Definition.prototype.locatePrimary = function(indices) {
 }
 
 Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
-	var dobound = (this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";
+	var dobound = false; //(this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";
 	var result = "function(context, scope, cache) {\n";
 	this.locals = (ctx) ? ctx.locals : undefined;
 	this.params = (ctx) ? ctx.params : undefined;
