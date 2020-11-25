@@ -56,6 +56,10 @@ Eden.AST.BaseStatement.buildID = function() {
 	} else {
 		this.id = this.type +"@"+ hash;
 	}
+
+	var p = this.parent;
+	while (p && !p.name) p = p.parent;
+	if (p && p.name) this.id = this.id + p.name;
 }
 
 Eden.AST.BaseStatement.addIndex = function() {
