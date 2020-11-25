@@ -39,10 +39,19 @@ function Scope(context, parent, overrides, range, cause, nobuild) {
 	this.context = context;
 	this.cache = undefined;
 	this.overrides = overrides;
-	this.cause = cause;
+	this.cause = (parent && parent.cause) ? parent.cause : cause;
 	this.causecount = 0;
 	this.range = range;
 	this.isolate = false;
+
+	this.cachearray = null;
+
+	if (this.cause && this.cause.hasOwnProperty("scopecount")) {
+		if (++this.cause.scopecount > 100000) {
+			console.error("Scope limit exceeded", this.cause.name);
+			throw "Scope limit exceeded";
+		}
+	}
 
 	if (!nobuild) this.rebuild();
 }
@@ -112,11 +121,17 @@ Scope.prototype.clear = function() {
 }
 
 Scope.prototype.resetCache = function() {
-	for (var o in this.cache) {
-		//if (this.cache[o].up_to_date)
-			this.cache[o].up_to_date = this.cache[o].override;
-		//else
-		//	delete this.cache[o];
+	if (!this.cachearray) {
+		this.cachearray = [];
+		for (var o in this.cache) {
+			var obj = this.cache[o];
+			obj.up_to_date = obj.override;
+			this.cachearray.push(obj);
+		}
+	} else {
+		for (var obj of this.cachearray) {
+			obj.up_to_date = obj.override;
+		}
 	}
 }
 
@@ -344,7 +359,9 @@ Scope.prototype.addSubscriber = function(name) {
 	if (this.cache[name] === undefined) {
 		this.cache[name] = new ScopeCache( false, undefined, this, false);
 		var sym = this.context.lookup(name);
-		for (var d in sym.subscribers) {
+		if (!sym.subscribersArray) sym.subscribersArray = Object.keys(sym.subscribers);
+		for (var d of sym.subscribersArray) {
+		//for (var d in sym.subscribers) {
 			this.addSubscriber(d);
 		}
 	}

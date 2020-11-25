@@ -26,6 +26,7 @@ function EdenSymbol(context, name) {
 	this.needsGlobalNotify = 0;
 	this.has_evaled = false;
 	this.isasync = false;
+	this.scopecount = 0;
 
 	// need to keep track of who we subscribe to so
 	// that we can unsubscribe from them when our definition changes
@@ -34,6 +35,7 @@ function EdenSymbol(context, name) {
 	// need to keep track of what EdenSymbols subscribe to us
 	// so that we can notify them of a change in value
 	this.subscribers = {};
+	this.subscribersArray = null;
 
 	// performs the same role as .dependencies but for the backtick notation, where which
 	// observables an observable depends on can be dependent on the values of other observables.
@@ -226,12 +228,15 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 	if (this.context) {
 		this.context.beginEvaluation(this);
 	}
+	if (!this.subscribersArray) this.subscribersArray = Object.keys(this.subscribers);
 	try {
 		cache.up_to_date = true;
 		this.has_evaled = true;
 		//NOTE: Don't do copy here, be clever about it.
 		//cache.value = copy(this.definition(this.context, scope));
+		this.scopecount = 0;
 		cache.value = this.definition.call(this,this.context, scope, cache);
+		if (this.scopecount > 1) console.log("Scope count for "+this.name, this.scopecount);
 
 		// Post process with all extensions
 		if (this.extend) {
@@ -779,12 +784,21 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 			this.needsGlobalNotify = EdenSymbol.EXPIRED;
 
 			// recursively mark out of date and collect
-			for (var subscriber_name in this.subscribers) {
-				var subscriber = this.subscribers[subscriber_name];
-				if (subscriber) {
-					subscriber.expire(EdenSymbols_to_force, insertionIndex, actions_to_fire,fullexpire);
+			/*if (this.subscribersArray) {
+				for (var subscriber_name of this.subscribersArray) {
+					var subscriber = this.subscribers[subscriber_name];
+					if (subscriber) {
+						subscriber.expire(EdenSymbols_to_force, insertionIndex, actions_to_fire,fullexpire);
+					}
 				}
-			}
+			} else {*/
+				for (var subscriber_name in this.subscribers) {
+					var subscriber = this.subscribers[subscriber_name];
+					if (subscriber) {
+						subscriber.expire(EdenSymbols_to_force, insertionIndex, actions_to_fire,fullexpire);
+					}
+				}
+			//}
 		}
 	} else {
 		//console.log("NO EXPIRE", this.name);
@@ -853,6 +867,8 @@ EdenSymbol.prototype.addSubscriber = function (name, EdenSymbol) {
 	this.garbage = false;
 	//this.assertNotDependentOn(name);
 	this.subscribers[name] = EdenSymbol;
+	//this.subscribersArray = null;
+	if (this.subscribersArray) this.subscribersArray.push(name);
 };
 
 /**
@@ -862,6 +878,7 @@ EdenSymbol.prototype.addSubscriber = function (name, EdenSymbol) {
  */
 EdenSymbol.prototype.removeSubscriber = function (name) {
 	delete this.subscribers[name];
+	this.subscribersArray = null;
 	if (this.origin === undefined && this.canSafelyBeForgotten()) {
 		this.forget();
 	}
