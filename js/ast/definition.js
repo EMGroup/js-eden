@@ -37,8 +37,12 @@ Eden.AST.Definition.prototype.locatePrimary = function(indices) {
 
 	for (var i=0; i<indices.length; ++i) {
 		var ix = indices[i];
-		if (node.type == "literal" && node.datatype == "LIST") {
-			if (Array.isArray(node.value) && ix < node.value.length) {
+		if (node.type == "literal") {
+			if (node.datatype == "LIST") {
+				if (Array.isArray(node.value) && ix < node.value.length) {
+					node = node.value[ix];
+				} else return;
+			} else if (node.datatype == "OBJECT") {
 				node = node.value[ix];
 			} else return;
 		} else return;
