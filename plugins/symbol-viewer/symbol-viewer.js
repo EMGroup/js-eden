@@ -523,6 +523,7 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation)
 	this.type = type;
 	this.details = undefined;
 	this.update = undefined;
+	this.wasdef = false;
 
 	this.rawelement = document.createElement("div");
 	this.rawelement.classList.add("symbollist-result-element");
@@ -743,7 +744,7 @@ function _formatVal(value) {
 };
 
 EdenUI.plugins.SymbolViewer.Symbol.prototype._formatVal = function(value) {
-	var str = Eden.prettyPrintValue("", value, 200, false, false);
+	var str = Eden.edenCodeForValue(value); //Eden.prettyPrintValue("", value, 200, false, false);
 	var type = typeof(value);
 
 	if (type != this.oldtype) {
@@ -767,6 +768,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype._updateObservable = function(val,pr
 	if (!this.nameElement) {
 		this.nameElement = document.createElement("span");
 		if (this.symbol.definition !== undefined) {
+			this.wasdef = true;
 			this.nameElement.className = "hasdef_text";
 		}
 		this.nameElement.innerText = this.name;
@@ -784,25 +786,34 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype._updateObservable = function(val,pr
 		valele.className = "result_value";
 		valele.appendChild(this.valueElement);
 
-		//if (this.symbol.definition !== undefined) {
+		var outer = document.createElement("span");
+		outer.className = "symbollist-result-inner";
+		outer.appendChild(nameouter);
+		outer.appendChild(sep);
+		outer.appendChild(valele);
 
-		//} else {
-			this.rawelement.appendChild(nameouter);
-			this.rawelement.appendChild(sep);
-			this.rawelement.appendChild(valele);
-		//}
+		outer.onmouseenter = (event) => {
+			if (this.symbol.definition) {
+				var tooltip = Eden.htmlEscape(this.symbol.getDynamicSource(), false, true);
+				//tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + ";</pre>");
+				EdenUI.showTooltip(event, tooltip);
+			}
+		};
+
+		outer.onmouseleave = (event) => {
+			EdenUI.closeTooltip();
+		}
+
+		this.rawelement.appendChild(outer);
 	}
 
-	// TODO: Allow definition status change.
-
-	/*if (this.symbol.definition !== undefined) {
-		var tooltip = Eden.htmlEscape(this.symbol.getDynamicSource(), false, true);
-		tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + ";</pre>");
-		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
-	}*/
-
-	//this.element.html(html);
-	//this.element[0].innerHTML = html;
+	if (this.symbol.definition && !this.wasdef) {
+		this.wasdef = true;
+		this.nameElement.className = "hasdef_text";
+	} else if (!this.symbol.definition && this.wasdef) {
+		this.wasdef = false;
+		this.nameElement.className = "";
+	}
 }
 
 /**

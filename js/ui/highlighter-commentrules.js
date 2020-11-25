@@ -487,8 +487,6 @@ EdenUI.Highlight.prototype.parseAttrs = function(attrs, ele) {
 		case "italic": name = "font-style"; val = "italic"; break;
 		}
 
-		console.log("NAME", name, "VALUE", val);
-
 		if (css_color_names[name] || name.charAt(0) == "#") {
 			val = name;
 			name = "color";
@@ -723,7 +721,6 @@ EdenUI.Highlight.prototype.COMMENT_IMAGE = function() {
 	} else {
 		var remaining = linestr.substring(0, endix);
 		//this.tokentext += remaining;
-		console.log("IMG",this.tokentext);
 		//this.stream.position += endix;
 		this.classes.push("comment");
 		this.mode = "COMMENT_IMAGE_END";

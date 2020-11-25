@@ -236,7 +236,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 		//cache.value = copy(this.definition(this.context, scope));
 		this.scopecount = 0;
 		cache.value = this.definition.call(this,this.context, scope, cache);
-		if (this.scopecount > 1) console.log("Scope count for "+this.name, this.scopecount);
+		if (this.scopecount > 100) console.log("Scope count for "+this.name, this.scopecount);
 
 		// Post process with all extensions
 		if (this.extend) {
