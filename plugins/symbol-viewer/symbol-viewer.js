@@ -524,10 +524,17 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation)
 	this.details = undefined;
 	this.update = undefined;
 
-	this.element = $('<div class="symbollist-result-element"></div>');
+	this.rawelement = document.createElement("div");
+	this.rawelement.classList.add("symbollist-result-element");
+
+	this.element = $(this.rawelement); //$('<div class="symbollist-result-element"></div>');
 	if (accentuation) {
-		this.element.addClass("symbollist-" + accentuation + "-result");
+		//this.element.addClass("symbollist-" + accentuation + "-result");
+		this.rawelement.classList.add("symbollist-" + accentuation + "-result");
 	}
+
+	this.valueElement = null;
+	this.nameElement = null;
 
 	// Select update method based upon symbol type.
 	switch (type) {
@@ -735,29 +742,67 @@ function _formatVal(value) {
 	}
 };
 
-EdenUI.plugins.SymbolViewer.Symbol.prototype._updateObservable = function(val,prom) {
-	var valhtml = _formatVal(val);
+EdenUI.plugins.SymbolViewer.Symbol.prototype._formatVal = function(value) {
+	var str = Eden.prettyPrintValue("", value, 200, false, false);
+	var type = typeof(value);
 
-	var namehtml;
-	if (this.symbol.definition !== undefined) {
-		namehtml = "<span class='hasdef_text'>" + this.name + "</span>";
-	} else {
-		namehtml = this.name;
+	if (type != this.oldtype) {
+		switch (type) {
+		case "boolean"		: this.valueElement.className = "special_text"; break;
+		case "undefined"	: this.valueElement.className = "error_text"; break;
+		case "string"		: this.valueElement.className = "string_text"; break;
+		case "number"		: this.valueElement.className = "numeric_text"; break;
+		default				: this.valueElement.className = ""; break;
+		}
+	}
+	this.valueElement.innerText = str;
+}
+
+EdenUI.plugins.SymbolViewer.Symbol.prototype._updateObservable = function(val,prom) {
+	if (!this.valueElement) {
+		this.valueElement = document.createElement("span");
+	}
+	this._formatVal(val);
+
+	if (!this.nameElement) {
+		this.nameElement = document.createElement("span");
+		if (this.symbol.definition !== undefined) {
+			this.nameElement.className = "hasdef_text";
+		}
+		this.nameElement.innerText = this.name;
+
+		var nameouter = document.createElement("span");
+		nameouter.classList.add("result_name");
+		if (prom) nameouter.classList.add("async-observable");
+		nameouter.appendChild(this.nameElement);
+
+		var sep = document.createElement("span");
+		sep.className = "result_separator";
+		sep.innerText = " = ";
+
+		var valele = document.createElement("span");
+		valele.className = "result_value";
+		valele.appendChild(this.valueElement);
+
+		//if (this.symbol.definition !== undefined) {
+
+		//} else {
+			this.rawelement.appendChild(nameouter);
+			this.rawelement.appendChild(sep);
+			this.rawelement.appendChild(valele);
+		//}
 	}
 
-	var classes = "result_name";
-	if (prom) classes += " async-observable";
+	// TODO: Allow definition status change.
 
-	var html = "<span class='"+classes+"'>" + namehtml + "</span><span class='result_separator'> = </span> " +
-		"<span class='result_value'>" + valhtml + "</span>";
-
-	if (this.symbol.definition !== undefined) {
+	/*if (this.symbol.definition !== undefined) {
 		var tooltip = Eden.htmlEscape(this.symbol.getDynamicSource(), false, true);
 		tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + ";</pre>");
 		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
-	}
+	}*/
 
-	this.element.html(html);
+	//this.element.html(html);
+	//this.element[0].innerHTML = html;
 }
 
 /**
