@@ -15,6 +15,7 @@ Eden.AST.BaseStatement = function() {
 	this.previousSibling = undefined;
 	this.tags = undefined;
 	this.local = false;
+	this.line = -1;
 }
 
 Eden.AST.BaseStatement.setDoxyComment = function(doxy) {

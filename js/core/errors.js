@@ -788,6 +788,8 @@ Eden.RuntimeError.prototype.edenSource = function() {
 			if (sym && sym.definition) {
 				return sym.getSource();
 			}
+		} else if (this.statement.getSource) {
+			return this.statement.getSource();
 		} else if (this.context) {
 			return this.context.getSource(this.statement);
 		}

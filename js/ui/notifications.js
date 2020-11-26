@@ -41,8 +41,8 @@ EdenUI.Notifications = function(element, jewel) {
 
 	function errhandler(agent,err) {
 		if (err) {
-			var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line != -1)?err.line:"") + " -> " + err.messageText();
-			var htmlmsg = "<a href=\"javascript:edenUI.gotoCode('" + agent.name + "',"+err.line+");\">" + agent.name + ":" + ((err.line != -1)?(err.line+1):"") + "</a> " + err.messageText();
+			var msg = ((err.type == "runtime")?"Runtime error" : "Syntax error") + " in " + agent.name + ":" + ((err.line && err.line != -1)?err.line:"") + " -> " + err.messageText();
+			var htmlmsg = "<a href=\"javascript:Eden.Selectors.goto('.id(" + agent.id + ")');\">" + agent.name + ":" + ((err.line && err.line != -1)?(err.line+1):"") + "</a> " + err.messageText();
 
 			if (!(agent.owned && err.type == "syntax")) {
 				console.error(msg);
@@ -66,7 +66,7 @@ EdenUI.Notifications = function(element, jewel) {
 						details += "    <b>Source:</b> <div class='error-source'</div>\n";
 						formattedError.html(htmlmsg + "\n" + details);
 						if (err.statement) {
-							var ast = new Eden.AST(err.edenSource(), undefined, Symbol.jsAgent);
+							var ast = new Eden.AST(err.edenSource(), undefined, agent);
 							var hl = new EdenUI.Highlight(formattedError.find(".error-source").get(0));
 							hl.highlight(ast, -1, -1);
 						}

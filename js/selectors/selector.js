@@ -802,7 +802,7 @@ Eden.Selectors.execute = function(selector, cb) {
  * should be the one used.
  */
 Eden.Selectors.goto = function(selector) {
-	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true}, function(res) {
+	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: false}, function(res) {
 	//console.log("GOTORES", selector, res);
 
 	if (res.length == 0) return false;
