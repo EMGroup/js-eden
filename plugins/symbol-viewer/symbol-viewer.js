@@ -238,12 +238,12 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			// Remove symbol list from DOM to speed up manipulations
 			// (but only if the inline editor isn't open, otherwise we'd lose focus and terminate editing prematurely.)
 			var symresults, parent, scrollPosition;
-			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
+			/*if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
 				symresults = $(instance.symresults);
 				parent = symresults.parent();
 				scrollPosition = symresults.scrollTop();
 				symresults.detach();
-			}
+			}*/
 
 			// For every recently created symbol
 			for (var name in symbol_create_queue) {
@@ -263,10 +263,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			}
 
 			// Add symbol list back into the DOM for display.
-			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
+			/*if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
 				symresults.appendTo(parent);
 				symresults.scrollTop(scrollPosition);
-			}
+			}*/
 		}
 
 		symbol_update_queue = {};
