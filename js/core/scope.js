@@ -366,18 +366,18 @@ Scope.prototype.addSubscribers = function(sym) {
 	}
 }
 
-/*Scope.prototype.addSubscriber = function(name) {
+Scope.prototype.addSubscriber = function(name) {
 	//console.log("Adding scope subscriber...: " + name);
-	//if (this.cache[name] === undefined) {
+	if (!this.cache.hasOwnProperty(name)) {
 		this.cache[name] = new ScopeCache( false, undefined, this, false);
 		var sym = this.context.lookup(name);
 		if (!sym.subscribersArray) sym.subscribersArray = Object.keys(sym.subscribers);
 		for (var d of sym.subscribersArray) {
 		//for (var d in sym.subscribers) {
-			if (!this.cache.hasOwnProperty(d)) this.addSubscriber(d);
+			this.addSubscriber(d);
 		}
-	//}
-}*/
+	}
+}
 
 Scope.prototype.updateSubscriber = function(name) {
 	//console.log("Adding scope subscriber...: " + name);
@@ -427,6 +427,10 @@ Scope.prototype.first = function() {
 Scope.prototype.mergeCache = function(prevcache) {
 	var diff = this.range;
 
+	// TODO: Verify that this is actually ok!?
+	this.cache = prevcache;
+	return;
+
 	/*if (!this.range) {
 		for (var i=0; i<this.overrides.length; i++) {
 			var over = this.overrides[i];
@@ -455,15 +459,8 @@ Scope.prototype.mergeCache = function(prevcache) {
 }
 
 Scope.prototype.reset = function() {
-	//for (var o in this.cache) {
-		//this.cache[o] = new ScopeCache(false, undefined, this);
-		//if (this.cache[o].up_to_date)
-			//this.cache[o].up_to_date = false; //this.cache[o].override;
-			//this.cache[o].scope = this;
-		//else
-		//	delete this.cache[o];
-	//}
-	this.refresh();
+	this.resetCache();  // Make everything out-of-date
+	this.refresh();		// Update the override values
 }
 
 Scope.prototype.next = function() {

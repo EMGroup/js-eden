@@ -306,6 +306,10 @@ EdenSymbol.prototype.subscribeDynamic = function (position, dependency, scope) {
 	if (scope && scope !== eden.root.scope && scope.cause) {
 		// TODO WHY WAS THIS HERE? Nested scopes?
 		//return scope.cause.subscribeDynamic(scope.causecount++, dependency, scope.parent);
+		if (!scope.cache.hasOwnProperty(dependency)) {
+			console.log("Add dynamic scope entry", dependency);
+			scope.addSubscriber(dependency);
+		}
 	}
 
 	if (!(dependency in this.dependencies)) {

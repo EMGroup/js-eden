@@ -78,7 +78,7 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		}
 
 		// FIXME: Def scope is broken in dynamic contexts.
-		//result += "this.def_scope = _scopes;\n";
+		result += "this.def_scope = _scopes;\n";
 	}
 
 	if (this.expression.type == "async") {
