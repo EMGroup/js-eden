@@ -543,12 +543,17 @@ EdenUI.Highlight.prototype.COMMENT_ATTRS = function() {
 			
 			//while (ele && ele.classList && ele.classList.contains("eden-comment-hidden")) ele = ele.previousSibling;
 
-			var res = this.parseQuery(attrs, (res) => {
-				if (res) {
-					res = res.join(" ");
-					this.parseAttrs(res, ele);
-				}
-			});
+			let f = () => {
+				this.parseQuery(attrs, (res) => {
+					if (res) {
+						res = res.join(" ");
+						this.parseAttrs(res, ele);
+					}
+				});
+			}
+			f();
+
+			this.metrics[this.line].styleUpdate = f;
 		} else {
 			this.parseAttrs(attrs);
 		}
