@@ -69,17 +69,18 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {
+		//result += "if (!this.def_scope) cache.scopes = null;\n"
 		result += "\tvar _scopes = [];\n";
 		for (var i=0; i<this.scopes.length; i++) {
 			result += "\t_scopes.push(" + this.scopes[i];
 			result += ");\n";
 			//result += "_scopes["+i+"].rebuild();\n";
 			// TODO Figure out how to do this optimisation without massive memory copies.
-			result += "if (this.def_scope && scope === context.scope) { _scopes["+i+"].mergeCache(this.def_scope["+i+"]); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
+			result += "if (cache.scopes && "+i+" < cache.scopes.length) { _scopes["+i+"].mergeCache(cache.scopes["+i+"]); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
 		}
 
-		// FIXME: Def scope is broken in dynamic contexts.
-		result += "if (scope === context.scope) this.def_scope = _scopes;\n";
+		//result += "if (scope === context.scope) this.def_scope = _scopes;\n";
+		result += "cache.scopes = _scopes;\n";
 	}
 
 	if (this.expression.type == "async") {

@@ -2,7 +2,7 @@ function ScopeCache(up_to_date, value, scope, override) {
 	this.up_to_date = up_to_date;
 	this.value = value;
 	this.scope = scope;
-	this.scopes = undefined;
+	this.scopes = null;
 	this.override = override;
 }
 
@@ -428,6 +428,8 @@ Scope.prototype.first = function() {
 
 Scope.prototype.mergeCache = function(prev) {
 	var diff = this.range;
+
+	if (!prev) console.error("Missing scope cache");
 
 	// TODO: Verify that this is actually ok!?
 	this.cache = prev.cache;

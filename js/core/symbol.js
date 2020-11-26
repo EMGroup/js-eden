@@ -774,7 +774,8 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 				// Need to rebuild the scope dependency path
 				if (fullexpire) {
 					//console.log("FULL EXPIRE",this.name);
-					this.def_scope = undefined;
+					//this.def_scope = undefined;
+					this.cache.scopes = null;
 				} else {
 					//console.log("NORMAL EXPIRE",this.name);
 				}
