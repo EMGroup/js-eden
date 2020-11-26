@@ -369,7 +369,9 @@ Scope.prototype.addSubscribers = function(sym) {
 Scope.prototype.addSubscriber = function(name) {
 	//console.log("Adding scope subscriber...: " + name);
 	if (!this.cache.hasOwnProperty(name)) {
-		this.cache[name] = new ScopeCache( false, undefined, this, false);
+		var c = new ScopeCache( false, undefined, this, false);
+		this.cache[name] = c;
+		if (this.cachearray) this.cachearray.push(c);
 		var sym = this.context.lookup(name);
 		if (!sym.subscribersArray) sym.subscribersArray = Object.keys(sym.subscribers);
 		for (var d of sym.subscribersArray) {
@@ -424,11 +426,12 @@ Scope.prototype.first = function() {
 	return false;
 }
 
-Scope.prototype.mergeCache = function(prevcache) {
+Scope.prototype.mergeCache = function(prev) {
 	var diff = this.range;
 
 	// TODO: Verify that this is actually ok!?
-	this.cache = prevcache;
+	this.cache = prev.cache;
+	this.cachearray = prev.cachearray;
 	return;
 
 	/*if (!this.range) {
