@@ -58,12 +58,8 @@ Object.defineProperty(Eden.AST.Alias.prototype, "statements", {
 	get: function() {
 		if (!this._statements && this.selector) {
 			var stats = this.selector.execute(this, (eden.project) ? eden.project.ast : {}, eden.root.scope, this);
-			Eden.Selectors.query(stats, undefined, {minimum: 1}, (r) => {
+			Eden.Selectors.query(stats, undefined, {minimum: 1, options: {index: true}}, (r) => {
 				this._statements = (r.length == 1 && r[0].type == "script") ? r[0].statements : r;
-
-				for (let i=0; i<this._statements.length; i++) {
-					if (this._statements[i].type != "dummy") this._statements[i].addIndex();
-				}
 			});
 		} return (this._statements) ? this._statements : []; }
 });
