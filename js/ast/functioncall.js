@@ -87,7 +87,7 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 		this.errors.push(err);
 		err.line = this.line;
 		eden.emit("error", [agent,err]);
-		console.error(func);
+		//console.error(func);
 		//throw e;
 	}
 }

@@ -747,6 +747,7 @@ Eden.RuntimeError.JSOBSERVER = 14;
 Eden.RuntimeError.PROCAGENT = 15;
 Eden.RuntimeError.ARGUMENTS = 16;
 Eden.RuntimeError.NOTCHILD = 17;
+Eden.RuntimeError.INFINITEWHEN = 18;
 
 Eden.RuntimeError.prototype.messageText = function() {
 	var msg = (this.statement && (this.statement.type == "functioncall" || this.statement.type == "definition" || this.statement.type == "assignment")) ? "'" + this.statement.lvalue.name + "': " : "";
@@ -766,12 +767,13 @@ Eden.RuntimeError.prototype.messageText = function() {
 	case Eden.RuntimeError.LEFTCONCAT		: return msg + "Concatenation: When the left hand side is a list then the right hand side must also be a list";
 	case Eden.RuntimeError.INFINITERANGE	: return msg + "range scope is infinite";
 	case Eden.RuntimeError.NOLISTRANGE		: return msg + "range 'in' is not a list";
+	case Eden.RuntimeError.INFINITEWHEN		: return msg + "infinite when loop detected";
 	default: break;
 	}
 
 	if (String(this.extra).search("is not a function") >= 0) {
 		return msg + "function used does not exist";
-	} else if (this.errno == Eden.RuntimeError.FUNCCALL && String(this.extra).search("Cannot read property 'call'") >= 0) {
+	} else if (this.errno == Eden.RuntimeError.FUNCCALL && (String(this.extra).search("Cannot read property 'call'") >= 0 || String(this.extra).search("Cannot read property 'apply'") >= 0)) {
 		return msg + "procedure does not exist";
 	} else if (String(this.extra).match(/Cannot read property .* of undefined/)) {
 		return msg + "uses an undefined list";
