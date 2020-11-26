@@ -143,11 +143,6 @@ Scope.prototype.rebuild = function() {
 	this.add("has");
 	this.add("from");
 
-	/* Process the overrides */
-	/*for (var i = 0; i < this.overrides.length; i++) {
-		this.addOverride(this.overrides[i]);
-	}*/
-
 	for (var i = 0; i < this.overrides.length; i++) {
 		this.updateOverride(this.overrides[i]);
 	}
@@ -155,10 +150,7 @@ Scope.prototype.rebuild = function() {
 	if (this.context) {
 		for (var i = 0; i < this.overrides.length; i++) {
 			var sym = this.context.lookup(this.overrides[i].name);
-			//console.log(sym);
-			for (var d in sym.subscribers) {
-				this.addSubscriber(d);
-			}
+			this.addSubscribers(sym);
 		}
 	}
 }
@@ -354,18 +346,38 @@ Scope.prototype.updateOverride = function(override) {
 	}
 }
 
-Scope.prototype.addSubscriber = function(name) {
+Scope.prototype.addSubscribers = function(sym) {
+	var subs = [];
+
+	if (!sym.subscribersArray) sym.subscribersArray = Object.keys(sym.subscribers);
+	subs.push.apply(subs, sym.subscribersArray);
+
+	var pos = 0;
+
+	while (pos < subs.length) {
+		if (!this.cache.hasOwnProperty(subs[pos])) {
+			var name = subs[pos];
+			this.cache[name] = new ScopeCache( false, undefined, this, false);
+			var sym2 = this.context.lookup(name);
+			if (!sym2.subscribersArray) sym2.subscribersArray = Object.keys(sym2.subscribers);
+			subs.push.apply(subs, sym2.subscribersArray);
+		}
+		++pos;
+	}
+}
+
+/*Scope.prototype.addSubscriber = function(name) {
 	//console.log("Adding scope subscriber...: " + name);
-	if (this.cache[name] === undefined) {
+	//if (this.cache[name] === undefined) {
 		this.cache[name] = new ScopeCache( false, undefined, this, false);
 		var sym = this.context.lookup(name);
 		if (!sym.subscribersArray) sym.subscribersArray = Object.keys(sym.subscribers);
 		for (var d of sym.subscribersArray) {
 		//for (var d in sym.subscribers) {
-			this.addSubscriber(d);
+			if (!this.cache.hasOwnProperty(d)) this.addSubscriber(d);
 		}
-	}
-}
+	//}
+}*/
 
 Scope.prototype.updateSubscriber = function(name) {
 	//console.log("Adding scope subscriber...: " + name);
