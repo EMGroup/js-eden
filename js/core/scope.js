@@ -467,12 +467,15 @@ Scope.prototype.reset = function() {
 }
 
 Scope.prototype.next = function() {
-	for (var o in this.cache) {
+	/*for (var o in this.cache) {
 		//if (this.cache[o].up_to_date)
 			this.cache[o].up_to_date = this.cache[o].override;
 		//else
 		//	delete this.cache[o];
-	}
+	}*/
+
+	this.resetCache();
+
 	for (var i = this.overrides.length-1; i >= 0; i--) {
 		var over = this.overrides[i];
 		if (over.end === undefined && !over.isin) continue;
