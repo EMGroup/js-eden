@@ -54,8 +54,9 @@ Eden.AST.Definition.prototype.locatePrimary = function(indices) {
 }
 
 Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
+	var name = (this.lvalue && this.lvalue.name) ? "def_"+this.lvalue.name : "";
 	var dobound = (this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";
-	var result = "function(context, scope, cache) {\n";
+	var result = "function "+name+"(context, scope, cache) {\n";
 	this.locals = (ctx) ? ctx.locals : undefined;
 	this.params = (ctx) ? ctx.params : undefined;
 	this.backtickCount = 0;
