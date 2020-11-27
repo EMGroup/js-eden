@@ -1798,8 +1798,8 @@ func tail {
 		error("tail: The argument must be a list, not a " // type(p1));
 		return @;
 	} else if (p1# == 0) {
-		error("tail: The empty list does not have a tail.");
-		return @;
+		/*error("tail: The empty list does not have a tail.");*/
+		return [];
 	} else {
 		return sublist(p1, 2, p1#);
 	}
