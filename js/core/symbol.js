@@ -269,6 +269,7 @@ EdenSymbol.prototype.liteEvaluate = function (scope, cache) {
 	if (!this.subscribersArray) this.subscribersArray = Object.keys(this.subscribers);
 
 	cache.up_to_date = true;
+	this.has_evaled = true;
 	cache.value = this.definition.call(this,this.context, scope, cache);
 
 	// Post process with all extensions

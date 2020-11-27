@@ -249,7 +249,13 @@ Scope.prototype.value = function(name) {
 		if (symcache.up_to_date) return symcache.value;
 		var sym = this.context.lookup(name);
 		// Do direct symbol evaluate call here.
-		if (sym.definition) sym.evaluate(this, symcache);
+		if (sym.definition) {
+			if (this.cause) {
+				sym.liteEvaluate(this, symcache);
+			} else {
+				sym.evaluate(this, symcache);
+			}
+		}
 		return symcache.value;
 	}
 	return (this.parent)?this.parent.value(name):undefined;
