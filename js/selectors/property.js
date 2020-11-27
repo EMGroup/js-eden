@@ -170,8 +170,9 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 	//console.log("Property",command,param,statements);
 
 	if (typeof this.name == "number") {
-		if (statements && statements.length >= this.name) return [statements[this.name-1]];
-		else return [];
+		if (statements && statements.length >= this.name) resolve([statements[this.name-1]]);
+		else resolve([]);
+		return;
 	} else {
 		switch(command) {
 		case ".name"	:	if (!param) {

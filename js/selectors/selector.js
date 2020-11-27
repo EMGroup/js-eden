@@ -524,6 +524,7 @@ Eden.Selectors._parse = function(s, options) {
 Eden.Selectors.unique = function(stats) {
 	var map = {};
 	for (var i=0; i<stats.length; i++) {
+		if (stats[i] === undefined) continue;
 		map[stats[i].id] = stats[i];
 	}
 	var res = [];
