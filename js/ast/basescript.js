@@ -160,6 +160,14 @@ Eden.AST.BaseScript.addIndex = function() {
 	Eden.Index.update(this);
 }
 
+Eden.AST.BaseScript.addIndexReverse = function() {
+	if (this.indexed) return;
+	if (this.id == 0) this.buildID();
+	if (this.parent) this.parent.addIndexReverse();
+	this.indexed = true;
+	Eden.Index.update(this);
+}
+
 Eden.AST.BaseScript.removeIndex = function() {
 	if (!this.indexed) return;
 	for (var i=0; i<this.statements.length; i++) {
