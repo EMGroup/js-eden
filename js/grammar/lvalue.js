@@ -34,6 +34,22 @@ Eden.AST.prototype.pLVALUE_P = function() {
 				return components;
 			}
 			this.next();
+		} else if (this.token == ".") {
+			this.next();
+
+			// Make an index tree element.
+			var comp = new Eden.AST.LValueComponent("index");
+
+			if (this.token != "OBSERVABLE") {
+				comp.errors.unshift(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXEXP));
+				components.push(comp);
+				return components;
+			}
+
+			var expression = new Eden.AST.Literal("STRING", this.data.value);
+			this.next();
+			comp.index(expression);
+			components.push(comp);
 		} else {
 			break;
 		}
@@ -59,7 +75,20 @@ Eden.AST.prototype.pLVALUE_P = function() {
 Eden.AST.prototype.pLVALUE = function() {
 	var lvalue = new Eden.AST.LValue();
 
-	if (this.token == "*") {
+	if (this.token == "(") {
+		this.next();
+		if (this.token == "*") {
+			this.next();
+			lvalue.setPrimary(this.pPRIMARY());
+		} else {
+			lvalue.setPrimary(this.pPRIMARY());
+		}
+		if (this.token != ")") {
+			lvalue.error(new Eden.SyntaxError(this, Eden.SyntaxError.EXPCLOSEBRACKET));
+			return lvalue;
+		}
+		this.next();
+	} else if (this.token == "*") {
 		this.next();
 		lvalue.setPrimary(this.pPRIMARY());
 	} else if (this.token == "`") {

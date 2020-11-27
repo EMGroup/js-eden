@@ -16,6 +16,8 @@ Eden.AST.When = function() {
 	this.statements = [];
 	this.retrigger = false;
 	this.roles = null;
+	this.triggercount = 0;
+	this.refreshtimeout = null;
 };
 
 Eden.AST.registerContext(Eden.AST.When);
@@ -141,9 +143,31 @@ Eden.AST.When.prototype.compile = function(base) {
 }
 
 Eden.AST.When.prototype.trigger = function() {
+	if (!this.enabled) return;
+
 	var scope = eden.root.scope;
 	var base = eden.project.ast;
 	if (this.active == false) {
+		this.triggercount++;
+
+		if (this.triggercount > 1000) {
+			if (this.name == "*When" && this.parent && this.parent.name) this.name = this.parent.name + ">when";
+			this.enabled = false;
+			var err = new Eden.RuntimeError(base, Eden.RuntimeError.INFINITEWHEN, this);
+			this.errors.push(err);
+			err.line = this.line;
+			eden.emit("error", [this,err]);
+			return;
+		}
+
+		// Used to detect infinite when loops. Max 1000 calls every 5s.
+		if (!this.refreshtimeout) {
+			this.refreshtimeout = setTimeout(()=>{
+				this.refreshtimeout=null;
+				this.triggercount=0;
+			}, 5000);
+		}
+
 		this.active = true;
 		var res = this.executeReal(this, base, (scope) ? scope : eden.root.scope);
 

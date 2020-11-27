@@ -343,6 +343,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							this.next();
 						}
 						break;
+	case "("		  :
 	case "`"		  :
 	case "*"		  :
 	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
@@ -381,6 +382,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	endline = this.lastline;
 	stat.parent = this.parent;
 	stat.local = this.localStatus;
+	stat.line = this.stream.line - curline;
 	if (stat.doxyComment === undefined) {
 		if (!stat.setDoxyComment) console.error("Bad stat", stat);
 		stat.setDoxyComment(doxy);// (doxy && doxy.endline == curline-1) ? doxy : undefined;

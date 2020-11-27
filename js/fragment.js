@@ -214,7 +214,7 @@ Eden.Fragment.prototype.makeReal = function(name) {
 Eden.Fragment.prototype.setSourceInitial = function(src) {
 	this.source = src;
 	this.snapshot = src;
-	this.ast = new Eden.AST(src, undefined, this, {strict: true});
+	this.ast = new Eden.AST(src, undefined, this, {strict: true, noindex: this.scratch});
 }
 
 Eden.Fragment.AUTOSAVE_INTERVAL = 2000;

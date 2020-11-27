@@ -59,10 +59,19 @@ Object.defineProperty(Eden.AST.Alias.prototype, "statements", {
 		if (!this._statements && this.selector) {
 			var stats = this.selector.execute(this, (eden.project) ? eden.project.ast : {}, eden.root.scope, this);
 			Eden.Selectors.query(stats, undefined, {minimum: 1}, (r) => {
-				this._statements = (r.length == 1 && r[0].type == "script") ? r[0].statements : r;
+				if (r.length == 1 && r[0].type == "script") {
+					this._statements = r[0].statements;
+					// Swap parent to attach locally
+					r[0].parent = this.parent;
+				} else {
+					// TODO: Change parent of each statement?
+					this._statements = r;
+				}
 
 				for (let i=0; i<this._statements.length; i++) {
-					if (this._statements[i].type != "dummy") this._statements[i].addIndex();
+					if (this._statements[i].type != "dummy") {
+						this._statements[i].addIndex();
+					}
 				}
 			});
 		} return (this._statements) ? this._statements : []; }

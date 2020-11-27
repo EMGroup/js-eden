@@ -2647,6 +2647,11 @@ func highlightScript {
 	${{ return EdenUI.Highlight.html(s); }}$;
 }
 
+func highlightStatement {
+	para s;
+	${{ return EdenUI.Highlight.html(s,true,false); }}$;
+}
+
 /**
  * Check if one string starts with another.
  * #string #library
@@ -3495,6 +3500,7 @@ action notify {
 }
 
 when (jseden_notifications# > 0) {
+	local i;
 	for (i=1; i<=jseden_notifications#; i++) {
 		do notify :: jseden_notifications[i][1], jseden_notifications[i][2];
 	}

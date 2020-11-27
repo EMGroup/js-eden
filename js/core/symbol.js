@@ -26,6 +26,7 @@ function EdenSymbol(context, name) {
 	this.needsGlobalNotify = 0;
 	this.has_evaled = false;
 	this.isasync = false;
+	this.scopecount = 0;
 
 	// need to keep track of who we subscribe to so
 	// that we can unsubscribe from them when our definition changes
@@ -34,6 +35,7 @@ function EdenSymbol(context, name) {
 	// need to keep track of what EdenSymbols subscribe to us
 	// so that we can notify them of a change in value
 	this.subscribers = {};
+	this.subscribersArray = null;
 
 	// performs the same role as .dependencies but for the backtick notation, where which
 	// observables an observable depends on can be dependent on the values of other observables.
@@ -92,6 +94,10 @@ Object.defineProperty(EdenSymbol.prototype, "id", {
 Object.defineProperty(EdenSymbol.prototype, "executed", {
 	get: function() { return 1; }
 });
+
+EdenSymbol.prototype.buildID = function() {
+	// Do nothing
+}
 
 EdenSymbol.prototype.getStartLine = function(relative) {
 	return (this.origin) ? this.origin.getStartLine(relative) : -1;
@@ -226,12 +232,16 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 	if (this.context) {
 		this.context.beginEvaluation(this);
 	}
+	if (!this.subscribersArray) this.subscribersArray = Object.keys(this.subscribers);
 	try {
 		cache.up_to_date = true;
 		this.has_evaled = true;
 		//NOTE: Don't do copy here, be clever about it.
 		//cache.value = copy(this.definition(this.context, scope));
+		this.scopecount = 0;
+		this.clearDynamicDependencies();
 		cache.value = this.definition.call(this,this.context, scope, cache);
+		if (this.scopecount > 100) console.log("Scope count for "+this.name, this.scopecount);
 
 		// Post process with all extensions
 		if (this.extend) {
@@ -306,37 +316,23 @@ EdenSymbol.prototype.subscribeDynamicSym = function (sym) {
 }
 
 EdenSymbol.prototype.subscribeDynamic = function (position, dependency, scope) {
-	// To put the dependency on the outer scoped observable is in a scoping context
-	if (scope && scope !== eden.root.scope && scope.cause) {
-		// TODO WHY WAS THIS HERE? Nested scopes?
-		//return scope.cause.subscribeDynamic(scope.causecount++, dependency, scope.parent);
-	}
+	var sym = this.context.lookup(dependency);
 
-	if (!(dependency in this.dependencies)) {
-		var sym, refCount;
-		/*var previousDependency = this.dynamicDependencyTable[position];
-		if (previousDependency !== undefined) {
-			refCount = this.dynamicDependencyRefCount[previousDependency];
-			if (refCount == 1) {
-				sym = this.context.lookup(previousDependency);
-				sym.removeSubscriber(this.name);
-				delete this.dynamicDependencies[sym.name];
-				delete this.dynamicDependencyRefCount[previousDependency];
-			} else {
-				this.dynamicDependencyRefCount[previousDependency] = refCount - 1;
-			}
-		}*/
-		if (!(dependency in this.dynamicDependencies)) {
-			sym = this.context.lookup(dependency);
-			sym.addSubscriber(this.name, this);
-			this.dynamicDependencies[sym.name] = sym;
-			//this.dynamicDependencyRefCount[dependency] = 1;
-		//} else {
-		//	this.dynamicDependencyRefCount[dependency]++;				
+	if (scope && scope !== eden.root.scope && scope.cause) {
+		// Only add if actually a definition and not already there.
+		if (sym.definition && !scope.cache.hasOwnProperty(dependency)) {
+			scope.addSubscriber(dependency);
 		}
 	}
-	//this.dynamicDependencyTable[position] = dependency;
-	return dependency; //this.context.lookup(dependency);
+
+	if (!this.dependencies.hasOwnProperty(dependency)) {
+		if (!this.dynamicDependencies.hasOwnProperty(dependency)) {
+			sym.addSubscriber(this.name, this);
+			this.dynamicDependencies[sym.name] = sym;			
+		}
+	}
+
+	return dependency;
 }
 
 
@@ -390,6 +386,36 @@ EdenSymbol.prototype.getDynamicSource = function() {
 
 EdenSymbol.prototype.toString = function() {
 	return "&"+this.name;
+}
+
+/* Find all indirect dependencies for this symbol. */
+EdenSymbol.prototype.indirectDependencies = function(obj) {
+	var result = (obj) ? obj : {};
+	for (var d in this.dependencies) {
+		var sym = this.dependencies[d];
+		result[d] = sym;
+		sym.indirectDependencies(result);
+	}
+
+	for (var d in this.dynamicDependencies) {
+		var sym = this.dynamicDependencies[d];
+		result[d] = sym;
+		sym.indirectDependencies(result);
+	}
+
+	return result;
+}
+
+/* Find all indirect dependees for this symbol. */
+EdenSymbol.prototype.indirectSubscribers = function(obj) {
+	var result = (obj) ? obj : {};
+	for (var d in this.subscribers) {
+		var sym = this.subscribers[d];
+		result[d] = sym;
+		sym.indirectSubscribers(result);
+	}
+
+	return result;
 }
 
 
@@ -744,26 +770,34 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 				// Need to rebuild the scope dependency path
 				if (fullexpire) {
 					//console.log("FULL EXPIRE",this.name);
-					this.def_scope = undefined;
+					//this.def_scope = undefined;
+					this.cache.scopes = null;
 				} else {
 					//console.log("NORMAL EXPIRE",this.name);
 				}
 				//else if (this.def_scope) {
 				//	for (var i=0; i<this.def_scope.length; i++) this.def_scope[i].reset();
 				//}
-
-				this.clearDynamicDependencies();
 			}
 
 			this.needsGlobalNotify = EdenSymbol.EXPIRED;
 
 			// recursively mark out of date and collect
-			for (var subscriber_name in this.subscribers) {
-				var subscriber = this.subscribers[subscriber_name];
-				if (subscriber) {
-					subscriber.expire(EdenSymbols_to_force, insertionIndex, actions_to_fire,fullexpire);
+			/*if (this.subscribersArray) {
+				for (var subscriber_name of this.subscribersArray) {
+					var subscriber = this.subscribers[subscriber_name];
+					if (subscriber) {
+						subscriber.expire(EdenSymbols_to_force, insertionIndex, actions_to_fire,fullexpire);
+					}
 				}
-			}
+			} else {*/
+				for (var subscriber_name in this.subscribers) {
+					var subscriber = this.subscribers[subscriber_name];
+					if (subscriber) {
+						subscriber.expire(EdenSymbols_to_force, insertionIndex, actions_to_fire,fullexpire);
+					}
+				}
+			//}
 		}
 	} else {
 		//console.log("NO EXPIRE", this.name);
@@ -832,6 +866,8 @@ EdenSymbol.prototype.addSubscriber = function (name, EdenSymbol) {
 	this.garbage = false;
 	//this.assertNotDependentOn(name);
 	this.subscribers[name] = EdenSymbol;
+	//this.subscribersArray = null;
+	if (this.subscribersArray) this.subscribersArray.push(name);
 };
 
 /**
@@ -841,6 +877,7 @@ EdenSymbol.prototype.addSubscriber = function (name, EdenSymbol) {
  */
 EdenSymbol.prototype.removeSubscriber = function (name) {
 	delete this.subscribers[name];
+	this.subscribersArray = null;
 	if (this.origin === undefined && this.canSafelyBeForgotten()) {
 		this.forget();
 	}
@@ -950,7 +987,18 @@ EdenSymbol.prototype.addExtension = function(idstr, ext, source, modifying_agent
 }
 
 EdenSymbol.prototype.listAssign = function(value, scope, origin, pushToNetwork, indices) {
-	if (this.definition) {
+	if (this.definition) {		
+		// Attempt to find corresponding primary
+		if (this.origin && this.origin.type == "definition") {
+			var p = this.origin.locatePrimary(indices);
+			if (p) {
+				eden.root.lookup(p).assign(value, scope, origin);
+				return;
+			} else {
+				
+			}
+		}
+
 		throw new Error(Eden.RuntimeError.ASSIGNTODEFINED);
 		return;
 	}

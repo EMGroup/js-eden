@@ -195,6 +195,8 @@ Eden.Selectors.expressionToLists = function(expr) {
 	case "unaryop":		return [expr.op,Eden.Selectors.expressionToLists(expr.r)];
 	case "length":		return ["#",Eden.Selectors.expressionToLists(expr.l)];
 	case "index":		return Eden.Selectors.expressionToLists(expr.expression);
+	case "async":		return ["sync", Eden.Selectors.expressionToLists(expr.expression)];
+	case "query":		return ["query", Eden.Selectors.expressionToLists(expr.selector), expr.restypes];
 	}
 
 	console.log(expr);
@@ -273,6 +275,8 @@ Eden.Selectors.processResults = function(statements, o) {
 										break;
 				case "exprtree"	:	if (stat.expression) val = Eden.Selectors.expressionToLists(stat.expression);
 									break;
+				case "expression":	if (stat.expression && stat.lvalue && stat.lvalue.source) val = stat.getSource().substr(stat.lvalue.source.length).trim();
+									break;
 				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
 										stat.base.mainDoxyComment.stripped();
 										var controls = stat.base.mainDoxyComment.getControls();
@@ -308,7 +312,7 @@ Eden.Selectors.processResults = function(statements, o) {
 
 										}
 								 	} break;
-				case "active"	: 	val = (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin && eden.root.symbols[stat.lvalue.name].origin.id == stat.id);
+				case "active"	: 	val = ((stat.type == "when" && stat.enabled) || (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin && eden.root.symbols[stat.lvalue.name].origin.id == stat.id));
 									break;
 				case "executed"	:	val = stat.executed > 0; break;
 				case "historic"	:	val = stat.executed == -1; break;
@@ -817,7 +821,7 @@ Eden.Selectors.execute = function(selector, cb) {
  * should be the one used.
  */
 Eden.Selectors.goto = function(selector) {
-	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: true}, function(res) {
+	Eden.Selectors.query(selector, undefined, {minimum: 1, noindex: false}, function(res) {
 	//console.log("GOTORES", selector, res);
 
 	if (res.length == 0) return false;

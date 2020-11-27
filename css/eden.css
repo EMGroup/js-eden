@@ -89,7 +89,7 @@ a[onclick] {
 
 #tooltip {
 	position: absolute;
-	z-index: 65535;
+	z-index: 2147483644;
 	background-color: #FFFFCC;
 	border: 2px solid #AAAAAA;
 	border-radius: 5px;

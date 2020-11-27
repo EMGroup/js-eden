@@ -238,12 +238,12 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			// Remove symbol list from DOM to speed up manipulations
 			// (but only if the inline editor isn't open, otherwise we'd lose focus and terminate editing prematurely.)
 			var symresults, parent, scrollPosition;
-			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
+			/*if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
 				symresults = $(instance.symresults);
 				parent = symresults.parent();
 				scrollPosition = symresults.scrollTop();
 				symresults.detach();
-			}
+			}*/
 
 			// For every recently created symbol
 			for (var name in symbol_create_queue) {
@@ -263,10 +263,10 @@ EdenUI.plugins.SymbolViewer = function (edenUI, success) {
 			}
 
 			// Add symbol list back into the DOM for display.
-			if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
+			/*if (EdenUI.plugins.SymbolViewer.inlineEditorSymbol === undefined) {
 				symresults.appendTo(parent);
 				symresults.scrollTop(scrollPosition);
-			}
+			}*/
 		}
 
 		symbol_update_queue = {};
@@ -523,11 +523,19 @@ EdenUI.plugins.SymbolViewer.Symbol = function (symbol, name, type, accentuation)
 	this.type = type;
 	this.details = undefined;
 	this.update = undefined;
+	this.wasdef = false;
 
-	this.element = $('<div class="symbollist-result-element"></div>');
+	this.rawelement = document.createElement("div");
+	this.rawelement.classList.add("symbollist-result-element");
+
+	this.element = $(this.rawelement); //$('<div class="symbollist-result-element"></div>');
 	if (accentuation) {
-		this.element.addClass("symbollist-" + accentuation + "-result");
+		//this.element.addClass("symbollist-" + accentuation + "-result");
+		this.rawelement.classList.add("symbollist-" + accentuation + "-result");
 	}
+
+	this.valueElement = null;
+	this.nameElement = null;
 
 	// Select update method based upon symbol type.
 	switch (type) {
@@ -735,29 +743,77 @@ function _formatVal(value) {
 	}
 };
 
+EdenUI.plugins.SymbolViewer.Symbol.prototype._formatVal = function(value) {
+	var str = Eden.edenCodeForValue(value); //Eden.prettyPrintValue("", value, 200, false, false);
+	var type = typeof(value);
+
+	if (type != this.oldtype) {
+		switch (type) {
+		case "boolean"		: this.valueElement.className = "special_text"; break;
+		case "undefined"	: this.valueElement.className = "error_text"; break;
+		case "string"		: this.valueElement.className = "string_text"; break;
+		case "number"		: this.valueElement.className = "numeric_text"; break;
+		default				: this.valueElement.className = ""; break;
+		}
+	}
+	this.valueElement.innerText = str;
+}
+
 EdenUI.plugins.SymbolViewer.Symbol.prototype._updateObservable = function(val,prom) {
-	var valhtml = _formatVal(val);
+	if (!this.valueElement) {
+		this.valueElement = document.createElement("span");
+	}
+	this._formatVal(val);
 
-	var namehtml;
-	if (this.symbol.definition !== undefined) {
-		namehtml = "<span class='hasdef_text'>" + this.name + "</span>";
-	} else {
-		namehtml = this.name;
+	if (!this.nameElement) {
+		this.nameElement = document.createElement("span");
+		if (this.symbol.definition !== undefined) {
+			this.wasdef = true;
+			this.nameElement.className = "hasdef_text";
+		}
+		this.nameElement.innerText = this.name;
+
+		var nameouter = document.createElement("span");
+		nameouter.classList.add("result_name");
+		if (prom) nameouter.classList.add("async-observable");
+		nameouter.appendChild(this.nameElement);
+
+		var sep = document.createElement("span");
+		sep.className = "result_separator";
+		sep.innerText = " = ";
+
+		var valele = document.createElement("span");
+		valele.className = "result_value";
+		valele.appendChild(this.valueElement);
+
+		var outer = document.createElement("span");
+		outer.className = "symbollist-result-inner";
+		outer.appendChild(nameouter);
+		outer.appendChild(sep);
+		outer.appendChild(valele);
+
+		outer.onmouseenter = (event) => {
+			if (this.symbol.definition) {
+				var tooltip = Eden.htmlEscape(this.symbol.getDynamicSource(), false, true);
+				//tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + ";</pre>");
+				EdenUI.showTooltip(event, tooltip);
+			}
+		};
+
+		outer.onmouseleave = (event) => {
+			EdenUI.closeTooltip();
+		}
+
+		this.rawelement.appendChild(outer);
 	}
 
-	var classes = "result_name";
-	if (prom) classes += " async-observable";
-
-	var html = "<span class='"+classes+"'>" + namehtml + "</span><span class='result_separator'> = </span> " +
-		"<span class='result_value'>" + valhtml + "</span>";
-
-	if (this.symbol.definition !== undefined) {
-		var tooltip = Eden.htmlEscape(this.symbol.getDynamicSource(), false, true);
-		tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + ";</pre>");
-		html = "<span class='symbollist-result-inner' onmouseenter='EdenUI.showTooltip(event, \"" + tooltip + "\")' onmouseleave='EdenUI.closeTooltip()'>" + html + "</span>";
+	if (this.symbol.definition && !this.wasdef) {
+		this.wasdef = true;
+		this.nameElement.className = "hasdef_text";
+	} else if (!this.symbol.definition && this.wasdef) {
+		this.wasdef = false;
+		this.nameElement.className = "";
 	}
-
-	this.element.html(html);
 }
 
 /**

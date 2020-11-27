@@ -236,7 +236,7 @@ Eden.AST.Scope.prototype.execute = function(ctx, base, scope) {
 		for (var i=0; i<context.scopes.length; i++) {
 			rhs += "\t_scopes.push(" + context.scopes[i];
 			rhs += ");\n";
-			rhs += "if (this.def_scope) { _scopes["+i+"].mergeCache(this.def_scope["+i+"].cache); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
+			rhs += "if (this.def_scope) { _scopes["+i+"].mergeCache(this.def_scope["+i+"]); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
 		}
 
 		rhs += "this.def_scope = _scopes;\n";

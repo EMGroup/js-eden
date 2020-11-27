@@ -130,7 +130,7 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	if (active) {
 		html += "<p>";
 		html += "<span style='color: #666;'><b>Path:</b> " + path + "</span><br>";
-		html += "<b>Current Value:</b> " + Eden.edenCodeForValue(value);
+		html += "<b>Current Value:</b> " + EdenUI.Highlight.html(Eden.edenCodeForValue(value),true,false);
 		html += "</p>";
 	} else {
 		html += "<p>";

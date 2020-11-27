@@ -118,7 +118,7 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 		}
 
 		rhs += "for(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\n";
-		//rhs += "if (this.def_scope) {\nfor (var i=0; i<_scopes.length; i++) {\n_scopes[i].cache = this.def_scope[i].cache;\n_scopes[i].reset();\n}\n} else {\nfor(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\nthis.def_scope = _scopes;\n}\n";
+		//rhs += "if (this.def_scope) {\nfor (var i=0; i<_scopes.length; i++) {\n_scopes[i].mergeCache(this.def_scope[i]);\n_scopes[i].reset();\n}\n} else {\nfor(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();}\nthis.def_scope = _scopes;\n\n";
 	}
 
 	rhs += "var result = " + express + ";";

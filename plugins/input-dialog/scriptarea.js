@@ -65,8 +65,9 @@ EdenUI.ScriptArea = function() {
 					f(metric.qelements[i]);
 				}
 			}
+
 			if (metric.squery) {
-				me.highlightContent(x,me.intextarea.selectionEnd);
+				metric.styleUpdate();
 			}
 		}
 	}, 300);

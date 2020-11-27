@@ -865,6 +865,10 @@
 		return s;
 	}
 
+	Eden.intersection = function(o1, o2) {
+		return Object.keys(o1).filter({}.hasOwnProperty.bind(o2));
+	}
+
 	/**Given any JavaScript value returns a string that can be displayed to users in an EDEN
 	 * friendly way, possibly truncated to reasonable length to fit in with the UI's requirements.
 	 * @param {string} prefix A prefix to prepend to the string representation of the value.  Any HTML

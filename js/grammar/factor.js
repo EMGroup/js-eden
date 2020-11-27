@@ -33,7 +33,7 @@ Eden.AST.prototype.pFACTOR = function() {
 			this.next();
 		}
 
-		if (this.token == "[") {
+		if (this.token == "[" || this.token == ".") {
 			var indexed = this.pINDEXED();
 			indexed.setExpression(expression);
 			return indexed;
@@ -62,17 +62,34 @@ Eden.AST.prototype.pFACTOR = function() {
 		this.next();
 
 		var elist = [];
+		var labels = false;
 		// Check for basic empty case, if not then parse elements
 		if (this.token != "]") {
-			elist = this.pELIST();
+			if (this.token == "OBSERVABLE" && this.stream.peek() == 58) {
+				elist = this.pLLIST();
+				labels = true;
+			} else {
+				elist = this.pELIST();
+			}
 		}
 
-		var literal = new Eden.AST.Literal("LIST", elist);
+		var literal;
+		if (!labels) literal = new Eden.AST.Literal("LIST", elist);
+		else literal = new Eden.AST.Literal("OBJECT", elist);
 
 		// Merge any errors found in the expressions
-		for (var i = 0; i < elist.length; i++) {
-			if (elist[i].errors.length > 0) {
-				literal.errors.push.apply(literal.errors, elist[i].errors);
+		if (!labels) {
+			for (var i = 0; i < elist.length; i++) {
+				if (elist[i].errors.length > 0) {
+					literal.errors.push.apply(literal.errors, elist[i].errors);
+				}
+			}
+		} else {
+			for (var ename in elist) {
+				var expr = elist[ename];
+				if (expr.errors.length > 0) {
+					literal.errors.push.apply(literal.errors, expr.errors);
+				}
 			}
 		}
 		if (literal.errors.length > 0) return literal;

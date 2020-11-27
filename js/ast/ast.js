@@ -371,6 +371,7 @@ Eden.AST.registerScript = function(stat) {
 	stat.prototype.insertAfter = Eden.AST.BaseScript.insertAfter;
 	stat.prototype.replaceChild = Eden.AST.BaseScript.replaceChild;
 	stat.prototype.addIndex = Eden.AST.BaseScript.addIndex;
+	stat.prototype.addIndexReverse = Eden.AST.BaseScript.addIndexReverse;
 	stat.prototype.removeIndex = Eden.AST.BaseScript.removeIndex;
 	stat.prototype.destroy = Eden.AST.BaseScript.destroy;
 	stat.prototype.buildID = Eden.AST.BaseScript.buildID;
