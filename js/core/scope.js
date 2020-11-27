@@ -137,7 +137,7 @@ Scope.prototype.resetCache = function() {
 
 Scope.prototype.rebuild = function() {
 	if (this.cache !== undefined) return;
-	this.cache = {};
+	this.cache = Object.create(null);
 
 	this.add("cause");
 	this.add("has");
@@ -355,7 +355,7 @@ Scope.prototype.addSubscribers = function(sym) {
 	var pos = 0;
 
 	while (pos < subs.length) {
-		if (!this.cache.hasOwnProperty(subs[pos])) {
+		if (!this.cache[subs[pos]]) {
 			var name = subs[pos];
 			this.cache[name] = new ScopeCache( false, undefined, this, false);
 			var sym2 = this.context.lookup(name);
@@ -368,7 +368,7 @@ Scope.prototype.addSubscribers = function(sym) {
 
 Scope.prototype.addSubscriber = function(name) {
 	//console.log("Adding scope subscriber...: " + name);
-	if (!this.cache.hasOwnProperty(name)) {
+	if (!this.cache[(name)]) {
 		var c = new ScopeCache( false, undefined, this, false);
 		this.cache[name] = c;
 		if (this.cachearray) this.cachearray.push(c);
