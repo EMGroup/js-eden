@@ -241,26 +241,35 @@ function reindexProject(projectID){
 }
 
 Eden.Selectors.PropertyNode.prototype.construct = function() {
+	var stats;
+
 	switch (this.name) {
-	case ".type"		:	return Eden.Index.getByType(this.value);
-	case ".id"			:	return Eden.Index.getByID(this.value);
+	case ".type"		:	stats = Eden.Index.getByType(this.value); break;
+	case ".id"			:	stats = Eden.Index.getByID(this.value); break;
 	case ".name"		:	if (this.param === undefined) {
-								return Eden.Index.getAllWithName();
+								stats = Eden.Index.getAllWithName();
 							} else if (this.isreg) {
-								return Eden.Index.getByNameRegex(this.value);
+								stats = Eden.Index.getByNameRegex(this.value);
 							} else {
-								return Eden.Index.getByName(this.value);
-							}
+								stats = Eden.Index.getByName(this.value);
+							} break;
 	// TODO this doesn't capture executes.
 	case ":remote"		:
-	case ":root"		:	return Object.keys(allKnownProjects).map(function(e) { return allKnownProjects[e]; });
-	case ":project"		:	return [];
+	case ":root"		:	stats = Object.keys(allKnownProjects).map(function(e) { return allKnownProjects[e]; }); break;
+	case ":active"		:
+	case ":depends"		:
+	case ":determines"	:
+	case ".depends"		:
+	case ".determines"	:
+	case ":project"		:	stats = []; break;
+	default				:	stats = Eden.Index.getAll();
 	}
 
-	return Eden.Index.getAll();
+	return Promise.resolve(stats);
 }
 
 var flash = require('connect-flash');
+const { readlink } = require('fs');
 var app = express();
 
 // configure Express
