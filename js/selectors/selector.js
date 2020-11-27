@@ -670,6 +670,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 			} else if (!sast.options || !sast.options.local) {
 				//Then need to do a remote search
 				Eden.DB.searchSelector(s, (o === undefined) ? ["outersource","path"] : o, function(stats) {
+					console.log("DB RESULT", stats);
 					if (o === undefined && stats.length > 0) {
 						// Need to generate an AST for each result
 						// Loop and do all...
@@ -732,7 +733,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 						}
 					} else {
 						statements.push.apply(statements,stats);
-						cb(statements);
+						cb(statements, true);
 					}
 				});
 			} else if (Eden.Project.local && Eden.Project.local[path]) {
