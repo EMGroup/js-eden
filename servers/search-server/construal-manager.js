@@ -258,6 +258,10 @@ function loadVersion(saveID, cb) {
 	});
 }
 
+Eden.Selectors.query = function(s, o, options, cb) {
+	cb([]);
+}
+
 Eden.Selectors.PropertyNode.prototype.construct = function() {
 	let result;
 
