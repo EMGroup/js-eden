@@ -26,7 +26,9 @@ require(config.JSEDENPATH + "js/selectors/tag.js");
 require(config.JSEDENPATH + "js/selectors/intersection.js");  
 require(config.JSEDENPATH + "js/selectors/union.js");  
 require(config.JSEDENPATH + "js/selectors/navigate.js");  
-require(config.JSEDENPATH + "js/ast/ast.js");  
+require(config.JSEDENPATH + "js/ast/ast.js");
+require(config.JSEDENPATH + "js/ast/async.js"); 
+require(config.JSEDENPATH + "js/ast/customblock.js"); 
 require(config.JSEDENPATH + "js/ast/basestatement.js");  
 require(config.JSEDENPATH + "js/ast/basescript.js");  
 require(config.JSEDENPATH + "js/ast/basecontext.js");  
@@ -280,13 +282,16 @@ Eden.Selectors.PropertyNode.prototype.construct = function() {
 	// TODO this doesn't capture executes.
 	case ":remote"		:
 	case ":root"		:	result = Object.keys(allKnownProjects).map(function(e) { return allKnownProjects[e]; }); break;
+	case ":active"		:
+	case ":depends"		:
+	case ":determines"	:
+	case ".depends"		:
+	case ".determines"	:
 	case ":project"		:	result = []; break;
 	default				:	result = Eden.Index.getAll();
 	}
 
-	return new Promise((resolve, reject) => {
-		resolve(result);
-	});
+	return Promise.resolve(result);
 }
 
 var flash = require('connect-flash');
