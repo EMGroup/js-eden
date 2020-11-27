@@ -307,7 +307,7 @@ Eden.Selectors.processResults = function(statements, o) {
 
 										}
 								 	} break;
-				case "active"	: 	val = (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin && eden.root.symbols[stat.lvalue.name].origin.id == stat.id);
+				case "active"	: 	val = ((stat.type == "when" && stat.enabled) || (stat.lvalue && eden.root.symbols[stat.lvalue.name] && eden.root.symbols[stat.lvalue.name].origin && eden.root.symbols[stat.lvalue.name].origin.id == stat.id));
 									break;
 				case "executed"	:	val = stat.executed > 0; break;
 				case "historic"	:	val = stat.executed == -1; break;

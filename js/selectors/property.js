@@ -210,7 +210,7 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 
 		case ".depends"	:	//var regex = edenUI.regExpFromStr(param);
 							resolve(statements.filter(function(stat) {
-								return (stat.type == "definition" || stat.type == "when") && stat.dependencies[param];
+								return (stat.type == "definition" || stat.type == "when") && (stat.dependencies[param] || (stat.dynamicDependencies && stat.dynamicDependencies[param]));
 							})); return;
 
 		case ".determines"	:
@@ -396,6 +396,8 @@ Eden.Selectors.PropertyNode.prototype.construct = function() {
 		case ":active"		:	stats = [eden.root]; break;
 		case ":depends"		:	stats = Object.values(eden.root.lookup(this.value).indirectSubscribers()); break;
 		case ":determines"	:	stats = Object.values(eden.root.lookup(this.value).indirectDependencies()); break;
+		case ".determines"	:	stats = Object.values(eden.root.lookup(this.value).dependencies).concat(Object.values(eden.root.lookup(this.value).dynamicDependencies)); break;
+		case ".depends"		:	stats = Object.values(eden.root.lookup(this.value).subscribers); break;
 		default				:	stats = Eden.Index.getAll();
 		}
 

@@ -95,6 +95,10 @@ Object.defineProperty(EdenSymbol.prototype, "executed", {
 	get: function() { return 1; }
 });
 
+EdenSymbol.prototype.buildID = function() {
+	// Do nothing
+}
+
 EdenSymbol.prototype.getStartLine = function(relative) {
 	return (this.origin) ? this.origin.getStartLine(relative) : -1;
 }
