@@ -192,6 +192,8 @@ EdenSymbol.prototype.value = function (pscope) {
 EdenSymbol.prototype.multiValue = function (newscope) {
 	var results = [];
 
+	console.log("mutli value");
+
 	newscope.range = false;
 
 	if (!newscope.first()) return [];
@@ -236,10 +238,8 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 	try {
 		cache.up_to_date = true;
 		this.has_evaled = true;
-		//NOTE: Don't do copy here, be clever about it.
-		//cache.value = copy(this.definition(this.context, scope));
 		this.scopecount = 0;
-		this.clearDynamicDependencies();
+
 		cache.value = this.definition.call(this,this.context, scope, cache);
 		if (this.scopecount > 1000) console.log("Scope count for "+this.name, this.scopecount);
 
@@ -262,6 +262,22 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 	if (this.context) {
 		this.context.endEvaluation(this);
 	}
+};
+
+/* Faster version for scope use only */
+EdenSymbol.prototype.liteEvaluate = function (scope, cache) {
+	if (!this.subscribersArray) this.subscribersArray = Object.keys(this.subscribers);
+
+	cache.up_to_date = true;
+	cache.value = this.definition.call(this,this.context, scope, cache);
+
+	// Post process with all extensions
+	if (this.extend) {
+		for (var e in this.extend) {
+			this.extend[e].code(this.context, scope, cache.value);
+		}
+	}
+	
 };
 
 EdenSymbol.prototype.clearEvalIDs = function () {
@@ -766,6 +782,8 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 				this.has_evaled = false;
 				EdenSymbols_to_force[this.name] = insertionIndex.value;
 				insertionIndex.value++;
+
+				this.clearDynamicDependencies();
 
 				// Need to rebuild the scope dependency path
 				if (fullexpire) {

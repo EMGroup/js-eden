@@ -247,10 +247,12 @@ Scope.prototype.value = function(name) {
 	var symcache = this.cache[name];
 	if (symcache !== undefined) {
 		if (symcache.up_to_date) return symcache.value;
-		return this.context.lookup(name).value(this);
+		var sym = this.context.lookup(name);
+		// Do direct symbol evaluate call here.
+		if (sym.definition) sym.evaluate(this, symcache);
+		return symcache.value;
 	}
 	return (this.parent)?this.parent.value(name):undefined;
-	//return this.context.lookup(name).value(this.parent);
 }
 
 Scope.prototype.assign = function(name, value, agent) {

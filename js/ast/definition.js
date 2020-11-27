@@ -55,7 +55,7 @@ Eden.AST.Definition.prototype.locatePrimary = function(indices) {
 
 Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	var name = (this.lvalue && this.lvalue.name) ? "def_"+this.lvalue.name : "";
-	var dobound = (this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";
+	var dobound = false; //(this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";
 	var result = "function "+name+"(context, scope, cache) {\n";
 	this.locals = (ctx) ? ctx.locals : undefined;
 	this.params = (ctx) ? ctx.params : undefined;
@@ -84,7 +84,7 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	}
 
 	if (this.expression.type == "async") {
-		result += "\tif (cache) cache.scope = scope;\n";
+		//result += "\tif (cache) cache.scope = scope;\n";
 		result += "\tvar _r = rt.flattenPromise(" + express + ");\n";
 		//result += "\tvar _me = this;"
 		//result += "\t_r.then(rr => { cache.value = rr; this.expireAsync(); });\n";
@@ -94,7 +94,7 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		result += "\t var result = "+express+";\n";
 
 		// Save the resulting values scope binding into the cache entry.
-		result += "\tif (cache) cache.scope = result.scope;\n";
+		//result += "\tif (cache) cache.scope = result.scope;\n";
 
 		// Make sure to copy a value if its an ungenerated one.
 		if (this.scopes.length == 0) {
@@ -103,7 +103,7 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 			result += "\treturn result.value;\n}";
 		}
 	} else {
-		result += "\tif (cache) cache.scope = scope;\n";
+		//result += "\tif (cache) cache.scope = scope;\n";
 		result += "\treturn " + express + ";\n}";
 	}
 
