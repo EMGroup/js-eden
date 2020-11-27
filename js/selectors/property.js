@@ -72,7 +72,8 @@ Eden.Selectors.PropertyNode.attributes = {
 	"lines":	{local: false,	indexed: false,	rank: 3},
 //	"op":		{local: false,	indexed: false,	rank: 30}, 
 //	"operator":	{local: false,	indexed: false,	rank: 30},
-	"depends":	{local: false,	indexed: false, rank: 4},
+	"depends":	{local: false,	indexed: false, rank: 4},		// Only immediate dependencies
+	"determines": {local: false,	indexed: false, rank: 4},	// Only immediate subscribers
 	"time":		{local: true,	indexed: false, rank: 3},
 	"date":		{local: false,	indexed: false,	rank: 3},
 	"title":	{local: false,	indexed: false, rank: 10},
@@ -86,7 +87,8 @@ Eden.Selectors.PropertyNode.attributes = {
 
 Eden.Selectors.PropertyNode.pseudo = {
 	"line":			{local: false,	indexed: false,	rank: 50},
-	"determines":	{local:true,	indexed: true,	rank: 10},
+	"determines":	{local:true,	indexed: true,	rank: 10},  // Full subscriber tree check
+	"depends":		{local:true,	indexed: true,	rank: 10},  // Full dependency tree check
 	"first":		{local: false,	indexed: true,	rank: 5},
 	"last":			{local: false,	indexed: true,	rank: 5},
 	"unexecuted":	{local: true,	indexed: false, rank: 3},
@@ -142,6 +144,22 @@ Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 	});
 }
 
+Eden.Selectors.PropertyNode.prototype._indirectSubFilter = function(statements, param) {
+	var isubs = eden.root.lookup(param).indirectSubscribers();
+	return statements.filter(function(stat) {
+		var name = (stat.lvalue && stat.lvalue.name) ? stat.lvalue.name : (stat.name) ? stat.name : undefined;
+		return (name && isubs.hasOwnProperty(name));
+	});
+}
+
+Eden.Selectors.PropertyNode.prototype._indirectDepFilter = function(statements, param) {
+	var isubs = eden.root.lookup(param).indirectDependencies();
+	return statements.filter(function(stat) {
+		var name = (stat.lvalue && stat.lvalue.name) ? stat.lvalue.name : (stat.name) ? stat.name : undefined;
+		return (name && isubs.hasOwnProperty(name));
+	});
+}
+
 Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 	var me = this;
 	var param = this.value;
@@ -190,12 +208,19 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 		// Match an expression pattern
 		case ":pattern"		: resolve(statements); return;
 
-		case ":determines"	: resolve(statements); return;
-
 		case ".depends"	:	//var regex = edenUI.regExpFromStr(param);
 							resolve(statements.filter(function(stat) {
 								return (stat.type == "definition" || stat.type == "when") && stat.dependencies[param];
 							})); return;
+
+		case ".determines"	:
+							resolve(statements.filter(function(stat) {
+								return (stat instanceof EdenSymbol) && stat.subscribers[param];
+							})); return;
+
+		case ":depends"		: resolve(this._indirectSubFilter(statements, param)); return;
+
+		case ":determines"	: resolve(this._indirectDepFilter(statements, param)); return;
 
 		case ":active"	:	resolve(statements.filter(function(stat) {
 								if (stat.type == "definition" || stat.type == "assignment") {
@@ -368,6 +393,9 @@ Eden.Selectors.PropertyNode.prototype.construct = function() {
 									while (s && s.type == "dummy") s = s.nextSibling;
 									return s;
 								}); break;
+		case ":active"		:	stats = [eden.root]; break;
+		case ":depends"		:	stats = Object.values(eden.root.lookup(this.value).indirectSubscribers()); break;
+		case ":determines"	:	stats = Object.values(eden.root.lookup(this.value).indirectDependencies()); break;
 		default				:	stats = Eden.Index.getAll();
 		}
 
