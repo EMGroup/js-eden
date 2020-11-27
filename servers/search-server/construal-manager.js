@@ -392,7 +392,7 @@ var app = express();
   });
   
   app.get('/comment/search', function(req,res){
-	  logErrorTime("Comment search");
+	  //logErrorTime("Comment search");
 	  var stmtstr = "SELECT name,commentID,projectID,versionID,date,author,public,comment FROM comments,oauthusers WHERE projectID = @projectID AND public = 1";
 	  var criteriaObject = {};
 	  criteriaObject["@projectID"] = req.query.projectID;
