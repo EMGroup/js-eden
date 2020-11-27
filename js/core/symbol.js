@@ -354,13 +354,13 @@ EdenSymbol.prototype.clearDependencies = function () {
 
 EdenSymbol.prototype.clearDynamicDependencies = function () {
 	var dependency;
+	var count = 0;
 	for (var name in this.dynamicDependencies) {
 		dependency = this.dynamicDependencies[name];
-		if (!(this.dependencies.hasOwnProperty(name))) {
-			dependency.removeSubscriber(this.name);
-		}
+		dependency.removeSubscriber(this.name);
+		++count;
 	}
-	this.dynamicDependencies = {};
+	if (count > 0) this.dynamicDependencies = {};
 };
 
 
