@@ -790,11 +790,11 @@ Eden.Selectors.queryPromise = function(s, o, options) {
 	});
 }
 
-Eden.Selectors.querySync = async function(s, o, options) {
+/*Eden.Selectors.querySync = async function(s, o, options) {
 	const result = await Eden.Selectors.queryPromise(s,o,options);
 	console.log("Result", result);
 	return result;
-}
+}*/
 
 
 Eden.Selectors.execute = function(selector, cb) {
