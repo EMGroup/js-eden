@@ -194,6 +194,8 @@ Eden.Selectors.expressionToLists = function(expr) {
 	case "unaryop":		return [expr.op,Eden.Selectors.expressionToLists(expr.r)];
 	case "length":		return ["#",Eden.Selectors.expressionToLists(expr.l)];
 	case "index":		return Eden.Selectors.expressionToLists(expr.expression);
+	case "async":		return ["sync", Eden.Selectors.expressionToLists(expr.expression)];
+	case "query":		return ["query", Eden.Selectors.expressionToLists(expr.selector), expr.restypes];
 	}
 
 	console.log(expr);
@@ -271,6 +273,8 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "outersource"	:	val = stat.getOuterSource();
 										break;
 				case "exprtree"	:	if (stat.expression) val = Eden.Selectors.expressionToLists(stat.expression);
+									break;
+				case "expression":	if (stat.expression && stat.lvalue && stat.lvalue.source) val = stat.getSource().substr(stat.lvalue.source.length).trim();
 									break;
 				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
 										stat.base.mainDoxyComment.stripped();

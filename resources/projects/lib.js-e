@@ -2647,6 +2647,11 @@ func highlightScript {
 	${{ return EdenUI.Highlight.html(s); }}$;
 }
 
+func highlightStatement {
+	para s;
+	${{ return EdenUI.Highlight.html(s,true,false); }}$;
+}
+
 /**
  * Check if one string starts with another.
  * #string #library
