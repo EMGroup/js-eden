@@ -275,7 +275,11 @@ Eden.Selectors.processResults = function(statements, o) {
 										break;
 				case "exprtree"	:	if (stat.expression) val = Eden.Selectors.expressionToLists(stat.expression);
 									break;
-				case "expression":	if (stat.expression && stat.lvalue && stat.lvalue.source) val = stat.getSource().substr(stat.lvalue.source.length).trim();
+				case "expression":	if (stat.expression && stat.lvalue && stat.lvalue.source) {
+										val = stat.getSource().substr(stat.lvalue.source.length).trim();
+										if (stat.type == "definition") val = val.substring(2,val.length-1).trim();
+										else if (stat.type == "assignment") val = val.substr(1,val.length-1).trim();
+									}
 									break;
 				case "title"	:	if (stat.base && stat.base.mainDoxyComment) {
 										stat.base.mainDoxyComment.stripped();
