@@ -64,7 +64,9 @@ function Folder(name, parent, root) {
 	 * @type {Object.<string, EdenSymbol>}
 	 * @public
 	 */
-	this.symbols = {};
+	this.symbols = Object.create(null);
+
+	this.f = Object.create(null);
 	
 	this.evalResults = {};
 

@@ -383,7 +383,7 @@ EdenUI.Highlight.prototype.START = function() {
 							this.classes.push("parameter");
 						} else {
 							this.classes.push("observable");
-							if (!Eden.Index.name_index.hasOwnProperty(this.stream.data.value) && !eden.root.symbols.hasOwnProperty(this.stream.data.value)) {
+							if (!Eden.Index.name_index.hasOwnProperty(this.stream.data.value) && !eden.root.symbols[this.stream.data.value]) {
 								this.classes.push("notexist");
 							}
 						}

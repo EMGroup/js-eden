@@ -19,7 +19,11 @@ Eden.AST.Index.prototype.setExpression = function(express) {
 Eden.AST.Index.prototype.generate = function(ctx, scope, options) {
 	var ix = this.expression.generate(ctx, scope, {bound: false});
 	// Return final string with -1 adjustment applied.
-	return "[rt.index("+ix+")]";
+	if (this.expression.type == "literal" && this.expression.datatype == "NUMBER") {
+		return "["+ix+"-1]";
+	} else {
+		return "[rt.index("+ix+")]";
+	}
 }
 
 Eden.AST.Index.prototype.error = Eden.AST.fnEdenASTerror;

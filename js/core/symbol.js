@@ -241,7 +241,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 		this.scopecount = 0;
 		this.clearDynamicDependencies();
 		cache.value = this.definition.call(this,this.context, scope, cache);
-		if (this.scopecount > 100) console.log("Scope count for "+this.name, this.scopecount);
+		if (this.scopecount > 1000) console.log("Scope count for "+this.name, this.scopecount);
 
 		// Post process with all extensions
 		if (this.extend) {
@@ -320,7 +320,7 @@ EdenSymbol.prototype.subscribeDynamic = function (position, dependency, scope) {
 
 	if (scope && scope !== eden.root.scope && scope.cause) {
 		// Only add if actually a definition and not already there.
-		if (sym.definition && !scope.cache.hasOwnProperty(dependency)) {
+		if (sym.definition && !scope.cache[dependency]) {
 			scope.addSubscriber(dependency);
 		}
 	}

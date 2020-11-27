@@ -39,10 +39,11 @@ Eden.AST.Action.prototype.execute = function(ctx, base, scope, agent) {
 
 	var body = this.body.generate(ctx);
 	var sym = eden.root.lookup(this.name);
+	eden.root.f["func_"+this.name] = eval(body);
 	if (this.triggers.length > 0) {
-		sym.define(eval(body), this, []).observe(this.triggers);
+		sym.assign(eden.root.f["func_"+this.name], scope, this).observe(this.triggers);
 	} else {
-		sym.define(eval(body), this, []);
+		sym.assign(eden.root.f["func_"+this.name], scope, this);
 	}
 }
 
