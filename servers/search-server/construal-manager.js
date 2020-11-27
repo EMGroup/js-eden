@@ -612,7 +612,7 @@ app.post('/project/patch', ensureAuthenticated, function(req, res){
 					res.json({error:"error", description: "Error patching project" + errstr,projectID: parent.id});
 				},parent.id);
 		
-			});
+			}).catch(error => { logErrorTime("Query error for: "+req.body.selector+" - "+error); });
 		}
 });
 
@@ -861,7 +861,7 @@ app.get('/code/search', function(req, res){
 				var srcList = Eden.Selectors.processResults(nodelist, outtype);
 
 				res.json(srcList);
-			});
+			}).catch(error => { logErrorTime("Query error for: "+req.body.selector+" - "+error); });
 		}
 });
 
@@ -885,7 +885,7 @@ app.get('/code/get', function(req, res){
 					return;
 				}
 				res.json({});
-			});
+			}).catch(error => { logErrorTime("Query error for: "+req.body.selector+" - "+error); });
 		}
 });
 
