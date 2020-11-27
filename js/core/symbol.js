@@ -235,6 +235,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 		//NOTE: Don't do copy here, be clever about it.
 		//cache.value = copy(this.definition(this.context, scope));
 		this.scopecount = 0;
+		this.clearDynamicDependencies();
 		cache.value = this.definition.call(this,this.context, scope, cache);
 		if (this.scopecount > 100) console.log("Scope count for "+this.name, this.scopecount);
 
@@ -302,41 +303,23 @@ EdenSymbol.prototype.subscribeDynValue = function (position, sym, scope) {
 }
 
 EdenSymbol.prototype.subscribeDynamic = function (position, dependency, scope) {
-	// To put the dependency on the outer scoped observable is in a scoping context
+	var sym = this.context.lookup(dependency);
+
 	if (scope && scope !== eden.root.scope && scope.cause) {
-		// TODO WHY WAS THIS HERE? Nested scopes?
-		//return scope.cause.subscribeDynamic(scope.causecount++, dependency, scope.parent);
-		if (!scope.cache.hasOwnProperty(dependency)) {
-			console.log("Add dynamic scope entry", dependency);
+		// Only add if actually a definition and not already there.
+		if (sym.definition && !scope.cache.hasOwnProperty(dependency)) {
 			scope.addSubscriber(dependency);
 		}
 	}
 
-	if (!(dependency in this.dependencies)) {
-		var sym, refCount;
-		/*var previousDependency = this.dynamicDependencyTable[position];
-		if (previousDependency !== undefined) {
-			refCount = this.dynamicDependencyRefCount[previousDependency];
-			if (refCount == 1) {
-				sym = this.context.lookup(previousDependency);
-				sym.removeSubscriber(this.name);
-				delete this.dynamicDependencies[sym.name];
-				delete this.dynamicDependencyRefCount[previousDependency];
-			} else {
-				this.dynamicDependencyRefCount[previousDependency] = refCount - 1;
-			}
-		}*/
-		if (!(dependency in this.dynamicDependencies)) {
-			sym = this.context.lookup(dependency);
+	if (!this.dependencies.hasOwnProperty(dependency)) {
+		if (!this.dynamicDependencies.hasOwnProperty(dependency)) {
 			sym.addSubscriber(this.name, this);
-			this.dynamicDependencies[sym.name] = sym;
-			//this.dynamicDependencyRefCount[dependency] = 1;
-		//} else {
-		//	this.dynamicDependencyRefCount[dependency]++;				
+			this.dynamicDependencies[sym.name] = sym;			
 		}
 	}
-	//this.dynamicDependencyTable[position] = dependency;
-	return dependency; //this.context.lookup(dependency);
+
+	return dependency;
 }
 
 
@@ -782,8 +765,6 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 				//else if (this.def_scope) {
 				//	for (var i=0; i<this.def_scope.length; i++) this.def_scope[i].reset();
 				//}
-
-				this.clearDynamicDependencies();
 			}
 
 			this.needsGlobalNotify = EdenSymbol.EXPIRED;
