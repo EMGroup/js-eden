@@ -162,7 +162,7 @@ var rt = {
 		if (a === undefined || b === undefined) {
 			return undefined;
 		} else {
-			return a + b;
+			return String(a) + b;
 		}
 	},
 

@@ -28,6 +28,13 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	if (ctx && ctx.isdynamic) ctx.dynamic_source += ")";
 	var opstr;
 
+	var tval = 0;
+	// Type selection rules
+	if (this.l.typevalue === this.r.typevalue) tval = this.l.typevalue;
+	else if (this.l.typevalue === Eden.AST.TYPE_STRING || this.r.typevalue === Eden.AST.TYPE_STRING) tval = Eden.AST.TYPE_STRING;
+	else if (this.l.typevalue === 0) tval = this.r.typevalue;
+	else tval = this.l.typevalue;
+
 	var tval = (this.l.typevalue === this.r.typevalue) ? this.l.typevalue : (this.l.typevalue === Eden.AST.TYPE_UNKNOWN) ? this.r.typevalue : this.l.typevalue;
 
 	switch(this.op) {
@@ -42,6 +49,8 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	case "^"	: opstr = "pow"; break;
 	default		: opstr = "RAW";
 	}
+
+	var op = this.op;
 
 	if (tval === Eden.AST.TYPE_NUMBER) {
 		if (this.l.typevalue === this.r.typevalue) {
@@ -60,7 +69,10 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 		}
 	} else if (tval === Eden.AST.TYPE_STRING) {
 		if (this.op == "//") {
-			opstr = "concatS";
+			if (this.l.typevalue === this.r.typevalue) {
+				opstr = "RAW";
+				op = " + ";
+			} else opstr = "concatS";
 		} else if (this.op == "==") {
 			opstr = "RAW";
 		} else if( this.op == "!=") {
@@ -72,7 +84,7 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	if (opstr != "RAW") {
 		res = "rt."+opstr+"(("+left+"),("+right+"))";
 	} else {
-		res = "(" + left + ") " + this.op + " (" + right + ")";
+		res = "(" + left + ") " + op + " (" + right + ")";
 	}
 
 	if (options.bound) {

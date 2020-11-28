@@ -110,6 +110,7 @@ Eden.AST.prototype.pLVALUE = function() {
 		// Allow backtick without operator
 		if (this.token == "{") {
 			var expr = new Eden.AST.Literal("STRING", observable);
+			expr.typevalue = Eden.AST.TYPE_STRING;
 
 			while (this.token == "{") {
 				this.next();
@@ -133,12 +134,16 @@ Eden.AST.prototype.pLVALUE = function() {
 				var nexpr = new Eden.AST.BinaryOp('//');
 				nexpr.left(expr);
 				nexpr.setRight(btick);
+				nexpr.typevalue = Eden.AST.TYPE_STRING;
 				expr = nexpr;
 
 				if (this.token == "OBSERVABLE") {
 					var nexpr = new Eden.AST.BinaryOp('//');
 					nexpr.left(expr);
-					nexpr.setRight(new Eden.AST.Literal("STRING", this.data.value));
+					var lit = new Eden.AST.Literal("STRING", this.data.value);
+					lit.typevalue = Eden.AST.TYPE_STRING;
+					nexpr.setRight(lit);
+					nexpr.typevalue = Eden.AST.TYPE_STRING;
 					expr = nexpr;
 					this.next();
 				}
