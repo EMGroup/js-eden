@@ -19,13 +19,17 @@ Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	if (right && right.warning) this.warning = right.warning;
 }
 
+Eden.AST.BinaryOp.prototype.toString = function(scope, state) {
+	return `(${this.l.toString(scope, state)} ${this.op} ${this.r.toString(scope, state)})`;
+}
+
 Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	var opts = options; //{bound: false, usevar: options.usevar};
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += "(";
+	//if (ctx && ctx.isdynamic) ctx.dynamic_source += "(";
 	var left = this.l.generate(ctx, scope, opts);
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += " " + this.op + " ";
+	//if (ctx && ctx.isdynamic) ctx.dynamic_source += " " + this.op + " ";
 	var right = this.r.generate(ctx, scope, opts);
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += ")";
+	//if (ctx && ctx.isdynamic) ctx.dynamic_source += ")";
 	var opstr;
 
 	var tval = 0;

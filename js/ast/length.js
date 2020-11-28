@@ -9,6 +9,10 @@ Eden.AST.Length.prototype.left = Eden.AST.fnEdenASTleft;
 
 Eden.AST.Length.prototype.error = Eden.AST.fnEdenASTerror;
 
+Eden.AST.Length.prototype.toString = function(scope, state) {
+	return `${this.l.toString(scope, state)}#`;
+}
+
 Eden.AST.Length.prototype.generate = function(ctx, scope, options) {
 	var left = this.l.generate(ctx, scope, options);
 

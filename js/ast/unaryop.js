@@ -10,13 +10,25 @@ Eden.AST.UnaryOp = function(op, right) {
 }
 Eden.AST.UnaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
+Eden.AST.UnaryOp.prototype.toString = function(scope, state) {
+	if (this.op == "eval") {
+		var ctx = {dependencies: {}, isconstant: true, scopes: []};
+		var expr = "return "+this.r.generate(ctx, "scope", {bound: false, scope: scope})+";";
+		var f = new Function(["context","scope"], expr);
+		var val = f(eden.root, scope);
+		return Eden.edenCodeForValue(val);
+	}
+
+	return `${this.op}(${this.r.toString(scope, state)})`;
+}
+
 Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 	if (this.op == "eval") {
 		var tmpconst = ctx.isconstant;
 		var tmpdep = ctx.dependencies;
 		var tmpdynsrc = ctx.dynamic_source;
 		ctx.dependencies = {};
-		var val = this.r.execute(ctx, null, eden.root.scope);
+		var val = this.r.execute(ctx, null, (options.scope) ? options.scope : eden.root.scope);
 		ctx.isconstant = tmpconst;
 		ctx.dependencies = tmpdep;
 		val = Eden.edenCodeForValue(val);

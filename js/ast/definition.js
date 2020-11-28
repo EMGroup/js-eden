@@ -172,51 +172,73 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	var rhs;
 	var name = (this.lvalue && this.lvalue.name) ? "def_"+this.lvalue.name : "";
 
-	this.scopes = [];
-	this.dependencies = {};
-	this.backtickCount = 0;
+	// If LValue is dynamic then need to generate a new AST node here...
+	if (this.lvalue.isDynamic()) {
+		// First, generate dynamic eden code
+		var state = {isconstant: true};
+		var expr = this.expression.toString((scope) ? scope : eden.root.scope, state);
 
-	try {
-		if (this.lvalue.hasListIndices()) {
-			rhs = "value";
-			rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
-			rhs += this.expression.generate(this, "scope", {bound: false});
-			rhs += ";";
-			var deps = [];
-			for (var d in this.dependencies) {
-				deps.push(d);
-			}
-			var source = base.getSource(this);
-			sym.addExtension(this.lvalue.generateIdStr(), new Function(["context","scope","cache"], rhs), source, undefined, deps);
+		if (state.isconstant) {
+			expr = sym.name + " = " + expr + ";";
 		} else {
-			rhs = this.generateDef(ctx);
-			var deps = [];
-			for (var d in this.dependencies) {
-				deps.push(d);
-			}
-
-			if (this.isdynamic) {
-				if (!this.sources) this.sources = {};
-				this.sources[sym.name] = sym.name + " is " + this.dynamic_source + ";";
-			}
-
-			sym.isasync = (this.expression.type == "async");
-			var f = new Function(["context","scope","cache"], rhs);
-			f.displayName = name;  // FIXME: Non-standard
-			sym.define(f, this, deps, rhs);
+			expr = sym.name + " is " + expr + ";";
 		}
-	} catch(e) {
-		var err;
-		console.log(rhs);
-		if (e.message == Eden.RuntimeError.EXTENDSTATIC) {
-			err = new Eden.RuntimeError(base, Eden.RuntimeError.EXTENDSTATIC, this, "Can only define list items if the list is defined");
-		} else {
-			err = new Eden.RuntimeError(base, Eden.RuntimeError.UNKNOWN, this, e);
+
+		console.log(expr);
+
+		// Second, reparse that code as a new AST node
+		var stat = Eden.AST.parseStatement(expr);
+
+		// Third, execute that node.
+		stat.execute(ctx, base, scope, agent);
+	} else {
+
+		this.scopes = [];
+		this.dependencies = {};
+		this.backtickCount = 0;
+
+		try {
+			if (this.lvalue.hasListIndices()) {
+				rhs = "value";
+				rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
+				rhs += this.expression.generate(this, "scope", {bound: false});
+				rhs += ";";
+				var deps = [];
+				for (var d in this.dependencies) {
+					deps.push(d);
+				}
+				var source = base.getSource(this);
+				sym.addExtension(this.lvalue.generateIdStr(), new Function(["context","scope","cache"], rhs), source, undefined, deps);
+			} else {
+				rhs = this.generateDef(ctx);
+				var deps = [];
+				for (var d in this.dependencies) {
+					deps.push(d);
+				}
+
+				if (this.isdynamic) {
+					if (!this.sources) this.sources = {};
+					this.sources[sym.name] = sym.name + " is " + this.dynamic_source + ";";
+				}
+
+				sym.isasync = (this.expression.type == "async");
+				var f = new Function(["context","scope","cache"], rhs);
+				f.displayName = name;  // FIXME: Non-standard
+				sym.define(f, this, deps, rhs);
+			}
+		} catch(e) {
+			var err;
+			console.log(rhs);
+			if (e.message == Eden.RuntimeError.EXTENDSTATIC) {
+				err = new Eden.RuntimeError(base, Eden.RuntimeError.EXTENDSTATIC, this, "Can only define list items if the list is defined");
+			} else {
+				err = new Eden.RuntimeError(base, Eden.RuntimeError.UNKNOWN, this, e);
+			}
+			this.errors.push(err);
+			err.line = this.line;
+			eden.emit("error", [agent,this.errors[this.errors.length-1]]);
 		}
-		this.errors.push(err);
-		err.line = this.line;
-		eden.emit("error", [agent,this.errors[this.errors.length-1]]);
-	}	
+	}
 }
 
 Eden.AST.registerStatement(Eden.AST.Definition);

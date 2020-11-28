@@ -11,6 +11,10 @@ Eden.AST.LValue = function() {
 
 Eden.AST.LValue.prototype.error = Eden.AST.fnEdenASTerror;
 
+Eden.AST.LValue.prototype.isDynamic = function() {
+	return this.express !== undefined;
+}
+
 
 Eden.AST.LValue.prototype.setExtras = function(extras) {
 	this.lvaluep = extras;

@@ -48,6 +48,34 @@ function scopehash(hashstr) {
 	return hash;
 }
 
+Eden.AST.Primary.prototype.toString = function(scope, state) {
+	var obs;
+
+	state.isconstant = false;
+
+	if (this.observable == "__BACKTICKS__") {
+		var ctx = {dependencies: {}, isconstant: true, scopes: []};
+		var expr = "return "+this.backtick.generate(ctx, "scope", {bound: false, scope: scope})+";";
+
+		if (ctx.isconstant) {
+			var val = (new Function(["context","scope"], expr))(eden.root, scope);
+			obs = val;
+		} else {
+			obs = "`"+this.backtick.toString(scope, state)+"`";
+		}
+	} else {
+		obs = this.observable;
+	}
+
+	for (var i=0; i<this.extras.length; i++) {
+		if (this.extras[i].type == "index") obs += "[";
+		res += this.extras[i].toString(scope, state);
+		if (this.extras[i].type == "index") obs += "]";
+	}
+
+	return obs;
+}
+
 /**
  * The generate function for a primary must do many checks to determine what
  * kind of primary it is. It may be a parameter, a local variable using a
@@ -91,7 +119,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			} else {
 				//res = ctx.locals[this.observable].value();
 				var val = ctx.locals[this.observable].value();
-				if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(val);
+				//if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(val);
 				res = JSON.stringify(val);
 				if (val === undefined) console.error("Local variable undefined", this.observable);
 			}
@@ -156,11 +184,11 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				}
 				ctx.dependencies[btickgen] = true;
 				tmpdeplog = false;
-				if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc + btickgen;
+				//if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc + btickgen;
 				//btickgen = Eden.edenCodeForValue(btickgen);
 				btickgen = JSON.stringify(btickgen);
 			} else {
-				if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc;
+				//if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc;
 			}
 			res = btickgen;
 			//res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";
@@ -168,7 +196,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			// A dynamic dependency must be added if we are in a definition
 			res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";
 
-			if (ctx && ctx.isdynamic) ctx.dynamic_source = "`" + ctx.dynamic_source + "`";
+			//if (ctx && ctx.isdynamic) ctx.dynamic_source = "`" + ctx.dynamic_source + "`";
 		}
 
 		if (ctx) ctx.isconstant = tmpdeplog;
@@ -179,7 +207,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			ctx.dependencies[this.observable] = true;
 			ctx.isconstant = false;
 		}
-		if (ctx && ctx.isdynamic) ctx.dynamic_source += this.observable;
+		//if (ctx && ctx.isdynamic) ctx.dynamic_source += this.observable;
 		res = "\""+this.observable+"\"";
 		varscandidate = options.indef; // && scope == "scope";
 	}
@@ -225,13 +253,13 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 
 		// Generate each extra
 		for (var i=0; i<this.extras.length; i++) {
-			if (ctx && ctx.isdynamic) {
-				if (this.extras[i].type == "index") ctx.dynamic_source += "[";
-			}
+			//if (ctx && ctx.isdynamic) {
+			//	if (this.extras[i].type == "index") ctx.dynamic_source += "[";
+			//}
 			res += this.extras[i].generate(ctx, scope,options);
-			if (ctx && ctx.isdynamic) {
-				if (this.extras[i].type == "index") ctx.dynamic_source += "]";
-			}
+			//if (ctx && ctx.isdynamic) {
+			//	if (this.extras[i].type == "index") ctx.dynamic_source += "]";
+			//}
 		}
 
 		// If a bound value is requested, then generate a new/fake one.
