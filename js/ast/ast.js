@@ -105,6 +105,14 @@ Eden.AST = function(code, imports, origin, options) {
 	}
 }
 
+/* Data type constants */
+Eden.AST.TYPE_UNKNOWN = 0;
+Eden.AST.TYPE_NUMBER = 1;
+Eden.AST.TYPE_STRING = 2;
+Eden.AST.TYPE_LIST = 3;
+Eden.AST.TYPE_BOOLEAN = 4;
+Eden.AST.TYPE_OBJECT;
+
 /* Generic functions to be reused */
 Eden.AST.fnEdenASTerror = function(err) {
 	this.errors.unshift(err);

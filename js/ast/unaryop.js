@@ -6,6 +6,7 @@ Eden.AST.UnaryOp = function(op, right) {
 	this.op = op;
 	this.errors = right.errors;
 	this.r = right;
+	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 }
 Eden.AST.UnaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 

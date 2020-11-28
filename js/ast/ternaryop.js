@@ -6,6 +6,7 @@ Eden.AST.TernaryOp = function(op) {
 	this.second = undefined;
 	this.condition = undefined;
 	this.warning = undefined;
+	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 }
 Eden.AST.TernaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
@@ -38,6 +39,7 @@ Eden.AST.TernaryOp.prototype.left = function(pleft) {
 		this.condition = pleft;
 	} else {
 		this.first = pleft;
+		if (this.first.typevalue === this.second.typevalue) this.typevalue = this.first.typevalue;
 	}
 	if (pleft && pleft.warning) this.warning = pleft.warning;
 };

@@ -74,8 +74,13 @@ Eden.AST.prototype.pFACTOR = function() {
 		}
 
 		var literal;
-		if (!labels) literal = new Eden.AST.Literal("LIST", elist);
-		else literal = new Eden.AST.Literal("OBJECT", elist);
+		if (!labels) {
+			literal = new Eden.AST.Literal("LIST", elist);
+			literal.typevalue = Eden.AST.TYPE_LIST;
+		} else {
+			literal = new Eden.AST.Literal("OBJECT", elist);
+			literal.typevalue = Eden.AST.TYPE_OBJECT;
+		}
 
 		// Merge any errors found in the expressions
 		if (!labels) {
@@ -114,6 +119,7 @@ Eden.AST.prototype.pFACTOR = function() {
 	} else if (this.token == "NUMBER") {
 		var lit = new Eden.AST.Literal("NUMBER", this.data.value);
 		this.next();
+		lit.typevalue = Eden.AST.TYPE_NUMBER;
 		return lit
 	// Query
 	} else if (this.token == "?") {
@@ -138,6 +144,7 @@ Eden.AST.prototype.pFACTOR = function() {
 	} else if (this.token == "-") {
 		this.next();
 		var negop = new Eden.AST.UnaryOp("-", this.pFACTOR());
+		negop.typevalue = Eden.AST.TYPE_NUMBER;
 		return negop;
 	} else if (this.token == "<" && eden.root.lookup("jseden_parser_cs3").value()) {
 		return this.pHTML();
@@ -179,6 +186,7 @@ Eden.AST.prototype.pFACTOR = function() {
 		this.next();
 
 		var lit = new Eden.AST.Literal("STRING", res.slice(0,-1).replace(/\\/g,"\\\\").replace(/"/g, "\\\""));
+		lit.typevalue = Eden.AST.TYPE_STRING;
 		return lit;
 		
 	// String literal
@@ -199,11 +207,13 @@ Eden.AST.prototype.pFACTOR = function() {
 			}
 		}
 
+		lit.typevalue = Eden.AST.TYPE_STRING;
 		return lit;
 	// Boolean literal
 	} else if (this.token == "BOOLEAN") {
 		var lit = new Eden.AST.Literal("BOOLEAN", this.data.value);
 		this.next();
+		lit.typevalue = Eden.AST.TYPE_BOOLEAN;
 		return lit;
 	// Character literal
 	} else if (this.token == "CHARACTER") {
@@ -217,12 +227,15 @@ Eden.AST.prototype.pFACTOR = function() {
 			return lit;
 		}
 		this.next();
+		lit.typevalue = Eden.AST.TYPE_STRING;
 		return lit;
 	// Unary boolean not
 	} else if (this.token == "!" || this.token == "not") {
 		this.next();
 		var f = this.pFACTOR();
-		return new Eden.AST.UnaryOp("!", f);
+		var op = new Eden.AST.UnaryOp("!", f);
+		op.typevalue = Eden.AST.TYPE_BOOLEAN;
+		return op;
 	// Unary address of operator
 	} else if (this.token == "&") {
 		this.next();

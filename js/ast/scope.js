@@ -10,6 +10,7 @@ Eden.AST.Scope = function() {
 	this.range = false;
 	this.overrides = {};
 	this.expression = undefined; // = new Eden.AST.Primary();
+	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 }
 
 Eden.AST.Scope.prototype.error = Eden.AST.fnEdenASTerror;

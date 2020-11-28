@@ -2,6 +2,7 @@ Eden.AST.Length = function() {
 	this.type = "length";
 	this.errors = [];
 	this.l = undefined;
+	this.typevalue = Eden.AST.TYPE_NUMBER;
 }
 
 Eden.AST.Length.prototype.left = Eden.AST.fnEdenASTleft;

@@ -8,6 +8,7 @@ Eden.AST.Primary = function() {
 	this.observable = "";
 	this.extras = [];
 	this.backtick = undefined;
+	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 };
 
 /**

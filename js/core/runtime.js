@@ -44,7 +44,6 @@ var rt = {
 		if (value === null || value === undefined) {
 			return undefined;
 		}
-		if (value instanceof BoundValue) return value.value.length;
 		return value.length;
 	},
 

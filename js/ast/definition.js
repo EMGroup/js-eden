@@ -64,10 +64,12 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	this.vars = Object.create(null);
 	var express = this.expression.generate(this, "scope", {bound: dobound, indef: true});
 
+	if (this.expression.typevalue == 0) {
+		console.log("TYPE unknown for "+name);
+	}
+
 	for (var v in this.vars) {
-		//result += "let "+this.vars[v]+" = " + v + ";\n";
 		result += "let v_"+v+" = scope.l(\""+v+"\");\n";
-		//console.log(this.vars[v]);
 	}
 
 	// Generate array of all scopes used in this definition (if any).
@@ -77,8 +79,6 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		for (var i=0; i<this.scopes.length; i++) {
 			result += "\t_scopes.push(" + this.scopes[i];
 			result += ");\n";
-			//result += "_scopes["+i+"].rebuild();\n";
-			// TODO Figure out how to do this optimisation without massive memory copies.
 			result += "if (cache.scopes && "+i+" < cache.scopes.length) { _scopes["+i+"].mergeCache(cache.scopes["+i+"]); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
 		}
 
@@ -87,11 +87,7 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	}
 
 	if (this.expression.type == "async") {
-		//result += "\tif (cache) cache.scope = scope;\n";
 		result += "\tvar _r = rt.flattenPromise(" + express + ");\n";
-		//result += "\tvar _me = this;"
-		//result += "\t_r.then(rr => { cache.value = rr; this.expireAsync(); });\n";
-		//result += "\treturn cache.value;\n}";
 		result += "\treturn _r;\n}";
 	} else if (dobound) {
 		result += "\t var result = "+express+";\n";

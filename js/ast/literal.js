@@ -5,7 +5,7 @@
 Eden.AST.Literal = function(type, literal) {
 	this.type = "literal";
 	Eden.AST.BaseStatement.apply(this);
-
+	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 	this.datatype = type;
 	this.value = literal;
 }
@@ -14,7 +14,8 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 	var res;
 
 	switch (this.datatype) {
-	case "NUMBER"	:	res = this.value; if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(this.value); break;
+	case "NUMBER"	:	res = this.value; if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(this.value);
+						break;
 	case "LIST"		:	res = "["; if (ctx && ctx.isdynamic) ctx.dynamic_source += "[";
 						// Loop over each element and generate that also.
 						for (var i=0; i<this.value.length; i++) {
