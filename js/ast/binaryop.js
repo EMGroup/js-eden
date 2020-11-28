@@ -45,7 +45,6 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 
 	if (tval === Eden.AST.TYPE_NUMBER) {
 		if (this.l.typevalue === this.r.typevalue) {
-			//console.log("Could have embedded raw");
 			opstr = "RAW";
 		} else {
 			if (this.op == "+") {
@@ -57,18 +56,14 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 			} else if (this.op == "!=") {
 				opstr = "RAW";
 			} else {
-				//console.log("Could have used arith version");
 			}
 		}
 	} else if (tval === Eden.AST.TYPE_STRING) {
 		if (this.op == "//") {
 			opstr = "concatS";
-			console.log("Using concatA");
 		} else if (this.op == "==") {
 			opstr = "RAW";
-			console.log("Using raw string comp");
 		} else if( this.op == "!=") {
-			console.log("Using raw string comp");
 			opstr = "RAW";
 		}
 	}
