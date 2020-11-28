@@ -237,6 +237,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 	if (!this.subscribersArray) this.subscribersArray = Object.keys(this.subscribers);
 	try {
 		cache.up_to_date = true;
+		if (!this.has_evaled) this.clearDynamicDependencies();
 		this.has_evaled = true;
 		this.scopecount = 0;
 
@@ -269,10 +270,12 @@ EdenSymbol.prototype.liteEvaluate = function (scope, cache) {
 	if (!this.subscribersArray) this.subscribersArray = Object.keys(this.subscribers);
 
 	cache.up_to_date = true;
+	if (!this.has_evaled) this.clearDynamicDependencies();
 	this.has_evaled = true;
-	cache.value = this.definition.call(this,this.context, scope, cache);
+	try {cache.value = this.definition.call(this,this.context, scope, cache);} catch(e) {}
 
 	// Post process with all extensions
+	// TODO: Remove extensions?
 	if (this.extend) {
 		for (var e in this.extend) {
 			this.extend[e].code(this.context, scope, cache.value);
@@ -783,8 +786,6 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 				this.has_evaled = false;
 				EdenSymbols_to_force[this.name] = insertionIndex.value;
 				insertionIndex.value++;
-
-				this.clearDynamicDependencies();
 
 				// Need to rebuild the scope dependency path
 				if (fullexpire) {
