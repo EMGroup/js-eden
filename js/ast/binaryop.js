@@ -28,6 +28,8 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	if (ctx && ctx.isdynamic) ctx.dynamic_source += ")";
 	var opstr;
 
+	var tval = (this.l.typevalue === this.r.typevalue) ? this.l.typevalue : (this.l.typevalue === Eden.AST.TYPE_UNKNOWN) ? this.r.typevalue : this.l.typevalue;
+
 	switch(this.op) {
 	case "//"	: opstr = "concat"; break;
 	case "+"	: opstr = "add"; break;
@@ -39,6 +41,36 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	case "%"	: opstr = "mod"; break;
 	case "^"	: opstr = "pow"; break;
 	default		: opstr = "RAW";
+	}
+
+	if (tval === Eden.AST.TYPE_NUMBER) {
+		if (this.l.typevalue === this.r.typevalue) {
+			//console.log("Could have embedded raw");
+			opstr = "RAW";
+		} else {
+			if (this.op == "+") {
+				opstr = "addA";
+			} else if (this.op == "-") {
+				opstr = "subtractA";
+			} else if (this.op == "==") {
+				opstr = "RAW";
+			} else if (this.op == "!=") {
+				opstr = "RAW";
+			} else {
+				//console.log("Could have used arith version");
+			}
+		}
+	} else if (tval === Eden.AST.TYPE_STRING) {
+		if (this.op == "//") {
+			opstr = "concatS";
+			console.log("Using concatA");
+		} else if (this.op == "==") {
+			opstr = "RAW";
+			console.log("Using raw string comp");
+		} else if( this.op == "!=") {
+			console.log("Using raw string comp");
+			opstr = "RAW";
+		}
 	}
 
 	var res;

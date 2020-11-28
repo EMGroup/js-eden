@@ -93,6 +93,24 @@ var rt = {
 		}
 	},
 
+	/* Arithmetic only version */
+	addA: function (a, b) {
+		if (a === undefined || b === undefined) {
+			return undefined;
+		} else {
+			return a + b;
+		}
+	},
+
+	/* Arithmetic only version */
+	subtractA: function (a, b) {
+		if (a === undefined || b === undefined) {
+			return undefined;
+		} else {
+			return a - b;
+		}
+	},
+
 	multiply: function (a, b) {
 		if (a === undefined || b === undefined) {
 			return undefined;
@@ -136,6 +154,15 @@ var rt = {
 			return a + JSON.stringify(b);
 		} else {
 			return String(a) + b;
+		}
+	},
+
+	/* String only version */
+	concatS: function (a, b) {
+		if (a === undefined || b === undefined) {
+			return undefined;
+		} else {
+			return a + b;
 		}
 	},
 

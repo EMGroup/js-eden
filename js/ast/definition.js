@@ -64,9 +64,9 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	this.vars = Object.create(null);
 	var express = this.expression.generate(this, "scope", {bound: dobound, indef: true});
 
-	if (this.expression.typevalue == 0) {
+	/*if (this.expression.typevalue == 0) {
 		console.log("TYPE unknown for "+name);
-	}
+	}*/
 
 	for (var v in this.vars) {
 		result += "let v_"+v+" = scope.l(\""+v+"\");\n";
