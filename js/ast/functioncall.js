@@ -20,6 +20,17 @@ Eden.AST.FunctionCall.prototype.left = function(lvalue) {
 	}
 };
 
+Eden.AST.FunctionCall.prototype.toString = function(scope, state) {
+	var res = "(";
+
+	for (var i=0; i<this.params.length; ++i) {
+		if (i > 0) res += ", ";
+		res += this.params[i].toString(scope, state);
+	}
+
+	return res + ")";
+}
+
 Eden.AST.FunctionCall.prototype.generateArgs = function(ctx, scope) {
 	var res = "[";
 	if (this.params) {

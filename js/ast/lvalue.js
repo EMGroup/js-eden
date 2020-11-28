@@ -15,6 +15,25 @@ Eden.AST.LValue.prototype.isDynamic = function() {
 	return this.express !== undefined;
 }
 
+Eden.AST.LValue.prototype.toString = function(scope, state) {
+	if (this.name) return this.name;
+	if (this.primary) return this.primary.toString(scope, state);
+	if (this.express) {
+		var obs;
+		var ctx = {dependencies: {}, isconstant: true, scopes: []};
+		var expr = "return "+this.express.generate(ctx, "scope", {bound: false, scope: scope})+";";
+
+		if (ctx.isconstant) {
+			var val = (new Function(["context","scope"], expr))(eden.root, scope);
+			obs = val;
+		} else {
+			obs = "`"+this.express.toString(scope, state)+"`";
+		}
+
+		return obs;
+	}
+}
+
 
 Eden.AST.LValue.prototype.setExtras = function(extras) {
 	this.lvaluep = extras;

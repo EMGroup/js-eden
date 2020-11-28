@@ -19,7 +19,13 @@ Eden.AST.UnaryOp.prototype.toString = function(scope, state) {
 		return Eden.edenCodeForValue(val);
 	}
 
-	return `${this.op}(${this.r.toString(scope, state)})`;
+	switch (this.op) {
+	case "*"	:
+	case "&"	: return `${this.op}${this.r.toString(scope, state)}`;
+	case "!"	:
+	case "-"	: return `${this.op}(${this.r.toString(scope, state)})`;
+	}
+	
 }
 
 Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {

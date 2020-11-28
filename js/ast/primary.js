@@ -69,7 +69,7 @@ Eden.AST.Primary.prototype.toString = function(scope, state) {
 
 	for (var i=0; i<this.extras.length; i++) {
 		if (this.extras[i].type == "index") obs += "[";
-		res += this.extras[i].toString(scope, state);
+		obs += this.extras[i].toString(scope, state);
 		if (this.extras[i].type == "index") obs += "]";
 	}
 

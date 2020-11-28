@@ -8,7 +8,7 @@ Eden.AST.Scope = function() {
 	this.type = "scope";
 	this.errors = [];
 	this.range = false;
-	this.overrides = {};
+	this.overrides = {};  // FIXME: This must be an array to maintain order!!
 	this.expression = undefined; // = new Eden.AST.Primary();
 	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 }
@@ -65,6 +65,36 @@ Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2, exp3, isin) {
 		// Bubble errors of child nodes
 		this.errors.push.apply(this.errors, exp1.errors);
 	}
+}
+
+Eden.AST.Scope.prototype.toString = function(scope, state) {
+	var expr = "("+this.expression.toString(scope, state) + ") with (";
+	if (state.isconstant) return expr;
+
+	var first = true;
+
+	for (var o in this.overrides) {
+		var over = this.overrides[o];
+		var overexpr = o;
+
+		if (!first) overexpr = ", "+overexpr;
+		first = false;
+
+		if (over.isin || over.end) overexpr += " in ";
+		else overexpr += " = ";
+
+		overexpr += over.start.toString(scope, state);
+		if (over.increment) {
+			overexpr += ".."+over.increment.toString(scope, state);
+		}
+		if (over.end) {
+			overexpr += ".."+over.end.toString(scope, state);
+		}
+
+		expr += overexpr;
+	}
+
+	return expr+")";
 }
 
 Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
