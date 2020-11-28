@@ -151,33 +151,22 @@ Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex
 	var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
 	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]",options);
 	var res = "(function() {\n";
-	res += scopename + ".range = false;\n";
-	res += "var looper = " + scopename + ".overrides["+rangeindex[0]+"];\n";
-	res += "var ix = 0;\n";
-	res += "var results = new Array(looper.end - looper.start + 1);\n";
+	res += "\t"+scopename + ".range = false;\n";
+	res += "\tvar looper = " + scopename + ".overrides["+rangeindex[0]+"];\n";
+	res += "\tvar ix = 0;\n";
+	res += "\tvar results = new Array(looper.end - looper.start + 1);\n";
 	//res += "var scoperesults = new Array(looper.end - looper.start + 1);;\n";
-	res += "for (var i=looper.start; i<=looper.end; i++) {\n";
-	res += "\t"+scopename + ".resetCache();\n";
-	res += "\tlooper.current = i;\n";
-	res += "\t"+scopename + ".refresh();\n";
-	res += "\tvar val = "+express;
-	//if (options.bound) {
-		//res += ".value";
-	//	res += ";\n\tif (val.value !== undefined) scoperesults.push(val.scope);\n\tval = val.value";
-	//}
+	res += "\tfor (var i=looper.start; i<=looper.end; i++) {\n";
+	res += "\t\t"+scopename + ".resetCache();\n";
+	res += "\t\tlooper.current = i;\n";
+	res += "\t\t"+scopename + ".refresh();\n";
+	res += "\t\tvar val = "+express;
 	res += ";\n";
-	res += "\tif (val !== undefined) results[ix++] = val;\n";
+	res += "\t\tif (val !== undefined) results[ix++] = val;\n";
 	//res += "if ("+scopename+".next() == false) break;\n";
-	res += "}\n"+scopename+".range = true;\n";
-	res += "results.length = ix;\n";
-
-	if (options.bound) {
-		res += "return new BoundValue(results,"+scopename+");}).call(this)";
-		//res += "if (cache) cache.scopes = scoperesults;\n return new BoundValue(results,"+scopename+");}).call(this)";
-		//res += "if (cache) cache.scopes = scoperesults;\n return results;})()";
-	} else {
-		res += "return results;}).call(this)";
-	}
+	res += "\t}\n"+scopename+".range = true;\n";
+	res += "\tif (results.length > ix) results.length = ix;\n";
+	res += "\treturn results;\n}).call(this)";
 	return res;
 }
 
