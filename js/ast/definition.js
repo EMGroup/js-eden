@@ -53,6 +53,23 @@ Eden.AST.Definition.prototype.locatePrimary = function(indices) {
 	}
 }
 
+function scopehash(hashstr) {
+	var hash = 0;
+	var ch;
+	var len = hashstr.length;
+	for (var i=0; i<len; i++) {
+		ch = hashstr.charCodeAt(i);
+		hash = ((hash << 5) - hash) + ch;
+		hash = hash & hash;
+	}
+	return hash;
+}
+
+function removeHash(str) {
+	var ix = str.lastIndexOf("_");
+	return str.substring(0,ix);
+}
+
 Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	var name = (this.lvalue && this.lvalue.name) ? "def_"+this.lvalue.name : "";
 	var dobound = false; //(this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";
@@ -68,9 +85,15 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		console.log("TYPE unknown for "+name);
 	}*/
 
+	var scopedvars = {};
+
 	for (var v in this.vars) {
-		result += "let v_"+v+" = scope.l(\""+v+"\");\n";
+		var sv = this.vars[v];
+		if (!scopedvars.hasOwnProperty(sv)) scopedvars[sv] = "";
+		scopedvars[sv] += "\tlet v_"+v+" = "+sv+".l(\""+removeHash(v)+"\");\n";
 	}
+
+	if (scopedvars.hasOwnProperty("scope")) result += scopedvars["scope"];
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {
@@ -79,7 +102,8 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		for (var i=0; i<this.scopes.length; i++) {
 			result += "\t_scopes.push(" + this.scopes[i];
 			result += ");\n";
-			result += "if (cache.scopes && "+i+" < cache.scopes.length) { _scopes["+i+"].mergeCache(cache.scopes["+i+"]); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
+			result += "\tif (cache.scopes && "+i+" < cache.scopes.length) { _scopes["+i+"].mergeCache(cache.scopes["+i+"]); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
+			if (scopedvars.hasOwnProperty("_scopes["+i+"]")) result += scopedvars["_scopes["+i+"]"];
 		}
 
 		//result += "if (scope === context.scope) this.def_scope = _scopes;\n";

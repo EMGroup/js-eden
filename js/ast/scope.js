@@ -122,7 +122,7 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 
 Eden.AST.Scope.prototype._generate_plain_range = function(ctx, options) {
 	var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
-	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"].clone()",options);
+	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]",options);
 	var res = "(function() {\n";
 	res += scopename + ".range = false;\n";
 	res += "var results = [];\n";

@@ -36,6 +36,18 @@ Eden.AST.Primary.prototype.prepend = function(extra) {
 	}
 };
 
+function scopehash(hashstr) {
+	var hash = 0;
+	var ch;
+	var len = hashstr.length;
+	for (var i=0; i<len; i++) {
+		ch = hashstr.charCodeAt(i);
+		hash = ((hash << 5) - hash) + ch;
+		hash = hash & hash;
+	}
+	return hash;
+}
+
 /**
  * The generate function for a primary must do many checks to determine what
  * kind of primary it is. It may be a parameter, a local variable using a
@@ -169,7 +181,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		}
 		if (ctx && ctx.isdynamic) ctx.dynamic_source += this.observable;
 		res = "\""+this.observable+"\"";
-		varscandidate = options.indef && scope == "scope";
+		varscandidate = options.indef; // && scope == "scope";
 	}
 
 	// Extras are the list indices or function calls
@@ -182,8 +194,9 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			} else {
 				//res = scope+".value("+res+")";
 				//ctx.vars[res] = "v_"+this.observable;
-				ctx.vars[this.observable] = true;
-				res = "scope.v(v_"+this.observable+")";
+				var obsname = this.observable+"_"+scopehash(scope);
+				ctx.vars[obsname] = scope;
+				res = scope+".v(v_"+obsname+")";
 			}
 		} else {
 			if (options.scopeonly) {
@@ -204,8 +217,9 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			} else {
 				//res = scope+".value("+res+")";
 				//ctx.vars[res] = "v_"+this.observable;
-				ctx.vars[this.observable] = true;
-				res = "scope.v(v_"+this.observable+")";
+				var obsname = this.observable+"_"+scopehash(scope);
+				ctx.vars[obsname] = scope;
+				res = scope+".v(v_"+obsname+")";
 			}
 		}
 

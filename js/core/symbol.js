@@ -270,6 +270,7 @@ EdenSymbol.prototype.liteEvaluate = function (scope, cache) {
 	if (!this.subscribersArray) this.subscribersArray = Object.keys(this.subscribers);
 
 	cache.up_to_date = true;
+	cache.value = undefined;
 	if (!this.has_evaled) this.clearDynamicDependencies();
 	this.has_evaled = true;
 	try {cache.value = this.definition.call(this,this.context, scope, cache);} catch(e) {}
