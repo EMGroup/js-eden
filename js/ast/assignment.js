@@ -98,10 +98,11 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 	if (this.compiled && !this.dirty) return;
 	this.dirty = false;
 
+	this.scopes = [];
 	if (ctx) ctx.scopes = this.scopes;
 	else ctx = this;
 
-	var rhs = "(function(context,scope,cache,ctx) { \n";
+	var rhs = "";
 	var express = this.expression.generate(ctx, "scope", {bound: false});
 
 	if (ctx && ctx.dirty) {
@@ -125,9 +126,8 @@ Eden.AST.Assignment.prototype.compile = function(ctx) {
 	//rhs += "if (cache) cache.scope = result.scope;";
 
 	rhs += "return result;";
-	rhs += "})";
 
-	this.compiled = eval(rhs);
+	this.compiled = new Function(["context","scope","cache","ctx"],rhs);
 }
 
 Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {

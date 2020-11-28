@@ -28,7 +28,7 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 	var res = "";
 	//res += "var lscope = new Scope(context,pscope,[";
 	//res += "]);\n";
-	res += "(function() {\nvar scope = eden.root.scope;\nvar context = eden.root;\n";
+	res += "var scope = eden.root.scope;\nvar context = eden.root;\n";
 	if (this.locals && this.locals.list) {
 		for (var i=0; i<this.locals.list.length; i++) {
 			//res += "new ScopeOverride(\"" + this.locals.list[i] + "\", undefined)";
@@ -45,7 +45,7 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 		}
 	}
 	//res += "]);\n";
-	res += this.script.generate(this, "scope") + "})";
+	res += this.script.generate(this, "scope");
 	return res;
 }
 

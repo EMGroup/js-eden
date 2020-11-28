@@ -28,20 +28,14 @@ Eden.AST.Switch.prototype.generate = function(ctx, scope) {
 Eden.AST.Switch.prototype.getSelector = function(ctx) {
 	if (this.compiled) return this.compiled;
 
-	var cond = "(function(context,scope) { return ";
+	var cond = "return ";
 	cond += this.expression.generate(ctx, "scope",{bound: false});
-	cond += ";})";
-	this.compiled = eval(cond);
+	cond += ";";
+	this.compiled = new Function(["context","scope"], cond);
 	return this.compiled;
 }
 
 Eden.AST.Switch.prototype.execute = function(ctx, base, scope, agent) {
-	// TODO REWORK FOR NEW EXECUTION PROCESS
-	/*var swi = "(function(context,scope) { ";
-	swi += this.generate(ctx, "scope");
-	swi += " })";
-	eval(swi)(eden.root, scope);*/
-
 	var err = new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Switch not supported here");
 	err.line = this.line;
 	this.errors.push(err);

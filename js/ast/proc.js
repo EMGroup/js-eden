@@ -22,7 +22,7 @@ Eden.AST.Action.prototype.setBody = function(body) {
 
 Eden.AST.Action.prototype.generate = function(ctx) {
 	var body = this.body.generate(ctx);
-	var res = "context.lookup(\""+this.name+"\").define("+body+", this)";
+	var res = "context.lookup(\""+this.name+"\").define(function(){"+body+"}, this)";
 	if (this.triggers.length > 0) {
 		res += ".observe("+JSON.stringify(this.triggers)+");\n";
 	}
@@ -39,7 +39,7 @@ Eden.AST.Action.prototype.execute = function(ctx, base, scope, agent) {
 
 	var body = this.body.generate(ctx);
 	var sym = eden.root.lookup(this.name);
-	eden.root.f["func_"+this.name] = eval(body);
+	eden.root.f["func_"+this.name] = new Function(body);
 	if (this.triggers.length > 0) {
 		sym.assign(eden.root.f["func_"+this.name], scope, this).observe(this.triggers);
 	} else {

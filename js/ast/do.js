@@ -55,7 +55,7 @@ Eden.AST.Do.prototype.getScope = function(ctx) {
 	// FIXME: Can't pre-compile because context changes.
 	//if (this.scope && this.compScope === undefined) {
 		try {
-			this.compScope = eval("(function (context, scope) { var s = " + this.scope.generateConstructor(ctx, "scope", {bound: false}) + "; s.rebuild(); return s; })");
+			this.compScope = new Function(["context","scope"], "var s = " + this.scope.generateConstructor(ctx, "scope", {bound: false}) + "; s.rebuild(); return s;");
 		} catch (e) {
 
 		}

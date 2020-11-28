@@ -66,7 +66,7 @@ Eden.AST.For.prototype.getCondition = function(ctx) {
 			ctx.dirty = false;
 		}
 
-		var expfunc = eval("(function(context,scope){ return " + express + "; })");
+		var expfunc = new Function(["context","scope"], "return " + express + ";");
 		this.compiled = expfunc;
 		return expfunc;
 	}

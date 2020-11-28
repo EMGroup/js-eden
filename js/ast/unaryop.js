@@ -52,9 +52,10 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 			} else if (wasconst) {
 				var btickval = "ERROR";
 				try {
-					btickval = eval(r);
+					btickval = (new Function("return "+r+";"))();
+					console.log("Btick eval "+r);
 				} catch (e) {
-
+					console.error("Backtick evaluation error",e);
 				}
 				//if (ctx.dependencies) ctx.dependencies[btickval] = true;
 				btickval = JSON.stringify(btickval);

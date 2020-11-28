@@ -83,9 +83,9 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 }
 
 Eden.AST.BinaryOp.prototype.execute = function(ctx, base, scope) {
-	var rhs = "(function(context,scope) { return ";
+	var rhs = "return ";
 	rhs += this.generate(ctx, "scope",{bound: false});
-	rhs += ";})";
-	return eval(rhs)(eden.root,scope);
+	rhs += ";";
+	return (new Function(["context","scope"],rhs))(eden.root,scope);
 }
 

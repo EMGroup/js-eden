@@ -109,10 +109,15 @@ Eden.AST.When.prototype.generate = function(ctx) {
 }
 
 Eden.AST.When.prototype.compile = function(base) {
-	var cond = "(function(context,scope) { try { return ";
+	var cond = "try { return ";
 	cond += this.expression.generate(this, "scope",{bound: false});
-	cond += "; } catch(e) {} })";
-	this.compiled = eval(cond);
+	cond += "; } catch(e) {}";
+
+	try {
+		this.compiled = new Function(["context","scope"], cond);
+	} catch(e) {
+		console.error("Error compiling when condition");
+	}
 
 	if (this.scope && this.compScope === undefined) {
 		try {

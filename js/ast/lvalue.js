@@ -96,7 +96,7 @@ Eden.AST.LValue.prototype.executeCompList = function(ctx, scope) {
 	for (var i=0; i<this.lvaluep.length; i++) {
 		if (this.lvaluep[i].kind == "index") {
 			var iexp = this.lvaluep[i].indexexp.generate(ctx, "scope", {bound: false});
-			res.push(rt.index(eval("(function(context,scope) { return "+iexp+"; })")(eden.root,scope)));
+			res.push(rt.index((new Function(["context","scope"], "return "+iexp+";"))(eden.root,scope)));
 		}
 	}
 	return res;

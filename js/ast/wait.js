@@ -16,10 +16,10 @@ Eden.AST.Wait.prototype.setDelay = function(delay) {
 Eden.AST.Wait.prototype.compile = function(ctx) {
 	if (this.delay === undefined) return;
 	if (this.compiled_delay) return;
-	var source = "(function(context,scope) { return ";
+	var source = "return ";
 	source += this.delay.generate(ctx, "scope",{bound: false});
-	source += ";})";
-	this.compiled_delay = eval(source);
+	source += ";";
+	this.compiled_delay = new Function(["context","scope"],source);
 }
 
 Eden.AST.Wait.prototype.generate = function(ctx, scope) {

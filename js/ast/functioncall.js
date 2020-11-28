@@ -70,7 +70,7 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 	if (!this.lvalue) return;
 
 	this.executed = 1;
-	var func = "(function(context,scope,cache) { ";
+	var func = "";
 	func += "let name = "+this.lvalue.generate(ctx,scope)+";\n";
 	func += "let args = "+this.generateArgs(ctx, "scope")+";\n";
 
@@ -78,10 +78,10 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 		func += "eden.peer.callProcedure(name, args);\n";
 	}
 
-	func += "return scope.value(name).apply(context.lookup(name),args); })";
+	func += "return scope.value(name).apply(context.lookup(name),args);";
 
 	try {
-		return eval(func).call(ctx,eden.root,scope,scope.cache);
+		return (new Function(["context","scope","cache"],func)).call(ctx,eden.root,scope,scope.cache);
 	} catch(e) {
 		var err = new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e);
 		this.errors.push(err);

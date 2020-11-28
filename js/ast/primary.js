@@ -149,7 +149,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			if (ctx && ctx.isconstant && ctx.type == "definition") {
 				//console.log("Constant bticks: ", btickgen, this.backtick);
 				try {
-					btickgen = eval(btickgen);
+					btickgen = (new Function("return "+btickgen+";"))();
 				} catch (e) {
 					console.error(e);
 					return "\"ERROR\"";
@@ -246,10 +246,10 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 }
 
 Eden.AST.Primary.prototype.execute = function(ctx, base, scope) {
-	var rhs = "(function(context,scope) { return ";
+	var rhs = "return ";
 	rhs += this.generate(ctx, "scope", {bound: false});
-	rhs += ";})";
-	return eval(rhs)(eden.root,scope);
+	rhs += ";";
+	return (new Function(["context","scope"], rhs))(eden.root,scope);
 }
 
 Eden.AST.Primary.prototype.error = Eden.AST.fnEdenASTerror;

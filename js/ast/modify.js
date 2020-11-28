@@ -61,7 +61,6 @@ Eden.AST.Modify.prototype.generate = function(ctx, scope) {
 };
 
 Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
-	var _scopes = [];
 
 	this.executed = 1;
 	// TODO: allow this to work on list indices
@@ -111,26 +110,40 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 			//if (eden.peer) eden.peer.assign(agent, sym.name, newval);
 			sym.assign(newval, scope, this);
 		} else {
-			var rhs = "(function(context,scope) { return ";
-			rhs += this.expression.generate(ctx, "scope",{bound: false});
-			rhs += ";})";
+			this.scopes = [];
+
+			var express = "return ";
+			express += this.expression.generate(ctx, "scope",{bound: false});
+			express += ";";
+			var rhs = "";
 
 			//var scope = eden.root.scope;
 			var context = eden.root;
 
-			for (var i=0; i<this.scopes.length; i++) {
-				_scopes.push(eval(this.scopes[i]));
+			// Generate array of all scopes used in this definition (if any).
+			if (this.scopes.length > 0) {
+				rhs += "\tvar _scopes = [];\n";
+				for (var i=0; i<this.scopes.length; i++) {
+					rhs += "\t_scopes.push(" + this.scopes[i];
+					rhs += ");\n";
+				}
+
+				rhs += "for(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\n";
+				//rhs += "if (this.def_scope) {\nfor (var i=0; i<_scopes.length; i++) {\n_scopes[i].mergeCache(this.def_scope[i]);\n_scopes[i].reset();\n}\n} else {\nfor(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();}\nthis.def_scope = _scopes;\n\n";
 			}
+
+			rhs += express;
 
 			this.scopes = [];
 
+			var f = new Function(["context","scope","cache"], rhs);
 			var newval;
 
 			switch (this.kind) {
-			case "+="	: newval = rt.add(sym.value(scope), eval(rhs)(context,scope)); break;
-			case "-="	: newval = rt.subtract(sym.value(scope), eval(rhs)(context,scope)); break;
-			case "/="	: newval = rt.divide(sym.value(scope), eval(rhs)(context,scope)); break;
-			case "*="	: newval = rt.multiply(sym.value(scope), eval(rhs)(context,scope)); break;
+			case "+="	: newval = rt.add(sym.value(scope), f.call(sym,context,scope,scope.lookup(sym.name))); break;
+			case "-="	: newval = rt.subtract(sym.value(scope), f.call(sym,context,scope,scope.lookup(sym.name))); break;
+			case "/="	: newval = rt.divide(sym.value(scope), f.call(sym,context,scope,scope.lookup(sym.name))); break;
+			case "*="	: newval = rt.multiply(sym.value(scope), f.call(sym,context,scope,scope.lookup(sym.name))); break;
 			}
 
 			//if (eden.peer) eden.peer.assign(agent, sym.name, newval);

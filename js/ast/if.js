@@ -46,10 +46,10 @@ Eden.AST.If.prototype.generate = function(ctx, scope) {
 }
 
 Eden.AST.If.prototype.getCondition = function(ctx) {
-	var cond = "(function(context,scope,ctx) { return ";
+	var cond = "return ";
 	cond += this.condition.generate(ctx, "scope",{bound: false});
-	cond += ";})";
-	return eval(cond);
+	cond += ";";
+	return new Function(["context","scope","ctx"],cond);
 }
 
 Eden.AST.If.prototype.execute = function(ctx, base, scope, agent) {
