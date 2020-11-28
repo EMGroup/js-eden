@@ -39,7 +39,7 @@ Eden.AST.TernaryOp.prototype.left = function(pleft) {
 		this.condition = pleft;
 	} else {
 		this.first = pleft;
-		if (this.first.typevalue === this.second.typevalue) this.typevalue = this.first.typevalue;
+		if (this.first && this.second && this.first.typevalue === this.second.typevalue) this.typevalue = this.first.typevalue;
 	}
 	if (pleft && pleft.warning) this.warning = pleft.warning;
 };
