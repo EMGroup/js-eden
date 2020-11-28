@@ -126,20 +126,70 @@ Eden.AST.fnEdenASTleft = function(left) {
 	if (left && left.warning) this.warning = left.warning;
 };
 
+function removeHash(str) {
+	var ix = str.lastIndexOf("_");
+	return str.substring(0,ix);
+}
+
 /* Transpile an expression AST node into a javascript function body */
 Eden.AST.transpileExpressionNode = function(node, scope, state) {
+	if (state) {
+		if (!state.dependencies) state.dependencies = {};
+	}
 
+	var ctx = {
+		dependencies: (state)?state.dependencies:{},
+		vars: Object.create(null),
+		isconstant: true,
+		scopes: [],
+		locals: (state)?state.locals:undefined
+	};
+	
+	var result = "";
+	var express = node.generate(ctx, "scope", {bound: false, scope: scope, indef: true});
+	var scopedvars = {};
+
+	for (var v in ctx.vars) {
+		var sv = ctx.vars[v];
+		if (!scopedvars.hasOwnProperty(sv)) scopedvars[sv] = "";
+		scopedvars[sv] += "\tlet v_"+v+" = "+sv+".l(\""+removeHash(v)+"\");\n";
+	}
+
+	if (scopedvars.hasOwnProperty("scope")) result += scopedvars["scope"];
+
+	// Generate array of all scopes used in this definition (if any).
+	if (ctx.scopes.length > 0) {
+		result += "\tvar _scopes = [];\n";
+		for (var i=0; i<ctx.scopes.length; i++) {
+			result += "\t_scopes.push(" + ctx.scopes[i];
+			result += ");\n";
+			result += "\tif (cache && cache.scopes && "+i+" < cache.scopes.length) { _scopes["+i+"].mergeCache(cache.scopes["+i+"]); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
+			if (scopedvars.hasOwnProperty("_scopes["+i+"]")) result += scopedvars["_scopes["+i+"]"];
+		}
+
+		result += "if (cache) cache.scopes = _scopes;\n";
+	}
+
+	if (node.type == "async") {
+		result += "\tvar _r = rt.flattenPromise(" + express + ");\n";
+		result += "\treturn _r;";
+	} else {
+		result += "\treturn " + express + ";";
+	}
+	
+	state.isconstant = ctx.isconstant && state.isconstant;
+	return result;
 }
 
 /* Execute an expression AST node in a given scope */
 Eden.AST.executeExpressionNode = function(node, scope, state) {
-	var ctx = {dependencies: {}, isconstant: true, scopes: [], locals: (state)?state.locals:undefined};
-	// FIXME: Add scopes
-	var rhs = "return ";
-	rhs += node.generate(ctx, "scope", {});
-	rhs += ";";
-	if (state) state.isconstant = ctx.isconstant;
-	return (new Function(["context","scope"],rhs))(eden.root,scope);
+	var rhs = Eden.AST.transpileExpressionNode(node, scope, state);
+	var f = new Function(["context","scope","cache"],rhs);
+	if (state.symbol) {
+		return f.call(state.symbol, eden.root, scope, scope.lookup(state.symbol.name));
+	} else {
+		return f(eden.root, scope, null);
+	}
 }
 
 // Debug controls

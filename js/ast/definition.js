@@ -31,6 +31,11 @@ Eden.AST.Definition.prototype.left = function(lvalue) {
 	}
 };
 
+/**
+ * Reverse search the expression to find the observable that determines a
+ * particular component.
+ * @param {Array} indices 
+ */
 Eden.AST.Definition.prototype.locatePrimary = function(indices) {
 	var node = this.expression;
 
@@ -52,116 +57,8 @@ Eden.AST.Definition.prototype.locatePrimary = function(indices) {
 	}
 }
 
-function scopehash(hashstr) {
-	var hash = 0;
-	var ch;
-	var len = hashstr.length;
-	for (var i=0; i<len; i++) {
-		ch = hashstr.charCodeAt(i);
-		hash = ((hash << 5) - hash) + ch;
-		hash = hash & hash;
-	}
-	return hash;
-}
-
-function removeHash(str) {
-	var ix = str.lastIndexOf("_");
-	return str.substring(0,ix);
-}
-
-Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
-	var dobound = false; //(this.expression.type == "primary" && this.expression.extras.length == 0) || this.expression.type == "scope";
-	var result = ""; //"function "+name+"(context, scope, cache) {\n";
-	this.locals = (ctx) ? ctx.locals : undefined;
-	this.params = (ctx) ? ctx.params : undefined;
-	this.backtickCount = 0;
-	this.dynamic_source = "";
-	this.vars = Object.create(null);
-	var express = this.expression.generate(this, "scope", {bound: dobound, indef: true});
-
-	/*if (this.expression.typevalue == 0) {
-		console.log("TYPE unknown for "+name);
-	}*/
-
-	var scopedvars = {};
-
-	for (var v in this.vars) {
-		var sv = this.vars[v];
-		if (!scopedvars.hasOwnProperty(sv)) scopedvars[sv] = "";
-		scopedvars[sv] += "\tlet v_"+v+" = "+sv+".l(\""+removeHash(v)+"\");\n";
-	}
-
-	if (scopedvars.hasOwnProperty("scope")) result += scopedvars["scope"];
-
-	// Generate array of all scopes used in this definition (if any).
-	if (this.scopes.length > 0) {
-		//result += "if (!this.def_scope) cache.scopes = null;\n"
-		result += "\tvar _scopes = [];\n";
-		for (var i=0; i<this.scopes.length; i++) {
-			result += "\t_scopes.push(" + this.scopes[i];
-			result += ");\n";
-			result += "\tif (cache.scopes && "+i+" < cache.scopes.length) { _scopes["+i+"].mergeCache(cache.scopes["+i+"]); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
-			if (scopedvars.hasOwnProperty("_scopes["+i+"]")) result += scopedvars["_scopes["+i+"]"];
-		}
-
-		//result += "if (scope === context.scope) this.def_scope = _scopes;\n";
-		result += "cache.scopes = _scopes;\n";
-	}
-
-	if (this.expression.type == "async") {
-		result += "\tvar _r = rt.flattenPromise(" + express + ");\n";
-		result += "\treturn _r;";
-	} else if (dobound) {
-		result += "\t var result = "+express+";\n";
-
-		// Save the resulting values scope binding into the cache entry.
-		//result += "\tif (cache) cache.scope = result.scope;\n";
-
-		// Make sure to copy a value if its an ungenerated one.
-		if (this.scopes.length == 0) {
-			result += "\treturn edenCopy(result.value);";
-		} else {
-			result += "\treturn result.value;";
-		}
-	} else {
-		//result += "\tif (cache) cache.scope = scope;\n";
-		result += "\treturn " + express + ";";
-	}
-	
-	return result;
-}
-
 Eden.AST.Definition.prototype.generate = function(ctx,scope) {
-	var result = this.lvalue.generate(ctx,scope);
-	this.scopes = [];
-	this.dependencies = {};
-
-	if (this.lvalue.islocal) {
-		// TODO Report error, this is invalid;
-		return "";
-	} else if (this.lvalue.hasListIndices()) {
-		var clist = this.lvalue.generateIndexList(this, scope);
-		result += ".addExtension("+this.lvalue.generateIdStr()+", function(context, scope, value) {\n\tvalue";
-		result += clist + " = ";
-		result += this.expression.generate(this, "scope", {bound: false});
-
-		var deps = [];
-		for (var d in this.dependencies) {
-			deps.push(d);
-		}
-
-		result = result + ";\n}, undefined, this, "+JSON.stringify(deps);
-		result += ");\n";
-		return result;
-	} else {
-	 	result = scope+".define(" +result+"," + this.generateDef(ctx, scope);
-		var deps = [];
-		for (var d in this.dependencies) {
-			deps.push(d);
-		}
-		result = result + ", EdenSymbol.localJSAgent, "+JSON.stringify(deps)+");\n";
-		return result;
-	}
+	throw Eden.RuntimeError(null, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot generate defintions here");
 };
 
 Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
@@ -192,6 +89,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 		// Third, execute that node.
 		stat.execute(ctx, base, scope, agent);
+	//Normal Lvalue so just generate definition and finish...
 	} else {
 
 		this.scopes = [];
@@ -199,7 +97,8 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 		this.backtickCount = 0;
 
 		try {
-			if (this.lvalue.hasListIndices()) {
+			// Definition extensions are deprecated?
+			/*if (this.lvalue.hasListIndices()) {
 				rhs = "value";
 				rhs += this.lvalue.generateIndexList(this, "scope") + " = ";
 				rhs += this.expression.generate(this, "scope", {bound: false});
@@ -210,23 +109,27 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 				}
 				var source = base.getSource(this);
 				sym.addExtension(this.lvalue.generateIdStr(), new Function(["context","scope","cache"], rhs), source, undefined, deps);
-			} else {
-				rhs = this.generateDef(ctx);
-				var deps = [];
-				for (var d in this.dependencies) {
-					deps.push(d);
-				}
+			} else {*/
 
-				if (this.isdynamic) {
-					if (!this.sources) this.sources = {};
-					this.sources[sym.name] = sym.name + " is " + this.dynamic_source + ";";
-				}
 
-				sym.isasync = (this.expression.type == "async");
-				var f = new Function(["context","scope","cache"], rhs);
-				f.displayName = name;  // FIXME: Non-standard
-				sym.define(f, this, deps, rhs);
-			}
+			var state = {
+				isconstant: true,
+				locals: ctx.locals,
+				dependencies: this.dependencies
+			};
+			rhs = Eden.AST.transpileExpressionNode(this.expression, scope, state);
+
+			var deps = Object.keys(this.dependencies);
+			sym.isasync = (this.expression.type == "async");
+			var f = new Function(["context","scope","cache"], rhs);
+			f.displayName = name;  // FIXME: Non-standard
+
+			// FIXME: Why is constant status wrong?
+			//if (!state.isconstant) {
+				sym.define(f, this, deps);
+			//} else {
+			//	sym.assign(f.call(sym, eden.root, scope, scope.lookup(sym.name)), scope, this);
+			//}
 		} catch(e) {
 			var err;
 			console.log(rhs);

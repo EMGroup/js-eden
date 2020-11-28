@@ -94,73 +94,44 @@ Eden.AST.Assignment.prototype.generate = function(ctx,scope) {
  * Compile the right-hand-side into a javascript function. If already compiled
  * it does nothing.
  */
-Eden.AST.Assignment.prototype.compile = function(ctx) {
-	if (this.compiled && !this.dirty) return;
+Eden.AST.Assignment.prototype.compile = function(ctx, scope) {
+	// FIXME: Need to check if caching compile is safe or not.
+	// This depends on any use of eval, local variables etc.
+	//if (this.compiled && !this.dirty) return;
 	this.dirty = false;
 
-	this.scopes = [];
-	if (ctx) ctx.scopes = this.scopes;
-	else ctx = this;
-
-	var rhs = "";
-	var express = this.expression.generate(ctx, "scope", {bound: false});
-
-	if (ctx && ctx.dirty) {
-		ctx.dirty = false;
-		this.dirty = true;
-	}
-
-	// Generate array of all scopes used in this definition (if any).
-	if (this.scopes.length > 0) {
-		rhs += "\tvar _scopes = [];\n";
-		for (var i=0; i<this.scopes.length; i++) {
-			rhs += "\t_scopes.push(" + this.scopes[i];
-			rhs += ");\n";
-		}
-
-		rhs += "for(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();\n";
-		//rhs += "if (this.def_scope) {\nfor (var i=0; i<_scopes.length; i++) {\n_scopes[i].mergeCache(this.def_scope[i]);\n_scopes[i].reset();\n}\n} else {\nfor(var i=0; i<_scopes.length; i++) _scopes[i].rebuild();}\nthis.def_scope = _scopes;\n\n";
-	}
-
-	rhs += "var result = " + express + ";";
-	//rhs += "if (cache) cache.scope = result.scope;";
-
-	rhs += "return result;";
-
-	this.compiled = new Function(["context","scope","cache","ctx"],rhs);
+	var state = {
+		isconstant: true,
+		locals: ctx.locals
+	};
+	var rhs = Eden.AST.transpileExpressionNode(this.expression, scope, state);
+	this.compiled = new Function(["context","scope","cache"],rhs);
 }
 
 Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	if (this.expression === undefined) return;
 	this.executed = 1;
-	this.compile(ctx);  // FIXME: ctx needed for local variable assign, but not ideal otherwise
+	this.compile(ctx, scope);
 
 	if (this.doxyComment) {
-		//eden.dictionary[this.lvalue.name] = this.doxyComment;
 		eden.updateDictionary(this.lvalue.name, this.doxyComment);
 	}
 
 	try {
-		//if (ctx && ctx.locals && ctx.locals.hasOwnProperty(this.lvalue.name)) {
-		//	// TODO ALLOW LIST INDEX ASSIGNS
-		//	this.value = this.compiled.call(ctx,eden.root,scope,undefined,ctx);
-		//	ctx.locals[this.lvalue.name] = this.value;
-		//} else {
-			var sym = this.lvalue.getSymbol(ctx,base,scope);
-			var value;
-			if (this.lvalue.hasListIndices()) {
-				value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
-				var complist = this.lvalue.executeCompList(ctx, scope);
-				sym.listAssign(value, scope, this, false, complist);
-			} else {
-				value = this.compiled.call(sym,eden.root,scope,sym.cache,ctx);
-				sym.assign(value,(this.lvalue.islocal) ? undefined : scope, this);
-			}
+		var sym = this.lvalue.getSymbol(ctx,base,scope);
+		var value;
+		if (this.lvalue.hasListIndices()) {
+			value = this.compiled.call(sym, eden.root, scope, scope.lookup(sym.name));
+			var complist = this.lvalue.executeCompList(ctx, scope);
+			sym.listAssign(value, scope, this, false, complist);
+		} else {
+			value = this.compiled.call(sym, eden.root, scope, scope.lookup(sym.name));
+			sym.assign(value,(this.lvalue.islocal) ? undefined : scope, this);
+		}
 
-			if (value === undefined) {
-				this.warning = new Eden.RuntimeWarning(this, Eden.RuntimeWarning.UNDEFINED, this.source.split("=")[1].trim());
-			}
-		//}
+		if (value === undefined) {
+			this.warning = new Eden.RuntimeWarning(this, Eden.RuntimeWarning.UNDEFINED, this.source.split("=")[1].trim());
+		}
 	} catch(e) {
 		//this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
 		var agentobj = agent;
