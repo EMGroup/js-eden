@@ -20,7 +20,7 @@ Eden.AST.LValue.prototype.toString = function(scope, state) {
 	if (this.primary) return this.primary.toString(scope, state);
 	if (this.express) {
 		var obs;
-		var ctx = {dependencies: {}, isconstant: true, scopes: []};
+		var ctx = {dependencies: {}, isconstant: true, scopes: [], locals: state.locals};
 		var expr = "return "+this.express.generate(ctx, "scope", {bound: false, scope: scope})+";";
 
 		if (ctx.isconstant) {

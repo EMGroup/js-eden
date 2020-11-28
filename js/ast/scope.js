@@ -68,7 +68,7 @@ Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2, exp3, isin) {
 }
 
 Eden.AST.Scope.prototype.toString = function(scope, state) {
-	var expr = "("+this.expression.toString(scope, state) + ") with (";
+	var expr = "("+this.expression.toString(scope, state) + " with ";
 	if (state.isconstant) return expr;
 
 	var first = true;
@@ -76,6 +76,7 @@ Eden.AST.Scope.prototype.toString = function(scope, state) {
 	for (var o in this.overrides) {
 		var over = this.overrides[o];
 		var overexpr = o;
+		var ostate = {isconstant: true, locals: state.locals};
 
 		if (!first) overexpr = ", "+overexpr;
 		first = false;
@@ -83,7 +84,11 @@ Eden.AST.Scope.prototype.toString = function(scope, state) {
 		if (over.isin || over.end) overexpr += " in ";
 		else overexpr += " = ";
 
-		overexpr += over.start.toString(scope, state);
+		var sexpr = over.start.toString(scope, ostate);
+		if (ostate.isconstant) overexpr += Eden.AST.executeExpressionNode(over.start, scope, ostate);
+		else overexpr += sexpr;
+		ostate.isconstant = true;
+
 		if (over.increment) {
 			overexpr += ".."+over.increment.toString(scope, state);
 		}

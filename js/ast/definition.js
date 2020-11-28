@@ -175,7 +175,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	// If LValue is dynamic then need to generate a new AST node here...
 	if (this.lvalue.isDynamic()) {
 		// First, generate dynamic eden code
-		var state = {isconstant: true};
+		var state = {isconstant: true, locals: ctx.locals};
 		var expr = this.expression.toString((scope) ? scope : eden.root.scope, state);
 
 		if (state.isconstant) {

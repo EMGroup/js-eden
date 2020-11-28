@@ -126,6 +126,16 @@ Eden.AST.fnEdenASTleft = function(left) {
 	if (left && left.warning) this.warning = left.warning;
 };
 
+Eden.AST.executeExpressionNode = function(node, scope, state) {
+	var ctx = {dependencies: {}, isconstant: true, scopes: [], locals: (state)?state.locals:undefined};
+	// FIXME: Add scopes
+	var rhs = "return ";
+	rhs += node.generate(ctx, "scope", {});
+	rhs += ";";
+	if (state) state.isconstant = ctx.isconstant;
+	return (new Function(["context","scope"],rhs))(eden.root,scope);
+}
+
 // Debug controls
 Eden.AST.debug = false;
 Eden.AST.debugstep = false;

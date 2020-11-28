@@ -54,7 +54,7 @@ Eden.AST.Primary.prototype.toString = function(scope, state) {
 	state.isconstant = false;
 
 	if (this.observable == "__BACKTICKS__") {
-		var ctx = {dependencies: {}, isconstant: true, scopes: []};
+		var ctx = {dependencies: {}, isconstant: true, scopes: [], locals: state.locals};
 		var expr = "return "+this.backtick.generate(ctx, "scope", {bound: false, scope: scope})+";";
 
 		if (ctx.isconstant) {
@@ -65,6 +65,7 @@ Eden.AST.Primary.prototype.toString = function(scope, state) {
 		}
 	} else {
 		obs = this.observable;
+		if (state.locals && state.locals.hasOwnProperty(obs)) state.isconstant = true;
 	}
 
 	for (var i=0; i<this.extras.length; i++) {
