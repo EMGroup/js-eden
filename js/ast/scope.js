@@ -150,23 +150,23 @@ Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex
 	//console.log("LOOP RANGE INDEX", rangeindex);
 	var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
 	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]",options);
-	var res = "(function() {\n";
-	res += "\t"+scopename + ".range = false;\n";
-	res += "\tvar looper = " + scopename + ".overrides["+rangeindex[0]+"];\n";
-	res += "\tvar ix = 0;\n";
-	res += "\tvar results = new Array(looper.end - looper.start + 1);\n";
-	//res += "var scoperesults = new Array(looper.end - looper.start + 1);;\n";
-	res += "\tfor (var i=looper.start; i<=looper.end; i++) {\n";
-	res += "\t\t"+scopename + ".resetCache();\n";
-	res += "\t\tlooper.current = i;\n";
-	res += "\t\t"+scopename + ".refresh();\n";
-	res += "\t\tvar val = "+express;
-	res += ";\n";
-	res += "\t\tif (val !== undefined) results[ix++] = val;\n";
-	//res += "if ("+scopename+".next() == false) break;\n";
-	res += "\t}\n"+scopename+".range = true;\n";
-	res += "\tif (results.length > ix) results.length = ix;\n";
-	res += "\treturn results;\n}).call(this)";
+	var res =
+	`(function() {
+		${scopename}.range = false;
+		var looper = ${scopename}.overrides[${rangeindex[0]}];
+		var ix = 0;
+		var results = new Array(looper.end - looper.start + 1);
+		for (var i=looper.start; i<=looper.end; i++) {
+			${scopename}.resetCache();
+			looper.current = i;
+			${scopename}.refresh();
+			var val = ${express};
+			if (val !== undefined) results[ix++] = val;
+		}
+		${scopename}.range = true;
+		if (results.length > ix) results.length = ix;
+		return results;
+	}).call(this)`;
 	return res;
 }
 
