@@ -31,7 +31,7 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 		ctx.isconstant = true;
 	}
 
-	var r = this.r.generate(ctx, scope, {bound: false, usevar: options.usevar});
+	var r = this.r.generate(ctx, scope, options);
 	var res;
 	
 	var wasconst = false;

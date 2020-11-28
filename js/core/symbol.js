@@ -18,7 +18,7 @@ function EdenSymbol(context, name) {
 	 */
 	this.name = name;
 
-	this.cache = (context) ? context.scope.add(name) : new ScopeCache( true, undefined, undefined, false);
+	this.cache = (context) ? context.scope.add(name,this) : new ScopeCache( true, undefined, this, false);
 
 	this.definition = undefined;
 	this.def_scope = undefined;

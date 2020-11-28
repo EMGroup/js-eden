@@ -61,11 +61,14 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 	this.params = (ctx) ? ctx.params : undefined;
 	this.backtickCount = 0;
 	this.dynamic_source = "";
+	this.vars = Object.create(null);
 	var express = this.expression.generate(this, "scope", {bound: dobound, indef: true});
 
-	if (this.backtickCount > 0) {
-		result += "var btick = 0;\n";
-	} 
+	for (var v in this.vars) {
+		//result += "let "+this.vars[v]+" = " + v + ";\n";
+		result += "let v_"+v+" = scope.l(\""+v+"\");\n";
+		//console.log(this.vars[v]);
+	}
 
 	// Generate array of all scopes used in this definition (if any).
 	if (this.scopes.length > 0) {
@@ -106,8 +109,6 @@ Eden.AST.Definition.prototype.generateDef = function(ctx,scope) {
 		//result += "\tif (cache) cache.scope = scope;\n";
 		result += "\treturn " + express + ";\n}";
 	}
-
-	//console.log(result);
 	
 	return result;
 }

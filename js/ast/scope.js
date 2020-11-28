@@ -66,7 +66,7 @@ Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2, exp3, isin) {
 	}
 }
 
-Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
+Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 	var res;
 
 	//if (ctx.scopes.length > 0) {
@@ -88,9 +88,9 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 
 		// TODO Don't use main range
 		if (this.range) {
-			startstr = over.start.generate(ctx,scope,{bound: false});
+			startstr = over.start.generate(ctx,scope,options);
 		} else {
-			startstr = over.start.generate(ctx,scope,{bound: false}); //over.start.type == "primary" || over.start.type == "scope"});
+			startstr = over.start.generate(ctx,scope,options); //over.start.type == "primary" || over.start.type == "scope"});
 		}
 
 		res += "new ScopeOverride(\""+o+"\", " + startstr;
@@ -98,10 +98,10 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope) {
 			if (ctx && ctx.isdynamic) {
 				ctx.dynamic_source += "..";
 			}
-			var endstr = this.overrides[o].end.generate(ctx,scope, {bound: false});
+			var endstr = this.overrides[o].end.generate(ctx,scope, options);
 
 			if (over.increment) {
-				var incstr = over.increment.generate(ctx,scope, {bound: false});
+				var incstr = over.increment.generate(ctx,scope, options);
 				res += ", " + endstr + ", " + incstr + "),";
 			} else {
 				res += ", " + endstr + "),";
@@ -149,7 +149,7 @@ Eden.AST.Scope.prototype._generate_plain_range = function(ctx, options) {
 Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex) {
 	//console.log("LOOP RANGE INDEX", rangeindex);
 	var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
-	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]",{bound: false});
+	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]",options);
 	var res = "(function() {\n";
 	res += scopename + ".range = false;\n";
 	res += "var looper = " + scopename + ".overrides["+rangeindex[0]+"];\n";
@@ -183,7 +183,7 @@ Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex
 
 Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 	// Add the scope generation string the the array of scopes in this context
-	ctx.scopes.push(this.generateConstructor(ctx,scope));
+	ctx.scopes.push(this.generateConstructor(ctx,scope,options));
 
 	var res = "";
 	var dynsrctmp;

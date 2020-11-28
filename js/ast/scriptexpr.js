@@ -16,7 +16,7 @@ Eden.AST.ScriptExpr.prototype.append = function (ast) {
 }
 
 Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope) {
-	var result = "(function(escope) {\nescope.isolate = true;\nif (cache) cache.scope = escope;\nvar context = new Eden.AST.Context(context);\nescope.context = context;\n";
+	var result = "(function(escope) {\nescope.isolate = true;\nvar context = new Eden.AST.Context(context);\nescope.context = context;\n";
 	for (var i = 0; i < this.statements.length; i++) {
 		// Special case for oracles.
 		if (this.statements[i].type == "declarations" && this.statements[i].kind == "oracle") {

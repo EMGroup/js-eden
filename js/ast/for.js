@@ -105,7 +105,7 @@ Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 				if (this.list[this.index] instanceof BoundValue) {
 					sym.assign(this.list[this.index].value,scope,this);
 					var cache = scope.lookup(sym.name);
-					if (cache) cache.scope = this.list[this.index].scope;
+					//if (cache) cache.scope = this.list[this.index].scope;
 					//console.log(cache);
 				} else {
 					sym.assign(this.list[this.index],scope,this);
@@ -122,17 +122,17 @@ Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 				if (this.list.scopes) {
 					sym.assign(this.list.value[this.index],scope,this);
 					var cache = scope.lookup(sym.name);
-					if (cache) cache.scope = this.list.scopes[this.index];
+					//if (cache) cache.scope = this.list.scopes[this.index];
 				} else {
 					if (this.list.value[this.index] instanceof BoundValue) {
 						sym.assign(this.list.value[this.index].value,scope,this);
 						var cache = scope.lookup(sym.name);
-						if (cache) cache.scope = this.list.value[this.index].scope;
+						//if (cache) cache.scope = this.list.value[this.index].scope;
 						//console.log(cache);
 					} else {
 						sym.assign(this.list.value[this.index],scope,this);
 						var cache = scope.lookup(sym.name);
-						if (cache) cache.scope = this.list.scope;
+						//if (cache) cache.scope = this.list.scope;
 					}
 				}
 				this.index++;

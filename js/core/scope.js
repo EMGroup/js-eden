@@ -1,7 +1,7 @@
-function ScopeCache(up_to_date, value, scope, override) {
+function ScopeCache(up_to_date, value, sym, override) {
 	this.up_to_date = up_to_date;
 	this.value = value;
-	this.scope = scope;
+	this.symbol = sym
 	this.scopes = null;
 	this.override = override;
 }
@@ -139,9 +139,9 @@ Scope.prototype.rebuild = function() {
 	if (this.cache !== undefined) return;
 	this.cache = Object.create(null);
 
-	this.add("cause");
-	this.add("has");
-	this.add("from");
+	//this.add("cause");
+	//this.add("has");
+	//this.add("from");
 
 	for (var i = 0; i < this.overrides.length; i++) {
 		this.updateOverride(this.overrides[i]);
@@ -224,30 +224,51 @@ Scope.prototype.clone = function() {
 }
 
 Scope.prototype.lookup = function(name) {
-	//if (this.cache === undefined) return;
-
 	var symcache = this.cache[name];
 	if (symcache) {
 		return symcache;
 	} else {
 		if (this.parent) {
-			var inherit = this.parent.lookup(name);
-			//this.cache[name] = new ScopeCache(inherit.override, inherit.value, inherit.scope, inherit.override);
-			//return this.cache[name];
-			return inherit;
+			return this.parent.lookup(name);
 		} else {
-			//console.log("Symbol without cache: " + name);
-			this.cache[name] = new ScopeCache(true, undefined, undefined, false);
-			return this.cache[name];
+			var sym = this.context.lookup(name);
+			var c = new ScopeCache(true, undefined, sym, false);
+			this.cache[name] = c;
+			return c;
 		}
 	}
+}
+
+/* For use in compiled definitions */
+Scope.prototype.l = function(name) {
+	var symcache = this.cache[name];
+	if (symcache) {
+		return symcache;
+	} else if (this.parent) {
+		return this.parent.lookup(name);
+	}
+}
+
+/* For use in compiled definitions */
+Scope.prototype.v = function(symcache) {
+	if (symcache.up_to_date) return symcache.value;
+	var sym = symcache.symbol;
+	// Do direct symbol evaluate call here.
+	if (sym.definition) {
+		if (this.cause) {
+			sym.liteEvaluate(this, symcache);
+		} else {
+			sym.evaluate(this, symcache);
+		}
+	}
+	return symcache.value;
 }
 
 Scope.prototype.value = function(name) {
 	var symcache = this.cache[name];
 	if (symcache !== undefined) {
 		if (symcache.up_to_date) return symcache.value;
-		var sym = this.context.lookup(name);
+		var sym = symcache.symbol;
 		// Do direct symbol evaluate call here.
 		if (sym.definition) {
 			if (this.cause) {
@@ -262,16 +283,17 @@ Scope.prototype.value = function(name) {
 }
 
 Scope.prototype.assign = function(name, value, agent) {
+	var sym = this.context.lookup(name);
 	if (this.isolate) {
-		if (this.cache[name] === undefined) this.cache[name] = new ScopeCache(true, value, this, true);
+		if (this.cache[name] === undefined) this.cache[name] = new ScopeCache(true, value, sym, true);
 		else {
 			this.cache[name].up_to_date = true;
 			this.cache[name].override = true;
 			this.cache[name].value = value;
-			this.cache[name].scope = this;
+			//this.cache[name].symbol = sym;
 		}
 	} else {
-		this.context.lookup(name).assign(value, this, agent);
+		sym.assign(value, this, agent);
 	}
 }
 
@@ -287,17 +309,13 @@ Scope.prototype.define = function(name, def, deps, agent) {
 	this.context.lookup(name).define(def, deps, agent);
 }
 
-Scope.prototype.boundValue = function(name) {
-	return this.context.lookup(name).boundValue(this);
-}
-
-Scope.prototype.scope = function(name) {
+/*Scope.prototype.scope = function(name) {
 	var symcache = this.cache[name];
 	if (symcache) {
 		if (symcache.up_to_date) return symcache.scope;
 	}
 	return this.context.lookup(name).boundValue(this).scope;
-}
+}*/
 
 Scope.prototype.lookup2 = function(name) {
 	//if (this.cache === undefined) return;
@@ -305,14 +323,15 @@ Scope.prototype.lookup2 = function(name) {
 
 	var symcache = this.cache[name];
 	if (symcache === undefined) {
-		symcache = new ScopeCache(true, undefined, undefined, false);
+		var sym = this.context.lookup(name);
+		symcache = new ScopeCache(true, undefined, sym, false);
 		this.cache[name] = symcache;
 	}
 	return symcache;
 }
 
-Scope.prototype.add = function(name) {
-	var cache = new ScopeCache( false, undefined, this, false);
+Scope.prototype.add = function(name, sym) {
+	var cache = new ScopeCache( false, undefined, sym, false);
 	this.cache[name] = cache;
 	return cache;
 }
@@ -330,26 +349,26 @@ Scope.prototype.addOverride = function(override) {
 Scope.prototype.updateOverride = function(override) {
 	var name = override.name;
 	var currentval;
-	var currentscope;
 
-	if (override.current instanceof BoundValue) {
+	//if (override.current instanceof BoundValue) {
 		//console.log(override.current);
-		currentval = override.current.value;
-		currentscope = override.current.scope;
-	} else {
+	//	currentval = override.current.value;
+	//	currentscope = override.current.scope;
+	//} else {
 		//console.log(override.current);
 		currentval = override.current;
-		currentscope = this;
-	}
+	//	currentscope = this;
+	//}
 
 	if (this.cache[name] === undefined) {
-		this.cache[name] = new ScopeCache( true, currentval, currentscope, true);
+		var sym = this.context.lookup(name);
+		this.cache[name] = new ScopeCache( true, currentval, sym, true);
 		return false;
 	} else {
-		this.cache[name].value = currentval;
-		this.cache[name].scope = currentscope;
-		this.cache[name].up_to_date = true;
-		this.cache[name].override = true;
+		var c = this.cache[name];
+		c.value = currentval;
+		c.up_to_date = true;
+		c.override = true;
 		return true;
 	}
 }
@@ -365,8 +384,8 @@ Scope.prototype.addSubscribers = function(sym) {
 	while (pos < subs.length) {
 		if (!this.cache[subs[pos]]) {
 			var name = subs[pos];
-			this.cache[name] = new ScopeCache( false, undefined, this, false);
 			var sym2 = this.context.lookup(name);
+			this.cache[name] = new ScopeCache( false, undefined, sym2, false);
 			if (!sym2.subscribersArray) sym2.subscribersArray = Object.keys(sym2.subscribers);
 			subs.push.apply(subs, sym2.subscribersArray);
 		}
@@ -377,10 +396,10 @@ Scope.prototype.addSubscribers = function(sym) {
 Scope.prototype.addSubscriber = function(name) {
 	//console.log("Adding scope subscriber...: " + name);
 	if (!this.cache[(name)]) {
-		var c = new ScopeCache( false, undefined, this, false);
+		var sym = this.context.lookup(name);
+		var c = new ScopeCache( false, undefined, sym, false);
 		this.cache[name] = c;
 		if (this.cachearray) this.cachearray.push(c);
-		var sym = this.context.lookup(name);
 		if (!sym.subscribersArray) sym.subscribersArray = Object.keys(sym.subscribers);
 		for (var d of sym.subscribersArray) {
 		//for (var d in sym.subscribers) {
@@ -392,29 +411,31 @@ Scope.prototype.addSubscriber = function(name) {
 Scope.prototype.updateSubscriber = function(name) {
 	//console.log("Adding scope subscriber...: " + name);
 	if (this.cache[name] === undefined) {
-		this.cache[name] = new ScopeCache( false, undefined, this, false);
 		var sym = this.context.lookup(name);
+		this.cache[name] = new ScopeCache( false, undefined, sym, false);
 		for (var d in sym.subscribers) {
 			this.updateSubscriber(d);
 		}
 	} else {
-		this.cache[name].up_to_date = false;
-		this.cache[name].value = undefined;
-		this.cache[name].scope = this;
+		var c = this.cache[name];
+		c.up_to_date = false;
+		c.value = undefined;
 	}
 }
 
 Scope.prototype.updateSubscriberForce = function(name, override) {
-	//console.log("Adding scope subscriber...: " + name);
+	var c;
 	if (this.cache[name] === undefined) {
-		this.cache[name] = new ScopeCache( false, undefined, this, override);
+		var sym = this.context.lookup(name);
+		c = new ScopeCache( false, undefined, sym, override);
+		this.cache[name] = c;
 	} else {
-		this.cache[name].up_to_date = false;
-		this.cache[name].value = undefined;
-		this.cache[name].scope = this;
+		c = this.cache[name];
+		c.up_to_date = false;
+		c.value = undefined;
 	}
-	var sym = this.context.lookup(name);
-	for (var d in sym.subscribers) {
+
+	for (var d in c.symbol.subscribers) {
 		this.updateSubscriberForce(d, false);
 	}
 }
@@ -435,40 +456,10 @@ Scope.prototype.first = function() {
 }
 
 Scope.prototype.mergeCache = function(prev) {
-	var diff = this.range;
-
 	if (!prev) console.error("Missing scope cache");
-
-	// TODO: Verify that this is actually ok!?
 	this.cache = prev.cache;
 	this.cachearray = prev.cachearray;
 	return;
-
-	/*if (!this.range) {
-		for (var i=0; i<this.overrides.length; i++) {
-			var over = this.overrides[i];
-			//console.log("MERGE CACHE",over.name,prevcache[over.name],this.cache[over.name]);
-		//	prevcache[over.name] = this.cache[over.name];
-			if (over.current != prevcache[over.name].value) {
-				diff = true;
-				break;
-			} 
-		}
-	}*/
-
-	// TODO If all overrides are the same, use the original cache?
-
-	//if (diff) {
-		this.cache = {};
-		for (var o in prevcache) {
-			//if (prevcache[o].up_to_date) // TODO Check this works in all cache, ie. backticks
-			this.cache[o] = new ScopeCache(false, undefined, this, false);
-		}
-	//} else {
-	//	this.cache = prevcache;
-	//}
-
-	//this.cache = prevcache;
 }
 
 Scope.prototype.reset = function() {
@@ -477,19 +468,12 @@ Scope.prototype.reset = function() {
 }
 
 Scope.prototype.next = function() {
-	/*for (var o in this.cache) {
-		//if (this.cache[o].up_to_date)
-			this.cache[o].up_to_date = this.cache[o].override;
-		//else
-		//	delete this.cache[o];
-	}*/
-
 	this.resetCache();
 
 	for (var i = this.overrides.length-1; i >= 0; i--) {
 		var over = this.overrides[i];
 		if (over.end === undefined && !over.isin) continue;
-		var isbound = over.start instanceof BoundValue;
+		var isbound = false; //over.start instanceof BoundValue;
 		var length = (isbound) ? over.start.value.length : (over.start) ? over.start.length : 0;
 
 		if (over.isin) {

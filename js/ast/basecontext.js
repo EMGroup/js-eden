@@ -8,4 +8,5 @@ Eden.AST.BaseContext = function() {
 	this.isconstant = true;
 	this.isdynamic = false;
 	this.dynamic_source = "";
+	this.vars = Object.create(null);
 }

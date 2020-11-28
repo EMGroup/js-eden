@@ -49,6 +49,7 @@ Eden.AST.Primary.prototype.prepend = function(extra) {
  */
 Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 	var res;
+	var varscandidate = false;
 
 	// Check if this primary is a local variable in this context.
 	if (ctx && ctx.locals) {
@@ -167,6 +168,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		}
 		if (ctx && ctx.isdynamic) ctx.dynamic_source += this.observable;
 		res = "\""+this.observable+"\"";
+		varscandidate = options.indef && scope == "scope";
 	}
 
 	// Extras are the list indices or function calls
@@ -174,7 +176,14 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		// No extras so check what kind of value is wanted
 		// Value only, scope only or both.
 		if (!options.bound) {
-			res = scope+".value("+res+")";
+			if (!varscandidate) {
+				res = scope+".value("+res+")";
+			} else {
+				//res = scope+".value("+res+")";
+				//ctx.vars[res] = "v_"+this.observable;
+				ctx.vars[this.observable] = true;
+				res = "scope.v(v_"+this.observable+")";
+			}
 		} else {
 			if (options.scopeonly) {
 				res = scope+".scope("+res+")";
@@ -187,7 +196,16 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		if (this.extras[0].type == "functioncall") {
 			res = "context.f.func_"+this.observable;
 		} else {
-			res = scope+".value("+res+")";
+			//res = scope+".value("+res+")";
+
+			if (!varscandidate) {
+				res = scope+".value("+res+")";
+			} else {
+				//res = scope+".value("+res+")";
+				//ctx.vars[res] = "v_"+this.observable;
+				ctx.vars[this.observable] = true;
+				res = "scope.v(v_"+this.observable+")";
+			}
 		}
 
 		// Generate each extra
@@ -195,7 +213,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			if (ctx && ctx.isdynamic) {
 				if (this.extras[i].type == "index") ctx.dynamic_source += "[";
 			}
-			res += this.extras[i].generate(ctx, scope,{bound: false, usevar: options.usevar});
+			res += this.extras[i].generate(ctx, scope,options);
 			if (ctx && ctx.isdynamic) {
 				if (this.extras[i].type == "index") ctx.dynamic_source += "]";
 			}

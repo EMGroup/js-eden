@@ -18,7 +18,7 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 	case "LIST"		:	res = "["; if (ctx && ctx.isdynamic) ctx.dynamic_source += "[";
 						// Loop over each element and generate that also.
 						for (var i=0; i<this.value.length; i++) {
-							res += this.value[i].generate(ctx,scope, {bound: false});
+							res += this.value[i].generate(ctx,scope, options);
 							if (i != this.value.length-1) {
 								res += ",";
 								if (ctx && ctx.isdynamic) ctx.dynamic_source += ", ";
@@ -31,7 +31,7 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 						var keys = Object.keys(this.value);
 						for (var i=0; i<keys.length; ++i) {
 							res += keys[i] + ": ";
-							res += this.value[keys[i]].generate(ctx,scope, {bound: false});
+							res += this.value[keys[i]].generate(ctx,scope, options);
 							if (i != keys.length-1) {
 								res += ",";
 								if (ctx && ctx.isdynamic) ctx.dynamic_source += ", ";
