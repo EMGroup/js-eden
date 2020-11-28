@@ -17,6 +17,7 @@ Eden.AST.BaseStatement = function() {
 	this.local = false;
 	this.subscribers = null;
 	this.line = -1;
+	this.generated = false;
 }
 
 Eden.AST.BaseStatement.addSubscriber = function(dependency) {

@@ -4,7 +4,6 @@ Eden.AST.Definition = function() {
 
 	this.expression = undefined;
 	this.lvalue = undefined;
-	this.sources = null;
 };
 
 Eden.AST.Definition.prototype.reset = function() {
@@ -188,6 +187,8 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 		// Second, reparse that code as a new AST node
 		var stat = Eden.AST.parseStatement(expr);
+		stat.generated = true;
+		stat.addIndex();
 
 		// Third, execute that node.
 		stat.execute(ctx, base, scope, agent);

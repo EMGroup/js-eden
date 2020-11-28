@@ -126,6 +126,12 @@ Eden.AST.fnEdenASTleft = function(left) {
 	if (left && left.warning) this.warning = left.warning;
 };
 
+/* Transpile an expression AST node into a javascript function body */
+Eden.AST.transpileExpressionNode = function(node, scope, state) {
+
+}
+
+/* Execute an expression AST node in a given scope */
 Eden.AST.executeExpressionNode = function(node, scope, state) {
 	var ctx = {dependencies: {}, isconstant: true, scopes: [], locals: (state)?state.locals:undefined};
 	// FIXME: Add scopes
