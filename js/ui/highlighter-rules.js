@@ -407,6 +407,13 @@ EdenUI.Highlight.prototype.START = function() {
 						this.classes.push("builtin");
 						break;
 
+	case "{"		:	if (this.prevtoken == "OBSERVABLE" && this.prevprevtoken != "action" && this.prevprevtoken != "func" && this.prevprevtoken != "proc") {
+							this.pushMode();
+							this.mode = "STARTBACKTICK";
+							this.classes.push("builtin");
+						} else {
+							this.classes.push("operator");
+						} break;
 	default			:	if (this.type == "keyword") {
 							if (edenBuiltin[this.token]) this.classes.push("builtin");
 							else this.classes.push("keyword");
@@ -521,8 +528,9 @@ EdenUI.Highlight.prototype.BACKTICK = function() {
 		this.popMode();
 		this.popLine();
 	} else if (this.token == "}") {
+		this.classes.push("builtin");
 		this.popMode();
-		this.classes.push("operator");
+		this.popLine();
 	} else {
 		this.START();
 	}

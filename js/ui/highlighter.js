@@ -55,6 +55,7 @@
 
 		this.token = undefined;
 		this.prevtoken = undefined;
+		this.prevprevtoken = undefined;
 		this.modestack = [];
 		this.linestack = undefined;
 		this.outerline = undefined;
@@ -262,6 +263,7 @@
 		var linestart = 0;
 		var token = "INVALID";
 		var prevtoken = "INVALID";
+		var prevprevtoken = "INVALID";
 		//var commentmode = 0;
 
 		//Reset line class
@@ -383,6 +385,7 @@
 				wsline = "";
 			}
 
+			prevprevtoken = prevtoken;
 			prevtoken = token;
 			token = stream.readToken(this.incomment);
 
@@ -417,6 +420,7 @@
 
 			this.token = token;
 			this.prevtoken = prevtoken;
+			this.prevprevtoken = prevprevtoken;
 			this.type = stream.tokenType(token);
 			this.classes = [];
 			this.tokentext = stream.tokenText();
