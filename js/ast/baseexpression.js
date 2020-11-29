@@ -16,6 +16,7 @@ Eden.AST.BaseExpression.mergeExpr = function(expr) {
 	if (!expr) return;
 	this.isconstant = this.isconstant && expr.isconstant;
 	this.isdependant = this.isdependant || expr.isdependant;
+	this.isdynamic = this.isdynamic || expr.isdynamic;
 	if (this.typevalue === 0) {
 		this.typevalue = expr.typevalue;
 	} else if (expr.typevalue === 0) {
@@ -47,5 +48,5 @@ Eden.AST.BaseExpression.toString = function() {
 		isconstant: true
 	};
 	var res = this.toEdenString(eden.root.scope, state);
-	return "parse("+res+")";
+	return "parse("+JSON.stringify(res)+")";
 }

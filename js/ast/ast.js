@@ -184,10 +184,20 @@ Eden.AST.transpileExpressionNode = function(node, scope, state) {
 Eden.AST.executeExpressionNode = function(node, scope, state) {
 	var rhs = Eden.AST.transpileExpressionNode(node, scope, state);
 	var f = new Function(["context","scope","cache"],rhs);
-	if (state.symbol) {
-		return f.call(state.symbol, eden.root, scope, scope.lookup(state.symbol.name));
-	} else {
-		return f(eden.root, scope, null);
+	try {
+		if (state.symbol) {
+			return f.call(state.symbol, eden.root, scope, scope.lookup(state.symbol.name));
+		} else {
+			return f(eden.root, scope, null);
+		}
+	} catch(e) {
+		err = new Eden.RuntimeError(null, Eden.RuntimeError.UNKNOWN, (state.statement)?state.statement:node, "Expression evaluation failed: "+node.toEdenString(scope,state));
+		if (state.statement) {
+			err.line = state.statement.line;
+			state.statement.errors.push(err);
+		} else node.errors.push(err);
+		eden.emit("error", [{name: (state.symbol)?state.symbol.name : "Inline"},err]);
+		return undefined;
 	}
 }
 
@@ -413,6 +423,7 @@ Eden.AST.registerExpression = function(expr) {
 	expr.prototype.execute = Eden.AST.BaseExpression.execute;
 	expr.prototype.mergeExpr = Eden.AST.BaseExpression.mergeExpr;
 	expr.prototype.error = Eden.AST.fnEdenASTerror;
+	expr.prototype.toString = Eden.AST.BaseExpression.toString;
 }
 
 

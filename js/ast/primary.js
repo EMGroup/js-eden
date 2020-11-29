@@ -8,6 +8,7 @@ Eden.AST.Primary = function() {
 	this.observable = "";
 	this.extras = [];
 	this.backtick = undefined;
+	this.isconstant = false;
 };
 
 /**
@@ -16,7 +17,9 @@ Eden.AST.Primary = function() {
  */
 Eden.AST.Primary.prototype.setBackticks = function(backtick) {
 	this.backtick = backtick;
-	this.errors.push.apply(this.errors, backtick.errors);
+	this.mergeExpr(backtick);
+	this.typevalue = Eden.AST.TYPE_UNKNOWN;
+	this.isdynamic = true;
 };
 
 Eden.AST.Primary.prototype.setObservable = function(obs) {

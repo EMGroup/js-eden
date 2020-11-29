@@ -30,7 +30,6 @@ Eden.AST.prototype.pPRIMARY = function() {
 
 		primary.setBackticks(btick);
 		primary.setObservable("__BACKTICKS__");
-		this.isdynamic = true;
 		return primary;	
 	// Plain observable
 	} else if (this.token == "OBSERVABLE") {

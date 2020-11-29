@@ -5,9 +5,11 @@ Eden.AST.Length = function() {
 	this.typevalue = Eden.AST.TYPE_NUMBER;
 }
 
-Eden.AST.Length.prototype.left = Eden.AST.fnEdenASTleft;
-
-Eden.AST.Length.prototype.error = Eden.AST.fnEdenASTerror;
+Eden.AST.Length.prototype.left = function(left) {
+	this.l = left;
+	this.mergeExpr(left);
+	this.typevalue = Eden.AST.TYPE_NUMBER;
+}
 
 Eden.AST.Length.prototype.toEdenString = function(scope, state) {
 	return `${this.l.toEdenString(scope, state)}#`;

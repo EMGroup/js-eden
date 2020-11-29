@@ -18,8 +18,8 @@ Eden.AST.UnaryOp = function(op, right) {
 					this.isdynamic = true;
 					break;
 
-	case "sub"	:	this.isconstant = true;
-					this.isdependant = true;
+	case "sub"	:	this.isdependant = !this.isconstant;
+					this.isconstant = true;
 					this.isdynamic = false;
 					break;
 	}
@@ -28,11 +28,10 @@ Eden.AST.UnaryOp = function(op, right) {
 
 Eden.AST.UnaryOp.prototype.toEdenString = function(scope, state) {
 	if (this.op == "sub") {
-		var ctx = {dependencies: {}, isconstant: true, scopes: []};
-		var expr = "return "+this.r.generate(ctx, "scope", {bound: false, scope: scope})+";";
-		var f = new Function(["context","scope"], expr);
-		var val = f(eden.root, scope);
-		return Eden.edenCodeForValue(val);
+		var val = Eden.AST.executeExpressionNode(this.r, scope, state);
+		// TODO: If AST returned, call generate on that.
+		val = Eden.edenCodeForValue(val);
+		return val;
 	}
 
 	switch (this.op) {

@@ -60,10 +60,18 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	var rhs;
 	var name = (this.lvalue && this.lvalue.name) ? "def_"+this.lvalue.name : "";
 
+	// FIXME: Also dynamic if a local variable is a dependency.
+	var isdynamic = this.lvalue.isDynamic() || this.expression.isdependant;
+
 	// If LValue is dynamic then need to generate a new AST node here...
-	if (this.lvalue.isDynamic()) {
+	if (isdynamic) {
 		// First, generate dynamic eden code
-		var state = {isconstant: true, locals: ctx.locals};
+		var state = {
+			isconstant: true,
+			locals: ctx.locals,
+			statement: this,
+			symbol: sym
+		};
 		var expr = this.expression.toEdenString((scope) ? scope : eden.root.scope, state);
 
 		if (state.isconstant) {
@@ -104,12 +112,20 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 			var state = {
 				statement: this,
+				symbol: sym,
 				isconstant: true,
 				dependant: false,
 				locals: ctx.locals,
 				dependencies: this.dependencies
 			};
 			rhs = Eden.AST.transpileExpressionNode(this.expression, scope, state);
+
+			console.log("Expr Parse State:", {
+				isconstant: this.expression.isconstant,
+				isdependant: this.expression.isdependant,
+				isdynamic: this.expression.isdynamic,
+				typeval: this.expression.typevalue
+			});
 
 			var deps = Object.keys(this.dependencies);
 			sym.isasync = (this.expression.type == "async");

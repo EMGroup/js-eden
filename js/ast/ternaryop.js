@@ -10,36 +10,31 @@ Eden.AST.TernaryOp = function(op) {
 
 Eden.AST.TernaryOp.prototype.setFirst = function(first) {
 	this.first = first;
-	if (first.errors.length > 0) {
-		this.errors.push.apply(this.errors, first.errors);
-	}
-	if (first && first.warning) this.warning = first.warning;
+	this.mergeExpr(first);
 };
 
 Eden.AST.TernaryOp.prototype.setSecond = function(second) {
 	this.second = second;
-	if (second.errors.length > 0) {
-		this.errors.push.apply(this.errors, second.errors);
-	}
-	if (second && second.warning) this.warning = second.warning;
+	this.mergeExpr(second);
 };
 
 Eden.AST.TernaryOp.prototype.setCondition = function(cond) {
 	this.condition = cond;
-	if (cond.errors.length > 0) {
-		this.errors.push.apply(this.errors, cond.errors);
-	}
-	if (cond && cond.warning) this.warning = cond.warning;
+	// Needs a manual merge
+	if (!cond) return;
+	this.isconstant = this.isconstant && cond.isconstant;
+	this.isdependant = this.isdependant || cond.isdependant;
+	this.isdynamic = this.isdynamic || cond.isdynamic;
+	if (cond.errors.length > 0) this.errors.push.apply(this.errors, cond.errors);
+	if (cond.warning && !this.warning) this.warning = cond.warning;
 };
 
 Eden.AST.TernaryOp.prototype.left = function(pleft) {
 	if (this.condition === undefined) {
-		this.condition = pleft;
+		this.setCondition(pleft);
 	} else {
-		this.first = pleft;
-		if (this.first.typevalue === this.second.typevalue) this.typevalue = this.first.typevalue;
+		this.setFirst(pleft);
 	}
-	if (pleft && pleft.warning) this.warning = pleft.warning;
 };
 
 Eden.AST.TernaryOp.prototype.toEdenString = function(scope, state) {
