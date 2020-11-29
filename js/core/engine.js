@@ -59,8 +59,16 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 		} else if (statements[i].type == "do") {
 			statements[i].executed = 1;
 			statements[i].selector = (statements[i].name) ? statements[i].name.execute(ctx, base, scope, agent) : undefined;
-			statements[i].params = statements[i].getParameters(undefined, base, scope);
 			statements[i].nscope = (statements[i].scope) ? statements[i].getScope(ctx)(eden.root,scope) : scope;
+			if (statements[i].literal) {
+				var state = {
+					isconstant: false,
+					locals: ctx.locals
+				};
+				var lit = Eden.AST.executeExpressionNode(statements[i].literal, statements[i].nscope, state);
+				statements[i].statements = Eden.AST.parseScript(lit, statements[i]).statements;
+				console.log("EXEC",statements[i].statements);
+			}
 			yield statements[i];
 		} else if (statements[i].type == "when") {
 			var when = statements[i];
@@ -221,8 +229,9 @@ function runEdenAction(source, action, cb) {
 					}
 				}
 
-				// Note that getActionByName can return entire agents!
-				if (delay.value.name) {
+				if (delay.value.statements) {
+					docb(delay.value.statements);
+				} else if (delay.value.name) {
 					// Get contextual root...
 					Eden.Selectors.query(delay.value.selector, undefined, {options: {self: delay.value}, context: delay.value.parent, minimum: 1}, docb);
 				} else {

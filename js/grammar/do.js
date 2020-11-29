@@ -6,6 +6,65 @@
  */
 
 
+
+/**
+ * Exec Production
+ * EXEC ->
+ *   ( EXPRESSION )';
+ */
+Eden.AST.prototype.pEXEC = function() {
+	var w = new Eden.AST.Do();
+	var parent = this.parent;
+	this.parent = w;
+
+	// Allow for execution attributes
+	if (this.token == "[") {
+		this.next();
+		this.pDO_ATTRIBUTES(w);
+
+		if (this.token != "]") {
+			w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOATTRIBCLOSE));
+			this.parent = parent;
+			return w;
+		}
+		this.next();
+	}
+
+	if (this.token != "(") {
+		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+		this.parent = parent;
+		return w;
+	}
+	this.next();
+
+	var expr = this.pEXPRESSION();
+	w.setLiteral(expr);
+
+	if (this.token != ")") {
+		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+		this.parent = parent;
+		return w;
+	}
+	this.next();
+
+	if (this.token == "with" || this.token == "::") {
+		this.next();
+		w.setScope(this.pSCOPE());
+	}
+
+	if (this.token != ";") {
+		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+		this.parent = parent;
+		return w;
+	} else {
+		this.next();
+	}
+
+	this.parent = parent;
+	return w;
+}
+
+
 /**
  * Do Production
  * DO ->
@@ -71,17 +130,6 @@ Eden.AST.prototype.pDO = function() {
 	if (this.token == "with" || this.token == "::") {
 		this.next();
 		w.setScope(this.pSCOPE());
-	} else if (this.token != ";") {
-		// DEPRECATED
-		var elist = this.pELIST();
-
-		for (var i=0; i<elist.length; i++) {
-			w.addParameter(elist[i]);
-			if (w.errors.length > 0) {
-				this.parent = parent;
-				return w;
-			}
-		}
 	}
 
 	if (this.token != ";") {

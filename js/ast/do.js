@@ -3,13 +3,13 @@ Eden.AST.Do = function() {
 	Eden.AST.BaseStatement.apply(this);
 
 	this.name = undefined;
-	this.script = undefined;
-	this.parameters = [];
-	this.params = []; // The evaluated params
+	this.script = undefined;			// Direct script
 	this.scope = undefined;
 	this.compScope = undefined;
 	this.nscope = undefined;
-	this.selector = undefined;
+	this.selector = undefined;			// Query execution
+	this.literal = undefined;			// Literal expression execution (eden string etc)
+	this.statements = undefined;
 	this.attribs = {atomic: false};
 };
 
@@ -17,13 +17,6 @@ Eden.AST.Do.attributes = {
 	"atomic": true,
 	"nonatomic": true
 };
-
-Eden.AST.Do.prototype.addParameter = function(express) {
-	this.parameters.push(express);
-	if (express && express.errors.length > 0) {
-		this.errors.push.apply(this.errors, express.errors);
-	}
-}
 
 Eden.AST.Do.prototype.setScript = function(script) {
 	this.script = script;
@@ -35,6 +28,13 @@ Eden.AST.Do.prototype.setScript = function(script) {
 Eden.AST.Do.prototype.setAttribute = function(name, value) {
 	if (!this.attribs) this.attribs = {};
 	this.attribs[name] = value;
+}
+
+Eden.AST.Do.prototype.setLiteral = function(literal) {
+	this.literal = literal;
+	if (literal && literal.errors.length > 0) {
+		this.errors.push.apply(this.errors, literal.errors);
+	}
 }
 
 Eden.AST.Do.prototype.setName = function(name) {
@@ -84,35 +84,8 @@ Eden.AST.Do.prototype.generate = function(ctx) {
 	return "";
 }
 
-Eden.AST.Do.prototype.getParameters = function(ctx,base,scope) {
-	var params = [];
-	for (var i=0; i<this.parameters.length; i++) {
-		params.push(this.parameters[i].execute(ctx,base,scope));
-	}
-	return params;
-}
-
-
 Eden.AST.Do.prototype.execute = function(ctx,base,scope, agent) {
-	this.executed = 1;
-
-	var script;
-	if (this.script) {
-		script = this.script;
-	} else {
-		script = base.getActionByName(this.name);
-	}
-
-	if (script) {
-		return script.execute(ctx,base, scope, agent);
-	} else {
-		this.executed = 3;
-		var err = new Eden.RuntimeError(base, Eden.RuntimeError.ACTIONNAME, this, "Action '"+this.name+"' does not exist");
-		if (this.parent) this.parent.executed = 3;
-		err.line = this.line;
-		this.errors.push(err);
-		Eden.Agent.emit("error", [agent,err]);
-	}
+	// Never called?
 }
 
 Eden.AST.registerStatement(Eden.AST.Do);

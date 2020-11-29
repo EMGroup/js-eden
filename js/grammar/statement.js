@@ -193,6 +193,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "for"		:	this.next(); stat = this.pFOR(); break;
 	case "while"	:	this.next(); stat = this.pWHILE(); break;
 	case "do"		:	this.next(); stat = this.pDO(); break;
+	case "exec"		:	this.next(); stat = this.pEXEC(); break;
 	case "wait"		:	this.next(); stat = this.pWAIT(); break;
 	case "switch"	:	this.next(); stat = this.pSWITCH(); break;
 	case "case"		:	this.next(); stat = this.pCASE(); break;
