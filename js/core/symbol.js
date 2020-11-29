@@ -553,6 +553,13 @@ EdenSymbol.prototype.assign = function (value, scope, origin) {
 		this.context && this.context.autocalc(value === 1);
 	}
 
+	var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup2(this.name);
+	if (cache.symbol !== this) {
+		console.log("Different symbols for "+this.name);
+		cache.symbol.assign(value, scope, origin);
+		return;
+	}
+
 	this.clearEvalIDs();
 	this.origin = origin;
 	this.definition = undefined;
@@ -560,15 +567,6 @@ EdenSymbol.prototype.assign = function (value, scope, origin) {
 	this.has_evaled = true;
 
 	this.extend = undefined;
-
-	//if (this.context) {
-	var cache = (this.context === undefined || scope == this.context.scope) ? this.cache : scope.lookup2(this.name);
-	// TODO Loop to base scope if not override
-	//while (scope.parent && !cache.override) {
-	//	scope = scope.parent;
-	//	cache.value = value;
-	//	cache = scope.lookup(this.name);
-	//}
 
 	cache.value = value;
 	cache.up_to_date = true;

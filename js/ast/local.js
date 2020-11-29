@@ -5,8 +5,10 @@ Eden.AST.Local = function(name) {
 }
 
 Eden.AST.Local.prototype.assign = function(value, scope) {
-	//console.log("LOCAL ASSIGN",this.name,value,scope);
-	this.cvalue = value;
+	var cache = scope.lookup2(this.name);
+	console.log("LOCAL ASSIGN",this.name,value,scope);
+	cache.value = value;
+	cache.up_to_date = true;
 }
 
 Eden.AST.Local.prototype.define = function(def, agent, deps) {
@@ -19,7 +21,8 @@ Eden.AST.Local.prototype.value = function(scope) {
 	if (this.definition) {
 		return this.definition.call(this, scope.context, scope);
 	} else {
-		return this.cvalue;
+		var cache = scope.lookup2(this.name);
+		return cache.value;
 	}
 }
 

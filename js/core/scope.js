@@ -310,7 +310,6 @@ Scope.prototype.add = function(name, sym) {
 
 Scope.prototype.addAlias = function(alias, name, sym) {
 	var cache = this.cache[name];
-	console.log("ADD ALIAS",alias,name);
 	this.cache[alias] = cache;
 	return cache;
 }

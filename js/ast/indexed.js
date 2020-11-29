@@ -21,6 +21,14 @@ Eden.AST.Indexed.prototype.addIndex = function(index) {
 	}
 }
 
+Eden.AST.Indexed.prototype.toEdenString = function(scope, state) {
+	var ixres = "";
+	for (var i=0; i<this.indexes.length; i++) {
+		ixres += this.indexes[i].toEdenString(scope, state);
+	}
+	return "("+this.expression.toEdenString(scope,state)+")"+ixres;
+}
+
 Eden.AST.Indexed.prototype.generate = function(ctx, scope, options) {
 	var ixres = "";
 	for (var i=0; i<this.indexes.length; i++) {

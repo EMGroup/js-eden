@@ -118,10 +118,10 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			if (options.usevar) {
 				res = this.observable;
 			} else if (options.indef) {
-				res = JSON.stringify(ctx.locals[this.observable].value()); //"ctx.locals[\""+this.observable+"\"]";
+				res = JSON.stringify(ctx.locals[this.observable].value(options.scope)); //"ctx.locals[\""+this.observable+"\"]";
 			} else {
 				//res = ctx.locals[this.observable].value();
-				var val = ctx.locals[this.observable].value();
+				var val = ctx.locals[this.observable].value(options.scope);
 				//if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(val);
 				res = JSON.stringify(val);
 				if (val === undefined) console.error("Local variable undefined", this.observable);

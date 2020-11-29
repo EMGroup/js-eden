@@ -19,17 +19,11 @@ Eden.AST.Declarations = function() {
 };
 
 Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
-	/*if (ctx) {
-		// Shouldn't be needed!
-		if (ctx.locals === undefined) ctx.locals = {};
-		for (var i=0; i<this.list.length; i++) {
-			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
-		}
-	}*/
-
 	if (this.kind == "local") {
 		for (var i=0; i<this.list.length; i++) {
-			scope.add(this.list[i], new Eden.AST.Local(this.list[i]));
+			var sym = new Eden.AST.Local(this.list[i]);
+			scope.add(this.list[i], sym);
+			ctx.locals[this.list[i]] = sym;  // Deprecated
 		}
 	} else if (this.kind == "oracle") {
 		for (var i=0; i<this.list.length; i++) {
