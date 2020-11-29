@@ -110,7 +110,10 @@ Eden.AST.TYPE_NUMBER = 1;
 Eden.AST.TYPE_STRING = 2;
 Eden.AST.TYPE_LIST = 3;
 Eden.AST.TYPE_BOOLEAN = 4;
-Eden.AST.TYPE_OBJECT;
+Eden.AST.TYPE_SYMBOL = 5;
+Eden.AST.TYPE_OBJECT = 6;
+Eden.AST.TYPE_PROMISE = 7;
+Eden.AST.TYPE_AST = 8;
 
 /* Generic functions to be reused */
 Eden.AST.fnEdenASTerror = function(err) {
@@ -119,10 +122,7 @@ Eden.AST.fnEdenASTerror = function(err) {
 
 Eden.AST.fnEdenASTleft = function(left) {
 	this.l = left;
-	if (left.errors.length > 0) {
-		this.errors.push.apply(this.errors, left.errors);
-	}
-	if (left && left.warning) this.warning = left.warning;
+	this.mergeExpr(left);
 };
 
 function removeHash(str) {

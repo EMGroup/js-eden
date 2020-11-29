@@ -42,6 +42,10 @@ Eden.AST.TernaryOp.prototype.left = function(pleft) {
 	if (pleft && pleft.warning) this.warning = pleft.warning;
 };
 
+Eden.AST.TernaryOp.prototype.toEdenString = function(scope, state) {
+	return `(${this.first.toEdenString(scope,state)} if ${this.cond.toEdenString(scope,state)} else ${this.second.toEdenString(scope,state)})`;
+}
+
 Eden.AST.TernaryOp.prototype.generate = function(ctx, scope, options) {
 	var first = this.first.generate(ctx, scope, options);
 	var cond = this.condition.generate(ctx, scope, options);

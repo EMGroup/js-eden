@@ -1,6 +1,7 @@
 Eden.AST.BaseExpression = function() {
-	this.isconstant = true;
-	this.isdependant = false;
+	this.isconstant = true;		// Is a constant expression
+	this.isdependant = false;	// Had execution context dependance
+	this.isdynamic = false;		// Has dynamic dependency
 	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 	this._is_eden_expression = true;
 	this.errors = [];

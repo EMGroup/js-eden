@@ -7,13 +7,25 @@ Eden.AST.BinaryOp = function(op) {
 
 	if (this.op == "&" || this.op == "and") this.op = "&&";
 	else if (this.op == "|" || this.op == "or") this.op = "||";
+
+	switch(op) {
+	case ">"	:
+	case "<"	:
+	case ">="	:
+	case "<="	:
+	case "=="	:
+	case "!="	:	this.typevalue = Eden.AST.TYPE_BOOLEAN; break;
+	case "*"	:
+	case "/"	:
+	case "^"	:
+	case "%"	:	this.typevalue = Eden.AST.TYPE_NUMBER; break;
+	}
 }
 Eden.AST.BinaryOp.prototype.left = Eden.AST.fnEdenASTleft;
 
 Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	this.r = right;
-	this.errors.push.apply(this.errors, right.errors);
-	if (right && right.warning) this.warning = right.warning;
+	this.mergeExpr(right);
 }
 
 Eden.AST.BinaryOp.prototype.toEdenString = function(scope, state) {

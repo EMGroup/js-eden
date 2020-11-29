@@ -25,7 +25,6 @@ Eden.AST.prototype.pTERM_A = function() {
 		this.next();
 		binop.left(left);
 		binop.setRight(this.pTERM_P());
-		binop.typevalue = Eden.AST.TYPE_BOOLEAN;
 		left = binop;
 	}
 
@@ -45,12 +44,6 @@ Eden.AST.prototype.pTERM_P = function() {
 		this.next();
 		binop.left(left);
 		binop.setRight(this.pTERM_PP());
-
-		// Update type
-		if (binop.l.typevalue == binop.r.typevalue) binop.typevalue = binop.l.typevalue;
-		else if (binop.l.typevalue == Eden.AST.TYPE_UNKNOWN) binop.typevalue = binop.r.typevalue;
-		else binop.typevalue = binop.l.typevalue;
-		
 		left = binop;
 	}
 
@@ -71,7 +64,6 @@ Eden.AST.prototype.pTERM_PP = function() {
 		this.next();
 		binop.left(left);
 		binop.setRight(this.pTERM_PPP());
-		binop.typevalue = Eden.AST.TYPE_NUMBER;  // Probably true!
 		left = binop;
 	}
 

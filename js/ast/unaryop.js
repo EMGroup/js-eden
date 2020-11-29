@@ -7,8 +7,24 @@ Eden.AST.UnaryOp = function(op, right) {
 	this.op = op;
 	this.r = right;
 	this.mergeExpr(right);
+
+	switch (op) {
+	case "&"	:	this.typevalue = Eden.AST.TYPE_SYMBOL; break;
+	case "!"	:	this.typevalue = Eden.AST.TYPE_BOOLEAN; break;
+	case "-"	:	this.typevalue = Eden.AST.TYPE_NUMBER; break;
+
+	case "*"	:	this.typevalue = Eden.AST.TYPE_UNKNOWN;
+					this.isconstant = false;
+					this.isdynamic = true;
+					break;
+
+	case "sub"	:	this.isconstant = true;
+					this.isdependant = true;
+					this.isdynamic = false;
+					break;
+	}
 }
-Eden.AST.UnaryOp.prototype.error = Eden.AST.fnEdenASTerror;
+
 
 Eden.AST.UnaryOp.prototype.toEdenString = function(scope, state) {
 	if (this.op == "sub") {
