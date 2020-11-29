@@ -273,6 +273,25 @@ Eden.AST.prototype.pFACTOR = function() {
 		this.next();
 
 		return una;
+	} else if (this.token == "compile") {
+		this.next();
+		if (this.token != "(") {
+			var una = new Eden.AST.UnaryOp("compile", null);
+			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
+			return una;
+		}
+		this.next();
+
+		var exp = this.pEXPRESSION();
+		var una = new Eden.AST.UnaryOp("compile", exp);
+
+		if (this.token != ")") {
+			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
+			return una;
+		}
+		this.next();
+
+		return una;
 	} else if (this.token == "${") {
 		this.next();
 		var exp = this.pEXPRESSION();

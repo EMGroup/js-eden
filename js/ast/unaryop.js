@@ -23,6 +23,7 @@ Eden.AST.UnaryOp = function(op, right) {
 					this.isdynamic = false;
 					break;
 
+	case "compile": this.typevalue = Eden.AST.TYPE_STRING; break;
 	case "parse":	this.typevalue = Eden.AST.TYPE_AST; break;
 	}
 }
@@ -42,6 +43,7 @@ Eden.AST.UnaryOp.prototype.toEdenString = function(scope, state) {
 	switch (this.op) {
 	case "*"	:
 	case "&"	: return `${this.op}${this.r.toEdenString(scope, state)}`;
+	case "compile":
 	case "eval"	:
 	case "parse":
 	case "!"	:
@@ -79,10 +81,12 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 		ctx.isconstant = tmpconst && wasconst;
 	}
 
-	if (this.op == "parse") {
+	if (this.op == "compile") {
+		return "eden.transpileExpression("+r+", this, "+scope+")";  // TODO: Needs local variable context
+	} else if (this.op == "parse") {
 		return "eden.parseExpression("+r+", this)";
 	} else if (this.op == "eval") {
-		return "eden.evalEden("+r+", this, "+scope+")";
+		return "eden.evalEden("+r+", this, "+scope+")";  // TODO: Needs local variable context
 	} else if (this.op == "!") {
 		res = "!("+r+")";
 	} else if (this.op == "&") {

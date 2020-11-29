@@ -752,6 +752,24 @@
 		return r;
 	}
 
+	Eden.prototype.transpileExpression = function(expr, symbol, scope) {
+		var e = Eden.AST.parseExpression(expr);
+		if (e.errors.length > 0) {
+			eden.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
+			return undefined;
+		}
+
+		if (!scope) scope = eden.root.scope;
+
+		var state = {
+			symbol: symbol,
+			isconstant: true,
+			statement: (symbol)?symbol.origin:null
+		}
+		var r = Eden.AST.transpileExpressionNode(e, scope, state);
+		return r;
+	}
+
 	Eden.prototype.parseExpression = function(expr, symbol) {
 		var e = Eden.AST.parseExpression(expr);
 		if (e.errors.length > 0) {

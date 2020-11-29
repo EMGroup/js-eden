@@ -114,7 +114,9 @@ var Language = {
 		"not": "not",
 		"eval": "eval",
 		"sync": "sync",
-		"parse": "parse"
+		"parse": "parse",
+		"compile": "compile",
+		"exec": "exec"
 	},
 	symbols: {
 		"int": "int",
