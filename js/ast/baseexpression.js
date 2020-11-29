@@ -50,3 +50,5 @@ Eden.AST.BaseExpression.toString = function() {
 	var res = this.toEdenString(eden.root.scope, state);
 	return "parse("+JSON.stringify(res)+")";
 }
+
+Eden.AST.BaseExpression.getEdenCode = Eden.AST.BaseExpression.toString;

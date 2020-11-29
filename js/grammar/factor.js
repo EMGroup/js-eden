@@ -235,6 +235,44 @@ Eden.AST.prototype.pFACTOR = function() {
 		this.next();
 		var lvalue = this.pFACTOR();
 		return new Eden.AST.UnaryOp("*", lvalue);
+	} else if (this.token == "eval") {
+		this.next();
+		if (this.token != "(") {
+			var una = new Eden.AST.UnaryOp("eval", null);
+			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
+			return una;
+		}
+		this.next();
+
+		var exp = this.pEXPRESSION();
+		var una = new Eden.AST.UnaryOp("eval", exp);
+
+		if (this.token != ")") {
+			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
+			return una;
+		}
+		this.next();
+
+		return una;
+	} else if (this.token == "parse") {
+		this.next();
+		if (this.token != "(") {
+			var una = new Eden.AST.UnaryOp("parse", null);
+			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
+			return una;
+		}
+		this.next();
+
+		var exp = this.pEXPRESSION();
+		var una = new Eden.AST.UnaryOp("parse", exp);
+
+		if (this.token != ")") {
+			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
+			return una;
+		}
+		this.next();
+
+		return una;
 	} else if (this.token == "${") {
 		this.next();
 		var exp = this.pEXPRESSION();

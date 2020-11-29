@@ -18,10 +18,12 @@ Eden.AST.UnaryOp = function(op, right) {
 					this.isdynamic = true;
 					break;
 
-	case "sub"	:	this.isdependant = !this.isconstant;
+	case "sub"	:	this.isdependant = true; //!this.isconstant;
 					this.isconstant = true;
 					this.isdynamic = false;
 					break;
+
+	case "parse":	this.typevalue = Eden.AST.TYPE_AST; break;
 	}
 }
 
@@ -29,14 +31,19 @@ Eden.AST.UnaryOp = function(op, right) {
 Eden.AST.UnaryOp.prototype.toEdenString = function(scope, state) {
 	if (this.op == "sub") {
 		var val = Eden.AST.executeExpressionNode(this.r, scope, state);
-		// TODO: If AST returned, call generate on that.
-		val = Eden.edenCodeForValue(val);
+		if (typeof val == "object" && val._is_eden_expression) {
+			return val.toEdenString(scope,state);
+		} else {
+			val = Eden.edenCodeForValue(val);
+		}
 		return val;
 	}
 
 	switch (this.op) {
 	case "*"	:
 	case "&"	: return `${this.op}${this.r.toEdenString(scope, state)}`;
+	case "eval"	:
+	case "parse":
 	case "!"	:
 	case "-"	: return `${this.op}(${this.r.toEdenString(scope, state)})`;
 	}
@@ -72,7 +79,11 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 		ctx.isconstant = tmpconst && wasconst;
 	}
 
-	if (this.op == "!") {
+	if (this.op == "parse") {
+		return "eden.parseExpression("+r+", this)";
+	} else if (this.op == "eval") {
+		return "eden.evalEden("+r+", this, "+scope+")";
+	} else if (this.op == "!") {
 		res = "!("+r+")";
 	} else if (this.op == "&") {
 		if (ctx && ctx.dependencies) {

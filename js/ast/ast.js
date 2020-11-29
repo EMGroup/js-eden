@@ -424,6 +424,7 @@ Eden.AST.registerExpression = function(expr) {
 	expr.prototype.mergeExpr = Eden.AST.BaseExpression.mergeExpr;
 	expr.prototype.error = Eden.AST.fnEdenASTerror;
 	expr.prototype.toString = Eden.AST.BaseExpression.toString;
+	expr.prototype.getEdenCode = Eden.AST.BaseExpression.getEdenCode;
 }
 
 

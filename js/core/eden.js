@@ -734,6 +734,33 @@
 	};
 	Eden.prototype.execute = Eden.prototype.execute2;
 
+	Eden.prototype.evalEden = function(expr, symbol, scope) {
+		var e = Eden.AST.parseExpression(expr);
+		if (e.errors.length > 0) {
+			eden.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
+			return undefined;
+		}
+
+		if (!scope) scope = eden.root.scope;
+
+		var state = {
+			symbol: symbol,
+			isconstant: true,
+			statement: (symbol)?symbol.origin:null
+		}
+		var r = Eden.AST.executeExpressionNode(e, scope, state);
+		return r;
+	}
+
+	Eden.prototype.parseExpression = function(expr, symbol) {
+		var e = Eden.AST.parseExpression(expr);
+		if (e.errors.length > 0) {
+			eden.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
+			return undefined;
+		}
+		return e;
+	}
+
 
 	/** Deprecated */
 	Eden.prototype.agentFromFile = function(name, url, execute) {
