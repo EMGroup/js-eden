@@ -398,13 +398,8 @@ EdenUI.Highlight.prototype.START = function() {
 						break;
 
 	case "`"		:	this.pushMode();
-						this.mode = "BACKTICK";
-						this.pushLine();
-						var nline = document.createElement("span");
-						//nline.className = this.styles["backticks"];
-						this.applyClasses(nline, ["backticks"]);
-						this.lineelement.appendChild(nline);
-						this.lineelement = nline;
+						this.mode = "STARTBACKTICK";
+						this.classes.push("builtin");
 						break;
 
 	case "${"		:	this.pushMode();
@@ -510,20 +505,27 @@ EdenUI.Highlight.prototype.START_MINIMAL = function() {
 	}
 }
 
+EdenUI.Highlight.prototype.STARTBACKTICK = function() {
+	this.pushLine();
+	var nline = document.createElement("span");
+	this.applyClasses(nline, ["backticks"]);
+	this.lineelement.appendChild(nline);
+	this.lineelement = nline;
+	this.mode = "BACKTICK";
+	this.START();
+}
+
 EdenUI.Highlight.prototype.BACKTICK = function() {
-	if (this.token == "`") this.mode = "ENDBACKTICK";
-	else if (this.token == "}") {
+	if (this.token == "`") {
+		this.classes.push("builtin");
+		this.popMode();
+		this.popLine();
+	} else if (this.token == "}") {
 		this.popMode();
 		this.classes.push("operator");
 	} else {
 		this.START();
 	}
-}
-
-EdenUI.Highlight.prototype.ENDBACKTICK = function() {
-	this.popLine();
-	this.popMode();
-	this.START();
 }
 
 EdenUI.Highlight.prototype.STARTSUBEXPRESSION = function() {

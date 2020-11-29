@@ -289,7 +289,9 @@ span.eden-doxytagerror {
 }
 
 span.eden-backticks {
-	background-color: #f6e1f4;
+	background-color: #f6efe1;
+	border: 1px dashed  #fddc98;
+	font-style: italic;
 }
 
 span.eden-subexpression {
