@@ -80,7 +80,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			expr = sym.name + " is " + expr + ";";
 		}
 
-		console.log(expr);
+		//console.log(expr);
 
 		// Second, reparse that code as a new AST node
 		var stat = Eden.AST.parseStatement(expr);
@@ -120,12 +120,12 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			};
 			rhs = Eden.AST.transpileExpressionNode(this.expression, scope, state);
 
-			console.log("Expr Parse State:", {
+			/*console.log("Expr Parse State:", {
 				isconstant: this.expression.isconstant,
 				isdependant: this.expression.isdependant,
 				isdynamic: this.expression.isdynamic,
 				typeval: this.expression.typevalue
-			});
+			});*/
 
 			var deps = Object.keys(this.dependencies);
 			sym.isasync = (this.expression.type == "async");
