@@ -27,8 +27,14 @@ Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
 		}
 	}*/
 
-	for (var i=0; i<this.list.length; i++) {
-		scope.add(this.list[i], new Eden.AST.Local(this.list[i]));
+	if (this.kind == "local") {
+		for (var i=0; i<this.list.length; i++) {
+			scope.add(this.list[i], new Eden.AST.Local(this.list[i]));
+		}
+	} else if (this.kind == "oracle") {
+		for (var i=0; i<this.list.length; i++) {
+			scope.addAlias(this.list[i], "$"+(i+1), new Eden.AST.Local(this.list[i]));
+		}
 	}
 }
 

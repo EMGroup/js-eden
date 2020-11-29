@@ -205,6 +205,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "after"	:	this.next(); stat = this.pAFTER(); break;
 	//case "include"	:	this.next(); stat = this.pINCLUDE(); break;
 	case "import"	:	this.next(); stat = this.pIMPORT(); break;
+	case "para"		:	stat = this.pPARAMS(); break;
+	case "const"	:
 	case "local"	:
 	case "auto"		:	stat = this.pLOCALS(); break;
 	case "default"	:	this.next();

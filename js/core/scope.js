@@ -308,6 +308,13 @@ Scope.prototype.add = function(name, sym) {
 	return cache;
 }
 
+Scope.prototype.addAlias = function(alias, name, sym) {
+	var cache = this.cache[name];
+	console.log("ADD ALIAS",alias,name);
+	this.cache[alias] = cache;
+	return cache;
+}
+
 Scope.prototype.addOverride = function(override) {
 	if (!this.updateOverride(override) && this.context) {
 		var sym = this.context.lookup(override.name);

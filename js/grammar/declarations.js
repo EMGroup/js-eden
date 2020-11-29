@@ -37,6 +37,7 @@ Eden.AST.prototype.pPARAMS = function() {
  */
 Eden.AST.prototype.pLOCALS = function() {
 	var locals = new Eden.AST.Declarations();
+	locals.kind = "local";
 
 	// Get all locals, there may be many lines of such declarations
 	while (this.token == "auto" || this.token == "local") {
