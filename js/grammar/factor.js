@@ -247,6 +247,11 @@ Eden.AST.prototype.pFACTOR = function() {
 		var exp = this.pEXPRESSION();
 		var una = new Eden.AST.UnaryOp("eval", exp);
 
+		if (una.isconstant && una.typevalue != 0 && una.typevalue != Eden.AST.TYPE_STRING) {
+			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			return una;
+		}
+
 		if (this.token != ")") {
 			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
 			return una;
@@ -266,6 +271,11 @@ Eden.AST.prototype.pFACTOR = function() {
 		var exp = this.pEXPRESSION();
 		var una = new Eden.AST.UnaryOp("parse", exp);
 
+		if (una.isconstant && una.typevalue != 0 && una.typevalue != Eden.AST.TYPE_STRING) {
+			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			return una;
+		}
+
 		if (this.token != ")") {
 			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
 			return una;
@@ -284,6 +294,11 @@ Eden.AST.prototype.pFACTOR = function() {
 
 		var exp = this.pEXPRESSION();
 		var una = new Eden.AST.UnaryOp("compile", exp);
+
+		if (una.isconstant && una.typevalue != 0 && una.typevalue != Eden.AST.TYPE_STRING) {
+			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			return una;
+		}
 
 		if (this.token != ")") {
 			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));

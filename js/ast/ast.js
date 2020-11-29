@@ -183,6 +183,9 @@ Eden.AST.transpileExpressionNode = function(node, scope, state) {
 /* Execute an expression AST node in a given scope */
 Eden.AST.executeExpressionNode = function(node, scope, state) {
 	var rhs = Eden.AST.transpileExpressionNode(node, scope, state);
+
+	console.log("Expr dependencies:", JSON.stringify(state.dependencies));
+
 	var f = new Function(["context","scope","cache"],rhs);
 	try {
 		if (state.symbol) {

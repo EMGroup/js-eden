@@ -361,6 +361,9 @@ Language.errors = [
 ],
 /* EDEN_ERROR_SYNCNOTALLOWED */ [
 	"A 'sync' can only be used directly on 'is'"
+],
+/* EDEN_ERROR_BADEXPRTYPE */ [
+	"Expression is of unexpected type"
 ]
 ];
 

@@ -555,7 +555,7 @@
 	}
 
 	Eden.prototype.isValidIdentifier = function (name) {
-		return Boolean(name && /^[_a-zA-Z]\w*$/.test(name));
+		return Boolean(name && /^[_a-zA-Z$]\w*$/.test(name));
 	};
 
 
@@ -586,20 +586,6 @@
 
 			if (cb) cb();
 		});
-	}
-
-	/** Unused currently */
-	Eden.loadFromString = function(str, cb) {
-		//var data = JSON.parse(str);
-		eden.execute2(str);
-		//var menu = $(".jseden-title").get(0);
-		//if (menu) {
-		//	menu.textContent = data.title;
-		//}
-		//EdenUI.MenuBar.saveTitle(data.title);
-		//window.history.pushState(null,"","");
-		eden.root.lookup("_jseden_loaded").assign(true, eden.root.scope);
-		if (cb) cb(data);
 	}
 
 
@@ -645,61 +631,8 @@
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
 	 */
 	Eden.prototype.error = function (error, origin) {
-
 		eden.emit("error", [EdenSymbol.jsAgent, new Eden.RuntimeError(undefined, 0, undefined, error)]);
 		return;
-
-		/*if (origin != "error") {
-			//Errors that halt execution are always reported and cause error
-			//handling to be restored to the default behaviour to avoid confusion.
-			this.reportErrors = true;
-		}
-		if (this.reportErrors) {
-			if (origin) {
-				this.emit('executeError', [error, {path: origin, errorNumber: this.errorNumber}]);
-			} else {
-				this.emit('executeError', [error, {errorNumber: this.errorNumber}]);
-			}
-		}
-		++this.errorNumber;*/
-	};
-	
-	Eden.prototype.executeEden = function (code, origin, prefix, agent, success) {
-		console.error("DEPRECATED USE OF OLD PARSER", code);
-		success && success();
-	};
-
-	/**
-	 * @param {string} code
-	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
-	 * @param {string?} prefix Prefix used for relative includes.
-	 * @param {function(*)} success
-	 */
-	/*Eden.prototype.execute = function (code, origin, prefix, agent, success) {
-		if (arguments.length == 1) {
-			success = noop;
-			origin = 'unknown';
-			prefix = '';
-			agent = {name: '/execute'};
-		}
-		if (arguments.length == 2) {
-			success = origin;
-			origin = 'unknown';
-			prefix = '';
-			agent = {name: '/execute'};
-		}
-
-		this.polyglot.execute(code, origin, prefix, agent, success);
-	};*/
-
-	/**
-	 * @param {string} includePath
-	 * @param {string?} prefix Prefix used for relative includes.
-	 * @param {function()} success Called when include has finished successfully.
-	 */
-	Eden.prototype.include = function (includePath, prefix, agent, success) {
-		console.error("DEPRECATED USE OF INCLUDE: ", includePath);
-		success && success();
 	};
 
 	Eden.prototype.attribute = function(node, name) {
@@ -734,6 +667,16 @@
 	};
 	Eden.prototype.execute = Eden.prototype.execute2;
 
+	/**
+	 * Parse and evaluate an eden expression from a string, returning the value.
+	 * The symbol and scope parameters are optional, the global scope will be
+	 * used.
+	 * 
+	 * @param {String} expr 
+	 * @param {EdenSymbol} symbol 
+	 * @param {Scope} scope 
+	 * @return value of expression
+	 */
 	Eden.prototype.evalEden = function(expr, symbol, scope) {
 		var e = Eden.AST.parseExpression(expr);
 		if (e.errors.length > 0) {
@@ -778,20 +721,6 @@
 		}
 		return e;
 	}
-
-
-	/** Deprecated */
-	Eden.prototype.agentFromFile = function(name, url, execute) {
-		var agent;
-		if (Eden.Agent.agents[name] === undefined) {
-			agent = new Eden.Agent(undefined, name);
-		} else {
-			agent = Eden.Agent.agents[name];
-		}
-		agent.loadFromFile(url, execute);
-	}
-
-
 
 	/**Given any JavaScript value returns a string representing the EDEN code that would be required
 	 * to obtain the same value when interpreted.
@@ -1112,20 +1041,6 @@
 	Eden.prototype.initialDefinition = function() {
 		console.error("INIT DEF DEP");
 	}
-
-
-	/**
-	 * @param {string} name
-	 * @param {Symbol} symbol
-	 * @return {string}
-	 */
-	Eden.prototype.getDefinition = function (name, symbol) {
-		if (symbol.eden_definition) {
-			return symbol.eden_definition + ";";
-		} else {
-			return name + " = " + symbol.context.scope.lookup(symbol.name).value + ";";
-		}
-	};
 
 	// expose API
 	global.EdenUI = EdenUI;
