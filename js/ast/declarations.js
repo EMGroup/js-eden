@@ -19,12 +19,16 @@ Eden.AST.Declarations = function() {
 };
 
 Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
-	if (ctx) {
+	/*if (ctx) {
 		// Shouldn't be needed!
 		if (ctx.locals === undefined) ctx.locals = {};
 		for (var i=0; i<this.list.length; i++) {
 			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
 		}
+	}*/
+
+	for (var i=0; i<this.list.length; i++) {
+		scope.add(this.list[i], new Eden.AST.Local(this.list[i]));
 	}
 }
 

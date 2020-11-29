@@ -195,34 +195,6 @@ Scope.prototype.cloneAt = function(index) {
 	return nscope;
 }
 
-Scope.prototype.clone = function() {
-	// TODO, be more selective on use of clone, currently disabled.
-	return this;
-	var nover = [];
-
-	// Copy the overrides
-	for (var i = 0; i < this.overrides.length; i++) {
-		var nov = new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end);
-		nov.current = this.overrides[i].current;
-		nover.push(nov);
-	}
-
-	// Make a new exact copy of this scope
-	var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause, true);
-
-	// Copy the cache
-	var ncache = {};
-	for (var x in this.cache) {
-		//if (this.cache[x].up_to_date) {
-			ncache[x] = new ScopeCache(false, this.cache[x].value, nscope, this.cache[x].override);
-		//}
-	}
-	nscope.cache = ncache;
-	nscope.refresh();
-
-	return nscope;
-}
-
 Scope.prototype.lookup = function(name) {
 	var symcache = this.cache[name];
 	if (symcache) {
