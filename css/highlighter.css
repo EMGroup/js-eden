@@ -18,6 +18,11 @@ span.eden-special {
 	color: #c4a000;
 }
 
+span.eden-builtin {
+	font-weight: bold;
+	color: #3465a4;
+}
+
 span.eden-parameter {
 	font-weight: bold;
 }
@@ -285,6 +290,12 @@ span.eden-doxytagerror {
 
 span.eden-backticks {
 	background-color: #f6e1f4;
+}
+
+span.eden-subexpression {
+	background-color: #e1eef6;
+	border: 1px dashed #8bd2fd;
+	font-style: italic;
 }
 
 

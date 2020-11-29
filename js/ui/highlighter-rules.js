@@ -206,6 +206,14 @@ var edenValues = {
 "green": true
 };
 
+var edenBuiltin = {
+	"exec": true,
+	"execute": true,
+	"parse": true,
+	"eval": true,
+	"compile": true
+	};
+
 var jskeywords = {
 "var": true,
 "if": true,
@@ -399,8 +407,14 @@ EdenUI.Highlight.prototype.START = function() {
 						this.lineelement = nline;
 						break;
 
+	case "${"		:	this.pushMode();
+						this.mode = "STARTSUBEXPRESSION";
+						this.classes.push("builtin");
+						break;
+
 	default			:	if (this.type == "keyword") {
-							this.classes.push("keyword");
+							if (edenBuiltin[this.token]) this.classes.push("builtin");
+							else this.classes.push("keyword");
 						} else {
 							// Bind negative to number if no whitespace.
 							if (this.token == "-" && this.stream.isNumeric(this.stream.peek())) {
@@ -510,6 +524,29 @@ EdenUI.Highlight.prototype.ENDBACKTICK = function() {
 	this.popLine();
 	this.popMode();
 	this.START();
+}
+
+EdenUI.Highlight.prototype.STARTSUBEXPRESSION = function() {
+	this.pushLine();
+	var nline = document.createElement("span");
+	//nline.className = this.styles["backticks"];
+	this.applyClasses(nline, ["subexpr"]);
+	this.lineelement.appendChild(nline);
+	this.lineelement = nline;
+	this.mode = "SUBEXPRESSION";
+	this.START();
+}
+
+EdenUI.Highlight.prototype.SUBEXPRESSION = function() {
+	//if (this.token == "}") this.mode = "ENDBACKTICK";
+	if (this.token == "}") {
+		this.classes.push("builtin");
+		this.popMode();
+		this.popLine();
+		//this.START();
+	} else {
+		this.START();
+	}
 }
 
 EdenUI.Highlight.prototype.SELECTOR = function() {
