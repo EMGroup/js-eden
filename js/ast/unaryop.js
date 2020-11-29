@@ -3,15 +3,15 @@
  */
 Eden.AST.UnaryOp = function(op, right) {
 	this.type = "unaryop";
+	Eden.AST.BaseExpression.apply(this);
 	this.op = op;
-	this.errors = right.errors;
 	this.r = right;
-	this.typevalue = Eden.AST.TYPE_UNKNOWN;
+	this.mergeExpr(right);
 }
 Eden.AST.UnaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
-Eden.AST.UnaryOp.prototype.toString = function(scope, state) {
-	if (this.op == "eval") {
+Eden.AST.UnaryOp.prototype.toEdenString = function(scope, state) {
+	if (this.op == "sub") {
 		var ctx = {dependencies: {}, isconstant: true, scopes: []};
 		var expr = "return "+this.r.generate(ctx, "scope", {bound: false, scope: scope})+";";
 		var f = new Function(["context","scope"], expr);
@@ -21,28 +21,25 @@ Eden.AST.UnaryOp.prototype.toString = function(scope, state) {
 
 	switch (this.op) {
 	case "*"	:
-	case "&"	: return `${this.op}${this.r.toString(scope, state)}`;
+	case "&"	: return `${this.op}${this.r.toEdenString(scope, state)}`;
 	case "!"	:
-	case "-"	: return `${this.op}(${this.r.toString(scope, state)})`;
+	case "-"	: return `${this.op}(${this.r.toEdenString(scope, state)})`;
 	}
 	
 }
 
 Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
-	if (this.op == "eval") {
-		var tmpconst = ctx.isconstant;
-		var tmpdep = ctx.dependencies;
-		var tmpdynsrc = ctx.dynamic_source;
-		ctx.dependencies = {};
-		var val = this.r.execute(ctx, null, (options.scope) ? options.scope : eden.root.scope);
-		ctx.isconstant = tmpconst;
-		ctx.dependencies = tmpdep;
+	if (this.op == "sub") {
+		var state = {
+			isconstant: true,
+			locals: ctx.locals
+		}
+		var val = Eden.AST.executeExpressionNode(this.r, (options.scope) ? options.scope : eden.root.scope, state);
+		// TODO: If AST returned, call generate on that.
 		val = Eden.edenCodeForValue(val);
-		if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc + val;
+		ctx.dependant = true;  // Mark as context dependant source
 		return val;
 	}
-
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += this.op;
 
 	var tmpconst;
 	if (ctx) {
@@ -101,10 +98,5 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 	}
 }
 
-Eden.AST.UnaryOp.prototype.execute = function(ctx, base, scope) {
-	var rhs = "(function(context,scope) { return ";
-	rhs += this.generate(ctx, "scope", {bound: false});
-	rhs += ";})";
-	return eval(rhs)(eden.root,scope);
-}
+Eden.AST.registerExpression(Eden.AST.UnaryOp);
 

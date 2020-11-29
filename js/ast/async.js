@@ -3,9 +3,9 @@
  */
 Eden.AST.Async = function () {
 	this.type = "async";
-	this.errors = [];
+	Eden.AST.BaseExpression.apply(this);
+	
 	this.expression = null;
-	this.warning = undefined;
 }
 
 Eden.AST.Async.prototype.setExpression = function(express) {
@@ -23,4 +23,4 @@ Eden.AST.Async.prototype.execute = function(ctx, base, scope) {
 	
 }
 
-Eden.AST.Async.prototype.error = Eden.AST.fnEdenASTerror;
+Eden.AST.registerExpression(Eden.AST.Async);

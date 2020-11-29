@@ -5,12 +5,22 @@
 Eden.AST.Literal = function(type, literal) {
 	this.type = "literal";
 	Eden.AST.BaseStatement.apply(this);
-	this.typevalue = Eden.AST.TYPE_UNKNOWN;
+	Eden.AST.BaseExpression.apply(this);
+
 	this.datatype = type;
 	this.value = literal;
+
+	switch (type) {
+	case "NUMBER"	: this.typevalue = Eden.AST.TYPE_NUMBER; break;
+	case "LIST"		: this.typevalue = Eden.AST.TYPE_LIST; break;
+	case "STRING"	:
+	case "CHARACTER": this.typevalue = Eden.AST.TYPE_STRING; break;
+	case "BOOLEAN"	: this.typevalue = Eden.AST.TYPE_BOOLEAN; break;
+	default			: this.typevalue = Eden.AST.TYPE_UNKNOWN; break;
+	}
 }
 
-Eden.AST.Literal.prototype.toString = function(scope, state) {
+Eden.AST.Literal.prototype.toEdenString = function(scope, state) {
 	var res;
 
 	switch (this.datatype) {
@@ -18,7 +28,7 @@ Eden.AST.Literal.prototype.toString = function(scope, state) {
 	case "LIST"			:	res = "[";
 							// Loop over each element and generate that also.
 							for (var i=0; i<this.value.length; i++) {
-								res += this.value[i].toString(scope, state);
+								res += this.value[i].toEdenString(scope, state);
 								if (i != this.value.length-1) {
 									res += ",";
 								}
@@ -28,7 +38,7 @@ Eden.AST.Literal.prototype.toString = function(scope, state) {
 							var keys = Object.keys(this.value);
 							for (var i=0; i<keys.length; ++i) {
 								res += keys[i] + ": ";
-								res += this.value[keys[i]].toString(scope,state);
+								res += this.value[keys[i]].toEdenString(scope,state);
 								if (i != keys.length-1) {
 									res += ",";
 								}
@@ -88,6 +98,8 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 		return res;
 	}
 }
+
+Eden.AST.registerExpression(Eden.AST.Literal);
 
 /**
  * Execute this literal to obtain its actual javascript value, particularly

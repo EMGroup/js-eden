@@ -1,17 +1,14 @@
 Eden.AST.BinaryOp = function(op) {
 	this.type = "binaryop";
+	Eden.AST.BaseExpression.apply(this);
 	this.op = op;
-	this.errors = [];
 	this.l = undefined;
 	this.r = undefined;
-	this.warning = undefined;
-	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 
 	if (this.op == "&" || this.op == "and") this.op = "&&";
 	else if (this.op == "|" || this.op == "or") this.op = "||";
 }
 Eden.AST.BinaryOp.prototype.left = Eden.AST.fnEdenASTleft;
-Eden.AST.BinaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	this.r = right;
@@ -19,8 +16,8 @@ Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	if (right && right.warning) this.warning = right.warning;
 }
 
-Eden.AST.BinaryOp.prototype.toString = function(scope, state) {
-	return `(${this.l.toString(scope, state)} ${this.op} ${this.r.toString(scope, state)})`;
+Eden.AST.BinaryOp.prototype.toEdenString = function(scope, state) {
+	return `(${this.l.toEdenString(scope, state)} ${this.op} ${this.r.toEdenString(scope, state)})`;
 }
 
 Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
@@ -92,11 +89,4 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 	return res;
 }
 
-Eden.AST.BinaryOp.prototype.execute = function(ctx, base, scope) {
-	// FIXME: Add scopes
-	var rhs = "return ";
-	rhs += this.generate(ctx, "scope", {});
-	rhs += ";";
-	return (new Function(["context","scope"],rhs))(eden.root,scope);
-}
-
+Eden.AST.registerExpression(Eden.AST.BinaryOp);

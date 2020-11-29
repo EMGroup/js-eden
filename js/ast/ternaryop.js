@@ -1,14 +1,12 @@
 Eden.AST.TernaryOp = function(op) {
 	this.type = "ternaryop";
+	Eden.AST.BaseExpression.apply(this);
+
 	this.op = op;
-	this.errors = [];
 	this.first = undefined;
 	this.second = undefined;
 	this.condition = undefined;
-	this.warning = undefined;
-	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 }
-Eden.AST.TernaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.TernaryOp.prototype.setFirst = function(first) {
 	this.first = first;
@@ -46,18 +44,10 @@ Eden.AST.TernaryOp.prototype.left = function(pleft) {
 
 Eden.AST.TernaryOp.prototype.generate = function(ctx, scope, options) {
 	var first = this.first.generate(ctx, scope, options);
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += " if ";
 	var cond = this.condition.generate(ctx, scope, options);
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += " else ";
 	var second = this.second.generate(ctx, scope, options);
 
 	return "(("+cond+")?("+first+"):("+second+"))";
 }
 
-Eden.AST.TernaryOp.prototype.execute = function(ctx, base, scope) {
-	var rhs = "(function(context,scope) { return ";
-	rhs += this.generate(ctx, "scope",{bound: false});
-	rhs += ";})";
-	return eval(rhs)(eden.root,scope);
-}
-
+Eden.AST.registerExpression(Eden.AST.TernaryOp);

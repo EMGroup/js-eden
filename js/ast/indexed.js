@@ -1,12 +1,11 @@
 Eden.AST.Indexed = function() {
 	this.type = "indexed";
+	Eden.AST.BaseExpression.apply(this);
 	this.indexes = [];
 	this.expression = undefined;
-	this.errors = [];
 }
 
 Eden.AST.Indexed.prototype.left = Eden.AST.fnEdenASTleft;
-Eden.AST.Indexed.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.Indexed.prototype.setExpression = function(expr) {
 	this.expression = expr;
@@ -35,4 +34,6 @@ Eden.AST.Indexed.prototype.generate = function(ctx, scope, options) {
 		return res;
 	}
 }
+
+Eden.AST.registerExpression(Eden.AST.Indexed);
 

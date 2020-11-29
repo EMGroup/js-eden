@@ -373,6 +373,9 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	case 36	:	if (this.peek() == 123 && this.peek2() == 123) {
 					this.skip(); this.skip();
 					return "${{";
+				} else if (this.peek() == 123) {
+					this.skip();
+					return "${";
 				}
 				break;
 	case 37	:	return "%";
@@ -438,7 +441,10 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	case 125:	if (this.peek() == 125 && this.peek2() == 36) {
 					this.skip(); this.skip();
 					return "}}$";
-				}	
+				}/* else if (this.peek() == 36) {
+					this.skip();
+					return "}$";
+				}*/
 				return "}";
 	case 126:	if (this.peek() == 62) { this.skip(); return "~>"; }
 				return "~";

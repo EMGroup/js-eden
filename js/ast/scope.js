@@ -6,14 +6,11 @@
  */
 Eden.AST.Scope = function() {
 	this.type = "scope";
-	this.errors = [];
+	Eden.AST.BaseExpression.apply(this);
 	this.range = false;
 	this.overrides = {};  // FIXME: This must be an array to maintain order!!
 	this.expression = undefined; // = new Eden.AST.Primary();
-	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 }
-
-Eden.AST.Scope.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.Scope.prototype.prepend = function(extra) {
 	this.primary.prepend(extra);
@@ -67,8 +64,8 @@ Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2, exp3, isin) {
 	}
 }
 
-Eden.AST.Scope.prototype.toString = function(scope, state) {
-	var expr = "("+this.expression.toString(scope, state) + " with ";
+Eden.AST.Scope.prototype.toEdenString = function(scope, state) {
+	var expr = "("+this.expression.toEdenString(scope, state) + " with ";
 	if (state.isconstant) return expr;
 
 	var first = true;
@@ -84,16 +81,16 @@ Eden.AST.Scope.prototype.toString = function(scope, state) {
 		if (over.isin || over.end) overexpr += " in ";
 		else overexpr += " = ";
 
-		var sexpr = over.start.toString(scope, ostate);
+		var sexpr = over.start.toEdenString(scope, ostate);
 		if (ostate.isconstant) overexpr += Eden.AST.executeExpressionNode(over.start, scope, ostate);
 		else overexpr += sexpr;
 		ostate.isconstant = true;
 
 		if (over.increment) {
-			overexpr += ".."+over.increment.toString(scope, state);
+			overexpr += ".."+over.increment.toEdenString(scope, state);
 		}
 		if (over.end) {
-			overexpr += ".."+over.end.toString(scope, state);
+			overexpr += ".."+over.end.toEdenString(scope, state);
 		}
 
 		expr += overexpr;
@@ -116,12 +113,6 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 		var over = this.overrides[o];
 		var startstr;
 
-		if (ctx && ctx.isdynamic) {
-			ctx.dynamic_source += o;
-			if (over.isin && !over.end) ctx.dynamic_source += " in ";
-			else ctx.dynamic_source += " = ";
-		}
-
 		// TODO Don't use main range
 		if (this.range) {
 			startstr = over.start.generate(ctx,scope,options);
@@ -131,9 +122,6 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 
 		res += "new ScopeOverride(\""+o+"\", " + startstr;
 		if (over.end) {
-			if (ctx && ctx.isdynamic) {
-				ctx.dynamic_source += "..";
-			}
 			var endstr = this.overrides[o].end.generate(ctx,scope, options);
 
 			if (over.increment) {
@@ -145,8 +133,6 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 		} else {
 			res += ", undefined, undefined, "+over.isin+"),";
 		}
-
-		if (ctx && ctx.isdynamic) ctx.dynamic_source += ", ";  // FIXME: Remove last comma.
 	}
 	// remove last comma
 	res = res.slice(0,-1);
@@ -211,11 +197,6 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 	ctx.scopes.push(this.generateConstructor(ctx,scope,options));
 
 	var res = "";
-	var dynsrctmp;
-	if (ctx && ctx.isdynamic) {
-		dynsrctmp = ctx.dynamic_source;
-		ctx.dynamic_source = "";
-	}
 
 	if (this.range) {
 		// Check for any isin
@@ -247,30 +228,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 		}
 	}
 
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += " with (" + dynsrctmp + ")";
 	return res;
 }
 
-Eden.AST.Scope.prototype.execute = function(ctx, base, scope) {
-	var context = {scopes: []};
-	var gen = this.generate(context, "scope",{bound: false});
-	var rhs = "(function(context,scope) {\n";
-
-	if (context.scopes.length > 0) {
-		rhs += "\tvar _scopes = [];\n";
-		for (var i=0; i<context.scopes.length; i++) {
-			rhs += "\t_scopes.push(" + context.scopes[i];
-			rhs += ");\n";
-			rhs += "if (this.def_scope) { _scopes["+i+"].mergeCache(this.def_scope["+i+"]); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
-		}
-
-		rhs += "this.def_scope = _scopes;\n";
-	}
-
-	rhs += "return ";
-	rhs += gen;
-	rhs += ";})";
-	//console.log(rhs);
-	return eval(rhs)(eden.root,scope);
-}
-
+Eden.AST.registerExpression(Eden.AST.Scope);

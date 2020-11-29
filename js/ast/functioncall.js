@@ -1,6 +1,7 @@
 Eden.AST.FunctionCall = function() {
 	this.type = "functioncall";
 	Eden.AST.BaseStatement.apply(this);
+	Eden.AST.BaseExpression.apply(this);
 
 	this.lvalue = undefined;
 	this.params = undefined;
@@ -20,12 +21,12 @@ Eden.AST.FunctionCall.prototype.left = function(lvalue) {
 	}
 };
 
-Eden.AST.FunctionCall.prototype.toString = function(scope, state) {
+Eden.AST.FunctionCall.prototype.toEdenString = function(scope, state) {
 	var res = "(";
 
 	for (var i=0; i<this.params.length; ++i) {
 		if (i > 0) res += ", ";
-		res += this.params[i].toString(scope, state);
+		res += this.params[i].toEdenString(scope, state);
 	}
 
 	return res + ")";
@@ -45,7 +46,6 @@ Eden.AST.FunctionCall.prototype.generateArgs = function(ctx, scope) {
 
 Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
 	if (this.lvalue === undefined) {
-		if (ctx && ctx.isdynamic) ctx.dynamic_source += "(";
 		var res = ".call(this";
 		if (this.params) {
 			if (this.params.length > 0) res += ",";
@@ -53,12 +53,10 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
 				var express = this.params[i].generate(ctx, scope, options);
 				res += "("+express+")";
 				if (i != this.params.length-1) {
-					if (ctx && ctx.isdynamic) ctx.dynamic_source += ", ";
 					res += ",";
 				}
 			}
 		}
-		if (ctx && ctx.isdynamic) ctx.dynamic_source += ")";
 		return res + ")";
 	} else {
 		var lvalstr = this.lvalue.generate(ctx,scope);
@@ -76,6 +74,8 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
 		return res + ");";
 	}
 }
+
+Eden.AST.registerExpression(Eden.AST.FunctionCall);
 
 Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 	if (!this.lvalue) return;

@@ -67,7 +67,6 @@ Eden.AST = function(code, imports, origin, options) {
 	this.lastresult = undefined;
 	this.depth = 0;
 	this.localStatus = false;
-	this.isdynamic = false;
 
 	if (!origin) console.error("NO ORIGIN", code);
 
@@ -408,6 +407,12 @@ Eden.AST.parseExpression = function(src) {
 	ast.next();
 	var expr = ast.pEXPRESSION();
 	return expr;
+}
+
+Eden.AST.registerExpression = function(expr) {
+	expr.prototype.execute = Eden.AST.BaseExpression.execute;
+	expr.prototype.mergeExpr = Eden.AST.BaseExpression.mergeExpr;
+	expr.prototype.error = Eden.AST.fnEdenASTerror;
 }
 
 

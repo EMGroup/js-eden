@@ -12,7 +12,7 @@
  */
 Eden.AST.Assignment = function(expression) {
 	this.type = "assignment";
-	Eden.AST.BaseContext.apply(this);
+	Eden.AST.BaseStatement.apply(this);
 
 	this.errors = (expression) ? expression.errors : [];
 	if (expression && expression.warning) this.warning = expression.warning;
@@ -21,42 +21,12 @@ Eden.AST.Assignment = function(expression) {
 	this.compiled = undefined;
 	this.dirty = false;
 	this.value = undefined;
-	this.compiled = undefined;
 };
 
 Eden.AST.Assignment.prototype.reset = function() {
 	this.executed = 0;
 	this.dirty = true;
 }
-
-/*Eden.AST.Assignment.prototype.patchOuter = function(node) {
-	this.expression = node.expression;
-	this.executed = 0;
-	this.lvalue = node.lvalue;
-	this.value = undefined;
-	this.compiled = undefined;
-	this.errors = node.errors;
-	this.dirty = node.dirty;
-	this.source = node.source;
-};*/
-
-/*Eden.AST.Assignment.prototype.patchInner = function(node) {
-	this.expression = node;
-	this.executed = 0;
-	this.value = undefined;
-	this.compiled = undefined;
-	this.errors = node.errors;
-	var oldsrc = this.source.split("=");
-};*/
-
-/*Eden.AST.Assignment.prototype.getParameterByNumber = function(index) {
-	if (this.parent && this.parent.getParameterByNumber) {
-		var p = this.parent.getParameterByNumber(index);
-		//console.log("Param "+index+" = " + p);
-		return p;
-	}
-	return undefined;
-}*/
 
 Eden.AST.Assignment.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
@@ -65,6 +35,7 @@ Eden.AST.Assignment.prototype.left = function(lvalue) {
 	}
 };
 
+/* For inside func and proc only */
 Eden.AST.Assignment.prototype.generate = function(ctx,scope) {
 	var result = this.lvalue.generate(ctx, scope);
 
@@ -87,8 +58,6 @@ Eden.AST.Assignment.prototype.generate = function(ctx,scope) {
 		return result;
 	}
 };
-
-
 
 /**
  * Compile the right-hand-side into a javascript function. If already compiled

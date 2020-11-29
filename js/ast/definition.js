@@ -1,6 +1,6 @@
 Eden.AST.Definition = function() {
 	this.type = "definition";
-	Eden.AST.BaseContext.apply(this);
+	Eden.AST.BaseStatement.apply(this);
 
 	this.expression = undefined;
 	this.lvalue = undefined;
@@ -8,14 +8,6 @@ Eden.AST.Definition = function() {
 
 Eden.AST.Definition.prototype.reset = function() {
 	this.executed = 0;
-}
-
-
-Eden.AST.Definition.prototype.getParameterByNumber = function(index) {
-	if (this.parent && this.parent.getParameterByNumber) {
-		return this.parent.getParameterByNumber(index);
-	}
-	return undefined;
 }
 
 Eden.AST.Definition.prototype.setExpression = function(expr) {
@@ -72,7 +64,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	if (this.lvalue.isDynamic()) {
 		// First, generate dynamic eden code
 		var state = {isconstant: true, locals: ctx.locals};
-		var expr = this.expression.toString((scope) ? scope : eden.root.scope, state);
+		var expr = this.expression.toEdenString((scope) ? scope : eden.root.scope, state);
 
 		if (state.isconstant) {
 			expr = sym.name + " = " + expr + ";";
@@ -84,6 +76,8 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 		// Second, reparse that code as a new AST node
 		var stat = Eden.AST.parseStatement(expr);
+
+		// FIXME: Check for errors
 		stat.generated = true;
 		stat.addIndex();
 
@@ -91,10 +85,6 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 		stat.execute(ctx, base, scope, agent);
 	//Normal Lvalue so just generate definition and finish...
 	} else {
-
-		this.scopes = [];
-		this.dependencies = {};
-		this.backtickCount = 0;
 
 		try {
 			// Definition extensions are deprecated?
@@ -113,7 +103,9 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 
 			var state = {
+				statement: this,
 				isconstant: true,
+				dependant: false,
 				locals: ctx.locals,
 				dependencies: this.dependencies
 			};

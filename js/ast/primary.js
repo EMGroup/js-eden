@@ -4,11 +4,10 @@
  */
 Eden.AST.Primary = function() {
 	this.type = "primary";
-	this.errors = [];
+	Eden.AST.BaseExpression.apply(this);
 	this.observable = "";
 	this.extras = [];
 	this.backtick = undefined;
-	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 };
 
 /**
@@ -48,7 +47,7 @@ function scopehash(hashstr) {
 	return hash;
 }
 
-Eden.AST.Primary.prototype.toString = function(scope, state) {
+Eden.AST.Primary.prototype.toEdenString = function(scope, state) {
 	var obs;
 
 	state.isconstant = false;
@@ -61,7 +60,7 @@ Eden.AST.Primary.prototype.toString = function(scope, state) {
 			var val = (new Function(["context","scope"], expr))(eden.root, scope);
 			obs = val;
 		} else {
-			obs = "`"+this.backtick.toString(scope, state)+"`";
+			obs = "`"+this.backtick.toEdenString(scope, state)+"`";
 		}
 	} else {
 		obs = this.observable;
@@ -70,7 +69,7 @@ Eden.AST.Primary.prototype.toString = function(scope, state) {
 
 	for (var i=0; i<this.extras.length; i++) {
 		if (this.extras[i].type == "index") obs += "[";
-		obs += this.extras[i].toString(scope, state);
+		obs += this.extras[i].toEdenString(scope, state);
 		if (this.extras[i].type == "index") obs += "]";
 	}
 
@@ -274,12 +273,5 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 	return res;
 }
 
-Eden.AST.Primary.prototype.execute = function(ctx, base, scope) {
-	var rhs = "return ";
-	rhs += this.generate(ctx, "scope", {bound: false});
-	rhs += ";";
-	return (new Function(["context","scope"], rhs))(eden.root,scope);
-}
-
-Eden.AST.Primary.prototype.error = Eden.AST.fnEdenASTerror;
+Eden.AST.registerExpression(Eden.AST.Primary);
 

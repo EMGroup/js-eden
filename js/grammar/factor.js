@@ -246,20 +246,13 @@ Eden.AST.prototype.pFACTOR = function() {
 		this.next();
 		var lvalue = this.pFACTOR();
 		return new Eden.AST.UnaryOp("*", lvalue);
-	} else if (this.token == "eval") {
+	} else if (this.token == "${") {
 		this.next();
-		this.isdynamic = true;
-		var una = new Eden.AST.UnaryOp("eval", {errors: []});
-
-		if (this.token != "(") {
-			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALOPEN));
-			return una;
-		}
-		this.next();
+		var una = new Eden.AST.UnaryOp("sub", {errors: []});
 
 		var exp = this.pEXPRESSION();
 
-		if (this.token != ")") {
+		if (this.token != "}") {
 			una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
 			return una;
 		}

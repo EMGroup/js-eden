@@ -1,6 +1,6 @@
 Eden.AST.LValue = function() {
 	this.type = "lvalue";
-	this.errors = [];
+	Eden.AST.BaseExpression.apply(this);
 	this.name = undefined;
 	this.express = undefined;
 	this.primary = undefined;
@@ -15,9 +15,9 @@ Eden.AST.LValue.prototype.isDynamic = function() {
 	return this.express !== undefined;
 }
 
-Eden.AST.LValue.prototype.toString = function(scope, state) {
+Eden.AST.LValue.prototype.toEdenString = function(scope, state) {
 	if (this.name) return this.name;
-	if (this.primary) return this.primary.toString(scope, state);
+	if (this.primary) return this.primary.toEdenString(scope, state);
 	if (this.express) {
 		var obs;
 		var ctx = {dependencies: {}, isconstant: true, scopes: [], locals: state.locals};
@@ -27,7 +27,7 @@ Eden.AST.LValue.prototype.toString = function(scope, state) {
 			var val = (new Function(["context","scope"], expr))(eden.root, scope);
 			obs = val;
 		} else {
-			obs = "`"+this.express.toString(scope, state)+"`";
+			obs = "`"+this.express.toEdenString(scope, state)+"`";
 		}
 
 		return obs;
@@ -165,17 +165,22 @@ Eden.AST.LValue.prototype.generate = function(ctx, scope) {
 	//}
 }
 
-
+Eden.AST.registerExpression(Eden.AST.LValue);
 
 
 
 Eden.AST.LValueComponent = function(kind) {
 	this.type = "lvaluecomponent";
-	this.errors = [];
+	Eden.AST.BaseExpression.apply(this);
 	this.kind = kind;
 	this.indexexp = undefined;
 	this.observable = undefined;
 };
+
+Eden.AST.LValueComponent.prototype.toEdenString = function(scope, state) {
+	// FIXME: This should not be allowed here.
+	return "";
+}
 
 Eden.AST.LValueComponent.prototype.index = function(pindex) {
 	this.indexexp = pindex;
@@ -195,5 +200,5 @@ Eden.AST.LValueComponent.prototype.generate = function(ctx, scope) {
 	}
 }
 
-Eden.AST.LValueComponent.prototype.error = Eden.AST.fnEdenASTerror;
+Eden.AST.registerExpression(Eden.AST.LValueComponent);
 

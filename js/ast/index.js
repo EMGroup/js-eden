@@ -4,6 +4,7 @@
  */
 Eden.AST.Index = function() {
 	this.type = "index";
+	Eden.AST.BaseExpression.apply(this);
 	this.expression = undefined;
 	this.errors = [];
 }
@@ -26,5 +27,5 @@ Eden.AST.Index.prototype.generate = function(ctx, scope, options) {
 	}
 }
 
-Eden.AST.Index.prototype.error = Eden.AST.fnEdenASTerror;
+Eden.AST.registerExpression(Eden.AST.Index);
 
