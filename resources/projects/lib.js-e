@@ -514,12 +514,6 @@ proc arrangeWindows {
 	forget(sumSym);
 }*/
 
-#! Use `execute` instead.
-func execute2 {
-	para script;
-	${{ edenUI.eden.execute2(arguments[0]) }}$;
-}
-
 #Autocalc compatibility
 autocalc = 1;
 
@@ -982,15 +976,6 @@ action executeCode {
  *
  * See LICENSE.txt
  */
-
-/**
- * Execute a string as JS-Eden script.
- *   @param script The script to interpret.
- */
-func execute {
-	para script;
-	${{ eden.execute2(script, "execute", "", {name: "/execute"}, function () { } ); }}$;
-}
 
 /**
  * Generate a new dictionary object. It can be given an even number of arguments

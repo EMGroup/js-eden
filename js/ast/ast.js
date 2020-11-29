@@ -145,7 +145,7 @@ Eden.AST.transpileExpressionNode = function(node, scope, state) {
 	};
 	
 	var result = "";
-	var express = node.generate(ctx, "scope", {bound: false, scope: scope, indef: true});
+	var express = node.generate(ctx, "scope", {bound: false, scope: scope, indef: (state.statement && state.statement == "definition")});
 	var scopedvars = {};
 
 	for (var v in ctx.vars) {

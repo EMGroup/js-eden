@@ -89,7 +89,7 @@ proc attemptMouseCapture {
 * @param viewTitle
 * 
 */
-proc createCanvas {
+func createCanvas {
 	para p1, p2, p3;
 	auto obsName, viewTitle, viewName;
 	auto titleSymName, contentSymName, addJSObserver;
@@ -139,7 +139,7 @@ proc createCanvas {
 	}
 
 	createView(viewName, "Canvas2D");
-	execute2("view_" // viewName // "_content is " // obsName // ";", "*Default");
+	execute("view_" // viewName // "_content is " // obsName // ";");
 	if (viewTitle == @) {
 		# don't attempt to make this update by dependency on redefinition of _view_viewName_content.
 		# Severe performance problems result.

@@ -78,10 +78,14 @@ Eden.AST.Do.prototype.setStatement = function(statement) {
 
 
 Eden.AST.Do.prototype.generate = function(ctx) {
-	var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'do' here");
-	this.errors.push(err);
-	eden.emit("error", [EdenSymbol.defaultAgent,err]);
-	return "";
+	if (this.literal) {
+		return "eden.execute("+this.literal.generate(ctx, "eden.root.scope", {})+");";
+	} else {
+		var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'do' here");
+		this.errors.push(err);
+		eden.emit("error", [EdenSymbol.defaultAgent,err]);
+		return "";
+	}
 }
 
 Eden.AST.Do.prototype.execute = function(ctx,base,scope, agent) {

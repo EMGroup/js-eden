@@ -116,7 +116,8 @@ var Language = {
 		"sync": "sync",
 		"parse": "parse",
 		"compile": "compile",
-		"exec": "exec"
+		"exec": "exec",
+		"execute": "exec"
 	},
 	symbols: {
 		"int": "int",

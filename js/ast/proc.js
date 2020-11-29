@@ -39,11 +39,17 @@ Eden.AST.Action.prototype.execute = function(ctx, base, scope, agent) {
 
 	var body = this.body.generate(ctx);
 	var sym = eden.root.lookup(this.name);
-	eden.root.f["func_"+this.name] = new Function(body);
-	if (this.triggers.length > 0) {
-		sym.assign(eden.root.f["func_"+this.name], scope, this).observe(this.triggers);
-	} else {
-		sym.assign(eden.root.f["func_"+this.name], scope, this);
+
+	try {
+		eden.root.f["func_"+this.name] = new Function(body);
+		if (this.triggers.length > 0) {
+			sym.assign(eden.root.f["func_"+this.name], scope, this).observe(this.triggers);
+		} else {
+			sym.assign(eden.root.f["func_"+this.name], scope, this);
+		}
+	} catch(e) {
+		console.log(body);
+		console.error("proc "+sym.name,e);
 	}
 }
 
