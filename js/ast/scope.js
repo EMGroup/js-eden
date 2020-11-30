@@ -156,7 +156,9 @@ Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex
 		${scopename}.range = false;
 		var looper = ${scopename}.overrides[${rangeindex[0]}];
 		var ix = 0;
-		var results = new Array(looper.end - looper.start + 1);
+		var loopsize = looper.end - looper.start+1;
+		if (loopsize <= 0 || loopsize > 1000000 || isNaN(loopsize)) return [];
+		var results = new Array(loopsize);
 		for (var i=looper.start; i<=looper.end; i++) {
 			${scopename}.resetCache();
 			looper.current = i;
