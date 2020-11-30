@@ -166,7 +166,14 @@ Eden.AST.prototype.pSCRIPT = function() {
 				break;
 			}*/
 			if (this.token != "}" && this.token != ";") {
-				ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
+				if (this.options && this.options.autorecover) {
+					while (this.token != ";" && this.token != "}" && this.token != "EOF") {
+						//if (this.token == "EOF") break;
+						this.next();
+					}
+				} else {
+					ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
+				}
 			}
 			if (this.token == ";") {
 				this.next();
