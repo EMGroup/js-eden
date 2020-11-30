@@ -52,7 +52,8 @@ Eden.AST.Declarations.prototype.generate = function(ctx,scope,options) {
 		if (ctx.locals === undefined) ctx.locals = {};
 		for (var i=0; i<this.list.length; i++) {
 			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
-			res += "var "+this.list[i] + " = "+scope+".value(\""+this.list[i]+"\");\n";
+			//res += "var "+this.list[i] + " = "+scope+".value(\""+this.list[i]+"\");\n";
+			res += "var "+this.list[i] + " = "+scope+".value(\"$"+(i+1)+"\");\n";
 		}
 		return res;
 	}

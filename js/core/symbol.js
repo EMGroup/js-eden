@@ -26,6 +26,7 @@ function EdenSymbol(context, name) {
 	this.needsGlobalNotify = 0;
 	this.has_evaled = false;
 	this.isasync = false;
+	this.eager = false;
 	this.scopecount = 0;
 
 	// need to keep track of who we subscribe to so
@@ -236,7 +237,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 	}
 	if (!this.subscribersArray) this.subscribersArray = Object.keys(this.subscribers);
 	try {
-		cache.up_to_date = true;
+		cache.up_to_date = !this.eager;
 		if (!this.has_evaled) this.clearDynamicDependencies();
 		this.has_evaled = true;
 		this.scopecount = 0;
@@ -258,7 +259,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 		//if (this.context) console.error(this.context.currentObservables.map(x => { return x.name; }), e);
 		//else console.error(this.name, e);
 		cache.value = undefined;
-		cache.up_to_date = true;
+		cache.up_to_date = !this.eager;
 	}
 	if (this.context) {
 		this.context.endEvaluation(this);
@@ -269,7 +270,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 EdenSymbol.prototype.liteEvaluate = function (scope, cache) {
 	if (!this.subscribersArray) this.subscribersArray = Object.keys(this.subscribers);
 
-	cache.up_to_date = true;
+	cache.up_to_date = !this.eager;
 	cache.value = undefined;
 	if (!this.has_evaled) this.clearDynamicDependencies();
 	this.has_evaled = true;

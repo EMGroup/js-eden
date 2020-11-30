@@ -144,10 +144,17 @@ Eden.AST.transpileExpressionNode = function(node, scope, state) {
 		locals: (state)?state.locals:undefined
 	};
 
+	var opts = {
+		symbol: state.symbol,
+		bound: false,
+		scope: scope,
+		indef: (state.statement && state.statement == "definition")
+	};
+
 	if (!scope) console.warn("Missing scope in transpile",node);
 	
 	var result = "";
-	var express = node.generate(ctx, "scope", {bound: false, scope: scope, indef: (state.statement && state.statement == "definition")});
+	var express = node.generate(ctx, "scope", opts);
 	var scopedvars = {};
 
 	for (var v in ctx.vars) {

@@ -183,8 +183,16 @@ Eden.AST.prototype.pEXPRESSION = function() {
 		return expr;
 	}
 
-	if (this.token == "{") {
+	if (this.token == "func") {
 		this.next();
+
+		if (this.token != "{") {
+			var ast = new Eden.AST.ScriptExpr();
+			ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
+			return ast;
+		}
+		this.next();
+
 		//var expr = new Eden.AST.World(this.pSCRIPT());
 		expr = this.pSCRIPTEXPR();
 		if (this.token != "}") {
@@ -192,6 +200,24 @@ Eden.AST.prototype.pEXPRESSION = function() {
 			return expr;
 		}
 		this.next();
+	} else if (this.token == "action") {
+		this.next();
+
+		if (this.token != "{") {
+			var ast = new Eden.AST.ScriptExpr();
+			ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
+			return ast;
+		}
+		this.next();
+
+		expr = this.pSCRIPTEXPR();
+
+		if (this.token != "}") {
+			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+			return expr;
+		}
+		this.next();
+		return;  // No scope allowed here.
 	} else {
 		expr = this.pEXPRESSION_PLAIN();
 	}
