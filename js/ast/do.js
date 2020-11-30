@@ -51,14 +51,14 @@ Eden.AST.Do.prototype.setScope = function(scope) {
 	}
 }
 
-Eden.AST.Do.prototype.getScope = function(ctx) {
+Eden.AST.Do.prototype.getScope = function(ctx, scope) {
 	// FIXME: Can't pre-compile because context changes. (fixed?)
 	if (this.compScope === undefined) {
 		if (this.scope) {
 			try {
-				this.compScope = new Function(["context","scope"], "var s = " + this.scope.generateConstructor(ctx, "scope", {bound: false}) + "; s.rebuild(); return s;");
+				this.compScope = new Function(["context","scope"], "var s = " + this.scope.generateConstructor(ctx, "scope", {bound: false, scope: scope}) + "; s.rebuild(); return s;");
 			} catch (e) {
-
+				console.error("Scope generate failed", e);
 			}
 		} else {
 			// Just create an empty scope

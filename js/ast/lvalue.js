@@ -125,7 +125,7 @@ Eden.AST.LValue.prototype.executeCompList = function(ctx, scope) {
 	return res;
 }
 
-Eden.AST.LValue.prototype.generate = function(ctx, scope) {
+Eden.AST.LValue.prototype.generate = function(ctx, scope, options) {
 	if (this.name) {
 		if (ctx && ctx.locals) {
 			if (ctx.locals.type == "declarations" && ctx.locals.list.indexOf(this.name) != -1) {
@@ -139,7 +139,7 @@ Eden.AST.LValue.prototype.generate = function(ctx, scope) {
 				this.islocal = true;
 				var res = this.name;
 				for (var i=0; i<this.lvaluep.length; i++) {
-					res += this.lvaluep[i].generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+					res += this.lvaluep[i].generate(ctx, scope, options); //{bound: false, usevar: ctx.type == "scriptexpr"});
 				}
 				return res;
 			}
@@ -148,7 +148,7 @@ Eden.AST.LValue.prototype.generate = function(ctx, scope) {
 			this.islocal = true;
 			var res = this.name;
 			for (var i=0; i<this.lvaluep.length; i++) {
-				res += this.lvaluep[i].generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+				res += this.lvaluep[i].generate(ctx, scope, options); //{bound: false, usevar: ctx.type == "scriptexpr"});
 			}
 			return res;
 		}
@@ -156,8 +156,8 @@ Eden.AST.LValue.prototype.generate = function(ctx, scope) {
 		return "\"" + this.name + "\"";
 	}
 
-	if (this.primary) return this.primary.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
-	if (this.express) return this.express.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+	if (this.primary) return this.primary.generate(ctx, scope, options);
+	if (this.express) return this.express.generate(ctx, scope, options);
 
 	// TODO: Pointer dependencies currently causing huge page redraw problems.
 	//if (ctx && ctx.dependencies) {

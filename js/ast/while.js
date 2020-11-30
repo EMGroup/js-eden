@@ -19,18 +19,18 @@ Eden.AST.While.prototype.setStatement = function(statement) {
 	}
 }
 
-Eden.AST.While.prototype.generate = function(ctx, scope) {
-	var res = "while (" + this.condition.generate(ctx,scope,{bound: false});
+Eden.AST.While.prototype.generate = function(ctx, scope, options) {
+	var res = "while (" + this.condition.generate(ctx,scope, options);
 	res += ") ";
-	res += this.statement.generate(ctx, scope) + "\n";
+	res += this.statement.generate(ctx, scope, options) + "\n";
 	return res;
 }
 
-Eden.AST.While.prototype.getCondition = function(ctx) {
+Eden.AST.While.prototype.getCondition = function(ctx, scope) {
 	if (this.compiled) {
 		return this.compiled;
 	} else {
-		var express = this.condition.generate(ctx, "scope", {bound: false});
+		var express = this.condition.generate(ctx, "scope", {bound: false, scope: scope});
 		var expfunc = eval("(function(context,scope){ return " + express + "; })");
 		this.compiled = expfunc;
 		return expfunc;

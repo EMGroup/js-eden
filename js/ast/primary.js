@@ -102,7 +102,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				//console.log("OUT OF DATE DECLARATIONS");
 				res = this.observable;
 				for (var i=0; i<this.extras.length; i++) {
-					res += this.extras[i].generate(ctx, scope, {bound: false});
+					res += this.extras[i].generate(ctx, scope, options);
 				}
 				if (options.bound) {
 					return "new BoundValue("+res+","+scope+")";
@@ -111,7 +111,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				}
 			}
 		} else if (ctx.locals.hasOwnProperty(this.observable)) {
-			//console.log("FOUND LOCAL",this.observable);
+			console.log("FOUND LOCAL",this.observable, options);
 			// Otherwise we need to eval the value and embed it
 			// TODO only if ctx is of type definition??
 			ctx.dirty = true;
@@ -127,7 +127,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				if (val === undefined) console.error("Local variable undefined", this.observable);
 			}
 			for (var i=0; i<this.extras.length; i++) {
-				res += this.extras[i].generate(ctx, scope, {bound: false});
+				res += this.extras[i].generate(ctx, scope, options);
 			}
 
 			if (options.bound) {
@@ -144,7 +144,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		if (ix != -1) {
 			res = this.observable;
 			for (var i=0; i<this.extras.length; i++) {
-				res += this.extras[i].generate(ctx, scope, {bound: false});
+				res += this.extras[i].generate(ctx, scope, options);
 			}
 
 			if (options.bound) {
@@ -174,7 +174,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			tmpdynsrc = ctx.dynamic_source;
 		}
 
-		var btickgen = this.backtick.generate(ctx, scope,{bound: false, usevar: options.usevar});
+		var btickgen = this.backtick.generate(ctx, scope,options);
 
 		if (!ctx || ctx.isconstant || ctx.type != "definition") {
 			if (ctx && ctx.isconstant && ctx.type == "definition") {

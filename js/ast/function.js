@@ -15,7 +15,7 @@ Eden.AST.Function.prototype.setBody = function(body) {
 }
 
 Eden.AST.Function.prototype.generate = function(ctx) {
-	var body = this.body.generate(ctx, "scope");
+	var body = this.body.generate(ctx, "scope", {usevar: true, scope: eden.root.scope});
 	var res = "context.lookup(\""+this.name+"\").define(function(){"+body+"}, this, []);\n";
 	return res;
 }
@@ -28,7 +28,7 @@ Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 		eden.updateDictionary(this.name, this.doxyComment);
 	}
 
-	var body = this.body.generate(ctx,"scope");
+	var body = this.body.generate(ctx,"scope",{scope: scope});
 	var sym = eden.root.lookup(this.name);
 
 	try {

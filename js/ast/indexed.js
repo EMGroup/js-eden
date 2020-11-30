@@ -35,7 +35,7 @@ Eden.AST.Indexed.prototype.generate = function(ctx, scope, options) {
 		ixres += this.indexes[i].generate(ctx,scope,options);
 	}
 
-	var res = "("+this.expression.generate(ctx,scope,{bound:false})+")"+ixres;
+	var res = "("+this.expression.generate(ctx,scope,options)+")"+ixres;
 	if (options.bound) {
 		return "new BoundValue("+res+","+scope+")";
 	} else {

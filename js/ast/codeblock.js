@@ -24,7 +24,7 @@ Eden.AST.CodeBlock.prototype.setScript = function(script) {
 	}
 }
 
-Eden.AST.CodeBlock.prototype.generate = function(ctx) {
+Eden.AST.CodeBlock.prototype.generate = function(ctx, scope, options) {
 	var res = "";
 	//res += "var lscope = new Scope(context,pscope,[";
 	//res += "]);\n";
@@ -45,7 +45,7 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 		}
 	}
 	//res += "]);\n";
-	res += this.script.generate(this, "scope");
+	res += this.script.generate(this, "scope", options);
 	return res;
 }
 

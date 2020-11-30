@@ -36,24 +36,26 @@ Eden.AST.Assignment.prototype.left = function(lvalue) {
 };
 
 /* For inside func and proc only */
-Eden.AST.Assignment.prototype.generate = function(ctx,scope) {
-	var result = this.lvalue.generate(ctx, scope);
+Eden.AST.Assignment.prototype.generate = function(ctx,scope, options) {
+	if (!options) console.warn("Missing assignment generator options");
+	
+	var result = this.lvalue.generate(ctx, scope, options);
 
 	if (this.lvalue.islocal) {
 		result += " = ";
-		result += this.expression.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+		result += this.expression.generate(ctx, scope, options);
 		result += ";\n";
 		return result;
 	} else if (this.lvalue.hasListIndices()) {
 		result = scope+".listAssign("+result+",";
-		result += this.expression.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+		result += this.expression.generate(ctx, scope, options);
 		result += ", EdenSymbol.localJSAgent, false, ";
 		result += this.lvalue.generateCompList(ctx, scope);
 		result += ");\n";
 		return result;
 	} else {
 		result = scope+".assign("+result+",";
-		result += this.expression.generate(ctx, scope,{bound: false, usevar: ctx.type == "scriptexpr"});
+		result += this.expression.generate(ctx, scope, options);
 		result += ", EdenSymbol.localJSAgent);\n"
 		return result;
 	}
@@ -95,7 +97,7 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 			sym.listAssign(value, scope, this, false, complist);
 		} else {
 			value = this.compiled.call(sym, eden.root, scope, scope.lookup(sym.name));
-			sym.assign(value,(this.lvalue.islocal) ? undefined : scope, this);
+			sym.assign(value, scope, this);
 		}
 
 		if (value === undefined) {

@@ -22,7 +22,7 @@ Eden.AST.Index.prototype.toEdenString = function(scope, state) {
 }
 
 Eden.AST.Index.prototype.generate = function(ctx, scope, options) {
-	var ix = this.expression.generate(ctx, scope, {bound: false});
+	var ix = this.expression.generate(ctx, scope, options);
 	// Return final string with -1 adjustment applied.
 	if (this.expression.type == "literal" && this.expression.datatype == "NUMBER") {
 		return "["+ix+"-1]";

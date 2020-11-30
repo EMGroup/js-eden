@@ -41,26 +41,26 @@ Eden.AST.For.prototype.setStatement = function(statement) {
 	}
 }
 
-Eden.AST.For.prototype.generate = function(ctx,scope) {
+Eden.AST.For.prototype.generate = function(ctx,scope, options) {
 	var res = "for (";
 	if (this.sstart) {
-		res += this.sstart.generate(ctx,scope) + " ";
+		res += this.sstart.generate(ctx,scope, options) + " ";
 	} else res += "; ";
 	if (this.condition) {
-		res += this.condition.generate(ctx, "scope",{bound: false, usevar: ctx.type == "scriptexpr"}) + "; ";
+		res += this.condition.generate(ctx, "scope", options) + "; ";
 	} else res += "; ";
-	var incer = this.inc.generate(ctx,scope);
+	var incer = this.inc.generate(ctx,scope,options);
 	if (incer.charAt(incer.length-2) == ";") incer = incer.slice(0,-2);
 	res += incer + ")\n";
-	res += this.statement.generate(ctx,scope);
+	res += this.statement.generate(ctx,scope,options);
 	return res;
 }
 
-Eden.AST.For.prototype.getCondition = function(ctx) {
+Eden.AST.For.prototype.getCondition = function(ctx, scope) {
 	if (this.compiled && this.dirty == false) {
 		return this.compiled;
 	} else {
-		var express = this.condition.generate(ctx, "scope",{bound: false, usevar: ctx.type == "scriptexpr"});
+		var express = this.condition.generate(ctx, "scope",{bound: false, usevar: ctx.type == "scriptexpr", scope: scope});
 		if (ctx.dirty) {
 			this.dirty = true;
 			ctx.dirty = false;
@@ -149,7 +149,7 @@ Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 		return [this.sstart,this];
 	}
 
-	if (this.getCondition(ctx)(eden.root,scope)) {
+	if (this.getCondition(ctx, scope)(eden.root,scope)) {
 		return [this.statement, this.inc, this];
 	} else {
 		this.started = false;

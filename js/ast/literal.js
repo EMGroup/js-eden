@@ -92,11 +92,7 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 	case "UNDEFINED"	: break; //if (ctx && ctx.isdynamic) ctx.dynamic_source += "@"; break;
 	}
 
-	if (options.bound) {
-		return "new BoundValue("+res+","+scope+")";
-	} else {
-		return res;
-	}
+	return res;
 }
 
 Eden.AST.registerExpression(Eden.AST.Literal);

@@ -8,6 +8,7 @@ Eden.AST.When = function() {
 	this.active = false;
 	this.compiled = undefined;
 	this.scope = undefined;
+	this.nscope = undefined;
 	this.compScope = undefined;
 	this.local = false;
 	this.dirty = false;
@@ -108,9 +109,28 @@ Eden.AST.When.prototype.generate = function(ctx) {
 	return "";
 }
 
-Eden.AST.When.prototype.compile = function(base) {
+Eden.AST.When.prototype.getScope = function(ctx) {
+	// FIXME: Can't pre-compile because context changes. (fixed?)
+	if (this.compScope === undefined) {
+		if (this.scope) {
+			try {
+				this.compScope = new Function(["context","scope"], "var s = " + this.scope.generateConstructor(ctx, "scope", {bound: false}) + "; s.rebuild(); return s;");
+			} catch (e) {
+
+			}
+		} else {
+			// Just create an empty scope
+			this.compScope = function(context, scope) {
+				return new Scope(context, scope, [], false, null, false);
+			};
+		}
+	}
+	return this.compScope;
+}
+
+Eden.AST.When.prototype.compile = function(base, scope) {
 	var cond = "try { return ";
-	cond += this.expression.generate(this, "scope",{bound: false});
+	cond += this.expression.generate(this, "scope",{bound: false, scope: scope});
 	cond += "; } catch(e) {}";
 
 	try {
@@ -118,31 +138,6 @@ Eden.AST.When.prototype.compile = function(base) {
 	} catch(e) {
 		console.error("Error compiling when condition");
 	}
-
-	if (this.scope && this.compScope === undefined) {
-		try {
-			this.compScope = eval("(function (context, scope) { var s = " + this.scope.generateConstructor(this, "scope") + "; s.rebuild(); return s; })");
-		} catch (e) {
-			//var err;
-
-			//if (/[0-9][0-9]*/.test(e.message)) {
-			//	err = new Eden.RuntimeError(base, parseInt(e.message), this, e.message);
-			//} else {
-			//	err = new Eden.RuntimeError(base, 0, this, e);
-			//}
-
-			//err.line = this.line;
-
-			//this.errors.push(err);
-			//if (base.origin) Eden.Agent.emit("error", [base.origin,err]);
-			//console.error(e);
-		}
-	}
-
-	// Register with base to be triggered
-	//for (var d in this.dependencies) {
-	//	this.addTrigger(base, d);
-	//}
 
 	return "";
 }
@@ -174,7 +169,10 @@ Eden.AST.When.prototype.trigger = function() {
 		}
 
 		this.active = true;
-		var res = this.executeReal(this, base, (scope) ? scope : eden.root.scope);
+		scope = this.getScope(this)(eden.root,scope);
+		//this.nscope = scope;  // Use previous scope?
+
+		var res = this.executeReal(this, base, scope);
 
 		if (res && (eden.peer === undefined || eden.peer.authoriseWhen(this))) {
 			var me = this;
@@ -184,7 +182,7 @@ Eden.AST.When.prototype.trigger = function() {
 					me.retrigger = false;
 					setTimeout(function(){me.trigger();},0);
 				}
-			}, this);
+			}, this, scope);
 		} else {
 			this.active = false;
 		}
@@ -197,7 +195,7 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 	//if (this.active) return;
 	//this.active = true;
 	this.executed = 1;
-	if (!this.compiled) this.compile(base);
+	if (!this.compiled) this.compile(base, scope);
 
 	//console.log("Exec When: " + base.getSource(this));
 
@@ -206,11 +204,6 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 	// Reset local variables
 	this.locals = {};
 	var me = this;
-
-	if (scope === undefined || scope === eden.root.scope) {
-		if (this.compScope) scope = this.compScope.call(this, eden.root, eden.root.scope);
-		else scope = eden.root.scope;
-	}
 
 	if (scope.range) {
 		scope.range = false;
@@ -256,26 +249,9 @@ Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
 		eden.project.registerAgent(this);
 	}
 	this.enabled = true;
-	//if (this.scope && this.compScope === undefined) {
-	//	try {
-	//		this.compScope = eval("(function (context, scope) { return " + this.scope.generateConstructor(this, "scope") + "; })").call(this, eden.root, eden.root.scope);
-	//	} catch (e) {
-			//var err;
-
-			//if (/[0-9][0-9]*/.test(e.message)) {
-			//	err = new Eden.RuntimeError(base, parseInt(e.message), this, e.message);
-			//} else {
-			//	err = new Eden.RuntimeError(base, 0, this, e);
-			//}
-
-			//err.line = this.line;
-
-			//this.errors.push(err);
-			//if (base.origin) Eden.Agent.emit("error", [base.origin,err]);
-			//else console.log(err.prettyPrint());
-	//	}
-	//}
-	if (agent && !agent.loading) base.executeStatements(this.executeReal(ctx,base,scope,agent), -1, this, undefined, this);
+	scope = (this.nscope) ? this.nscope : this.getScope(this)(eden.root, scope);
+	this.nscope = scope;
+	if (agent && !agent.loading) base.executeStatements(this.executeReal(ctx,base,scope,agent), -1, this, undefined, this, scope);
 }
 
 Eden.AST.When.prototype.error = Eden.AST.fnEdenASTerror;

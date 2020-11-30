@@ -59,7 +59,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 		} else if (statements[i].type == "do") {
 			statements[i].executed = 1;
 			statements[i].selector = (statements[i].name) ? statements[i].name.execute(ctx, base, scope, agent) : undefined;
-			statements[i].nscope = statements[i].getScope(ctx)(eden.root,scope);
+			statements[i].nscope = statements[i].getScope(ctx, scope)(eden.root,scope);
 			if (statements[i].literal) {
 				var state = {
 					isconstant: false,
@@ -74,10 +74,10 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			var when = statements[i];
 			if (when.active == false) {
 				when.active = true;
-				var res = when.execute(undefined, base, eden.root.scope, agent);
+				var res = when.execute(undefined, base, scope, agent);
 				//console.log(res);
 				if (res) {
-					base.executeStatements(res, -1, when);
+					base.executeStatements(res, -1, when, null, null, scope);
 				} else {
 					when.active = false;
 				}
@@ -211,12 +211,12 @@ function runEdenAction(source, action, cb) {
 							me.executeStatements(sscripts, undefined, source, function() {
 								if (delay.value.attribs.atomic) eden.root.endAutocalcOff();
 								runEdenAction.call(me,source, action, cb);
-							}, {parameters: params}, nscope);
+							}, {locals: {}}, nscope);
 						} else {
 							me.executeStatements(stats, undefined, source, function() {
 								if (delay.value.attribs.atomic) eden.root.endAutocalcOff();
 								runEdenAction.call(me,source, action, cb);
-							}, {parameters: params}, nscope);
+							}, {locals: {}}, nscope);
 						}
 					} else {
 						var err = new Eden.RuntimeWarning(delay.value, Eden.RuntimeWarning.EMPTYDO, delay.value.selector);

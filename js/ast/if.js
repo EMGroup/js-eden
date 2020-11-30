@@ -34,13 +34,13 @@ Eden.AST.If.prototype.setElse = function(statement) {
 	}
 };
 
-Eden.AST.If.prototype.generate = function(ctx, scope) {
+Eden.AST.If.prototype.generate = function(ctx, scope, options) {
 	var res = "if (";
-	res += this.condition.generate(ctx, scope,{bound: false});
+	res += this.condition.generate(ctx, scope, options);
 	res += ") ";
-	res += this.statement.generate(ctx, scope) + " ";
+	res += this.statement.generate(ctx, scope, options) + " ";
 	if (this.elsestatement) {
-		res += "\nelse " + this.elsestatement.generate(ctx, scope) + "\n";
+		res += "\nelse " + this.elsestatement.generate(ctx, scope, options) + "\n";
 	}
 	return res;
 }
