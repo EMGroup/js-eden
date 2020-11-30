@@ -32,8 +32,8 @@ Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 	var sym = eden.root.lookup(this.name);
 
 	try {
-		eden.root.f["func_"+this.name] = new Function(body);
-		sym.assign(eden.root.f["func_"+this.name], scope, this);
+		rt.f["func_"+this.name] = new Function(body);
+		sym.assign(rt.f["func_"+this.name], scope, this);
 	} catch(e) {
 		console.log(body);
 		console.error("func "+sym.name,e);

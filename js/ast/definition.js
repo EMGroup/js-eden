@@ -4,10 +4,24 @@ Eden.AST.Definition = function() {
 
 	this.expression = undefined;
 	this.lvalue = undefined;
+	this.eager = false;
+	this.volatile = false;
 };
 
 Eden.AST.Definition.prototype.reset = function() {
 	this.executed = 0;
+}
+
+Eden.AST.Definition.prototype.setAttributes = function(attribs) {
+	for (var a in attribs) {
+		switch (a) {
+		case "eager"	: this.eager = true; break;
+		case "volatile"	: this.volatile = true; break;
+		default: return false;
+		}
+	}
+
+	return true;
 }
 
 Eden.AST.Definition.prototype.setExpression = function(expr) {
@@ -129,7 +143,8 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 			var deps = Object.keys(this.dependencies);
 			sym.isasync = (this.expression.type == "async");
-			//sym.eager = (this.expression.type == "scriptexpr");
+			sym.eager = this.eager;
+			sym.volatile = this.volatile;
 			var f = new Function(["context","scope","cache"], rhs);
 			f.displayName = name;  // FIXME: Non-standard
 

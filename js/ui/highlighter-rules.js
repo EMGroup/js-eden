@@ -221,6 +221,7 @@ var edenAttributes = {
 	"nodepend": true,
 	"depend": true,
 	"eager": true,
+	"volatile": true,
 	"static": true,
 	"const": true
 };

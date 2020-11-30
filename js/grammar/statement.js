@@ -25,11 +25,11 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		var attribs;
 		if (this.token == "[") {
 			attribs = this.pATTRIBUTES();
-			/*if (!stat.setAttributes(attribs)) {
-				w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+			if (!def.setAttributes(attribs)) {
+				def.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
 				this.parent = parent;
-				return;
-			}*/
+				return def;
+			}
 		}
 
 

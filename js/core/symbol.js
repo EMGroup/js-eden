@@ -25,8 +25,9 @@ function EdenSymbol(context, name) {
 	this.extend = undefined;
 	this.needsGlobalNotify = 0;
 	this.has_evaled = false;
-	this.isasync = false;
-	this.eager = false;
+	this.isasync = false;		// Expects a promise as value
+	this.volatile = false;		// Always evaluate on read
+	this.eager = false;			// Evaluate immediately on expire
 	this.scopecount = 0;
 
 	// need to keep track of who we subscribe to so
@@ -237,7 +238,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 	}
 	if (!this.subscribersArray) this.subscribersArray = Object.keys(this.subscribers);
 	try {
-		cache.up_to_date = !this.eager;
+		cache.up_to_date = !this.volatile;
 		if (!this.has_evaled) this.clearDynamicDependencies();
 		this.has_evaled = true;
 		this.scopecount = 0;
@@ -259,7 +260,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 		//if (this.context) console.error(this.context.currentObservables.map(x => { return x.name; }), e);
 		//else console.error(this.name, e);
 		cache.value = undefined;
-		cache.up_to_date = !this.eager;
+		cache.up_to_date = !this.volatile;
 	}
 	if (this.context) {
 		this.context.endEvaluation(this);
@@ -270,7 +271,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 EdenSymbol.prototype.liteEvaluate = function (scope, cache) {
 	if (!this.subscribersArray) this.subscribersArray = Object.keys(this.subscribers);
 
-	cache.up_to_date = !this.eager;
+	cache.up_to_date = !this.volatile;
 	cache.value = undefined;
 	if (!this.has_evaled) this.clearDynamicDependencies();
 	this.has_evaled = true;
@@ -798,6 +799,8 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 				//else if (this.def_scope) {
 				//	for (var i=0; i<this.def_scope.length; i++) this.def_scope[i].reset();
 				//}
+
+				if (this.eager) this.evaluate(this.context.scope, this.cache);
 			}
 
 			this.needsGlobalNotify = EdenSymbol.EXPIRED;

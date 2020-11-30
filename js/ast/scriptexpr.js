@@ -72,12 +72,12 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 
 	var f = new Function(paras, funcdef);
 	Object.defineProperty(f, "name", { value: name });
-	eden.root.f["func_"+name] = f;
+	rt.f["func_"+name] = f;
 
 	//result = result + "}).call(this,new Scope(context,"+scope+",[],false,this,false)) : undefined)";
 	
 	//return `((${scope} !== eden.root.scope)?rt.f.func_${name}.call(this,${scope}) : "__FUNC__")`;
-	return `context.f.func_${name}`;
+	return `rt.f.func_${name}`;
 }
 
 Eden.AST.registerExpression(Eden.AST.ScriptExpr);
