@@ -59,8 +59,12 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 			locals: ctx.locals
 		}
 		var val = Eden.AST.executeExpressionNode(this.r, (options.scope) ? options.scope : eden.root.scope, state);
-		// TODO: If AST returned, call generate on that.
-		val = Eden.edenCodeForValue(val);
+
+		if (typeof val == "object" && val._is_eden_expression) {
+			val = val.generate(ctx, scope, options);
+		} else {
+			val = Eden.edenCodeForValue(val);
+		}
 		ctx.dependant = true;  // Mark as context dependant source
 		return val;
 	}

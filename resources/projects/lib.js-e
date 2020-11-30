@@ -3728,6 +3728,14 @@ _template is [eager] func {
 	return eval(_volatileExpr(sym));
 };
 
+/*
+testF is func {
+	${parse("para "// concat(",",params) // ";" if params# > 0 else ";")};
+	return ${parse(expr)};
+};
+test3 is [eager] _template(&testF)::expr="a*b",params=["a","b"];
+*/
+
 _time is [volatile] ${{ Date.now() }}$;
 
 }
