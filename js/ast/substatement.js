@@ -11,7 +11,8 @@ Eden.AST.SubStatement.prototype.setOperation = function(kind, expr) {
 }
 
 Eden.AST.SubStatement.prototype.toEdenString = function(scope, state) {
-	return `\${parse(${this.expression.toEdenString(scope,state)})};`;
+	var val = Eden.AST.executeExpressionNode(this.expression, scope, state);
+	return val;
 }
 
 Eden.AST.SubStatement.prototype.generate = function(ctx,scope,options) {

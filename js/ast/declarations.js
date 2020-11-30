@@ -50,7 +50,7 @@ Eden.AST.Declarations.prototype.generate = function(ctx,scope,options) {
 		var res = "var ";
 		if (ctx.locals === undefined) ctx.locals = {};
 		for (var i=0; i<this.list.length; i++) {
-			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
+			ctx.locals[this.list[i]] = "local"; //new Eden.AST.Local(this.list[i]);
 			res += this.list[i];
 			if (i < this.list.length-1) res += ",";
 		}
@@ -62,7 +62,7 @@ Eden.AST.Declarations.prototype.generate = function(ctx,scope,options) {
 		var res = "";
 		if (ctx.locals === undefined) ctx.locals = {};
 		for (var i=0; i<this.list.length; i++) {
-			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
+			ctx.locals[this.list[i]] = "oracle";  //new Eden.AST.Local(this.list[i]);
 			//res += "var "+this.list[i] + " = "+scope+".value(\""+this.list[i]+"\");\n";
 			//res += "var "+this.list[i] + " = "+scope+".value(\"$"+(i+1)+"\");\n";
 		}

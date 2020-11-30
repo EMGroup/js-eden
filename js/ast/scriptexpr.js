@@ -44,15 +44,19 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 	//var result = "((scope !== eden.root.scope) ? (function(escope) {\nescope.isolate = true;\nvar context = new Eden.AST.Context(context);\nescope.context = context;\n";
 	for (var i = 0; i < this.script.statements.length; i++) {
 		// Special case for oracles.
-		if (this.script.statements[i].type == "declarations" && this.script.statements[i].kind == "oracle") {
+		/*if (this.script.statements[i].type == "declarations" && this.script.statements[i].kind == "oracle") {
 			for (var j=0; j<this.script.statements[i].list.length; j++) {
 				//paracount++;
 				//ctx.dependencies["$"+paracount] = true;
 				//ctx.isconstant = false;
 				paras.push(this.script.statements[i].list[j]);
 			}
-		}
+		}*/
 		funcdef += this.script.statements[i].generate(ctx, "scope", opts);
+	}
+
+	for (var p in ctx.locals) {
+		if (ctx.locals[p] == "oracle") paras.push(p);
 	}
 
 	var name;

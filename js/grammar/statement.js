@@ -379,8 +379,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "${"		:	this.next();
 						stat = this.pSUB_STATEMENT();
 						if (this.token != "}") {
-							script.error(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
-							stat = script;
+							stat.error(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
 							break;
 						}
 						this.next();

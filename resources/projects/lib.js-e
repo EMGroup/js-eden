@@ -632,7 +632,7 @@ func charCode {
 func str {
 	para v;
 	auto argc;
-	argc = ${{ arguments.length }}$;
+	argc = ${{ arguments.length-1 }}$;
 
 	if (argc != 1) {
 		error("str: this function requires exactly one argument.");
@@ -858,7 +858,7 @@ func isInt {
 /** Tests if a value is a list. #library #types #list */
 func isList {
 	${{
-		if (arguments.length != 1) {
+		if (arguments.length-1 != 1) {
 			eden.error(new Error("isList: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
@@ -948,7 +948,7 @@ func isProc {
 /** Tests if a value is a string. #library #string #types */
 func isString {
 	${{
-		if (arguments.length != 1) {
+		if (arguments.length-1 != 1) {
 			eden.error(new Error("isString: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
@@ -1962,7 +1962,7 @@ func concat {
 	para p1,p2;
 	auto separator, concatStrings, list, i, item, result;
 	auto argc;
-	argc = ${{ arguments.length }}$;
+	argc = ${{ arguments.length-1 }}$;
 	concatStrings = false;
 	if (argc == 0) {
 		error("concat: This function requires at least one argument.");
