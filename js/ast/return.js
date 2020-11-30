@@ -10,6 +10,10 @@ Eden.AST.Return.prototype.setResult = function(result) {
 	this.errors.push.apply(this.errors, result.errors);
 }
 
+Eden.AST.Return.prototype.toEdenString = function(scope, state) {
+	return `return ${this.result.toEdenString(scope,state)};`;
+}
+
 Eden.AST.Return.prototype.generate = function(ctx,scope,options) {
 	if (this.result) {
 		var res = this.result.generate(ctx, scope, options);

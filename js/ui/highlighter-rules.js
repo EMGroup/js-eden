@@ -219,7 +219,10 @@ var edenAttributes = {
 	"nonatomic": true,
 	"fixed": true,
 	"nodepend": true,
-	"depend": true
+	"depend": true,
+	"eager": true,
+	"static": true,
+	"const": true
 };
 
 var jskeywords = {
@@ -294,6 +297,7 @@ EdenUI.Highlight.prototype.START = function() {
 	case "STRING"	:	this.classes.push("string"); break;
 	case "BOOLEAN"	:	this.classes.push("constant"); break;
 	case "CHARACTER":	this.classes.push("string"); break;
+	case "is"		:
 	case "action"	:	this.classes.push("keyword");
 						this.pushMode();
 						this.mode = "ATTRIBUTES";

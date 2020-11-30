@@ -57,7 +57,7 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
 				}
 			}
 		}
-		return res + ")";
+		return res + ","+scope+")";
 	} else {
 		var lvalstr = this.lvalue.generate(ctx,scope, options);
 		var res = scope + ".value("+lvalstr+").call(context.lookup("+lvalstr+")";

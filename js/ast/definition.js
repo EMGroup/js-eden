@@ -129,7 +129,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 			var deps = Object.keys(this.dependencies);
 			sym.isasync = (this.expression.type == "async");
-			sym.eager = (this.expression.type == "scriptexpr");
+			//sym.eager = (this.expression.type == "scriptexpr");
 			var f = new Function(["context","scope","cache"], rhs);
 			f.displayName = name;  // FIXME: Non-standard
 

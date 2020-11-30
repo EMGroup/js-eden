@@ -211,13 +211,14 @@ Eden.AST.prototype.pSCRIPT = function() {
  */
 Eden.AST.prototype.pSCRIPTEXPR = function() {
 	var ast = new Eden.AST.ScriptExpr();
-	ast.parent = this.parent;
-	var parent = this.parent;
+	var script = this.pSCRIPT();
+	//ast.parent = this.parent;
+	//var parent = this.parent;
 	//this.parent = ast;
 
 	//ast.setLocals(this.pLOCALS());
 
-	while (this.token != "EOF") {
+	/*while (this.token != "EOF") {
 		var statement = this.pSTATEXPR();
 
 		if (statement !== undefined) {
@@ -225,9 +226,6 @@ Eden.AST.prototype.pSCRIPTEXPR = function() {
 			if (statement.errors.length > 0) {
 				break;
 				// Skip until colon
-				/*while (this.token != ";" && this.token != "EOF") {
-					this.next();
-				}*/
 			}
 		} else {
 			if (this.token != "}" && this.token != ";") {
@@ -239,7 +237,9 @@ Eden.AST.prototype.pSCRIPTEXPR = function() {
 				break;
 			}
 		}
-	}
+	}*/
+
+	ast.setScript(script);
 
 	//this.parent = parent;
 	return ast;

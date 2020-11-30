@@ -20,6 +20,19 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		var parent = this.parent;
 		this.parent = def;
 		this.isdynamic = false;
+
+		
+		var attribs;
+		if (this.token == "[") {
+			attribs = this.pATTRIBUTES();
+			/*if (!stat.setAttributes(attribs)) {
+				w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+				this.parent = parent;
+				return;
+			}*/
+		}
+
+
 		var expr = this.pEXPRESSION_ASYNC();
 		def.setExpression(expr);
 

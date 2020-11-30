@@ -18,6 +18,17 @@ Eden.AST.Declarations = function() {
 	this.kind = "local";
 };
 
+Eden.AST.Declarations.prototype.toEdenString = function(scope, state) {
+	var res = (this.kind == "local") ? "local " : "para ";
+	var first = true;
+	for (var d of this.list) {
+		if (!first) res += ", ";
+		first = false;
+		res += d;
+	}
+	return res + ";";
+}
+
 Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
 	if (this.kind == "local") {
 		for (var i=0; i<this.list.length; i++) {
@@ -53,7 +64,7 @@ Eden.AST.Declarations.prototype.generate = function(ctx,scope,options) {
 		for (var i=0; i<this.list.length; i++) {
 			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
 			//res += "var "+this.list[i] + " = "+scope+".value(\""+this.list[i]+"\");\n";
-			res += "var "+this.list[i] + " = "+scope+".value(\"$"+(i+1)+"\");\n";
+			//res += "var "+this.list[i] + " = "+scope+".value(\"$"+(i+1)+"\");\n";
 		}
 		return res;
 	}

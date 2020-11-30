@@ -3715,6 +3715,11 @@ func _attribute {
 	para p1,p2;
 	return ${{ eden.attribute(p1,p2) }}$;
 }
+
+_volatileExpr is func {
+	para sym;
+	${{ return sym.origin.expression.toEdenString(scope,{}); }}$
+};
 }
 
 /**
