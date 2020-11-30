@@ -20,6 +20,7 @@ EdenUI.ScriptArea = function() {
 
 	this.fragment = undefined;
 	this.readonly = false;
+	this.readonlycomment = false;
 	this.alwaysreadonly = false;
 	this.currentlineno = -1;
 	this.currentcharno = -1;
@@ -86,7 +87,10 @@ EdenUI.ScriptArea.prototype.setReadonly = function(ro) {
 	} else {
 		this.readonly = (this.fragment) ? this.fragment.locked : false;
 		this.outdiv.contentEditable = !this.readonly;
-		if (ro == "comment") this.updateEntireHighlight();
+		if (ro == "comment") {
+			this.readonlycomment = true;
+			this.updateEntireHighlight();
+		}
 	}
 }
 
