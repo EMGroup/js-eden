@@ -22,12 +22,14 @@ Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
 	if (this.kind == "local") {
 		for (var i=0; i<this.list.length; i++) {
 			var sym = new Eden.AST.Local(this.list[i]);
-			scope.add(this.list[i], sym);
-			ctx.locals[this.list[i]] = sym;  // Deprecated
+			scope.addIfNotExist(this.list[i], sym);
+			ctx.locals[this.list[i]] = sym;  // Deprecated?
 		}
 	} else if (this.kind == "oracle") {
 		for (var i=0; i<this.list.length; i++) {
-			scope.addAlias(this.list[i], "$"+(i+1), new Eden.AST.Local(this.list[i]));
+			var sym = new Eden.AST.Local(this.list[i]);
+			scope.addAlias(this.list[i], "$"+(i+1), sym);
+			ctx.locals[this.list[i]] = sym;  // Deprecated?
 		}
 	}
 }

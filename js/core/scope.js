@@ -308,6 +308,14 @@ Scope.prototype.add = function(name, sym) {
 	return cache;
 }
 
+Scope.prototype.addIfNotExist = function(name, sym) {
+	var cache = this.cache[name];
+	if (cache) return cache;
+	cache = new ScopeCache( false, undefined, sym, false);
+	this.cache[name] = cache;
+	return cache;
+}
+
 Scope.prototype.addAlias = function(alias, name, sym) {
 	var cache = this.cache[name];
 	this.cache[alias] = cache;
