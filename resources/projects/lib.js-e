@@ -3716,10 +3716,20 @@ func _attribute {
 	return ${{ eden.attribute(p1,p2) }}$;
 }
 
-_volatileExpr is func {
+/** Recreate eden source of symbols expression. #library */
+_volatileExpr is [eager] func {
 	para sym;
 	${{ return sym.origin.expression.toEdenString(scope,{}); }}$
 };
+
+/** Generate a function by scoping an existing context dependant function. #library */
+_template is [eager] func {
+	para sym;
+	return eval(_volatileExpr(sym));
+};
+
+_time is [volatile] ${{ Date.now() }}$;
+
 }
 
 /**

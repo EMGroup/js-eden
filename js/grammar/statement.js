@@ -158,6 +158,38 @@ Eden.AST.prototype.pSTATEMENT_P = function(allowrange) {
 	return formula;
 };
 
+Eden.AST.prototype.pSUB_STATEMENT = function() {
+	var stat = new Eden.AST.SubStatement;
+
+	if (this.token == "parse") {
+		this.next();
+		if (this.token != "(") {
+			stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
+			return stat;
+		}
+		this.next();
+
+		var exp = this.pEXPRESSION();
+		stat.setOperation("parse", exp);
+
+		if (exp.isconstant && exp.typevalue != 0 && exp.typevalue != Eden.AST.TYPE_STRING) {
+			stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			return stat;
+		}
+
+		if (this.token != ")") {
+			stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
+			return stat;
+		}
+		this.next();
+
+		return stat;
+	}
+
+	stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+	return stat;
+}
+
 /**
  * STATEMENT Production
  * STATEMENT ->
@@ -344,6 +376,15 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						}
 						this.next();
 						stat = script; break;
+	case "${"		:	this.next();
+						stat = this.pSUB_STATEMENT();
+						if (this.token != "}") {
+							script.error(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
+							stat = script;
+							break;
+						}
+						this.next();
+						break;
 	case "JAVASCRIPT" : curline = this.data.line-1;
 						var js = this.data.value;
 						this.next();
