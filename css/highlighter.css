@@ -255,6 +255,11 @@ span.eden-selector3 {
 	/*font-weight: bold;*/
 }
 
+span.eden-selectorerror {
+	color: red;
+	/*font-weight: bold;*/
+}
+
 span.eden-selector4 {
 	color: #0000ffa0;
 	font-style: italic;

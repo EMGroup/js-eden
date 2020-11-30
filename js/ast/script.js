@@ -190,6 +190,10 @@ Eden.AST.Script.prototype.setName = function(base, name) {
 	this.shortName = name;
 }
 
+Eden.AST.Script.prototype.setAttributes = function(attribs) {
+	return true;
+}
+
 Eden.AST.Script.prototype.setReadables = function(readables) {
 	this.readables = readables;
 }

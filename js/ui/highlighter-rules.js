@@ -214,6 +214,14 @@ var edenBuiltin = {
 	"compile": true
 	};
 
+var edenAttributes = {
+	"atomic": true,
+	"nonatomic": true,
+	"fixed": true,
+	"nodepend": true,
+	"depend": true
+};
+
 var jskeywords = {
 "var": true,
 "if": true,
@@ -286,10 +294,16 @@ EdenUI.Highlight.prototype.START = function() {
 	case "STRING"	:	this.classes.push("string"); break;
 	case "BOOLEAN"	:	this.classes.push("constant"); break;
 	case "CHARACTER":	this.classes.push("string"); break;
+	case "action"	:	this.classes.push("keyword");
+						this.pushMode();
+						this.mode = "ATTRIBUTES";
+						break;
 	case "import"	:
 	case "do"		:	this.classes.push("keyword");
 						this.pushMode();
 						this.mode = "SELECTOR";
+						this.pushMode();
+						this.mode = "ATTRIBUTES";
 						break;
 	case "${{"		:	this.classes.push("javascript");
 						this.mode = "JAVASCRIPT";
@@ -407,7 +421,7 @@ EdenUI.Highlight.prototype.START = function() {
 						this.classes.push("builtin");
 						break;
 
-	case "{"		:	if (this.prevtoken == "OBSERVABLE" && this.prevprevtoken != "action" && this.prevprevtoken != "func" && this.prevprevtoken != "proc") {
+	case "{"		:	if (this.prevtoken == "OBSERVABLE" && this.prevprevtoken != "action" && this.prevprevtoken != "func" && this.prevprevtoken != "proc" && this.prevprevtoken != "]") {
 							this.pushMode();
 							this.mode = "STARTBACKTICK";
 							this.classes.push("builtin");
@@ -559,6 +573,35 @@ EdenUI.Highlight.prototype.SUBEXPRESSION = function() {
 	}
 }
 
+EdenUI.Highlight.prototype.ATTRIBUTES = function() {
+	if (this.token == "[") {
+		this.pushLine();
+		var nline = document.createElement("span");
+		//nline.className = this.styles["pathblock"];
+		this.applyClasses(nline, ["pathblock"]);
+		this.lineelement.appendChild(nline);
+		this.lineelement = nline;
+		this.mode = "ATTRIBS";
+		this.ATTRIBS();
+	} else {
+		this.popMode();
+		this[this.mode]();
+	}
+}
+
+EdenUI.Highlight.prototype.ATTRIBS = function() {
+	if (this.token == "OBSERVABLE" && edenAttributes[this.tokentext]) {
+		this.classes.push("selector3");
+	} else if (this.token == "]") {
+		this.classes.push("selector");
+		this.popMode();
+	} else if (this.token == "[") {
+		this.classes.push("selector");
+	} else {
+		this.classes.push("error");
+	}
+}
+
 EdenUI.Highlight.prototype.SELECTOR = function() {
 	if (this.token == "[") {
 		this.pushLine();
@@ -582,7 +625,7 @@ EdenUI.Highlight.prototype.SELECTOR = function() {
 }
 
 EdenUI.Highlight.prototype.DO_ATTRIBS = function() {
-	if (this.token == "OBSERVABLE" && Eden.AST.Do.attributes[this.tokentext]) {
+	if (this.token == "OBSERVABLE" && edenAttributes[this.tokentext]) {
 		this.classes.push("selector3");
 	} else if (this.token == "]") {
 		this.classes.push("selector");

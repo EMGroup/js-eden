@@ -10,7 +10,7 @@ Eden.AST.Do = function() {
 	this.selector = undefined;			// Query execution
 	this.literal = undefined;			// Literal expression execution (eden string etc)
 	this.statements = undefined;
-	this.attribs = {atomic: false};
+	this.attribs = {};
 };
 
 Eden.AST.Do.attributes = {
@@ -25,9 +25,14 @@ Eden.AST.Do.prototype.setScript = function(script) {
 	}
 }
 
-Eden.AST.Do.prototype.setAttribute = function(name, value) {
-	if (!this.attribs) this.attribs = {};
-	this.attribs[name] = value;
+Eden.AST.Do.prototype.setAttributes = function(attr) {
+	this.attribs = attr;
+	for (var a in attr) {
+		if (!Eden.AST.Do.attributes.hasOwnProperty(a)) {
+			return false;
+		}
+	}
+	return true;
 }
 
 Eden.AST.Do.prototype.setLiteral = function(literal) {

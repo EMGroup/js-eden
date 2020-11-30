@@ -19,6 +19,10 @@ Eden.AST.Alias.prototype.setSelector = function(selector) {
 	}
 }
 
+Eden.AST.Alias.prototype.setAttributes = function(attribs) {
+	return false;
+}
+
 Eden.AST.Alias.prototype.execute = function(ctx, base, scope, agent) {
 	//return Eden.Selectors.query(this.selector.execute(ctx,base,scope,agent));
 

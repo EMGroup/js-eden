@@ -4,6 +4,17 @@
  */
 Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	var name;
+	var attribs = null;
+
+	// Allow for execution attributes
+	if (this.token == "[") {
+		attribs = this.pATTRIBUTES();
+		/*if (!stat.setAttributes(attribs)) {
+			w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+			this.parent = parent;
+			return;
+		}*/
+	}
 
 	// Expect an action name with same syntax as an observable name
 	if (this.token != "OBSERVABLE") {
@@ -15,6 +26,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		this.next();
 	}
 
+	// TODO: Do we need this? Can it be removed??
 	let readables,writables;
 	if (this.token == "(") {
 		this.next();
@@ -38,6 +50,11 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	if (this.token == "is") {
 		this.next();
 		var alias = new Eden.AST.Alias();
+
+		if (!alias.setAttributes(attribs)) {
+			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+			return alias;
+		}
 
 		// For now it must be a query
 		if (this.token != "?") {
@@ -80,6 +97,11 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 
 	var script = this.pSCRIPT();
 	if (script.errors.length > 0) return script;
+
+	if (!script.setAttributes(attribs)) {
+		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+		return script;
+	}
 
 	script.setName(this,name);
 	if (readables) script.setReadables(readables);
