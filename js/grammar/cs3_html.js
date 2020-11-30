@@ -54,7 +54,7 @@ Eden.AST.prototype.pHTML = function() {
 		if (this.token == "{") {
 			this.next();
 			h.addAttribute(aname, this.pEXPRESSION());
-			if (h.hasErrors()) return h;
+			if (h.errors.length > 0) return h;
 			if (this.token != "}") {
 				h.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN));
 				return h;
