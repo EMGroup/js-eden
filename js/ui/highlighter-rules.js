@@ -601,6 +601,7 @@ EdenUI.Highlight.prototype.ATTRIBS = function() {
 	} else if (this.token == "]") {
 		this.classes.push("selector");
 		this.popMode();
+		this.popLine();
 	} else if (this.token == "[") {
 		this.classes.push("selector");
 	} else {

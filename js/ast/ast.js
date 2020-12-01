@@ -195,8 +195,9 @@ Eden.AST.executeExpressionNode = function(node, scope, state) {
 
 	console.log("Expr dependencies:", JSON.stringify(state.dependencies));
 
-	var f = new Function(["context","scope","cache"],rhs);
 	try {
+		var f = new Function(["context","scope","cache"],rhs);
+		
 		if (state.symbol) {
 			return f.call(state.symbol, eden.root, scope, scope.lookup(state.symbol.name));
 		} else {

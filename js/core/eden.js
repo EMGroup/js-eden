@@ -714,8 +714,14 @@
 	}
 
 	Eden.prototype.parseExpression = function(expr, symbol) {
+		if (typeof expr != "string") {
+			err = new Eden.RuntimeError(null, Eden.RuntimeError.ARGUMENTS, null, "`parse()` requires a string");
+			eden.emit("error", [{name: (symbol)?symbol.name : "Inline"},err]);
+			return undefined;
+		}
 		var e = Eden.AST.parseExpression(expr);
 		if (e.errors.length > 0) {
+			console.error(e.errors[0]);
 			eden.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
 			return undefined;
 		}
