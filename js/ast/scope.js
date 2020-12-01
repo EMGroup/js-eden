@@ -29,10 +29,7 @@ Eden.AST.Scope.prototype.getObservable = function() {
  */
 Eden.AST.Scope.prototype.setExpression = function(express) {
 	this.expression = express;
-	// Bubble errors if there are any
-	if (express) {
-		this.errors.push.apply(this.errors, express.errors);
-	}
+	this.mergeExpr(express);
 }
 
 /**
