@@ -459,6 +459,7 @@ Eden.AST.registerStatement = function(stat) {
 	stat.prototype.setDoxyComment = Eden.AST.BaseStatement.setDoxyComment;
 	stat.prototype.addSubscriber = Eden.AST.BaseStatement.addSubscriber;
 	stat.prototype.removeSubscriber = Eden.AST.BaseStatement.removeSubscriber;
+	stat.prototype.getEdenCode = Eden.AST.BaseStatement.getEdenCode;
 }
 
 Eden.AST.registerScript = function(stat) {

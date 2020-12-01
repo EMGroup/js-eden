@@ -100,7 +100,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 		var stat = Eden.AST.parseStatement(expr);
 
 		// FIXME: Check for errors
-		stat.generated = true;
+		stat.generated = this;
 		stat.addIndex();
 
 		// Third, execute that node.

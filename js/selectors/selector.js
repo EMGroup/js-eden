@@ -185,7 +185,8 @@ Eden.Selectors.resultTypes = {
 	"exprtree": true,
 	"single": true,
 	"expression": true,
-	"locked": true
+	"locked": true,
+	"ast": true
 };
 
 Eden.Selectors.expressionToLists = function(expr) {
@@ -255,6 +256,7 @@ Eden.Selectors.processResults = function(statements, o) {
 				var val = undefined;
 
 				switch(kinds[j]) {
+				case "ast"		:	val = stat; break;
 				case "single"	:	single = true; break;
 				case "brief"	:	if (stat.doxyComment) {
 										val = stat.doxyComment.brief();

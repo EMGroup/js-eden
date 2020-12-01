@@ -17,7 +17,7 @@ Eden.AST.BaseStatement = function() {
 	this.local = false;
 	this.subscribers = null;
 	this.line = -1;
-	this.generated = false;
+	this.generated = null;
 	this.dependencies = Object.create(null);
 }
 
@@ -182,3 +182,6 @@ Eden.AST.BaseStatement.getOrigin = function() {
 	else return undefined;
 }
 
+Eden.AST.BaseStatement.getEdenCode = function() {
+	return "parse(\""+this.getSource()+"\")";
+}

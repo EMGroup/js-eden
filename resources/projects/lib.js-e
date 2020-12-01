@@ -3719,13 +3719,23 @@ func _attribute {
 /** Recreate eden source of symbols expression. #library */
 _volatileExpr is [eager] func {
 	para sym;
-	${{ return sym.origin.expression.toEdenString(scope,{}); }}$
+	${{
+		if (sym instanceof EdenSymbol) {
+			if (sym.origin.generated) {
+				return sym.origin.generated.expression.toEdenString(scope,{})
+			} else {
+				return sym.origin.expression.toEdenString(scope,{});
+			}
+		} else {
+			return sym.expression.toEdenString(scope,{});
+		}
+	}}$
 };
 
 /** Generate a function by scoping an existing context dependant function. #library */
 _template is [eager] func {
 	para sym;
-	return eval(_volatileExpr(sym));
+	return parse(_volatileExpr(sym));
 };
 
 /*
