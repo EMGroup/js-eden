@@ -21,6 +21,7 @@ Eden.AST.Action.prototype.setBody = function(body) {
 }
 
 Eden.AST.Action.prototype.generate = function(ctx) {
+	// FIXME: Add scope
 	var body = this.body.generate(ctx, "scope", {usevar: true, scope: eden.root.scope});
 	var res = "context.lookup(\""+this.name+"\").define(function(){"+body+"}, this)";
 	if (this.triggers.length > 0) {
@@ -37,11 +38,11 @@ Eden.AST.Action.prototype.execute = function(ctx, base, scope, agent) {
 		eden.updateDictionary(this.name, this.doxyComment);
 	}
 
-	var body = this.body.generate(ctx, "scope", {scope: scope, usevar: true});
+	var body = `return function(){ ${this.body.generate(ctx, "scope", {scope: scope, usevar: true})} };`;
 	var sym = eden.root.lookup(this.name);
 
 	try {
-		eden.root.f["func_"+this.name] = new Function(body);
+		eden.root.f["func_"+this.name] = new Function(["scope"],body);
 		if (this.triggers.length > 0) {
 			sym.assign(eden.root.f["func_"+this.name], scope, this).observe(this.triggers);
 		} else {

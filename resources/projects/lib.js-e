@@ -632,7 +632,7 @@ func charCode {
 func str {
 	para v;
 	auto argc;
-	argc = ${{ arguments.length-1 }}$;
+	argc = ${{ arguments.length }}$;
 
 	if (argc != 1) {
 		error("str: this function requires exactly one argument.");
@@ -858,7 +858,7 @@ func isInt {
 /** Tests if a value is a list. #library #types #list */
 func isList {
 	${{
-		if (arguments.length-1 != 1) {
+		if (arguments.length != 1) {
 			eden.error(new Error("isList: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
@@ -948,7 +948,7 @@ func isProc {
 /** Tests if a value is a string. #library #string #types */
 func isString {
 	${{
-		if (arguments.length-1 != 1) {
+		if (arguments.length != 1) {
 			eden.error(new Error("isString: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
@@ -1962,7 +1962,7 @@ func concat {
 	para p1,p2;
 	auto separator, concatStrings, list, i, item, result;
 	auto argc;
-	argc = ${{ arguments.length-1 }}$;
+	argc = ${{ arguments.length }}$;
 	concatStrings = false;
 	if (argc == 0) {
 		error("concat: This function requires at least one argument.");
@@ -3717,7 +3717,7 @@ func _attribute {
 }
 
 /** Recreate eden source of symbols expression. #library */
-_volatileExpr is [eager] func {
+_volatileExpr is:[eager] func {
 	para sym;
 	${{
 		if (sym instanceof EdenSymbol) {
@@ -3733,7 +3733,7 @@ _volatileExpr is [eager] func {
 };
 
 /** Generate a function by scoping an existing context dependant function. #library */
-_template is [eager] func {
+_template is:[eager] func {
 	para sym;
 	return parse(_volatileExpr(sym));
 };
@@ -3743,10 +3743,10 @@ testF is func {
 	${parse("para "// concat(",",params) // ";" if params# > 0 else ";")};
 	return ${parse(expr)};
 };
-test3 is [eager] _template(&testF)::expr="a*b",params=["a","b"];
+test3 is:[eager] _template(&testF)::expr="a*b",params=["a","b"];
 */
 
-_time is [volatile] ${{ Date.now() }}$;
+_time is:[volatile] ${{ Date.now() }}$;
 
 }
 

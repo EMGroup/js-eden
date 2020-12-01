@@ -46,21 +46,18 @@ Eden.AST.FunctionCall.prototype.generateArgs = function(ctx, scope, options) {
 
 Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
 	if (this.lvalue === undefined) {
-		var res = ".call(this";
+		var res = `(${scope}).call(this`;
 		if (this.params) {
-			if (this.params.length > 0) res += ",";
 			for (var i=0; i<this.params.length; i++) {
+				res += ",";
 				var express = this.params[i].generate(ctx, scope, options);
 				res += "("+express+")";
-				if (i != this.params.length-1) {
-					res += ",";
-				}
 			}
 		}
-		return res + ","+scope+")";
+		return res + ")";
 	} else {
 		var lvalstr = this.lvalue.generate(ctx,scope, options);
-		var res = scope + ".value("+lvalstr+").call(context.lookup("+lvalstr+")";
+		var res = `${scope}.value(${lvalstr})(${scope}).call(context.lookup(${lvalstr})`;
 
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {
@@ -81,24 +78,23 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 	if (!this.lvalue) return;
 
 	this.executed = 1;
-	var func = "";
-	func += "let name = "+this.lvalue.generate(ctx,scope, {scope: scope})+";\n";
-	func += "let args = "+this.generateArgs(ctx, "scope", {scope: scope})+";\n";
+	var sym = this.lvalue.getSymbol(ctx,base,scope);
+	var argsstr = this.generateArgs(ctx, "scope", {scope: scope});
 
 	if (eden.peer) {
 		func += "eden.peer.callProcedure(name, args);\n";
 	}
 
-	func += "return scope.value(name).apply(context.lookup(name),args);";
-
 	try {
-		return (new Function(["context","scope","cache"],func)).call(ctx,eden.root,scope,scope.cache);
+		var args = eval(argsstr);
+		sym.value(scope)(scope).apply(sym, args);
+		//return (new Function(["context","scope","cache"],func)).call(ctx,eden.root,scope,scope.cache);
 	} catch(e) {
 		var err = new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e);
 		this.errors.push(err);
 		err.line = this.line;
 		eden.emit("error", [agent,err]);
-		//console.error(func);
+		console.error(func);
 		//throw e;
 	}
 }

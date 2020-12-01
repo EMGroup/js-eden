@@ -124,6 +124,7 @@ EdenStream.prototype.tokenText = function() {
  * Is the stream at the beginning or end of a line.
  */
 EdenStream.prototype.isBEOL = function() {
+	if (this.prevposition == 0) return true;
 	if (this.peek2() == 10) return true;
 	var pastpos = this.prevposition-1;
 	var pastchar = this.code.charCodeAt(pastpos);

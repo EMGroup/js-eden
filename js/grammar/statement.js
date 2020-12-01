@@ -23,7 +23,8 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 
 		
 		var attribs;
-		if (this.token == "[") {
+		if (this.token == ":") {
+			this.next();
 			attribs = this.pATTRIBUTES();
 			if (!def.setAttributes(attribs)) {
 				def.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));

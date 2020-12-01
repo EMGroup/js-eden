@@ -153,7 +153,7 @@ EdenSymbol.ASYN_UPDATE = 5;
  * Get the value of this EdenSymbol bound with the scope the value was
  * generated in.
  */
-EdenSymbol.prototype.boundValue = function(scope, indices) {
+/*EdenSymbol.prototype.boundValue = function(scope, indices) {
 	//console.log("BOUNDVALUE",this.name);
 	var value = this.value(scope);
 	var cache = scope.lookup(this.name);
@@ -164,7 +164,7 @@ EdenSymbol.prototype.boundValue = function(scope, indices) {
 	} else {
 		return new BoundValue(value, cache.scope);
 	}
-}
+}*/
 
 /**
  * Return the current value of this EdenSymbol, forcing calculation if necessary.
@@ -257,8 +257,8 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 			eden.emit("error", [this,e]);
 		}
 		//this.logError(e);
-		//if (this.context) console.error(this.context.currentObservables.map(x => { return x.name; }), e);
-		//else console.error(this.name, e);
+		if (this.context) console.error(this.context.currentObservables.map(x => { return x.name; }), e);
+		else console.error(this.name, e);
 		cache.value = undefined;
 		cache.up_to_date = !this.volatile;
 	}

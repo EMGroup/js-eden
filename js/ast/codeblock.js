@@ -28,7 +28,7 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx, scope, options) {
 	var res = "";
 	//res += "var lscope = new Scope(context,pscope,[";
 	//res += "]);\n";
-	res += "var scope = eden.root.scope;\nvar context = eden.root;\n";
+	res += "var context = eden.root;\n";
 	if (this.locals && this.locals.list) {
 		for (var i=0; i<this.locals.list.length; i++) {
 			//res += "new ScopeOverride(\"" + this.locals.list[i] + "\", undefined)";

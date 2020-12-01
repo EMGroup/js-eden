@@ -244,7 +244,7 @@ var jskeywords = {
 
 EdenUI.Highlight.prototype.START = function() {
 	switch(this.token) {
-	case "##"		:	if (this.prevtoken == "INVALID") {
+	case "##"		:	if (this.stream.isBEOL()) {
 							this.classes.push("hidden-comment");
 							//this.lineelement.className = "eden-comment-line";
 							this.mode = "SECTION_TITLE";
@@ -260,7 +260,7 @@ EdenUI.Highlight.prototype.START = function() {
 							this.mode = "COMMENT";
 						}
 						break;
-	case "#"		:	if (this.prevtoken == "INVALID" || this.prevtoken == ";") {
+	case "#"		:	if (this.stream.isBEOL()) {
 							var isdoxy = this.stream.peek() == 33;
 							if (isdoxy) {
 								this.tokentext += "!";
@@ -298,10 +298,11 @@ EdenUI.Highlight.prototype.START = function() {
 	case "STRING"	:	this.classes.push("string"); break;
 	case "BOOLEAN"	:	this.classes.push("constant"); break;
 	case "CHARACTER":	this.classes.push("string"); break;
-	case "is"		:
-	case "action"	:	this.classes.push("keyword");
-						this.pushMode();
-						this.mode = "ATTRIBUTES";
+	case ":"		:	this.classes.push("operator");
+						if (this.prevtoken == "is") {
+							this.pushMode();
+							this.mode = "ATTRIBUTES";
+						}
 						break;
 	case "import"	:
 	case "do"		:	this.classes.push("keyword");

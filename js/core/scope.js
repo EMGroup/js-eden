@@ -217,7 +217,7 @@ Scope.prototype.l = function(name) {
 	if (symcache) {
 		return symcache;
 	} else if (this.parent) {
-		return this.parent.lookup(name);
+		return this.parent.l(name);
 	}
 }
 
@@ -238,7 +238,7 @@ Scope.prototype.v = function(symcache) {
 
 Scope.prototype.value = function(name) {
 	var symcache = this.l(name); //this.cache[name];
-	//if (symcache !== undefined) {
+	if (symcache !== undefined) {
 		if (symcache.up_to_date) return symcache.value;
 		var sym = symcache.symbol;
 		// Do direct symbol evaluate call here.
@@ -250,9 +250,9 @@ Scope.prototype.value = function(name) {
 			}
 		}
 		return symcache.value;
-	//}
+	}
 	// FIXME: Eager definitions don't work because of this.
-	//return (this.parent)?this.parent.value(name):undefined;
+	return (this.parent)?this.parent.value(name):undefined;
 }
 
 Scope.prototype.assign = function(name, value, agent) {
