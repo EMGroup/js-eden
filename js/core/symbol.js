@@ -494,7 +494,7 @@ EdenSymbol.prototype.define = function (definition, origin, subscriptions, sourc
 		this.context.expireEdenSymbol(this);
 	}
 
-	if (eden.peer) eden.peer.define(origin, this.name, origin.getSource(), subscriptions);
+	if (this.context.instance.peer) this.context.instance.peer.define(origin, this.name, origin.getSource(), subscriptions);
 
 	return this;
 };
@@ -538,6 +538,10 @@ EdenSymbol.prototype.stopObserving = function (EdenSymbol_name) {
 	this.observees[EdenSymbol_name].removeObserver(this.name);
 	this.observees[EdenSymbol_name] = undefined;
 };
+
+EdenSymbol.prototype.isUpToDate = function() {
+	return this.cache.up_to_date;
+}
 
 EdenSymbol.prototype.append = function(value, scope, origin) {
 	var val = this.value(scope);
@@ -598,7 +602,7 @@ EdenSymbol.prototype.assign = function (value, scope, origin) {
 	}
 
 	// Attempt send over p2p network
-	if (this.context.instance && this.context.instance.peer) eden.peer.assign(origin, this.name, value);
+	if (this.context.instance && this.context.instance.peer) this.context.instance.peer.assign(origin, this.name, value);
 
 	return this;
 };
