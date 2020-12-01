@@ -75,16 +75,16 @@ module.exports = function (grunt) {
 		core: {
 			files: {
 				'./js/core/jseden.min.js': [
+					'./js/core/eden.js',
+					'./js/core/edenui.js',
 					'./js/util/misc.js',
 					'./js/util/diff.js',
-					'./js/util/misc.js',
 					'./js/language/lang.js',
 					'./js/core/runtime.js',
 					'./js/core/window-highlighter.js',
 					'./js/core/scope.js',
 					'./js/core/symbol.js',
 					'./js/core/context.js',
-					'./js/core/eden.js',
 					'./js/core/database.js',
 					'./js/core/plugins.js',
 					'./js/util/url.js',
@@ -165,6 +165,7 @@ module.exports = function (grunt) {
 					'./js/ast/cs3_html.js',
 					'./js/grammar/actionbody.js',
 					'./js/grammar/after.js',
+					'./js/grammar/attributes.js',
 					'./js/grammar/declarations.js',
 					'./js/grammar/do.js',
 					'./js/grammar/expression.js',
