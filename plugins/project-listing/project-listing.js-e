@@ -44,10 +44,10 @@ proc createProjectList {
 	createView(viewName, "ProjectList");
 
 	if (url != @) {
-		`"_view_" // viewName // "_source"` = url;
+		`_view_{viewName}_source` = url;
 	}
 
 	if (viewTitle != @) {
-		`"_view_" // viewName // "_title"` = viewTitle;
+		`_view_{viewName}_title` = viewTitle;
 	}
 }

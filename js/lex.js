@@ -188,6 +188,10 @@ EdenStream.prototype.skipWhiteSpace = function() {
 	}
 };
 
+EdenStream.prototype.isWhiteSpace = function(ch) {
+	return (ch == 9 || ch == 10 || ch == 13 || ch == 32 || ch == 160);	
+}
+
 
 
 EdenStream.prototype.skipLine = function() {

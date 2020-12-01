@@ -223,7 +223,14 @@ var edenAttributes = {
 	"eager": true,
 	"volatile": true,
 	"static": true,
-	"const": true
+	"const": true,
+
+	"number": true,
+	"string": true,
+	"list": true,
+	"boolean": true,
+	"undefined": true,
+	"object": true
 };
 
 var jskeywords = {

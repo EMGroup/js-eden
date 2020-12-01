@@ -4,6 +4,35 @@
  */
 Eden.AST.prototype.pPRIMARY = function() {
 
+	if (this.token == "`") {
+		var btick = this.pTEMPLATE_STRING(false);
+
+		if (btick.typevalue != 0 && btick.typevalue != Eden.AST.TYPE_STRING) {
+			var primary = new Eden.AST.Primary();
+			primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			return primary;
+		}
+
+		var primary = this.pPRIMARY_P();
+		if (primary.errors.length > 0) return primary;
+
+		primary.setBackticks(btick);
+		primary.setObservable("__BACKTICKS__");
+		return primary;
+	} else if (this.token == "OBSERVABLE") {
+		var obs = this.data.value;
+		this.next();
+		var primary = this.pPRIMARY_P();
+		if (primary.errors.length > 0) return primary;
+		primary.setObservable(obs);
+		return primary;
+	} else {
+		var primary = new Eden.AST.Primary();
+		primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADFACTOR));
+		return primary;
+	}
+
+
 	// Backticks on RHS
 	if (this.token == "`") {
 		this.next();

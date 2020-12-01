@@ -39,24 +39,32 @@ Eden.AST.prototype.pFACTOR = function() {
 			return indexed;
 		}
 		return expression;
-	// Action parameters (DEPRECATED!)
-	/*} else if (this.token == "$") {
+	} else if (this.token == "{") {
 		this.next();
-		var index = 0;
 
-		// Allow for # to get lengths
-		if (this.token == "#") {
-			index = -1;
-		// Otherwise if not a valid number > 0 then error
-		} else if (this.token != "NUMBER" || this.data.value < 1) {
-			var p = new Eden.AST.Parameter(-1);
-			p.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PARAMNUMBER));
-			return p;
+		var elist = {};
+		// Check for basic empty case, if not then parse elements
+		if (this.token != "}") {
+			elist = this.pLLIST();
 		}
 
-		index = this.data.value
-		this.next();
-		return new Eden.AST.Parameter(index);*/
+		var literal = new Eden.AST.Literal("OBJECT", elist);
+
+		// Merge any errors found in the expressions
+		for (var ename in elist) {
+			var expr = elist[ename];
+			literal.mergeExpr(expr);
+		}
+	
+		if (literal.errors.length > 0) return literal;
+
+		// Must have a closing bracket...
+		if (this.token != "}") {
+			literal.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LISTLITCLOSE));
+		} else {
+			this.next();
+		}
+		return literal;
 	// Make a list literal
 	} else if (this.token == "[") {
 		this.next();
@@ -65,36 +73,18 @@ Eden.AST.prototype.pFACTOR = function() {
 		var labels = false;
 		// Check for basic empty case, if not then parse elements
 		if (this.token != "]") {
-			if (this.token == "OBSERVABLE" && this.stream.peek() == 58) {
-				elist = this.pLLIST();
-				labels = true;
-			} else {
-				elist = this.pELIST();
-			}
+			elist = this.pELIST();
 		}
 
-		var literal;
-		if (!labels) {
-			literal = new Eden.AST.Literal("LIST", elist);
-		} else {
-			literal = new Eden.AST.Literal("OBJECT", elist);
-		}
+		var literal = new Eden.AST.Literal("LIST", elist);
 
 		// Merge any errors found in the expressions
-		if (!labels) {
-			for (var i = 0; i < elist.length; i++) {
-				if (elist[i].errors.length > 0) {
-					literal.errors.push.apply(literal.errors, elist[i].errors);
-				}
-			}
-		} else {
-			for (var ename in elist) {
-				var expr = elist[ename];
-				if (expr.errors.length > 0) {
-					literal.errors.push.apply(literal.errors, expr.errors);
-				}
+		for (var i = 0; i < elist.length; i++) {
+			if (elist[i].errors.length > 0) {
+				literal.mergeExpr(elist[i]);
 			}
 		}
+		
 		if (literal.errors.length > 0) return literal;
 
 		// Must have a closing bracket...

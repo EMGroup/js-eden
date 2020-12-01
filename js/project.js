@@ -17,6 +17,8 @@ Eden.Project = function(id, name, source) {
 	this.autosavetimeout = undefined;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
+	} else {
+		console.error("Project Error", this.ast.script.errors);
 	}
 
 	//eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);

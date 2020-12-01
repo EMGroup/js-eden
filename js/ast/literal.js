@@ -13,6 +13,7 @@ Eden.AST.Literal = function(type, literal) {
 	switch (type) {
 	case "NUMBER"	: this.typevalue = Eden.AST.TYPE_NUMBER; break;
 	case "LIST"		: this.typevalue = Eden.AST.TYPE_LIST; break;
+	case "OBJECT"	: this.typevalue = Eden.AST.TYPE_OBJECT; break;
 	case "STRING"	:
 	case "CHARACTER": this.typevalue = Eden.AST.TYPE_STRING; break;
 	case "BOOLEAN"	: this.typevalue = Eden.AST.TYPE_BOOLEAN; break;

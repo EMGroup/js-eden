@@ -1085,7 +1085,7 @@ ${{
  */
 proc showView {
 	para name;
-	`"view_" // name // "_visibility"` = "visible";
+	`view_{name}_visibility` = "visible";
 	${{
 		edenUI.showView(name); //Explicitly invoke this to make sure the view gets moved to the top.
 		edenUI.brieflyHighlightView(name);
@@ -1094,7 +1094,7 @@ proc showView {
 
 proc hideView {
 	para name;
-	`"view_" // name // "_visibility"` = "hidden";
+	`view_{name}_visibility` = "hidden";
 }
 
 proc highlightView {
@@ -1116,8 +1116,8 @@ proc moveView {
 	para name, x, y;
 	autocalc = 0;
 	/*together {*/
-		`"view_" // name // "_x"` = x;
-		`"view_" // name // "_y"` = y;
+		`view_{name}_x` = x;
+		`view_{name}_y` = y;
 	/*}*/
 	autocalc = 1;
 }
@@ -1126,8 +1126,8 @@ proc resizeView {
 	para name, width, height;
 	autocalc = 0;
 	#together {
-		`"view_" // name // "_width"` = width;
-		`"view_" // name // "_height"` = height;
+		`view_{name}_width` = width;
+		`view_{name}_height` = height;
 	#}
 	autocalc = 1;
 }

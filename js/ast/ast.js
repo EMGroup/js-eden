@@ -743,6 +743,7 @@ if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	require('./wait');
 	require('./when');
 	require('./while');
+	require('../grammar/template');
 	require('../grammar/actionbody');
 	require('../grammar/after');
 	require('../grammar/attributes');

@@ -676,8 +676,8 @@ mouseWheel = 0;
 mouseWheelEnabled = false;
 mouseWheelVelocity = 0;
 mouseView = @;
-mouseX is mousePosition == @? @ : mousePosition["x"];
-mouseY is mousePosition == @? @ : mousePosition["y"];
+mouseX is @ if mousePosition == @ else mousePosition["x"];
+mouseY is @ if mousePosition == @ else mousePosition["y"];
 mouseZone = @;
 pixel is 1 / view_picture_scale;
 touchPanX = 0;
@@ -788,8 +788,8 @@ func createCanvas {
 		return;
 	}
 
-	if (`obsName` == @) {
-		`obsName` = [];
+	if (`{obsName}` == @) {
+		`{obsName}` = [];
 	}
 
 	createView(viewName, "Canvas2D");
@@ -799,7 +799,7 @@ func createCanvas {
 		# Severe performance problems result.
 		viewTitle = "Canvas " // obsName;
 	}
-	`"view_" // viewName // "_title"` = viewTitle;
+	`view_{viewName}_title` = viewTitle;
 }
 
 /**

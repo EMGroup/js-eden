@@ -15,7 +15,7 @@ test("Valid observable name expression", () => {
 });
 
 test("Valid backticks with observable expression", () => {
-	var ast = Eden.AST.parseExpression("`a`");
+	var ast = Eden.AST.parseExpression("`{a}`");
 
 	expect(ast).toBeTruthy();
 	expect(ast.errors).toHaveLength(0);
@@ -27,7 +27,7 @@ test("Valid backticks with observable expression", () => {
 });
 
 test("Backticks after initial observable part", () => {
-	var ast = Eden.AST.parseExpression("b`a`");
+	var ast = Eden.AST.parseExpression("`b{a}`");
 
 	expect(ast).toBeTruthy();
 	expect(ast.errors).toHaveLength(0);
@@ -39,7 +39,7 @@ test("Backticks after initial observable part", () => {
 });
 
 test("Backticks after initial observable part", () => {
-	var ast = Eden.AST.parseExpression("`a`b");
+	var ast = Eden.AST.parseExpression("`{a}b`");
 
 	expect(ast).toBeTruthy();
 	expect(ast.errors).toHaveLength(0);
@@ -51,7 +51,7 @@ test("Backticks after initial observable part", () => {
 });
 
 test("Backticks in middle of observables", () => {
-	var ast = Eden.AST.parseExpression("b`a`c");
+	var ast = Eden.AST.parseExpression("`b{a}c`");
 
 	expect(ast).toBeTruthy();
 	expect(ast.errors).toHaveLength(0);
@@ -63,7 +63,7 @@ test("Backticks in middle of observables", () => {
 });
 
 test("Valid backticks with string expression", () => {
-	var ast = Eden.AST.parseExpression('`"a"`');
+	var ast = Eden.AST.parseExpression('`{"a"}`');
 
 	expect(ast).toBeTruthy();
 	expect(ast.errors).toHaveLength(0);
@@ -82,7 +82,7 @@ test("Excessive input produces an error", () => {
 });
 
 test("Invalid backticks with wrong expression type", () => {
-	var ast = Eden.AST.parseExpression("`5`");
+	var ast = Eden.AST.parseExpression("`{5}`");
 
 	expect(ast).toBeTruthy();
 	expect(ast.errors.length).toBeGreaterThan(0);

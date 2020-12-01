@@ -85,5 +85,5 @@ proc html {
 
 	createView(viewName, "HTMLContent");
 	execute("_view_" // viewName // "_content is " // obsName // ";");
-	`"_view_" // viewName // "_title"` = viewTitle;
+	`_view_{viewName}_title` = viewTitle;
 }*/
