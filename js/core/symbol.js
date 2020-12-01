@@ -257,8 +257,8 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 			eden.emit("error", [this,e]);
 		}
 		//this.logError(e);
-		if (this.context) console.error(this.context.currentObservables.map(x => { return x.name; }), e);
-		else console.error(this.name, e);
+		//if (this.context) console.error(this.context.currentObservables.map(x => { return x.name; }), e);
+		//else console.error(this.name, e);
 		cache.value = undefined;
 		cache.up_to_date = !this.volatile;
 	}

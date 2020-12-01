@@ -111,7 +111,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				}
 			}
 		} else if (ctx.locals.hasOwnProperty(this.observable)) {
-			console.log("FOUND LOCAL",this.observable, options);
+			//console.log("FOUND LOCAL",this.observable, options);
 			// Otherwise we need to eval the value and embed it
 			// TODO only if ctx is of type definition??
 			ctx.dirty = true;

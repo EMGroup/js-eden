@@ -20,7 +20,7 @@ Eden.AST.Alias.prototype.setSelector = function(selector) {
 }
 
 Eden.AST.Alias.prototype.setAttributes = function(attribs) {
-	return false;
+	return true;
 }
 
 Eden.AST.Alias.prototype.execute = function(ctx, base, scope, agent) {
