@@ -4,6 +4,8 @@ function EdenSyntaxData() {
 	this.line = 0;
 }
 
+Eden.EdenSyntaxData = EdenSyntaxData;
+
 var Language = Eden.Language;
 
 /**
@@ -21,6 +23,8 @@ function EdenStream(code) {
 	this.prevline = 1;
 	this.data = new EdenSyntaxData();
 };
+
+Eden.EdenStream = EdenStream;
 
 /**
  * Save the current stream position.

@@ -47,8 +47,8 @@
  * @param code String containing the script.
  */
 Eden.AST = function(code, imports, origin, options) {
-	this.stream = (code !== undefined) ? new EdenStream(code) : undefined;
-	this.data = new EdenSyntaxData();
+	this.stream = (code !== undefined) ? new Eden.EdenStream(code) : undefined;
+	this.data = new Eden.EdenSyntaxData();
 	this.token = "INVALID";
 	this.previous = "INVALID";
 	this.src = "input";
@@ -388,6 +388,10 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 	this.executeStatement(statement, line, agent, cb);
 }
 
+Eden.AST.prototype.syntaxError = function(node, type) {
+	var err = new Eden.SyntaxError(this, type);
+	node.errors.push(err);
+}
 
 /**
  * Construct an AST statement node from a string. It correctly sets up the node
@@ -429,6 +433,9 @@ Eden.AST.parseExpression = function(src) {
 	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
 	ast.next();
 	var expr = ast.pEXPRESSION();
+	if (ast.token != "EOF") {
+		ast.syntaxError(expr, Eden.SyntaxError.UNKNOWN);
+	}
 	return expr;
 }
 
