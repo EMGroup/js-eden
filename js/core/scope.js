@@ -514,3 +514,5 @@ function ScopeList() {
 	this.raw = [];
 	this.caches = [];
 }
+
+Eden.Scope = Scope;

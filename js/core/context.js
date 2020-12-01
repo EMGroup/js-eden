@@ -2,19 +2,25 @@ function Pointer(initialValue) {
 	this.value = initialValue;
 }
 
-function copy(value) {
-	var i, copied;
-	if (value instanceof Array) {
-		copied = value.slice();
-		for (i = 0; i < value.length; ++i) {
-			copied[i] = copy(copied[i]);
-		}
-		return copied;
-	}
-	return value;
-}
+var EdenSymbol = Eden.EdenSymbol;
 
-edenCopy = copy;
+function fireActions(actions_to_fire){
+	for (var action_name in actions_to_fire) {
+		var action = actions_to_fire[action_name];
+
+		// if one action fails, it shouldn't prevent all the other
+		// scheduled actions from firing
+		if (action) {
+			action.trigger();
+		}
+	}
+};
+
+function fireJSActions(EdenSymbols_to_fire_for) {
+	for (var i = 0; i < EdenSymbols_to_fire_for.length; i++) {
+		EdenSymbols_to_fire_for[i].fireJSObservers();
+	}
+}
 
 
 /**
@@ -26,7 +32,7 @@ edenCopy = copy;
  * @param {Folder?} parent Parent Folder for this Folder.
  * @param {Folder?} root The top most parent of this Folder.
  */
-function Folder(name, parent, root) {
+function Folder(name, instance, parent, root) {
 	this.type = "script";
 	this.executed = 1;
 	this.start = 0;
@@ -34,6 +40,7 @@ function Folder(name, parent, root) {
 	this.prefix = "";
 	this.postfix = "";
 	this.id = "ACTIVE";
+	this.instance = instance || {};
 
 	/**
 	 * @type {string}
@@ -58,7 +65,7 @@ function Folder(name, parent, root) {
 	 */
 	this.root = root || this;
 
-	this.scope = new Scope(this, undefined, {});
+	this.scope = new Eden.Scope(this, undefined, {});
 
 	/**
 	 * @type {Object.<string, EdenSymbol>}
@@ -206,7 +213,7 @@ Folder.prototype.execute = function() {}
  */
 Folder.prototype.lookup = function (name) {
 	if (this.symbols[name] === undefined) {
-		this.symbols[name] = new EdenSymbol(this, name);
+		this.symbols[name] = new Eden.EdenSymbol(this, name);
 		for (var s in this.subscribers) {
 			this.expireEdenSymbol(this.subscribers[s]);
 		}
@@ -680,3 +687,5 @@ Folder.prototype.forgetAll = function() {
 		return [[], unableToDelete, []];
 	}
 }
+
+Eden.Folder = Folder;

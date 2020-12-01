@@ -1,6 +1,8 @@
 //Language.keywords.push.apply(Language.keywords, {...});
 //Language.symbols.push.apply(Language.symbols, {...});
 
+var Language = Eden.Language;
+
 Language.errors = [
 /* EDEN_ERROR_UNKNOWN */ [
 	"An unknown error occurred"

@@ -185,6 +185,8 @@ var Language = {
 	errors: {}
 };
 
+Eden.Language = Language;
+
 // expose as node.js module
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	exports.Language = Language;

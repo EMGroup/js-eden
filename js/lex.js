@@ -4,6 +4,8 @@ function EdenSyntaxData() {
 	this.line = 0;
 }
 
+var Language = Eden.Language;
+
 /**
  * A basic stream wrapper for a javascript string that allows for sequential
  * reading and backtracking of the string. It provides a readToken function

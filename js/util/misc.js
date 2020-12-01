@@ -212,3 +212,11 @@ Utils = {
 	})()
 };
 
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+	exports.get_time_diff = get_time_diff;
+	exports.noop = noop;
+	exports.listenTo = listenTo;
+	exports.emit = emit;
+	exports.flatten = Utils.flatten;
+	exports.construct = Utils.construct;
+}

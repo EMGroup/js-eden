@@ -1,3 +1,18 @@
+function copy(value) {
+	var i, copied;
+	if (value instanceof Array) {
+		copied = value.slice();
+		for (i = 0; i < value.length; ++i) {
+			copied[i] = copy(copied[i]);
+		}
+		return copied;
+	}
+	return value;
+}
+
+edenCopy = copy;
+
+
 /**
  * A EdenSymbol table entry.
  *
@@ -583,7 +598,7 @@ EdenSymbol.prototype.assign = function (value, scope, origin) {
 	}
 
 	// Attempt send over p2p network
-	if (eden.peer) eden.peer.assign(origin, this.name, value);
+	if (this.context.instance && this.context.instance.peer) eden.peer.assign(origin, this.name, value);
 
 	return this;
 };
@@ -685,24 +700,6 @@ EdenSymbol.prototype.trigger = function () {
 		eden.emit("error", [this,err]);
 	}
 };
-
-function fireActions(actions_to_fire){
-	for (var action_name in actions_to_fire) {
-		var action = actions_to_fire[action_name];
-
-		// if one action fails, it shouldn't prevent all the other
-		// scheduled actions from firing
-		if (action) {
-			action.trigger();
-		}
-	}
-};
-
-function fireJSActions(EdenSymbols_to_fire_for) {
-	for (var i = 0; i < EdenSymbols_to_fire_for.length; i++) {
-		EdenSymbols_to_fire_for[i].fireJSObservers();
-	}
-}
 
 EdenSymbol.prototype.fireJSObservers = function () {
 	for (var jsObserverName in this.jsObservers) {
@@ -1052,3 +1049,5 @@ EdenSymbol.prototype.listAssign = function(value, scope, origin, pushToNetwork, 
 	if (eden.peer) eden.peer.listAssign(origin, this.name, value, indices);
 	return this;
 }
+
+Eden.EdenSymbol = EdenSymbol;
