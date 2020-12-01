@@ -3733,7 +3733,7 @@ _volatileExpr is:[eager] func {
 };
 
 /** Generate a function by scoping an existing context dependant function. #library */
-_template is:[eager] func {
+template is:[eager] func {
 	para sym;
 	return parse(_volatileExpr(sym));
 };

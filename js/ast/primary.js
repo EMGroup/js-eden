@@ -60,8 +60,13 @@ Eden.AST.Primary.prototype.toEdenString = function(scope, state) {
 		var expr = "return "+this.backtick.generate(ctx, "scope", {bound: false, scope: scope})+";";
 
 		if (ctx.isconstant) {
+			console.log(expr);
 			var val = (new Function(["context","scope"], expr))(eden.root, scope);
-			obs = val;
+			if (!eden.isValidIdentifier(val)) {
+				return "__error__";
+			} else {
+				obs = val;
+			}
 		} else {
 			obs = "`"+this.backtick.toEdenString(scope, state)+"`";
 		}
@@ -182,13 +187,18 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				try {
 					btickgen = (new Function("return "+btickgen+";"))();
 				} catch (e) {
+					//eden.error("Backtick expression error");
 					console.error(e);
-					return "\"ERROR\"";
+					return "\"__error__\"";
 				}
 				ctx.dependencies[btickgen] = true;
 				tmpdeplog = false;
-				//if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc + btickgen;
-				//btickgen = Eden.edenCodeForValue(btickgen);
+				
+				if (!eden.isValidIdentifier(btickgen)) {
+					//eden.error("Backtick produces invalid identifier: "+btickgen);
+					btickgen = "__error__";
+				}
+
 				btickgen = JSON.stringify(btickgen);
 			} else {
 				//if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc;

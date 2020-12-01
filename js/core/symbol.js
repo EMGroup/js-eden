@@ -339,6 +339,7 @@ EdenSymbol.prototype.subscribeDynamicSym = function (sym) {
 }
 
 EdenSymbol.prototype.subscribeDynamic = function (position, dependency, scope) {
+	if (!eden.isValidIdentifier(dependency)) return "__error__";
 	var sym = this.context.lookup(dependency);
 
 	if (scope && scope !== eden.root.scope && scope.cause) {

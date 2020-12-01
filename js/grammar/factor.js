@@ -33,7 +33,7 @@ Eden.AST.prototype.pFACTOR = function() {
 			this.next();
 		}
 
-		if (this.token == "[" || this.token == ".") {
+		if (this.token == "[" || this.token == "." || this.token == "(") {
 			var indexed = this.pINDEXED();
 			indexed.setExpression(expression);
 			return indexed;
@@ -318,6 +318,12 @@ Eden.AST.prototype.pFACTOR = function() {
 			return una;
 		}
 		this.next();
+
+		if (this.token == "[" || this.token == "." || this.token == "(") {
+			var indexed = this.pINDEXED();
+			indexed.setExpression(una);
+			return indexed;
+		}
 
 		return una;
 	// Otherwise it must be some primary (observable or backticks)

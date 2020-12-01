@@ -294,13 +294,13 @@ span.eden-doxytagerror {
 }
 
 span.eden-backticks {
-	background-color: #f6efe1;
+	background-color: #fdf9f1;
 	border: 1px dashed  #fddc98;
 	font-style: italic;
 }
 
 span.eden-subexpression {
-	background-color: #e1eef6;
+	background-color: #f4fbff;
 	border: 1px dashed #8bd2fd;
 	font-style: italic;
 }

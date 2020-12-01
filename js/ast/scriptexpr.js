@@ -69,14 +69,17 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 		return "";
 	}
 
+	funcdef = `return function func_${name}(${paras.join(",")}){ ${funcdef} };`;
+
 	this.script.setName(null,name);
 	this.script.addIndex();
 
-	paras.push("scope");
-
-	var f = new Function(paras, funcdef);
-	Object.defineProperty(f, "name", { value: name });
-	rt.f["func_"+name] = f;
+	try {
+		var f = new Function(["scope"], funcdef);
+		rt.f["func_"+name] = f;
+	} catch (e) {
+		console.error("Func compile error: "+name,e);
+	}
 
 	//result = result + "}).call(this,new Scope(context,"+scope+",[],false,this,false)) : undefined)";
 	

@@ -63,7 +63,7 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 		if (typeof val == "object" && val._is_eden_expression) {
 			val = val.generate(ctx, scope, options);
 		} else {
-			val = Eden.edenCodeForValue(val);
+			val = JSON.stringify(val);
 		}
 		ctx.dependant = true;  // Mark as context dependant source
 		return val;

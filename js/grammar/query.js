@@ -66,7 +66,7 @@ Eden.AST.prototype.pINDEXED = function() {
 	var indexed = new Eden.AST.Indexed();
 
 	// Do we have a list index to add
-	while (this.stream.valid() && (this.token == "[" || this.token == ".")) {
+	while (this.stream.valid() && (this.token == "[" || this.token == "." || this.token == "(")) {
 		if (this.token == "[") {
 			this.next();
 			var index = new Eden.AST.Index();
@@ -95,7 +95,7 @@ Eden.AST.prototype.pINDEXED = function() {
 			// Must close ]
 			if (this.token != "]") {
 				indexed.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXCLOSE));
-				return indexed
+				return indexed;
 			} else {
 				this.next();
 			}
@@ -105,6 +105,36 @@ Eden.AST.prototype.pINDEXED = function() {
 			//if (primary.errors.length > 0) return primary;
 			index.setExpression(express);
 			indexed.addIndex(index);
+		} else if (this.token == "(") {
+			this.next();
+			var func = new Eden.AST.FunctionCall();	
+
+			// Check for base case of no parameters
+			if (this.token == ")") {
+				this.next();
+				indexed.addIndex(func);
+			// Otherwise we have parameters so parse them
+			} else {
+				// Expression list.
+				var elist = this.pELIST();
+				func.setParams(elist);
+				if (func.errors.length > 0) {
+					indexed.addIndex(func);
+					return indexed;
+				}
+
+				// Check for closing bracket
+				if (this.token != ")") {
+					indexed.addIndex(func);
+					if (func.errors.length > 0) return indexed;
+					indexed.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCALLEND));
+					return indexed;
+				} else {
+					this.next();
+				}
+
+				indexed.addIndex(func);
+			}
 		} else {
 			this.next();
 			var index = new Eden.AST.Index();

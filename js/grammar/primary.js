@@ -13,7 +13,13 @@ Eden.AST.prototype.pPRIMARY = function() {
 			var primary = new Eden.AST.Primary();
 			primary.setBackticks(btick);
 			return primary;
-		}	
+		}
+
+		if (btick.typevalue != 0 && btick.typevalue != Eden.AST.TYPE_STRING) {
+			var primary = new Eden.AST.Primary();
+			primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			return primary;
+		}
 
 		// Closing backtick missing?
 		if (this.token != "`") {
