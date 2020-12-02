@@ -276,7 +276,7 @@ func imageWithZones {
 		for (i = 1; i <= imageMap#; i++) {
 			shape = imageMap[i];
 			append items, shape;
-			zoneName = shape["drawingOptions"] == @? @ : shape["drawingOptions"]["name"];
+			zoneName = shape["drawingOptions"] == @ if @ else shape["drawingOptions"]["name"];
 			if (zoneName != @) {
 				centre = shape["centre"]();
 				append items, Div(zoneName, centre["x"] - 5.5 * zoneName#, centre["y"] - 15, @, @, "color: white; background-color: black; font-size: 20px; font-family: monospace");

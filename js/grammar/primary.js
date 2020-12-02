@@ -225,6 +225,15 @@ Eden.AST.prototype.pPRIMARY = function() {
  *	| PRIMARY''''
  */
 Eden.AST.prototype.pPRIMARY_P = function() {
+
+	var attribs;
+
+	// Allow primary attributes
+	if (this.token == ":") {
+		this.next();
+		attribs = this.pATTRIBUTES();
+	}
+
 	// Do we have a list index to add
 	if (this.token == "[") {
 		this.next();
@@ -271,6 +280,11 @@ Eden.AST.prototype.pPRIMARY_P = function() {
 		//if (primary.errors.length > 0) return primary;
 		index.setExpression(express);
 		primary.prepend(index);
+
+		if (attribs && !primary.setAttributes(attribs)) {
+			primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+		}
+
 		return primary;
 	// Do we have a function call?
 	} else if (this.token == "(") {
@@ -283,6 +297,11 @@ Eden.AST.prototype.pPRIMARY_P = function() {
 			// Check for other components...
 			var primary = this.pPRIMARY_PP();
 			primary.prepend(func);
+
+			if (attribs && !primary.setAttributes(attribs)) {
+				primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+			}
+
 			return primary;
 		// Otherwise we have parameters so parse them
 		} else {
@@ -310,6 +329,11 @@ Eden.AST.prototype.pPRIMARY_P = function() {
 			var primary = this.pPRIMARY_PP();
 			if (primary.errors.length > 0) return primary;
 			primary.prepend(func);
+
+			if (attribs && !primary.setAttributes(attribs)) {
+				primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+			}
+
 			return primary;
 		}
 	// Scope path
@@ -339,10 +363,19 @@ Eden.AST.prototype.pPRIMARY_P = function() {
 		//if (primary.errors.length > 0) return primary;
 		index.setExpression(express);
 		primary.prepend(index);
+
+		if (attribs && !primary.setAttributes(attribs)) {
+			primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+		}
 		return primary;
 	// Go to end, check for "with"
 	} else {
-		return this.pPRIMARY_PPPP();
+		var primary = this.pPRIMARY_PPPP();
+
+		if (attribs && !primary.setAttributes(attribs)) {
+			primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+		}
+		return primary;
 	}
 }
 

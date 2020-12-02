@@ -4,7 +4,8 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 	var laststart = this.stream.position;
 
 	while (!this.stream.eof()) {
-		var c = String.fromCharCode(this.stream.get());
+		var ch = this.stream.get();
+		var c = String.fromCharCode(ch);
 
 		if (c == starttoken) {
 			var str = this.stream.code.substring(laststart,this.stream.position-1);
@@ -62,7 +63,7 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 
 			}
 
-		} else if (!ws && this.stream.isWhiteSpace(c)) {
+		} else if (!ws && this.stream.isWhiteSpace(ch)) {
 			var str = this.stream.code.substring(laststart,this.stream.position-1);
 			str = str.replace(/\\([\\\{\}'])/g,"$1");
 

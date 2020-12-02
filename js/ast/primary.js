@@ -39,6 +39,10 @@ Eden.AST.Primary.prototype.prepend = function(extra) {
 	if (extra.warning && !this.warning) this.warning = extra.warning;
 };
 
+Eden.AST.Primary.prototype.setAttributes = function(attribs) {
+	return true;
+}
+
 function scopehash(hashstr) {
 	var hash = 0;
 	var ch;
