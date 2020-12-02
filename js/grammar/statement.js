@@ -73,7 +73,22 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 		return range;
 	} else if (this.token == "=") {
 		this.next();
+
+		var attribs;
+		if (this.token == ":") {
+			this.next();
+			attribs = this.pATTRIBUTES();
+		}
+
 		var s = new Eden.AST.Assignment(this.pEXPRESSION());
+
+		if (!s.setAttributes(attribs)) {
+			s.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+			this.parent = parent;
+			return s;
+		}
+
+		// TODO: Check type for promise?
 		if (s.expression && s.expression.type == "query") {
 			s.warning = new Eden.SyntaxWarning(this, s, Eden.SyntaxWarning.MISSINGSYNC, "This is an asynchronous statement");
 		}
@@ -270,10 +285,22 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						var startline2 = this.stream.line;
 						var isdoxy = this.stream.peek() == 33;
 						//console.log("HASH COM",this.stream.peek());
+						var bcount = 0;
 
 						do {
 							//this.stream.skip();
-							this.stream.skipLine();
+							//this.stream.skipLine();
+						
+							while (this.stream.valid()) {
+								var ch = this.stream.peek();
+								if (ch == 123) bcount++;
+								else if (ch == 125) bcount--;
+								if (ch == 10 || (bcount < 0)) break;
+								this.stream.skip();
+							}
+
+							if (bcount < 0) break;
+							
 							if (!this.stream.valid()) {
 								this.errors.push(new Eden.SyntaxError(this,Eden.SyntaxError.NEWLINE));
 							}
@@ -456,7 +483,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 		}
 	}
 
-	if (!this.warning && stat.warning) this.warning = stat.warning;
+	//if (!this.warning && stat.warning) this.warning = stat.warning;
 
 	// Add statement properties
 	end = this.lastposition;

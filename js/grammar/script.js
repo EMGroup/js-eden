@@ -221,36 +221,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 Eden.AST.prototype.pSCRIPTEXPR = function() {
 	var ast = new Eden.AST.ScriptExpr();
 	var script = this.pSCRIPT();
-	//ast.parent = this.parent;
-	//var parent = this.parent;
-	//this.parent = ast;
-
-	//ast.setLocals(this.pLOCALS());
-
-	/*while (this.token != "EOF") {
-		var statement = this.pSTATEXPR();
-
-		if (statement !== undefined) {
-			ast.append(statement);
-			if (statement.errors.length > 0) {
-				break;
-				// Skip until colon
-			}
-		} else {
-			if (this.token != "}" && this.token != ";") {
-				ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
-			}
-			if (this.token == ";") {
-				this.next();
-			} else {
-				break;
-			}
-		}
-	}*/
-
 	ast.setScript(script);
-
-	//this.parent = parent;
 	return ast;
 };
 

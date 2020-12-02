@@ -1125,10 +1125,10 @@ proc moveView {
 proc resizeView {
 	para name, width, height;
 	autocalc = 0;
-	#together {
+
 		`view_{name}_width` = width;
 		`view_{name}_height` = height;
-	#}
+
 	autocalc = 1;
 }
 
