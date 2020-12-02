@@ -48,20 +48,20 @@ Eden.AST.prototype.pTERM_P = function() {
 
 		if (binop.op == "//") {
 			if (binop.l.typevalue != 0 && binop.r.typevalue != 0 && binop.l.typevalue != binop.r.typevalue) {
-				binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+				this.typeWarning(binop);
 			}
 			if (binop.l.typevalue == Eden.AST.TYPE_NUMBER || binop.r.typevalue == Eden.AST.TYPE_NUMBER) {
-				binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+				this.typeWarning(binop, null, Eden.AST.TYPE_NUMBER);
 			}
 			if (binop.l.typevalue == Eden.AST.TYPE_OBJECT || binop.r.typevalue == Eden.AST.TYPE_OBJECT) {
-				binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+				this.typeWarning(binop, null, Eden.AST.TYPE_OBJECT);
 			}
 		} else {
 			if (binop.l.typevalue == Eden.AST.TYPE_OBJECT || binop.r.typevalue == Eden.AST.TYPE_OBJECT) {
-				binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+				this.typeWarning(binop, null, Eden.AST.TYPE_OBJECT);
 			}
 			if (binop.l.typevalue == Eden.AST.TYPE_LIST || binop.r.typevalue == Eden.AST.TYPE_LIST) {
-				binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+				this.typeWarning(binop, null, Eden.AST.TYPE_LIST);
 			}
 		}
 	}
@@ -86,7 +86,7 @@ Eden.AST.prototype.pTERM_PP = function() {
 		left = binop;
 
 		if ((binop.l.typevalue != 0 && binop.l.typevalue != Eden.AST.TYPE_NUMBER) || (binop.r.typevalue != 0 && binop.r.typevalue != Eden.AST.TYPE_NUMBER)) {
-			binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			this.typeWarning(binop, Eden.AST.TYPE_NUMBER);
 		}
 	}
 

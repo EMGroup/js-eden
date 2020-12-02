@@ -7,13 +7,12 @@ Eden.AST.prototype.pPRIMARY = function() {
 	if (this.token == "`") {
 		var btick = this.pTEMPLATE_STRING(false);
 
+		var primary = this.pPRIMARY_P();
+
 		if (btick.typevalue != 0 && btick.typevalue != Eden.AST.TYPE_STRING) {
-			var primary = new Eden.AST.Primary();
-			primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
-			return primary;
+			this.typeWarning(primary, Eden.AST.TYPE_STRING, btick.typevalue);
 		}
 
-		var primary = this.pPRIMARY_P();
 		if (primary.errors.length > 0) return primary;
 
 		primary.setBackticks(btick);

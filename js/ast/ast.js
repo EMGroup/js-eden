@@ -393,9 +393,14 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 	this.executeStatement(statement, line, agent, cb);
 }
 
-Eden.AST.prototype.syntaxError = function(node, type) {
-	var err = new Eden.SyntaxError(this, type);
+Eden.AST.prototype.syntaxError = function(node, type, msg) {
+	var err = new Eden.SyntaxError(this, type, msg);
 	node.errors.push(err);
+}
+
+Eden.AST.prototype.typeWarning = function(node, expected) {
+	var warn = new Eden.TypeWarning(node, expected);
+	node.warning = warn;
 }
 
 /**

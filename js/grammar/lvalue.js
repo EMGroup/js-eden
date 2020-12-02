@@ -96,8 +96,8 @@ Eden.AST.prototype.pLVALUE = function() {
 
 		if (btick.typevalue != 0 && btick.typevalue != Eden.AST.TYPE_STRING) {
 			var primary = new Eden.AST.Primary();
-			primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
-			return primary;
+			this.typeWarning(primary, Eden.AST.TYPE_STRING, btick.typevalue);
+			//return primary;
 		}
 
 		lvalue.setExpression(btick);

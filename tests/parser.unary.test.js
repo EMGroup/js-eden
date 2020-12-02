@@ -62,7 +62,7 @@ describe("Unary negation operator", () => {
 		var ast = Eden.AST.parseExpression('-"hello"');
 
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.warning).toBeTruthy();
 		expect(ast.type).toEqual("unaryop");
 	});
 
@@ -70,7 +70,7 @@ describe("Unary negation operator", () => {
 		var ast = Eden.AST.parseExpression('-[a]');
 
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.warning).toBeTruthy();
 		expect(ast.type).toEqual("unaryop");
 	});
 
@@ -78,7 +78,7 @@ describe("Unary negation operator", () => {
 		var ast = Eden.AST.parseExpression('-{}');
 
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.warning).toBeTruthy();
 		expect(ast.type).toEqual("unaryop");
 	});
 

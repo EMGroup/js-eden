@@ -172,7 +172,7 @@ Eden.AST.prototype.pFACTOR_NEGATION = function() {
 		var op = new Eden.AST.UnaryOp("-", fact);
 
 		if (fact.typevalue != 0 && fact.typevalue != Eden.AST.TYPE_NUMBER) {
-			this.syntaxError(op, Eden.SyntaxError.BADEXPRTYPE);
+			this.typeWarning(op, Eden.AST.TYPE_NUMBER, fact.typevalue);
 		}
 
 		return op;
@@ -235,8 +235,8 @@ Eden.AST.prototype.pFACTOR_BUILTIN = function() {
 	var una = new Eden.AST.UnaryOp(op, exp);
 
 	if (una.isconstant && una.typevalue != 0 && una.typevalue != Eden.AST.TYPE_STRING) {
-		una.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
-		return una;
+		this.typeWarning(una, Eden.AST.TYPE_STRING);
+		//return una;
 	}
 
 	if (this.token != ")") {

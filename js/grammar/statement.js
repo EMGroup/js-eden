@@ -174,8 +174,8 @@ Eden.AST.prototype.pSUB_STATEMENT = function() {
 		stat.setOperation("parse", exp);
 
 		if (exp.isconstant && exp.typevalue != 0 && exp.typevalue != Eden.AST.TYPE_STRING) {
-			stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
-			return stat;
+			this.typeWarning(stat, Eden.AST.TYPE_STRING, exp.typevalue);
+			//return stat;
 		}
 
 		if (this.token != ")") {
@@ -230,6 +230,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	var end = -1;
 	var doxy = (this.lastDoxyComment && this.lastDoxyComment.length > 0) ? this.lastDoxyComment.pop() : undefined;
 	if (this.lastDoxyComment.length == 0 && this.parentDoxy) this.lastDoxyComment.push(this.parentDoxy);
+	var expectssemi = false;
 
 	switch (this.token) {
 	case "proc"		:	this.next(); stat = this.pACTION(); break;
@@ -316,6 +317,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						break;
 						
 	case "return"	:	this.next();
+						expectssemi = true;
 						var ret = new Eden.AST.Return();
 
 						if (this.token != ";") {
@@ -339,6 +341,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 
 						stat = ret; break;
 	case "continue"	:	this.next();
+						expectssemi = true;
 						var cont = new Eden.AST.Continue();
 						if (cont.errors.length > 0) {
 							stat = cont;
@@ -354,6 +357,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 
 						stat = cont; break;
 	case "break"	:	this.next();
+						expectssemi = true;
 						var breakk = new Eden.AST.Break();
 						if (breakk.errors.length > 0) {
 							stat = breakk;
@@ -392,6 +396,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						//endline = this.stream.line;
 						break;
 	case "?"		  : this.next();
+						expectssemi = true;
 						stat = this.pQUERY();
 						if (this.token != ";") {
 							stat.error(new Eden.SyntaxError(this,
@@ -404,6 +409,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "`"		  :
 	case "*"		  :
 	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
+						expectssemi = true;
 						if (lvalue.errors.length > 0) {
 							stat = new Eden.AST.DummyStatement();
 							stat.lvalue = lvalue;
@@ -434,15 +440,16 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	default : return undefined;
 	}
 
-	if (stat.errors.length > 0 && stat.errors[0] !== this.last_error) {
-		if (this.token != "}" && this.token != ";") {
-			this.last_error = stat.errors[0];
+	if (stat.errors.length > 0 && stat.errors[stat.errors.length-1] !== this.last_error) {
+		this.last_error = stat.errors[stat.errors.length-1];
+		
+		if (expectssemi && this.token != ";") {
 			if (this.options && this.options.autorecover) {
-				while (this.token != ";" && this.token != "}" && this.token != "EOF") {
+				while (this.token != ";" && this.token != "EOF") {
 					//if (this.token == "EOF") break;
 					this.next();
 				}
-				if (this.token == ";") this.next();
+				this.next();
 			} else {
 				stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
 			}

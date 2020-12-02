@@ -32,16 +32,16 @@ describe("Addition operator", () => {
 		var ast = Eden.AST.parseExpression('[]+[]');
 
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.warning).toBeTruthy();
 	});
 
 	test("invalid addition of string and list", () => {
 		var ast = Eden.AST.parseExpression('""+[]');
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.warning).toBeTruthy();
 		ast = Eden.AST.parseExpression('[]+""');
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.warning).toBeTruthy();
 	});
 
 });
@@ -125,31 +125,31 @@ describe("Concatenation operator", () => {
 		var ast = Eden.AST.parseExpression("5 // 2");
 
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.warning).toBeTruthy();
 	});
 
 	test("Invalid concat operator on list and number", () => {
 		var ast = Eden.AST.parseExpression("[] // 2");
 
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.warning).toBeTruthy();
 
 		ast = Eden.AST.parseExpression("2 // []");
 
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.warning).toBeTruthy();
 	});
 
 	test("Invalid concat operator on list and string", () => {
 		var ast = Eden.AST.parseExpression('[] // ""');
 
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.warning).toBeTruthy();
 
 		ast = Eden.AST.parseExpression('"" // []');
 
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.warning).toBeTruthy();
 	});
 
 	test("List concat operator", () => {

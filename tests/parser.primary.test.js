@@ -85,7 +85,7 @@ test("Invalid backticks with wrong expression type", () => {
 	var ast = Eden.AST.parseExpression("`{5}`");
 
 	expect(ast).toBeTruthy();
-	expect(ast.errors.length).toBeGreaterThan(0);
+	expect(ast.warning).toBeTruthy();
 });
 
 test("Invalid backticks with missing tick", () => {
