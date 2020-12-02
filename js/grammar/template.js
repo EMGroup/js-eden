@@ -7,9 +7,10 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 		var c = String.fromCharCode(this.stream.get());
 
 		if (c == starttoken) {
-			this.next();
-
 			var str = this.stream.code.substring(laststart,this.stream.position-1);
+			str = str.replace(/\\([\\\{\}'])/g,"$1");
+
+			this.next();
 
 			if (str.length == 0 && expr) return expr;
 			if (!expr) return new Eden.AST.Literal("STRING", str);
@@ -18,10 +19,13 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 			op.left(expr);
 			op.setRight(new Eden.AST.Literal("STRING", str));
 			return op;
+		} else if (c == "\\") {
+			this.stream.skip();
 		} else if (c == "{") {
-			this.next();
+			var str = this.stream.code.substring(laststart,this.stream.position-1);
+			str = str.replace(/\\([\\\{\}'])/g,"$1");
 
-			var str = this.stream.code.substring(laststart,this.stream.position-2);
+			this.next();
 			var subexp = this.pEXPRESSION();
 
 			if (this.token != "}") {
@@ -60,6 +64,8 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 
 		} else if (!ws && this.stream.isWhiteSpace(c)) {
 			var str = this.stream.code.substring(laststart,this.stream.position-1);
+			str = str.replace(/\\([\\\{\}'])/g,"$1");
+
 			var lit = new Eden.AST.Literal("STRING", str);
 			// TODO: Error type
 			lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN, "White space not allowed"));
@@ -68,6 +74,8 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 	}
 
 	var str = this.stream.code.substring(laststart,this.stream.position-1);
+	str = str.replace(/\\([\\\{\}'])/g,"$1");
+
 	var lit = new Eden.AST.Literal("STRING", str);
 	// TODO: Error type
 	lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN, "End of input"));

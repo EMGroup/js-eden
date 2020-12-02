@@ -40,16 +40,108 @@ test("Valid negative float literal expression", () => {
 
 // ==== Strings ================================================================
 
-test("Valid string literal expression", () => {
-	var ast = Eden.AST.parseExpression(`"hello world"`);
+describe("Plain string literals", () => {
 
-	expect(ast).toBeTruthy();
-	expect(ast.errors).toHaveLength(0);
-	expect(ast.type).toEqual("literal");
-	expect(ast.typevalue).toBe(Eden.AST.TYPE_STRING);
-	expect(ast.isconstant).toEqual(true);
-	expect(ast.isdependant).toEqual(false);
-	expect(ast.isdynamic).toEqual(false);
+	test("Valid string literal expression", () => {
+		var ast = Eden.AST.parseExpression(`"hello world"`);
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("literal");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(true);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.isdynamic).toEqual(false);
+	});
+
+});
+
+describe("Template string literals", () => {
+	
+	test("template with substitution at end", () => {
+		var ast = Eden.AST.parseExpression(`'hello {name}'`);
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("binaryop");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(false);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.isdynamic).toEqual(false);
+	});
+
+	test("template with substitution at beginning", () => {
+		var ast = Eden.AST.parseExpression(`'{name} is great'`);
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("binaryop");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(false);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.isdynamic).toEqual(false);
+	});
+
+	test("template with substitution in middle", () => {
+		var ast = Eden.AST.parseExpression(`'hello {name} world'`);
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("binaryop");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(false);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.isdynamic).toEqual(false);
+	});
+
+	test("template with multiple substitutions", () => {
+		var ast = Eden.AST.parseExpression(`'hello {firstname} {lastname} world'`);
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("binaryop");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(false);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.isdynamic).toEqual(false);
+	});
+
+	test("template escaped braces", () => {
+		var ast = Eden.AST.parseExpression(`'hello \\{name\\}'`);
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("literal");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(true);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.isdynamic).toEqual(false);
+	});
+
+	test("template with no substitutions", () => {
+		var ast = Eden.AST.parseExpression(`'hello world'`);
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("literal");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(true);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.isdynamic).toEqual(false);
+	});
+
+	test("template with escaped close char", () => {
+		var ast = Eden.AST.parseExpression(`'hello\\' world'`);
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("literal");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(true);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.isdynamic).toEqual(false);
+	});
+
 });
 
 // ==== Lists ==================================================================
