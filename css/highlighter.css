@@ -396,6 +396,7 @@ div.eden-line {
 
 div.eden-line.script {
 	background: #f6fbff;
+	margin-left: 8px;
 }
 
 div.eden-customline {

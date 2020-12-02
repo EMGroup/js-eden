@@ -165,6 +165,12 @@ div.eden-gutter-item.executed {
 	animation-fill-mode: forwards;*/
 }
 
+div.eden-gutter-item.unexecuted {
+	border-right: 5px solid #eee;
+	/*animation: clearborder 0.4s linear;
+	animation-fill-mode: forwards;*/
+}
+
 @keyframes clearborder {
   to {
   	border-color: transparent;
