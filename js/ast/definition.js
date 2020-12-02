@@ -150,6 +150,10 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			var f = new Function(["context","scope","cache"], rhs);
 			f.displayName = name;  // FIXME: Non-standard
 
+			if (sym.origin && sym.origin.isstatic) {
+				this.warning = new Eden.RuntimeWarning(this, Eden.RuntimeWarning.UNKNOWN, "Changing a [static] symbol");
+			}
+
 			// FIXME: Why is constant status wrong?
 			//if (!state.isconstant) {
 				sym.define(f, this, deps);

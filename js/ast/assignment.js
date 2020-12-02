@@ -126,6 +126,9 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 			sym.listAssign(value, scope, this, false, complist);
 		} else {
 			value = this.compiled.call(sym, eden.root, scope, scope.lookup(sym.name));
+			if (sym.origin && sym.origin.isstatic) {
+				this.warning = new Eden.RuntimeWarning(this, Eden.RuntimeWarning.UNKNOWN, "Changing a [static] symbol");
+			}
 			sym.assign(value, scope, this);
 		}
 
