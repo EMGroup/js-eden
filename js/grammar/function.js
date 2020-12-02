@@ -3,11 +3,9 @@
  * FUNCTION -> observable FUNCBODY
  */
 Eden.AST.prototype.pFUNCTION = function() {
-	var func = new Eden.AST.Definition();
+	var func = new Eden.AST.Assignment();
 	var parent = this.parent;
 	this.parent = func;
-
-	func.eager = true;
 
 	var type = this.token;
 	this.next();

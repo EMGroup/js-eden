@@ -89,6 +89,15 @@ Eden.AST.Primary.prototype.toEdenString = function(scope, state) {
 	return obs;
 }
 
+Eden.AST.Primary.prototype._checkFunction = function() {
+	var fsym = eden.root.lookup(this.observable);
+	if (fsym.origin && fsym.origin.isstatic && rt.f.hasOwnProperty("func_"+this.observable)) {
+		console.log("has static function: "+this.observable);
+		return true;
+	}
+	return false;
+}
+
 /**
  * The generate function for a primary must do many checks to determine what
  * kind of primary it is. It may be a parameter, a local variable using a
@@ -252,10 +261,9 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			}
 		}
 	} else {
-		// List indices and function calls only work on values not scopes.
-		//if (this.extras[0].type == "functioncall") {
-		//	res = "rt.f.func_"+this.observable;
-		//} else {
+		if (this.extras[0].type == "functioncall" && this._checkFunction()) {
+			res = "rt.f.func_"+this.observable;
+		} else {
 			//res = scope+".value("+res+")";
 
 			if (!varscandidate) {
@@ -267,7 +275,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				ctx.vars[obsname] = scope;
 				res = scope+".v(v_"+obsname+")";
 			}
-		//}
+		}
 
 		// Generate each extra
 		for (var i=0; i<this.extras.length; i++) {

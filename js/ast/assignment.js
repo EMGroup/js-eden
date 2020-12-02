@@ -21,7 +21,14 @@ Eden.AST.Assignment = function(expression) {
 	this.compiled = undefined;
 	this.dirty = false;
 	this.value = undefined;
+	this.isstatic = false;
 };
+
+Eden.AST.Assignment.prototype.setExpression = function(expr) {
+	this.expression = expr;
+	if (expr && expr.errors.length > 0) this.errors = expr.errors;
+	if (expr && expr.warning && !this.warning) this.warning = expr.warning;
+}
 
 Eden.AST.Assignment.prototype.reset = function() {
 	this.executed = 0;
@@ -35,6 +42,23 @@ Eden.AST.Assignment.prototype.left = function(lvalue) {
 	}
 	if (!this.warning && lvalue.warning) this.warning = lvalue.warning;
 };
+
+Eden.AST.Assignment.prototype.setAttributes = function(attribs) {
+	for (var a in attribs) {
+		switch (a) {
+		case "static"	: this.isstatic = true; break;
+		case "number"	:
+		case "boolean"	:
+		case "object"	:
+		case "undefined":
+		case "string"	:
+		case "list"		: break;
+		default: return false;
+		}
+	}
+
+	return true;
+}
 
 /* For inside func and proc only */
 Eden.AST.Assignment.prototype.generate = function(ctx,scope, options) {
@@ -66,15 +90,19 @@ Eden.AST.Assignment.prototype.generate = function(ctx,scope, options) {
  * Compile the right-hand-side into a javascript function. If already compiled
  * it does nothing.
  */
-Eden.AST.Assignment.prototype.compile = function(ctx, scope) {
+Eden.AST.Assignment.prototype.compile = function(ctx, scope, sym) {
 	// FIXME: Need to check if caching compile is safe or not.
 	// This depends on any use of eval, local variables etc.
 	//if (this.compiled && !this.dirty) return;
 	this.dirty = false;
 
 	var state = {
+		statement: this,
+		symbol: sym,
 		isconstant: true,
+		dependant: false,
 		locals: ctx.locals
+		//dependencies: this.dependencies
 	};
 	var rhs = Eden.AST.transpileExpressionNode(this.expression, scope, state);
 	this.compiled = new Function(["context","scope","cache"],rhs);
@@ -83,7 +111,6 @@ Eden.AST.Assignment.prototype.compile = function(ctx, scope) {
 Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	if (this.expression === undefined) return;
 	this.executed = 1;
-	this.compile(ctx, scope);
 
 	if (this.doxyComment) {
 		eden.updateDictionary(this.lvalue.name, this.doxyComment);
@@ -91,6 +118,7 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 
 	try {
 		var sym = this.lvalue.getSymbol(ctx,base,scope);
+		this.compile(ctx, scope, sym);
 		var value;
 		if (this.lvalue.hasListIndices()) {
 			value = this.compiled.call(sym, eden.root, scope, scope.lookup(sym.name));
@@ -102,7 +130,7 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		}
 
 		if (value === undefined) {
-			this.warning = new Eden.RuntimeWarning(this, Eden.RuntimeWarning.UNDEFINED, this.source.split("=")[1].trim());
+			this.warning = new Eden.RuntimeWarning(this, Eden.RuntimeWarning.UNDEFINED);
 		}
 	} catch(e) {
 		//this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
