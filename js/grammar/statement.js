@@ -434,6 +434,21 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	default : return undefined;
 	}
 
+	if (stat.errors.length > 0 && stat.errors[0] !== this.last_error) {
+		if (this.token != "}" && this.token != ";") {
+			this.last_error = stat.errors[0];
+			if (this.options && this.options.autorecover) {
+				while (this.token != ";" && this.token != "}" && this.token != "EOF") {
+					//if (this.token == "EOF") break;
+					this.next();
+				}
+				if (this.token == ";") this.next();
+			} else {
+				stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
+			}
+		}
+	}
+
 	// Add statement properties
 	end = this.lastposition;
 	endline = this.lastline;

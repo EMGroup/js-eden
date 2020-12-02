@@ -19,6 +19,17 @@ Eden.Project = function(id, name, source) {
 	if (this.ast && this.ast.script.errors.length == 0) {
 	} else {
 		console.error("Project Error", this.ast.script.errors);
+
+		// Need to create a script view...
+		this.ast.script.addIndex();
+
+		setTimeout( () => {
+			edenUI.createView("recoverscript","ScriptInput");
+			var tabs = [":project"];
+			eden.root.lookup("view_recoverscript_tabs").assign(tabs, eden.root.scope, EdenSymbol.localJSAgent);
+			eden.root.lookup("view_recoverscript_current").assign(0, eden.root.scope, EdenSymbol.localJSAgent);
+		}, 100);
+
 	}
 
 	//eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);
@@ -235,11 +246,18 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 }
 
 Eden.Project.verifyEnvironment = function(env) {
+
+	if (!env.hasOwnProperty("parser_cs3")) {
+		Eden.AST.version = Eden.AST.VERSION_CS2;
+		eden.root.lookup("jseden_parser_cs3").assign(false, eden.root.scope, EdenSymbol.defaultAgent);
+	}
+
 	for (var x in env) {
 		var val = eden.root.lookup("jseden_"+x).value();
-		if (x == "parser_cs3") {
-			eden.root.lookup("jseden_parser_cs3").assign(true, eden.root.scope, EdenSymbol.defaultAgent);
-		} else if (typeof env[x] == "string") {
+		/*if (x == "parser_cs3") {
+			Eden.AST.version = Eden.AST.VERSION_CS3;
+			eden.root.lookup("jseden_parser_cs3").assign(true, eden.root.scope, EdenSymbol.defaultAgent);*/
+		if (typeof env[x] == "string") {
 			var ch0 = env[x].charAt(0);
 
 			switch (ch0) {

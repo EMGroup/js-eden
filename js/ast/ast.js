@@ -67,6 +67,7 @@ Eden.AST = function(code, imports, origin, options) {
 	this.lastresult = undefined;
 	this.depth = 0;
 	this.localStatus = false;
+	this.last_error = null;
 
 	if (!origin) console.error("NO ORIGIN", code);
 
@@ -114,6 +115,10 @@ Eden.AST.TYPE_SYMBOL = 5;
 Eden.AST.TYPE_OBJECT = 6;
 Eden.AST.TYPE_PROMISE = 7;
 Eden.AST.TYPE_AST = 8;
+
+Eden.AST.VERSION_CS2 = 0;
+Eden.AST.VERSION_CS3 = 1;
+Eden.AST.version = 1;
 
 /* Generic functions to be reused */
 Eden.AST.fnEdenASTerror = function(err) {

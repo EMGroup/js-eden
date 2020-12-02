@@ -96,7 +96,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	}
 
 	var script = this.pSCRIPT();
-	if (script.errors.length > 0) return script;
+	//if (script.errors.length > 0) return script;
 
 	if (!script.setAttributes(attribs)) {
 		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
@@ -150,10 +150,10 @@ Eden.AST.prototype.pSCRIPT = function() {
 
 		if (statement !== undefined) {
 
-			if (statement.errors.length > 0) {
+			/*if (statement.errors.length > 0) {
 				ast.appendChild(statement);
 				break;
-			}
+			}*/
 
 			var end = statement.end;
 
@@ -187,7 +187,8 @@ Eden.AST.prototype.pSCRIPT = function() {
 				this.depth--;
 				break;
 			}*/
-			if (this.token != "}" && this.token != ";") {
+
+			/*if (this.token != "}" && this.token != ";") {
 				if (this.options && this.options.autorecover) {
 					while (this.token != ";" && this.token != "}" && this.token != "EOF") {
 						//if (this.token == "EOF") break;
@@ -196,7 +197,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 				} else {
 					ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
 				}
-			}
+			}*/
 			if (this.token == ";") {
 				this.next();
 			} else {

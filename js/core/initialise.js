@@ -176,6 +176,9 @@ function Construit(options,callback) {
 		eden.ismobile = mobilecheck();
 		eden.root.lookup("jseden_mobile").assign(eden.ismobile, eden.root.scope, Symbol.defaultAgent);
 
+		// Default to new parser
+		eden.root.lookup("jseden_parser_cs3").assign(true, eden.root.scope, EdenSymbol.defaultAgent);
+
 		// Put JS-EDEN version number or name in top-right corner.
 		$.ajax({
 			url: "version.json",
