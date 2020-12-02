@@ -540,13 +540,13 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 				this.lines[i].errored = false;
 			}
 			if (stat.warning) {
-				if (stat.warning.warnno != 1 || eden.root.lookup("jseden_parser_warndeprecate").value()) {
+				//if (stat.warning.warnno != 1 || eden.root.lookup("jseden_parser_warndeprecate").value()) {
 					//console.log("WARNING: ", stat.warning);
 					className += " warning";
 					content = "&#xf071";
 					doupdate = true;
 					if (stat.warning) title = stat.warning.messageText();
-				}
+				//}
 			}
 			if (stat.executed == 1) {
 				className += " executed";
