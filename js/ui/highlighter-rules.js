@@ -304,7 +304,10 @@ EdenUI.Highlight.prototype.START = function() {
 	case "NUMBER"	:	this.classes.push("number"); break;
 	case "STRING"	:	this.classes.push("string"); break;
 	case "BOOLEAN"	:	this.classes.push("constant"); break;
-	case "CHARACTER":	this.classes.push("string"); break;
+	case "'":			this.classes.push("string");
+						this.pushMode();
+						this.mode = "TEMPLATESTRING";
+						break;
 	case ":"		:	this.classes.push("operator");
 						if (this.prevtoken == "is") {
 							this.pushMode();
@@ -536,6 +539,28 @@ EdenUI.Highlight.prototype.START_MINIMAL = function() {
 								this.classes.push("observable");
 							}
 						}
+	}
+}
+
+EdenUI.Highlight.prototype.TEMPLATESTRING = function() {
+	if (this.token == "'" && this.prevtoken != "\\") {
+		this.classes.push("string");
+		this.popMode();
+	} else if (this.token == "{" && this.prevtoken != "\\") {
+		this.pushMode();
+		this.classes.push("builtin");
+		this.mode = "TEMPLATESUBEXPR";
+	} else {
+		this.classes.push("string");
+	}
+}
+
+EdenUI.Highlight.prototype.TEMPLATESUBEXPR = function() {
+	if (this.token == "}" && this.prevtoken != "\\") {
+		this.classes.push("builtin");
+		this.popMode();
+	} else {
+		this.START();
 	}
 }
 
