@@ -169,14 +169,19 @@ Eden.AST.Scope.prototype._generate_loop_opti = function(ctx, options, rangeindex
 	//console.log("LOOP RANGE INDEX", rangeindex);
 	var scopename = "_scopes["+(ctx.scopes.length-1)+"]";
 	var express = this.expression.generate(ctx,"_scopes["+(ctx.scopes.length-1)+"]",options);
+
+	// TODO: Check that no reset on first loop is ok and a benefit
+
 	var res =
 	`(function() {
 		${scopename}.range = false;
 		var looper = ${scopename}.overrides[${rangeindex[0]}];
 		var ix = 0;
-		var results = new Array(looper.end - looper.start + 1);
+		var loopsize = looper.end - looper.start+1;
+		if (loopsize <= 0 || loopsize > 1000000 || isNaN(loopsize)) return [];
+		var results = new Array(loopsize);
 		for (var i=looper.start; i<=looper.end; i++) {
-			${scopename}.resetCache();
+			if (i>looper.start) ${scopename}.resetCache();
 			looper.current = i;
 			${scopename}.refresh();
 			var val = ${express};

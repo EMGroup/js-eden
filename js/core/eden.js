@@ -155,6 +155,10 @@
 		return;
 	};
 
+	Eden.prototype.assign = function(name,value,scope) {
+		this.root.lookup(name).assign(value, (scope) ? scope : this.root.scope, EdenSymbol.hciAgent);
+	}
+
 	Eden.prototype.attribute = function(node, name) {
 		var sym = (typeof node == "string") ? eden.root.lookup(node) : node;
 		return Eden.Selectors.processResults([sym],name)[0];

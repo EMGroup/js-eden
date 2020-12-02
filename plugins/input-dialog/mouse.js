@@ -24,7 +24,24 @@ EdenUI.ScriptArea.Mouse = function(sa) {
 		if (e.target.nodeName == "INPUT" || e.target.nodeName == "textarea") return;
 		sa.hideInfoBox();
 		//hideMenu();
-		//console.log(e);
+
+		if (sa.readonlycomment) {
+			var seenbutton = false;
+			var seencomment = false;
+			for (var i=0; i<e.path.length; ++i) {
+				if (e.path[i].nodeName == "BUTTON" || e.path[i].nodeName == "A") seenbutton = true;
+
+				if (e.path[i].classList && e.path[i].classList.contains("eden-comment-line")) {
+					seencomment = true;
+				}
+			}
+			if ($(e.target).find(".eden-comment-line").length > 0 || seencomment) {
+				if (!seenbutton) e.preventDefault();
+				sa.intextarea.blur();
+				sa.outdiv.blur();
+				return;
+			}
+		}
 
 		if (sa.readonly || e.target.isContentEditable == false) return;
 

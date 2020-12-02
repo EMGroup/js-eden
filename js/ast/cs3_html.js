@@ -180,9 +180,9 @@ Eden.AST.HTML.prototype.generate = function(ctx,scope,opt) {
 					// This is an ERROR
 				} else {
 					if (this.attributes[x].backticks === undefined) {
-						res += 'ele["'+x.toLowerCase()+'"] = function(e) { eden.root.lookup("'+this.attributes[x].observable+'").assign(e, eden.root.scope, EdenSymbol.hciAgent); };\n';
+						res += 'ele["'+x.toLowerCase()+'"] = function(e) { eden.root.lookup("'+this.attributes[x].observable+'").assign(true, eden.root.scope, EdenSymbol.hciAgent); };\n';
 					} else {
-						res += 'ele["'+x.toLowerCase()+'"] = function(e) { eden.root.lookup('+this.attributes[x].backticks.generate(ctx,scope,opt)+').assign(e, eden.root.scope, EdenSymbol.hciAgent); };\n';
+						res += 'ele["'+x.toLowerCase()+'"] = function(e) { eden.root.lookup('+this.attributes[x].backticks.generate(ctx,scope,opt)+').assign(true, eden.root.scope, EdenSymbol.hciAgent); };\n';
 					}
 				}
 			} else if (x == "style") {
