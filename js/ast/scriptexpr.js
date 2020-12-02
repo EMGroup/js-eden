@@ -38,6 +38,11 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 	var opts = Object.assign({}, options);
 	opts.usevar = true;
 
+	var nctx = {
+		dependencies: ctx.dependencies,
+		locals: {}
+	};
+
 	var paras = [];
 	var paracount = 0;
 
@@ -52,11 +57,11 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 				paras.push(this.script.statements[i].list[j]);
 			}
 		}*/
-		funcdef += this.script.statements[i].generate(ctx, "scope", opts);
+		funcdef += this.script.statements[i].generate(nctx, "scope", opts);
 	}
 
-	for (var p in ctx.locals) {
-		if (ctx.locals[p] == "oracle") paras.push(p);
+	for (var p in nctx.locals) {
+		if (nctx.locals[p] == "oracle") paras.push(p);
 	}
 
 	var name;

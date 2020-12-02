@@ -60,7 +60,7 @@ Eden.AST.FunctionCall.prototype.generate = function(ctx, scope, options) {
 		return res + ")";
 	} else {
 		var lvalstr = this.lvalue.generate(ctx,scope, options);
-		var res = `${scope}.value(${lvalstr})(${scope}).call(context.lookup(${lvalstr})`;
+		var res = `${scope}.value(${lvalstr})(${scope}).call(scope.lookup(${lvalstr}).symbol`;
 
 		if (this.params) {
 			for (var i=0; i<this.params.length; i++) {

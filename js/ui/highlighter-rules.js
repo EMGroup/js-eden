@@ -309,7 +309,8 @@ EdenUI.Highlight.prototype.START = function() {
 						this.mode = "TEMPLATESTRING";
 						break;
 	case ":"		:	this.classes.push("operator");
-						if (this.prevtoken == "is") {
+						// FIXME: Doesn't work for object literals
+						if (this.prevtoken == "is" || this.prevtoken == "OBSERVABLE") {
 							this.pushMode();
 							this.mode = "ATTRIBUTES";
 						}

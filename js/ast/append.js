@@ -27,9 +27,9 @@ Eden.AST.Append.prototype.setIndex = function(index) {
 	}
 }
 
-Eden.AST.Append.prototype.generate = function(ctx, scope) {
-	var express = this.index.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
-	var lvalue = this.destination.generate(ctx, scope);
+Eden.AST.Append.prototype.generate = function(ctx, scope, options) {
+	var express = this.index.generate(ctx, scope, options);
+	var lvalue = this.destination.generate(ctx, scope, options);
 
 	if (this.destination.islocal) {
 		return lvalue + ".push("+express+");\n";

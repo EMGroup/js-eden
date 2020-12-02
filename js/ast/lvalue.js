@@ -93,20 +93,20 @@ Eden.AST.LValue.prototype.hasListIndices = function() {
 	return this.lvaluep && this.lvaluep.length > 0 && this.lvaluep[0].kind == "index";
 }
 
-Eden.AST.LValue.prototype.generateCompList = function(ctx, scope) {
+Eden.AST.LValue.prototype.generateCompList = function(ctx, scope, options) {
 	var res = "[";
 	for (var i=0; i<this.lvaluep.length; i++) {
-		res += "rt.index("+this.lvaluep[i].indexexp.generate(ctx,scope,{bound:false})+")";
+		res += "rt.index("+this.lvaluep[i].indexexp.generate(ctx,scope,options)+")";
 		if (i < this.lvaluep.length-1) res += ",";
 	}
 	res += "]";
 	return res;
 }
 
-Eden.AST.LValue.prototype.generateIndexList = function(ctx, scope) {
+Eden.AST.LValue.prototype.generateIndexList = function(ctx, scope,options) {
 	var res = "[";
 	for (var i=0; i<this.lvaluep.length; i++) {
-		res += "rt.index("+this.lvaluep[i].indexexp.generate(ctx,scope,{bound: false})+")";
+		res += "rt.index("+this.lvaluep[i].indexexp.generate(ctx,scope,options)+")";
 		if (i < this.lvaluep.length-1) res += "][";
 	}
 	res += "]";
@@ -135,7 +135,7 @@ Eden.AST.LValue.prototype.generate = function(ctx, scope, options) {
 				this.islocal = true;
 				var res = this.name;
 				for (var i=0; i<this.lvaluep.length; i++) {
-					res += this.lvaluep[i].generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
+					res += this.lvaluep[i].generate(ctx, scope, options);
 				}
 				return res;
 			} else if (ctx.locals.hasOwnProperty(this.name)) {
@@ -195,9 +195,9 @@ Eden.AST.LValueComponent.prototype.property = function(pprop) {
 	//this.errors.push.apply(this.errors, pprop.errors);
 }
 
-Eden.AST.LValueComponent.prototype.generate = function(ctx, scope) {
+Eden.AST.LValueComponent.prototype.generate = function(ctx, scope, options) {
 	if (this.kind == "index") {
-		return "[rt.index("+this.indexexp.generate(ctx, scope, {bound: false})+")]";
+		return "[rt.index("+this.indexexp.generate(ctx, scope, options)+")]";
 	//} else if (this.kind == "property") {
 	//	return "[context.lookup(\""+obs+"\").value(scope)[0][1].indexOf(\""+this.observable+"\")+1]";
 	}

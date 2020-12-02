@@ -20,8 +20,8 @@ Eden.AST.Delete.prototype.setIndex = function(index) {
 	}
 }
 
-Eden.AST.Delete.prototype.generate = function(ctx,scope) {
-	var ix = this.index.generate(ctx, scope, {bound: false});
+Eden.AST.Delete.prototype.generate = function(ctx,scope,options) {
+	var ix = this.index.generate(ctx, scope, options);
 	var lvalue = this.destination.generate(ctx);
 	return lvalue + ".mutate(scope, function(s) { scope.lookup(s.name).value.splice(rt.index("+ix+"), 1); }, this);";
 }

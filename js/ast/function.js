@@ -6,6 +6,10 @@ Eden.AST.Function = function() {
 	this.name = "";
 };
 
+Eden.AST.Function.prototype.setAttributes = function(attribs) {
+	return true;
+}
+
 Eden.AST.Function.prototype.setBody = function(body) {
 	this.body = body;
 	if (body) {

@@ -28,10 +28,10 @@ Eden.AST.Insert.prototype.setValue = function(value) {
 	}
 }
 
-Eden.AST.Insert.prototype.generate = function(ctx, scope) {
-	var ix = this.index.generate(ctx, scope, {bound: false});
-	var val = this.value.generate(ctx, scope, {bound: false});
-	var lvalue = this.destination.generate(ctx);
+Eden.AST.Insert.prototype.generate = function(ctx, scope, options) {
+	var ix = this.index.generate(ctx, scope, options);
+	var val = this.value.generate(ctx, scope, options);
+	var lvalue = this.destination.generate(ctx,scope,options);
 	if (this.destination.islocal) {
 		return lvalue + ".splice(rt.index("+ix+"), 0, ("+val+"));";
 	} else {

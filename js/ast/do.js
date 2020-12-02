@@ -89,9 +89,9 @@ Eden.AST.Do.prototype.setStatement = function(statement) {
 
 
 
-Eden.AST.Do.prototype.generate = function(ctx) {
+Eden.AST.Do.prototype.generate = function(ctx, scope, options) {
 	if (this.literal) {
-		return "eden.execute("+this.literal.generate(ctx, "eden.root.scope", {})+");";
+		return "eden.execute("+this.literal.generate(ctx, scope, options)+");";
 	} else {
 		var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'do' here");
 		this.errors.push(err);

@@ -6,6 +6,7 @@ Eden.AST.Definition = function() {
 	this.lvalue = undefined;
 	this.eager = false;
 	this.volatile = false;
+	this.isstatic = false;
 };
 
 Eden.AST.Definition.prototype.reset = function() {
@@ -17,6 +18,7 @@ Eden.AST.Definition.prototype.setAttributes = function(attribs) {
 		switch (a) {
 		case "eager"	: this.eager = true; break;
 		case "volatile"	: this.volatile = true; break;
+		case "static"	: this.isstatic = true; break;
 		case "number"	:
 		case "boolean"	:
 		case "object"	:
@@ -140,13 +142,6 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 				dependencies: this.dependencies
 			};
 			rhs = Eden.AST.transpileExpressionNode(this.expression, scope, state);
-
-			console.log("Expr Parse State:", {
-				isconstant: this.expression.isconstant,
-				isdependant: this.expression.isdependant,
-				isdynamic: this.expression.isdynamic,
-				typeval: this.expression.typevalue
-			});
 
 			var deps = Object.keys(this.dependencies);
 			sym.isasync = (this.expression.type == "async");

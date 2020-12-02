@@ -115,7 +115,7 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 				//ctx.isconstant = false;
 			}
 		}
-		res = "context.lookup("+r+")";
+		res = "scope.context.lookup("+r+")";
 	} else if (this.op == "-") {
 		res = "-("+r+")";
 	} else if (this.op == "*") {

@@ -233,8 +233,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	var expectssemi = false;
 
 	switch (this.token) {
-	case "proc"		:	this.next(); stat = this.pACTION(); break;
-	case "func"		:	this.next(); stat = this.pFUNCTION(); break;
+	case "proc"		:	//this.next(); stat = this.pACTION(); break;
+	case "func"		:	stat = this.pFUNCTION(); break;
 	case "when"		:	this.next(); stat = this.pWHEN(); break;
 	case "action"	:	this.next(); stat = this.pNAMEDSCRIPT(); break;
 	case "for"		:	this.next(); stat = this.pFOR(); break;

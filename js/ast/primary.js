@@ -253,9 +253,9 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		}
 	} else {
 		// List indices and function calls only work on values not scopes.
-		if (this.extras[0].type == "functioncall") {
-			res = "rt.f.func_"+this.observable;
-		} else {
+		//if (this.extras[0].type == "functioncall") {
+		//	res = "rt.f.func_"+this.observable;
+		//} else {
 			//res = scope+".value("+res+")";
 
 			if (!varscandidate) {
@@ -267,7 +267,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				ctx.vars[obsname] = scope;
 				res = scope+".v(v_"+obsname+")";
 			}
-		}
+		//}
 
 		// Generate each extra
 		for (var i=0; i<this.extras.length; i++) {
