@@ -251,7 +251,7 @@ var jskeywords = {
 
 EdenUI.Highlight.prototype.START = function() {
 	switch(this.token) {
-	case "##"		:	if (this.stream.isBEOL()) {
+	case "##"		:	if (this.stream.isBOL()) {
 							this.classes.push("hidden-comment");
 							//this.lineelement.className = "eden-comment-line";
 							this.mode = "SECTION_TITLE";
@@ -267,7 +267,7 @@ EdenUI.Highlight.prototype.START = function() {
 							this.mode = "COMMENT";
 						}
 						break;
-	case "#"		:	if (this.stream.isBEOL()) {
+	case "#"		:	if (this.stream.isFollowingWhiteSpace()) {
 							var isdoxy = this.stream.peek() == 33;
 							if (isdoxy) {
 								this.tokentext += "!";
@@ -350,7 +350,7 @@ EdenUI.Highlight.prototype.START = function() {
 						this.classes.push("storage");
 						this.mode = "HEREDOC";
 						break;
-	case "%"		:	if (this.stream.isBEOL()) {
+	case "%"		:	if (this.stream.isBOL()) {
 							var p = this.stream.peek();
 							if (p != 10 && p != 32) {
 								var t = this.stream.readToken();

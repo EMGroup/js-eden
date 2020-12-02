@@ -142,6 +142,26 @@ EdenStream.prototype.isBEOL = function() {
 	return false;
 };
 
+EdenStream.prototype.isBOL = function() {
+	if (this.prevposition == 0) return true;
+	var pastpos = this.prevposition-1;
+	var pastchar = this.code.charCodeAt(pastpos);
+	//while ((pastchar == 9 || pastchar == 32) && pastpos >= 0) {
+	//	pastchar = this.code.charCodeAt(pastpos--);
+	//}
+	if (pastchar == 10) return true;
+	return false;
+};
+
+EdenStream.prototype.isFollowingWhiteSpace = function() {
+	var ch = (this.prevposition-1 >= 0) ? this.code.charCodeAt(this.prevposition-1) : 0;
+	return this.prevposition == 0 || this.isWhiteSpace(ch);
+}
+
+EdenStream.prototype.previousChar = function() {
+	return (this.prevposition-1 >= 0) ? this.code.charCodeAt(this.prevposition-1) : 0;
+}
+
 /**
  * Move forward one character.
  */
@@ -441,7 +461,7 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	case 63	:	return "?";
 	case 64	:	return "@";
 	case 91	:	return "[";
-	case 92	:	return "\"";	//TODO: Escape chars
+	case 92	:	return "\\";	//TODO: Escape chars
 	case 93	:	return "]";
 	case 94	:	return "^";
 	case 96	:	return "`";

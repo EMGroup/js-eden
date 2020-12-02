@@ -261,7 +261,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			}
 		}
 	} else {
-		if (this.extras[0].type == "functioncall" && this._checkFunction()) {
+		if (this.extras[0].type == "functioncall") { //} && this._checkFunction()) {
 			res = "rt.f.func_"+this.observable;
 		} else {
 			//res = scope+".value("+res+")";

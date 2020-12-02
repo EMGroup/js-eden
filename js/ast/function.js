@@ -1,4 +1,4 @@
-Eden.AST.Function = function() {
+/*Eden.AST.Function = function() {
 	this.type = "function";
 	Eden.AST.BaseStatement.apply(this);
 
@@ -45,5 +45,5 @@ Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 	}
 }
 
-Eden.AST.registerStatement(Eden.AST.Function);
+Eden.AST.registerStatement(Eden.AST.Function);*/
 
