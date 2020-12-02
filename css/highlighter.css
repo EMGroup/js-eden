@@ -72,10 +72,10 @@ span.eden-section-line {
 .eden-line button {
 	/*font-family: "FontAwesome";*/
 	font-size: 10pt;
-	border-radius: 5px;
-	background: #666;
+	border-radius: 2px;
+	background:#49696f;
 	outline: none;
-	border: 1px solid #aaa;
+	border: none;
 	margin-left: 3px;
 	margin-right: 3px;
 	padding: 2px;
@@ -84,7 +84,8 @@ span.eden-section-line {
 	height: 24px;
 	cursor: pointer;
 	color: white;
-	text-shadow: 0 3px 3px black;
+	text-shadow: none;
+	font-weight: bold;
 }
 
 .eden-line button:hover {
@@ -112,7 +113,7 @@ span.eden-blockcomment {
 }
 
 div.eden-comment-line {
-	color: #777;
+	color: #585858;
 	font-size: 14px;
 	font-family: "Source Sans Pro",Arial,Helvetica,sans-serif;
 	line-height: 20px;
@@ -391,6 +392,10 @@ div.eden-line {
 	/*right: 0;*/
 	/*left: 43px;*/
 	/*z-index: 2;*/
+}
+
+div.eden-line.script {
+	background: #f6fbff;
 }
 
 div.eden-customline {

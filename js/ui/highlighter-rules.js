@@ -250,8 +250,11 @@ var jskeywords = {
 }
 
 EdenUI.Highlight.prototype.START = function() {
+	if (this.outerline.length == 9) this.outerline = "eden-line script";
+
 	switch(this.token) {
 	case "##"		:	if (this.stream.isBOL()) {
+							this.outerline = "eden-line comment";
 							this.classes.push("hidden-comment");
 							//this.lineelement.className = "eden-comment-line";
 							this.mode = "SECTION_TITLE";
@@ -276,6 +279,8 @@ EdenUI.Highlight.prototype.START = function() {
 							this.classes.push("hidden-comment");
 							this.mode = "COMMENT";
 							this.incomment = true;
+
+							if (this.stream.isBOL()) this.outerline = "eden-line comment";
 
 							if (this.prevtoken == "INVALID") this.lineelement.style.marginLeft = "0";
 							//else {
@@ -472,6 +477,8 @@ EdenUI.Highlight.prototype.START = function() {
 }
 
 EdenUI.Highlight.prototype.START_MINIMAL = function() {
+	if (this.outerline.length == 9) this.outerline = "eden-line script";
+
 	switch(this.token) {
 	/*case "##"		:
 	case "#"		:	if (this.prevtoken == "INVALID" || this.prevtoken == ";") {
@@ -544,6 +551,7 @@ EdenUI.Highlight.prototype.START_MINIMAL = function() {
 }
 
 EdenUI.Highlight.prototype.TEMPLATESTRING = function() {
+	if (this.outerline.length == 9) this.outerline = "eden-line script";
 	if (this.token == "'" && this.prevtoken != "\\") {
 		this.classes.push("string");
 		this.popMode();
@@ -730,6 +738,7 @@ EdenUI.Highlight.prototype.JAVASCRIPT = function() {
 }
 
 EdenUI.Highlight.prototype.HEREDOC = function() {
+	if (this.outerline.length == 9) this.outerline = "eden-line script";
 	if (this.prevtoken == "INVALID" && this.tokentext == this.heredocend) {
 		this.classes.push("storage");
 		this.mode = this.startmode;
@@ -739,6 +748,7 @@ EdenUI.Highlight.prototype.HEREDOC = function() {
 }
 
 EdenUI.Highlight.prototype.CUSTOMBLOCK = function() {
+	if (this.outerline.length == 9) this.outerline = "eden-line script";
 	if (this.token == "%") {
 		var p = this.stream.peek();
 		if (p != 10 && p != 32) {
@@ -748,7 +758,7 @@ EdenUI.Highlight.prototype.CUSTOMBLOCK = function() {
 			if (this.tokentext == "%"+this.heredocend) {
 				this.classes.push("storage");
 				//this.startmode = "START";
-				this.outerline = "eden-line";
+				//this.outerline = "eden-line";
 				this.mode = this.startmode;
 				return;
 			}
