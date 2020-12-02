@@ -388,8 +388,13 @@ Eden.AST.prototype.pSTATEMENT = function() {
 		stat.setDoxyComment(doxy);// (doxy && doxy.endline == curline-1) ? doxy : undefined;
 	}
 	stat.stamp = this.stamp;
-	stat.numlines = endline - curline - 1;
-	stat.setSource(start, end,this.stream.code.substring(start,end));
+	//stat.numlines = endline - curline - 1;
+
+	var srcstr = this.stream.code.substring(start,end);
+	const lines = (srcstr.match(/\n/g) || '').length;
+	stat.numlines = lines;
+
+	stat.setSource(start, end, srcstr);
 	if (stat.type != "dummy") {
 		this.lastStatement = stat;
 		this.lastStatEndline = endline;
