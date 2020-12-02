@@ -40,6 +40,7 @@ Eden.AST.LValue.prototype.setExtras = function(extras) {
 	if (extras) {
 		for (var i = 0; i < extras.length; i++) {
 			this.errors.push.apply(this.errors, extras[i].errors);
+			if (!this.warning && extras[i].warning) this.warning = extras[i].warning;
 		}
 	}
 }
@@ -54,6 +55,7 @@ Eden.AST.LValue.prototype.setPrimary = function(primary) {
 	if (primary && primary.errors.length > 0) {
 		this.errors.push.apply(this.errors, primary.errors);
 	}
+	if (!this.warning && primary.warning) this.warning = primary.warning;
 }
 
 Eden.AST.LValue.prototype.setExpression = function(express) {
@@ -61,6 +63,7 @@ Eden.AST.LValue.prototype.setExpression = function(express) {
 	if (express && express.errors.length > 0) {
 		this.errors.push.apply(this.errors, express.errors);
 	}
+	if (!this.warning && express.warning) this.warning = express.warning;
 }
 
 Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {

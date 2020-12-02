@@ -92,7 +92,25 @@ Eden.AST.prototype.pLVALUE = function() {
 		this.next();
 		lvalue.setPrimary(this.pPRIMARY());
 	} else if (this.token == "`") {
-		var btick = this.pTEMPLATE_STRING(false);
+		var btick;
+
+		if (Eden.AST.version === Eden.AST.VERSION_CS2) {
+			console.warn("Old syntax for backticks");
+			this.next();
+			btick = this.pEXPRESSION();
+			this.deprecated(btick, "Backticks are now identifier templates");
+
+			// Closing backtick missing?
+			if (this.token != "`") {
+				var primary = new Eden.AST.Primary();
+				primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BACKTICK));
+				return primary;
+			} else {
+				this.next();
+			}
+		} else {
+			btick = this.pTEMPLATE_STRING(false);
+		}
 
 		if (btick.typevalue != 0 && btick.typevalue != Eden.AST.TYPE_STRING) {
 			var primary = new Eden.AST.Primary();
@@ -107,7 +125,14 @@ Eden.AST.prototype.pLVALUE = function() {
 		var observable = this.data.value;
 		this.next();
 
-		lvalue.setObservable(observable);
+		if (this.token == "{" && Eden.AST.version === Eden.AST.VERSION_CS2) {
+			console.warn("Old syntax for backticks");
+			var p = this.pDEPRECATED_BTICK(observable);
+			this.deprecated(p, "Backticks are now identifier templates");
+			lvalue.setExpression(p);
+		} else {
+			lvalue.setObservable(observable);
+		}
 
 		//lvalue.setObservable(observable);
 	} else {

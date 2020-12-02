@@ -99,6 +99,7 @@ Eden.AST.When.prototype.setStatement = function (statement) {
 	if (statement) {
 		this.statements.push(statement);
 		this.errors.push.apply(this.errors, statement.errors);
+		if (statement.warning && !this.warning) this.warning = statement.warning;
 	}
 }
 

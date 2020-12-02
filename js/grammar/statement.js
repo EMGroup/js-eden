@@ -456,6 +456,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 		}
 	}
 
+	if (!this.warning && stat.warning) this.warning = stat.warning;
+
 	// Add statement properties
 	end = this.lastposition;
 	endline = this.lastline;

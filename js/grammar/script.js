@@ -154,6 +154,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 				ast.appendChild(statement);
 				break;
 			}*/
+			if (!ast.warning && statement.warning) ast.warning = statement.warning;
 
 			var end = statement.end;
 

@@ -33,6 +33,7 @@ Eden.AST.Assignment.prototype.left = function(lvalue) {
 	if (lvalue.errors.length > 0) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
+	if (!this.warning && lvalue.warning) this.warning = lvalue.warning;
 };
 
 /* For inside func and proc only */

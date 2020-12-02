@@ -22,6 +22,7 @@ Eden.AST.If.prototype.setStatement = function(statement) {
 		this.statements.push(statement);
 		statement.parent = this;
 		this.errors.push.apply(this.errors, statement.errors);
+		if (statement.warning && !this.warning) this.warning = statement.warning;
 	}
 };
 
@@ -31,6 +32,7 @@ Eden.AST.If.prototype.setElse = function(statement) {
 		this.statements.push(statement);
 		statement.parent = this;
 		this.errors.push.apply(this.errors, statement.errors);
+		if (statement.warning && !this.warning) this.warning = statement.warning;
 	}
 };
 

@@ -41,6 +41,7 @@ Eden.AST.Definition.prototype.left = function(lvalue) {
 	if (lvalue.errors.length > 0) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
+	if (!this.warning && lvalue.warning) this.warning = lvalue.warning;
 };
 
 /**

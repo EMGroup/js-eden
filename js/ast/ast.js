@@ -403,6 +403,10 @@ Eden.AST.prototype.typeWarning = function(node, expected) {
 	node.warning = warn;
 }
 
+Eden.AST.prototype.deprecated = function(node, message) {
+	node.warning = new Eden.SyntaxWarning(this, node, Eden.SyntaxWarning.DEPRECATED, message);
+}
+
 /**
  * Construct an AST statement node from a string. It correctly sets up the node
  * and you cannot just create the object directly. The parent of the statement
