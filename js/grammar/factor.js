@@ -56,6 +56,7 @@ Eden.AST.prototype.pFACTOR = function() {
 			literal.mergeExpr(expr);
 		}
 	
+		literal.typevalue = Eden.AST.TYPE_OBJECT;
 		if (literal.errors.length > 0) return literal;
 
 		// Must have a closing bracket...
@@ -80,11 +81,10 @@ Eden.AST.prototype.pFACTOR = function() {
 
 		// Merge any errors found in the expressions
 		for (var i = 0; i < elist.length; i++) {
-			if (elist[i].errors.length > 0) {
-				literal.mergeExpr(elist[i]);
-			}
+			literal.mergeExpr(elist[i]);
 		}
 		
+		literal.typevalue = Eden.AST.TYPE_LIST;
 		if (literal.errors.length > 0) return literal;
 
 		// Must have a closing bracket...
@@ -130,7 +130,13 @@ Eden.AST.prototype.pFACTOR = function() {
 	// Unary negation operator
 	} else if (this.token == "-") {
 		this.next();
-		return new Eden.AST.UnaryOp("-", this.pFACTOR());
+		if (this.token == "NUMBER") {
+			var lit = new Eden.AST.Literal("NUMBER", -this.data.value);
+			this.next();
+			return lit;
+		} else {
+			return new Eden.AST.UnaryOp("-", this.pFACTOR());
+		}
 	} else if (this.token == "<" && eden.root.lookup("jseden_parser_cs3").value()) {
 		return this.pHTML();
 	// Heredoc for multiline strings

@@ -20,7 +20,6 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 			return op;
 		} else if (c == "{") {
 			this.next();
-			console.log("TOKEN",this.token);
 
 			var str = this.stream.code.substring(laststart,this.stream.position-2);
 			var subexp = this.pEXPRESSION();
@@ -51,6 +50,7 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 				expr = subexp;
 			}
 		} else if (c == "${") {
+			// TODO: Implement this
 
 			var subexp = this.pEXPRESSION();
 

@@ -45,6 +45,25 @@ Eden.AST.prototype.pTERM_P = function() {
 		binop.left(left);
 		binop.setRight(this.pTERM_PP());
 		left = binop;
+
+		if (binop.op == "//") {
+			if (binop.l.typevalue != 0 && binop.r.typevalue != 0 && binop.l.typevalue != binop.r.typevalue) {
+				binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			}
+			if (binop.l.typevalue == Eden.AST.TYPE_NUMBER || binop.r.typevalue == Eden.AST.TYPE_NUMBER) {
+				binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			}
+			if (binop.l.typevalue == Eden.AST.TYPE_OBJECT || binop.r.typevalue == Eden.AST.TYPE_OBJECT) {
+				binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			}
+		} else {
+			if (binop.l.typevalue == Eden.AST.TYPE_OBJECT || binop.r.typevalue == Eden.AST.TYPE_OBJECT) {
+				binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			}
+			if (binop.l.typevalue == Eden.AST.TYPE_LIST || binop.r.typevalue == Eden.AST.TYPE_LIST) {
+				binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			}
+		}
 	}
 
 	return left;
@@ -65,6 +84,10 @@ Eden.AST.prototype.pTERM_PP = function() {
 		binop.left(left);
 		binop.setRight(this.pTERM_PPP());
 		left = binop;
+
+		if ((binop.l.typevalue != 0 && binop.l.typevalue != Eden.AST.TYPE_NUMBER) || (binop.r.typevalue != 0 && binop.r.typevalue != Eden.AST.TYPE_NUMBER)) {
+			binop.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+		}
 	}
 
 	return left;
