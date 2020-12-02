@@ -192,6 +192,7 @@ module.exports = function (grunt) {
 					'./js/grammar/section.js',
 					'./js/grammar/after.js',
 					'./js/grammar/cs3_html.js',
+					'./js/grammar/template.js',
 					'./js/project.js',
 					'./js/fragment.js',
 					'./js/query.js',
