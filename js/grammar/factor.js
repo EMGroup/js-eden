@@ -135,7 +135,14 @@ Eden.AST.prototype.pFACTOR = function() {
 			this.next();
 			return lit;
 		} else {
-			return new Eden.AST.UnaryOp("-", this.pFACTOR());
+			var fact = this.pFACTOR();
+			var op = new Eden.AST.UnaryOp("-", fact);
+
+			if (fact.typevalue != 0 && fact.typevalue != Eden.AST.TYPE_NUMBER) {
+				this.syntaxError(op, Eden.SyntaxError.BADEXPRTYPE);
+			}
+
+			return op;
 		}
 	} else if (this.token == "<" && eden.root.lookup("jseden_parser_cs3").value()) {
 		return this.pHTML();

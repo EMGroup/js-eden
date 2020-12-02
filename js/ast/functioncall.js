@@ -10,8 +10,11 @@ Eden.AST.FunctionCall = function() {
 Eden.AST.FunctionCall.prototype.setParams = function(params) {
 	this.params = params;
 	for (var i = 0; i < params.length; i++) {
-		this.errors.push.apply(this.errors, params[i].errors);
+		this.mergeExpr(params[i]);
 	}
+
+	this.typevalue = 0;
+	this.isconstant = false;
 };
 
 Eden.AST.FunctionCall.prototype.left = function(lvalue) {

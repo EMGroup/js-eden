@@ -9,16 +9,16 @@ Eden.AST.Indexed.prototype.left = Eden.AST.fnEdenASTleft;
 
 Eden.AST.Indexed.prototype.setExpression = function(expr) {
 	this.expression = expr;
-	if (expr && expr.errors.length > 0) {
-		this.errors.push.apply(this.errors, expr.errors);
-	}
+	this.mergeExpr(expr);
+
+	// Analyse types?
+
+	this.typevalue = 0;
 }
 
 Eden.AST.Indexed.prototype.addIndex = function(index) {
 	this.indexes.push(index);
-	if (index && index.errors.length > 0) {
-		this.errors.push.apply(this.errors, index.errors);
-	}
+	this.mergeExpr(index);
 }
 
 Eden.AST.Indexed.prototype.toEdenString = function(scope, state) {
