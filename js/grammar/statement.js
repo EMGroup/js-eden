@@ -492,7 +492,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	stat.local = this.localStatus;
 	stat.line = this.stream.line - curline;
 	if (stat.doxyComment === undefined) {
-		if (!stat.setDoxyComment) console.error("Bad stat", stat);
+		//if (!stat.setDoxyComment) console.error("Bad stat", stat);
 		stat.setDoxyComment(doxy);// (doxy && doxy.endline == curline-1) ? doxy : undefined;
 	}
 	stat.stamp = this.stamp;
@@ -500,7 +500,8 @@ Eden.AST.prototype.pSTATEMENT = function() {
 
 	var srcstr = this.stream.code.substring(start,end);
 	const lines = (srcstr.match(/\n/g) || '').length;
-	stat.numlines = lines;
+	const doxylines = (doxy) ? (doxy.content.match(/\n/g) || '').length : 0;
+	stat.numlines = lines+doxylines;
 
 	stat.setSource(start, end, srcstr);
 	if (stat.type != "dummy") {

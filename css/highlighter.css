@@ -147,9 +147,10 @@ span.eden-comment-hidden {
 
 div.current span.eden-comment-hidden {
 	display: initial;
-	color: red;
+	color: blue;
 	font: 14px "Source Sans Pro",Arial,Helvetica,sans-serif;
 	font-weight: bold;
+	opacity: 0.6;
 }
 
 span.eden-comment-ul {
@@ -395,7 +396,7 @@ div.eden-line {
 }
 
 div.eden-line.script {
-	background: #f6fbff;
+	/*background: #f6fbff;*/
 	margin-left: 8px;
 }
 

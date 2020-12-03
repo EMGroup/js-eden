@@ -3253,7 +3253,7 @@ func randomInteger {
 			return undefined;
 		}
 		
-		var n = Math.floor(root.lookup("random").definition(root, root.scope)() * (upperBound - lowerBound + 1) + lowerBound);
+		var n = Math.floor(rt.f.func_random(scope)() * (upperBound - lowerBound + 1) + lowerBound);
 		if (n > upperBound) {
 			// 1 / 2^62 chance
 			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
