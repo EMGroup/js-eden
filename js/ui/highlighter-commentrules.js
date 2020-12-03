@@ -201,7 +201,7 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 							this.classes.push("comment");
 						}
 						break;
-	case "\""		:	this.pushMode();
+	case "\\"		:	this.pushMode();
 						this.mode = "COMMENT_ESCAPE";
 						this.classes.push("hidden-comment");
 						break;
