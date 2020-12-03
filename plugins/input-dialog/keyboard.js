@@ -104,6 +104,15 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 		}// else if (!e.ctrlKey && ) {
 		//	sa.focusText();
 		//}
+
+		var key = genKey(e);
+
+		switch(key) {
+		case "Ctrl-h"		:	sa.toggleHighlighting();
+								e.preventDefault();
+								sa.focusOutput();
+								break;
+		}
 	}
 
 
@@ -113,8 +122,8 @@ EdenUI.ScriptArea.Keyboard = function(sa) {
 	 * update the highlight. The actual paste occurs after the event!
 	 */
 	function onOutputPaste(e) {
-		sa.intextarea.focus();
-		setTimeout(function() { sa.updateEntireHighlight() }, 0);
+		sa.focusText();
+		//setTimeout(function() { sa.updateEntireHighlight() }, 0);
 	}
 
 
