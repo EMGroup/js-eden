@@ -407,7 +407,7 @@ func:[static] nameof {
 		var pointer = arguments[0];
 		
 		if (pointer instanceof EdenSymbol) {	
-			return pointer.name.slice(1);
+			return pointer.name;
 		} else if (
 			pointer !== null &&
 			typeof(pointer) == "object" &&
@@ -417,7 +417,7 @@ func:[static] nameof {
 			"parent" in pointer &&
 			pointer.parent instanceof EdenSymbol
 		) {
-			return pointer.parent.name.slice(1) + "[" + pointer.keys[0] + "]";
+			return pointer.parent.name + "[" + pointer.keys[0] + "]";
 		} else {
 			eden.error(new Error("nameof: The argument must be a pointer, not a " + typeof(pointer)), "error");
 			return undefined;

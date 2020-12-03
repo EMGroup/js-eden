@@ -151,7 +151,7 @@ Eden.AST.prototype.pFACTOR_HEREDOC = function() {
 
 	this.next();
 
-	var lit = new Eden.AST.Literal("STRING", res.slice(0,-1).replace(/\\/g,"\\\\").replace(/"/g, "\\\""));
+	var lit = new Eden.AST.Literal("STRING", res.slice(0,-1)); //.replace(/\\/g,"\\\\").replace(/"/g, "\\\""));
 	return lit;
 }
 

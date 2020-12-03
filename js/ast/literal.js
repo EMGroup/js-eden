@@ -86,8 +86,8 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 						res += "}"; //if (ctx && ctx.isdynamic) ctx.dynamic_source += "}";
 						break;
 	case "CHARACTER":
-	case "STRING"	:	var str = this.value.replace(/\n/g,"\\n");
-						res = "\""+str+"\""; break; //if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(this.value); break;
+	case "STRING"	:	//var str = this.value.replace(/\n/g,"\\n");
+						res = JSON.stringify(this.value); break; //"\""+str+"\""; break; //if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(this.value); break;
 	case "BOOLEAN"	:	res = this.value; break; //if (ctx && ctx.isdynamic) ctx.dynamic_source += (this.value) ? "true" : "false"; break;
 	case "JAVASCRIPT"	: res = this.value; break; //if (ctx && ctx.isdynamic) ctx.dynamic_source += "${{ " + this.value + " }}$"; break;
 	case "UNDEFINED"	: break; //if (ctx && ctx.isdynamic) ctx.dynamic_source += "@"; break;

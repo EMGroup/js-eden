@@ -130,6 +130,18 @@ describe("Template string literals", () => {
 		expect(ast.isdynamic).toEqual(false);
 	});
 
+	test("template with quotes", () => {
+		var ast = Eden.AST.parseExpression(`'hello "world"'`);
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("literal");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(true);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.isdynamic).toEqual(false);
+	});
+
 	test("template with escaped close char", () => {
 		var ast = Eden.AST.parseExpression(`'hello\\' world'`);
 

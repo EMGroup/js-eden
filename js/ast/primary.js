@@ -142,7 +142,8 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				//res = ctx.locals[this.observable].value();
 				var val = ctx.locals[this.observable].value(options.scope);
 				//if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(val);
-				res = JSON.stringify(val);
+				//res = JSON.stringify(val);
+				res = `${scope}.value("${this.observable}")`;
 				if (val === undefined) console.error("Local variable undefined", this.observable);
 			}
 			for (var i=0; i<this.extras.length; i++) {

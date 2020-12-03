@@ -32,8 +32,11 @@ Eden.AST.UnaryOp = function(op, right) {
 Eden.AST.UnaryOp.prototype.toEdenString = function(scope, state) {
 	if (this.op == "sub") {
 		var val = Eden.AST.executeExpressionNode(this.r, scope, state);
-		if (typeof val == "object" && val._is_eden_expression) {
+		var type = typeof val;
+		if (type == "object" && val._is_eden_expression) {
 			return val.toEdenString(scope,state);
+		} else if (type == "object" && val instanceof EdenSymbol) {
+			val = "&"+val.name;
 		} else {
 			val = Eden.edenCodeForValue(val);
 		}
@@ -60,8 +63,11 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 		}
 		var val = Eden.AST.executeExpressionNode(this.r, (options.scope) ? options.scope : eden.root.scope, state);
 
-		if (typeof val == "object" && val._is_eden_expression) {
+		var type = typeof val;
+		if (type == "object" && val._is_eden_expression) {
 			val = val.generate(ctx, scope, options);
+		} else if (type == "object" && val instanceof EdenSymbol) {
+			val = `${scope}.context.lookup("${val.name}")`;
 		} else {
 			val = JSON.stringify(val);
 		}
