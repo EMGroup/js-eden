@@ -1,5 +1,3 @@
-const { TestScheduler } = require('jest');
-
 var Eden = require('../js/core/eden').Eden;
 
 test('lookup creates a symbol', ()=>{

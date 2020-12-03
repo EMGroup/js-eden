@@ -24,7 +24,7 @@ Eden.AST.LValue.prototype.toEdenString = function(scope, state) {
 		var expr = "return "+this.express.generate(ctx, "scope", {bound: false, scope: scope})+";";
 
 		if (ctx.isconstant) {
-			var val = (new Function(["context","scope"], expr))(eden.root, scope);
+			var val = (new Function(["context","scope"], expr))(scope.context, scope);
 			obs = val;
 		} else {
 			obs = "`"+this.express.toEdenString(scope, state)+"`";
@@ -72,7 +72,7 @@ Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
 		return ctx.locals[this.name];
 	}
 
-	if (this.name) return eden.root.lookup(this.name);
+	if (this.name) return scope.context.lookup(this.name);
 
 	if (this.primary) {
 		var sym = this.primary.execute(ctx,base,scope);
@@ -84,7 +84,7 @@ Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
 		var name = this.express.execute(ctx,base,scope);
 		//console.log(name);
 		if (name instanceof BoundValue) name = name.value;
-		return eden.root.lookup(name);
+		return scope.context.lookup(name);
 	}
 }
 
@@ -122,7 +122,7 @@ Eden.AST.LValue.prototype.executeCompList = function(ctx, scope) {
 	for (var i=0; i<this.lvaluep.length; i++) {
 		if (this.lvaluep[i].kind == "index") {
 			var iexp = this.lvaluep[i].indexexp.generate(ctx, "scope", {bound: false});
-			res.push(rt.index((new Function(["context","scope"], "return "+iexp+";"))(eden.root,scope)));
+			res.push(rt.index((new Function(["context","scope"], "return "+iexp+";"))(scope.context,scope)));
 		}
 	}
 	return res;

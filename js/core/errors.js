@@ -721,6 +721,8 @@ Eden.SyntaxError.prototype.toString = function() {
 /**
  * Constructor for AST runtime errors. This must be given positional info
  * because it can't be extracted from context.
+ * 
+ * @param {object} context Eden.Folder symbol table
  */
 Eden.RuntimeError = function(context, errno, statement, extra) {
 	this.type = "runtime";
@@ -729,7 +731,7 @@ Eden.RuntimeError = function(context, errno, statement, extra) {
 	this.extra = extra;
 	this.errno = errno;
 	this.context = context;
-	this.lastsymbol = eden.root.lastlookup;
+	this.lastsymbol = context.lastlookup;
 
 	console.error(extra);
 }
@@ -789,14 +791,12 @@ Eden.RuntimeError.prototype.messageText = function() {
 Eden.RuntimeError.prototype.edenSource = function() {
 	if (this.statement) {
 		if (this.statement.type == "definition") {
-			var sym = eden.root.symbols[this.statement.lvalue.name];
+			var sym = this.context.symbols[this.statement.lvalue.name];
 			if (sym && sym.definition) {
 				return sym.getSource();
 			}
 		} else if (this.statement.getSource) {
 			return this.statement.getSource();
-		} else if (this.context) {
-			return this.context.getSource(this.statement);
 		}
 	}
 }

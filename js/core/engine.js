@@ -1,5 +1,5 @@
 Eden.AST.DummyContext = {
-	subscribeDynamic: function(p,d) { return eden.root.lookup(d); },
+	subscribeDynamic: function(p,d) { return d; },
 	scopes: []
 };
 
@@ -40,7 +40,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			statements[i].executed = 1;
 			statements[i].compile(ctx);
 			if (statements[i].compiled_delay) {
-				yield statements[i].compiled_delay(eden.root,scope);
+				yield statements[i].compiled_delay(scope.context,scope);
 			} else {
 				yield 0;
 			}
@@ -59,7 +59,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 		} else if (statements[i].type == "do") {
 			statements[i].executed = 1;
 			statements[i].selector = (statements[i].name) ? statements[i].name.execute(ctx, base, scope, agent) : undefined;
-			statements[i].nscope = statements[i].getScope(ctx, scope)(eden.root,scope);
+			statements[i].nscope = statements[i].getScope(ctx, scope)(scope.context,scope);
 			if (statements[i].literal) {
 				var state = {
 					isconstant: false,
@@ -126,7 +126,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 	}*/
 }
 
-function runEdenAction(source, action, cb) {
+function runEdenAction(source, scope, action, cb) {
 	var me = this;
 
 	if (action === undefined) {
@@ -139,7 +139,7 @@ function runEdenAction(source, action, cb) {
 			// The debugger wants to interrupt the script
 			if (Eden.AST.debug && delay.value.type == "debug") {
 				// Save the next step to be called later by debugger.
-				var debugnext = function() {runEdenAction.call(me, source, action, cb)};
+				var debugnext = function() {runEdenAction.call(me, source, scope, action, cb)};
 				delay.value.next = debugnext;
 
 				// Check which callback to use
@@ -153,7 +153,6 @@ function runEdenAction(source, action, cb) {
 			// Need to do an import and block until done.
 			} else if (delay.value.type == "import") {
 				delay.value.executed = 1;
-				//if (eden.peer) eden.peer.imports(source, delay.value.path, delay.value.tag, delay.value.options);
 
 				//console.log("IMPORT",delay.value.selector);
 
@@ -167,12 +166,12 @@ function runEdenAction(source, action, cb) {
 						delay.value.statements = stats;
 					}
 					// Continue execution.
-					runEdenAction.call(me,source, action, cb);
+					runEdenAction.call(me,source, scope, action, cb);
 				});
 
 			} else if (delay.value.type == "query") {
 				function docb(stats) {
-					runEdenAction.call(me,source, action, cb);
+					runEdenAction.call(me,source, scope, action, cb);
 				}
 
 				switch(delay.value.kind) {
@@ -196,7 +195,7 @@ function runEdenAction(source, action, cb) {
 						// Allow for execution in a different scope.
 						var nscope = delay.value.nscope;
 
-						if (delay.value.attribs.atomic) eden.root.beginAutocalcOff();
+						if (delay.value.attribs.atomic) scope.context.beginAutocalcOff();
 
 						if (nscope.range) {
 							nscope.range = false;
@@ -210,13 +209,13 @@ function runEdenAction(source, action, cb) {
 
 							nscope.range = true;
 							me.executeStatements(sscripts, undefined, source, function() {
-								if (delay.value.attribs.atomic) eden.root.endAutocalcOff();
-								runEdenAction.call(me,source, action, cb);
+								if (delay.value.attribs.atomic) scope.context.endAutocalcOff();
+								runEdenAction.call(me,source, scope, action, cb);
 							}, {locals: {}}, nscope);
 						} else {
 							me.executeStatements(stats, undefined, source, function() {
-								if (delay.value.attribs.atomic) eden.root.endAutocalcOff();
-								runEdenAction.call(me,source, action, cb);
+								if (delay.value.attribs.atomic) scope.context.endAutocalcOff();
+								runEdenAction.call(me,source, scope, action, cb);
 							}, {locals: {}}, nscope);
 						}
 					} else {
@@ -224,9 +223,9 @@ function runEdenAction(source, action, cb) {
 						err.line = delay.value.line;
 						//delay.value.errors.push(err);
 						delay.value.warning = err;
-						eden.emit("warning", [source,err]);
-						if (delay.value.attribs.atomic) eden.root.endAutocalcOff();
-						runEdenAction.call(me,source, action, cb);
+						scope.context.instance.emit("warning", [source,err]);
+						if (delay.value.attribs.atomic) scope.context.endAutocalcOff();
+						runEdenAction.call(me,source, scope, action, cb);
 					}
 				}
 
@@ -244,10 +243,10 @@ function runEdenAction(source, action, cb) {
 				//console.log("STATS",stats, delay.value.selector);
 			}
 		} else if (delay.value == 0) {
-			runEdenAction.call(this,source, action, cb);
+			runEdenAction.call(this,source, scope, action, cb);
 		} else if (delay.value > 0) {
 			// A wait statement requested a delay.
-			setTimeout(function() {runEdenAction.call(me, source, action, cb)}, delay.value);
+			setTimeout(function() {runEdenAction.call(me, source, scope, action, cb)}, delay.value);
 		}
 	} else {
 		source.active = false;
@@ -260,7 +259,7 @@ function runEdenAction(source, action, cb) {
 /**
  * Execute the given statement and catch any errors.
  */
-Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
+Eden.AST.prototype.executeStatement = function(statement, scope, agent, cb) {
 
 	// Debug callback to begin block
 	if (Eden.AST.debug && (Eden.AST.debugstep || ( agent && agent.doDebug && agent.doDebug()))) {
@@ -272,8 +271,8 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 	let ctx = {cb: cb};
 
 	try {
-		var gen = this.executeGenerator([statement], ctx ,this, eden.root.scope, agent);
-		runEdenAction.call(this,agent, gen, function() {
+		var gen = this.executeGenerator([statement], ctx ,this, scope, agent);
+		runEdenAction.call(this, agent, scope, gen, function() {
 			// Debug callback to end block
 			if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
@@ -290,14 +289,14 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
 		var err;
 
 		if (/[0-9][0-9]*/.test(e.message)) {
-			err = new Eden.RuntimeError(this, parseInt(e.message), undefined, e.message);
+			err = new Eden.RuntimeError(scope.context, parseInt(e.message), undefined, e.message);
 		} else {
-			err = new Eden.RuntimeError(this, 0, undefined, e);
+			err = new Eden.RuntimeError(scope.context, 0, undefined, e);
 		}
 
 		err.line = this.line;
 
-		if (agent) eden.emit("error", [agent,err]);
+		if (agent) scope.context.instance.emit("error", [agent,err]);
 		else console.log(err.prettyPrint());
 		//throw e;
 	}
@@ -307,7 +306,7 @@ Eden.AST.prototype.executeStatement = function(statement, line, agent, cb) {
  * Execute the given statement and catch any errors.
  */
 Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx, scope) {
-	if (scope === undefined) scope = eden.root.scope;
+	if (!scope) throw "Missing scope"; 
 
 	// Debug callback to begin block
 	if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
@@ -316,7 +315,7 @@ Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx
 
 	try {
 		var gen = this.executeGenerator(statements, ctx ,this, scope, agent);
-		runEdenAction.call(this,agent, gen, function() {
+		runEdenAction.call(this,agent, scope, gen, function() {
 			// Debug callback to end block
 			if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
@@ -341,7 +340,7 @@ Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx
 
 		err.line = this.line;
 
-		if (agent) eden.emit("error", [agent,err]);
+		if (agent) scope.context.instance.emit("error", [agent,err]);
 		else console.log(err.prettyPrint());
 		//throw e;
 	}

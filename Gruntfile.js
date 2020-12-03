@@ -150,6 +150,7 @@ module.exports = function (grunt) {
 					'./js/ast/virtual.js',
 					'./js/ast/scriptexpr.js',
 					'./js/ast/subscribers.js',
+					'./js/ast/substatement.js',
 					'./js/ast/switch.js',
 					'./js/ast/ternaryop.js',
 					'./js/ast/unaryop.js',

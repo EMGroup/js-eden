@@ -19,6 +19,7 @@ Eden.AST.Definition.prototype.setAttributes = function(attribs) {
 		case "eager"	: this.eager = true; break;
 		case "volatile"	: this.volatile = true; break;
 		case "static"	: this.isstatic = true; break;
+		case "async"	: break;
 		case "number"	:
 		case "boolean"	:
 		case "object"	:

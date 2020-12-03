@@ -66,6 +66,20 @@ describe("Primary extras", () => {
 		expect(ast.isdynamic).toEqual(false);
 	});
 
+	test("function call with missing close", () => {
+		var ast = Eden.AST.parseExpression("a(5,'hello',[]");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.errors.length).toBeGreaterThan(0);
+	});
+
+	test("function call with missing expression", () => {
+		var ast = Eden.AST.parseExpression("a(5,'hello',)");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.errors.length).toBeGreaterThan(0);
+	});
+
 });
 
 // ==== Backticks ==============================================================
@@ -151,6 +165,32 @@ describe("Primary backticks", () => {
 	
 		expect(ast).toBeTruthy();
 		expect(ast.errors.length).toBeGreaterThan(0);
+	});
+
+});
+
+describe("Extras on Backticks Primary", () => {
+
+	test("list index after backticks", () => {
+		var ast = Eden.AST.parseExpression("`obs{a}6`[1]");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.type).toEqual("primary");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_UNKNOWN);
+		expect(ast.isconstant).toEqual(false);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.isdynamic).toEqual(true);
+	});
+
+	test("function call after backticks", () => {
+		var ast = Eden.AST.parseExpression("`obs{a}6`()");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.type).toEqual("primary");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_UNKNOWN);
+		expect(ast.isconstant).toEqual(false);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.isdynamic).toEqual(true);
 	});
 
 });

@@ -13,8 +13,8 @@
 	 * @struct
 	 */
 	function Eden(root) {
-		this.root = root;
-		root.base = this;
+		this.root = (!root) ? new Eden.Folder(null, this) : root;
+		this.root.base = this;
 		this.dictionary = {};	// Used to store doxy comments for symbols.
 
 		/**
@@ -159,6 +159,10 @@
 		this.root.lookup(name).assign(value, (scope) ? scope : this.root.scope, EdenSymbol.hciAgent);
 	}
 
+	Eden.prototype.get = function(name, scope) {
+		return this.root.lookup(name).value(scope);
+	}
+
 	Eden.prototype.attribute = function(node, name) {
 		var sym = (typeof node == "string") ? eden.root.lookup(node) : node;
 		return Eden.Selectors.processResults([sym],name)[0];
@@ -190,6 +194,19 @@
 		}
 	};
 	Eden.prototype.execute = Eden.prototype.execute2;
+
+	Eden.prototype.exec = function(code) {
+		return new Promise((resolve, reject) => {
+			let agobj = {name: '*execute'};
+
+			var ast = new Eden.AST(code, undefined, agobj, {noindex: true});
+			if (ast.script.errors.length == 0) {
+				ast.execute(agobj, this.root.scope, () => { resolve(ast.lastresult); });
+			} else {
+				reject(ast.script.errors[0].messageText());
+			}
+		});
+	}
 
 	/**
 	 * Parse and evaluate an eden expression from a string, returning the value.

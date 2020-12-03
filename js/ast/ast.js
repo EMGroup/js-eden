@@ -343,9 +343,9 @@ Eden.AST.prototype.generate = function() {
 
 
 
-Eden.AST.prototype.execute = function(agent, cb) {
+Eden.AST.prototype.execute = function(agent, scope, cb) {
 	//this.script.execute(undefined, this, root.scope);
-	this.executeStatement(this.script, 0, agent, cb);
+	this.executeStatement(this.script, scope, agent, cb);
 }
 
 

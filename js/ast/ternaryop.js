@@ -38,7 +38,7 @@ Eden.AST.TernaryOp.prototype.left = function(pleft) {
 };
 
 Eden.AST.TernaryOp.prototype.toEdenString = function(scope, state) {
-	return `(${this.first.toEdenString(scope,state)} if ${this.cond.toEdenString(scope,state)} else ${this.second.toEdenString(scope,state)})`;
+	return `(${this.first.toEdenString(scope,state)} if ${this.condition.toEdenString(scope,state)} else ${this.second.toEdenString(scope,state)})`;
 }
 
 Eden.AST.TernaryOp.prototype.generate = function(ctx, scope, options) {

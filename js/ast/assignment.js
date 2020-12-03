@@ -113,7 +113,7 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 
 	if (this.doxyComment) {
-		eden.updateDictionary(this.lvalue.name, this.doxyComment);
+		scope.context.instance.updateDictionary(this.lvalue.name, this.doxyComment);
 	}
 
 	try {
@@ -121,11 +121,11 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		this.compile(ctx, scope, sym);
 		var value;
 		if (this.lvalue.hasListIndices()) {
-			value = this.compiled.call(sym, eden.root, scope, scope.lookup(sym.name));
+			value = this.compiled.call(sym, scope.context, scope, scope.lookup(sym.name));
 			var complist = this.lvalue.executeCompList(ctx, scope);
 			sym.listAssign(value, scope, this, false, complist);
 		} else {
-			value = this.compiled.call(sym, eden.root, scope, scope.lookup(sym.name));
+			value = this.compiled.call(sym, scope.context, scope, scope.lookup(sym.name));
 			if (sym.origin && sym.origin.isstatic) {
 				this.warning = new Eden.RuntimeWarning(this, Eden.RuntimeWarning.UNKNOWN, "Changing a [static] symbol");
 			}
@@ -153,7 +153,7 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		err.line = this.line;
 
 		this.errors.push(err);
-		if (agentobj) eden.emit("error", [agentobj,err]);
+		if (agentobj) scope.context.instance.emit("error", [agentobj,err]);
 		else console.log(err.prettyPrint());
 	}
 };
