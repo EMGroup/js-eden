@@ -286,6 +286,14 @@ EdenUI.showTooltip = function (event, text) {
 	tooltip.style.top = y + "px";
 	tooltip.innerHTML = text;
 	tooltip.style.display = "block";
+
+	let dialogs = $('.ui-front');
+	let zindex = 0;
+	for (var i=0; i<dialogs.length; ++i) {
+		if (dialogs[i].style.zIndex > zindex) zindex = dialogs[i].style.zIndex;
+	}
+
+	tooltip.style.zIndex = zindex+1;
 }
 
 EdenUI.closeTooltip = function () {
