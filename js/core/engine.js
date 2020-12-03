@@ -66,8 +66,9 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 					locals: ctx.locals
 				};
 				var lit = Eden.AST.executeExpressionNode(statements[i].literal, statements[i].nscope, state);
-				statements[i].statements = Eden.AST.parseScript(lit, statements[i]).statements;
-				console.log("EXEC",statements[i].statements);
+				var scriptast = Eden.AST.parseScript(lit, statements[i]);
+				statements[i].statements = (scriptast) ? scriptast.statements : [];
+				//console.log("EXEC",statements[i].statements);
 			}
 			yield statements[i];
 		} else if (statements[i].type == "when") {

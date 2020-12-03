@@ -178,6 +178,13 @@ function Construit(options,callback) {
 
 		// Default to new parser
 		eden.root.lookup("jseden_parser_cs3").assign(true, eden.root.scope, EdenSymbol.defaultAgent);
+		eden.root.lookup("jseden_parser_cs3").addJSObserver("parser", (sym, value) => {
+			if (value) {
+				Eden.AST.version = Eden.AST.VERSION_CS3;
+			} else {
+				Eden.AST.version = Eden.AST.VERSION_CS2;
+			}
+		});
 
 		// Put JS-EDEN version number or name in top-right corner.
 		$.ajax({

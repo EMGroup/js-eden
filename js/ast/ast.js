@@ -431,6 +431,7 @@ Eden.AST.parseStatement = function(src, origin) {
 }
 
 Eden.AST.parseScript = function(src, origin) {
+	if (typeof src != "string" || src.length == 0) return null;
 	var ast = new Eden.AST(src, undefined, (origin) ? origin : {}, {noparse: true, noindex: true});
 	ast.next();
 	var script = ast.pSCRIPT();
