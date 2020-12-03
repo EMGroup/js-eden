@@ -7,11 +7,13 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 		$dialog = $('<div id="'+name+'"></div>')
 			.html(code_entry)
 			.dialog({
+				appendTo: "#jseden-views",
 				title: mtitle,
 				width: 600,
 				height: 450,
 				minHeight: 120,
-				minWidth: 230
+				minWidth: 230,
+				classes: {"ui-dialog": "htmlviews-dialog ui-front"}
 			});
 	}
 
@@ -41,8 +43,8 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 		var tableHeadHTML = "<tr>"+
 			"<td class=\"lower\"><b>Name</b></td>"+
 			"<td class=\"lower\"><b>Type</b></td>" +
-			"<td class=\"lower\"><b>Definition</b></td>"+
-			"<td class=\"lower\"><b>Current Value</b></td>"+
+			"<td class=\"lower eden-wrapline\"><b>Definition</b></td>"+
+			"<td class=\"lower eden-wrapline\"><b>Current Value</b></td>"+
 			"<td class=\"lower\"><b>Watches</b></td>"+
 			"<td class=\"lower\"><b>Updates</b>"+
 			"<td class=\"lower\"><b>Backticks</b>"+
@@ -63,12 +65,12 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 			}
 			
 			var kind, definition, value;
-			if (symbol.eden_definition === undefined) {
+			if (symbol.definition === undefined) {
 				definition = "-";
 				kind = typeof(symbol.cache.value) == "function"? "Function" : "Observable";
-				value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cache.value));
+				value = (kind == "Function") ? symbol.getSource() : Eden.htmlEscape(Eden.edenCodeForValue(symbol.cache.value));
 			} else {
-				definition = Eden.htmlEscape(symbol.eden_definition);
+				definition = symbol.getSource();
 				if (definition.indexOf("proc") == 0) {
 					if (Eden.isitSystemAgent(name) && !(new RegExp("\\b" + name + "\\b")).test(regExp.source)) {
 						continue;
@@ -86,7 +88,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 					value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cache.value));
 				}
 			}
-			partialTable.push([symbol, name, kind, definition, value]);
+			partialTable.push([symbol, name, kind, EdenUI.Highlight.html(definition, true), value]);
 			matchingNames[name] = true;
 		}
 		
@@ -111,8 +113,36 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 
 			var backticks = referencedObservablesList(symbol.dynamicDependencyTable, matchingNames, viewName);
 
-			var lastModifiedBy = symbol.last_modified_by ? symbol.last_modified_by : 'Not yet defined';
-			lastModifiedBy = referencedObservable(lastModifiedBy, matchingNames, viewName);
+			//var lastModifiedBy = symbol.last_modified_by ? symbol.last_modified_by : 'Not yet defined';
+			//lastModifiedBy = referencedObservable(lastModifiedBy, matchingNames, viewName);
+
+			var lastModifiedBy = "Unknown";
+			if (symbol.origin) {
+				var sp = symbol.origin.parent;
+				var spwname = sp;
+				var seenwhen = false;
+				var count = 3;
+				while (count-- > 0 && spwname && (!spwname.name || spwname.name == "*When")) {
+					if (spwname.name == "*When") seenwhen = true;
+					spwname = spwname.parent;
+				}
+
+				if (sp) {
+					if (seenwhen) {
+						lastModifiedBy = "when : " + ((spwname) ? spwname.name : "") + ":" + symbol.origin.line;
+					} else if (sp.type == "script") {
+						if (sp.name) {
+							lastModifiedBy = sp.name + ":"+symbol.origin.line;
+						} else if (spwname) {
+							lastModifiedBy = "script in " + spwname.name;
+						}
+					} else {
+
+					}
+				}
+			} else {
+				lastModifiedBy = "Javascript";
+			}
 
 			var jsObservers = Object.keys(symbol.jsObservers).join(", ");
 			
@@ -120,8 +150,8 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 				"<tr id='" + viewName + "-symbol-" + row[1] + "'>"+
 					"<td class=\"lower\"><p>" + row[1] + "</p></td>" +
 					"<td class=\"lower\"><p>" + row[2] + "</p></td>" +
-					"<td class=\"lower\"><p>" + row[3] + "</p></td>" +
-					"<td class=\"lower\"><p>" + row[4] + "</p></td>" +
+					"<td class=\"lower eden-wrapline\"><p>" + row[3] + "</p></td>" +
+					"<td class=\"lower eden-wrapline\"><p>" + row[4] + "</p></td>" +
 					"<td class=\"lower\"><p>" + watches + "</p></td>" +
 					"<td class=\"lower\"><p>" + updates + "</p></td>" +
 					"<td class=\"lower\"><p>" + backticks + "</p></td>" +
@@ -147,7 +177,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 	var referencedObservables = function(referencedObs, obsInTable, viewName) {
 		var list = [];
 		for (var key in referencedObs) {
-			var name = key.slice(1);
+			var name = key;
 			list.push(referencedObservable(name, obsInTable, viewName));
 		}
 		return list.join(", ");
