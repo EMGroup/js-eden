@@ -750,7 +750,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 		}
 
 		function addObservable(obsName, columnNum, append) {
-			if (!edenUI.eden.isValidIdentifier(obsName)) {
+			if (!Eden.isValidIdentifier(obsName)) {
 				return;
 			}
 
@@ -857,7 +857,7 @@ EdenUI.plugins.ObservablePalette = function(edenUI, success) {
 				if (Array.isArray(observablesColumn)) {
 					for (var j = 0; j < observablesColumn.length; j++) {
 						var searchStr = observablesColumn[j];
-						if (edenUI.eden.isValidIdentifier(searchStr) && !/[\\*+?^$|({[]|(\s+or\s+)/i.test(searchStr)) {
+						if (Eden.isValidIdentifier(searchStr) && !/[\\*+?^$|({[]|(\s+or\s+)/i.test(searchStr)) {
 							addObservable(searchStr, col, true);
 						} else {
 							var regExp = edenUI.regExpFromStr(searchStr, "", true, searchLang);

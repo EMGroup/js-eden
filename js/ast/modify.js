@@ -99,7 +99,7 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 			ctx.locals[this.lvalue.name] = newval;
 		}
 	} else {*/
-		var sym = this.lvalue.getSymbol(ctx,base);
+		var sym = this.lvalue.getSymbol(ctx,base, scope);
 
 		if (this.kind == "++") {
 			var newval = sym.value(scope)+1;
@@ -113,7 +113,7 @@ Eden.AST.Modify.prototype.execute = function(ctx, base, scope, agent) {
 			this.scopes = [];
 
 			var express = "return ";
-			express += this.expression.generate(ctx, "scope",{bound: false});
+			express += this.expression.generate(ctx, "scope",{bound: false, scope: scope});
 			express += ";";
 			var rhs = "";
 

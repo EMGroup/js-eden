@@ -143,10 +143,10 @@ Eden.AST.When.prototype.compile = function(base, scope) {
 	return "";
 }
 
-Eden.AST.When.prototype.trigger = function() {
+Eden.AST.When.prototype.trigger = function(scope) {
 	if (!this.enabled) return;
 
-	var scope = eden.root.scope;  // FIXME:
+	//var scope = eden.root.scope;  // FIXME:
 	var base = eden.project.ast;
 	if (this.active == false) {
 		this.triggercount++;
@@ -181,7 +181,7 @@ Eden.AST.When.prototype.trigger = function() {
 				me.active = false;
 				if (me.retrigger) {
 					me.retrigger = false;
-					setTimeout(function(){me.trigger();},0);
+					setTimeout(function(){me.trigger(scope);},0);
 				}
 			}, this, scope);
 		} else {

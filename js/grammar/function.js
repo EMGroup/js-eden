@@ -10,19 +10,23 @@ Eden.AST.prototype.pFUNCTION = function() {
 	var type = this.token;
 	this.next();
 
-	if (this.token == ":") {
-		this.next();
-		var attribs = this.pATTRIBUTES();
-		if (!func.setAttributes(attribs)) {
-			// TODO: Error
-		}
-	}
-
 	if (this.token == "OBSERVABLE") {
 		var lval = new Eden.AST.LValue();
 		lval.setObservable(this.data.value);
-		func.left(lval);
 		this.next();
+
+		if (this.token == ":") {
+			this.next();
+			var attribs = this.pATTRIBUTES();
+			if (!lval.setAttributes(attribs)) {
+				lval.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCNAME));
+				func.left(lval);
+				this.parent = parent;
+				return func;
+			}
+		}
+
+		func.left(lval);
 
 		if (type == "proc") console.warn("Parsed proc", lval.name);
 	} else {

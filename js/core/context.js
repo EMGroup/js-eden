@@ -4,14 +4,14 @@ function Pointer(initialValue) {
 
 var EdenSymbol = Eden.EdenSymbol;
 
-function fireActions(actions_to_fire){
+function fireActions(actions_to_fire, scope){
 	for (var action_name in actions_to_fire) {
 		var action = actions_to_fire[action_name];
 
 		// if one action fails, it shouldn't prevent all the other
 		// scheduled actions from firing
 		if (action) {
-			action.trigger();
+			action.trigger(scope);
 		}
 	}
 };
@@ -401,7 +401,7 @@ Folder.prototype.expireAndFireActions = function () {
 	}
 	var actions_to_fire = this.needsTrigger;
 	this.needsTrigger = {};
-	fireActions(actions_to_fire);
+	fireActions(actions_to_fire, this.scope);
 	fireJSActions(expired);
 	fireJSActions(symbolsToForce);
 

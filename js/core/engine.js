@@ -324,6 +324,7 @@ Eden.AST.prototype.executeStatements = function(statements, line, agent, cb, ctx
 			if (cb) cb();
 		});
 	} catch (e) {
+		console.error(e);
 		// Debug callback to end block
 		if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 			if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});

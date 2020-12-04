@@ -1,4 +1,4 @@
-Eden.AST.CodeBlock = function() {
+/*Eden.AST.CodeBlock = function() {
 	this.type = "codeblock";
 	Eden.AST.BaseContext.apply(this);
 	this.params = undefined;
@@ -50,4 +50,4 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx, scope, options) {
 }
 
 Eden.AST.registerContext(Eden.AST.CodeBlock);
-
+*/

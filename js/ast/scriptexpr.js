@@ -34,6 +34,7 @@ Eden.AST.ScriptExpr.prototype.setScript = function(script) {
 Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 
 	var funcdef = "if (!scope) { console.warn('No function scope'); throw 'No scope'; }\n";
+	funcdef += "var context = scope.context;\n";
 
 	var opts = Object.assign({}, options);
 	opts.usevar = true;

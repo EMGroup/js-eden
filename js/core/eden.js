@@ -75,7 +75,7 @@
 		//if (eden.peer && !net) eden.peer.doxy(name, comment);
 	}
 
-	Eden.prototype.isValidIdentifier = function (name) {
+	Eden.isValidIdentifier = function (name) {
 		return Boolean(name && /^[_a-zA-Z$]\w*$/.test(name));
 	};
 

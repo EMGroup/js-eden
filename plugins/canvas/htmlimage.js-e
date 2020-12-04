@@ -215,7 +215,7 @@ HTMLImage.prototype.draw = function(context) {
 			}
 			mapJQ.append(areaJQ);
 
-			if (eden.isValidIdentifier(regionName)) {
+			if (Eden.isValidIdentifier(regionName)) {
 				var clickSym = root.lookup(regionName + "_click");
 				if (clickSym.value() === undefined) {
 					clickSym.assign(false, root.scope, root.lookup("HTMLImage"));

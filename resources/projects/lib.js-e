@@ -15,7 +15,7 @@ debug = ${{ {jsExceptions: edenUI.getOptionValue("developer") == "true" } }}$;
 jseden_version is jseden_version_major*10000000+jseden_version_minor*100000+jseden_version_patch*1000+jseden_version_commit;
 
 #! Force the maintainer to update dependencies
-proc:[static] eager {
+proc eager:static {
 	if (autocalc == 0) {
 		autocalc = 1;
 		autocalc = 0;
@@ -23,7 +23,7 @@ proc:[static] eager {
 };
 
 #! Get the current time in seconds from epoch.
-func:[static] time {
+func time {
   ${{
   var now = new Date();
   return Math.floor(now.getTime() / 1000);
@@ -31,7 +31,7 @@ func:[static] time {
 };
 
 jseden_notifications = [];
-proc:[static] writeln {
+proc writeln:static {
 	para text;
 	auto msg;
 	msg = str(text);
@@ -44,7 +44,7 @@ proc:[static] writeln {
 #Returns undefined if either argument is undefined.
 # @param function A function to be called.
 # @param parameters A list of parameters to pass.
-func:[static] apply {
+func apply:static {
 	${{
 		if (arguments.length != 2) {
 			eden.error(new Error("apply: This function requires exactly 2 arguments."), "error");
@@ -63,7 +63,7 @@ func:[static] apply {
 
 #! Forget a particular observable.
 # @param observable A string or pointer for the observable to delete.
-func:[static] forget {
+func forget:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("forget: This function requires exactly 1 argument."), "error");
@@ -130,7 +130,7 @@ func:[static] forget {
 #	know how recreate, such as redrawing the canvas if the picture observable is later given a new
 #	definition.
 #
-func:[static] forgetAll {
+func forgetAll:static {
 	${{
 		var searchStr, caseSensitive, requireConfirm, includeSystemSymbols;
 		var regExp, symbol;
@@ -383,7 +383,7 @@ func:[static] forgetAll {
 
 #! Generate an error notification.
 # @param msg Message to give with error.
-func:[static] error {
+func error:static {
 	para msg;
 	local obss;
 	${{ obss = eden.root.currentObservables.map(s=>{ return s.name; }); }}$
@@ -397,7 +397,7 @@ func:[static] error {
 #! Get the name of a symbol pointer.
 # @param pointer Pointer to a symbol.
 # @return String name of symbol.
-func:[static] nameof {
+func nameof:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("nameof: This function requires exactly 1 argument."), "error");
@@ -425,35 +425,7 @@ func:[static] nameof {
 	}}$;
 }
 
-proc:[static] todo {
-	para p1;
-	auto code;
-	auto argc;
-
-	argc = ${{ arguments.length }}$;
-
-	if (argc != 1) {
-		error("todo: This proc requires exactly 1 argument.");
-		return;
-	}
-	
-	code = p1;
-	
-	if (code == @) {
-		return;
-	} else if (!isString(code)) {
-		error("todo: The argument must be of type string, not " // type(code));
-		return;
-	}
-	
-	code = code // ";";
-	
-	/*after (0) {*/
-		execute(code);
-	/*}*/
-}
-
-proc:[static] touch {
+proc touch:static {
 	${{
 		root.beginAutocalcOff();
 		for (var i = 0; i < arguments.length; i++) {
@@ -525,7 +497,7 @@ action type {
 #  @param value The source value.
 #
 #  #library #type #character #typecast #convert
-func:[static] char {
+func char:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("char: this function requires exactly one argument."), "error");
@@ -566,7 +538,7 @@ func:[static] char {
 #    @param value The original value.
 #
 # #library #types #number #convert #integer #typecast
-func:[static] int {
+func int:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("int: this function requires exactly one argument."), "error");
@@ -604,7 +576,7 @@ func:[static] int {
 #  @param value Character string to get number for.
 #
 # #library #types #character #code #unicode
-func:[static] charCode {
+func charCode:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("charCode: this function requires exactly one argument."), "error");
@@ -629,7 +601,7 @@ func:[static] charCode {
 #! Convert a value of any type to a string.
 #   @param value The original value to convert.
 # #library #types #string #typecast #convert
-func:[static] str {
+func str:static {
 	para v;
 	auto argc;
 	argc = ${{ arguments.length }}$;
@@ -697,7 +669,7 @@ func:[static] str {
  * more lucid form of expression than tests such as, if (type(v) == "string").
  * #library #types
  */
-func:[static] type {
+func type:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("type: this function requires exactly one argument."), "error");
@@ -752,7 +724,7 @@ func:[static] type {
 }
 
 /** Tests if a value is a Boolean value. #library #types */
-func:[static] isBoolean {
+func isBoolean:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isBoolean: This function requires exactly 1 argument."), "error");
@@ -763,7 +735,7 @@ func:[static] isBoolean {
 }
 
 /** Tests if a value is a func or a proc. #library #types */
-func:[static] isCallable {
+func isCallable:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isCallable: This function requires exactly 1 argument."), "error");
@@ -774,7 +746,7 @@ func:[static] isCallable {
 }
 
 /** Tests if a value is a char value (string of length 1). #library #types */
-func:[static] isChar {
+func isChar:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isChar: This function requires exactly 1 argument."), "error");
@@ -785,7 +757,7 @@ func:[static] isChar {
 }
 
 /** #library #types */
-func:[static] isDefined {
+func isDefined:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isDefined: This function requires exactly 1 argument."), "error");
@@ -820,7 +792,7 @@ func:[static] isDefined {
  *		equal to another NaN value, which is mathematically queer.
  * #library #types
  */
-func:[static] isValue {
+func isValue:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isValue: This function requires exactly 1 argument."), "error");
@@ -832,7 +804,7 @@ func:[static] isValue {
 }
 
 /** Tests if a value is a func. #library #types #function */
-func:[static] isFunc {
+func isFunc:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isFunc: This function requires exactly 1 argument."), "error");
@@ -844,7 +816,7 @@ func:[static] isFunc {
 }
 
 /** Tests if a value is an integer. #library #types #number */
-func:[static] isInt {
+func isInt:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isInt: This function requires exactly 1 argument."), "error");
@@ -856,7 +828,7 @@ func:[static] isInt {
 }
 
 /** Tests if a value is a list. #library #types #list */
-func:[static] isList {
+func isList:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isList: This function requires exactly 1 argument."), "error");
@@ -867,7 +839,7 @@ func:[static] isList {
 }
 
 /** Tests if a value is a NaN. #library #types #number */
-func:[static] isNaN {
+func isNaN:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isNaN: This function requires exactly 1 argument."), "error");
@@ -878,7 +850,7 @@ func:[static] isNaN {
 }
 
 /** Tests if a value is a number (float or int). #library #types #number */
-func:[static] isNumber {
+func isNumber:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isNumber: This function requires exactly 1 argument."), "error");
@@ -894,7 +866,7 @@ func:[static] isNumber {
  * far EDEN is concerned.
  * #library #types
  */
-func:[static] isObject {
+func isObject:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isObject: This function requires exactly 1 argument."), "error");
@@ -905,7 +877,7 @@ func:[static] isObject {
 }
 
 /** #library #types */
-func:[static] isPoint {
+func isPoint {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isPoint: This function requires exactly 1 argument."), "error");
@@ -916,7 +888,7 @@ func:[static] isPoint {
 }
 
 /** Tests if a value is a pointer. #library #types */
-func:[static] isPointer {
+func isPointer:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isPointer: This function requires exactly 1 argument."), "error");
@@ -934,7 +906,7 @@ func:[static] isPointer {
 }
 
 /** Tests if a value is a proc. #types #library #procedure */
-func:[static] isProc {
+func isProc:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isProc: This function requires exactly 1 argument."), "error");
@@ -946,7 +918,7 @@ func:[static] isProc {
 }
 
 /** Tests if a value is a string. #library #string #types */
-func:[static] isString {
+func isString:static {
 	${{
 		if (arguments.length != 1) {
 			eden.error(new Error("isString: This function requires exactly 1 argument."), "error");
@@ -1021,7 +993,7 @@ func Point {
  *   @param type One of the allowed types of window.
  *   @return A view data object.
  */
-proc:[static] createView {
+proc createView {
 	para name, type;
 	${{ edenUI.createView(name, type, this); }}$;
 }
@@ -1083,7 +1055,7 @@ ${{
  * Make sure the named view is visible. It must already have been created.
  *   @param name The name of the view.
  */
-proc:[static] showView {
+proc showView {
 	para name;
 	`view_{name}_visibility` = "visible";
 	${{
@@ -1092,7 +1064,7 @@ proc:[static] showView {
 	}}$;
 }
 
-proc:[static] hideView {
+proc hideView {
 	para name;
 	`view_{name}_visibility` = "hidden";
 }
@@ -1107,7 +1079,7 @@ proc stopHighlightingView {
 	${{ edenUI.stopHighlightingView(name, false, false); }}$;
 }
 
-proc:[static] destroyView {
+proc destroyView {
 	para name;
 	${{ edenUI.destroyView(name, true); }}$;
 }
@@ -1148,11 +1120,11 @@ views_unit_y = ${{ edenUI.gridSizeY }}$;
 /** The maximum width a view can be if it fits within the browser window without scrolling.
  *  @oracle
  */
-screenWidth is ${{ document.getElementById("jseden-views").clientWidth }}$ || jseden_menu_visible || browser_resize;
+screenWidth:number is ${{ document.getElementById("jseden-views").clientWidth }}$ || jseden_menu_visible || browser_resize;
 /** The maximum height a view can be if it fits within the browser window without scrolling.
  *  @oracle
  */
-screenHeight is ${{ document.getElementById("jseden-views").clientHeight }}$ || jseden_menu_visible || browser_resize;
+screenHeight:number is ${{ document.getElementById("jseden-views").clientHeight }}$ || jseden_menu_visible || browser_resize;
 ${{
 	window.addEventListener("resize", function (event) {
 		root.lookup("browser_resize").assign(new Point(window.innerWidth,window.innerHeight), root.scope, EdenSymbol.defaultAgent);
@@ -1224,25 +1196,25 @@ ${{
 	}
 }}$;
 
-proc:[static] showAgents {
+proc showAgents {
 	${{
 		showSymbols("Agent", arguments[0], arguments[1], arguments[2]);
 	}}$;
 }
 
-proc:[static] showFunctions {
+proc showFunctions {
 	${{
 		showSymbols("Function", arguments[0], arguments[1], arguments[2]);
 	}}$;
 }
 
-proc:[static] showObservables {
+proc showObservables {
 	${{
 		showSymbols("Observable", arguments[0], arguments[1], arguments[2]);
 	}}$;
 }
 
-proc:[static] showSymbols {
+proc showSymbols {
 	${{
 		showSymbols("Symbol", arguments[0], arguments[1], arguments[2]);
 	}}$;
@@ -1328,7 +1300,7 @@ action list {
  * If more than two arguments are provided then an error is raised.
  * #library #list
  */
-func:[static] array {
+func array {
 	${{
 		if (arguments.length == 0 || arguments.length > 2) {
 			eden.error(new Error("array: This function requires at least 1 argument and at most 2 arguments."), "error");

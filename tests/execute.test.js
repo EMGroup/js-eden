@@ -103,4 +103,19 @@ describe("Execution of Observable Definitions", () => {
 		expect(eden.get("b")).toBe(25);
 	});
 
+	test("define as an if statement", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 4; b = 5; c = true; d is a if c else b;");
+		expect(eden.get("d")).toBe(4);
+		await eden.exec("c = false;");
+		expect(eden.get("d")).toBe(5);
+	});
+
+	test("define an arithmetic expression", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 5; b is a + a*a - 2;");
+		expect(eden.get("b")).toBe(28);
+	});
+
 });
+

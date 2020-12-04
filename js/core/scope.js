@@ -44,6 +44,8 @@ function Scope(context, parent, overrides, range, cause, nobuild) {
 	this.range = range;
 	this.isolate = false;
 
+	if (!context) console.error("MISSING SCOPE CONTEXT");
+
 	this.cachearray = null;
 
 	if (this.cause && this.cause.hasOwnProperty("scopecount")) {

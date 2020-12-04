@@ -24,7 +24,7 @@ proc html {
 			if (typeof(viewName) != "string") {
 				eden.error(new Error("html: The name of the view to update must be a string, not a " + typeof(viewName)), "error");
 				return;
-			} else if (!eden.isValidIdentifier(viewName)) {
+			} else if (!Eden.isValidIdentifier(viewName)) {
 				eden.error(new Error("html: The name of the view to update must be a valid EDEN identifier."), "error");
 				return;
 			}
