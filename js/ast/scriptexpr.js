@@ -38,6 +38,11 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 	var opts = Object.assign({}, options);
 	opts.usevar = true;
 
+	if (!options.scope) {
+		console.error("Missing scope");
+		throw "Missing scope";
+	}
+
 	var nctx = {
 		dependencies: ctx.dependencies,
 		locals: {}
@@ -81,7 +86,7 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 
 	try {
 		var f = new Function(["scope"], funcdef);
-		rt.f["func_"+name] = f;
+		options.scope.context.f["func_"+name] = f;
 	} catch (e) {
 		console.error("Func compile error: "+name,e);
 	}
@@ -89,7 +94,7 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 	//result = result + "}).call(this,new Scope(context,"+scope+",[],false,this,false)) : undefined)";
 	
 	//return `((${scope} !== eden.root.scope)?rt.f.func_${name}.call(this,${scope}) : "__FUNC__")`;
-	return `rt.f.func_${name}`;
+	return `context.f.func_${name}`;
 }
 
 Eden.AST.registerExpression(Eden.AST.ScriptExpr);

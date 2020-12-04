@@ -204,9 +204,9 @@ Eden.AST.executeExpressionNode = function(node, scope, state) {
 		var f = new Function(["context","scope","cache"],rhs);
 		
 		if (state.symbol) {
-			return f.call(state.symbol, eden.root, scope, scope.lookup(state.symbol.name));
+			return f.call(state.symbol, scope.context, scope, scope.lookup(state.symbol.name));
 		} else {
-			return f(eden.root, scope, null);
+			return f(scope.context, scope, null);
 		}
 	} catch(e) {
 		err = new Eden.RuntimeError(null, Eden.RuntimeError.UNKNOWN, (state.statement)?state.statement:node, "Expression evaluation failed: "+node.toEdenString(scope,state));
@@ -214,7 +214,7 @@ Eden.AST.executeExpressionNode = function(node, scope, state) {
 			err.line = state.statement.line;
 			state.statement.errors.push(err);
 		} else node.errors.push(err);
-		eden.emit("error", [{name: (state.symbol)?state.symbol.name : "Inline"},err]);
+		scope.context.instance.emit("error", [{name: (state.symbol)?state.symbol.name : "Inline"},err]);
 		return undefined;
 	}
 }

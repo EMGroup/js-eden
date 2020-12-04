@@ -44,7 +44,7 @@
 	global.Eden = Eden;
 
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
-		rt = require('./runtime').rt;
+		global.rt = require('./runtime').rt;
 		require('./symbol');
 		require('./context');
 		require('./scope');
@@ -56,6 +56,7 @@
 		require('../lex');
 		require('./engine');
 		require('./errors');
+		require('../index');
 		var Utils = require('../util/misc');
 		listenTo = Utils.listenTo;
 		emit = Utils.emit;

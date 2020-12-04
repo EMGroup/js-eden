@@ -91,11 +91,11 @@ Eden.AST.Do.prototype.setStatement = function(statement) {
 
 Eden.AST.Do.prototype.generate = function(ctx, scope, options) {
 	if (this.literal) {
-		return "eden.execute("+this.literal.generate(ctx, scope, options)+");";
+		return "context.instance.execute("+this.literal.generate(ctx, scope, options)+");";
 	} else {
 		var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'do' here");
 		this.errors.push(err);
-		eden.emit("error", [EdenSymbol.defaultAgent,err]);
+		options.scope.emit("error", [EdenSymbol.defaultAgent,err]);
 		return "";
 	}
 }

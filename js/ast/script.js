@@ -129,6 +129,7 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 
 	if (this.subscribers) {
 		for (var sub in this.subscribers) {
+			// FIXME: Bad reference to eden
 			eden.root.expireEdenSymbol(this.subscribers[sub]);
 		}
 	}

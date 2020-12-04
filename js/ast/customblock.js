@@ -34,7 +34,7 @@ Eden.AST.CustomBlock.prototype.generate = function(ctx, scope) {
 
 Eden.AST.CustomBlock.prototype.execute = function(ctx,base,scope,agent) {
 	this.executed = 1;
-	eden.root.lookup("script_"+this.name+"_execute").assign(this.text, scope);
+	scope.context.lookup("script_"+this.name+"_execute").assign(this.text, scope);
 	var stats = [];
 	return stats;
 }

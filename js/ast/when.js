@@ -83,8 +83,8 @@ Eden.AST.When.prototype.subscribeDynamic = function(position, dependency, scope)
 	}*/
 	//var p = this;
 	//while (p.parent) p = p.parent;
-	eden.project.addTrigger(this, dependency, scope);
-	return eden.root.lookup(dependency);
+	scope.context.instance.project.addTrigger(this, dependency, scope);
+	return scope.context.lookup(dependency);
 }
 
 Eden.AST.When.prototype.setExpression = function (express) {
@@ -146,7 +146,7 @@ Eden.AST.When.prototype.compile = function(base, scope) {
 Eden.AST.When.prototype.trigger = function() {
 	if (!this.enabled) return;
 
-	var scope = eden.root.scope;
+	var scope = eden.root.scope;  // FIXME:
 	var base = eden.project.ast;
 	if (this.active == false) {
 		this.triggercount++;
@@ -170,7 +170,7 @@ Eden.AST.When.prototype.trigger = function() {
 		}
 
 		this.active = true;
-		scope = this.getScope(this)(eden.root,scope);
+		scope = this.getScope(this)(scope.context,scope);
 		//this.nscope = scope;  // Use previous scope?
 
 		var res = this.executeReal(this, base, scope);
@@ -213,7 +213,7 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 		//if (scope.first()) {
 			while (true) {
 				var cscope = scope.clone();
-				if (this.compiled.call(this, eden.root,scope)) {
+				if (this.compiled.call(this, scope.context,scope)) {
 					sscripts.push(new Eden.AST.ScopedScript(this.statement.statements, cscope));
 					//console.log("RANGE WHEN:", scope);
 				} else {
@@ -226,9 +226,9 @@ Eden.AST.When.prototype.executeReal = function(ctx, base, scope) {
 		scope.range = true;
 		return sscripts;
 	} else {
-		if (this.compiled.call(this,eden.root,scope)) {
+		if (this.compiled.call(this,scope.context,scope)) {
 			//console.log(this.name, scope);
-			if (scope !== eden.root.scope && this.statement.type == "script") {
+			if (scope !== scope.context.scope && this.statement.type == "script") {
 				return [new Eden.AST.ScopedScript(this.statement.statements, scope)];
 			} else {
 				return [this.statement];
@@ -250,7 +250,7 @@ Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
 		eden.project.registerAgent(this);
 	}
 	this.enabled = true;
-	scope = (this.nscope) ? this.nscope : this.getScope(this)(eden.root, scope);
+	scope = (this.nscope) ? this.nscope : this.getScope(this)(scope.context, scope);
 	this.nscope = scope;
 	if (agent && !agent.loading) base.executeStatements(this.executeReal(ctx,base,scope,agent), -1, this, undefined, this, scope);
 }

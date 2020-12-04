@@ -149,7 +149,7 @@ Eden.AST.For.prototype.execute = function(ctx, base, scope, agent) {
 		return [this.sstart,this];
 	}
 
-	if (this.getCondition(ctx, scope)(eden.root,scope)) {
+	if (this.getCondition(ctx, scope)(scope.context,scope)) {
 		return [this.statement, this.inc, this];
 	} else {
 		this.started = false;

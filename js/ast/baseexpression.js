@@ -40,14 +40,14 @@ Eden.AST.BaseExpression.execute = function(ctx, base, scope) {
 		symbol: ctx.symbol
 	};
 	var rhs = Eden.AST.transpileExpressionNode(this, scope, state);
-	return (new Function(["context","scope","cache"],rhs)).call((state.symbol)?state.symbol:null, eden.root, scope, (state.symbol)?scope.lookup(state.symbol.name):null);
+	return (new Function(["context","scope","cache"],rhs)).call((state.symbol)?state.symbol:null, scope.context, scope, (state.symbol)?scope.lookup(state.symbol.name):null);
 }
 
 Eden.AST.BaseExpression.toString = function() {
 	var state = {
 		isconstant: true
 	};
-	var res = this.toEdenString(eden.root.scope, state);
+	var res = this.toEdenString(eden.root.scope, state);  // FIXME: Don't refer to eden
 	return "parse("+JSON.stringify(res)+")";
 }
 

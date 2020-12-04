@@ -96,7 +96,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			statement: this,
 			symbol: sym
 		};
-		var expr = this.expression.toEdenString((scope) ? scope : eden.root.scope, state);
+		var expr = this.expression.toEdenString(scope, state);
 
 		if (state.isconstant) {
 			expr = sym.name + " = " + expr + ";";
@@ -171,7 +171,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			}
 			this.errors.push(err);
 			err.line = this.line;
-			eden.emit("error", [agent,this.errors[this.errors.length-1]]);
+			scope.context.instance.emit("error", [agent,this.errors[this.errors.length-1]]);
 		}
 	}
 }

@@ -22,7 +22,7 @@ Eden.AST.SubStatement.prototype.generate = function(ctx,scope,options) {
 		scope: options.scope,
 		symbol: options.symbol
 	};
-	var val = Eden.AST.executeExpressionNode(this.expression, (options.scope) ? options.scope : eden.root.scope, state);
+	var val = Eden.AST.executeExpressionNode(this.expression, options.scope, state);
 
 	var stat = Eden.AST.parseStatement(val);
 	console.log("PARSE STRING = " + val, stat);

@@ -62,7 +62,7 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 		if (this.modexpr) {
 			var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use '?' on lhs here");
 			this.errors.push(err);
-			eden.emit("error", [EdenSymbol.defaultAgent,err]);
+			options.scope.context.instance.emit("error", [EdenSymbol.defaultAgent,err]);
 			return "";
 
 			var modexpr = this.modexpr.generate(ctx,scope,{bound: false});
@@ -97,7 +97,7 @@ Eden.AST.Query.prototype.execute = function(ctx,base,scope, agent) {
 	this.executed = 1;
 
 	if (this.observable) {
-		var val = eden.root.lookup(this.observable).value(scope);
+		var val = scope.context.lookup(this.observable).value(scope);
 		console.log(val);
 		base.lastresult = val;
 		//if (ctx.cb) ctx.cb(val);

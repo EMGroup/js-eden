@@ -46,7 +46,7 @@ Eden.AST.Append.prototype.execute = function(ctx, base, scope, agent) {
 		s.value().push(val);
 	}, undefined);*/
 
-	var sym = eden.root.lookup(this.destination.name);
+	var sym = scope.context.lookup(this.destination.name);
 	var val2 = sym.value(scope);
 	val2.push(val);
 	//console.log("VALUE: ", sym.value(scope));

@@ -84,19 +84,18 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 	var sym = this.lvalue.getSymbol(ctx,base,scope);
 	var argsstr = this.generateArgs(ctx, "scope", {scope: scope});
 
-	if (eden.peer) {
-		func += "eden.peer.callProcedure(name, args);\n";
-	}
+	//if (eden.peer) {
+	//	func += "eden.peer.callProcedure(name, args);\n";
+	//}
 
 	try {
 		var args = eval(argsstr);
 		sym.value(scope)(scope).apply(sym, args);
-		//return (new Function(["context","scope","cache"],func)).call(ctx,eden.root,scope,scope.cache);
 	} catch(e) {
 		var err = new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e);
 		this.errors.push(err);
 		err.line = this.line;
-		eden.emit("error", [agent,err]);
+		scope.context.instance.emit("error", [agent,err]);
 		console.error(func);
 		//throw e;
 	}

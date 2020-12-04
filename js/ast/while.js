@@ -41,7 +41,7 @@ Eden.AST.While.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 
 	// A tail recursive while loop...
-	if (this.getCondition(ctx)(eden.root,scope)) {
+	if (this.getCondition(ctx)(scope.context,scope)) {
 		return [this.statement, this];
 	}
 }

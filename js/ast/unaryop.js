@@ -61,7 +61,7 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 			isconstant: true,
 			locals: ctx.locals
 		}
-		var val = Eden.AST.executeExpressionNode(this.r, (options.scope) ? options.scope : eden.root.scope, state);
+		var val = Eden.AST.executeExpressionNode(this.r, options.scope, state);
 
 		var type = typeof val;
 		if (type == "object" && val._is_eden_expression) {
@@ -92,11 +92,11 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 	}
 
 	if (this.op == "compile") {
-		return "eden.transpileExpression("+r+", this, "+scope+")";  // TODO: Needs local variable context
+		return "scope.context.instance.transpileExpression("+r+", this, "+scope+")";  // TODO: Needs local variable context
 	} else if (this.op == "parse") {
-		return "eden.parseExpression("+r+", this)";
+		return "scope.context.instance.parseExpression("+r+", this)";
 	} else if (this.op == "eval") {
-		return "eden.evalEden("+r+", this, "+scope+")";  // TODO: Needs local variable context
+		return "scope.context.instance.evalEden("+r+", this, "+scope+")";  // TODO: Needs local variable context
 	} else if (this.op == "!") {
 		res = "!("+r+")";
 	} else if (this.op == "&") {
@@ -131,11 +131,7 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 		//ctx.backtickCount++;
 	}
 
-	if (options.bound) {
-		return "new BoundValue("+res+","+scope+")";
-	} else {
-		return res;
-	}
+	return res;
 }
 
 Eden.AST.registerExpression(Eden.AST.UnaryOp);

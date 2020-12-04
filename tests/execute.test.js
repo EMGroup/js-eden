@@ -79,3 +79,28 @@ describe("Execution of Observable Assignments", () => {
 	});
 
 });
+
+describe("Execution of Observable Definitions", () => {
+
+	test("define as a numeric constant", async () => {
+		let eden = new Eden();
+		await eden.exec("a is 5;");
+		expect(eden.get("a")).toBe(5);
+	});
+
+	test("define as a dependency on another", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 5; b is a;");
+		expect(eden.get("b")).toBe(5);
+		expect(eden.getAttribute("b","depends")).toEqual(["a"]);
+		await eden.exec("a = 6;");
+		expect(eden.get("b")).toBe(6);
+	});
+
+	test("define as a function call", async () => {
+		let eden = new Eden();
+		await eden.exec("func tfunc { para a; return a*a; } b is tfunc(5);");
+		expect(eden.get("b")).toBe(25);
+	});
+
+});

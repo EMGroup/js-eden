@@ -45,7 +45,7 @@ Eden.AST.Insert.prototype.execute = function(ctx, base, scope) {
 	var val = this.value.execute(ctx,base,scope);
 	if (ix instanceof BoundValue) ix = ix.value;
 	if (val instanceof BoundValue) val = val.value;
-	eden.root.lookup(this.destination.name).mutate(scope, function(s) {
+	scope.context.lookup(this.destination.name).mutate(scope, function(s) {
 		s.value().splice(ix-1, 0, val);
 	}, this);
 }

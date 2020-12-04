@@ -30,7 +30,7 @@ Eden.AST.Delete.prototype.execute = function(ctx, base, scope) {
 	this.executed = 1;
 	var ix = this.index.execute(ctx,base,scope);
 	if (ix instanceof BoundValue) ix = ix.value;
-	eden.root.lookup(this.destination.name).mutate(scope, function(s) {
+	scope.context.lookup(this.destination.name).mutate(scope, function(s) {
 		s.value().splice(ix-1, 1);
 	}, this);
 }

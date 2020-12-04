@@ -66,8 +66,8 @@ Eden.AST.Primary.prototype.toEdenString = function(scope, state) {
 
 		if (ctx.isconstant) {
 			console.log(expr);
-			var val = (new Function(["context","scope"], expr))(eden.root, scope);
-			if (!eden.isValidIdentifier(val)) {
+			var val = (new Function(["context","scope"], expr))(scope.context, scope);
+			if (!Eden.isValidIdentifier(val)) {
 				return "__error__";
 			} else {
 				obs = val;
@@ -89,9 +89,9 @@ Eden.AST.Primary.prototype.toEdenString = function(scope, state) {
 	return obs;
 }
 
-Eden.AST.Primary.prototype._checkFunction = function() {
-	var fsym = eden.root.lookup(this.observable);
-	if (fsym.origin && fsym.origin.isstatic && rt.f.hasOwnProperty("func_"+this.observable)) {
+Eden.AST.Primary.prototype._checkFunction = function(scope) {
+	var fsym = scope.context.lookup(this.observable);
+	if (fsym.origin && fsym.origin.isstatic && scope.context.f.hasOwnProperty("func_"+this.observable)) {
 		console.log("has static function: "+this.observable);
 		return true;
 	}
@@ -209,7 +209,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 				ctx.dependencies[btickgen] = true;
 				tmpdeplog = false;
 				
-				if (!eden.isValidIdentifier(btickgen)) {
+				if (!Eden.isValidIdentifier(btickgen)) {
 					//eden.error("Backtick produces invalid identifier: "+btickgen);
 					btickgen = "__error__";
 				}
@@ -263,7 +263,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		}
 	} else {
 		if (this.extras[0].type == "functioncall") { //} && this._checkFunction()) {
-			res = "rt.f.func_"+this.observable;
+			res = "context.f.func_"+this.observable;
 		} else {
 			//res = scope+".value("+res+")";
 
