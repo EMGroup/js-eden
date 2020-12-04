@@ -1,3 +1,5 @@
+(function(){
+
 var Language = {
 	language: "en",
 
@@ -191,3 +193,5 @@ Eden.Language = Language;
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	exports.Language = Language;
 }
+
+})();

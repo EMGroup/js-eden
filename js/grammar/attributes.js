@@ -1,8 +1,19 @@
 
 Eden.AST.prototype.pATTRIBUTES = function() {
 	if (this.token != "[") {
-		return {error: new Eden.SyntaxError(this, Eden.SyntaxError.DOATTRIBCLOSE)};
+		//return {error: new Eden.SyntaxError(this, Eden.SyntaxError.DOATTRIBCLOSE)};
+
+		if (this.token != "OBSERVABLE") {
+			return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
+		}
+
+		var attribs = {};
+		attribs[this.data.value] = true;
+		this.next();
+		return attribs;
 	}
+
+
 	this.next();
 
 	var attribs = {};

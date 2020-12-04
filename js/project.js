@@ -305,7 +305,7 @@ Eden.Project.prototype.start = function(cb) {
 		return;
 	}
 
-	this.ast.execute(this, function() {
+	this.ast.execute(this, eden.root.scope, function() {
 		if (me.ast.scripts["ACTIVE"]) {
 			// Find the active action and replace
 			for (var i=0; i<me.ast.script.statements.length; i++) {

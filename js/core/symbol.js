@@ -12,6 +12,7 @@ function copy(value) {
 
 edenCopy = copy;
 
+(function() {
 
 /**
  * A EdenSymbol table entry.
@@ -1055,3 +1056,5 @@ EdenSymbol.prototype.listAssign = function(value, scope, origin, pushToNetwork, 
 }
 
 Eden.EdenSymbol = EdenSymbol;
+
+})();

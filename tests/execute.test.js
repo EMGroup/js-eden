@@ -20,6 +20,12 @@ describe("Execution of Observable Assignments", () => {
 		expect(eden.get("b")).toBe(9);
 	});
 
+	test("assign a simple binary expression", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 9 + 2;");
+		expect(eden.get("a")).toBe(11);
+	});
+
 	test("assign using an inline if", async () => {
 		let eden = new Eden();
 		await eden.exec("a = 9; b = 2 if a == 9 else 0;");
@@ -38,6 +44,38 @@ describe("Execution of Observable Assignments", () => {
 		let eden = new Eden();
 		await eden.exec("a = [1,2,3,4]; b = a[3];");
 		expect(eden.get("b")).toBe(3);
+	});
+
+	test("assign with a static attribute", async () => {
+		let eden = new Eden();
+		await eden.exec("a:[static] = 5;");
+		expect(eden.get("a")).toBe(5);
+		expect(eden.getAttribute("a","static")).toEqual(true);
+
+		await eden.exec("a:static = 6;");
+		expect(eden.get("a")).toBe(6);
+		expect(eden.getAttribute("a","static")).toEqual(true);
+		// TODO: Check a warning was produced.
+	});
+
+	test("assign with a type attribute", async () => {
+		let eden = new Eden();
+		await eden.exec("a:number = 5;");
+		expect(eden.get("a")).toBe(5);
+		
+		await eden.exec("a:number = 'hello';");
+		expect(eden.get("a")).toBe(5);
+		// TODO: Check an error or warning was produced.
+
+		await eden.exec("a:number = 20;");
+		expect(eden.get("a")).toBe(20);
+
+		await eden.exec("a = 'hello';");
+		expect(eden.get("a")).toBe(20);
+		// TODO: Check an error or warning was produced
+
+		await eden.exec("a:string = 'hello';");
+		expect(eden.get("a")).toEqual("hello");
 	});
 
 });

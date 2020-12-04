@@ -644,7 +644,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					console.log("ONRUN",tab_frags[curtab].originast);
 					tab_frags[curtab].ast.executeStatement(tab_frags[curtab].originast, 0, tab_frags[curtab]);
 				} else {
-					tab_frags[curtab].ast.execute(tab_frags[curtab]);
+					tab_frags[curtab].ast.execute(tab_frags[curtab], eden.root.scope);
 				}
 				rebuildTabs();
 			}

@@ -407,6 +407,20 @@ Eden.AST.prototype.deprecated = function(node, message) {
 	node.warning = new Eden.SyntaxWarning(this, node, Eden.SyntaxWarning.DEPRECATED, message);
 }
 
+Eden.AST.typeCheck = function(type, value) {
+	var typeval = typeof value;
+
+	switch (type) {
+	case 0							: return true;
+	case Eden.AST.TYPE_BOOLEAN		: return typeval == "boolean";
+	case Eden.AST.TYPE_STRING		: return typeval == "string";
+	case Eden.AST.TYPE_NUMBER		: return typeval == "number";
+	case Eden.AST.TYPE_OBJECT		: return typeval == "object";
+	case Eden.AST.TYPE_LIST			: return Array.isArray(value);
+	default: return true;
+	}
+}
+
 /**
  * Construct an AST statement node from a string. It correctly sets up the node
  * and you cannot just create the object directly. The parent of the statement
@@ -454,10 +468,10 @@ Eden.AST.parseExpression = function(src) {
 	return expr;
 }
 
-Eden.AST.parseRule = function(rule, src) {
+Eden.AST.parseRule = function(rule, src, args) {
 	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
 	ast.next();
-	var expr = ast[rule]();
+	var expr = (args) ? ast[rule].apply(ast, args) : ast[rule]();
 	if (ast.token != "EOF") {
 		ast.syntaxError(expr, Eden.SyntaxError.UNKNOWN);
 	}

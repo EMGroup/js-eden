@@ -257,3 +257,72 @@ ENDline`);
 	});
 
 });
+
+describe("Factor Template String", () => {
+
+	test("accepts a string constant", () => {
+		var ast = Eden.AST.parseRule("pTEMPLATE_STRING", "'hello world'", [true]);
+		expect(ast.type).toEqual("literal");
+		expect(ast.typevalue).toEqual(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(true);
+		expect(ast.isdynamic).toEqual(false);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.value).toEqual("hello world");
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("fails with missing close tick", () => {
+		var ast = Eden.AST.parseRule("pTEMPLATE_STRING", "'hello world", [true]);
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+	test("allows for escaped tick", () => {
+		var ast = Eden.AST.parseRule("pTEMPLATE_STRING", "'hello\\' world'", [true]);
+		expect(ast.type).toEqual("literal");
+		expect(ast.typevalue).toEqual(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(true);
+		expect(ast.isdynamic).toEqual(false);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.value).toEqual("hello' world");
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("allows for escaped braces", () => {
+		var ast = Eden.AST.parseRule("pTEMPLATE_STRING", "'hello \\{world\\}'", [true]);
+		expect(ast.type).toEqual("literal");
+		expect(ast.typevalue).toEqual(Eden.AST.TYPE_STRING);
+		expect(ast.isconstant).toEqual(true);
+		expect(ast.isdynamic).toEqual(false);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.value).toEqual("hello {world}");
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("fails with missing close substitution", () => {
+		var ast = Eden.AST.parseRule("pTEMPLATE_STRING", "'hello {name'", [true]);
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+	// TODO: Should this be ok or not?
+	test("fails with missing open substitution", () => {
+		var ast = Eden.AST.parseRule("pTEMPLATE_STRING", "'hello name}'", [true]);
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+	// TODO: Should this be an error?
+	test("warning when substituting a list type", () => {
+		var ast = Eden.AST.parseRule("pTEMPLATE_STRING", "'hello {[]}'", [true]);
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.warning).toBeTruthy();
+	});
+
+	test("fails with empty substitution", () => {
+		var ast = Eden.AST.parseRule("pTEMPLATE_STRING", "'hello {}'", [true]);
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+});

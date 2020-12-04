@@ -7,6 +7,7 @@ Eden.AST.LValue = function() {
 	this.lvaluep = undefined;
 	this.islocal = false;
 	this.source = "";
+	this.isstatic = false;
 };
 
 Eden.AST.LValue.prototype.error = Eden.AST.fnEdenASTerror;
@@ -32,6 +33,23 @@ Eden.AST.LValue.prototype.toEdenString = function(scope, state) {
 
 		return obs;
 	}
+}
+
+Eden.AST.LValue.prototype.setAttributes = function(attribs) {
+	for (var a in attribs) {
+		switch (a) {
+		case "static"	:	this.isstatic = true; break;
+		case "number"	:	this.typevalue = Eden.AST.TYPE_NUMBER; break;
+		case "string"	:	this.typevalue = Eden.AST.TYPE_STRING; break;
+		case "boolean"	:	this.typevalue = Eden.AST.TYPE_BOOLEAN; break;
+		case "list"		:	this.typevalue = Eden.AST.TYPE_LIST; break;
+		case "any"		:	this.typevalue = 0; break;
+		case "object"	:	this.typevalue = Eden.AST.TYPE_OBJECT; break;
+		default: return false;
+		}
+	}
+
+	return true;
 }
 
 
@@ -76,15 +94,14 @@ Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
 
 	if (this.primary) {
 		var sym = this.primary.execute(ctx,base,scope);
-		if (sym instanceof BoundValue) sym = sym.value;
 		return sym;
 	}
 	if (this.express) {
 		//console.log(this.express);
 		var name = this.express.execute(ctx,base,scope);
-		//console.log(name);
-		if (name instanceof BoundValue) name = name.value;
-		return scope.context.lookup(name);
+		var sym = scope.context.lookup(name);
+
+		return sym;
 	}
 }
 

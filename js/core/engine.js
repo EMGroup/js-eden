@@ -194,6 +194,7 @@ function runEdenAction(source, scope, action, cb) {
 						var params = delay.value.params;
 						// Allow for execution in a different scope.
 						var nscope = delay.value.nscope;
+						if (!nscope) nscope = scope;
 
 						if (delay.value.attribs.atomic) scope.context.beginAutocalcOff();
 

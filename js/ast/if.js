@@ -47,9 +47,9 @@ Eden.AST.If.prototype.generate = function(ctx, scope, options) {
 	return res;
 }
 
-Eden.AST.If.prototype.getCondition = function(ctx) {
+Eden.AST.If.prototype.getCondition = function(ctx, scope) {
 	var cond = "return ";
-	cond += this.condition.generate(ctx, "scope",{bound: false});
+	cond += this.condition.generate(ctx, "scope",{bound: false, scope: scope});
 	cond += ";";
 	return new Function(["context","scope","ctx"],cond);
 }
@@ -57,7 +57,7 @@ Eden.AST.If.prototype.getCondition = function(ctx) {
 Eden.AST.If.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	
-	if (this.getCondition(ctx)(eden.root,scope,ctx)) {
+	if (this.getCondition(ctx, scope)(scope.context,scope,ctx)) {
 		return [this.statement];
 	} else {
 		this.executed = 2;

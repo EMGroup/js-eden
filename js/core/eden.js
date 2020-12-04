@@ -163,8 +163,8 @@
 		return this.root.lookup(name).value(scope);
 	}
 
-	Eden.prototype.attribute = function(node, name) {
-		var sym = (typeof node == "string") ? eden.root.lookup(node) : node;
+	Eden.prototype.getAttribute = function(node, name) {
+		var sym = (typeof node == "string") ? this.root.lookup(node) : node;
 		return Eden.Selectors.processResults([sym],name)[0];
 	}
 
@@ -187,7 +187,7 @@
 
 		var ast = new Eden.AST(code, undefined, agobj, {noindex: true});
 		if (ast.script.errors.length == 0) {
-			ast.execute(agobj, success);
+			ast.execute(agobj, this.root.scope, success);
 		} else {
 			console.error(ast.script.errors[0].prettyPrint());
 			success && success(false);

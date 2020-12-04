@@ -588,7 +588,7 @@ EdenUI.plugins.MIDI = function (edenUI, success) {
 		inputMessageCountSym.assign(0,eden.root.scope);
 	}
 
-	Eden.Selectors.execute("plugins > midi > midi", function() { });
+	Eden.Selectors.execute("plugins > midi > midi", eden.root.scope, function() { });
 }
 EdenUI.plugins.MIDI.title = "MIDI";
 EdenUI.plugins.MIDI.description = "Adds musical capabilities to JS-EDEN.";

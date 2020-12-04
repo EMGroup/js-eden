@@ -1,7 +1,11 @@
+(function() {
+
 Eden.Selectors = {
 	cache: {}
 	//imported: new Eden.AST.Virtual("imported")
 };
+
+const EdenSymbol = Eden.EdenSymbol;
 
 Eden.Selectors.getScriptBase = function(stat) {
 	var p = stat;
@@ -186,7 +190,15 @@ Eden.Selectors.resultTypes = {
 	"single": true,
 	"expression": true,
 	"locked": true,
-	"ast": true
+	"ast": true,
+	"static": true,
+	"volatile": true,
+	"eager": true,
+	"number": true,
+	"string": true,
+	"object": true,
+	"list": true,
+	"boolean": true
 };
 
 Eden.Selectors.expressionToLists = function(expr) {
@@ -342,6 +354,7 @@ Eden.Selectors.processResults = function(statements, o) {
 									break;
 
 				case "root"		:	val = stat.parent === undefined; break;
+				case "static"	:	val = (stat instanceof EdenSymbol && stat.origin) ? stat.origin.lvalue.isstatic : false; break;
 				}
 
 				//if (val !== undefined)
@@ -800,12 +813,12 @@ Eden.Selectors.queryPromise = function(s, o, options) {
 }*/
 
 
-Eden.Selectors.execute = function(selector, cb) {
+Eden.Selectors.execute = function(selector, scope, cb) {
 	Eden.Selectors.query(selector, undefined, {minimum: 1}, function(stats) {
 		function doStat(i) {
 			var p = stats[i];
 			while (p.parent) p = p.parent;
-			p.base.executeStatement(stats[i], -1, EdenSymbol.localJSAgent, function() {
+			p.base.executeStatement(stats[i], scope, EdenSymbol.localJSAgent, function() {
 				i++;
 				if (i < stats.length) doStat(i);
 				else if (cb) cb();
@@ -1081,4 +1094,5 @@ Eden.Selectors.append = function(selector, attributes, values, ctx, cb) {
 	});
 }
 
+})();
 

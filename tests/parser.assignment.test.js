@@ -47,7 +47,7 @@ describe("Assignment to observable", () => {
 	});
 
 	test("assign a function as static", () => {
-		var ast = Eden.AST.parseStatement('x =:[static] func { return 5; };');
+		var ast = Eden.AST.parseStatement('x:static = func { return 5; };');
 
 		expect(ast).toBeTruthy();
 		expect(ast.errors).toHaveLength(0);

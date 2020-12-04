@@ -66,8 +66,8 @@ var confirmUnload = function (event) {
  * lang: Human language to use for parser and UI. E.g. lang=en for English.
 */
 function Construit(options,callback) {
-	root = new Folder();
-	eden = new Eden(root);
+	eden = new Eden();
+	root = eden.root;
 	
 	var menuBar = URLUtil.getParameterByName("menus") != "false";
 	var pluginsStr = URLUtil.getParameterByName("plugins");

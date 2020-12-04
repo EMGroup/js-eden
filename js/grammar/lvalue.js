@@ -134,6 +134,15 @@ Eden.AST.prototype.pLVALUE = function() {
 			lvalue.setObservable(observable);
 		}
 
+		if (this.token == ":") {
+			this.next();
+			var attribs = this.pATTRIBUTES();
+			if (!lvalue.setAttributes(attribs)) {
+				this.syntaxError(lvalue, Eden.SyntaxError.DOBADATTRIB);
+				return lvalue;
+			}
+		}
+
 		//lvalue.setObservable(observable);
 	} else {
 		lvalue.error(new Eden.SyntaxError(this, Eden.SyntaxError.LVALUE));

@@ -46,13 +46,6 @@ Eden.AST.Assignment.prototype.left = function(lvalue) {
 Eden.AST.Assignment.prototype.setAttributes = function(attribs) {
 	for (var a in attribs) {
 		switch (a) {
-		case "static"	: this.isstatic = true; break;
-		case "number"	:
-		case "boolean"	:
-		case "object"	:
-		case "undefined":
-		case "string"	:
-		case "list"		: break;
 		default: return false;
 		}
 	}
@@ -126,8 +119,17 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 			sym.listAssign(value, scope, this, false, complist);
 		} else {
 			value = this.compiled.call(sym, scope.context, scope, scope.lookup(sym.name));
-			if (sym.origin && sym.origin.isstatic) {
-				this.warning = new Eden.RuntimeWarning(this, Eden.RuntimeWarning.UNKNOWN, "Changing a [static] symbol");
+
+			if (sym.origin && sym.origin.lvalue) {
+				var oldlval = sym.origin.lvalue;
+				if (oldlval.isstatic) {
+					this.warning = new Eden.RuntimeWarning(this, Eden.RuntimeWarning.UNKNOWN, "Changing a [static] symbol");
+				}
+
+				var symtype = (this.lvalue.typevalue !== 0) ? this.lvalue.typevalue : oldlval.typevalue;
+				if (!Eden.AST.typeCheck(symtype, value)) {
+					throw "Type Error";
+				}
 			}
 			sym.assign(value, scope, this);
 		}
@@ -137,7 +139,6 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		}
 	} catch(e) {
 		//this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
-		var agentobj = agent;
 		var err;
 
 		if (e instanceof Eden.RuntimeError) {
@@ -153,8 +154,8 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		err.line = this.line;
 
 		this.errors.push(err);
-		if (agentobj) scope.context.instance.emit("error", [agentobj,err]);
-		else console.log(err.prettyPrint());
+		scope.context.instance.emit("error", [(agent) ? agent : {name: "Unknown"},err]);
+		//else console.log(err.prettyPrint());
 	}
 };
 

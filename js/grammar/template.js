@@ -22,12 +22,20 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 			return op;
 		} else if (c == "\\") {
 			this.stream.skip();
+		} else if (c == "}") {
+			expr = new Eden.AST.Literal("UNDEFINED");
+			this.syntaxError(expr, Eden.SyntaxError.UNKNOWN);  // TODO: Error type
+			return expr;
 		} else if (c == "{") {
 			var str = this.stream.code.substring(laststart,this.stream.position-1);
 			str = str.replace(/\\([\\\{\}'])/g,"$1");
 
 			this.next();
 			var subexp = this.pEXPRESSION();
+
+			if (subexp.typevalue == Eden.AST.TYPE_LIST || subexp.typevalue == Eden.AST.TYPE_OBJECT) {
+				this.typeWarning(subexp, Eden.AST.TYPE_STRING, subexp.typevalue);
+			}
 
 			if (this.token != "}") {
 				// TODO: Error type

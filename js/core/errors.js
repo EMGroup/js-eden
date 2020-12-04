@@ -6,6 +6,7 @@
  */
 
 
+(function() {
 
 /**
  * Constructor for syntax errors detected in the new parser. It captures the
@@ -622,6 +623,7 @@ Eden.SyntaxError.db = [
 ];
 
 
+const Language = Eden.Language;
 
 Eden.SyntaxError.prototype.extractBefore = function(maxchar) {
 	var pos = this.prevposition;
@@ -733,7 +735,7 @@ Eden.RuntimeError = function(context, errno, statement, extra) {
 	this.context = context;
 	this.lastsymbol = context.lastlookup;
 
-	console.error(extra);
+	//console.error(extra);
 }
 
 Eden.RuntimeError.UNKNOWN = 0;
@@ -828,4 +830,5 @@ Eden.RuntimeError.prototype.prettyPrint = function() {
 	}
 }
 
+})();
 

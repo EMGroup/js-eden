@@ -567,7 +567,7 @@ EdenUI.plugins.SpeechSynthesis = function(edenUI, success) {
 
 	}
 
-	Eden.Selectors.execute("plugins > speech-synthesis > speech-synthesis", function() {
+	Eden.Selectors.execute("plugins > speech-synthesis > speech-synthesis", eden.root.scope, function() {
 		eden.root.lookup("plugins_speech_sythesis_loaded").assign(true, eden.root.scope, EdenSymbol.localJSAgent);
 		if (success) success();
 	});
