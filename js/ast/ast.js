@@ -454,6 +454,16 @@ Eden.AST.parseExpression = function(src) {
 	return expr;
 }
 
+Eden.AST.parseRule = function(rule, src) {
+	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
+	ast.next();
+	var expr = ast[rule]();
+	if (ast.token != "EOF") {
+		ast.syntaxError(expr, Eden.SyntaxError.UNKNOWN);
+	}
+	return expr;
+}
+
 Eden.AST.registerExpression = function(expr) {
 	expr.prototype.execute = Eden.AST.BaseExpression.execute;
 	expr.prototype.mergeExpr = Eden.AST.BaseExpression.mergeExpr;

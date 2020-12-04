@@ -21,7 +21,7 @@ Eden.AST.prototype.pFACTOR_SUBEXP = function() {
 }
 
 Eden.AST.prototype.pFACTOR_OBJECTLITERAL = function() {
-	this.next();
+	this.next();  // remove {
 
 	var elist = {};
 	// Check for basic empty case, if not then parse elements
@@ -116,7 +116,8 @@ Eden.AST.prototype.pFACTOR_STRING = function() {
 }
 
 Eden.AST.prototype.pFACTOR_HEREDOC = function() {
-	this.next();
+	this.next();  // Remove <<
+
 	if (this.token != "OBSERVABLE") {
 		var lit = new Eden.AST.Literal("STRING", this.data.value);
 		lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.HEREDOCTOKEN));
@@ -139,19 +140,23 @@ Eden.AST.prototype.pFACTOR_HEREDOC = function() {
 		var cachepos = this.stream.position;
 		var line = this.stream.readLine();
 		if (line.startsWith(endtoken)) {
-			this.stream.position = cachepos + endtoken.length;
+			this.stream.position = cachepos;
 			break;
 		}
 		res += line;
 	}
 
+	var lit = new Eden.AST.Literal("STRING", res.slice(0,-1));
+
 	if (!this.stream.valid()) {
-		this.errors.push(new Eden.SyntaxError(this,Eden.SyntaxError.NEWLINE));
+		lit.errors.push(new Eden.SyntaxError(this,Eden.SyntaxError.NEWLINE));
+		return lit;
 	}
 
+	// Remove end token
+	this.next();
 	this.next();
 
-	var lit = new Eden.AST.Literal("STRING", res.slice(0,-1)); //.replace(/\\/g,"\\\\").replace(/"/g, "\\\""));
 	return lit;
 }
 
