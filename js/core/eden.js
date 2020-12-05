@@ -39,7 +39,11 @@
 		 * @public
 		*/
 		this.reportErrors = true;
+
+		this.ready = Eden.Project.init(this);
 	}
+
+
 
 	global.Eden = Eden;
 
@@ -49,17 +53,22 @@
 		require('./context');
 		require('./scope');
 		require('./warnings');
-		require('../ast/ast');
 		require('../language/lang');
 		require('../language/en');
 		require('../selectors/selector')
+		require('../ast/ast');
 		require('../lex');
 		require('./engine');
 		require('./errors');
 		require('../index');
-		var Utils = require('../util/misc');
-		listenTo = Utils.listenTo;
-		emit = Utils.emit;
+		let Utils = require('../util/misc');
+		global.listenTo = Utils.listenTo;
+		global.emit = Utils.emit;
+		global.unListen = Utils.unListen;
+		Eden.Utils = Utils;
+		require('../project');
+	} else {
+		Eden.Utils = Utils;
 	}
 
 	Eden.prototype.updateDictionary = function(name, comment, net) {
@@ -152,7 +161,7 @@
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
 	 */
 	Eden.prototype.error = function (error, origin) {
-		eden.emit("error", [EdenSymbol.jsAgent, new Eden.RuntimeError(undefined, 0, undefined, error)]);
+		eden.emit("error", [EdenSymbol.jsAgent, new Eden.RuntimeError(this.root, 0, undefined, error)]);
 		return;
 	};
 
@@ -222,11 +231,11 @@
 	Eden.prototype.evalEden = function(expr, symbol, scope) {
 		var e = Eden.AST.parseExpression(expr);
 		if (e.errors.length > 0) {
-			eden.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
+			this.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
 			return undefined;
 		}
 
-		if (!scope) scope = eden.root.scope;
+		if (!scope) scope = this.root.scope;
 
 		var state = {
 			symbol: symbol,
@@ -240,11 +249,11 @@
 	Eden.prototype.transpileExpression = function(expr, symbol, scope) {
 		var e = Eden.AST.parseExpression(expr);
 		if (e.errors.length > 0) {
-			eden.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
+			this.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
 			return undefined;
 		}
 
-		if (!scope) scope = eden.root.scope;
+		if (!scope) scope = this.root.scope;
 
 		var state = {
 			symbol: symbol,
@@ -257,14 +266,14 @@
 
 	Eden.prototype.parseExpression = function(expr, symbol) {
 		if (typeof expr != "string") {
-			err = new Eden.RuntimeError(null, Eden.RuntimeError.ARGUMENTS, null, "`parse()` requires a string");
-			eden.emit("error", [{name: (symbol)?symbol.name : "Inline"},err]);
+			err = new Eden.RuntimeError(this.root, Eden.RuntimeError.ARGUMENTS, null, "`parse()` requires a string");
+			this.emit("error", [{name: (symbol)?symbol.name : "Inline"},err]);
 			return undefined;
 		}
 		var e = Eden.AST.parseExpression(expr);
 		if (e.errors.length > 0) {
 			console.error(e.errors[0]);
-			eden.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
+			this.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
 			return undefined;
 		}
 		return e;

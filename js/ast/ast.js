@@ -209,7 +209,7 @@ Eden.AST.executeExpressionNode = function(node, scope, state) {
 			return f(scope.context, scope, null);
 		}
 	} catch(e) {
-		err = new Eden.RuntimeError(null, Eden.RuntimeError.UNKNOWN, (state.statement)?state.statement:node, "Expression evaluation failed: "+node.toEdenString(scope,state));
+		err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.UNKNOWN, (state.statement)?state.statement:node, "Expression evaluation failed: "+node.toEdenString(scope,state));
 		if (state.statement) {
 			err.line = state.statement.line;
 			state.statement.errors.push(err);

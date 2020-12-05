@@ -103,10 +103,10 @@ Eden.AST.When.prototype.setStatement = function (statement) {
 	}
 }
 
-Eden.AST.When.prototype.generate = function(ctx) {
-	var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'when' here");
+Eden.AST.When.prototype.generate = function(ctx, scope, options) {
+	var err = new Eden.RuntimeError(options.scope.context, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'when' here");
 	this.errors.push(err);
-	eden.emit("error", [EdenSymbol.defaultAgent,err]);
+	options.scope.context.instance.emit("error", [EdenSymbol.defaultAgent,err]);
 	return "";
 }
 
@@ -154,10 +154,10 @@ Eden.AST.When.prototype.trigger = function(scope) {
 		if (this.triggercount > 1000) {
 			if (this.name == "*When" && this.parent && this.parent.name) this.name = this.parent.name + ">when";
 			this.enabled = false;
-			var err = new Eden.RuntimeError(base, Eden.RuntimeError.INFINITEWHEN, this);
+			var err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.INFINITEWHEN, this);
 			this.errors.push(err);
 			err.line = this.line;
-			eden.emit("error", [this,err]);
+			scope.context.instance.emit("error", [this,err]);
 			return;
 		}
 

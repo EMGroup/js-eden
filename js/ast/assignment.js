@@ -146,9 +146,9 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 			err.context = base;
 			err.statement = this;
 		} else if (/[0-9][0-9]*/.test(e.message)) {
-			err = new Eden.RuntimeError(base, parseInt(e.message), this, e.message);
+			err = new Eden.RuntimeError(scope.context, parseInt(e.message), this, e.message);
 		} else {
-			err = new Eden.RuntimeError(base, 0, this, e);
+			err = new Eden.RuntimeError(scope.context, 0, this, e);
 		}
 
 		err.line = this.line;

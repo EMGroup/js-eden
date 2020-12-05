@@ -1,3 +1,7 @@
+(function() {
+
+const Language = Eden.Language;
+
 Eden.AST.prototype.pAGENTPATH = function() {
 	if (this.token != "OBSERVABLE" && Language.keywords[this.token] === undefined) {
 		return "_ERROR_";
@@ -222,3 +226,5 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 	return expr;
 }*/
 
+
+})();

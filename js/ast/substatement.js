@@ -32,7 +32,7 @@ Eden.AST.SubStatement.prototype.generate = function(ctx,scope,options) {
 Eden.AST.SubStatement.prototype.execute = function(ctx,base,scope,agent) {
 	// Can't use a return inside procedures/scripts.
 	// TODO Might be desirable, somehow.
-	var err = new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Sub-statements not supported here");
+	var err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.NOTSUPPORTED, this, "Sub-statements not supported here");
 	err.line = this.line;
 	this.errors.push(err);
 	Eden.Agent.emit("error", [agent,err]);

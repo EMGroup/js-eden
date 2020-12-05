@@ -60,7 +60,7 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 		var selsrc = this.selector.generate(ctx,scope,{bound: false});
 
 		if (this.modexpr) {
-			var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use '?' on lhs here");
+			var err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use '?' on lhs here");
 			this.errors.push(err);
 			options.scope.context.instance.emit("error", [EdenSymbol.defaultAgent,err]);
 			return "";

@@ -93,7 +93,7 @@ Eden.AST.Do.prototype.generate = function(ctx, scope, options) {
 	if (this.literal) {
 		return "context.instance.execute("+this.literal.generate(ctx, scope, options)+");";
 	} else {
-		var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'do' here");
+		var err = new Eden.RuntimeError(options.scope.context, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'do' here");
 		this.errors.push(err);
 		options.scope.emit("error", [EdenSymbol.defaultAgent,err]);
 		return "";

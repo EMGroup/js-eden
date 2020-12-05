@@ -73,8 +73,8 @@ Eden.AST.Definition.prototype.locatePrimary = function(indices) {
 	}
 }
 
-Eden.AST.Definition.prototype.generate = function(ctx,scope) {
-	throw Eden.RuntimeError(null, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot generate defintions here");
+Eden.AST.Definition.prototype.generate = function(ctx,scope,options) {
+	throw Eden.RuntimeError(options.scope.context, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot generate defintions here");
 };
 
 Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
@@ -165,9 +165,9 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			var err;
 			console.log(rhs);
 			if (e.message == Eden.RuntimeError.EXTENDSTATIC) {
-				err = new Eden.RuntimeError(base, Eden.RuntimeError.EXTENDSTATIC, this, "Can only define list items if the list is defined");
+				err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.EXTENDSTATIC, this, "Can only define list items if the list is defined");
 			} else {
-				err = new Eden.RuntimeError(base, Eden.RuntimeError.UNKNOWN, this, e);
+				err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.UNKNOWN, this, e);
 			}
 			this.errors.push(err);
 			err.line = this.line;

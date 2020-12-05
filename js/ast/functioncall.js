@@ -92,7 +92,7 @@ Eden.AST.FunctionCall.prototype.execute = function(ctx, base, scope, agent) {
 		var args = eval(argsstr);
 		sym.value(scope)(scope).apply(sym, args);
 	} catch(e) {
-		var err = new Eden.RuntimeError(base, Eden.RuntimeError.FUNCCALL, this, e);
+		var err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.FUNCCALL, this, e);
 		this.errors.push(err);
 		err.line = this.line;
 		scope.context.instance.emit("error", [agent,err]);

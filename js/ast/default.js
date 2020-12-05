@@ -8,7 +8,7 @@ Eden.AST.Default.prototype.generate = function(ctx, scope) {
 }
 
 Eden.AST.Default.prototype.execute = function(ctx,base,scope,agent) {
-	var err = new Eden.RuntimeError(base, Eden.RuntimeError.NOTSUPPORTED, this, "Default not supported here");
+	var err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.NOTSUPPORTED, this, "Default not supported here");
 	err.line = this.line;
 	this.errors.push(err);
 	Eden.Agent.emit("error", [agent,err]);
