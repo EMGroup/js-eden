@@ -45,6 +45,8 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 		p = p.parent;
 	}
 
+	this.source = null;
+
 	var added = [];
 	var removed = [];
 

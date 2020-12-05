@@ -99,6 +99,7 @@ a[onclick] {
 	font-size: 10pt;
 	padding: 1em;
 	overflow: hidden;
+	white-space: pre-wrap;
 }
 
 .noselect {

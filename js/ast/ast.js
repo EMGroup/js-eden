@@ -83,10 +83,20 @@ Eden.AST = function(code, imports, origin, options) {
 
 	this.strict = (options && options.strict);
 
+	this.version = Eden.AST.version;
+	if (options && options.version !== undefined) this.version = options.version;
+
 	// Start parse with SCRIPT production
 	if (!options || !options.noparse) {
 		// Get First Token;
 		this.next();
+		if (this.token == "STRING") {
+			// Read parser properties...
+			if (this.data.value == "use cs2;") {
+				this.version = Eden.AST.VERSION_CS2;
+			}
+			this.next();
+		}
 		this.script = this.pSCRIPT();
 		this.script.base = this;
 		this.script.name = origin.name;

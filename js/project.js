@@ -194,6 +194,8 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 				var meta = data;
 				var extra;
 
+				var usecs2 = true;
+
 				if (meta.projectMetaData !== null) {
 					extra = JSON.parse(meta.projectMetaData);
 
@@ -211,10 +213,14 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 								alert("This project needs a different version of JS-Eden");
 							}
 						}
+
+						if (extra.env.parser_cs2) usecs2 = false;
 					}
 				}
 
-				eden.project = new Eden.Project(pid, meta.minimisedTitle, data.source);
+				var src = (usecs2) ? '"use cs2;"\n'+data.source : data.source;
+
+				eden.project = new Eden.Project(pid, meta.minimisedTitle, src, eden);
 				console.log("LOAD PROJECT",data);
 				eden.project.vid = data.saveID;
 				eden.project.title = meta.title;

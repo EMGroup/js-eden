@@ -17,19 +17,14 @@ div.canvas-dialog .ui-dialog-content {
 }
 
 div.canvas-dialog .ui-dialog-titlebar {
-	border-top-width: 0;
-	border-left-width: 0;
-	border-right-width: 0;
-	border-bottom-color: #777;
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: 0;
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
-	box-shadow: 0 0 10px #4a6887;
-	/*background: -webkit-linear-gradient(#fafafa, #cccccc); 
-	background: -o-linear-gradient(#fafafa, #cccccc); 
-	background: -moz-linear-gradient(#fafafa, #cccccc); 
-	background: linear-gradient(#fafafa, #cccccc); */
+	height: 35px;
+	background-color: rgba(41,69,75,0.9);
+	box-sizing: border-box;
+	color: white;
+	border: none;
+	padding-top: 0.6em;
 	font-size: 10pt;
 }
 

@@ -704,7 +704,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 								//	
 								//} else {
 									//console.log("Get Outersource", stats[i][0]);
-									script = Eden.AST.parseStatement(stats[i][0], {remote: true});
+									script = Eden.AST.parseStatement(stats[i][0], {remote: true, version: 0});
 									//console.log("External AST", script);
 									var origin = Eden.AST.originFromDoxy(script.doxyComment);
 									origin.remote = true;

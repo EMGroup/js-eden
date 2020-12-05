@@ -94,7 +94,7 @@ Eden.AST.prototype.pLVALUE = function() {
 	} else if (this.token == "`") {
 		var btick;
 
-		if (Eden.AST.version === Eden.AST.VERSION_CS2) {
+		if (this.version === Eden.AST.VERSION_CS2) {
 			console.warn("Old syntax for backticks");
 			this.next();
 			btick = this.pEXPRESSION();
@@ -125,7 +125,7 @@ Eden.AST.prototype.pLVALUE = function() {
 		var observable = this.data.value;
 		this.next();
 
-		if (this.token == "{" && Eden.AST.version === Eden.AST.VERSION_CS2) {
+		if (this.token == "{" && this.version === Eden.AST.VERSION_CS2) {
 			console.warn("Old syntax for backticks");
 			var p = this.pDEPRECATED_BTICK(observable);
 			this.deprecated(p, "Backticks are now identifier templates");

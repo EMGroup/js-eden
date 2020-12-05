@@ -160,7 +160,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				stop = Math.floor((stop - 50) / 20);
 				if (stop < 0) stop = 0;
 
-				if (Math.abs(stop - scrolltopline) >= 50) {
+				if (Math.abs(stop - scrolltopline) >= 50 && !scriptarea.disablehl) {
 					console.log("FORCE RE HIGHLIGHT", stop);
 					scriptarea.highlighter.setScrollTop(stop);
 					scrolltopline = stop;
