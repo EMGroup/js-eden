@@ -408,7 +408,7 @@ func nameof:static {
 
 		var pointer = arguments[0];
 		
-		if (pointer instanceof EdenSymbol) {	
+		if (pointer instanceof Eden.EdenSymbol) {	
 			return pointer.name;
 		} else if (
 			pointer !== null &&
@@ -417,11 +417,29 @@ func nameof:static {
 			Array.isArray(pointer.keys) &&
 			pointer.keys.length > 0 &&
 			"parent" in pointer &&
-			pointer.parent instanceof EdenSymbol
+			pointer.parent instanceof Eden.EdenSymbol
 		) {
 			return pointer.parent.name + "[" + pointer.keys[0] + "]";
 		} else {
 			scope.error(new Error("nameof: The argument must be a pointer, not a " + typeof(pointer)), "error");
+			return undefined;
+		}
+	}}$;
+}
+
+func symboldetail:static {
+	para sym;
+	${{
+		if (typeof sym == "string") sym = scope.symbol(sym);
+		if (sym instanceof Eden.EdenSymbol) {
+			return {
+				name: sym.name,
+				source: sym.getSource(),
+				dependencies: Object.keys(sym.dependencies).concat(Object.keys(sym.dynamicDependencies)),
+				dependants: Object.keys(sym.subscribers)
+			};
+
+		} else {
 			return undefined;
 		}
 	}}$;
@@ -432,7 +450,7 @@ proc touch:static {
 		let root = scope.context;
 		root.beginAutocalcOff();
 		for (var i = 0; i < arguments.length; i++) {
-			if (arguments[i] instanceof EdenSymbol) {
+			if (arguments[i] instanceof Eden.EdenSymbol) {
 				root.expireSymbol(arguments[i]);
 			} else {
 				scope.error(new Error("touch: Argument " + (i+1) + " must be a pointer, not a " + typeof(arguments[i])), "error");
