@@ -43,7 +43,7 @@ Eden.AST.prototype.pCODESELECTOR = function() {
 	} else if (this.token == ":" || this.token == ".") {
 		var ispseudo = this.token == ":";
 		this.next();
-		if (this.token == "OBSERVABLE") {
+		if (this.token == "OBSERVABLE" || Language.keywords[this.token]) {
 			if ((!ispseudo && Eden.Selectors.PropertyNode.attributes[this.data.value]) || (ispseudo && Eden.Selectors.PropertyNode.pseudo[this.data.value])) {
 				expr = new Eden.AST.Literal("STRING", ((ispseudo) ? ":" : ".") + this.data.value);
 				this.next();

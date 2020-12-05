@@ -36,9 +36,9 @@ Eden.AST.Query.prototype.setModify = function(expr, kind) {
 Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 	var res = "";
 	
-	if (this.restypes.length == 0) {
+	//if (this.restypes.length == 0) {
 		//res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", null, {minimum: 1}, (r) => {})";
-		if (!this._expr) {
+		/*if (!this._expr) {
 			let s = this.selector.execute(ctx,this,scope,this);
 			Eden.Selectors.query(s, undefined, {minimum: 1}, (r) => {
 				if (r.length > 0 && r[0].expression) {
@@ -55,8 +55,8 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 			});
 		} else {
 			res = this._expr.expression.generate(ctx, scope, options);
-		}
-	} else {
+		}*/
+	//} else {
 		var selsrc = this.selector.generate(ctx,scope,{bound: false});
 
 		if (this.modexpr) {
@@ -79,9 +79,13 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 				eden.emit("error", [EdenSymbol.defaultAgent,err]);
 				return "";	
 			}*/
-			res = "Eden.Selectors.queryPromise("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1, options: {self: this.origin}})";
+			if (this.restypes.length == 0) {
+				res = "Eden.Selectors.queryWithinSync(null, "+selsrc+", \"value\", {minimum: 1, options: {self: this.origin}})";
+			} else {
+				res = "Eden.Selectors.queryWithinSync(null, "+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1, options: {self: this.origin}})";
 			//res = "Eden.Selectors.query("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1, returnvalue: cache.value}, (s) => { cache.value = s; this.expireAsync(); })";
-		}
+			}
+			//}
 	}
 
 	if (options.bound) {

@@ -34,6 +34,14 @@ Eden.Project = function(id, name, source, eden) {
 
 	//eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);
 	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, EdenSymbol.localJSAgent);
+
+	/* Virtual AST Statements */
+	Object.defineProperty(this, "statements", {
+		enumerable: true,
+		get: function() {
+			return this.ast.script.statements;
+		}
+	});
 }
 
 Eden.Project.listenTo = listenTo;

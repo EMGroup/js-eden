@@ -4,6 +4,18 @@ Eden.Selectors.UnionNode = function() {
 	this.local = false;
 }
 
+Eden.Selectors.UnionNode.prototype._filter = function(statements, context) {
+	var map = {};
+	for (var i=0; i<this.children.length; ++i) {
+		let stats = this.children[i]._filter(statements, context);
+		for (var j=0; j<stats.length; j++) {
+			map[stats[j].id] = stats[j];
+		}
+	}
+
+	return Object.keys(map).map(function(e) { return map[e]; });
+}
+
 Eden.Selectors.UnionNode.prototype.filter = function(statements, context) {
 	//if (!statements) return this.construct();
 

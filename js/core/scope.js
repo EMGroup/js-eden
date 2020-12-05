@@ -83,7 +83,8 @@ Scope.prototype.symbol = function(name) {
 }
 
 Scope.prototype.project = function() {
-	return this.context.instance.project;
+	let proj = this.context.instance.project;
+	return (proj) ? proj : this.context;
 }
 
 // =============================================================================

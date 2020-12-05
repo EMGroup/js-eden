@@ -24,6 +24,14 @@ Eden.Selectors.IntersectionNode.prototype.prepend = function(node) {
 	return this;
 }
 
+Eden.Selectors.IntersectionNode.prototype._filter = function(statements, context) {
+	let s = statements;
+	for (var i=0; i<this.children.length; ++i) {
+		s = this.children[i]._filter(s, context);
+	}
+	return s;
+}
+
 Eden.Selectors.IntersectionNode.prototype.filter = function(statements, context) {
 	return new Promise((resolve,reject) => {
 		//if (!statements) return this.construct();
