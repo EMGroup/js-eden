@@ -89,15 +89,16 @@ a[onclick] {
 
 #tooltip {
 	position: absolute;
-	z-index: 2147483644;
-	background-color: #FFFFCC;
-	border: 2px solid #AAAAAA;
-	border-radius: 5px;
+	z-index: 65000;
+	background-color: rgb(243, 248, 250);
+	border: 1px solid #ccc;
+	border-radius: 2px;
 	box-shadow: 3px 4px 13px 0px #444444;
 	box-sizing: border-box;
 	font-family: sans-serif;
-	font-size: 9pt;
-	padding: 9px;
+	font-size: 10pt;
+	padding: 1em;
+	overflow: hidden;
 }
 
 .noselect {

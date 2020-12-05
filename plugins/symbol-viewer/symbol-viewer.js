@@ -794,7 +794,7 @@ EdenUI.plugins.SymbolViewer.Symbol.prototype._updateObservable = function(val,pr
 
 		outer.onmouseenter = (event) => {
 			if (this.symbol.definition) {
-				var tooltip = Eden.htmlEscape(this.symbol.getDynamicSource(), false, true);
+				var tooltip = EdenUI.Highlight.html(this.symbol.getSource(), true, false);
 				//tooltip = Eden.htmlEscape("<pre class='symbollist-tooltip'>" + tooltip + ";</pre>");
 				EdenUI.showTooltip(event, tooltip);
 			}

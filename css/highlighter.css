@@ -225,6 +225,9 @@ span.eden-comment-icon {
 div.eden-line-script {
 	margin-left: 20px;
 	display: inline-block;
+	font-family: 'Roboto Mono',monospace;
+	-webkit-font-smoothing: antialiased;
+	color: #2b4957;
 }
 
 span.eden-doxycomment {
