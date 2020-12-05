@@ -1,195 +1,3 @@
-var edenFunctions = {
-"apply": true,
-"array": true,
-"canvasURL": true,
-"centroid": true,
-"char": true,
-"charCode": true,
-"choose": true,
-"compose": true,
-"concat": true,
-"curry": true,
-"decodeHTML": true,
-"definitionOf": true,
-"definitionRHS": true,
-"doDefault": true,
-"edenCode": true,
-"escapeRE": true,
-"foldl": true,
-"foldr": true,
-"hasProperty": true,
-"hslColour": true,
-"htmlBulletList": true,
-"htmlNumberedList": true,
-"positionInList": true,
-"positionOfRE": true,
-"substringPosition": true,
-"int": true,
-"isBoolean": true,
-"isCallable": true,
-"isChar": true,
-"isDefined": true,
-"isDependency": true,
-"isDependent": true,
-"isFunc": true,
-"isInt": true,
-"isList": true,
-"isNaN": true,
-"isNumber": true,
-"isObject": true,
-"isPoint": true,
-"isPointer": true,
-"isProc": true,
-"isString": true,
-"isValue": true,
-"distanceMoved": true,
-"angleTurned": true,
-"List": true,
-"listcat": true,
-"lookup": true,
-"lowercase": true,
-"map": true,
-"mapPartial": true,
-"max": true,
-"Menu": true,
-"MenuItem": true,
-"min": true,
-"mod": true,
-"nameof": true,
-"partApply": true,
-"Point": true,
-"pow": true,
-"properties": true,
-"randomBoolean": true,
-"randomFloat": true,
-"randomInteger": true,
-"RE": true,
-"replaceFirst": true,
-"reverse": true,
-"rgbColour": true,
-"rotatePoint": true,
-"round": true,
-"roundMultiple": true,
-"scalePoint": true,
-"search": true,
-"sequenceItoJ": true,
-"sequenceN": true,
-"sequenceArithmeticN": true,
-"sequenceList": true,
-"sequencePrevious": true,
-"sort": true,
-"str": true,
-"sqrt": true,
-"strcat": true,
-"sublist": true,
-"substitute": true,
-"substr": true,
-"sum": true,
-"tail": true,
-"trim": true,
-"type": true,
-"uppercase": true,
-"include_css": true,
-"html": true,
-"time": true,
-"execute": true,
-"Text": true,
-"textWidth": true,
-"textHeight": true,
-"Arc": true,
-"Curve": true,
-"FillPattern": true,
-"Ellipse": true,
-"Line": true,
-"LinearGradient": true,
-"LineSequence": true,
-"PixelList": true,
-"GreyPixelList": true,
-"Rectangle": true,
-"RotateAboutCentre": true,
-"RotateAboutPoint": true,
-"CombinedRotation": true,
-"Scale": true,
-"Translate": true,
-"RoundedRectangle": true,
-"Polygon": true,
-"RegularPolygon": true,
-"Sector": true,
-"Shadow": true,
-"Circle": true,
-"Button": true,
-"Checkbox": true,
-"Div": true,
-"Image": true,
-"imageWithZones": true,
-"HTMLImage": true,
-"RadioButtons": true,
-"Slider": true,
-"Textbox": true,
-"DropDownList": true,
-"Combobox": true,
-"BulletSlide": true,
-"Video": true,
-"Audio": true,
-"Slide": true,
-"TitledSlide": true,
-"TitleSlide": true,
-"cos": true,
-"sin": true,
-"tan": true,
-"abs": true,
-"acos": true,
-"asin": true,
-"atan": true,
-"ceil": true,
-"roundUp": true,
-"exp": true,
-"floor": true,
-"roundDown": true,
-"log": true,
-"random": true,
-"forget": true,
-"forgetAll": true,
-"shapeOnTopAt": true,
-"zoneOnTopAt": true,
-"observableOnTopAt": true,
-"shapeOnBottomAt": true,
-"zoneOnBottomAt": true,
-"observableOnBottomAt": true,
-"shapesAt": true,
-"zonesAt": true,
-"observablesAt": true,
-"observableForShape": true,
-"alias": true,
-"arrangeWindows": true,
-"attemptMouseCapture": true,
-"bindCSSNumericProperty": true,
-"bindCSSProperty": true,
-"bindCSSRule": true,
-"createCanvas": true,
-"createHTMLView": true,
-"createProjectList": true,
-"createView": true,
-"destroyView": true,
-"eager": true,
-"error": true,
-"hideView": true,
-"highlightView": true,
-"moveView": true,
-"patch": true,
-"removeedenclock": true,
-"resizeView": true,
-"setedenclock": true,
-"showObservables": true,
-"showView": true,
-"stopHighlightingView": true,
-"todo": true,
-"touch": true,
-"unbind": true,
-"withAppendedItem": true,
-"writeln": true
-};
-
 var edenSpecials = {
 "autocalc": true,
 "mouseX": true,
@@ -315,7 +123,7 @@ EdenUI.Highlight.prototype.START = function() {
 						break;
 	case ":"		:	this.classes.push("operator");
 						// FIXME: Doesn't work for object literals
-						if (this.prevtoken == "is" || this.prevtoken == "OBSERVABLE") {
+						if (this.prevtoken == "is" || this.prevtoken == "OBSERVABLE" || this.prevtoken == ")") {
 							this.pushMode();
 							this.mode = "ATTRIBUTES";
 						}
@@ -415,7 +223,7 @@ EdenUI.Highlight.prototype.START = function() {
 								//this.startmode = "CUSTOMBLOCK";
 							}
 						} break;
-	case "OBSERVABLE":	if (edenFunctions[this.stream.data.value]) {
+	case "OBSERVABLE":	if (Eden.edenFunctions[this.stream.data.value]) {
 							this.classes.push("function");
 						} else if (EdenUI.Highlight.isType(this.stream.data.value)) {
 							this.classes.push("type");
@@ -630,6 +438,13 @@ EdenUI.Highlight.prototype.ATTRIBUTES = function() {
 		this.lineelement = nline;
 		this.mode = "ATTRIBS";
 		this.ATTRIBS();
+	} else if (this.token == "OBSERVABLE") {
+		this.popMode();
+		if (edenAttributes[this.tokentext] || Eden.Selectors.resultTypes[this.tokentext]) {
+			this.classes.push("selector3");
+		} else {
+			this.classes.push("error");
+		}
 	} else {
 		this.popMode();
 		this[this.mode]();
@@ -637,7 +452,7 @@ EdenUI.Highlight.prototype.ATTRIBUTES = function() {
 }
 
 EdenUI.Highlight.prototype.ATTRIBS = function() {
-	if (this.token == "OBSERVABLE" && edenAttributes[this.tokentext]) {
+	if (this.token == "OBSERVABLE" && (edenAttributes[this.tokentext] || Eden.Selectors.resultTypes[this.tokentext])) {
 		this.classes.push("selector3");
 	} else if (this.token == "]") {
 		this.classes.push("selector");
@@ -651,16 +466,16 @@ EdenUI.Highlight.prototype.ATTRIBS = function() {
 }
 
 EdenUI.Highlight.prototype.SELECTOR = function() {
-	if (this.token == "[") {
+	/*if (this.token == ":") {
 		this.pushLine();
 		var nline = document.createElement("span");
 		//nline.className = this.styles["pathblock"];
 		this.applyClasses(nline, ["pathblock"]);
 		this.lineelement.appendChild(nline);
 		this.lineelement = nline;
-		this.mode = "DO_ATTRIBS";
-		this.DO_ATTRIBS();
-	} else {
+		this.mode = "ATTRIBUTES";
+		//this.DO_ATTRIBS();
+	} else {*/ //if (this.token == "(") {
 		this.pushLine();
 		var nline = document.createElement("span");
 		//nline.className = this.styles["pathblock"];
@@ -669,7 +484,7 @@ EdenUI.Highlight.prototype.SELECTOR = function() {
 		this.lineelement = nline;
 		this.mode = "SELECTOR2";
 		this.SELECTOR2();
-	}
+	//}
 }
 
 EdenUI.Highlight.prototype.DO_ATTRIBS = function() {
@@ -696,9 +511,9 @@ EdenUI.Highlight.prototype.SELECTOR2 = function() {
 		this.classes.push("operator");
 		this.pushMode();
 		this.mode = "SUB_EXPRESSION";
-	} else if (this.token == "[") {
-		this.classes.push("selector");
-		this.mode = "SELECTOR_TYPES";
+	//} else if (this.token == "[") {
+	//	this.classes.push("selector");
+	//	this.mode = "SELECTOR_TYPES";
 	} else if (this.token == ";" || this.token == "=" || this.token == "+=" || this.token == "//=") {
 		this.popLine();
 		this.classes.push("operator");
@@ -713,8 +528,24 @@ EdenUI.Highlight.prototype.SELECTOR2 = function() {
 		this.classes.push("selector4");
 	} else if (this.token == "OBSERVABLE" && (this.prevtoken == "." || this.prevtoken == ":") && (Eden.Selectors.PropertyNode.attributes[this.tokentext] || Eden.Selectors.PropertyNode.pseudo[this.tokentext])) {
 		this.classes.push("selector2");
+		this.pushMode();
+		this.mode = "SELECTOR3";
+	} else if (this.token == ")") {
+		this.popMode();
+		this.popLine();
+		this.classes.push("selector");
 	} else {
 		this.classes.push("selector");
+	}
+}
+
+EdenUI.Highlight.prototype.SELECTOR3 = function() {
+	if (this.token == "(") {
+		this.pushLine();
+		this.mode = "SELECTOR2";
+	} else {
+		this.popMode();
+		this[this.mode]();
 	}
 }
 

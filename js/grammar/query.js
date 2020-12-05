@@ -23,7 +23,7 @@ Eden.AST.prototype.pQUERY = function() {
 	}
 	this.next();
 
-	if (this.token == "[") {
+	/*if (this.token == "[") {
 		this.next();
 		while (this.stream.valid() && this.token != "]") {
 			restype.push(this.data.value);
@@ -44,6 +44,17 @@ Eden.AST.prototype.pQUERY = function() {
 	} else {
 		//stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYSELECTOPEN));
 		//return stat;
+	}*/
+
+	if (this.token == ":") {
+		this.next();
+		let attribs = this.pATTRIBUTES();
+		restype = Object.keys(attribs);
+
+	// DEPRECATED
+	} else if (this.token == "[") {
+		let attribs = this.pATTRIBUTES();
+		restype = Object.keys(attribs);
 	}
 
 	if (this.token == "=" || this.token == "+=" || this.token == "//=") {
