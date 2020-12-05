@@ -76,14 +76,16 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 		name = options.symbol.name;
 		if (options.funcindex++ != 0) name += options.funcindex;
 	} else {
-		console.error("No symbol for func");
-		return "";
+		//console.error("No symbol for func");
+		//return "";
+		name = Math.random().toString(36).substr(2, 9);
 	}
 
 	funcdef = `return function func_${name}(${paras.join(",")}){ ${funcdef} };`;
 
 	this.script.setName(null,name);
 	this.script.addIndex();
+
 
 	try {
 		var f = new Function(["scope"], funcdef);

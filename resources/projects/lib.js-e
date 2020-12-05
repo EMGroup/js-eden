@@ -700,23 +700,15 @@ func type:static {
 		} else if (Array.isArray(value)) {
 			return "list";
 		} else if (typeName == "function") {
-			/* Trying to simplify the following expression confuses the JS-EDEN
-			 * parser, which doesn't understand comment characters inside a reg
-			 * exp inside JavaScript inside EDEN code.
-			 */
-			if ((new RegExp("\\breturn\\s+([^\\/;]|(\\/[^\\/" + "*]))")).test(value.toString())) {
 				return "func";
-			} else {
-				return "proc";
-			}
 		} else if (
-			(value instanceof EdenSymbol) || (
+			(value instanceof Eden.EdenSymbol) || (
 				typeName == "object" &&
 				"keys" in value &&
 				Array.isArray(value.keys) &&
 				value.keys.length > 0 &&
 				"parent" in value &&
-				value.parent instanceof EdenSymbol
+				value.parent instanceof Eden.EdenSymbol
 		)) {
 			return "pointer";
 		} else {
@@ -877,7 +869,7 @@ func isObject:static {
 			scope.error(new Error("isObject: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
-		return arguments[0] !== null && typeof(arguments[0]) == "object" && !Array.isArray(arguments[0]) && !root.lookup("isPointer").definition(root)(arguments[0]);
+		return arguments[0] !== null && typeof(arguments[0]) == "object" && !Array.isArray(arguments[0]) && !scope.value("isPointer")(scope)(arguments[0]);
 	}}$;
 }
 
@@ -900,13 +892,13 @@ func isPointer:static {
 			return undefined;
 		}
 		var value = arguments[0];
-		return (value instanceof EdenSymbol) || (
+		return (value instanceof Eden.EdenSymbol) || (
 				typeof(value) == "object" &&
 				"keys" in value &&
 				Array.isArray(value.keys) &&
 				value.keys.length > 0 &&
 				"parent" in value &&
-				value.parent instanceof EdenSymbol);
+				value.parent instanceof Eden.EdenSymbol);
 	}}$;
 }
 

@@ -71,6 +71,15 @@
 		Eden.Utils = Utils;
 	}
 
+	Eden.create = function() {
+		return new Promise((resolve,reject) => {
+			let eden = new Eden();
+			eden.ready.then((p) => {
+				resolve(eden);
+			});
+		});
+	}
+
 	Eden.prototype.updateDictionary = function(name, comment, net) {
 		this.dictionary[name] = comment;
 		// Extract tags...
