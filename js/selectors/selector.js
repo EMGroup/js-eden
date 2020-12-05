@@ -677,7 +677,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 					cb([]);
 				});
 			// Only search the server if an external query is requested
-			} else if (!sast.options || !sast.options.local) {
+			} else if ((!sast.options || !sast.options.local) && Eden.DB) {
 				//Then need to do a remote search
 				Eden.DB.searchSelector(s, (o === undefined) ? ["outersource","path"] : o, function(stats) {
 					if (o === undefined && stats.length > 0) {
@@ -746,7 +746,6 @@ Eden.Selectors._query = function(s, o, options, cb) {
 					}
 				});
 			} else if (Eden.Project.local && Eden.Project.local[path]) {
-				console.log("LOAD LOCAL");
 				Eden.Utils.getURL(Eden.Project.local[path].file).then(function(data) {
 					var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 					Eden.Selectors.cache[path] = res[0];

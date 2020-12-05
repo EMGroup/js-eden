@@ -47,13 +47,13 @@ proc writeln:static {
 func apply:static {
 	${{
 		if (arguments.length != 2) {
-			eden.error(new Error("apply: This function requires exactly 2 arguments."), "error");
+			scope.error(new Error("apply: This function requires exactly 2 arguments."), "error");
 			return undefined;			
 		} else if (typeof(arguments[0]) != "function") {
-			eden.error(new Error("apply: The first argument must be of type func or type proc, not " + typeof(arguments[0])), "error");
+			scope.error(new Error("apply: The first argument must be of type func or type proc, not " + typeof(arguments[0])), "error");
 			return undefined;
 		} else if (!Array.isArray(arguments[1])) {
-			eden.error(new Error("apply: The second argument must be of type list, not " + typeof(arguments[1])), "error");
+			scope.error(new Error("apply: The second argument must be of type list, not " + typeof(arguments[1])), "error");
 			return undefined;
 		} else {
 			return arguments[0].apply(this, arguments[1]);
@@ -66,11 +66,12 @@ func apply:static {
 func forget:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("forget: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("forget: This function requires exactly 1 argument."), "error");
 			return 2;
 		}
 	
 		var nameToDelete, symbolToDelete;
+		let root = scope.context;
 		
 		if (typeof(arguments[0]) == "string") {
 			nameToDelete = arguments[0];
@@ -86,7 +87,7 @@ func forget:static {
 			symbolToDelete = arguments[0];
 			nameToDelete = symbolToDelete.name;
 		} else {
-			eden.error(new Error("forget: The argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
+			scope.error(new Error("forget: The argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
 			return 1;
 		}
 		
@@ -138,7 +139,7 @@ func forgetAll:static {
 		var includeAgent = {name: "/include"};
 		
 		if (arguments.length > 4) {
-			eden.error(new Error("forgetAll: This function requires at most 4 arguments."), "error");
+			scope.error(new Error("forgetAll: This function requires at most 4 arguments."), "error");
 			return [[], undefined, []];
 		}
 
@@ -151,13 +152,13 @@ func forgetAll:static {
 		} else if (arguments[0] === undefined) {
 			return [[], undefined, []];
 		} else {
-			eden.error(new Error("forgetAll: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			scope.error(new Error("forgetAll: The first argument must be a string, not a " + typeof(arguments[0])), "error");
 			return [[], undefined, []];
 		}
 
 		if (arguments.length > 1) {
 			if (typeof(arguments[1]) != "boolean") {
-				eden.error(new Error("forgetAll: The second argument must be a boolean, not a " + typeof(arguments[1])), "error");
+				scope.error(new Error("forgetAll: The second argument must be a boolean, not a " + typeof(arguments[1])), "error");
 				return [[], undefined, []];
 			}
 			caseSensitive = arguments[1];
@@ -166,13 +167,13 @@ func forgetAll:static {
 		}
 		
 		if (obsToDelete !== undefined && arguments.length > 2) {
-			eden.error(new Error("forgetAll: Cannot specify case sensitivity when selecting using a list."), "error");
+			scope.error(new Error("forgetAll: Cannot specify case sensitivity when selecting using a list."), "error");
 			return [[], undefined, []];
 		}
 		
 		if (arguments.length >= 3) {
 			if (typeof(arguments[2]) != "boolean") {
-				eden.error(new Error("forgetAll: The third argument must be a boolean, not a " + typeof(arguments[2])), "error");
+				scope.error(new Error("forgetAll: The third argument must be a boolean, not a " + typeof(arguments[2])), "error");
 				return [[], undefined, []];
 			}
 			requireConfirm = arguments[2];
@@ -184,7 +185,7 @@ func forgetAll:static {
 		
 		if (arguments.length > 3) {
 			if (typeof(arguments[3]) != "boolean") {
-				eden.error(new Error("forgetAll: The forth argument must be a boolean, not a " + typeof(arguments[3])), "error");
+				scope.error(new Error("forgetAll: The forth argument must be a boolean, not a " + typeof(arguments[3])), "error");
 				return [[], undefined, []];
 			}
 			includeSystemSymbols = arguments[3];
@@ -195,6 +196,7 @@ func forgetAll:static {
 		var references = {};
 		var unableToDelete = [];
 		var reset = {};
+		let root = scope.context;
 
 		var initialDefinition;
 		if (obsToDelete !== undefined) {
@@ -211,7 +213,7 @@ func forgetAll:static {
 				} else if (obsToDelete === undefined) {
 					continue;
 				} else {
-					eden.error(new Error("forgetAll: All list items must be strings or pointers.  Item " + i + " is a " + typeof(obsToDelete[i])), "error");
+					scope.error(new Error("forgetAll: All list items must be strings or pointers.  Item " + i + " is a " + typeof(obsToDelete[i])), "error");
 					return [[], undefined, []];
 				}
 
@@ -220,7 +222,7 @@ func forgetAll:static {
 					continue;
 				}
 
-				initialDefinition = eden.initialDefinition(name);
+				initialDefinition = scope.context.instance.initialDefinition(name);
 				if (initialDefinition) {
 					reset[name] = initialDefinition;
 				} else {
@@ -253,7 +255,7 @@ func forgetAll:static {
 						}
 					}
 					
-					initialDefinition = eden.initialDefinition(name);
+					initialDefinition = scope.context.instance.initialDefinition(name);
 					if (initialDefinition) {
 						reset[name] = initialDefinition;
 					} else {
@@ -333,11 +335,11 @@ func forgetAll:static {
 		
 		if (confirmed) {
 			var noop = function () { };
-			var wasInInitialState = eden.isInInitialState();
+			var wasInInitialState = scope.context.instance.isInInitialState();
 			root.beginAutocalcOff();
 
 			for (name in reset) {
-				eden.execute(reset[name], "forgetAll", "", includeAgent, noop);
+				scope.execute(reset[name], "forgetAll", "", includeAgent, noop);
 			}
 
 			for (var i = 0; i < namesToDelete.length; i++) {
@@ -363,7 +365,7 @@ func forgetAll:static {
 				}
 			}
 			if (wasInInitialState) {
-				eden.captureInitialState(); //Re-assert still in initial state.		
+				scope.context.instance.captureInitialState(); //Re-assert still in initial state.		
 			}
 			/*
 			 * The new environment no longer seems to call this automatically at completion of execution, so call
@@ -386,7 +388,7 @@ func forgetAll:static {
 func error:static {
 	para msg;
 	local obss;
-	${{ obss = eden.root.currentObservables.map(s=>{ return s.name; }); }}$
+	${{ obss = scope.context.currentObservables.map(s=>{ return s.name; }); }}$
 	if (obss && obss# > 0) {
 		append jseden_notifications,["error", "[" // obss[obss#] // "] " // msg];
 	} else {
@@ -400,7 +402,7 @@ func error:static {
 func nameof:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("nameof: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("nameof: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 
@@ -419,7 +421,7 @@ func nameof:static {
 		) {
 			return pointer.parent.name + "[" + pointer.keys[0] + "]";
 		} else {
-			eden.error(new Error("nameof: The argument must be a pointer, not a " + typeof(pointer)), "error");
+			scope.error(new Error("nameof: The argument must be a pointer, not a " + typeof(pointer)), "error");
 			return undefined;
 		}
 	}}$;
@@ -427,12 +429,13 @@ func nameof:static {
 
 proc touch:static {
 	${{
+		let root = scope.context;
 		root.beginAutocalcOff();
 		for (var i = 0; i < arguments.length; i++) {
 			if (arguments[i] instanceof EdenSymbol) {
 				root.expireSymbol(arguments[i]);
 			} else {
-				eden.error(new Error("touch: Argument " + (i+1) + " must be a pointer, not a " + typeof(arguments[i])), "error");
+				scope.error(new Error("touch: Argument " + (i+1) + " must be a pointer, not a " + typeof(arguments[i])), "error");
 			}
 		}
 		root.endAutocalcOff();
@@ -500,7 +503,7 @@ action type {
 func char:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("char: this function requires exactly one argument."), "error");
+			scope.error(new Error("char: this function requires exactly one argument."), "error");
 			return undefined;		
 		}
 		var type = typeof(arguments[0]);
@@ -541,7 +544,7 @@ func char:static {
 func int:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("int: this function requires exactly one argument."), "error");
+			scope.error(new Error("int: this function requires exactly one argument."), "error");
 			return undefined;
 		}
 
@@ -579,7 +582,7 @@ func int:static {
 func charCode:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("charCode: this function requires exactly one argument."), "error");
+			scope.error(new Error("charCode: this function requires exactly one argument."), "error");
 			return undefined;			
 		}
 		
@@ -587,10 +590,10 @@ func charCode:static {
 		if (value === undefined) {
 			return undefined;
 		} else if (typeof(value) != "string") {
-			eden.error(new Error("charCode: The argument must be a string, not a " + typeof(value)), "error");
+			scope.error(new Error("charCode: The argument must be a string, not a " + typeof(value)), "error");
 			return undefined;
 		} else if (value.length != 1) {
-			eden.error(new Error("charCode: The argument must be a single character, not " + value), "error");
+			scope.error(new Error("charCode: The argument must be a single character, not " + value), "error");
 			return undefined;
 		} else {
 			return value.charCodeAt(0);
@@ -672,7 +675,7 @@ func str:static {
 func type:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("type: this function requires exactly one argument."), "error");
+			scope.error(new Error("type: this function requires exactly one argument."), "error");
 			return undefined;
 		}
 
@@ -727,7 +730,7 @@ func type:static {
 func isBoolean:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isBoolean: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isBoolean: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return typeof(arguments[0]) == "boolean";
@@ -738,7 +741,7 @@ func isBoolean:static {
 func isCallable:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isCallable: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isCallable: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return typeof(arguments[0]) == "function";
@@ -749,7 +752,7 @@ func isCallable:static {
 func isChar:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isChar: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isChar: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return typeof(arguments[0]) == "string" && arguments[0].length == 1;
@@ -759,8 +762,9 @@ func isChar:static {
 /** #library #types */
 func isDefined:static {
 	${{
+		let root = scope.context;
 		if (arguments.length != 1) {
-			eden.error(new Error("isDefined: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isDefined: This function requires exactly 1 argument."), "error");
 			return undefined;
 		} else if (arguments[0] === undefined) {
 			return undefined;
@@ -768,7 +772,7 @@ func isDefined:static {
 			var name = arguments[0];
 			return name in root.symbols;
 		} else {
-			eden.error(new Error("isDefined: The argument must be a string, not a " + typeof(arguments[0])), "error");
+			scope.error(new Error("isDefined: The argument must be a string, not a " + typeof(arguments[0])), "error");
 			return undefined;
 		}
 	}}$;
@@ -795,7 +799,7 @@ func isDefined:static {
 func isValue:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isValue: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isValue: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		var v = arguments[0];
@@ -807,7 +811,7 @@ func isValue:static {
 func isFunc:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isFunc: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isFunc: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		var value = arguments[0];
@@ -819,7 +823,7 @@ func isFunc:static {
 func isInt:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isInt: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isInt: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		var v = arguments[0];
@@ -831,7 +835,7 @@ func isInt:static {
 func isList:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isList: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isList: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return Array.isArray(arguments[0]);
@@ -842,7 +846,7 @@ func isList:static {
 func isNaN:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isNaN: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isNaN: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return isNaN(arguments[0]);
@@ -853,7 +857,7 @@ func isNaN:static {
 func isNumber:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isNumber: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isNumber: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return typeof(arguments[0]) == "number";
@@ -868,8 +872,9 @@ func isNumber:static {
  */
 func isObject:static {
 	${{
+		let root = scope.context;
 		if (arguments.length != 1) {
-			eden.error(new Error("isObject: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isObject: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return arguments[0] !== null && typeof(arguments[0]) == "object" && !Array.isArray(arguments[0]) && !root.lookup("isPointer").definition(root)(arguments[0]);
@@ -880,7 +885,7 @@ func isObject:static {
 func isPoint {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isPoint: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isPoint: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return (arguments[0] instanceof Point);
@@ -891,7 +896,7 @@ func isPoint {
 func isPointer:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isPointer: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isPointer: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		var value = arguments[0];
@@ -909,7 +914,7 @@ func isPointer:static {
 func isProc:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isProc: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isProc: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		var value = arguments[0];
@@ -921,7 +926,7 @@ func isProc:static {
 func isString:static {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("isString: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("isString: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		return typeof(arguments[0]) == "string";
@@ -957,7 +962,7 @@ action executeCode {
 func Object {
 	${{
 		if (arguments.length % 2 == 1) {
-			eden.error(new Error("Object: This function requires an even number of arguments, not " + arguments.length + " arguments."), "error");
+			scope.error(new Error("Object: This function requires an even number of arguments, not " + arguments.length + " arguments."), "error");
 			return undefined;
 		}
 
@@ -965,7 +970,7 @@ func Object {
 		for (var i = 0; i < arguments.length - 1; i = i + 2) {
 			var key = arguments[i];
 			if (typeof(key) != "string") {
-				eden.error(new Error("Object: Argument " + String(i + 1) + " must be a string, not a " + typeof(key)), "error");
+				scope.error(new Error("Object: Argument " + String(i + 1) + " must be a string, not a " + typeof(key)), "error");
 				return undefined;
 			}
 			result[key] = arguments[i + 1];
@@ -999,6 +1004,7 @@ proc createView {
 }
 
 ${{
+	let root = scope.context;
 	root.lookup("views_list").addJSObserver("createAndDestroy", function (sym, viewNameList) {
 		var maxViewNumber = 0;
 		var viewNames = {};
@@ -1127,6 +1133,7 @@ screenWidth:number is ${{ document.getElementById("jseden-views").clientWidth }}
 screenHeight:number is ${{ document.getElementById("jseden-views").clientHeight }}$ || jseden_menu_visible || browser_resize;
 ${{
 	window.addEventListener("resize", function (event) {
+		let root = scope.context;
 		root.lookup("browser_resize").assign(new Point(window.innerWidth,window.innerHeight), root.scope, EdenSymbol.defaultAgent);
 	});
 }}$;
@@ -1136,7 +1143,7 @@ jseden_mobile_rotate is jseden_mobile && screenWidth > screenHeight;
 ${{
 	showSymbols = function (type, searchStr, viewName, searchLang) {
 		if (arguments.length > 4) {
-			eden.error(new Error("show" + type + "s: This procedure requires at most 3 parameters."), "error");
+			scope.error(new Error("show" + type + "s: This procedure requires at most 3 parameters."), "error");
 			return;
 		}
 
@@ -1144,19 +1151,19 @@ ${{
 			searchStr = "";
 		}
 		if (typeof(searchStr) != "string") {
-			eden.error(new Error("show" + type + "s: The first argument must be a string, not a " + typeof(searchStr)), "error");
+			scope.error(new Error("show" + type + "s: The first argument must be a string, not a " + typeof(searchStr)), "error");
 			return;
 		}
 		
 		if (viewName === undefined) {
 			viewName = "show" + type + "s";
 		} else if (typeof(viewName) != "string") {
-			eden.error(new Error("show" + type + "s: The second argument must be a string, not a " + typeof(viewName)), "error");
+			scope.error(new Error("show" + type + "s: The second argument must be a string, not a " + typeof(viewName)), "error");
 			return;
 		}
 
 		if (searchLang !== undefined && typeof(searchLang) != "string") {
-			eden.error(new Error("show" + type + "s: The third argument must be a string, not a " + typeof(viewName)), "error");
+			scope.error(new Error("show" + type + "s: The third argument must be a string, not a " + typeof(viewName)), "error");
 			return;	
 		}
 
@@ -1185,6 +1192,8 @@ ${{
 			//No need for explicit override, user prefers simple search (for now) anyway.
 			searchLang = undefined;
 		}
+
+		let root = scope.context;
 
 		var existingViewType = root.lookup("view_" + viewName + "_type").value();
 		if (existingViewType != type + "List") {
@@ -1262,7 +1271,7 @@ proc goto {
 proc postComment {
 	para text,priv;
 	${{
-	Eden.DB.postComment(eden.project, text, priv);
+	Eden.DB.postComment(scope.context.instance.project, text, priv);
 	}}$;
 }
 
@@ -1303,7 +1312,7 @@ action list {
 func array {
 	${{
 		if (arguments.length == 0 || arguments.length > 2) {
-			eden.error(new Error("array: This function requires at least 1 argument and at most 2 arguments."), "error");
+			scope.error(new Error("array: This function requires at least 1 argument and at most 2 arguments."), "error");
 			return undefined;			
 		}
 		
@@ -1312,7 +1321,7 @@ func array {
 		if (n === undefined) {
 			return undefined;
 		} else if (typeof(n) != "number" || !Number.isInteger(n)) {
-			eden.error(new Error("array: The first argument must be an int, not a " + typeof(n)), "error");
+			scope.error(new Error("array: The first argument must be an int, not a " + typeof(n)), "error");
 			return undefined;
 		}
 		
@@ -1343,7 +1352,7 @@ func array {
 func positionInList {
 	${{
 		if (arguments.length < 2 || arguments.length > 4) {
-			eden.error(new Error("positionInList: This function requires a minimum of 2 arguments and a maximum of 4 arguments."), "error");
+			scope.error(new Error("positionInList: This function requires a minimum of 2 arguments and a maximum of 4 arguments."), "error");
 			return undefined;
 		}
 		
@@ -1356,14 +1365,14 @@ func positionInList {
 		if (list === undefined) {
 			return undefined;
 		} else if (!Array.isArray(list)) {
-			eden.error(new Error("positionInList: The second argument must be a a list, not a " + typeof(list)), "error");
+			scope.error(new Error("positionInList: The second argument must be a a list, not a " + typeof(list)), "error");
 			return undefined;
 		} 
 
 		if (lowerBound === undefined) {
 			low = 0;
 		} else if (!Number.isInteger(lowerBound) || lowerBound < 1) {
-			eden.error(new Error("positionInList: The third argument must be a positive integer, not a " + typeof(lowerBound)), "error");
+			scope.error(new Error("positionInList: The third argument must be a positive integer, not a " + typeof(lowerBound)), "error");
 			return undefined;
 		} else if (lowerBound > 0) {
 			low = lowerBound - 1;
@@ -1372,7 +1381,7 @@ func positionInList {
 		}
 
 		if (isSorted !== undefined && typeof(isSorted) != "boolean") {
-			eden.error(new Error("positionInList: The fourth argument must be a Boolean, not a " + type(isSorted)), "error");
+			scope.error(new Error("positionInList: The fourth argument must be a Boolean, not a " + type(isSorted)), "error");
 			return undefined;
 		}
 
@@ -1556,7 +1565,7 @@ func search {
 func sort {
 	${{ 
 		if (arguments.length == 0 || arguments.length > 2) {
-			eden.error(new Error("sort: this function requires a minimum of 1 argument and a maximum of 2 arguments."), "error");
+			scope.error(new Error("sort: this function requires a minimum of 1 argument and a maximum of 2 arguments."), "error");
 			return undefined;		
 		}
 		var values = arguments[0];
@@ -1567,7 +1576,7 @@ func sort {
 			values = values.split("");
 			sortingSingleString = true;
 		} else if (!Array.isArray(values)) {
-			eden.error(new Error("sort: first argument must be a list or a string, not a " + typeof(values) + "."), "error");
+			scope.error(new Error("sort: first argument must be a list or a string, not a " + typeof(values) + "."), "error");
 			return undefined;
 		} else {
 			values = values.slice();
@@ -1608,7 +1617,7 @@ func sort {
 				}
 			}
 		} else if (typeof(sortFunction) != "function") {
-			eden.error(new Error("sort: unknown collation order " + sortFunction), "error");
+			scope.error(new Error("sort: unknown collation order " + sortFunction), "error");
 			return undefined;
 		}
 		
@@ -1695,7 +1704,7 @@ func sort {
 func sublist {
 	${{
 		if (arguments.length < 2 || arguments.length > 3) {
-			eden.error(new Error("substr: this function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
+			scope.error(new Error("substr: this function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
 			return undefined;
 		}
 
@@ -1707,7 +1716,7 @@ func sublist {
 			return undefined;
 		}
 		if (!Array.isArray(list)) {
-			eden.error(new Error("sublist: expected list but got " + typeof(list)), "error");
+			scope.error(new Error("sublist: expected list but got " + typeof(list)), "error");
 			return undefined;
 		}
 		if (from === undefined) {
@@ -1718,7 +1727,7 @@ func sublist {
 		if (from > 0) {
 			from = from - 1;
 		} else if (from == 0) {
-			eden.error(new Error("sublist: from cannot be 0."), "error");
+			scope.error(new Error("sublist: from cannot be 0."), "error");
 			return undefined;
 		}
 		if (to == 0) {
@@ -1813,7 +1822,7 @@ proc loadTextFileIntoObservable {
 	${{
 		var me = this;
 		if (arguments.length < 2 || arguments.length > 3) {
-			eden.error(new Error("loadTextFileIntoObservable: This procedure requires at least 2 arguments and at most 3 arguments."), "error");
+			scope.error(new Error("loadTextFileIntoObservable: This procedure requires at least 2 arguments and at most 3 arguments."), "error");
 			return;
 		}
 
@@ -1822,7 +1831,7 @@ proc loadTextFileIntoObservable {
 		var synchronous = arguments[2];
 
 		if (!(symbol instanceof EdenSymbol)) {
-			eden.error(new Error("loadTextFileIntoObservable: The first argument must be a pointer, not a " + typeof(symbol)), "error");
+			scope.error(new Error("loadTextFileIntoObservable: The first argument must be a pointer, not a " + typeof(symbol)), "error");
 			return;
 		}
 		if (synchronous === undefined) {
@@ -1833,13 +1842,13 @@ proc loadTextFileIntoObservable {
 			url: url,
 			sync: synchronous,
 			success: function (content) {
-				symbol.assign(content, root.scope, me);
+				symbol.assign(content, scope, me);
 			},
 			error: function (request, problem, errorMsg) {
 				if (problem == "error") {
-					eden.error(new Error("loadTextFileIntoObservable: " + errorMsg + " for " + url));
+					scope.error(new Error("loadTextFileIntoObservable: " + errorMsg + " for " + url));
 				} else {
-					eden.error(new Error("loadTextFileIntoObservable: " + problem + " for " + url));
+					scope.error(new Error("loadTextFileIntoObservable: " + problem + " for " + url));
 				}
 			},
 		});
@@ -1856,7 +1865,7 @@ proc loadTextFileIntoObservable {
 func edenCode {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("edenCode: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("edenCode: This function requires exactly 1 argument."), "error");
 			return undefined;
 		 } else {
 			return Eden.edenCodeForValue(arguments[0]);
@@ -2038,7 +2047,7 @@ ${{
 func lowercase {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("lowercase: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("lowercase: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		
@@ -2049,7 +2058,7 @@ func lowercase {
 		} else if (typeof(arg) == "string") {
 			return arg.toLocaleLowerCase();
 		} else {
-			eden.error(new Error("lowercase: This function cannot be applied to a value of type " + typeof(arg)), "error");
+			scope.error(new Error("lowercase: This function cannot be applied to a value of type " + typeof(arg)), "error");
 			return undefined;
 		}
 	}}$;
@@ -2061,14 +2070,14 @@ func lowercase {
 func RE {
 	${{
 		if (arguments.length < 1 || arguments.length > 3) {
-			eden.error(new Error("RE: The function requires at least 1 argument and at most 3 arguments"), "error");
+			scope.error(new Error("RE: The function requires at least 1 argument and at most 3 arguments"), "error");
 			return undefined;
 		}
 		var pattern = arguments[0];
 		if (pattern === undefined) {
 			return undefined;
 		} else if (typeof(pattern) != "string") {
-			eden.error(new Error("RE: The first argument must be a string, not a " + typeof(pattern)), "error");
+			scope.error(new Error("RE: The first argument must be a string, not a " + typeof(pattern)), "error");
 			return undefined;
 		}
 		
@@ -2078,7 +2087,7 @@ func RE {
 			if (caseSensitive === undefined) {
 				return undefined;
 			} else if (typeof(caseSensitive) != "boolean") {
-				eden.error(new Error("RE: The second argument must be a boolean, not a " + typeof(caseSensitive)), "error");
+				scope.error(new Error("RE: The second argument must be a boolean, not a " + typeof(caseSensitive)), "error");
 				return undefined;
 			}
 			if (arguments.length == 3) {
@@ -2086,7 +2095,7 @@ func RE {
 				if (global === undefined) {
 					return undefined;
 				} else if (typeof(global) != "boolean") {
-					eden.error(new Error("RE: The third argument must be a boolean, not a " + typeof(global)), "error");
+					scope.error(new Error("RE: The third argument must be a boolean, not a " + typeof(global)), "error");
 					return undefined;
 				}			
 			} else {
@@ -2118,7 +2127,7 @@ func RE {
 func positionOfRE {
 	${{
 		if (arguments.length < 2 || arguments.length > 4) {
-			eden.error(new Error("positionOfRE: The function requires at least 2 arguments and at most 4 arguments"), "error");
+			scope.error(new Error("positionOfRE: The function requires at least 2 arguments and at most 4 arguments"), "error");
 			return undefined;
 		}
 		var pattern = arguments[0];
@@ -2128,7 +2137,7 @@ func positionOfRE {
 		} else if (pattern instanceof RegExp) {
 			reFromObject = true;
 		} else if (typeof(pattern) != "string") {
-			eden.error(new Error("positionOfRE: The first argument must be a string or a regular expression object, not a " + typeof(pattern)), "error");
+			scope.error(new Error("positionOfRE: The first argument must be a string or a regular expression object, not a " + typeof(pattern)), "error");
 			return undefined;
 		}
 		
@@ -2144,7 +2153,7 @@ func positionOfRE {
 				argsProcessed = 2;
 			} else if (reFromObject) {
 				if (arguments[1] !== undefined) {
-					eden.error(new Error("positionOfRE: Case sensitivity cannot be specified separately when the regular expression is selected using the RE function."), "error");
+					scope.error(new Error("positionOfRE: Case sensitivity cannot be specified separately when the regular expression is selected using the RE function."), "error");
 				}
 				return undefined;
 			} else if (typeof(arguments[1]) == "boolean") {
@@ -2152,19 +2161,19 @@ func positionOfRE {
 				subject = arguments[2];
 				argsProcessed = 3;				
 			} else {
-				eden.error(new Error("positionOfRE: The second argument must be a string or a boolean, not a " + typeof(arguments[1])), "error");
+				scope.error(new Error("positionOfRE: The second argument must be a string or a boolean, not a " + typeof(arguments[1])), "error");
 				return undefined;
 			}
 			if (arguments.length > argsProcessed) {
 				offset = arguments[argsProcessed];
 				if (typeof(offset) == "number") {
 					if (!Number.isInteger(offset) || offset < 1) {
-						eden.error(new Error("positionOfRE: The starting offset must be a positive integer."), "error");
+						scope.error(new Error("positionOfRE: The starting offset must be a positive integer."), "error");
 						return undefined;
 					}
 					offset--;
 				} else {
-					eden.error(new Error("positionOfRE: The starting offset must be a positive integer, not a " + typeof(offset)), "error");
+					scope.error(new Error("positionOfRE: The starting offset must be a positive integer, not a " + typeof(offset)), "error");
 					return undefined;
 				}
 			}
@@ -2175,7 +2184,7 @@ func positionOfRE {
 		if (subject === undefined) {
 			return undefined;
 		} else if (typeof(subject) != "string") {
-				eden.error(new Error("positionOfRE: The value to match against must be a string, not a " + typeof(caseSensitive)), "error");
+				scope.error(new Error("positionOfRE: The value to match against must be a string, not a " + typeof(caseSensitive)), "error");
 				return undefined;
 		}
 		
@@ -2212,14 +2221,14 @@ func positionOfRE {
 func escapeRE {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("escapeRE: This function requires exactly one argument."), "error");
+			scope.error(new Error("escapeRE: This function requires exactly one argument."), "error");
 			return undefined;
 		}
 		var str = arguments[0];
 		if (str === undefined) {
 			return undefined;
 		} else if (typeof(str) != "string") {
-			eden.error(new Error("escapeRE: The argument must be a string, not a " + typeof(str)), "error");
+			scope.error(new Error("escapeRE: The argument must be a string, not a " + typeof(str)), "error");
 			return undefined;
 		}
 		
@@ -2240,14 +2249,14 @@ func escapeRE {
 func replaceFirst {
 	${{
 		if (arguments.length < 3 || arguments.length > 4) {
-			eden.error(new Error("replaceFirst: This function requires a minimum of 3 arguments and a maximum of 4 arguments."), "error");
+			scope.error(new Error("replaceFirst: This function requires a minimum of 3 arguments and a maximum of 4 arguments."), "error");
 			return undefined;
 		}
 		var source = arguments[0];
 		if (source === undefined) {
 			return undefined;
 		} else if (typeof(source) != "string") {
-			eden.error(new Error("replaceFirst: The first argument must be a string, not a " + typeof(source)), "error");
+			scope.error(new Error("replaceFirst: The first argument must be a string, not a " + typeof(source)), "error");
 			return undefined;
 		}
 		
@@ -2255,7 +2264,7 @@ func replaceFirst {
 		if (search === undefined) {
 			return undefined;
 		} else if (typeof(search) != "string") {
-			eden.error(new Error("replaceFirst: The second argument must be a string, not a " + typeof(search)), "error");
+			scope.error(new Error("replaceFirst: The second argument must be a string, not a " + typeof(search)), "error");
 			return undefined;
 		}
 
@@ -2267,7 +2276,7 @@ func replaceFirst {
 				return undefined;
 			}
 		} else if (typeof(replacement) != "string") {
-			eden.error(new Error("replaceFirst: The third argument must be a string, not a " + typeof(replacement)), "error");
+			scope.error(new Error("replaceFirst: The third argument must be a string, not a " + typeof(replacement)), "error");
 			return undefined;
 		}
 		
@@ -2276,7 +2285,7 @@ func replaceFirst {
 		} else {
 			var startPos = arguments[3];
 			if (startPos !== undefined && typeof(startPos) != "number") {
-				eden.error(new Error("replaceFirst: The forth argument must be an int, not a " + typeof(startPos)), "error");
+				scope.error(new Error("replaceFirst: The forth argument must be an int, not a " + typeof(startPos)), "error");
 				return undefined;
 			} else if (startPos === undefined || isNaN(startPos)) {
 				if (source.indexOf(search) == -1) {
@@ -2285,10 +2294,10 @@ func replaceFirst {
 					return undefined;
 				}
 			} else if (!Number.isInteger(startPos)) {
-				eden.error(new Error("replaceFirst: The forth argument must be an int, not a float."), "error");
+				scope.error(new Error("replaceFirst: The forth argument must be an int, not a float."), "error");
 				return undefined;
 			} else if (startPos == 0) {
-				eden.error(new Error("replaceFirst: The forth argument must cannot be 0."), "error");
+				scope.error(new Error("replaceFirst: The forth argument must cannot be 0."), "error");
 				return undefined;
 			} else if (startPos > 0) {
 				return source.slice(0, startPos - 1).concat(source.slice(startPos - 1).replace(search, replacement));
@@ -2314,15 +2323,15 @@ func substitute {
 	${{
 		var placeholderRE = /(^|[^\\])\{([^}]+)\}/g;
 		if (arguments.length == 0) {
-			eden.error(new Error("substitute: This function requires at least one argument."), "error");
+			scope.error(new Error("substitute: This function requires at least one argument."), "error");
 			return undefined;
 		} else if (arguments[0] === undefined) {
 			return undefined;
 		} else if (typeof(arguments[0]) != "string") {
-			eden.error(new Error("substitute: The first argument must be a string, not a " + typeof(arguments[0])), "error");
+			scope.error(new Error("substitute: The first argument must be a string, not a " + typeof(arguments[0])), "error");
 			return undefined;
 		} else if (arguments.length == 1 && placeholderRE.test(arguments[0])) {
-			eden.error(new Error("substitute: The target string contains placeholders but no placeholder values were provided."), "error");
+			scope.error(new Error("substitute: The target string contains placeholders but no placeholder values were provided."), "error");
 			return undefined;
 		}
 
@@ -2340,7 +2349,7 @@ func substitute {
 		}
 		var meArgs = arguments;
 
-		var strFunc = root.lookup("str").value();
+		var strFunc = scope.value("str");
 		var digitsRE = /\d+/;
 		var observables = {};
 		var scannedForObservables = false;
@@ -2390,7 +2399,7 @@ func substitute {
 
 		var replaced = arguments[0].replace(placeholderRE, replaceFunc);
 		if (errorMsg !== undefined) {
-			eden.error(new Error("substitute: " + errorMsg), "error");
+			scope.error(new Error("substitute: " + errorMsg), "error");
 			return undefined;
 		}
 		return replaced;
@@ -2410,7 +2419,7 @@ func substitute {
 func substr {
 	${{
 		if (arguments.length < 2 || arguments.length > 3) {
-			eden.error(new Error("substr: this function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
+			scope.error(new Error("substr: this function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
 			return undefined;
 		}
 		
@@ -2422,7 +2431,7 @@ func substr {
 			return undefined;
 		}
 		if (typeof(str) != "string") {
-			eden.error(new Error("substr: expected string but got " + typeof(str)), "error");
+			scope.error(new Error("substr: expected string but got " + typeof(str)), "error");
 			return undefined;
 		}
 		if (from === undefined) {
@@ -2433,7 +2442,7 @@ func substr {
 		if (from > 0) {
 			from = from - 1;
 		} else if (from == 0) {
-			eden.error(new Error("substr: from cannot be 0."), "error");
+			scope.error(new Error("substr: from cannot be 0."), "error");
 			return undefined;
 		}
 		if (to == 0) {
@@ -2463,7 +2472,7 @@ func substr {
 func substringPosition {
 	${{
 		if (arguments.length < 2 || arguments.length > 3) {
-			eden.error(new Error("substringPosition: This function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
+			scope.error(new Error("substringPosition: This function requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
 			return undefined;
 		}
 		
@@ -2474,21 +2483,21 @@ func substringPosition {
 		if (substring === undefined) {
 			return undefined;
 		} else if (typeof(substring) != "string") {
-			eden.error(new Error("substringPosition: The first argument must be a a string, not a " + typeof(substring)), "error");
+			scope.error(new Error("substringPosition: The first argument must be a a string, not a " + typeof(substring)), "error");
 			return undefined;
 		}
 
 		if (target === undefined) {
 			return undefined;
 		} else if (typeof(target) != "string") {
-			eden.error(new Error("substringPosition: The second argument must be a a string, not a " + typeof(target)), "error");
+			scope.error(new Error("substringPosition: The second argument must be a a string, not a " + typeof(target)), "error");
 			return undefined;
 		}
 
 		if (from === undefined) {
 			from = 1;
 		} else if (typeof(from) != "number") {
-			eden.error(new Error("substringPosition: The third argument must be a number, not a " + typeof(from)), "error");
+			scope.error(new Error("substringPosition: The third argument must be a number, not a " + typeof(from)), "error");
 			return undefined;
 		} else if (from < 1) {
 			from = 1;
@@ -2517,7 +2526,7 @@ func substringPosition {
 func trim {
 	${{
 		if (arguments.length < 1 || arguments.length > 2) {
-			eden.error(new Error("trim: This function requires at least 1 argument and at most 2 arguments."), "error");
+			scope.error(new Error("trim: This function requires at least 1 argument and at most 2 arguments."), "error");
 			return undefined;
 		}
 		
@@ -2535,7 +2544,7 @@ func trim {
 				return undefined;
 			}
 		} else if (typeof(value) != "string") {
-			eden.error(new Error("trim: The first argument cannot be of type " + typeof(value)), "error");
+			scope.error(new Error("trim: The first argument cannot be of type " + typeof(value)), "error");
 			return undefined;
 		}
 		
@@ -2546,7 +2555,7 @@ func trim {
 		} else if (trimType == "both") {
 			return value.replace(/(^\s*)|(\s*$)/g, "");
 		} else {
-			eden.error(new Error("trim: type of trimming must be \"left\", \"right\" or \"both\"."), "error");
+			scope.error(new Error("trim: type of trimming must be \"left\", \"right\" or \"both\"."), "error");
 			return undefined;
 		}
 	}}$;
@@ -2561,7 +2570,7 @@ func trim {
 func uppercase {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("uppercase: This function requires exactly 1 argument."), "error");
+			scope.error(new Error("uppercase: This function requires exactly 1 argument."), "error");
 			return undefined;
 		}
 		
@@ -2572,7 +2581,7 @@ func uppercase {
 		} else if (typeof(arg) == "string") {
 			return arg.toLocaleUpperCase();
 		} else {
-			eden.error(new Error("upercase: This function cannot be applied to a value of type " + typeof(arg)), "error");
+			scope.error(new Error("upercase: This function cannot be applied to a value of type " + typeof(arg)), "error");
 			return undefined;
 		}
 	}}$;
@@ -2731,7 +2740,7 @@ func roundDown {
 func round {
 	${{
 		if (arguments.length == 0 || arguments.length > 2) {
-			eden.error(new Error("round: This function requires at least 1 argument and at most 2 arguments."), "error");
+			scope.error(new Error("round: This function requires at least 1 argument and at most 2 arguments."), "error");
 			return undefined;
 		}
 		
@@ -2739,7 +2748,7 @@ func round {
 		if (number === undefined) {
 			return undefined;
 		} else if (typeof(number) != "number") {
-			eden.error(new Error("round: The first argument must be a number, not a " + typeof(number)), "error");
+			scope.error(new Error("round: The first argument must be a number, not a " + typeof(number)), "error");
 			return undefined;
 		}
 
@@ -2755,10 +2764,10 @@ func round {
 		} else if (decimalPlaces === undefined) {
 			return undefined;
 		} else if (typeof(decimalPlaces) != "number") {
-			eden.error(new Error("round: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
+			scope.error(new Error("round: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
 			return undefined;
 		} else if (!Number.isInteger(decimalPlaces)) {
-			eden.error(new Error("round: The second argument must be an int, not a float"), "error");
+			scope.error(new Error("round: The second argument must be an int, not a float"), "error");
 			return undefined;
 		} else {
 			return parseFloat(number.toFixed(decimalPlaces));
@@ -2775,7 +2784,7 @@ func round {
 func roundUp {
 	${{
 		if (arguments.length == 0 || arguments.length > 2) {
-			eden.error(new Error("roundUp: This function requires at least 1 argument and at most 2 arguments."), "error");
+			scope.error(new Error("roundUp: This function requires at least 1 argument and at most 2 arguments."), "error");
 			return undefined;
 		}
 		
@@ -2783,7 +2792,7 @@ func roundUp {
 		if (number === undefined) {
 			return undefined;
 		} else if (typeof(number) != "number") {
-			eden.error(new Error("roundUp: The first argument must be a number, not a " + typeof(number)), "error");
+			scope.error(new Error("roundUp: The first argument must be a number, not a " + typeof(number)), "error");
 			return undefined;
 		}
 
@@ -2799,10 +2808,10 @@ func roundUp {
 		} else if (decimalPlaces === undefined) {
 			return undefined;
 		} else if (typeof(decimalPlaces) != "number") {
-			eden.error(new Error("roundUp: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
+			scope.error(new Error("roundUp: The second argument must be an int, not a " + typeof(decimalPlaces)), "error");
 			return undefined;
 		} else if (!Number.isInteger(decimalPlaces)) {
-			eden.error(new Error("roundUp: The second argument must be an int, not a float"), "error");
+			scope.error(new Error("roundUp: The second argument must be an int, not a float"), "error");
 			return undefined;
 		} else {
 			return decimalAdjust("ceil", number, -decimalPlaces);
@@ -2824,7 +2833,7 @@ func roundUp {
 func floor {
 	${{
 		if (arguments.length < 1 || arguments.length > 2) {
-			eden.error(new Error("floor: This function requires at least 1 argument and at most 2 arguments."), "error");
+			scope.error(new Error("floor: This function requires at least 1 argument and at most 2 arguments."), "error");
 			return undefined;
 		}
 		
@@ -2832,7 +2841,7 @@ func floor {
 		if (number === undefined) {
 			return undefined;
 		} else if (typeof(number) != "number") {
-			eden.error(new Error("floor: The first argument must be a number, not a " + typeof(number)), "error");
+			scope.error(new Error("floor: The first argument must be a number, not a " + typeof(number)), "error");
 			return undefined;
 		}
 
@@ -2842,7 +2851,7 @@ func floor {
 			if (multiple === undefined) {
 				return undefined;
 			} else if (typeof(multiple) != "number") {
-				eden.error(new Error("floor: The second argument must be a number, not a " + typeof(multiple)), "error");
+				scope.error(new Error("floor: The second argument must be a number, not a " + typeof(multiple)), "error");
 				return undefined;
 			}
 		} else {
@@ -2870,7 +2879,7 @@ func floor {
 func roundMultiple {
 	${{
 		if (arguments.length != 2) {
-			eden.error(new Error("roundMultiple: This function requires exactly 2 arguments."), "error");
+			scope.error(new Error("roundMultiple: This function requires exactly 2 arguments."), "error");
 			return undefined;
 		}
 		
@@ -2878,7 +2887,7 @@ func roundMultiple {
 		if (number === undefined) {
 			return undefined;
 		} else if (typeof(number) != "number") {
-			eden.error(new Error("roundMultiple: The first argument must be a number, not a " + typeof(number)), "error");
+			scope.error(new Error("roundMultiple: The first argument must be a number, not a " + typeof(number)), "error");
 			return undefined;
 		}
 
@@ -2886,7 +2895,7 @@ func roundMultiple {
 		if (multiple === undefined) {
 			return undefined;
 		} else if (typeof(multiple) != "number") {
-			eden.error(new Error("roundMultiple: The second argument must be a number, not a " + typeof(multiple)), "error");
+			scope.error(new Error("roundMultiple: The second argument must be a number, not a " + typeof(multiple)), "error");
 			return undefined;
 		}
 		
@@ -2911,7 +2920,7 @@ func roundMultiple {
 func ceil {
 	${{
 		if (arguments.length < 1 || arguments.length > 2) {
-			eden.error(new Error("ceil: This function requires at least 1 argument and at most 2 arguments."), "error");
+			scope.error(new Error("ceil: This function requires at least 1 argument and at most 2 arguments."), "error");
 			return undefined;
 		}
 		
@@ -2919,7 +2928,7 @@ func ceil {
 		if (number === undefined) {
 			return undefined;
 		} else if (typeof(number) != "number") {
-			eden.error(new Error("ceil: The first argument must be a number, not a " + typeof(number)), "error");
+			scope.error(new Error("ceil: The first argument must be a number, not a " + typeof(number)), "error");
 			return undefined;
 		}
 
@@ -2929,7 +2938,7 @@ func ceil {
 			if (multiple === undefined) {
 				return undefined;
 			} else if (typeof(multiple) != "number") {
-				eden.error(new Error("ceil: The second argument must be a number, not a " + typeof(multiple)), "error");
+				scope.error(new Error("ceil: The second argument must be a number, not a " + typeof(multiple)), "error");
 				return undefined;
 			}
 		} else {
@@ -2966,7 +2975,7 @@ func abs {
 func acos {
 	${{
 		var x = arguments[0];
-		var semicircleAngle = root.lookup("semicircleAngle").value();
+		var semicircleAngle = scope.value("semicircleAngle");
 		if (x == 0.5) {
 			return semicircleAngle / 3;
 		} else {
@@ -2984,7 +2993,7 @@ func acos {
 func asin {
 	${{
 		var x = arguments[0];
-		var semicircleAngle = root.lookup("semicircleAngle").value();
+		var semicircleAngle = scope.value("semicircleAngle");
 		if (x == 0.5) {
 			return semicircleAngle / 6;
 		} else {
@@ -2997,7 +3006,7 @@ func asin {
 func atan {
 	${{
 		var x = arguments[0];
-		var semicircleAngle = root.lookup("semicircleAngle").value();
+		var semicircleAngle = scope.value("semicircleAngle");
 		return Math.atan(x) * semicircleAngle / Math.PI;
 	}}$;
 }
@@ -3011,7 +3020,7 @@ func atan {
 func cos {
 	${{
 		var x = arguments[0];
-		var semicircleAngle = root.lookup("semicircleAngle").value();
+		var semicircleAngle = scope.value("semicircleAngle");
 		if (Number.isInteger(semicircleAngle)) {
 			var xSymmetry, sign;
 			if (x >= 0) {
@@ -3066,7 +3075,7 @@ func log {
 		if (arguments.length == 1) {
 			base = 10;
 		} else if (arguments.length != 2) {
-			eden.error(new Error("log: The function requires at least one argument and at most two arguments."), "error");
+			scope.error(new Error("log: The function requires at least one argument and at most two arguments."), "error");
 			return undefined;
 		} else {
 			base = arguments[1];
@@ -3075,9 +3084,9 @@ func log {
 		if (number === undefined || base === undefined) {
 			return undefined;
 		} else if (typeof(number) != "number") {
-			eden.error(new Error("log: The first argument must be a number, not a " + typeof(number)), "error");
+			scope.error(new Error("log: The first argument must be a number, not a " + typeof(number)), "error");
 		} else if (typeof(base) != "number") {
-			eden.error(new Error("log: The second argument must be a number, not a " + typeof(base)), "error");
+			scope.error(new Error("log: The second argument must be a number, not a " + typeof(base)), "error");
 		}
 
 		return Math.log(number) / Math.log(base);
@@ -3198,7 +3207,7 @@ func randomBoolean {
 func randomInteger {
 	${{
 		if (arguments.length != 2) {
-			eden.error(new Error("randomInteger: This function requires exactly 2 arguments"), "error");
+			scope.error(new Error("randomInteger: This function requires exactly 2 arguments"), "error");
 			return undefined;
 		}
 		
@@ -3208,20 +3217,20 @@ func randomInteger {
 		if (lowerBound === undefined || upperBound === undefined) {
 			return undefined;
 		} else if (typeof(lowerBound) != "number") {
-			eden.error(new Error("randomInteger: The lower bound must be an int, not a " + typeof(lowerBound)), "error");
+			scope.error(new Error("randomInteger: The lower bound must be an int, not a " + typeof(lowerBound)), "error");
 			return undefined;
 		} else if (isNaN(lowerBound)) {
 			return undefined;
 		} else if (!Number.isInteger(lowerBound)) {
-			eden.error(new Error("randomInteger: The lower bound must be an int, not a float."), "error");
+			scope.error(new Error("randomInteger: The lower bound must be an int, not a float."), "error");
 			return undefined;
 		} else if (typeof(upperBound) != "number") {
-			eden.error(new Error("randomInteger: The upper bound must be an int, not a " + typeof(upperBound)), "error");
+			scope.error(new Error("randomInteger: The upper bound must be an int, not a " + typeof(upperBound)), "error");
 			return undefined;
 		} else if (isNaN(upperBound)) {
 			return undefined;
 		} else if (!Number.isInteger(upperBound)) {
-			eden.error(new Error("randomInteger: The upper bound must be an int, not a float."), "error");
+			scope.error(new Error("randomInteger: The upper bound must be an int, not a float."), "error");
 			return undefined;
 		}
 		
@@ -3238,7 +3247,7 @@ func randomInteger {
 func randomFloat {
 	${{
 		if (arguments.length != 2) {
-			eden.error(new Error("randomFloat: This function requires exactly 2 arguments"), "error");
+			scope.error(new Error("randomFloat: This function requires exactly 2 arguments"), "error");
 			return undefined;
 		}
 
@@ -3248,18 +3257,18 @@ func randomFloat {
 		if (lowerBound === undefined || upperBound === undefined) {
 			return undefined;
 		} else if (typeof(lowerBound) != "number") {
-			eden.error(new Error("randomFloat: The lower bound must be a float, not a " + typeof(lowerBound)), "error");
+			scope.error(new Error("randomFloat: The lower bound must be a float, not a " + typeof(lowerBound)), "error");
 			return undefined;
 		} else if (isNaN(lowerBound)) {
 			return undefined;
 		} else if (typeof(upperBound) != "number") {
-			eden.error(new Error("randomFloat: The upper bound must be a float, not a " + typeof(upperBound)), "error");
+			scope.error(new Error("randomFloat: The upper bound must be a float, not a " + typeof(upperBound)), "error");
 			return undefined;
 		} else if (isNaN(upperBound)) {
 			return undefined;
 		}
 
-		var n = root.lookup("random").definition(root)() * (upperBound - lowerBound + 1) + lowerBound;
+		var n = scope.context.lookup("random").definition(root)() * (upperBound - lowerBound + 1) + lowerBound;
 		if (n > upperBound) {
 			n = upperBound;
 		}
@@ -3278,10 +3287,10 @@ ${{
 
 func xorshiftRandomGenerator {
 	${{
-		var stateSym = root.lookup("randomGeneratorState");
+		var stateSym = scope.symbol("randomGeneratorState");
 		var lower = xorshift32Random(stateSym.value());
 		var upper = xorshift32Random(lower);
-		stateSym.assign(upper, root.scope, root.lookup("xorshiftRandomGenerator"));
+		stateSym.assign(upper, scope, scope.symbol("xorshiftRandomGenerator"));
 		upper = Math.abs(upper) * 4194304; // 2^22, 53 bits of precision in total
 		return (upper + Math.abs(lower)) / 9007199254740991; // 2^53 - 1
 	}}$;
@@ -3290,7 +3299,7 @@ func xorshiftRandomGenerator {
 randomSeed = @;
 randomGenerator is xorshiftRandomGenerator;
 
-${{
+/*${{
 	window.inRandomFunc = false;
 
 	root.lookup("randomSeed").addJSObserver("applySeed", function (obs, seed) {
@@ -3315,7 +3324,7 @@ ${{
 		}
 		inRandomFunc = false;
 	});
-}}$;
+}}$;*/
 	
 func random {
 	auto result;
@@ -3399,7 +3408,7 @@ func sum {
 			} else if (type == "number" || type == "boolean") {
 				total = total + list[i];
 			} else {
-				eden.error(new Error("sum: Item " + i + " must be a number, not a " + type));
+				scope.error(new Error("sum: Item " + i + " must be a number, not a " + type));
 				return undefined;
 			}
 		}
@@ -3475,7 +3484,7 @@ script_javascript_types = ["var", "let"];
 when (script_javascript_execute) {
 	${{
 	try {
-		eval(eden.root.lookup("script_javascript_execute").value());
+		eval(scope.value("script_javascript_execute"));
 	} catch(e) {
 		console.error("Javascript Execute:",e);
 	}
@@ -3685,7 +3694,7 @@ func scalePoint {
 action dynamic {
 func _attribute {
 	para p1,p2;
-	return ${{ eden.attribute(p1,p2) }}$;
+	return ${{ scope.context.instance.attribute(p1,p2) }}$;
 }
 
 /** Recreate eden source of symbols expression. #library */
@@ -3782,7 +3791,7 @@ ${{
 						return window.setInterval(incrementClock, interval, target);					
 					} else {
 						var targetName = target.name.slice(1);
-						eden.error(new Error("edenclocks: edenclock observable " + targetName + " must be a procedure or have a numeric value assigned, not a " + typeof(currentValue) + ".  Paused edenclock " + targetName), "error");
+						scope.error(new Error("edenclocks: edenclock observable " + targetName + " must be a procedure or have a numeric value assigned, not a " + typeof(currentValue) + ".  Paused edenclock " + targetName), "error");
 						return undefined;
 					}
 				}
@@ -3796,7 +3805,7 @@ ${{
 						var clockName = clockSymbol.name;
 						var clockInterval = clockDetails[1];
 						if (clockInterval !== undefined && typeof(clockInterval) != "number") {
-							eden.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list where the second element is a number or undefined, not a " + typeof(clockInterval) + ".  Paused edenclock " + clockName), "error");
+							scope.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list where the second element is a number or undefined, not a " + typeof(clockInterval) + ".  Paused edenclock " + clockName), "error");
 							clockInterval = undefined;
 						}
 						var existingClock = root.edenclocks[clockName];
@@ -3840,14 +3849,14 @@ ${{
 						}
 						newClockNames[clockName] = true;
 					} else if (clockSymbol !== undefined) {
-						eden.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list where the first element is a pointer, not a " + typeof(clockSymbol)), "error");
+						scope.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list where the first element is a pointer, not a " + typeof(clockSymbol)), "error");
 					}
 				} else if (clockDetails !== undefined) {
-					eden.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list, not a " + typeof(clockDetails)), "error");
+					scope.error(new Error("edenclocks: The value assigned to item " + i + " of the edenclocks list must be a list, not a " + typeof(clockDetails)), "error");
 				}
 			}
 		} else if (clocks !== undefined) {
-			eden.error(new Error("edenclocks: The value assigned to edenclocks must be a list, not a " + typeof(clocks)), "error");
+			scope.error(new Error("edenclocks: The value assigned to edenclocks must be a list, not a " + typeof(clocks)), "error");
 		}
 		for (var clockName in root.edenclocks) {
 			if (!(clockName in newClockNames)) {
@@ -3949,7 +3958,7 @@ func compose {
 		
 		for (var i = 0; i < functions.length; i++) {
 			if (typeof(functions[i]) != "function") {
-				eden.error(new Error("compose: Item " + i + " must be a func, not a " + typeof(functions[i])), "error");
+				scope.error(new Error("compose: Item " + i + " must be a func, not a " + typeof(functions[i])), "error");
 				return undefined;
 			}
 		}
@@ -4114,7 +4123,7 @@ func mapPartial {
 func curry {
 	${{
 		if (arguments.length == 0) {
-			eden.error(new Error("curry: This function requires at least 1 argument."), "error");
+			scope.error(new Error("curry: This function requires at least 1 argument."), "error");
 			return undefined;
 		}
 
@@ -4122,7 +4131,7 @@ func curry {
 		if (f === undefined) {
 			return function () { return undefined; };
 		} else if (typeof(f) != "function") {
-			eden.error(new Error("curry: The first argument must be a func, not a " + typeof(f)), "error");
+			scope.error(new Error("curry: The first argument must be a func, not a " + typeof(f)), "error");
 			return undefined;
 		}
 		var curriedArgs = Array.prototype.slice.call(arguments, 1);
@@ -4151,7 +4160,7 @@ func partApply {
 	${{
 		var argMap;
 		if (arguments.length == 0) {
-			eden.error(new Error("partApply: This function requires at least 1 argument."), "error");
+			scope.error(new Error("partApply: This function requires at least 1 argument."), "error");
 			return undefined;
 		}
 
@@ -4159,7 +4168,7 @@ func partApply {
 		if (f === undefined) {
 			return function () { return undefined; };
 		} else if (typeof(f) != "function") {
-			eden.error(new Error("partApply: The first argument must be a func, not a " + typeof(f)), "error");
+			scope.error(new Error("partApply: The first argument must be a func, not a " + typeof(f)), "error");
 			return undefined;
 		} else if (arguments.length == 1) {
 			return f;
@@ -4167,28 +4176,28 @@ func partApply {
 			if (Array.isArray(arguments[1])) {
 				argMap = arguments[1];
 			} else {
-				eden.error(new Error("partApply: The second argument must be a list or an int, not a " + typeof(arguments[1])), "error");
+				scope.error(new Error("partApply: The second argument must be a list or an int, not a " + typeof(arguments[1])), "error");
 				return undefined;			
 			}
 		} else if (arguments.length % 2 == 1) {
 			argMap = Array.prototype.slice.call(arguments, 1);
 		} else {
-			eden.error(new Error("partApply: This function requires exactly 2 arguments or an odd number of arguments, not " + arguments.length + " arguments."), "error");
+			scope.error(new Error("partApply: This function requires exactly 2 arguments or an odd number of arguments, not " + arguments.length + " arguments."), "error");
 			return undefined;		
 		}
 		
 		for (var i = 0; i < argMap.length; i = i + 2) {
 			if (typeof(argMap[i]) != "number") {
-				eden.error(new Error("partApply: Argument" + (i+1).toString() + " must be an int, not a " + typeof(argMap[i])), "error");
+				scope.error(new Error("partApply: Argument" + (i+1).toString() + " must be an int, not a " + typeof(argMap[i])), "error");
 				return undefined;
 			} else if (isNaN(argMap[i])) {
-				eden.error(new Error("partApply: Argument" + (i+1).toString() + " must be an int, not a NaN."), "error");
+				scope.error(new Error("partApply: Argument" + (i+1).toString() + " must be an int, not a NaN."), "error");
 				return undefined;
 			} else if (!Number.isInteger(argMap[i])) {
-				eden.error(new Error("partApply: Argument" + (i+1).toString() + " must be an int, not a float."), "error");
+				scope.error(new Error("partApply: Argument" + (i+1).toString() + " must be an int, not a float."), "error");
 				return undefined;			
 			} else if (argMap[i] < 1) {
-				eden.error(new Error("partApply: Argument" + (i+1).toString() + " must be greater than zero, not " + argMap[i]), "error");
+				scope.error(new Error("partApply: Argument" + (i+1).toString() + " must be greater than zero, not " + argMap[i]), "error");
 				return undefined;
 			}
 		}
@@ -4684,18 +4693,18 @@ proc bindCSSProperty {
 			property = arguments[2];
 			obsName = arguments[3];
 		} else {
-			eden.error(new Error("bindCSSProperty: This procedure requires a minimum of 3 arguments and a maximum of 4 arguments."), "error");
+			scope.error(new Error("bindCSSProperty: This procedure requires a minimum of 3 arguments and a maximum of 4 arguments."), "error");
 			return;
 		}
 		
 		if (typeof(property) != "string") {
-			eden.error(new Error("bindCSSProperty: The CSS property name must be a string, not a " + typeof(property)), "error");
+			scope.error(new Error("bindCSSProperty: The CSS property name must be a string, not a " + typeof(property)), "error");
 			return;
 		}
 		if (obsName instanceof EdenSymbol) {
 			obsName = obsName.name.slice(1);
 		} else if (typeof(obsName) != "string") {
-			eden.error(new Error("bindCSSProperty: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
+			scope.error(new Error("bindCSSProperty: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
 			return;
 		}
 		
@@ -4756,22 +4765,22 @@ proc bindCSSNumericProperty {
 			obsName = arguments[3];
 			units = arguments[4];
 		} else {
-			eden.error(new Error("bindCSSNumericProperty: This procedure requires a minimum of 4 arguments and a maximum of 5 arguments."), "error");
+			scope.error(new Error("bindCSSNumericProperty: This procedure requires a minimum of 4 arguments and a maximum of 5 arguments."), "error");
 			return;
 		}
 		
 		if (typeof(property) != "string") {
-			eden.error(new Error("bindCSSNumericProperty: The CSS property name must be a string, not a " + typeof(property)), "error");
+			scope.error(new Error("bindCSSNumericProperty: The CSS property name must be a string, not a " + typeof(property)), "error");
 			return;
 		}
 		if (obsName instanceof EdenSymbol) {
 			obsName = obsName.name.slice(1);
 		} else if (typeof(obsName) != "string") {
-			eden.error(new Error("bindCSSNumericProperty: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
+			scope.error(new Error("bindCSSNumericProperty: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
 			return;
 		}
 		if (typeof(units) != "string") {
-			eden.error(new Error("bindCSSNumericProperty: The unit name must be a string, not a " + typeof(units)), "error");
+			scope.error(new Error("bindCSSNumericProperty: The unit name must be a string, not a " + typeof(units)), "error");
 			return;
 		}
 		
@@ -4828,14 +4837,14 @@ proc bindCSSRule {
 			selector = arguments[1];
 			obsName = arguments[2];
 		} else {
-			eden.error(new Error("bindCSSRule: This procedure requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
+			scope.error(new Error("bindCSSRule: This procedure requires a minimum of 2 arguments and a maximum of 3 arguments."), "error");
 			return;
 		}
 		
 		if (obsName instanceof EdenSymbol) {
 			obsName = obsName.name.slice(1);
 		} else if (typeof(obsName) != "string") {
-			eden.error(new Error("bindCSSRule: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
+			scope.error(new Error("bindCSSRule: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
 			return;
 		}
 		
@@ -4897,7 +4906,7 @@ proc bindCSSRule {
 proc unbind {
 	${{
 		if (arguments.length != 1) {
-			eden.error(new Error("unbind: This procedure requires exactly 1 argument."), "error");
+			scope.error(new Error("unbind: This procedure requires exactly 1 argument."), "error");
 			return;
 		}
 		var obsSym;
@@ -4906,7 +4915,7 @@ proc unbind {
 		} else if (typeof(arguments[0]) == "string") {
 			obsSym = root.lookup(arguments[0]);
 		} else {
-			eden.error(new Error("unbind: The argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
+			scope.error(new Error("unbind: The argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
 			return;
 		}
 		obsSym.removeJSObserver("bind");
@@ -4919,14 +4928,14 @@ ${{
 		if (scope === undefined) {
 			scopeSpecified = false;
 		} else if (typeof(scope) != "string") {
-			eden.error(new Error("Scope for CSS modifications must be a string, not a " + typeof(scope)), "error");
+			scope.error(new Error("Scope for CSS modifications must be a string, not a " + typeof(scope)), "error");
 				return undefined;
 		} else {
 			scopeSpecified = !(/^\s*$/.test(scope));
 		}
 
 		if (typeof(selector) != "string") {
-			eden.error(new Error("CSS selector must be a string, not a " + typeof(selector)), "error");
+			scope.error(new Error("CSS selector must be a string, not a " + typeof(selector)), "error");
 			return undefined;
 		}
 		
@@ -4944,7 +4953,7 @@ ${{
 			} else if (authoringMode) {
 				selectors.push(individualSelector);
 			} else {
-				eden.error(new Error("Cannot alter CSS globally for selector " + individualSelector +
+				scope.error(new Error("Cannot alter CSS globally for selector " + individualSelector +
 					" when not in tool authoring mode (_option_global_css = false).  Please specify a scope in which to restrict the changes."),
 					"error");
 				return undefined;
@@ -4955,7 +4964,7 @@ ${{
 			if (scopeSpecified && selector == "") {
 				return "#" + scope;
 			} else {
-				eden.error(new Error("Invalid CSS selector specified."), "error");
+				scope.error(new Error("Invalid CSS selector specified."), "error");
 				return undefined;
 			}
 		} else {

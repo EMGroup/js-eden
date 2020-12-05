@@ -110,7 +110,7 @@ Eden.AST.Literal.prototype.execute = function(ctx, base, scope) {
 	case "STRING"	:	return eval("\""+this.value+"\"");
 	case "OBJECT"	:
 	case "LIST"		:	var rhs = "return ";
-						rhs += this.generate(ctx, "scope", {bound: false});
+						rhs += this.generate(ctx, "scope", {bound: false, scope: scope});
 						rhs += ";";
 						return (new Function(["context","scope"],rhs))(scope.context,scope);
 	case "JAVASCRIPT"	: return eval(this.value);

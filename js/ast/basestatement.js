@@ -41,9 +41,9 @@ Eden.AST.BaseStatement.setDoxyComment = function(doxy) {
 
 		if (doxy.hasTag("#library")) {
 			if (this.type == "function" || this.type == "action") {
-				edenFunctions[this.name] = true;
+				Eden.edenFunctions[this.name] = true;
 			} else if (this.type == "definition") {
-				edenFunctions[this.lvalue.name] = true;
+				Eden.edenFunctions[this.lvalue.name] = true;
 			}
 		}
 	}

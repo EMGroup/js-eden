@@ -68,7 +68,7 @@ Eden.AST.Do.prototype.getScope = function(ctx, scope) {
 		} else {
 			// Just create an empty scope
 			this.compScope = function(context, scope) {
-				return new Scope(context, scope, [], false, null, false);
+				return new Eden.Scope(context, scope, [], false, null, false);
 			};
 		}
 	}

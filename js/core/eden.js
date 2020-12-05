@@ -43,7 +43,7 @@
 		this.ready = Eden.Project.init(this);
 	}
 
-
+	Eden.edenFunctions = {};
 
 	global.Eden = Eden;
 
@@ -161,7 +161,7 @@
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
 	 */
 	Eden.prototype.error = function (error, origin) {
-		eden.emit("error", [EdenSymbol.jsAgent, new Eden.RuntimeError(this.root, 0, undefined, error)]);
+		this.emit("error", [EdenSymbol.jsAgent, new Eden.RuntimeError(this.root, 0, undefined, error)]);
 		return;
 	};
 

@@ -89,7 +89,7 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 		var f = new Function(["scope"], funcdef);
 		options.scope.context.f["func_"+name] = f;
 	} catch (e) {
-		console.error("Func compile error: "+name,e);
+		console.error("Func compile error: "+name,e,funcdef);
 	}
 
 	//result = result + "}).call(this,new Scope(context,"+scope+",[],false,this,false)) : undefined)";

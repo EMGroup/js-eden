@@ -58,6 +58,36 @@ function Scope(context, parent, overrides, range, cause, nobuild) {
 	if (!nobuild) this.rebuild();
 }
 
+// ==== Context wrappers =======================================================
+
+Scope.prototype.error = function(err,origin) {
+	this.context.instance.error(err,origin);
+}
+
+Scope.prototype.execute = function (code, agent, success) {
+	return this.context.instance.execute(code, agent, success);
+}
+
+Scope.prototype.exec = function(code) {
+	return this.context.instance.exec(code);
+}
+
+Scope.prototype.evalEden = function(code, sym) {
+	return this.context.instance.evalEden(code, sym, this);
+}
+
+Scope.prototype.symbol = function(name) {
+	let cache = this.l(name);
+	if (cache) return cache.symbol;
+	else return null;
+}
+
+Scope.prototype.project = function() {
+	return this.context.instance.project;
+}
+
+// =============================================================================
+
 /**
  * Query if somewhere in the scope hierarchy there is a cause matching
  * the one given. Returns a boolean.

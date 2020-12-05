@@ -44,6 +44,7 @@ Eden.AST.BaseExpression.execute = function(ctx, base, scope) {
 }
 
 Eden.AST.BaseExpression.toString = function() {
+	return "__error__";
 	var state = {
 		isconstant: true
 	};

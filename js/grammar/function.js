@@ -28,7 +28,7 @@ Eden.AST.prototype.pFUNCTION = function() {
 
 		func.left(lval);
 
-		if (type == "proc") console.warn("Parsed proc", lval.name);
+		//if (type == "proc") console.warn("Parsed proc", lval.name);
 	} else {
 		func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCNAME));
 		this.parent = parent;

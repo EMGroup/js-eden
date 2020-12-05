@@ -122,7 +122,7 @@ Eden.AST.When.prototype.getScope = function(ctx) {
 		} else {
 			// Just create an empty scope
 			this.compScope = function(context, scope) {
-				return new Scope(context, scope, [], false, null, false);
+				return new Eden.Scope(context, scope, [], false, null, false);
 			};
 		}
 	}
@@ -247,7 +247,8 @@ Eden.AST.When.prototype.execute = function(ctx,base,scope,agent) {
 			this.local = true;
 		}
 		// Register agent with project.
-		eden.project.registerAgent(this);
+		let project = scope.project();
+		if (project) project.registerAgent(this);
 	}
 	this.enabled = true;
 	scope = (this.nscope) ? this.nscope : this.getScope(this)(scope.context, scope);

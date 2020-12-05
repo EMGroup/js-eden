@@ -119,3 +119,16 @@ describe("Execution of Observable Definitions", () => {
 
 });
 
+describe("Execution of Do Statements", () => {
+
+	test("execute local action", async () => {
+		let eden = new Eden();
+		eden.listenTo("error", null, (agent, err) => {
+			console.error(err);
+		});
+		await eden.exec("action test1 { a = 78; } do test1;");
+		expect(eden.get("a")).toBe(78);
+	});
+
+});
+
