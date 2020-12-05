@@ -569,6 +569,17 @@ Eden.Selectors._depend = function(p) {
 	}
 }
 
+Eden.Selectors.queryWithinSync = function(within, s, o) {
+	var sast = Eden.Selectors.parse(s);
+	var res = [];
+	if (!sast) return res;
+
+	let statements = sast._filter(within);
+	statements = Eden.Selectors.unique(statements);
+	res = (o) ? Eden.Selectors.processResults(statements, o) : statements;
+	return res;
+}
+
 Eden.Selectors.queryWithin = function(within, s, o, cb) {
 	if (!cb) console.error("QUERY WITHIN WITHOUT CB");
 	var sast = Eden.Selectors.parse(s);

@@ -427,6 +427,24 @@ func nameof:static {
 	}}$;
 }
 
+/**
+ * Get a listing of symbols matching the query.
+ * #library
+ */
+func symbols:static {
+	para q,r;
+	${{
+
+		if (typeof q == "string") {
+			return Eden.Selectors.queryWithinSync(scope.context.statements, q, (r) ? r : "name");
+		} else {
+			return undefined;
+		}
+
+	}}$;
+}
+
+#! Get details of a specific symbol. #library
 func symboldetail:static {
 	para sym;
 	${{
