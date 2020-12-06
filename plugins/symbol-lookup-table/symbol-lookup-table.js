@@ -85,7 +85,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 					value = "";
 				} else {
 					kind = "Dependency";
-					value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.cache.value));
+					value = Eden.htmlEscape(Eden.edenCodeForValue(symbol.value()));
 				}
 			}
 			partialTable.push([symbol, name, kind, EdenUI.Highlight.html(definition, false), value]);
