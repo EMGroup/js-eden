@@ -140,6 +140,10 @@ function Folder(name, instance, parent, root) {
 	});
 }
 
+Folder.prototype.registerAgent = function(whenstat) {
+	// TODO: All when statements without a project.
+}
+
 Folder.prototype.addSubscriber = function(dependency) {
 	this.subscribers[dependency] = this.lookup(dependency);
 }

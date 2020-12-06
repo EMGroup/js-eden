@@ -101,7 +101,7 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 		res = "!("+r+")";
 	} else if (this.op == "&") {
 		if (ctx && ctx.dependencies) {
-			if (this.r.name) {
+			if (this.r.observable) {
 				//ctx.dependencies[this.r.name] = true;
 				//ctx.isconstant = false;
 			} else if (wasconst) {

@@ -326,3 +326,118 @@ describe("Factor Template String", () => {
 	});
 
 });
+
+
+// ==== Pointers ===============================================================
+
+describe("Factor Dereferencing", () => {
+
+	test("can dereference an identifier", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_DEREFERENCE", "*test");
+		expect(ast.type).toEqual("unaryop");
+		expect(ast.typevalue).toEqual(Eden.AST.TYPE_UNKNOWN);
+		expect(ast.isconstant).toEqual(false);
+		expect(ast.isdynamic).toEqual(true);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("can dereference an indexed identifier", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_DEREFERENCE", "*test[1][2]");
+		expect(ast.type).toEqual("indexed");
+		expect(ast.typevalue).toEqual(Eden.AST.TYPE_UNKNOWN);
+		expect(ast.isconstant).toEqual(false);
+		expect(ast.isdynamic).toEqual(true);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("can dereference an indexed identifier with changed precedence", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_DEREFERENCE", "*(test[1])");
+		expect(ast.type).toEqual("unaryop");
+		expect(ast.typevalue).toEqual(Eden.AST.TYPE_UNKNOWN);
+		expect(ast.isconstant).toEqual(false);
+		expect(ast.isdynamic).toEqual(true);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("fails when dereferencing a number", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_DEREFERENCE", "*5");
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+	test("fails when dereferencing a string", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_DEREFERENCE", '*"test"');
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+	test("fails when dereferencing a list", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_DEREFERENCE", "*[]");
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+	test("fails when dereferencing an object", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_DEREFERENCE", "*{}");
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+});
+
+describe("Factor Address of", () => {
+
+	test("can take the address of an identifier", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_ADDRESSOF", "&test");
+		expect(ast.type).toEqual("unaryop");
+		expect(ast.typevalue).toEqual(Eden.AST.TYPE_SYMBOL);
+		expect(ast.isconstant).toEqual(true);
+		expect(ast.isdynamic).toEqual(false);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("can take the address of a backticks identifier", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_ADDRESSOF", "&`test`");
+		expect(ast.type).toEqual("unaryop");
+		expect(ast.typevalue).toEqual(Eden.AST.TYPE_SYMBOL);
+		expect(ast.isconstant).toEqual(true);
+		expect(ast.isdynamic).toEqual(false);
+		expect(ast.isdependant).toEqual(false);
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("fails when taking address of an object", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_ADDRESSOF", "&{}");
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+	test("fails when taking address of a number", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_ADDRESSOF", "&6");
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+	test("fails when taking address of a list", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_ADDRESSOF", "&[]");
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+	test("fails when taking address of a list in sub expression", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_ADDRESSOF", "&([])");
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+	test("fails when taking address of an index observable", () => {
+		var ast = Eden.AST.parseRule("pFACTOR_ADDRESSOF", "&hello[1]");
+		expect(ast._is_eden_expression).toBe(true);
+		expect(ast.errors.length).not.toBe(0);
+	});
+
+});

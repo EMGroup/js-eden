@@ -216,13 +216,38 @@ Eden.AST.prototype.pFACTOR_NOT = function() {
 
 Eden.AST.prototype.pFACTOR_DEREFERENCE = function() {
 	this.next();
-	var lvalue = this.pFACTOR();
-	return new Eden.AST.UnaryOp("*", lvalue);
+
+	if (this.token == "(") {
+		this.next();
+		let p = this.pFACTOR_PRIMARY();
+
+		if (this.token != ")") {
+			p.error(new Eden.SyntaxError(this, Eden.SyntaxError.EXPCLOSEBRACKET));
+			return p;
+		}
+		this.next();
+		return new Eden.AST.UnaryOp("*", p);
+	} else {
+		let p = this.pPRIMARY();
+		let u = new Eden.AST.UnaryOp("*", p);
+
+		if (this.token == "[" || this.token == "." || this.token == "(") {
+			var indexed = this.pINDEXED();
+			indexed.setExpression(u);
+			return indexed;
+		} else {
+			return u;
+		}
+	}
+	
 }
 
 Eden.AST.prototype.pFACTOR_ADDRESSOF = function() {
 	this.next();
 	var lvalue = this.pLVALUE();
+	if (lvalue.lvaluep && lvalue.lvaluep.length > 0) {
+		lvalue.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN));
+	}
 	return new Eden.AST.UnaryOp("&", lvalue);
 }
 
@@ -274,6 +299,20 @@ Eden.AST.prototype.pFACTOR_SUBSTITUTION = function() {
 	return una;
 }
 
+Eden.AST.prototype.pFACTOR_PRIMARY = function() {
+	let primary = this.pPRIMARY();
+
+	if (primary.errors.length > 0) return primary;
+
+	if (this.token == "[" || this.token == "." || this.token == "(") {
+		var indexed = this.pINDEXED();
+		indexed.setExpression(primary);
+		return indexed;
+	} else {
+		return primary;
+	}
+}
+
 /*
  * F ->
  *	( EXPRESSION ) |
@@ -320,7 +359,7 @@ Eden.AST.prototype.pFACTOR = function() {
 	case "compile"		: return this.pFACTOR_BUILTIN();
 	case "${"			: return this.pFACTOR_SUBSTITUTION();
 
-	default				: return this.pPRIMARY();
+	default				: return this.pFACTOR_PRIMARY();
 	}
 }
 

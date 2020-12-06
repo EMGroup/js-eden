@@ -174,6 +174,8 @@ EdenUI.ExplorerState = function(element) {
 		if (searchSym.definition === undefined) {
 			searchSym.assign(e.target.value, eden.root.scope, EdenSymbol.localJSAgent);
 		}
+		var obs = Eden.Selectors.queryWithinSync(null, e.target.value, "name");
+		me.watch(obs);
 	});
 
 	/*setInterval(function() {

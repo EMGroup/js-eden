@@ -23,7 +23,7 @@ describe("Primary extras", () => {
 	
 		expect(ast).toBeTruthy();
 		expect(ast.errors).toHaveLength(0);
-		expect(ast.type).toEqual("primary");
+		expect(ast.type).toEqual("indexed");
 		expect(ast.typevalue).toBe(Eden.AST.TYPE_UNKNOWN);
 		expect(ast.isconstant).toEqual(false);
 		expect(ast.isdependant).toEqual(false);
@@ -35,7 +35,7 @@ describe("Primary extras", () => {
 	
 		expect(ast).toBeTruthy();
 		expect(ast.errors).toHaveLength(0);
-		expect(ast.type).toEqual("primary");
+		expect(ast.type).toEqual("indexed");
 		expect(ast.typevalue).toBe(Eden.AST.TYPE_UNKNOWN);
 		expect(ast.isconstant).toEqual(false);
 		expect(ast.isdependant).toEqual(false);
@@ -47,7 +47,7 @@ describe("Primary extras", () => {
 	
 		expect(ast).toBeTruthy();
 		expect(ast.errors).toHaveLength(0);
-		expect(ast.type).toEqual("primary");
+		expect(ast.type).toEqual("indexed");
 		expect(ast.typevalue).toBe(Eden.AST.TYPE_UNKNOWN);
 		expect(ast.isconstant).toEqual(false);
 		expect(ast.isdependant).toEqual(false);
@@ -59,7 +59,7 @@ describe("Primary extras", () => {
 	
 		expect(ast).toBeTruthy();
 		expect(ast.errors).toHaveLength(0);
-		expect(ast.type).toEqual("primary");
+		expect(ast.type).toEqual("indexed");
 		expect(ast.typevalue).toBe(Eden.AST.TYPE_UNKNOWN);
 		expect(ast.isconstant).toEqual(false);
 		expect(ast.isdependant).toEqual(false);
@@ -175,7 +175,7 @@ describe("Extras on Backticks Primary", () => {
 		var ast = Eden.AST.parseExpression("`obs{a}6`[1]");
 	
 		expect(ast).toBeTruthy();
-		expect(ast.type).toEqual("primary");
+		expect(ast.type).toEqual("indexed");
 		expect(ast.typevalue).toBe(Eden.AST.TYPE_UNKNOWN);
 		expect(ast.isconstant).toEqual(false);
 		expect(ast.isdependant).toEqual(false);
@@ -186,7 +186,7 @@ describe("Extras on Backticks Primary", () => {
 		var ast = Eden.AST.parseExpression("`obs{a}6`()");
 	
 		expect(ast).toBeTruthy();
-		expect(ast.type).toEqual("primary");
+		expect(ast.type).toEqual("indexed");
 		expect(ast.typevalue).toBe(Eden.AST.TYPE_UNKNOWN);
 		expect(ast.isconstant).toEqual(false);
 		expect(ast.isdependant).toEqual(false);

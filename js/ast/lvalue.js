@@ -84,6 +84,8 @@ Eden.AST.LValue.prototype.setExpression = function(express) {
 	if (!this.warning && express.warning) this.warning = express.warning;
 }
 
+Eden.AST.LValue.prototype.setBackticks = Eden.AST.LValue.prototype.setExpression;
+
 Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
 	if (ctx && ctx.locals && ctx.locals.type != "declarations" && ctx.locals.hasOwnProperty(this.name)) {
 		this.islocal = true;
