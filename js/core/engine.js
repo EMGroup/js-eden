@@ -100,6 +100,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 				i = 0;
 				continue;
 			}
+			if (res === -1) return;
 		}
 
 		if (statements[i].errors.length > 0) {
@@ -269,7 +270,7 @@ Eden.AST.prototype.executeStatement = function(statement, scope, agent, cb) {
 
 	// Reset the dummy context;
 	Eden.AST.DummyContext.locals = undefined;
-	let ctx = {cb: cb};
+	let ctx = {cb: cb, result: undefined};
 
 	try {
 		var gen = this.executeGenerator([statement], ctx ,this, scope, agent);
@@ -278,14 +279,14 @@ Eden.AST.prototype.executeStatement = function(statement, scope, agent, cb) {
 			if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 				if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
 			}
-			if (cb) cb();
+			if (cb) cb(ctx.result);
 		});
 	} catch (e) {
 		// Debug callback to end block
 		if (Eden.AST.debug && (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug()))) {
 			if (Eden.AST.debug_end_cb) Eden.AST.debug_end_cb({base: this, agent: agent});
 		}
-		if (cb) cb();
+		if (cb) cb(e);
 
 		var err;
 

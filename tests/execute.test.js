@@ -124,11 +124,95 @@ describe("Execution of Do Statements", () => {
 	test("execute local action", async () => {
 		let eden = new Eden();
 		eden.listenTo("error", null, (agent, err) => {
-			console.error(err);
+			throw err;
 		});
 		await eden.exec("action test1 { a = 78; } do test1;");
 		expect(eden.get("a")).toBe(78);
 	});
 
+	test("direct 'do' of script", async () => {
+		let eden = new Eden();
+		eden.listenTo("error", null, (agent, err) => {
+			
+		});
+		await eden.exec("do { a = 79; }");
+		expect(eden.get("a")).toBe(79);
+	});
+
+	test("script without 'do' does nothing", async () => {
+		let eden = new Eden();
+		eden.listenTo("error", null, (agent, err) => {
+			
+		});
+		await eden.exec("{ a = 79; }");
+		expect(eden.get("a")).toBeUndefined();
+	});
+
 });
 
+describe("Execution of If Statements", () => {
+
+	test("no else if with single statement, true case", async () => {
+		let eden = new Eden();
+		eden.listenTo("error", null, (agent, err) => {
+			throw err;
+		});
+		await eden.exec("a = 5; b = 4; if (a == 5) b = 7;");
+		expect(eden.get("b")).toBe(7);
+	});
+
+	test("no else if with single statement, false case", async () => {
+		let eden = new Eden();
+		eden.listenTo("error", null, (agent, err) => {
+			throw err;
+		});
+		await eden.exec("a = 5; b = 4; if (a == 2) b = 7;");
+		expect(eden.get("b")).toBe(4);
+	});
+
+	test("else if with single statement, false case", async () => {
+		let eden = new Eden();
+		eden.listenTo("error", null, (agent, err) => {
+			throw err;
+		});
+		await eden.exec("a = 5; b = 4; if (a == 2) b = 7; else b = 44;");
+		expect(eden.get("b")).toBe(44);
+	});
+
+});
+
+describe("Execution of While Statements", () => {
+
+	test("count to 10", async () => {
+		let eden = new Eden();
+		eden.listenTo("error", null, (agent, err) => {
+			throw err;
+		});
+		await eden.exec("a = 0; while (a < 10) a = a + 1;");
+		expect(eden.get("a")).toBe(10);
+	});
+
+	test("false from start", async () => {
+		let eden = new Eden();
+		eden.listenTo("error", null, (agent, err) => {
+			throw err;
+		});
+		await eden.exec("a = 10; while (a < 10) a = a + 1;");
+		expect(eden.get("a")).toBe(10);
+	});
+
+});
+
+describe("Execution of Return Statement", () => {
+
+	test("return before end", async () => {
+		let eden = new Eden();
+		eden.listenTo("error", null, (agent, err) => {
+			throw err;
+		});
+		var val = await eden.exec("a = 5; return 6; a = 7;");
+		expect(eden.get("a")).toBe(5);
+		expect(val).toBe(6);
+	});
+
+});

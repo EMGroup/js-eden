@@ -356,8 +356,11 @@
 	Eden.prototype.emit = emit;
 
 	/**
+	 * Generates an exception that can then be caught elsewhere.
+	 * 
 	 * @param {*} error
-	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
+	 * @param {string?} origin Symbol or agent
+	 * @param {number?} type Error number
 	 */
 	Eden.prototype.error = function (error, origin, type) {
 		throw new Eden.RuntimeError(this.root, (type) ? type : 0, undefined, error);
@@ -377,6 +380,8 @@
 	}
 
 	/**
+	 * Don't use this, use exec instead.
+	 * 
 	 * @param {string} code
 	 * @param {String?} agent The name of the agent to use/
 	 * @param {string?} prefix Prefix used for relative includes.
@@ -403,13 +408,19 @@
 	};
 	Eden.prototype.execute = Eden.prototype.execute2;
 
+	/**
+	 * This function executes eden script, returning a promise that is resolved
+	 * once execution has been completed.
+	 * 
+	 * @param {string} code Script to be executed.
+	 */
 	Eden.prototype.exec = function(code) {
 		return new Promise((resolve, reject) => {
 			let agobj = {name: '*execute'};
 
 			var ast = new Eden.AST(code, undefined, agobj, {noindex: true});
 			if (ast.script.errors.length == 0) {
-				ast.execute(agobj, this.root.scope, () => { resolve(ast.lastresult); });
+				ast.execute(agobj, this.root.scope, (r) => { resolve(r); });
 			} else {
 				reject(ast.script.errors[0].messageText());
 			}

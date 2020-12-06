@@ -108,7 +108,7 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 				var btickval = "ERROR";
 				try {
 					btickval = (new Function(["context","scope"], "return "+r+";"))(options.scope.context, options.scope);
-					console.log("Btick eval "+r);
+					//console.log("Btick eval "+r);
 				} catch (e) {
 					console.error("Backtick evaluation error",e);
 				}
