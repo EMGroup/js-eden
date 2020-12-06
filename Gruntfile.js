@@ -75,9 +75,9 @@ module.exports = function (grunt) {
 		core: {
 			files: {
 				'./js/core/jseden.min.js': [
+					'./js/util/misc.js',
 					'./js/core/eden.js',
 					'./js/core/edenui.js',
-					'./js/util/misc.js',
 					'./js/util/diff.js',
 					'./js/language/lang.js',
 					'./js/core/runtime.js',

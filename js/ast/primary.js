@@ -65,7 +65,7 @@ Eden.AST.Primary.prototype.toEdenString = function(scope, state) {
 		var expr = "return "+this.backtick.generate(ctx, "scope", {bound: false, scope: scope})+";";
 
 		if (ctx.isconstant) {
-			console.log(expr);
+			//console.log(expr);
 			var val = (new Function(["context","scope"], expr))(scope.context, scope);
 			if (!Eden.isValidIdentifier(val)) {
 				return "__error__";

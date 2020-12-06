@@ -318,7 +318,9 @@ EdenStream.prototype.parseString = function(data, kind) {
 		if (chr == "\\") {
 			chr = String.fromCharCode(this.get());
 			//result += "\\" + chr;
-			result += chr;
+			if (chr == 'n') result += "\n";
+			else if (chr == 't') result += "\t";
+			else result += chr;
 		} else {
 			result += chr;
 		}
