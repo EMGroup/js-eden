@@ -575,6 +575,7 @@ Eden.Selectors.queryWithinSync = function(within, s, o) {
 	if (!sast) return res;
 
 	let statements = sast._filter(within);
+	if (!statements) return [];
 	statements = Eden.Selectors.unique(statements);
 	res = (o) ? Eden.Selectors.processResults(statements, o) : statements;
 	return res;

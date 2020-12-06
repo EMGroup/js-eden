@@ -94,6 +94,28 @@ div.explore-entry:before {
 	height: 0;
 }
 
+div.explore-entry.subscriber:before {
+	display: inline-block;
+	position: absolute;
+	content: "";
+	left: -15px;
+	border-top: 5px solid rgb(89, 89, 255);
+	top: 7px;
+	width: 12px;
+	height: 0;
+}
+
+div.explore-entry.dependency:before {
+	display: inline-block;
+	position: absolute;
+	content: "";
+	left: -15px;
+	border-top: 5px solid rgb(185, 136, 62);
+	top: 7px;
+	width: 12px;
+	height: 0;
+}
+
 div.explore-entry:after {
 	display: inline-block;
 	position: absolute;
@@ -326,6 +348,7 @@ div.explore-state {
 	display: flex;
 	flex-direction: column;
 	flex-grow: 2;
+	overflow: auto;
 }
 
 div.explore-settings {
