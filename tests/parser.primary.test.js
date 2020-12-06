@@ -160,6 +160,13 @@ describe("Primary backticks", () => {
 		expect(ast.errors.length).toBeGreaterThan(0);
 	});
 
+	test("Invalid backticks with no expression", () => {
+		var ast = Eden.AST.parseExpression("`");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.errors.length).toBeGreaterThan(0);
+	});
+
 	test("white space not allowed", () => {
 		var ast = Eden.AST.parseExpression("`hello world`");
 	

@@ -1,5 +1,6 @@
 Eden.AST.Range = function(expression) {
 	this.type = "range";
+	Eden.AST.BaseStatement.apply(this);
 	this.parent = undefined;
 	this.errors = (expression) ? expression.errors : [];
 	this.expression = expression;
@@ -34,4 +35,6 @@ Eden.AST.Range.prototype.left = function(lvalue) {
 };
 
 Eden.AST.Range.prototype.error = Eden.AST.fnEdenASTerror;
+
+Eden.AST.registerStatement(Eden.AST.Range);
 
