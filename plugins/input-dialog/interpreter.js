@@ -642,7 +642,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (curtab >= 0 && tab_frags[curtab]) {
 				if (tab_frags[curtab].originast) {
 					console.log("ONRUN",tab_frags[curtab].originast);
-					tab_frags[curtab].ast.executeStatement(tab_frags[curtab].originast, 0, tab_frags[curtab]);
+					tab_frags[curtab].ast.executeStatement(tab_frags[curtab].originast, eden.root.scope, tab_frags[curtab]);
 				} else {
 					tab_frags[curtab].ast.execute(tab_frags[curtab], eden.root.scope);
 				}

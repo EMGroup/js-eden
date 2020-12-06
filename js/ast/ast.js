@@ -443,7 +443,11 @@ Eden.AST.parseStatement = function(src, origin) {
 	if (stat === undefined) {
 		stat = new Eden.AST.DummyStatement();
 		console.error("Invalid statement: ",src);
+		ast.syntaxError(stat, Eden.SyntaxError.UNKNOWN);
 		//return undefined;
+	}
+	if (ast.token != "EOF") {
+		ast.syntaxError(stat, Eden.SyntaxError.UNKNOWN);
 	}
 	stat.base = ast;
 	stat.setSource(0,src.length, src);

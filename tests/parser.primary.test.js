@@ -201,3 +201,71 @@ test("Excessive input produces an error", () => {
 	expect(ast).toBeTruthy();
 	expect(ast.errors.length).toBeGreaterThan(0);
 });
+
+// ==== Attributes =============================================================
+
+describe("Primary type attributes", () => {
+
+	test("allow numeric attribute", () => {
+		var ast = Eden.AST.parseExpression("a:number");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.type).toEqual("primary");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_NUMBER);
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("allow string attribute", () => {
+		var ast = Eden.AST.parseExpression("a:string");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.type).toEqual("primary");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_STRING);
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("allow list attribute", () => {
+		var ast = Eden.AST.parseExpression("a:list");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.type).toEqual("primary");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_LIST);
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("allow object attribute", () => {
+		var ast = Eden.AST.parseExpression("a:object");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.type).toEqual("primary");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_OBJECT);
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	test("allow boolean attribute", () => {
+		var ast = Eden.AST.parseExpression("a:boolean");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.type).toEqual("primary");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_BOOLEAN);
+		expect(ast.errors).toHaveLength(0);
+	});
+
+	// TODO: Consider as valid?
+	test("reject multiple type attributes", () => {
+		var ast = Eden.AST.parseExpression("a:[boolean,number]");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.errors).not.toHaveLength(0);
+	});
+
+	test("allow type and non-type attribute", () => {
+		var ast = Eden.AST.parseExpression("a:[static,boolean]");
+	
+		expect(ast).toBeTruthy();
+		expect(ast.type).toEqual("primary");
+		expect(ast.typevalue).toBe(Eden.AST.TYPE_BOOLEAN);
+		expect(ast.errors).toHaveLength(0);
+	});
+
+});

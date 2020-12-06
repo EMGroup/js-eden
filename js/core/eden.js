@@ -359,9 +359,8 @@
 	 * @param {*} error
 	 * @param {string?} origin Origin of the code, e.g. "input" or "execute" or a "included url: ...".
 	 */
-	Eden.prototype.error = function (error, origin) {
-		this.emit("error", [EdenSymbol.jsAgent, new Eden.RuntimeError(this.root, 0, undefined, error)]);
-		return;
+	Eden.prototype.error = function (error, origin, type) {
+		throw new Eden.RuntimeError(this.root, (type) ? type : 0, undefined, error);
 	};
 
 	Eden.prototype.assign = function(name,value,scope) {

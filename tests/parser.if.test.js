@@ -1,5 +1,3 @@
-const { TestScheduler } = require('jest');
-
 var Eden = require('../js/core/eden').Eden;
 
 describe("If Statement", () => {
@@ -14,6 +12,14 @@ describe("If Statement", () => {
 
 	test("if with single statement and else part", () => {
 		var ast = Eden.AST.parseStatement("if (true) x = 5; else x = 6;");
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("if");
+	});
+
+	test("if without condition brackets", () => {
+		var ast = Eden.AST.parseStatement("if true x = 5; else x = 6;");
 
 		expect(ast).toBeTruthy();
 		expect(ast.errors).toHaveLength(0);

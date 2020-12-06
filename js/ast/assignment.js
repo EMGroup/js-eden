@@ -141,9 +141,11 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		//this.errors.push(new Eden.RuntimeError(base, Eden.RuntimeError.ASSIGNEXEC, this, e));
 		var err;
 
+		if (e === 0) return;  // Deliberate discard
+
 		if (e instanceof Eden.RuntimeError) {
 			err = e;
-			err.context = base;
+			//err.context = base;
 			err.statement = this;
 		} else if (/[0-9][0-9]*/.test(e.message)) {
 			err = new Eden.RuntimeError(scope.context, parseInt(e.message), this, e.message);

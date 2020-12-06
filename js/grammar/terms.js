@@ -26,6 +26,7 @@ Eden.AST.prototype.pTERM_A = function() {
 		binop.left(left);
 		binop.setRight(this.pTERM_P());
 		left = binop;
+		binop.typevalue = Eden.AST.TYPE_BOOLEAN;
 	}
 
 	return left;

@@ -87,6 +87,54 @@ Scope.prototype.project = function() {
 	return (proj) ? proj : this.context;
 }
 
+Scope.prototype.assertNumber = function(name, sym) {
+	let v = this.value(name);
+	if (typeof v != "number") {
+		this.context.instance.error(`expected a number from '${name}'`, sym, Eden.RuntimeError.ASSERTTYPE);
+	}
+	return v;
+}
+
+Scope.prototype.assertBoolean = function(name, sym) {
+	let v = this.value(name);
+	if (typeof v != "boolean") {
+		this.context.instance.error(`expected a boolean from '${name}'`, sym, Eden.RuntimeError.ASSERTTYPE);
+	}
+	return v;
+}
+
+Scope.prototype.assertString = function(name, sym) {
+	let v = this.value(name);
+	if (typeof v != "string") {
+		this.context.instance.error(`expected a string from '${name}'`, sym, Eden.RuntimeError.ASSERTTYPE);
+	}
+	return v;
+}
+
+Scope.prototype.assertList = function(name, sym) {
+	let v = this.value(name);
+	if (!Array.isArray(v)) {
+		this.context.instance.error(`expected a list from '${name}'`, sym, Eden.RuntimeError.ASSERTTYPE);
+	}
+	return v;
+}
+
+Scope.prototype.assertObject = function(name, sym) {
+	let v = this.value(name);
+	if (typeof v != "object") {
+		this.context.instance.error(`expected an object from '${name}'`, sym, Eden.RuntimeError.ASSERTTYPE);
+	}
+	return v;
+}
+
+Scope.prototype.assertValid = function(name, sym) {
+	let v = this.value(name);
+	if (v === undefined) {
+		this.context.instance.error(`Missing required value for '${name}'`, sym, Eden.RuntimeError.ASSERTVALID);
+	}
+	return v;
+}
+
 // =============================================================================
 
 /**
