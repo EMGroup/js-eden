@@ -216,3 +216,14 @@ describe("Execution of Return Statement", () => {
 	});
 
 });
+
+
+describe("Execution of Concat Modifier", () => {
+
+	test("concat of list", async () => {
+		let eden = new Eden();
+		await eden.exec("a = [1,2,3]; a //= [4];");
+		expect(eden.get("a")).toEqual([1,2,3,4]);
+	});
+
+});

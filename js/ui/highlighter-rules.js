@@ -19,7 +19,10 @@ var edenBuiltin = {
 	"execute": true,
 	"parse": true,
 	"eval": true,
-	"compile": true
+	"compile": true,
+	"append": true,
+	"insert": true,
+	"delete": true
 	};
 
 var edenAttributes = {

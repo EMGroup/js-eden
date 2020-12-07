@@ -102,6 +102,13 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 	} else if (this.token == "/=") {
 		this.next();
 		return new Eden.AST.Modify("/=", this.pEXPRESSION());
+	} else if (this.token == "//=") {
+		this.next();
+		let mod = new Eden.AST.Modify("//=", this.pEXPRESSION());
+		if (mod.expression && (mod.expression.typevalue == Eden.AST.TYPE_NUMBER || mod.expression.typevalue == Eden.AST.TYPE_BOOLEAN || mod.expression.typevalue == Eden.AST.TYPE_OBJECT)) {
+			mod.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+		}
+		return mod;
 	} else if (this.token == "*=") {
 		this.next();
 		return new Eden.AST.Modify("*=", this.pEXPRESSION());

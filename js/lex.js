@@ -433,7 +433,7 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 				return "-";
 	case 46	:	if (this.peek() == 46) { this.skip(); return ".."; }
 				return ".";
-	case 47	:	if (this.peek() == 47 && this.peek2() == 61) { this.skip(); return "//="; }
+	case 47	:	if (this.peek() == 47 && this.peek2() == 61) { this.skip(); this.skip(); return "//="; }
 				if (this.peek() == 47) { this.skip(); return "//"; }
 				if (this.peek() == 61) { this.skip(); return "/="; }
 				if (this.peek() == 42) { this.skip(); return "/*"; }
