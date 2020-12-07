@@ -464,8 +464,29 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						this.definitions[lvalue.name].push(formula);
 
 						stat = formula; break;
-	default : return undefined;
+	default : 			stat = undefined; break;
 	}
+
+	// In tolerant mode, allow for some additional corrupt cases.
+	if (!stat && this.options && this.options.tolerant) {
+		switch (this.token) {
+		case "is"		:
+		case "="		:	var lvalue = new Eden.AST.LValue();
+							lvalue.setObservable("__error__");
+							var formula = this.pSTATEMENT_PP();
+							formula.left(lvalue);
+							if (this.token != ";") {
+								formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+							} else {
+								this.next();
+							}
+							stat = formula;
+							console.error("Recovery", stat);
+							break;
+		}
+	}
+
+	if (!stat) return stat;
 
 	if (stat.errors.length > 0 && stat.errors[stat.errors.length-1] !== this.last_error) {
 		this.last_error = stat.errors[stat.errors.length-1];

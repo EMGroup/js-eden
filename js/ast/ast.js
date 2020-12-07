@@ -97,6 +97,9 @@ Eden.AST = function(code, imports, origin, options) {
 			}
 			this.next();
 		}
+
+		console.log("Parsing with version "+this.version);
+
 		this.script = this.pSCRIPT();
 		this.script.base = this;
 		this.script.name = origin.name;

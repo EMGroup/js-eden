@@ -5,7 +5,7 @@ Eden.Project = function(id, name, source, eden) {
 	this.authorid = -1;
 	this.tags = name.toLowerCase().split(" ");
 	this.src = source;
-	this.ast = new Eden.AST(source, undefined, this, {autorecover: true});
+	this.ast = new Eden.AST(source, undefined, this, {autorecover: true, tolerant: true});
 	//this.ast.script.lock = 1;
 	this.id = id;
 	this.vid = undefined;
@@ -214,7 +214,9 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 							}
 						}
 
-						if (extra.env.parser_cs3) usecs2 = false;
+						if (extra.env.parser_cs3) {
+							usecs2 = false;
+						}
 					}
 				}
 
