@@ -214,7 +214,7 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 							}
 						}
 
-						if (extra.env.parser_cs2) usecs2 = false;
+						if (extra.env.parser_cs3) usecs2 = false;
 					}
 				}
 
@@ -263,9 +263,12 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 
 Eden.Project.verifyEnvironment = function(env) {
 
-	if (!env.hasOwnProperty("parser_cs3")) {
+	console.log("Environment:",env);
+
+	if (!env.hasOwnProperty("parser_cs3") || env.parser_cs3 == false) {
 		Eden.AST.version = Eden.AST.VERSION_CS2;
 		eden.root.lookup("jseden_parser_cs3").assign(false, eden.root.scope, EdenSymbol.defaultAgent);
+		console.log("Disable cs3");
 	}
 
 	for (var x in env) {
@@ -284,7 +287,10 @@ Eden.Project.verifyEnvironment = function(env) {
 			case "="	:	if (val !== parseInt(env[x].substring(1))) return false; break;
 			default		:	if (val != env[x]) return false;
 			}
-		} else if (val != env[x]) return false;
+		} else if (val != env[x]) {
+			console.log("Environment mismatch: ", x, val, env[x]);
+			return false;
+		}
 	}
 	return true;
 }
