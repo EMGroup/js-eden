@@ -5033,3 +5033,29 @@ ${{
 }
 
 
+action recovery {
+
+${{
+
+(function() {
+	let ele = document.createElement("TEXTAREA");
+	ele.style.position = "absolute";
+	ele.style.top = "0px";
+	ele.style.bottom = "0px";
+	ele.style.left = "20px";
+	ele.style.width = "90%";
+	ele.textContent = eden.project.src;
+	document.getElementById("jseden-views").appendChild(ele);
+
+	alert("Recovery Mode: There was an error in your construal, please correct it in the text below and save again");
+
+	ele.addEventListener("change", (e) => {
+		console.log("Text change");
+		eden.project.src = ele.textContent;
+	});
+})();
+
+}}$;
+
+}
+

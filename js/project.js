@@ -15,20 +15,27 @@ Eden.Project = function(id, name, source, eden) {
 	this.desc = undefined;
 	this.readPassword = undefined;
 	this.autosavetimeout = undefined;
+	this.success = (this.ast && this.ast.script.errors.length == 0);
+	this.instance = eden;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
 	} else {
 		console.error("Project Error", this.ast.script.errors);
+		//this.ast = null;
+
+		eden.exec("do lib:unexecuted; do lib > recovery;").then(r => {
+			eden.emit("error", [{name: "Project"}, this.ast.script.errors[0]]);
+		});
 
 		// Need to create a script view...
-		this.ast.script.addIndex();
+		/*this.ast.script.addIndex();
 
 		setTimeout( () => {
 			edenUI.createView("recoverscript","ScriptInput");
 			var tabs = [":project"];
 			eden.root.lookup("view_recoverscript_tabs").assign(tabs, eden.root.scope, EdenSymbol.localJSAgent);
 			eden.root.lookup("view_recoverscript_current").assign(0, eden.root.scope, EdenSymbol.localJSAgent);
-		}, 100);
+		}, 100);*/
 
 	}
 
@@ -329,6 +336,14 @@ Eden.Project.prototype.start = function(cb) {
 		return;
 	}
 
+	if (this.instance.get("jseden_project_mode") == "recover") {
+		this.success = false;
+		eden.exec("do lib:unexecuted; do lib > recovery;").then(r => {
+			if (cb) cb();
+		});
+		return;
+	}
+
 	this.ast.execute(this, eden.root.scope, function() {
 		if (me.ast.scripts["ACTIVE"]) {
 			// Find the active action and replace
@@ -437,7 +452,7 @@ Eden.Project.prototype.addAction = function(name) {
 }
 
 Eden.Project.prototype.generate = function() {
-	return this.ast.getSource();
+	return (this.success) ? this.ast.getSource() : this.source;
 }
 
 Eden.Project.prototype.getDescription = function() {
