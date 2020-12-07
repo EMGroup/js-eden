@@ -199,8 +199,8 @@ EdenStream.prototype.unget = function() {
 EdenStream.prototype.skipWhiteSpace = function() {
 	while (this.valid()) {
 		var ch= this.peek();
-		if (ch == 10) this.line++;
-		if (ch == 9 || ch == 10 || ch == 13 || ch == 32 || ch == 160) {
+		if (ch === 10) this.line++;
+		if (ch === 9 || ch === 10 || ch === 13 || ch === 32 || ch === 160) {
 			this.skip();
 		} else {
 			break;
@@ -209,13 +209,13 @@ EdenStream.prototype.skipWhiteSpace = function() {
 };
 
 EdenStream.prototype.isWhiteSpace = function(ch) {
-	return (ch == 9 || ch == 10 || ch == 13 || ch == 32 || ch == 160);	
+	return (ch === 9 || ch === 10 || ch === 13 || ch === 32 || ch === 160);	
 }
 
 
 
 EdenStream.prototype.skipLine = function() {
-	while (this.valid() && this.peek() != 10) this.skip();
+	while (this.valid() && this.peek() !== 10) this.skip();
 }
 
 
@@ -224,7 +224,7 @@ EdenStream.prototype.skipLine = function() {
  * Check if a character matches [a-zA-Z0-9_] or unicode...
  */
 EdenStream.prototype.isAlphaNumeric = function(ch) {
-	return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == 95) || (ch >= 128 || ch == 36); //(ch >= 0xc0);
+	return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch === 95) || (ch >= 128 || ch === 36); //(ch >= 0xc0);
 };
 
 
@@ -243,24 +243,26 @@ EdenStream.prototype.isNumeric = function(ch) {
  * Used in error context checking.
  */
 EdenStream.prototype.tokenType = function(token) {
-	if (token == "OBSERVABLE") {
-		return "identifier";
+
+	switch (token) {
+	case "OBSERVABLE"		: return "identifier";
+	case "JAVASCRIPT"		: return "javascript";
+	case "NUMBER"			: return "number";
+	case "STRING"			: return "string";
+	case "CHARACTER"		: return "character";
+	case "BOOLEAN"			: return "boolean";
+	case "("				:
+	case "["				:
+	case "{"				: return "openbracket";
+	case ")"				:
+	case "]"				:
+	case "}"				: return "closebracket";
+	case ","				:
+	case "."				:
+	case ";"				:
+	case ":"				: return "separator";
 	}
-	if (token == "JAVASCRIPT") {
-		return "javascript";
-	}
-	if (token == "NUMBER") {
-		return "number";
-	}
-	if (token == "STRING") {
-		return "string";
-	}
-	if (token == "CHARACTER") {
-		return "character";
-	}
-	if (token == "BOOLEAN") {
-		return "boolean";
-	}
+
 	if (typeof token != "string") {
 		console.error(token);
 		return "INVALID";
@@ -268,15 +270,7 @@ EdenStream.prototype.tokenType = function(token) {
 	if (this.isAlphaNumeric(token.charCodeAt(0))) {
 		return "keyword";
 	}
-	if (token == "(" || token == "[" || token == "{") {
-		return "openbracket";
-	}
-	if (token == ")" || token == "]" || token == "}") {
-		return "closebracket";
-	}
-	if (token == "," || token == "." || token == ";" || token == ":") {
-		return "separator";
-	}
+	
 	return "operator";
 };
 
@@ -307,7 +301,7 @@ EdenStream.prototype.parseString = function(data, kind) {
 
 	while (this.valid() && this.peek() != kind) {
 		var chr = String.fromCharCode(this.get());
-		if (chr == "\n"){
+		if (chr === "\n"){
 			this.unget();
 			data.error = true;
 			data.value = "LINEBREAK";
@@ -315,11 +309,11 @@ EdenStream.prototype.parseString = function(data, kind) {
 		}
 		// TODO, the following allows multi-line strings if highlighter can
 		//if (chr == "\n") this.line++;
-		if (chr == "\\") {
+		if (chr === "\\") {
 			chr = String.fromCharCode(this.get());
 			//result += "\\" + chr;
-			if (chr == 'n') result += "\n";
-			else if (chr == 't') result += "\t";
+			if (chr === 'n') result += "\n";
+			else if (chr === 't') result += "\t";
 			else result += chr;
 		} else {
 			result += chr;
@@ -327,7 +321,7 @@ EdenStream.prototype.parseString = function(data, kind) {
 	}
 
 	// Remove end quote
-	if (this.valid() && this.peek() == kind) {
+	if (this.valid() && this.peek() === kind) {
 		this.skip();
 		data.error = false;
 	} else {
@@ -340,14 +334,14 @@ EdenStream.prototype.parseString = function(data, kind) {
 EdenStream.prototype.parseCharacter = function(data) {
 	var result = String.fromCharCode(this.get());
 
-	if (result == "'") {
+	if (result === "'") {
 		data.value = "";
 		data.error = true;
 		return;
 	}
 
 	// Escaped char
-	if (result == "\\") {
+	if (result === "\\") {
 		result = String.fromCharCode(this.get());
 	}
 
@@ -370,7 +364,7 @@ EdenStream.prototype.parseNumber = function(data) {
 		result += String.fromCharCode(this.get());
 	}
 
-	if (this.peek() == 46 && this.isNumeric(this.peek2())) {
+	if (this.peek() === 46 && this.isNumeric(this.peek2())) {
 		this.skip();
 		result += ".";
 		while (this.valid() && this.isNumeric(this.peek())) {
@@ -397,46 +391,46 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	this.position++;
 
 	switch (ch) {
-	case 33	:	if (this.peek() == 61) { this.skip(); return "!="; }
-				if (this.peek() == 126) { this.skip(); return "!~"; }
+	case 33	:	if (this.peek() === 61) { this.skip(); return "!="; }
+				if (this.peek() === 126) { this.skip(); return "!~"; }
 				return "!";
 	case 34	:	if (!ignorestrings) { this.parseString(this.data, 34); return "STRING"; }
 				else return "\"";
-	case 35	:	if (this.peek() == 35) { this.skip(); return "##"; }
+	case 35	:	if (this.peek() === 35) { this.skip(); return "##"; }
 				return "#";
-	case 36	:	if (this.peek() == 123 && this.peek2() == 123) {
+	case 36	:	if (this.peek() === 123 && this.peek2() === 123) {
 					this.skip(); this.skip();
 					return "${{";
-				} else if (this.peek() == 123) {
+				} else if (this.peek() === 123) {
 					this.skip();
 					return "${";
 				}
 				break;
 	case 37	:	return "%";
-	case 38	:	if (this.peek() == 38) { this.skip(); return "&&"; }
-				if (this.peek() == 61) { this.skip(); return "&="; }
+	case 38	:	if (this.peek() === 38) { this.skip(); return "&&"; }
+				if (this.peek() === 61) { this.skip(); return "&="; }
 				return "&";
 	case 39 :	//if (!ignorestrings) { this.parseString(this.data, 39); return "STRING"; }
 				return "'";
 	case 40	:	return "(";
 	case 41	:	return ")";
-	case 42	:	if (this.peek() == 61) { this.skip(); return "*="; }
-				if (this.peek() == 47) { this.skip(); return "*/"; }
+	case 42	:	if (this.peek() === 61) { this.skip(); return "*="; }
+				if (this.peek() === 47) { this.skip(); return "*/"; }
 				return "*";
-	case 43	:	if (this.peek() == 43) { this.skip(); return "++"; }
-				if (this.peek() == 61) { this.skip(); return "+="; }
+	case 43	:	if (this.peek() === 43) { this.skip(); return "++"; }
+				if (this.peek() === 61) { this.skip(); return "+="; }
 				return "+";
 	case 44 :	return ",";
-	case 45	:	if (this.peek() == 45) { this.skip(); return "--"; }
-				if (this.peek() == 61) { this.skip(); return "-="; }
+	case 45	:	if (this.peek() === 45) { this.skip(); return "--"; }
+				if (this.peek() === 61) { this.skip(); return "-="; }
 				//if (this.isNumeric(this.peek())) { this.parseNumber(this.data); this.data.value = -this.data.value; return "NUMBER"; }
 				return "-";
-	case 46	:	if (this.peek() == 46) { this.skip(); return ".."; }
+	case 46	:	if (this.peek() === 46) { this.skip(); return ".."; }
 				return ".";
-	case 47	:	if (this.peek() == 47 && this.peek2() == 61) { this.skip(); this.skip(); return "//="; }
-				if (this.peek() == 47) { this.skip(); return "//"; }
-				if (this.peek() == 61) { this.skip(); return "/="; }
-				if (this.peek() == 42) { this.skip(); return "/*"; }
+	case 47	:	if (this.peek() === 47 && this.peek2() == 61) { this.skip(); this.skip(); return "//="; }
+				if (this.peek() === 47) { this.skip(); return "//"; }
+				if (this.peek() === 61) { this.skip(); return "/="; }
+				if (this.peek() === 42) { this.skip(); return "/*"; }
 				return "/";
 	case 48 :
 	case 49 :
@@ -448,18 +442,18 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	case 55 :
 	case 56 :
 	case 57 :	this.unget(); this.parseNumber(this.data); return "NUMBER";
-	case 58	:	if (this.peek() == 58) { this.skip(); return "::"; }
+	case 58	:	if (this.peek() === 58) { this.skip(); return "::"; }
 				return ":";
 	case 59	:	return ";";
-	case 60	:	if (this.peek() == 60) { this.skip(); return "<<"; }
-				if (this.peek() == 61) { this.skip(); return "<="; }
-				if (this.peek() == 47) { this.skip(); return "</"; }
+	case 60	:	if (this.peek() === 60) { this.skip(); return "<<"; }
+				if (this.peek() === 61) { this.skip(); return "<="; }
+				if (this.peek() === 47) { this.skip(); return "</"; }
 				return "<";
-	case 61 :	if (this.peek() == 61) { this.skip(); return "=="; }
-				if (this.peek() == 126) { this.skip(); return "=~"; }
+	case 61 :	if (this.peek() === 61) { this.skip(); return "=="; }
+				if (this.peek() === 126) { this.skip(); return "=~"; }
 				return "=";
-	case 62	:	if (this.peek() == 62) { this.skip(); return ">>"; }
-				if (this.peek() == 61) { this.skip(); return ">="; }
+	case 62	:	if (this.peek() === 62) { this.skip(); return ">>"; }
+				if (this.peek() === 61) { this.skip(); return ">="; }
 				return ">";
 	case 63	:	return "?";
 	case 64	:	return "@";
@@ -469,10 +463,10 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	case 94	:	return "^";
 	case 96	:	return "`";
 	case 123:	return "{";
-	case 124:	if (this.peek() == 124) { this.skip(); return "||"; }
-				if (this.peek() == 61) { this.skip(); return "|="; }
+	case 124:	if (this.peek() === 124) { this.skip(); return "||"; }
+				if (this.peek() === 61) { this.skip(); return "|="; }
 				return "|";
-	case 125:	if (this.peek() == 125 && this.peek2() == 36) {
+	case 125:	if (this.peek() === 125 && this.peek2() === 36) {
 					this.skip(); this.skip();
 					return "}}$";
 				}/* else if (this.peek() == 36) {
@@ -480,7 +474,7 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 					return "}$";
 				}*/
 				return "}";
-	case 126:	if (this.peek() == 62) { this.skip(); return "~>"; }
+	case 126:	if (this.peek() === 62) { this.skip(); return "~>"; }
 				return "~";
 	default: break; 
 	};

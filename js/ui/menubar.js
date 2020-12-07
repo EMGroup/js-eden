@@ -63,6 +63,8 @@ EdenUI.MenuBar = function() {
 		});
 	}
 
+	this.timeout = null;
+
 	////////////////////////////////////////////////////////////////////////////
 	//  JS-Eden event listeners
 	////////////////////////////////////////////////////////////////////////////
@@ -71,7 +73,7 @@ EdenUI.MenuBar = function() {
 		if (ismobile) {
 
 		} else {
-			this.updateViewsMenu();
+			if (!this.timeout) this.timeout = setTimeout(() => { this.updateViewsMenu(); this.timeout = null; }, 200);
 		}
 	}); 
 
@@ -79,7 +81,7 @@ EdenUI.MenuBar = function() {
 		if (ismobile) {
 
 		} else {
-			this.updateViewsMenu();
+			if (!this.timeout) this.timeout = setTimeout(() => { this.updateViewsMenu(); this.timeout = null; }, 200);
 		}
 	});
 
@@ -287,15 +289,23 @@ EdenUI.MenuBar = function() {
 	}
 
 	function menuItem(parts) {
-		var item = $("<div class='menubar-item'></div>");
+		//var item = $("<div class='menubar-item'></div>");
+		var item = document.createElement("DIV");
+		item.className = "menubar-item";
+
 		for (var i = 0; i < parts.length; ++i) {
-			item.append(parts[i]);
+			//item.append(parts[i]);
+			item.appendChild(parts[i][0]);
 		}
-		return item;
+		return $(item);
 	}
 	
 	function menuItemPart(className, content) {
-		return $('<div class="'+className+' menubar-item-clickable">'+content+'</div>');
+		let ele = document.createElement("DIV");
+		ele.className = className + " menubar-item-clickable";
+		ele.innerHTML = content;
+		return $(ele);
+		//return $('<div class="'+className+' menubar-item-clickable">'+content+'</div>');
 	}
 
 	function menuSeparator(name) {
@@ -317,7 +327,16 @@ EdenUI.MenuBar = function() {
 		};
 	}
 
+	this.ready = false;
+
+	Eden.Project.listenTo("load", this, (project) => {
+		this.ready = true;
+		this.updateViewsMenu();
+	});
+
 	this.updateViewsMenu = function () {
+		if (!this.ready) return;
+
 		var views = $("#menubar-mainitem-views");
 		var existingViews = $("#menubar-mainitem-existing");
 		views.html("");
@@ -378,6 +397,8 @@ EdenUI.MenuBar = function() {
 			var categoryLabel = viewDetails.category.getLabel();
 			var categoryPriority = viewDetails.category.getMenuPriority();
 			var itemPriority = viewDetails.menuPriority;
+
+			console.log("MENUBAR");
 
 			label = menuItemPart('menubar-item-fullwidth menubar-view', title);
 
@@ -459,7 +480,8 @@ EdenUI.MenuBar = function() {
 		}
 	};
 
-	this.updateViewsMenu();
+	//this.updateViewsMenu();
+	if (!this.timeout) this.timeout = setTimeout(() => { this.updateViewsMenu(); this.timeout = null; }, 200);
 
 	var optionsMenu = $("#menubar-mainitem-options");
 

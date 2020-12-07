@@ -55,17 +55,17 @@ Eden.AST.prototype.pPRIMARY_DEPRECATED_BTICK = function(primary, observable) {
 }
 
 Eden.AST.prototype.pIDENTIFIER = function(primary) {
-	if (this.token == "`") {
+	if (this.token === "`") {
 		var btick;
 
 		if (this.version === Eden.AST.VERSION_CS2) {
-			console.warn("Old syntax for backticks");
+			//console.warn("Old syntax for backticks");
 			this.next();
 			btick = this.pEXPRESSION();
 			this.deprecated(btick, "Backticks are now identifier templates");
 
 			// Closing backtick missing?
-			if (this.token != "`") {
+			if (this.token !== "`") {
 				primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BACKTICK));
 				return primary;
 			} else {
@@ -86,12 +86,12 @@ Eden.AST.prototype.pIDENTIFIER = function(primary) {
 		primary.setBackticks(btick);
 		primary.setObservable("__BACKTICKS__");
 		return primary;
-	} else if (this.token == "OBSERVABLE") {
+	} else if (this.token === "OBSERVABLE") {
 		var obs = this.data.value;
 		this.next();
 
-		if (this.token == "{" && this.version === Eden.AST.VERSION_CS2) {
-			console.warn("Old syntax for backticks");
+		if (this.token === "{" && this.version === Eden.AST.VERSION_CS2) {
+			//console.warn("Old syntax for backticks");
 			var p = this.pPRIMARY_DEPRECATED_BTICK(primary, obs);
 			this.deprecated(p, "Backticks are now identifier templates");
 			return p;
