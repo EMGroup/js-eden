@@ -90,7 +90,7 @@ Eden.AST = function(code, imports, origin, options) {
 	if (!options || !options.noparse) {
 		// Get First Token;
 		this.next();
-		if (this.token == "STRING") {
+		while (this.token == "STRING") {
 			// Read parser properties...
 			if (this.data.value == "use cs2;") {
 				this.version = Eden.AST.VERSION_CS2;
