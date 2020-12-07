@@ -64,6 +64,13 @@ describe("Assignment to observable", () => {
 		expect(ast.errors.length).toBeGreaterThan(0);
 	});
 
+	test("missing a backtick is an error", () => {
+		var ast = Eden.AST.parseStatement('{ x = `}');
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors.length).toBeGreaterThan(0);
+	});
+
 	test("bad expression is an error", () => {
 		var ast = Eden.AST.parseStatement('x = a a;');
 

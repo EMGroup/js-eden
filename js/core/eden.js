@@ -363,6 +363,7 @@
 	 * @param {number?} type Error number
 	 */
 	Eden.prototype.error = function (error, origin, type) {
+		//console.error(error);
 		throw new Eden.RuntimeError(this.root, (type) ? type : 0, undefined, error);
 	};
 

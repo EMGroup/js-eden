@@ -300,9 +300,12 @@ Eden.AST.prototype.pFACTOR_SUBSTITUTION = function() {
 }
 
 Eden.AST.prototype.pFACTOR_PRIMARY = function() {
+
 	let primary = this.pPRIMARY();
 
-	if (primary.errors.length > 0) return primary;
+	if (primary.errors.length > 0) {
+		return primary;
+	}
 
 	if (this.token == "[" || this.token == "." || this.token == "(") {
 		var indexed = this.pINDEXED();

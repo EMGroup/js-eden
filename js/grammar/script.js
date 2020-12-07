@@ -145,7 +145,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 	ast.append(dummy);
 	var lastStat = dummy;	
 
-	while (this.token != "EOF") {
+	while (this.stream.valid()) {
 		var statement = this.pSTATEMENT();
 
 		if (statement !== undefined) {
