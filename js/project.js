@@ -235,9 +235,10 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 Eden.Project.verifyEnvironment = function(env) {
 	for (var x in env) {
 		var val = eden.root.lookup("jseden_"+x).value();
-		if (x == "parser_cs3") {
+		/*if (x == "parser_cs3") {
 			eden.root.lookup("jseden_parser_cs3").assign(true, eden.root.scope, EdenSymbol.defaultAgent);
-		} else if (typeof env[x] == "string") {
+		} else */
+		if (typeof env[x] == "string") {
 			var ch0 = env[x].charAt(0);
 
 			switch (ch0) {
