@@ -218,7 +218,7 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 					}
 				}
 
-				var src = (usecs2) ? '"use cs2;"\n'+data.source : data.source;
+				var src = (usecs2 && !data.source.startsWith('"use cs2;"')) ? '"use cs2;"\n'+data.source : data.source;
 
 				eden.project = new Eden.Project(pid, meta.minimisedTitle, src, eden);
 				console.log("LOAD PROJECT",data);
