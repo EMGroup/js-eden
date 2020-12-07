@@ -452,7 +452,7 @@ Eden.Project.prototype.addAction = function(name) {
 }
 
 Eden.Project.prototype.generate = function() {
-	return (this.success) ? this.ast.getSource() : this.source;
+	return (this.success) ? this.ast.getSource() : this.src;
 }
 
 Eden.Project.prototype.getDescription = function() {
