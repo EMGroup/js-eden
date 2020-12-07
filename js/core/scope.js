@@ -38,6 +38,7 @@ function Scope(context, parent, overrides, range, cause, nobuild) {
 	this.parent = parent;
 	this.context = context;
 	this.cache = undefined;
+	this.pcache = Object.create(null);
 	this.overrides = overrides;
 	this.cause = (parent && parent.cause) ? parent.cause : cause;
 	this.causecount = 0;
@@ -304,7 +305,17 @@ Scope.prototype.l = function(name) {
 	if (symcache) {
 		return symcache;
 	} else if (this.parent) {
-		return this.parent.l(name);
+		if (this.depth > 3) {
+			//if (!this.pcache) this.pcache = Object.create(null);
+			let pc = this.pcache[name];
+			if (pc) return pc;
+			
+			pc = this.parent.l(name);
+			if (pc) this.pcache[name] = pc;
+			return pc;
+		} else {
+			return this.parent.l(name);
+		}
 	}
 }
 

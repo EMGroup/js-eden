@@ -230,6 +230,68 @@ Eden.AST.prototype.pSUB_STATEMENT = function() {
 	return stat;
 }
 
+Eden.AST.prototype.pSTAT_DEFAULT = function() {
+	this.next();
+	var def = new Eden.AST.Default();
+	if (this.token != ":") {
+		def.error(new Eden.SyntaxError(this,
+					Eden.SyntaxError.DEFAULTCOLON));
+	} else {
+		this.next();
+	}
+	return def;
+}
+
+Eden.AST.prototype.pSTAT_COMMENT = function() {
+	var start2 = this.stream.position+1;
+	var startline2 = this.stream.line;
+	var isdoxy = this.stream.peek() == 33;
+	//console.log("HASH COM",this.stream.peek());
+	var bcount = 0;
+
+	do {
+		//this.stream.skip();
+		//this.stream.skipLine();
+	
+		while (this.stream.valid()) {
+			var ch = this.stream.peek();
+			if (ch == 123) bcount++;
+			else if (ch == 125) bcount--;
+			if (ch == 10 || (bcount < 0)) break;
+			this.stream.skip();
+		}
+
+		if (bcount < 0) break;
+		
+		if (!this.stream.valid()) {
+			this.errors.push(new Eden.SyntaxError(this,Eden.SyntaxError.NEWLINE));
+		}
+		this.stream.skip();
+		this.stream.line++;
+	} while (this.stream.peek() == 35 && this.stream.peek2() != 35);
+
+	if (isdoxy) {					
+		var doxy2 = new Eden.AST.DoxyComment(this.stream.code.substring(start2, this.stream.position-1).trim(), startline2, this.stream.line);
+		doxy2.parent = this.parentDoxy;
+		if (doxy2.content.endsWith("@{")) {
+			this.parentDoxy = doxy2;
+		} else if (doxy2.content.startsWith("@}")) {
+			if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
+		}
+
+		if (this.lastStatement && this.lastStatement.doxyComment === undefined && (this.lastStatEndline == startline2-1 || this.lastStatEndline == startline2)) {
+			this.lastStatement.setDoxyComment(doxy2);
+		} else {
+			this.lastDoxyComment.push(doxy2);
+		}
+	}
+	this.next(); //this.stream.readToken();
+	//return this.pSTATEMENT();
+	//console.log("DOXY HASH",this.token, this.stream.line, this.origin);
+	return new Eden.AST.DummyStatement();
+
+}
+
 /**
  * STATEMENT Production
  * STATEMENT ->
@@ -295,64 +357,9 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "const"	:
 	case "local"	:
 	case "auto"		:	stat = this.pLOCALS(); break;
-	case "default"	:	this.next();
-						var def = new Eden.AST.Default();
-						if (this.token != ":") {
-							def.error(new Eden.SyntaxError(this,
-										Eden.SyntaxError.DEFAULTCOLON));
-						} else {
-							this.next();
-						}
-						stat = def; break;
+	case "default"	:	stat = this.pSTAT_DEFAULT(); break;
 	case "if"		:	this.next(); stat = this.pIF(); break;
-	case "#"		:	var start2 = this.stream.position+1;
-						var startline2 = this.stream.line;
-						var isdoxy = this.stream.peek() == 33;
-						//console.log("HASH COM",this.stream.peek());
-						var bcount = 0;
-
-						do {
-							//this.stream.skip();
-							//this.stream.skipLine();
-						
-							while (this.stream.valid()) {
-								var ch = this.stream.peek();
-								if (ch == 123) bcount++;
-								else if (ch == 125) bcount--;
-								if (ch == 10 || (bcount < 0)) break;
-								this.stream.skip();
-							}
-
-							if (bcount < 0) break;
-							
-							if (!this.stream.valid()) {
-								this.errors.push(new Eden.SyntaxError(this,Eden.SyntaxError.NEWLINE));
-							}
-							this.stream.skip();
-							this.stream.line++;
-						} while (this.stream.peek() == 35 && this.stream.peek2() != 35);
-
-						if (isdoxy) {					
-							var doxy2 = new Eden.AST.DoxyComment(this.stream.code.substring(start2, this.stream.position-1).trim(), startline2, this.stream.line);
-							doxy2.parent = this.parentDoxy;
-							if (doxy2.content.endsWith("@{")) {
-								this.parentDoxy = doxy2;
-							} else if (doxy2.content.startsWith("@}")) {
-								if (this.parentDoxy) this.parentDoxy = this.parentDoxy.parent;
-							}
-
-							if (this.lastStatement && this.lastStatement.doxyComment === undefined && (this.lastStatEndline == startline2-1 || this.lastStatEndline == startline2)) {
-								this.lastStatement.setDoxyComment(doxy2);
-							} else {
-								this.lastDoxyComment.push(doxy2);
-							}
-						}
-						this.next(); //this.stream.readToken();
-						//return this.pSTATEMENT();
-						//console.log("DOXY HASH",this.token, this.stream.line, this.origin);
-						stat = new Eden.AST.DummyStatement();
-						break;
-
+	case "#"		:	stat = this.pSTAT_COMMENT(); break;
 	case "##"		:	stat = this.pSECTION();
 						if (this.lastDoxyComment.length > 0 && this.lastline == this.lastDoxyComment[0].startline-1) {
 							//console.log("DOXY", this.lastline, this.lastDoxyComment[0].startline);
@@ -361,11 +368,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						}
 						break;
 
-	case "%"		:	stat = this.pCUSTOM_SECTION();
-						//if (this.lastDoxyComment.length > 0 && this.lastline == this.lastDoxyComment[0].startline-1) {
-						//	stat.setDoxyComment(this.lastDoxyComment.shift());
-						//}
-						break;
+	case "%"		:	stat = this.pCUSTOM_SECTION(); break;
 						
 	case "return"	:	this.next();
 						expectssemi = true;
