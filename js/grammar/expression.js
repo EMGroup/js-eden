@@ -36,14 +36,14 @@ Eden.AST.prototype.pEXPRESSION_PPPPPP = function() {
 		return tern;
 	} else */
 	
-	if (this.token == "if") {
+	if (this.token === "if") {
 		this.next();
 		var tern = new Eden.AST.TernaryOp("?");
 		tern.setCondition(this.pEXPRESSION());
 
 		if (tern.errors.length > 0) return tern;
 
-		if (this.token != "else") {
+		if (this.token !== "else") {
 			tern.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.TERNIFCOLON));
 			return tern;
 		} else {
@@ -65,12 +65,21 @@ Eden.AST.prototype.pEXPRESSION_PPPPPP = function() {
 Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 	var left = this.pTERM();
 
-	while (this.token == "&&" || this.token == "||" || this.token == "&" || this.token == "|" || this.token == "and" || this.token == "or") {
-		var binop = new Eden.AST.BinaryOp(this.token);
-		this.next();
-		binop.left(left);
-		binop.setRight(this.pTERM());
-		left = binop;
+	while (this.stream.valid()) {
+		switch (this.token) {
+		case "&&"	:
+		case "||"	:
+		case "&"	:
+		case "|"	:
+		case "and"	:
+		case "or"	:	var binop = new Eden.AST.BinaryOp(this.token);
+						this.next();
+						binop.left(left);
+						binop.setRight(this.pTERM());
+						left = binop;
+						continue;
+		default		:	return left;
+		}
 	}
 
 	return left;
@@ -79,7 +88,7 @@ Eden.AST.prototype.pEXPRESSION_PLAIN = function() {
 Eden.AST.prototype.pEXPRESSION_ASYNC = function() {
 	var expr;
 
-	if (this.token == "sync") {
+	if (this.token === "sync") {
 		this.next();
 		expr = new Eden.AST.Async();
 
@@ -168,6 +177,27 @@ Eden.AST.prototype.pEXPRESSION_ASYNC = function() {
 	}
 }*/
 
+Eden.AST.prototype.pFUNC_EXPR = function() {
+	let expr;
+	this.next();
+
+	if (this.token !== "{") {
+		var ast = new Eden.AST.ScriptExpr();
+		ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
+		return ast;
+	}
+	this.next();
+
+	//var expr = new Eden.AST.World(this.pSCRIPT());
+	expr = this.pSCRIPTEXPR();
+	if (this.token !== "}") {
+		expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
+		return expr;
+	}
+	this.next();
+	return expr;
+}
+
 
 /**
  * Scoped Expression Production
@@ -179,52 +209,19 @@ Eden.AST.prototype.pEXPRESSION_ASYNC = function() {
 Eden.AST.prototype.pEXPRESSION = function() {
 	var expr;
 
-	if (this.token == "sync") {
+	if (this.token === "sync") {
 		expr = new Eden.AST.Async();
 		expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SYNCNOTALLOWED));
 		return expr;
 	}
 
-	if (this.token == "func") {
-		this.next();
-
-		if (this.token != "{") {
-			var ast = new Eden.AST.ScriptExpr();
-			ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
-			return ast;
-		}
-		this.next();
-
-		//var expr = new Eden.AST.World(this.pSCRIPT());
-		expr = this.pSCRIPTEXPR();
-		if (this.token != "}") {
-			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
-			return expr;
-		}
-		this.next();
-	} else if (this.token == "action") {
-		this.next();
-
-		if (this.token != "{") {
-			var ast = new Eden.AST.ScriptExpr();
-			ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
-			return ast;
-		}
-		this.next();
-
-		expr = this.pSCRIPTEXPR();
-
-		if (this.token != "}") {
-			expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
-			return expr;
-		}
-		this.next();
-		return;  // No scope allowed here.
-	} else {
-		expr = this.pEXPRESSION_PLAIN();
+	switch (this.token) {
+	case "func"		: expr = this.pFUNC_EXPR(); break;
+	case "action"	: expr = this.pFUNC_EXPR(); return expr;
+	default			: expr = this.pEXPRESSION_PLAIN(); break;
 	}
 
-	if (this.token == "with" || this.token == "::") {
+	if (this.token === "with" || this.token === "::") {
 		this.next();
 		var scope = this.pSCOPE();
 		scope.setExpression(expr);

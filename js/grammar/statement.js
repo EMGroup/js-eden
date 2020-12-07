@@ -1,3 +1,148 @@
+Eden.AST.prototype.pDEFINITION = function() {
+	this.next();
+	var def = new Eden.AST.Definition();
+	var parent = this.parent;
+	this.parent = def;
+	this.isdynamic = false;
+
+	
+	var attribs;
+	if (this.token == ":") {
+		this.next();
+		attribs = this.pATTRIBUTES();
+		if (!def.setAttributes(attribs)) {
+			def.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+			this.parent = parent;
+			return def;
+		}
+	}
+
+
+	var expr = this.pEXPRESSION_ASYNC();
+	def.setExpression(expr);
+
+	// The source code of this definition is dynamic in nature
+	if (this.isdynamic) def.isdynamic = true;
+
+	//def.expression = expr;
+	//def.errors = expr.errors;
+	this.parent = parent;
+	return def;
+}
+
+Eden.AST.prototype.pRANGE_STATEMENT = function() {
+	this.next();
+
+	if (!allowrange) {
+		var range = new Eden.AST.Range();
+		range.error(new Eden.SyntaxError(this, Eden.SyntaxError.RANGEBANNED));
+		return range;
+	}
+
+	var range = new Eden.AST.Range(this.pEXPRESSION());
+	if (this.token == "..") {
+		this.next();
+		range.setSecond(this.pEXPRESSION());
+	}
+	return range;
+}
+
+Eden.AST.prototype.pASSIGNMENT = function() {
+	this.next();
+
+	var attribs;
+	if (this.token == ":") {
+		this.next();
+		attribs = this.pATTRIBUTES();
+	}
+
+	var s = new Eden.AST.Assignment(this.pEXPRESSION());
+
+	if (!s.setAttributes(attribs)) {
+		s.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+		this.parent = parent;
+		return s;
+	}
+
+	// TODO: Check type for promise?
+	if (s.expression && s.expression.type == "query") {
+		s.warning = new Eden.SyntaxWarning(this, s, Eden.SyntaxWarning.MISSINGSYNC, "This is an asynchronous statement");
+	}
+	return s;
+}
+
+Eden.AST.prototype.pMODIFY_PLUS = function() {
+	this.next();
+	return new Eden.AST.Modify("+=", this.pEXPRESSION());
+}
+
+Eden.AST.prototype.pMODIFY_ARITH = function() {
+	let op = this.token;
+	this.next();
+	let mod = new Eden.AST.Modify(op, this.pEXPRESSION());
+	if (mod.expression && mod.expression.typevalue !== Eden.AST.TYPE_NUMBER && mod.expression.typevalue !== 0) {
+		mod.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+	}
+	return mod;
+}
+
+Eden.AST.prototype.pMODIFY_CONCAT = function() {
+	this.next();
+	let mod = new Eden.AST.Modify("//=", this.pEXPRESSION());
+	if (mod.expression && (mod.expression.typevalue === Eden.AST.TYPE_NUMBER || mod.expression.typevalue === Eden.AST.TYPE_BOOLEAN || mod.expression.typevalue === Eden.AST.TYPE_OBJECT)) {
+		mod.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+	}
+	return mod;
+}
+
+Eden.AST.prototype.pMODIFY_INCDEC = function() {
+	let op = this.token;
+	this.next();
+	return new Eden.AST.Modify(op, undefined);
+}
+
+Eden.AST.prototype.pSUBSCRIBERS = function() {
+	this.next();
+	var subscribers = new Eden.AST.Subscribers();
+
+	if (this.token != "[") {
+		subscribers.error(new Eden.SyntaxError(this, Eden.SyntaxError.SUBSCRIBEOPEN));
+		return subscribers;
+	} else {
+		this.next();
+	}
+
+	subscribers.setList(this.pOLIST());
+	if (subscribers.errors.length > 0) return subscribers;
+
+	if (this.token != "]") {
+		subscribers.error(new Eden.SyntaxError(this, Eden.SyntaxError.SUBSCRIBECLOSE));
+		return subscribers;
+	} else {
+		this.next();
+	}
+
+	return subscribers;
+}
+
+Eden.AST.prototype.pFUNCCALL_STAT = function() {
+	var fcall = new Eden.AST.FunctionCall();
+	this.next();
+
+	if (this.token != ")") {
+		fcall.setParams(this.pELIST());
+		if (fcall.errors.length > 0) return fcall;
+
+		if (this.token != ")") {
+			fcall.error(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCLOSE));
+			return fcall;
+		}
+	}
+
+	this.next();
+	return fcall;
+}
+
 /**
  * STATEMENT PrimePrime Production
  * STATEMENT''	->
@@ -14,148 +159,20 @@
  *  ( ELIST )
  */
 Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
-	if (this.token == "is") {
-		this.next();
-		var def = new Eden.AST.Definition();
-		var parent = this.parent;
-		this.parent = def;
-		this.isdynamic = false;
 
-		
-		var attribs;
-		if (this.token == ":") {
-			this.next();
-			attribs = this.pATTRIBUTES();
-			if (!def.setAttributes(attribs)) {
-				def.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
-				this.parent = parent;
-				return def;
-			}
-		}
-
-
-		var expr = this.pEXPRESSION_ASYNC();
-		def.setExpression(expr);
-
-		// The source code of this definition is dynamic in nature
-		if (this.isdynamic) def.isdynamic = true;
-
-		//def.expression = expr;
-		//def.errors = expr.errors;
-		this.parent = parent;
-		return def; //new Eden.AST.Definition(this.pEXPRESSION(), this.parent);
-	/*} else if (this.token == "isasync") {
-		this.next();
-		var def = new Eden.AST.Definition();
-		var parent = this.parent;
-		this.parent = def;
-		var expr = this.pEXPRESSION();
-		def.setExpression(expr);
-		def.setAsync(true);
-		//def.expression = expr;
-		//def.errors = expr.errors;
-		this.parent = parent;
-		return def;*/
-	} else if (this.token == "in") {
-		this.next();
-
-		if (!allowrange) {
-			var range = new Eden.AST.Range();
-			range.error(new Eden.SyntaxError(this, Eden.SyntaxError.RANGEBANNED));
-			return range;
-		}
-
-		var range = new Eden.AST.Range(this.pEXPRESSION());
-		if (this.token == "..") {
-			this.next();
-			range.setSecond(this.pEXPRESSION());
-		}
-		return range;
-	} else if (this.token == "=") {
-		this.next();
-
-		var attribs;
-		if (this.token == ":") {
-			this.next();
-			attribs = this.pATTRIBUTES();
-		}
-
-		var s = new Eden.AST.Assignment(this.pEXPRESSION());
-
-		if (!s.setAttributes(attribs)) {
-			s.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
-			this.parent = parent;
-			return s;
-		}
-
-		// TODO: Check type for promise?
-		if (s.expression && s.expression.type == "query") {
-			s.warning = new Eden.SyntaxWarning(this, s, Eden.SyntaxWarning.MISSINGSYNC, "This is an asynchronous statement");
-		}
-		return s;
-	} else if (this.token == "+=") {
-		this.next();
-		return new Eden.AST.Modify("+=", this.pEXPRESSION());
-	} else if (this.token == "-=") {
-		this.next();
-		return new Eden.AST.Modify("-=", this.pEXPRESSION());
-	} else if (this.token == "/=") {
-		this.next();
-		return new Eden.AST.Modify("/=", this.pEXPRESSION());
-	} else if (this.token == "//=") {
-		this.next();
-		let mod = new Eden.AST.Modify("//=", this.pEXPRESSION());
-		if (mod.expression && (mod.expression.typevalue == Eden.AST.TYPE_NUMBER || mod.expression.typevalue == Eden.AST.TYPE_BOOLEAN || mod.expression.typevalue == Eden.AST.TYPE_OBJECT)) {
-			mod.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
-		}
-		return mod;
-	} else if (this.token == "*=") {
-		this.next();
-		return new Eden.AST.Modify("*=", this.pEXPRESSION());
-	} else if (this.token == "~>") {
-		this.next();
-		var subscribers = new Eden.AST.Subscribers();
-
-		if (this.token != "[") {
-			subscribers.error(new Eden.SyntaxError(this, Eden.SyntaxError.SUBSCRIBEOPEN));
-			return subscribers;
-		} else {
-			this.next();
-		}
-
-		subscribers.setList(this.pOLIST());
-		if (subscribers.errors.length > 0) return subscribers;
-
-		if (this.token != "]") {
-			subscribers.error(new Eden.SyntaxError(this, Eden.SyntaxError.SUBSCRIBECLOSE));
-			return subscribers;
-		} else {
-			this.next();
-		}
-
-		return subscribers;
-	} else if (this.token == "++") {
-		this.next();
-		return new Eden.AST.Modify("++", undefined);
-	} else if (this.token == "--") {
-		this.next();
-		return new Eden.AST.Modify("--", undefined);
-	} else if (this.token == "(") {
-		var fcall = new Eden.AST.FunctionCall();
-		this.next();
-
-		if (this.token != ")") {
-			fcall.setParams(this.pELIST());
-			if (fcall.errors.length > 0) return fcall;
-
-			if (this.token != ")") {
-				fcall.error(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCCLOSE));
-				return fcall;
-			}
-		}
-
-		this.next();
-		return fcall;
+	switch (this.token) {
+	case "is"		: return this.pDEFINITION();
+	case "in"		: return this.pRANGE_STATEMENT();
+	case "="		: return this.pASSIGNMENT();
+	case "+="		: return this.pMODIFY_PLUS();
+	case "-="		:
+	case "/="		:
+	case "*="		: return this.pMODIFY_ARITH();
+	case "//="		: return this.pMODIFY_CONCAT();
+	case "++"		:
+	case "--"		: return this.pMODIFY_INCDEC();
+	case "~>"		: return this.pSUBSCRIBERS();
+	case "("		: return this.pFUNCCALL_STAT();
 	}
 
 	var errors = [];

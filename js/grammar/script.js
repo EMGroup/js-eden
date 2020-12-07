@@ -7,7 +7,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	var attribs = null;
 
 	// Allow for execution attributes
-	if (this.token == "[") {
+	if (this.token === "[") {
 		attribs = this.pATTRIBUTES();
 		/*if (!stat.setAttributes(attribs)) {
 			w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
@@ -17,7 +17,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	}
 
 	// Expect an action name with same syntax as an observable name
-	if (this.token != "OBSERVABLE") {
+	if (this.token !== "OBSERVABLE") {
 		var script = new Eden.AST.Script();
 		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONNAME));
 		return script;
@@ -28,18 +28,18 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 
 	// TODO: Do we need this? Can it be removed??
 	let readables,writables;
-	if (this.token == "(") {
+	if (this.token === "(") {
 		this.next();
-		if (this.token == "oracle") {
+		if (this.token === "oracle") {
 			this.next();
 			readables = this.pCODESELECTOR();
 		}
-		if (this.token == ";") this.next();
-		if (this.token == "handle") {
+		if (this.token === ";") this.next();
+		if (this.token === "handle") {
 			this.next();
 			writables = this.pCODESELECTOR();
 		}
-		if (this.token != ")") {
+		if (this.token !== ")") {
 			var script = new Eden.AST.Script();
 			script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
 			return script;
@@ -47,7 +47,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		this.next();
 	}
 
-	if (this.token == "is") {
+	if (this.token === "is") {
 		this.next();
 		var alias = new Eden.AST.Alias();
 
@@ -57,13 +57,13 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		}
 
 		// For now it must be a query
-		if (this.token != "?") {
+		if (this.token !== "?") {
 			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ALIASQUERY));
 			return alias;
 		}
 		this.next();
 
-		if (this.token != "(") {
+		if (this.token !== "(") {
 			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYOPEN));
 			return alias;
 		}
@@ -71,7 +71,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	
 		alias.setSelector(this.pCODESELECTOR());
 	
-		if (this.token != ")") {
+		if (this.token !== ")") {
 			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYCLOSE));
 			return alias;
 		}
@@ -80,14 +80,14 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		//alias.setSelector(this.pCODESELECTOR());
 		alias.setName(name);
 
-		if (this.token != ";") {
+		if (this.token !== ";") {
 			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 			return alias;
 		}
 		this.next();
 
 		return alias;
-	} else if (this.token != "{") {
+	} else if (this.token !== "{") {
 		var script = new Eden.AST.Script();
 		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
 		return script;
@@ -107,7 +107,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	if (readables) script.setReadables(readables);
 	if (writables) script.setWritables(writables);
 
-	if (this.token != "}") {
+	if (this.token !== "}") {
 		script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
 		return script;
 	} else {
@@ -158,7 +158,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 
 			var end = statement.end;
 
-			if (statement.type == "dummy" && lastStat && lastStat.type == "dummy") {
+			if (statement.type === "dummy" && lastStat && lastStat.type === "dummy") {
 				lastStat.setSource(statement.start, statement.end, statement.source);
 				lastStat.numlines += statement.numlines;
 			} else {
@@ -175,7 +175,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 				else dummy.numlines = dummy.numlines.length;
 				//ast.appendChild(dummy);
 
-				if (lastStat && lastStat.type == "dummy") {
+				if (lastStat && lastStat.type === "dummy") {
 					lastStat.setSource(dummy.start, dummy.end, dummy.source);
 					lastStat.numlines += dummy.numlines;
 				} else {
@@ -199,7 +199,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 					ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
 				}
 			}*/
-			if (this.token == ";") {
+			if (this.token === ";") {
 				this.next();
 			} else {
 				//this.next();

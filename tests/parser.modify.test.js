@@ -77,3 +77,36 @@ describe("Modifier //= Statement", () => {
 	});
 
 });
+
+describe("Modifier *= Statement", () => {
+
+	test("accepts numbers on rhs", () => {
+		var ast = Eden.AST.parseStatement("x *= 4;");
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("modify");
+	});
+
+	test("rejects lists on rhs", () => {
+		var ast = Eden.AST.parseStatement("x *= [];");
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).not.toHaveLength(0);
+	});
+
+	test("rejects objects on rhs", () => {
+		var ast = Eden.AST.parseStatement("x *= {};");
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).not.toHaveLength(0);
+	});
+
+	test("rejects strings on rhs", () => {
+		var ast = Eden.AST.parseStatement("x *= 'hello';");
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).not.toHaveLength(0);
+	});
+
+});

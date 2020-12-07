@@ -226,4 +226,27 @@ describe("Execution of Concat Modifier", () => {
 		expect(eden.get("a")).toEqual([1,2,3,4]);
 	});
 
+	test("concat fails on non-list lhs", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 5; a //= [4];");
+		expect(eden.get("a")).toEqual(5);
+	});
+
+});
+
+describe("Execution of *= Modifier", () => {
+
+	test("multiply assign on numbers", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 5; a *= 5;");
+		expect(eden.get("a")).toEqual(25);
+	});
+
+	// Javascript seems to allow this!!
+	/*test("multiple assign fails with lhs list", async () => {
+		let eden = new Eden();
+		await eden.exec("a = [5]; a *= 4;");
+		expect(eden.get("a")).toEqual([5]);
+	});*/
+
 });

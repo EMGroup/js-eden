@@ -7,7 +7,7 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 		var ch = this.stream.get();
 		var c = String.fromCharCode(ch);
 
-		if (c == starttoken) {
+		if (c === starttoken) {
 			var str = this.stream.code.substring(laststart,this.stream.position-1);
 			str = str.replace(/\\([\\\{\}'])/g,"$1");
 
@@ -20,13 +20,13 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 			op.left(expr);
 			op.setRight(new Eden.AST.Literal("STRING", str));
 			return op;
-		} else if (c == "\\") {
+		} else if (c === "\\") {
 			this.stream.skip();
-		} else if (c == "}") {
+		} else if (c === "}") {
 			expr = new Eden.AST.Literal("UNDEFINED");
 			this.syntaxError(expr, Eden.SyntaxError.UNKNOWN);  // TODO: Error type
 			return expr;
-		} else if (c == "{") {
+		} else if (c === "{") {
 			var str = this.stream.code.substring(laststart,this.stream.position-1);
 			str = str.replace(/\\([\\\{\}'])/g,"$1");
 
@@ -37,7 +37,7 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 				this.typeWarning(subexp, Eden.AST.TYPE_STRING, subexp.typevalue);
 			}
 
-			if (this.token != "}") {
+			if (this.token !== "}") {
 				// TODO: Error type
 				subexp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN, "Missing template expression close"));
 				return subexp;
@@ -62,12 +62,12 @@ Eden.AST.prototype.pTEMPLATE_STRING = function(ws) {
 			} else {
 				expr = subexp;
 			}
-		} else if (c == "${") {
+		} else if (c === "${") {
 			// TODO: Implement this
 
 			var subexp = this.pEXPRESSION();
 
-			if (this.token != "}") {
+			if (this.token !== "}") {
 
 			}
 
