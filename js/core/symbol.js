@@ -34,11 +34,14 @@ function EdenSymbol(context, name) {
 	 */
 	this.name = name;
 
+	/**
+	 * @type {ScopeCache}
+	 */
 	this.cache = (context) ? context.scope.add(name,this) : new ScopeCache( true, undefined, this, false);
 
 	this.definition = undefined;
 	this.def_scope = undefined;
-	this.extend = undefined;
+	this.extend = undefined;	// Deprecated?
 	this.needsGlobalNotify = 0;
 	this.has_evaled = false;
 	this.isasync = false;		// Expects a promise as value
@@ -48,27 +51,20 @@ function EdenSymbol(context, name) {
 
 	// need to keep track of who we subscribe to so
 	// that we can unsubscribe from them when our definition changes
-	this.dependencies =  {};
+	this.dependencies =  Object.create(null);
 
 	// need to keep track of what EdenSymbols subscribe to us
 	// so that we can notify them of a change in value
-	this.subscribers = {};
+	this.subscribers = Object.create(null);
 	this.subscribersArray = null;
 
 	// performs the same role as .dependencies but for the backtick notation, where which
 	// observables an observable depends on can be dependent on the values of other observables.
-	this.dynamicDependencies = {};
-
-	// tracks which observable names currently fill in for the parts of the definition defined
-	// by backticks.  Element 0 represents the first invocation of backticks in the EDEN definition.
-	this.dynamicDependencyTable = [];
-	// tracks how many times the same observable is referenced by different invocations of
-	// backticks.  When a reference count is decremented to zero then it's time to unsubscribe.
-	this.dynamicDependencyRefCount = {};
+	this.dynamicDependencies = Object.create(null);
 
 	// need to keep track of observers so we can notify those also
-	this.observers = {};
-	this.observees = {};
+	this.observers = Object.create(null);
+	this.observees = Object.create(null);
 	this.jsObservers = {};
 
 	this.origin = undefined;
@@ -98,7 +94,7 @@ Object.defineProperty(EdenSymbol.prototype, "doxyComment", {
 });
 
 Object.defineProperty(EdenSymbol.prototype, "parent", {
-	get: function() { return eden.root; }
+	get: function() { return this.context; }
 });
 
 Object.defineProperty(EdenSymbol.prototype, "stamp", {
@@ -142,7 +138,7 @@ InternalAgent = function(name, local) {
 }
 
 InternalAgent.prototype.getOrigin = function() {
-	if (this.name != "*Default") return eden.project;
+	if (this.name != "*Default") return eden.project;  // FIXME:
 	else return undefined;
 }
 
@@ -165,22 +161,6 @@ EdenSymbol.REDEFINED = 3;
 EdenSymbol.ASSIGNED = 4;
 EdenSymbol.ASYN_UPDATE = 5;
 
-/**
- * Get the value of this EdenSymbol bound with the scope the value was
- * generated in.
- */
-/*EdenSymbol.prototype.boundValue = function(scope, indices) {
-	//console.log("BOUNDVALUE",this.name);
-	var value = this.value(scope);
-	var cache = scope.lookup(this.name);
-
-	if (indices) {
-		// Generate a non range scope equivalent to a specific index.
-		return new BoundValue(value[indices[0]], cache.scopes[indices[0]]);
-	} else {
-		return new BoundValue(value, cache.scope);
-	}
-}*/
 
 /**
  * Return the current value of this EdenSymbol, forcing calculation if necessary.
@@ -233,21 +213,12 @@ EdenSymbol.prototype.multiValue = function (newscope) {
 	return results;
 };
 
-EdenSymbol.prototype.evaluateIfDependenciesExist = function () {
-	var name;
-	//for (name in this.dependencies) {
-		// only evaluate if all dependencies have been defined by some agent
-	//	if (!this.dependencies[name].last_modified_by) {
-	//		return;
-	//	}
-	//}
-	this.evaluate(this.context.scope, this.context.scope.lookup(this.name));
-};
-
-EdenSymbol.prototype.getValueScope = function(scope) {
-	return scope.lookup(this.name).scope;
-}
-
+/**
+ * Evaluate a definition assuming it is out-of-date.
+ * 
+ * @param {Scope} scope Evaluation scope
+ * @param {ScopeCache} cache Cache entry for this symbol in eval scope.
+ */
 EdenSymbol.prototype.evaluate = function (scope, cache) {
 	if (this.context) {
 		this.context.beginEvaluation(this);
@@ -263,16 +234,15 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 		if (this.scopecount > 1000) console.log("Scope count for "+this.name, this.scopecount);
 
 		// Post process with all extensions
-		if (this.extend) {
+		/*if (this.extend) {
 			for (var e in this.extend) {
 				this.extend[e].code(this.context, scope, cache.value);
 			}
-		}
+		}*/
 	} catch (e) {
 		if (e instanceof Eden.RuntimeError) {
-			eden.emit("error", [this,e]);
+			this.context.instance.emit("error", [this,e]);
 		}
-		//this.logError(e);
 		//if (this.context) console.error(this.context.currentObservables.map(x => { return x.name; }), e);
 		//else console.error(this.name, e);
 		cache.value = undefined;
@@ -295,41 +265,32 @@ EdenSymbol.prototype.liteEvaluate = function (scope, cache) {
 
 	// Post process with all extensions
 	// TODO: Remove extensions?
-	if (this.extend) {
+	/*if (this.extend) {
 		for (var e in this.extend) {
 			this.extend[e].code(this.context, scope, cache.value);
 		}
-	}
+	}*/
 	
 };
-
-EdenSymbol.prototype.clearEvalIDs = function () {
-	var context = this.context;
-	for (var id in this.evalIDs) {
-		context.clearEval(this.evalIDs[id]);
-	}
-	this.evalIDs = {};
-	this.evalResolved = false;
-}
 
 EdenSymbol.prototype.clearObservees = function () {
 	for (var name in this.observees) {
 		var EdenSymbol = this.observees[name];
 		EdenSymbol.removeObserver(this.name);
 	}
-	this.observees = {};
+	this.observees = Object.create(null);
 };
 
 EdenSymbol.prototype.subscribe = function () {
 	var dependencies = Utils.flatten(arguments);
 	for (var i = 0; i < dependencies.length; ++i) {
 		var dependency = dependencies[i];
-		var EdenSymbol = this.context.lookup(dependency);
+		var sym = this.context.lookup(dependency);
 
-		if (EdenSymbol.name != this.name) {
-			EdenSymbol.addSubscriber(this.name, this);
-			var name = EdenSymbol.name;
-			this.dependencies[name] = EdenSymbol;
+		if (sym.name != this.name) {
+			sym.addSubscriber(this.name, this);
+			var name = sym.name;
+			this.dependencies[name] = sym;
 			delete this.dynamicDependencies[name];
 		}
 	}
@@ -358,15 +319,15 @@ EdenSymbol.prototype.subscribeDynamic = function (position, dependency, scope) {
 	if (!Eden.isValidIdentifier(dependency)) return "__error__";
 	var sym = this.context.lookup(dependency);
 
-	if (scope && scope !== eden.root.scope && scope.cause) {
+	if (scope && scope !== this.context.scope && scope.cause) {
 		// Only add if actually a definition and not already there.
 		if (sym.definition && !scope.cache[dependency]) {
 			scope.addSubscriber(dependency);
 		}
 	}
 
-	if (!this.dependencies.hasOwnProperty(dependency)) {
-		if (!this.dynamicDependencies.hasOwnProperty(dependency)) {
+	if (!this.dependencies[dependency]) {
+		if (!this.dynamicDependencies[dependency]) {
 			sym.addSubscriber(this.name, this);
 			this.dynamicDependencies[sym.name] = sym;			
 		}
@@ -382,14 +343,12 @@ EdenSymbol.prototype.clearDependencies = function () {
 		dependency = this.dependencies[name];
 		dependency.removeSubscriber(this.name);
 	}
-	this.dependencies = {};
+	this.dependencies = Object.create(null);
 	for (var name in this.dynamicDependencies) {
 		dependency = this.dynamicDependencies[name];
 		dependency.removeSubscriber(this.name);
 	}
-	this.dynamicDependencies = {};
-	this.dynamicDependencyTable = [];
-	this.dynamicDependencyRefCount = {};
+	this.dynamicDependencies = Object.create(null);
 };
 
 EdenSymbol.prototype.clearDynamicDependencies = function () {
@@ -400,7 +359,7 @@ EdenSymbol.prototype.clearDynamicDependencies = function () {
 		dependency.removeSubscriber(this.name);
 		++count;
 	}
-	if (count > 0) this.dynamicDependencies = {};
+	if (count > 0) this.dynamicDependencies = Object.create(null);
 };
 
 
@@ -408,18 +367,6 @@ EdenSymbol.prototype.getSource = function() {
 	//if (this.origin && !this.origin.internal && !this.origin.getSource) console.log("NO GETSOURCE",this);
 	if (this.origin && !this.origin.internal) {
 			return this.origin.getSource();
-	}
-	return this.name + " = " + Eden.edenCodeForValue(this.value()) + ";";
-}
-
-EdenSymbol.prototype.getDynamicSource = function() {
-	//if (this.origin && !this.origin.internal && !this.origin.getSource) console.log("NO GETSOURCE",this);
-	if (this.origin && !this.origin.internal) {
-		if (this.origin.sources) {
-			return this.origin.sources[this.name];
-		} else {
-			return this.origin.getSource();
-		}
 	}
 	return this.name + " = " + Eden.edenCodeForValue(this.value()) + ";";
 }
@@ -474,24 +421,17 @@ EdenSymbol.prototype.define = function (definition, origin, subscriptions, sourc
 	// EdenSymbol no longer observes or depends on anything
 	this.clearObservees();
 	this.clearDependencies();
-
-	// If a "func" or "proc" then prevent going out-of-date!
-	//if (this.eden_definition.startsWith("proc ") || this.eden_definition.startsWith("func ")) {
-	//	this.cache.override = true;
-	//	this.cache.up_to_date = false;
-	//	this.value();
-	//}
-
 	this.subscribe(subscriptions);
 
 	// Re-add any extension dependencies.
-	if (this.extend) {
+	/*if (this.extend) {
 		for (var e in this.extend) {
 			this.subscribe(this.extend[e].deps);
 		}
-	}
+	}*/
 
 	if (this.context) {
+		// Lazy expire.
 		this.context.expireEdenSymbol(this);
 	}
 
@@ -502,8 +442,9 @@ EdenSymbol.prototype.define = function (definition, origin, subscriptions, sourc
 
 EdenSymbol.prototype.expireSubscribers = function() {
 	for (var s in this.subscribers) {
-		this.subscribers[s].needsGlobalNotify = EdenSymbol.EXPIRED;
-		this.context.expireEdenSymbol(this.subscribers[s]);
+		let sub = this.subscribers[s];
+		sub.needsGlobalNotify = EdenSymbol.EXPIRED;
+		this.context.expireEdenSymbol(sub);
 	}
 }
 
@@ -583,10 +524,10 @@ EdenSymbol.prototype.assign = function (value, scope, origin) {
 		return;
 	}
 
-	this.clearEvalIDs();
 	this.origin = origin;
+	// If was defined, then need full expire.
+	this.needsGlobalNotify = (this.definition) ? EdenSymbol.REDEFINED : EdenSymbol.ASSIGNED;
 	this.definition = undefined;
-	this.needsGlobalNotify = EdenSymbol.ASSIGNED;
 	this.has_evaled = true;
 
 	this.extend = undefined;
@@ -608,21 +549,9 @@ EdenSymbol.prototype.assign = function (value, scope, origin) {
 	return this;
 };
 
-/**
- * Change the current value of this EdenSymbol and notify.
- *
- * If this is called from within JavaScript code that is initiated in some way other than via the
- * input window (e.g. mouse movement events) then the third parameter must be set to true to
- * ensure that the change gets propagated to other networked instances of JS-EDEN.
- *
- * @param {*} value
- * @param {EdenSymbol} modifying_agent
- * @param {boolean} pushToNetwork
- */
+
 EdenSymbol.prototype.assigned = function (origin) {
 	this.garbage = false;
-	this.clearEvalIDs();
-	this.evalResolved = true;
 	this.origin = origin;
 	this.definition = undefined;
 
@@ -665,19 +594,6 @@ EdenSymbol.prototype.mutate = function (scope, mutator, origin, mutatorArgs) {
 	return this;
 };
 
-EdenSymbol.prototype.loggers = {
-	console: function (error) {
-		console.log("<JSEDEN:" + this.name + "> "  + error);
-	}
-};
-
-EdenSymbol.prototype.logError = function (error) {
-	for (var channel_name in this.loggers) {
-		var logger = this.loggers[channel_name];
-		logger.call(this, error);
-	}
-};
-
 /**
  * Used with pointer type observables, e.g. when clicking in the EdenSymbol List view to edit one.
  * @return {string} The EDEN code used to create an expression that references this EdenSymbol,
@@ -688,21 +604,11 @@ EdenSymbol.prototype.getEdenCode = function () {
 }
 
 EdenSymbol.prototype.trigger = function () {
-	var name;
-	// only trigger when all observed EdenSymbols have been defined by some agent
-	//for (name in this.observees) {
-	//	if (!this.observees[name].last_modified_by) {
-	//		return;
-	//	}
-	//}
-	// if one action fails, it shouldn't prevent all the other
-	// scheduled actions from firing
 	try {
 		this.value().call(this, this.context, this.context.scope);
 	} catch (error) {
-		//this.logError("Failed while triggering: " + error);
 		var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.PROCAGENT, undefined, "Triggered proc failed: "+error);
-		eden.emit("error", [this,err]);
+		this.context.instance.emit("error", [this,err]);
 	}
 };
 
@@ -711,9 +617,8 @@ EdenSymbol.prototype.fireJSObservers = function () {
 		try {
 			this.jsObservers[jsObserverName](this, this.value());
 		} catch (error) {
-			//this.logError("Failed while triggering JavaScript observer for EdenSymbol " + this.name + ": " + error);
 			var err = new Eden.RuntimeError(undefined, Eden.RuntimeError.JSOBSERVER, undefined, "JavaScript observer '"+jsObserverName+"' failed: "+error);
-			eden.emit("error", [this,err]);
+			this.context.instance.emit("error", [this,err]);
 			var debug;
 			if (this.context) {
 				var debugOptions = this.cache.value;
@@ -721,9 +626,7 @@ EdenSymbol.prototype.fireJSObservers = function () {
 			} else {
 				debug = false;
 			}
-			//if (debug) {
-			//	debugger;
-			//}
+
 			throw error;
 		}
 	}
@@ -767,9 +670,8 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 				}*/
 			} catch (e) {
 				if (e instanceof Eden.RuntimeError) {
-					eden.emit("error", [this,e]);
+					this.context.instance.emit("error", [this,e]);
 				}
-				//this.logError(e);
 				console.error(this.name, e);
 				this.cache.value = undefined;
 				this.cache.up_to_date = true;
@@ -921,8 +823,6 @@ EdenSymbol.prototype.canSafelyBeForgotten = function () {
 
 EdenSymbol.prototype.forget = function () {
 	this.origin = undefined;
-	this.clearEvalIDs();
-	this.evalResolved = true;
 	this.definition = undefined;
 	this.cache.value = undefined;
 	this.cache.up_to_date = true;
@@ -1018,7 +918,7 @@ EdenSymbol.prototype.listAssign = function(value, scope, origin, pushToNetwork, 
 		if (this.origin && this.origin.type == "definition") {
 			var p = this.origin.locatePrimary(indices);
 			if (p) {
-				eden.root.lookup(p).assign(value, scope, origin);
+				this.context.lookup(p).assign(value, scope, origin);
 				return;
 			} else {
 				
@@ -1051,7 +951,7 @@ EdenSymbol.prototype.listAssign = function(value, scope, origin, pushToNetwork, 
 		this.context.expireEdenSymbol(this);
 	}
 
-	if (eden.peer) eden.peer.listAssign(origin, this.name, value, indices);
+	if (this.context.instance.peer) this.context.instance.peer.listAssign(origin, this.name, value, indices);
 	return this;
 }
 
