@@ -189,6 +189,16 @@ var Language = {
 
 Eden.Language = Language;
 
+function removeProto(obj) {
+	let tmp = Object.create(null);
+	Object.assign(tmp, obj);
+	return tmp;
+}
+
+// Remove keywords prototype;
+Language.keywords = removeProto(Language.keywords);
+Language.values = removeProto(Language.values);
+
 // expose as node.js module
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	exports.Language = Language;

@@ -482,11 +482,15 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	this.unget();
 
 	if (this.parseAlphaNumeric(this.data)) {
-		if (Language.keywords.hasOwnProperty(this.data.value)) return Language.keywords[this.data.value];
-		if (Language.values.hasOwnProperty(this.data.value)) {
-			this.data.value = Language.values[this.data.value];
+		let kword = Language.keywords[this.data.value];
+		if (kword) return kword;
+
+		let vword = Language.values[this.data.value];
+		if (vword) {
+			this.data.value = vword;
 			return "BOOLEAN";
 		}
+
 		return "OBSERVABLE";
 	}
 
