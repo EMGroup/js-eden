@@ -43,10 +43,16 @@ function Scope(context, parent, overrides, range, cause, nobuild) {
 	this.causecount = 0;
 	this.range = range;
 	this.isolate = false;
+	this.depth = (parent) ? parent.depth+1 : 0;
 
 	if (!context) console.error("MISSING SCOPE CONTEXT");
 
 	this.cachearray = null;
+
+	if (this.depth > 50) {
+		console.error("Recursive scope detected : "+((cause) ? cause.name : ""));
+		throw "Scope Depth Exceeded";
+	}
 
 	if (this.cause && this.cause.hasOwnProperty("scopecount")) {
 		if (++this.cause.scopecount > 100000) {
