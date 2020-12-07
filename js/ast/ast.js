@@ -94,7 +94,7 @@ Eden.AST = function(code, imports, origin, options) {
 				//this.version = Eden.AST.VERSION_CS2;
 			}
 			this.next();
-			if (this.token == ";") this.next();
+			//if (this.token == ";") this.next();
 		}
 
 		this.script = this.pSCRIPT();
