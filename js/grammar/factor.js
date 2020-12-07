@@ -33,7 +33,7 @@ Eden.AST.prototype.pFACTOR = function() {
 			this.next();
 		}
 
-		if (this.token == "[" || this.token == ".") {
+		if (this.token == "[" || this.token == "." || this.token == "(") {
 			var indexed = this.pINDEXED();
 			indexed.setExpression(expression);
 			return indexed;
