@@ -652,7 +652,7 @@ Eden.AST.prototype.next = function() {
 	//Skip comments
 	while (true) {
 		// Skip block comments
-		if (this.token == "/*") {
+		if (this.token === "/*") {
 			var count = 1;
 			var isDoxy = false;
 			var start = this.stream.position-2;
@@ -662,17 +662,17 @@ Eden.AST.prototype.next = function() {
 			if (this.stream.peek() == 42) isDoxy = true;
 
 			// Find terminating comment token
-			while (this.stream.valid() && (this.token != "*/" || count > 0)) {
-				this.token = this.stream.readToken();
+			while (this.stream.valid() && (this.token !== "*/" || count > 0)) {
+				this.token = this.stream.readCommentToken();
 				// But make sure we count any inner comment tokens
-				if (this.token == "/*") {
+				if (this.token === "/*") {
 					count++;
-				} else if (this.token == "*/") {
+				} else if (this.token === "*/") {
 					count--;
 				}
 			}
 
-			if (this.token != "*/") {
+			if (this.token !== "*/") {
 				var err = new Eden.SyntaxError(this, Eden.SyntaxError.BLOCKCOMMENT);
 				err.line = startline;
 				this.errors.push(err);
@@ -693,14 +693,14 @@ Eden.AST.prototype.next = function() {
 			}
 			this.token = this.stream.readToken();
 		// Extract javascript code blocks
-		} else if (this.token == "${{") {
+		} else if (this.token === "${{") {
 			var start = this.stream.position;
 			var startline = this.stream.line;
 			this.data.line = startline;
 
 			// Go until terminating javascript block token
-			while (this.stream.valid() && this.token != "}}$") {
-				this.token = this.stream.readToken();
+			while (this.stream.valid() && this.token !== "}}$") {
+				this.token = this.stream.readJSToken();
 			}
 
 			// Return code as value and generate JAVASCRIPT token

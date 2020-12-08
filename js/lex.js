@@ -1,3 +1,5 @@
+(function() {
+
 function EdenSyntaxData() {
 	this.value = undefined;
 	this.error = false;
@@ -7,6 +9,8 @@ function EdenSyntaxData() {
 Eden.EdenSyntaxData = EdenSyntaxData;
 
 var Language = Eden.Language;
+var kwords = Language.keywords;
+var vwords = Language.values;
 
 /**
  * A basic stream wrapper for a javascript string that allows for sequential
@@ -281,7 +285,7 @@ EdenStream.prototype.tokenType = function(token) {
  * Fills data.value with the string read.
  */
 EdenStream.prototype.parseAlphaNumeric = function(data) {
-	var result = "";
+	/*var result = "";
 
 	if (this.isAlphaNumeric(this.peek()) == false) {
 		return false;
@@ -291,7 +295,14 @@ EdenStream.prototype.parseAlphaNumeric = function(data) {
 		result += String.fromCharCode(this.get());
 	}
 	data.value = result;
-	return true;
+	return true;*/
+
+	var start = this.position;
+	while (this.isAlphaNumeric(this.peek())) ++this.position;
+
+	var result = this.code.substring(start,this.position);
+	data.value = result;
+	return this.position - start > 0;
 };
 
 
@@ -376,7 +387,53 @@ EdenStream.prototype.parseNumber = function(data) {
 };
 
 
+EdenStream.prototype.readCommentToken = function() {
+	this.prevline = this.line;
+	this.skipWhiteSpace();
+	this.prevposition = this.position;
 
+	if (this.eof()) return "EOF";
+
+	//var ch = this.get();
+	var pch = 0;
+
+	while (this.valid()) {
+		var ch = this.code.charCodeAt(this.position++);
+		if (ch === 47) {
+			if (pch === 42) return "*/";
+			if (this.peek() == 42) {
+				this.skip();
+				return "/*";
+			}
+		}
+		pch = ch;
+	}
+
+	return "INVALID";
+}
+
+EdenStream.prototype.readJSToken = function() {
+	this.prevline = this.line;
+	this.skipWhiteSpace();
+	this.prevposition = this.position;
+
+	if (this.eof()) return "EOF";
+
+	//var ch = this.get();
+	var pch = 0;
+	var pch2 = 0;
+
+	while (this.valid()) {
+		var ch = this.code.charCodeAt(this.position++);
+		if (ch === 36) {
+			if (pch === 125 && pch2 == 125) return "}}$";
+		}
+		pch2 = pch;
+		pch = ch;
+	}
+
+	return "INVALID";
+}
 
 EdenStream.prototype.readToken = function(ignorestrings) {
 	this.prevline = this.line;
@@ -482,10 +539,10 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	this.unget();
 
 	if (this.parseAlphaNumeric(this.data)) {
-		let kword = Language.keywords[this.data.value];
+		let kword = kwords[this.data.value];
 		if (kword) return kword;
 
-		let vword = Language.values[this.data.value];
+		let vword = vwords[this.data.value];
 		if (vword) {
 			this.data.value = vword;
 			return "BOOLEAN";
@@ -498,7 +555,7 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	this.skip();
 	//return this.readToken();
 	//console.error("Invalid Token: " + ch);
-	throw new Error("Invalid Token: " + ch);
+	//throw new Error("Invalid Token: " + ch);
 	return "INVALID";
 };
 
@@ -521,3 +578,5 @@ if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	exports.EdenStream = EdenStream;
 	exports.EdenSyntaxData = EdenSyntaxData;
 }
+
+})();
