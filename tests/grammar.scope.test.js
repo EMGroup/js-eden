@@ -105,11 +105,18 @@ describe("Scope Grammar", () => {
 		expect(ast.errors).not.toHaveLength(0);
 	});
 
+	// TODO: Consider this as valid?
+	test("reject modifiers", () => {
+		var ast = Eden.AST.parseRule("pSCOPE", `(a += 2)`);
+		expect(ast.errors).not.toHaveLength(0);
+	});
+
 	test("reject use of non-identifier for lhs", () => {
 		var ast = Eden.AST.parseRule("pSCOPE", `([] = 5)`);
 		expect(ast.errors).not.toHaveLength(0);
 	});
 
+	// TODO: Could consider as valid?
 	test("reject use of indexed identifier", () => {
 		var ast = Eden.AST.parseRule("pSCOPE", `(a[1] = 5)`);
 		expect(ast.errors).not.toHaveLength(0);

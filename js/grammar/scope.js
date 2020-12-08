@@ -24,7 +24,7 @@ Eden.AST.prototype.pSCOPE = function() {
  */
 Eden.AST.prototype.pSCOPEPATTERN = function() {
 	var sname = new Eden.AST.ScopePattern();
-	if (this.token != "OBSERVABLE") {
+	if (this.token !== "OBSERVABLE") {
 		sname.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
 		return sname;
 	}
@@ -32,17 +32,17 @@ Eden.AST.prototype.pSCOPEPATTERN = function() {
 	this.next();
 
 	while (true) {
-		if (this.token == "[") {
+		if (this.token === "[") {
 			this.next();
 			var express = this.pEXPRESSION();
 			sname.addListIndex(express);
 			if (express.errors.length > 0) return sname;
-			if (this.token != "]") {
+			if (this.token !== "]") {
 				sname.error(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXCLOSE));
 				return sname;
 			}
 			this.next();
-		} else if (this.token == ".") {
+		} else if (this.token === ".") {
 
 		} else {
 			break;

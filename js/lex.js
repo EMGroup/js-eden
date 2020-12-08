@@ -399,6 +399,7 @@ EdenStream.prototype.readCommentToken = function() {
 
 	while (this.valid()) {
 		var ch = this.code.charCodeAt(this.position++);
+		if (ch === 10) ++this.line;
 		if (ch === 47) {
 			if (pch === 42) return "*/";
 			if (this.peek() == 42) {
@@ -425,6 +426,7 @@ EdenStream.prototype.readJSToken = function() {
 
 	while (this.valid()) {
 		var ch = this.code.charCodeAt(this.position++);
+		if (ch === 10) ++this.line;
 		if (ch === 36) {
 			if (pch === 125 && pch2 == 125) return "}}$";
 		}

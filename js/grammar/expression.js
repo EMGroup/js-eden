@@ -221,13 +221,16 @@ Eden.AST.prototype.pEXPRESSION = function() {
 	default			: expr = this.pEXPRESSION_PLAIN(); break;
 	}
 
-	if (this.token === "with" || this.token === "::") {
+	while (this.token === "with" || this.token === "::") {
 		this.next();
 		var scope = this.pSCOPE();
 		scope.setExpression(expr);
-		return scope;
-	} else {
-		return expr;
+		if (expr.isconstant && !scope.range) {
+			scope.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+		}
+		expr = scope;
 	}
+
+	return expr;
 }
 
