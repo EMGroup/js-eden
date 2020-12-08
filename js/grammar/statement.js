@@ -292,6 +292,62 @@ Eden.AST.prototype.pSTAT_COMMENT = function() {
 
 }
 
+Eden.AST.prototype.pSTAT_RETURN = function() {
+	this.next();
+	var ret = new Eden.AST.Return();
+
+	if (this.token != ";") {
+		ret.setResult(this.pEXPRESSION());
+		if (ret.errors.length > 0) {
+			return ret;
+		}
+	} else {
+		this.next();
+		return ret;
+	}
+
+	if (this.token != ";") {
+		ret.error(new Eden.SyntaxError(this,
+					Eden.SyntaxError.SEMICOLON));
+	} else {
+		this.next();
+	}
+
+	return ret;
+}
+
+Eden.AST.prototype.pSTAT_OBSERVABLE = function(start) {
+	var stat;
+	var lvalue = this.pLVALUE();
+
+	if (lvalue.errors.length > 0) {
+		stat = new Eden.AST.DummyStatement();
+		stat.lvalue = lvalue;
+		stat.errors = lvalue.errors;
+		return stat;
+	}
+	lvalue.source = this.stream.code.substring(start,this.lastposition).trim();
+	var formula = this.pSTATEMENT_PP();
+	formula.left(lvalue);
+
+	if (formula.errors.length > 0) {
+		stat = formula;
+		return stat;
+	}
+
+	if (this.token != ";") {
+		formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+	} else {
+		this.next();
+	}
+
+	if (this.definitions[lvalue.name] === undefined) this.definitions[lvalue.name] = [];
+	this.definitions[lvalue.name].push(formula);
+
+	stat = formula;
+	return stat;
+}
+
 /**
  * STATEMENT Production
  * STATEMENT ->
@@ -370,30 +426,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 
 	case "%"		:	stat = this.pCUSTOM_SECTION(); break;
 						
-	case "return"	:	this.next();
-						expectssemi = true;
-						var ret = new Eden.AST.Return();
-
-						if (this.token != ";") {
-							ret.setResult(this.pEXPRESSION());
-							if (ret.errors.length > 0) {
-								stat = ret;
-								break;
-							}
-						} else {
-							this.next();
-							stat = ret;
-							break;
-						}
-
-						if (this.token != ";") {
-							ret.error(new Eden.SyntaxError(this,
-										Eden.SyntaxError.SEMICOLON));
-						} else {
-							this.next();
-						}
-
-						stat = ret; break;
+	case "return"	:	expectssemi = true; stat = this.pSTAT_RETURN(); break;
 	case "continue"	:	this.next();
 						expectssemi = true;
 						var cont = new Eden.AST.Continue();
@@ -462,35 +495,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "("		  :
 	case "`"		  :
 	case "*"		  :
-	case "OBSERVABLE" :	var lvalue = this.pLVALUE();
-						expectssemi = true;
-						if (lvalue.errors.length > 0) {
-							stat = new Eden.AST.DummyStatement();
-							stat.lvalue = lvalue;
-							stat.errors = lvalue.errors;
-							break;
-						}
-						lvalue.source = this.stream.code.substring(start,this.lastposition).trim();
-						var formula = this.pSTATEMENT_PP();
-						formula.left(lvalue);
-
-						if (formula.errors.length > 0) {
-							stat = formula;
-							// To correctly report multi-line def errors.
-							//endline = this.stream.line;
-							break;
-						}
-		
-						if (this.token != ";") {
-							formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
-						} else {
-							this.next();
-						}
-
-						if (this.definitions[lvalue.name] === undefined) this.definitions[lvalue.name] = [];
-						this.definitions[lvalue.name].push(formula);
-
-						stat = formula; break;
+	case "OBSERVABLE" :	expectssemi = true; stat = this.pSTAT_OBSERVABLE(start); break;
 	default : 			stat = undefined; break;
 	}
 

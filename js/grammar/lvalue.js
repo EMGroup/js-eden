@@ -10,7 +10,7 @@ Eden.AST.prototype.pLVALUE_P = function() {
 	// This production is tail recursive so loop it.
 	while (true) {
 		// So we are using a list element as an lvalue?
-		if (this.token == "[") {
+		if (this.token === "[") {
 			this.next();
 
 			// Make an index tree element.
@@ -29,12 +29,12 @@ Eden.AST.prototype.pLVALUE_P = function() {
 				comp.error(new Eden.SyntaxError(this, Eden.SyntaxError.OUTOFBOUNDS));
 			}
 
-			if (this.token != "]") {
+			if (this.token !== "]") {
 				comp.error(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXCLOSE));
 				return components;
 			}
 			this.next();
-		} else if (this.token == ".") {
+		} else if (this.token === ".") {
 			this.next();
 
 			// Make an index tree element.
@@ -75,33 +75,33 @@ Eden.AST.prototype.pLVALUE_P = function() {
 Eden.AST.prototype.pLVALUE = function() {
 	var lvalue = new Eden.AST.LValue();
 
-	if (this.token == "(") {
+	if (this.token === "(") {
 		this.next();
-		if (this.token == "*") {
+		if (this.token === "*") {
 			this.next();
 			lvalue.setPrimary(this.pPRIMARY());
 		} else {
 			lvalue.setPrimary(this.pPRIMARY());
 		}
-		if (this.token != ")") {
+		if (this.token !== ")") {
 			lvalue.error(new Eden.SyntaxError(this, Eden.SyntaxError.EXPCLOSEBRACKET));
 			return lvalue;
 		}
 		this.next();
-	} else if (this.token == "*") {
+	} else if (this.token === "*") {
 		this.next();
 		lvalue.setPrimary(this.pPRIMARY());
-	} else if (this.token == "`") {
+	} else if (this.token === "`") {
 		var btick;
 
 		if (this.version === Eden.AST.VERSION_CS2) {
-			console.warn("Old syntax for backticks");
+			//console.warn("Old syntax for backticks");
 			this.next();
 			btick = this.pEXPRESSION();
 			this.deprecated(btick, "Backticks are now identifier templates");
 
 			// Closing backtick missing?
-			if (this.token != "`") {
+			if (this.token !== "`") {
 				var primary = new Eden.AST.Primary();
 				primary.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BACKTICK));
 				return primary;
@@ -121,12 +121,12 @@ Eden.AST.prototype.pLVALUE = function() {
 		lvalue.setExpression(btick);
 		if (lvalue.errors.length > 0) return lvalue;
 
-	} else if (this.token == "OBSERVABLE") {
+	} else if (this.token === "OBSERVABLE") {
 		var observable = this.data.value;
 		this.next();
 
-		if (this.token == "{" && this.version === Eden.AST.VERSION_CS2) {
-			console.warn("Old syntax for backticks");
+		if (this.token === "{" && this.version === Eden.AST.VERSION_CS2) {
+			//console.warn("Old syntax for backticks");
 			var p = this.pDEPRECATED_BTICK(observable);
 			this.deprecated(p, "Backticks are now identifier templates");
 			lvalue.setExpression(p);
@@ -134,7 +134,7 @@ Eden.AST.prototype.pLVALUE = function() {
 			lvalue.setObservable(observable);
 		}
 
-		if (this.token == ":") {
+		if (this.token === ":") {
 			this.next();
 			var attribs = this.pATTRIBUTES();
 			if (!lvalue.setAttributes(attribs)) {
