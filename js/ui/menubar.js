@@ -73,7 +73,7 @@ EdenUI.MenuBar = function() {
 		if (ismobile) {
 
 		} else {
-			if (!this.timeout) this.timeout = setTimeout(() => { this.updateViewsMenu(); this.timeout = null; }, 200);
+			if (!this.timeout) this.timeout = setTimeout(() => { this.updateStaticViewsMenu(); this.timeout = null; }, 200);
 		}
 	}); 
 
@@ -266,7 +266,7 @@ EdenUI.MenuBar = function() {
 	}
 
 	function onClickCloseWindow(e) {
-		var name = this.parentNode.viewname;
+		var name = this.parentNode.title;
 		if (edenUI.viewInstances[name].confirmClose) {
 			hideMenu();
 		}
@@ -276,8 +276,9 @@ EdenUI.MenuBar = function() {
 	}
 	
 	function onClickPinWindow(e) {
+		console.log("PIN",e);
 		var image = e.currentTarget.children[0];
-		var name = this.parentNode.viewname;
+		var name = this.parentNode.title;
 
 		if (edenUI.viewInstances[name].pinned) {
 			edenUI.unpinView(name);
@@ -300,10 +301,13 @@ EdenUI.MenuBar = function() {
 		return $(item);
 	}
 	
-	function menuItemPart(className, content) {
+	function menuItemPart(className, content, itemClass) {
 		let ele = document.createElement("DIV");
 		ele.className = className + " menubar-item-clickable";
-		ele.innerHTML = content;
+		let item = document.createElement("SPAN");
+		item.innerText = content;
+		item.className = itemClass;
+		ele.appendChild(item);
 		return $(ele);
 		//return $('<div class="'+className+' menubar-item-clickable">'+content+'</div>');
 	}
@@ -332,13 +336,51 @@ EdenUI.MenuBar = function() {
 	Eden.Project.listenTo("load", this, (project) => {
 		this.ready = true;
 		this.updateViewsMenu();
+		this.updateStaticViewsMenu();
 	});
 
-	this.updateViewsMenu = function () {
+	this.updateViewsMenu = function() {
 		if (!this.ready) return;
+		var existingViews = $("#menubar-mainitem-existing");
+		existingViews.html("");
+
+		me.itemViews = {};
+		existingViewsInstructions();
+
+		// Now add existing windows
+		for (viewName in edenUI.activeDialogs) {
+			var myHover = hoverFunc(viewName);
+			var title = edenUI.eden.root.lookup("view_" + viewName + "_title").value();
+			label = menuItemPart('menubar-item-label', title, 'menubar-view-name');
+			label.click(myHover.click);
+
+			/*var pinImageURL;
+			if (edenUI.viewInstances[viewName].pinned) {
+				pinImageURL = "menubar-item-pin-icon pinned";
+			} else {
+				pinImageURL = "menubar-item-pin-icon";
+			}
+			pin = menuItemPart('menubar-item-pin', '&#xf276;',pinImageURL);
+			pin.click(onClickPinWindow);*/
+
+			close = menuItemPart('menubar-item-close', 'X', "menubar-item-close-icon");
+			close.click(onClickCloseWindow);
+
+			viewEntry = menuItem([label, close]);
+			viewEntry.bind('mouseover', myHover.mouseover);
+			viewEntry.bind('mouseout', myHover.mouseout);
+			//viewEntry[0].viewname = viewName;  // FIXME: This is bad practice!
+			viewEntry[0].title = viewName;
+			viewEntry.appendTo(existingViews);
+
+			me.itemViews[viewName] = viewEntry[0];
+		}
+	}
+
+	this.updateStaticViewsMenu = function () {
 
 		var views = $("#menubar-mainitem-views");
-		var existingViews = $("#menubar-mainitem-existing");
+		
 		views.html("");
 
 		var searchBox = $('<input id="menubar-view-type-search" class="menubar-search-box" type="text" placeholder="search"/>');
@@ -398,7 +440,7 @@ EdenUI.MenuBar = function() {
 			var categoryPriority = viewDetails.category.getMenuPriority();
 			var itemPriority = viewDetails.menuPriority;
 
-			console.log("MENUBAR");
+			//console.log("MENUBAR");
 
 			label = menuItemPart('menubar-item-fullwidth menubar-view', title);
 
@@ -445,43 +487,10 @@ EdenUI.MenuBar = function() {
 			item.viewEntry.appendTo(views);
 		}
 		views.append(searchItem);
-
-		existingViews.html("");
-
-		me.itemViews = {};
-		existingViewsInstructions();
-
-		// Now add existing windows
-		for (viewName in edenUI.activeDialogs) {
-			var myHover = hoverFunc(viewName);
-			var title = edenUI.eden.root.lookup("view_" + viewName + "_title").value();
-			label = menuItemPart('menubar-item-label', title + ' <span class="menubar-view-name">[' + viewName + ']</span>');
-			label.click(myHover.click);
-
-			var pinImageURL;
-			if (edenUI.viewInstances[viewName].pinned) {
-				pinImageURL = pinnedIcon;
-			} else {
-				pinImageURL = notPinnedIcon;
-			}
-			pin = menuItemPart('menubar-item-pin', '<img src="' + pinImageURL + '" width="18" height="18" class="menubar-item-pin-icon"/>');
-			pin.click(onClickPinWindow);
-
-			close = menuItemPart('menubar-item-close', '<div class="menubar-item-close-icon">X</div>');
-			close.click(onClickCloseWindow);
-
-			viewEntry = menuItem([label, pin, close]);
-			viewEntry.bind('mouseover', myHover.mouseover);
-			viewEntry.bind('mouseout', myHover.mouseout);
-			viewEntry[0].viewname = viewName;
-			viewEntry.appendTo(existingViews);
-
-			me.itemViews[viewName] = viewEntry[0];
-		}
 	};
 
-	//this.updateViewsMenu();
-	if (!this.timeout) this.timeout = setTimeout(() => { this.updateViewsMenu(); this.timeout = null; }, 200);
+	this.updateStaticViewsMenu();
+	this.updateViewsMenu();
 
 	var optionsMenu = $("#menubar-mainitem-options");
 

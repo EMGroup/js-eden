@@ -440,9 +440,9 @@ div.jseden-subtitle {
 }
 
 .menubar-view-name {
-	color: #A0A0A0;
-	float: right;
-	font-style: italic;
+	color: #302f2f;
+	float: left;
+	/*font-style: italic;*/
 }
 
 .menubar-item-fullwidth {
@@ -454,7 +454,7 @@ div.jseden-subtitle {
 .menubar-item-close {
 	text-align: center;
 	color: red;
-	width: 20px;
+	width: 40px;
 }
 
 .menubar-item-input {
@@ -466,6 +466,11 @@ div.jseden-subtitle {
 	padding-top: 1px;
 	padding-bottom: 1px;
 	vertical-align: middle;
+	font-family: "FontAwesome";
+}
+
+.menubar-item-pin-icon .pinned {
+	color: red;
 }
 
 .menubar-item-close-icon {

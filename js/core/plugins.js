@@ -337,6 +337,10 @@
 			if (viewData.titleBarInfo !== undefined) {
 				title = title + " (" + viewData.titleBarInfo + ")";
 			}
+			if (viewData.title === title) {
+				return;
+			}
+			viewData.title = title;
 			diag.dialog("option", "title", title);
 			if (edenUI.menu) edenUI.menu.updateViewsMenu();
 		}

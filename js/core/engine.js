@@ -21,14 +21,16 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			continue;
 		}
 
-		if (Eden.AST.debug && statements[i].type != "script") {
+		let statement = statements[i];
+
+		if (Eden.AST.debug && statement.type !== "script") {
 			if (Eden.AST.debugstep || (agent && agent.doDebug && agent.doDebug())) {
 				var debugobj = {
 					type: "debug",
 					base: base,
 					script: this,
 					index: i,
-					statement: statements[i],
+					statement: statement,
 					context: ctx,
 					agent: agent
 				};
@@ -36,75 +38,80 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 			}
 		}
 
-		if (statements[i].type == "wait") {
-			statements[i].executed = 1;
-			statements[i].compile(ctx);
-			if (statements[i].compiled_delay) {
-				yield statements[i].compiled_delay(scope.context,scope);
-			} else {
-				yield 0;
-			}
-		} else if (statements[i].type == "import") {
-			if (statements[i].statements === undefined) {
-				statements[i].selector = (statements[i].path) ? statements[i].path.execute(ctx, base, scope, agent) : undefined;
-				yield statements[i];
-				//statements.splice.apply(statements, [i, 1].concat(statements[i].statements));
-				//i--;
-			}
-		} else if (statements[i].type == "query" && statements[i].modexpr) {
-			statements[i].executed = 1;
-			statements[i]._selector = statements[i].selector.execute(ctx, base, scope, agent);
-			statements[i]._modexpr = statements[i].modexpr.execute(ctx, base, scope, agent);
-			yield statements[i];
-		} else if (statements[i].type == "do") {
-			statements[i].executed = 1;
-			statements[i].selector = (statements[i].name) ? statements[i].name.execute(ctx, base, scope, agent) : undefined;
-			statements[i].nscope = statements[i].getScope(ctx, scope)(scope.context,scope);
-			if (statements[i].literal) {
-				var state = {
-					isconstant: false,
-					locals: ctx.locals
-				};
-				var lit = Eden.AST.executeExpressionNode(statements[i].literal, statements[i].nscope, state);
-				var scriptast = Eden.AST.parseScript(lit, statements[i]);
-				statements[i].statements = (scriptast) ? scriptast.statements : [];
-				//console.log("EXEC",statements[i].statements);
-			}
-			yield statements[i];
-		} else if (statements[i].type == "when") {
-			var when = statements[i];
-			if (when.active == false) {
-				when.active = true;
-				var res = when.execute(undefined, base, scope, agent);
-				//console.log(res);
-				if (res) {
-					base.executeStatements(res, -1, when, null, null, scope);
-				} else {
-					when.active = false;
-				}
-				//whens[i].active = false;
-			}
-		} else {
-			//if (typeof statements[i].execute != "function") console.error("NO EXECUTE", statements[i]);
-			var res = statements[i].execute(ctx, base, scope, agent);
-			if (res && Array.isArray(res) && res.length > 0) {
-				// Allow for a scope shift.
-				var nscope = scope;
-				if (statements[i].type == "scopedscript") nscope = statements[i].scope;
-				i++;
-				// Allow tail recursion...
-				if (i < statements.length) stack.push({statements: statements, index: i, scope: scope});
-				statements = res;
-				scope = nscope;
-				//console.log(statements);
-				i = 0;
-				continue;
-			}
-			if (res === -1) return;
+		switch (statement.type) {
+		case "wait"		:
+							statement.executed = 1;
+							statement.compile(ctx);
+							if (statement.compiled_delay) {
+								yield statement.compiled_delay(scope.context,scope);
+							} else {
+								yield 0;
+							} break;
+		case "import"	:
+							if (statement.statements === undefined) {
+								statement.selector = (statement.path) ? statement.path.execute(ctx, base, scope, agent) : undefined;
+								yield statement;
+								//statements.splice.apply(statements, [i, 1].concat(statements[i].statements));
+								//i--;
+							} break;
+		case "query"	:
+							if (statement.modexpr) {
+								statement.executed = 1;
+								statement._selector = statement.selector.execute(ctx, base, scope, agent);
+								statement._modexpr = statement.modexpr.execute(ctx, base, scope, agent);
+								yield statement;
+							} else {}  // FIXME:
+							break;
+		case "do"		:
+							statement.executed = 1;
+							statement.selector = (statement.name) ? statement.name.execute(ctx, base, scope, agent) : undefined;
+							statement.nscope = statement.getScope(ctx, scope)(scope.context,scope);
+							if (statement.literal) {
+								var state = {
+									isconstant: false,
+									locals: ctx.locals
+								};
+								var lit = Eden.AST.executeExpressionNode(statement.literal, statement.nscope, state);
+								var scriptast = Eden.AST.parseScript(lit, statement);
+								statement.statements = (scriptast) ? scriptast.statements : [];
+								//console.log("EXEC",statements[i].statements);
+							}
+							yield statement;
+							break;
+		case "when"		:
+							var when = statement;
+							if (when.active == false) {
+								when.active = true;
+								var res = when.execute(undefined, base, scope, agent);
+								//console.log(res);
+								if (res) {
+									base.executeStatements(res, -1, when, null, null, scope);
+								} else {
+									when.active = false;
+								}
+								//whens[i].active = false;
+							} break;
+		default			:
+							//if (typeof statements[i].execute != "function") console.error("NO EXECUTE", statements[i]);
+							var res = statement.execute(ctx, base, scope, agent);
+							if (res && Array.isArray(res) && res.length > 0) {
+								// Allow for a scope shift.
+								var nscope = scope;
+								if (statement.type == "scopedscript") nscope = statement.scope;
+								i++;
+								// Allow tail recursion...
+								if (i < statements.length) stack.push({statements: statements, index: i, scope: scope});
+								statements = res;
+								scope = nscope;
+								//console.log(statements);
+								i = 0;
+								continue;
+							}
+							if (res === -1) return;
 		}
 
-		if (statements[i].errors.length > 0) {
-			this.script.errors.push.apply(this.script.errors, statements[i].errors);
+		if (statement.errors.length > 0) {
+			this.script.errors.push.apply(this.script.errors, statement.errors);
 		}
 
 		i++;
@@ -136,9 +143,9 @@ function runEdenAction(source, scope, action, cb) {
 	var delay = action.next();
 
 	if (delay.done == false) {
-		if (typeof delay.value == "object") {
+		if (typeof delay.value === "object") {
 			// The debugger wants to interrupt the script
-			if (Eden.AST.debug && delay.value.type == "debug") {
+			if (Eden.AST.debug && delay.value.type === "debug") {
 				// Save the next step to be called later by debugger.
 				var debugnext = function() {runEdenAction.call(me, source, scope, action, cb)};
 				delay.value.next = debugnext;
@@ -152,7 +159,7 @@ function runEdenAction(source, scope, action, cb) {
 					//if (Eden.AST.debugspeed) setTimeout(debugnext, Eden.AST.debugspeed);
 				}
 			// Need to do an import and block until done.
-			} else if (delay.value.type == "import") {
+			} else if (delay.value.type === "import") {
 				delay.value.executed = 1;
 
 				//console.log("IMPORT",delay.value.selector);
@@ -170,7 +177,7 @@ function runEdenAction(source, scope, action, cb) {
 					runEdenAction.call(me,source, scope, action, cb);
 				});
 
-			} else if (delay.value.type == "query") {
+			} else if (delay.value.type === "query") {
 				function docb(stats) {
 					runEdenAction.call(me,source, scope, action, cb);
 				}
@@ -185,7 +192,7 @@ function runEdenAction(source, scope, action, cb) {
 				}
 
 			// Call another action and block until done
-			} else if (delay.value.type == "do") {
+			} else if (delay.value.type === "do") {
 				var stats;
 
 				function docb(stats) {
@@ -244,7 +251,7 @@ function runEdenAction(source, scope, action, cb) {
 				//var script = (delay.value.name) ? me.getActionByName(delay.value.name) : delay.value.script;
 				//console.log("STATS",stats, delay.value.selector);
 			}
-		} else if (delay.value == 0) {
+		} else if (delay.value === 0) {
 			runEdenAction.call(this,source, scope, action, cb);
 		} else if (delay.value > 0) {
 			// A wait statement requested a delay.

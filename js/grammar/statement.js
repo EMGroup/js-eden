@@ -252,13 +252,15 @@ Eden.AST.prototype.pSTAT_COMMENT = function() {
 	do {
 		//this.stream.skip();
 		//this.stream.skipLine();
+
+		let s = this.stream;
 	
-		while (this.stream.valid()) {
-			var ch = this.stream.peek();
-			if (ch == 123) bcount++;
-			else if (ch == 125) bcount--;
-			if (ch == 10 || (bcount < 0)) break;
-			this.stream.skip();
+		while (s.valid()) {
+			let ch = s.code.charCodeAt(s.position);
+			if (ch === 123) ++bcount;
+			else if (ch === 125) --bcount;
+			if (ch === 10 || (bcount < 0)) break;
+			++s.position;
 		}
 
 		if (bcount < 0) break;
@@ -335,14 +337,14 @@ Eden.AST.prototype.pSTAT_OBSERVABLE = function(start) {
 		return stat;
 	}
 
-	if (this.token != ";") {
+	if (this.token !== ";") {
 		formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 	} else {
 		this.next();
 	}
 
-	if (this.definitions[lvalue.name] === undefined) this.definitions[lvalue.name] = [];
-	this.definitions[lvalue.name].push(formula);
+	//if (this.definitions[lvalue.name] === undefined) this.definitions[lvalue.name] = [];
+	//this.definitions[lvalue.name].push(formula);
 
 	stat = formula;
 	return stat;
@@ -461,7 +463,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						stat = breakk; break;
 	case "{"		:	this.next();
 						var script = this.pSCRIPT();
-						if (this.token != "}") {
+						if (this.token !== "}") {
 							script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
 							stat = script;
 							break;
@@ -470,7 +472,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 						stat = script; break;
 	case "${"		:	this.next();
 						stat = this.pSUB_STATEMENT();
-						if (this.token != "}") {
+						if (this.token !== "}") {
 							stat.error(new Eden.SyntaxError(this, Eden.SyntaxError.EVALCLOSE));
 							break;
 						}
@@ -485,7 +487,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "?"		  : this.next();
 						expectssemi = true;
 						stat = this.pQUERY();
-						if (this.token != ";") {
+						if (this.token !== ";") {
 							stat.error(new Eden.SyntaxError(this,
 											Eden.SyntaxError.SEMICOLON));
 						} else {
@@ -507,7 +509,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							lvalue.setObservable("__error__");
 							var formula = this.pSTATEMENT_PP();
 							formula.left(lvalue);
-							if (this.token != ";") {
+							if (this.token !== ";") {
 								formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 							} else {
 								this.next();
@@ -552,12 +554,14 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	//stat.numlines = endline - curline - 1;
 
 	var srcstr = this.stream.code.substring(start,end);
-	const lines = (srcstr.match(/\n/g) || '').length;
+	//const lines = (srcstr.match(/\n/g) || '').length;
 	const doxylines = (doxy) ? (doxy.content.match(/\n/g) || '').length : 0;
-	stat.numlines = lines+doxylines;
+	stat.numlines = endline-curline-1+doxylines;
+
+	//if (stat.numlines-doxylines != endline-curline-1) console.log("line dif", stat, stat.numlines, endline-curline-1);
 
 	stat.setSource(start, end, srcstr);
-	if (stat.type != "dummy") {
+	if (stat.type !== "dummy") {
 		this.lastStatement = stat;
 		this.lastStatEndline = endline;
 	}
