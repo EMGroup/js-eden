@@ -75,7 +75,8 @@ function Folder(name, instance, parent, root) {
 
 	this.f = Object.create(null);
 	
-	this.evalResults = {};
+	this.delayedaction = Object.create(null);
+	this.autoaction = true;  // TODO: Experiment with this starting on false.
 
 	/**
 	 * @type {Array.<function(EdenSymbol, boolean)>}
@@ -406,26 +407,44 @@ Folder.prototype.expireAndFireActions = function () {
 	var actions_to_fire = this.needsTrigger;
 	this.needsTrigger = {};
 	fireActions(actions_to_fire, this.scope);
-	fireJSActions(expired);
-	fireJSActions(symbolsToForce);
 
-	if (this.needsGlobalNotify.length == 0) {
-		//Append expired onto symbolsToForce, create a notification queue and schedule notifications.
-		symbolsToForce.push.apply(symbolsToForce, expired);
-		if (symbolsToForce.length > 0) {
-			this.needsGlobalNotify = symbolsToForce;
-			var me = this;
-			setTimeout(function () {
-				me.processGlobalNotifyQueue();
-			}, 0);
+
+	if (this.autoaction) {
+		fireJSActions(expired);
+		fireJSActions(symbolsToForce);
+
+		if (this.needsGlobalNotify.length == 0) {
+			//Append expired onto symbolsToForce, create a notification queue and schedule notifications.
+			symbolsToForce.push.apply(symbolsToForce, expired);
+			if (symbolsToForce.length > 0) {
+				this.needsGlobalNotify = symbolsToForce;
+				var me = this;
+				setTimeout(function () {
+					me.processGlobalNotifyQueue();
+				}, 0);
+			}
+		} else {
+			//Append both expired and symbolsToForce onto the existing notification queue.
+			var globalNotifyList = this.needsGlobalNotify;
+			globalNotifyList.push.apply(globalNotifyList, symbolsToForce);
+			globalNotifyList.push.apply(globalNotifyList, expired);
 		}
 	} else {
-		//Append both expired and symbolsToForce onto the existing notification queue.
-		var globalNotifyList = this.needsGlobalNotify;
-		globalNotifyList.push.apply(globalNotifyList, symbolsToForce);
-		globalNotifyList.push.apply(globalNotifyList, expired);
+		for (var a of expired) {
+			this.delayedaction[a.name] = a;
+		}
+		for (var a of symbolsToForce) {
+			this.delayedaction[a.name] = a;
+		}
 	}
 };
+
+Folder.prototype.enableActions = function() {
+	this.autoaction = true;
+	var acts = Object.values(this.delayedaction);
+	if (acts.length > 0) fireJSActions(acts);
+	this.delayedaction = Object.create(null);
+}
 
 Folder.prototype.processGlobalNotifyQueue = function () {
 	var notifyList = this.needsGlobalNotify;

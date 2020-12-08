@@ -339,6 +339,7 @@ Eden.Project.prototype.start = function(cb) {
 	if (this.instance.get("jseden_project_mode") == "recover") {
 		this.success = false;
 		eden.exec("do lib:unexecuted; do lib > recovery;").then(r => {
+			eden.root.enableActions();
 			if (cb) cb();
 		});
 		return;
@@ -372,6 +373,7 @@ Eden.Project.prototype.start = function(cb) {
 		eden.root.parent = me.ast.script;
 		me.ast.scripts["ACTIVE"] = eden.root;
 
+		eden.root.enableActions();
 		if (cb) cb();
 	});
 }
