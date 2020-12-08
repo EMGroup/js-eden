@@ -765,7 +765,7 @@ EdenUI.plugins.Veden = function(edenUI, success) {
 		////////////////////////////////////////////////////////////////////////
 
 		function generate(str) {
-			stream = new EdenStream(str);
+			stream = new Eden.EdenStream(str);
 			data = new EdenSyntaxData();
 			stream.data = data;
 			estack = [];

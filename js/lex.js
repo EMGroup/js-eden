@@ -577,6 +577,8 @@ function edenTokenTest(code) {
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	exports.EdenStream = EdenStream;
 	exports.EdenSyntaxData = EdenSyntaxData;
+} else {
+	window.EdenStream = EdenStream;
 }
 
 })();

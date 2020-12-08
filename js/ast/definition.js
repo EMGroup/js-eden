@@ -77,6 +77,10 @@ Eden.AST.Definition.prototype.generate = function(ctx,scope,options) {
 	throw Eden.RuntimeError(options.scope.context, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot generate defintions here");
 };
 
+Eden.AST.Definition.prototype.safeEval = function(__name, __code) {
+	return eval(`(function ${__name}(context,scope,cache){${__code}})`);
+}
+
 Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	//console.log("RHS = " + rhs);
@@ -148,8 +152,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			sym.isasync = (this.expression.type == "async");
 			sym.eager = this.eager;
 			sym.volatile = this.volatile;
-			var f = new Function(["context","scope","cache"], rhs);
-			f.displayName = name;  // FIXME: Non-standard
+			var f = this.safeEval(name, rhs) ;//new Function(["context","scope","cache"], rhs);
 
 			if (sym.origin && sym.origin.isstatic) {
 				this.warning = new Eden.RuntimeWarning(this, Eden.RuntimeWarning.UNKNOWN, "Changing a [static] symbol");

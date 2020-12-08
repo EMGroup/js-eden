@@ -794,7 +794,7 @@
 	EdenUI.Highlight.html = function(str, single, play) {
 		var dummy = document.createElement("div");
 		var hlighter = new EdenUI.Highlight(dummy);
-		hlighter.ast = {stream: new EdenStream(str)};
+		hlighter.ast = {stream: new Eden.EdenStream(str)};
 		hlighter.highlight(hlighter.ast,-1,-1,undefined);
 		if (single) {
 			return dummy.childNodes[0].innerHTML;
