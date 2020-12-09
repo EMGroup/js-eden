@@ -107,7 +107,7 @@ var Language = {
 		"insert": "insert",		/* Deprecated, use a function */
 		"append": "append",		/* Deprecated, use += */
 		"delete": "delete",		/* Should be repurposed to remove observables */
-		//"require": "require",
+		"require": "require",
 		//"after": "after",		/* Deprecatedm use wait */
 		"shift": "shift",		/* Deprecated, use a function */
 		"with": "with",

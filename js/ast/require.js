@@ -12,8 +12,8 @@ Eden.AST.Require.prototype.setExpression = function(express) {
 	}
 }
 
-Eden.AST.Require.prototype.generate = function(ctx) {
-	return "edenUI.loadPlugin("+this.expression.generate(ctx, "scope",{bound: false})+");";
+Eden.AST.Require.prototype.generate = function(ctx,scope,options) {
+	return "edenUI.loadPlugin("+this.expression.generate(ctx, scope,options)+");";
 }
 
 Eden.AST.Require.prototype.execute = function(ctx, base, scope) {

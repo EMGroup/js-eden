@@ -117,6 +117,22 @@ describe("Execution of Observable Definitions", () => {
 		expect(eden.get("b")).toBe(28);
 	});
 
+	test("define with static on rhs and eager", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 5; b is:eager a:static; a = 6;");
+		expect(eden.get("b")).toBe(5);
+	});
+
+	test("define changed attribute", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 5; b is a:changed;");
+		expect(eden.get("b")).toBe(true);
+		await eden.exec("a = 5;");
+		expect(eden.get("b")).toBe(false);
+		await eden.exec("a = 6;");
+		expect(eden.get("b")).toBe(true);
+	});
+
 });
 
 describe("Execution of Do Statements", () => {
