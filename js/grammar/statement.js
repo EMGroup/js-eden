@@ -33,14 +33,20 @@ Eden.AST.prototype.pDEFINITION = function() {
 Eden.AST.prototype.pRANGE_STATEMENT = function() {
 	this.next();
 
-	if (!allowrange) {
+	/*if (!allowrange) {
 		var range = new Eden.AST.Range();
 		range.error(new Eden.SyntaxError(this, Eden.SyntaxError.RANGEBANNED));
 		return range;
-	}
+	}*/
 
 	var range = new Eden.AST.Range(this.pEXPRESSION());
-	if (this.token == "..") {
+
+	if (this.token !== ".." && (range.expression.typevalue === Eden.AST.TYPE_NUMBER || range.expression.typevalue === Eden.AST.TYPE_BOOLEAN)) {
+		range.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+		return range;
+	}
+
+	if (this.token === "..") {
 		this.next();
 		range.setSecond(this.pEXPRESSION());
 	}

@@ -16,7 +16,7 @@ Eden.AST.prototype.pFOR = function() {
 	var parent = this.parent;
 	this.parent = forast;
 
-	if (this.token != "(") {
+	if (this.token !== "(") {
 		forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FOROPEN));
 		this.parent = parent;
 		return forast;
@@ -24,7 +24,7 @@ Eden.AST.prototype.pFOR = function() {
 		this.next();
 	}
 
-	if (this.token == ";") {
+	if (this.token === ";") {
 		this.next();
 	} else {
 		forast.setStart(this.pSTATEMENT_P(true));
@@ -33,18 +33,18 @@ Eden.AST.prototype.pFOR = function() {
 			return forast;
 		}
 
-		if (forast.sstart.type != "range" && this.token != ";") {
+		if (forast.sstart.type !== "range" && this.token !== ";") {
 			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORSTART));
 			this.parent = parent;
 			return forast;
-		} else if (this.token == ";") {
+		} else if (this.token === ";") {
 			this.next();
 		}
 	}
 
 	
-	if (forast.sstart.type != "range") {
-		if (this.token == ";") {
+	if (!forast.sstart || forast.sstart.type !== "range") {
+		if (this.token === ";") {
 			this.next();
 		} else {
 			forast.setCondition(this.pEXPRESSION());
@@ -53,7 +53,7 @@ Eden.AST.prototype.pFOR = function() {
 				return forast;
 			}
 
-			if (this.token != ";") {
+			if (this.token !== ";") {
 				forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCOND));
 				this.parent = parent;
 				return forast;
@@ -62,7 +62,7 @@ Eden.AST.prototype.pFOR = function() {
 			}
 		}
 
-		if (this.token == ")") {
+		if (this.token === ")") {
 			this.next();
 		} else {
 			forast.setIncrement(this.pSTATEMENT_P());
@@ -71,7 +71,7 @@ Eden.AST.prototype.pFOR = function() {
 				return forast;
 			}
 
-			if (this.token != ")") {
+			if (this.token !== ")") {
 				forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCLOSE));
 				this.parent = parent;
 				return forast;
@@ -80,7 +80,7 @@ Eden.AST.prototype.pFOR = function() {
 			}
 		}
 	} else {
-		if (this.token != ")") {
+		if (this.token !== ")") {
 			forast.error(new Eden.SyntaxError(this, Eden.SyntaxError.FORCLOSE));
 			this.parent = parent;
 			return forast;
@@ -89,8 +89,12 @@ Eden.AST.prototype.pFOR = function() {
 		}
 	}
 
-	forast.setStatement(this.pSTATEMENT());
-	if (forast.statement) forast.statement.parent = forast;
+	if (this.token !== ";") {
+		forast.setStatement(this.pSTATEMENT());
+		if (forast.statement) forast.statement.parent = forast;
+	} else {
+		this.next();
+	}
 	forast.parent = parent;
 	this.parent = parent;
 	return forast;

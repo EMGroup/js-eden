@@ -7,6 +7,7 @@ Eden.AST.Range = function(expression) {
 	this.lvalue = undefined;
 	this.start = 0;
 	this.end = 0;
+	this.second = null;
 	//this.scopes = [];
 	//this.backtickCount = 0;
 	//this.executed = 0;

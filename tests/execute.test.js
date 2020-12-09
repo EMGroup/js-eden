@@ -250,3 +250,13 @@ describe("Execution of *= Modifier", () => {
 	});*/
 
 });
+
+describe("Execution of For Loop", () => {
+
+	test("regular c-style loop", async () => {
+		let eden = new Eden();
+		await eden.exec("b = 0; for (i=0; i<10; i++) b += i; ");
+		expect(eden.get("b")).toEqual(45);
+	});
+
+});
