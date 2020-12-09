@@ -4716,15 +4716,15 @@ _option_global_css = false;
  */
 proc bindCSSProperty {
 	${{
-		var scope, selector, property, obsName;
+		var _scope, selector, property, obsName;
 		
 		if (arguments.length == 3) {
-			scope = undefined;
+			_scope = undefined;
 			selector = arguments[0];
 			property = arguments[1];
 			obsName = arguments[2];		
 		} else if (arguments.length == 4) {
-			scope = arguments[0];
+			_scope = arguments[0];
 			selector = arguments[1];
 			property = arguments[2];
 			obsName = arguments[3];
@@ -4737,14 +4737,14 @@ proc bindCSSProperty {
 			scope.error(new Error("bindCSSProperty: The CSS property name must be a string, not a " + typeof(property)), "error");
 			return;
 		}
-		if (obsName instanceof EdenSymbol) {
+		if (obsName instanceof Eden.EdenSymbol) {
 			obsName = obsName.name.slice(1);
 		} else if (typeof(obsName) != "string") {
 			scope.error(new Error("bindCSSProperty: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
 			return;
 		}
 		
-		selector = putCSSSelectorIntoScope(scope, selector);
+		selector = putCSSSelectorIntoScope(_scope, selector, scope);
 		if (selector === undefined) {
 			//Disallowed or invalid selector.
 			return;
@@ -4772,7 +4772,7 @@ proc bindCSSProperty {
 				cssDeclarations.cssText = property + ": " + value + ";";
 			}
 		};
-		var obsSym = root.lookup(obsName);
+		var obsSym = scope.context.lookup(obsName);
 		updateFunction("/" + obsName, obsSym.value());
 		obsSym.addJSObserver("bind", updateFunction);
 	}}$;
@@ -4862,14 +4862,14 @@ proc bindCSSNumericProperty {
 #the observable might take on a string value like "font-size: 12pt; color: red".
 proc bindCSSRule {
 	${{
-		var scope, selector, obsName;
+		var _scope, selector, obsName;
 		
 		if (arguments.length == 2) {
-			scope = undefined;
+			_scope = undefined;
 			selector = arguments[0];
 			obsName = arguments[1];
 		} else if (arguments.length == 3) {
-			scope = arguments[0];
+			_scope = arguments[0];
 			selector = arguments[1];
 			obsName = arguments[2];
 		} else {
@@ -4877,14 +4877,14 @@ proc bindCSSRule {
 			return;
 		}
 		
-		if (obsName instanceof EdenSymbol) {
+		if (obsName instanceof Eden.EdenSymbol) {
 			obsName = obsName.name.slice(1);
 		} else if (typeof(obsName) != "string") {
 			scope.error(new Error("bindCSSRule: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
 			return;
 		}
 		
-		selector = putCSSSelectorIntoScope(scope, selector);
+		selector = putCSSSelectorIntoScope(_scope, selector, scope);
 		if (selector === undefined) {
 			//Disallowed or invalid selector.
 			return;
@@ -4930,7 +4930,7 @@ proc bindCSSRule {
 				cssDeclarations.cssText = value;
 			}
 		};
-		var obsSym = root.lookup(obsName);
+		var obsSym = scope.context.lookup(obsName);
 		updateFunction("/" + obsName, obsSym.value());
 		obsSym.addJSObserver("bind", updateFunction);
 	}}$;
@@ -4946,10 +4946,10 @@ proc unbind {
 			return;
 		}
 		var obsSym;
-		if (arguments[0] instanceof EdenSymbol) {
+		if (arguments[0] instanceof Eden.EdenSymbol) {
 			obsSym = arguments[0];
 		} else if (typeof(arguments[0]) == "string") {
-			obsSym = root.lookup(arguments[0]);
+			obsSym = scope.context.lookup(arguments[0]);
 		} else {
 			scope.error(new Error("unbind: The argument must be a string or a pointer, not a " + typeof(arguments[0])), "error");
 			return;
@@ -4959,15 +4959,15 @@ proc unbind {
 }
 
 ${{
-	putCSSSelectorIntoScope = function (scope, selector) {
+	putCSSSelectorIntoScope = function (_scope, selector, scope) {
 		var scopeSpecified;
-		if (scope === undefined) {
+		if (_scope === undefined) {
 			scopeSpecified = false;
-		} else if (typeof(scope) != "string") {
-			scope.error(new Error("Scope for CSS modifications must be a string, not a " + typeof(scope)), "error");
+		} else if (typeof(_scope) != "string") {
+			scope.error(new Error("Scope for CSS modifications must be a string, not a " + typeof(_scope)), "error");
 				return undefined;
 		} else {
-			scopeSpecified = !(/^\s*$/.test(scope));
+			scopeSpecified = !(/^\s*$/.test(_scope));
 		}
 
 		if (typeof(selector) != "string") {
@@ -4985,7 +4985,7 @@ ${{
 			if (/^((:not\(([^"]|("[^"]*"))*\))|[^":.#]|(\:[^n])|("[^"]*"))*[.#]/.test(individualSelector)) {
 				selectors.push(individualSelector);
 			} else if (scopeSpecified) {
-				selectors.push("#" + scope + " " + individualSelector);
+				selectors.push("#" + _scope + " " + individualSelector);
 			} else if (authoringMode) {
 				selectors.push(individualSelector);
 			} else {
@@ -4998,7 +4998,7 @@ ${{
 
 		if (selectors.length == 0) {
 			if (scopeSpecified && selector == "") {
-				return "#" + scope;
+				return "#" + _scope;
 			} else {
 				scope.error(new Error("Invalid CSS selector specified."), "error");
 				return undefined;
