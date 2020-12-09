@@ -251,12 +251,70 @@ describe("Execution of *= Modifier", () => {
 
 });
 
+describe("Execution of ++ -- Modifier", () => {
+
+	test("increment a number", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 5; a++;");
+		expect(eden.get("a")).toEqual(6);
+	});
+
+	test("decrement a number", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 5; a--;");
+		expect(eden.get("a")).toEqual(4);
+	});
+
+});
+
 describe("Execution of For Loop", () => {
 
 	test("regular c-style loop", async () => {
 		let eden = new Eden();
 		await eden.exec("b = 0; for (i=0; i<10; i++) b += i; ");
 		expect(eden.get("b")).toEqual(45);
+	});
+
+	test("regular c-style loop without init", async () => {
+		let eden = new Eden();
+		await eden.exec("b = 0; i=0; for (; i<10; i++) b += i; ");
+		expect(eden.get("b")).toEqual(45);
+	});
+
+	test("regular c-style loop without increment", async () => {
+		let eden = new Eden();
+		await eden.exec("b = 0; for (i=0; i<10;) { b += i; i++; }");
+		expect(eden.get("b")).toEqual(45);
+	});
+
+	test("regular c-style loop without condition", async () => {
+		let eden = new Eden();
+		await eden.exec("b = 0; for (i=0; ; i++) { if (i >= 10) break; b += i; }");
+		expect(eden.get("b")).toEqual(45);
+	});
+
+	test("regular c-style loop with deep break", async () => {
+		let eden = new Eden();
+		await eden.exec("b = 0; for (i=0; ; i++) { if (true) { if (true) { if (i >= 10) break; }} b += i; }");
+		expect(eden.get("b")).toEqual(45);
+	});
+
+	test("for in list loop", async () => {
+		let eden = new Eden();
+		await eden.exec("b = 0; for (i in [1,2,3]) b += i;");
+		expect(eden.get("b")).toEqual(6);
+	});
+
+	test("for in observable loop", async () => {
+		let eden = new Eden();
+		await eden.exec("b = 0; a = [1,2,3]; for (i in a) b += i;");
+		expect(eden.get("b")).toEqual(6);
+	});
+
+	test("for in range loop", async () => {
+		let eden = new Eden();
+		await eden.exec("b = 0; for (i in 1..3) b += i;");
+		expect(eden.get("b")).toEqual(6);
 	});
 
 });
