@@ -1,5 +1,6 @@
 Eden.AST.ScriptExpr = function() {
 	this.type = "scriptexpr";
+	Eden.AST.BaseScript.apply(this);
 	Eden.AST.BaseExpression.apply(this);
 
 	//this.statements = [];
@@ -100,5 +101,6 @@ Eden.AST.ScriptExpr.prototype.generate = function(ctx, scope, options) {
 	return `context.f.func_${name}`;
 }
 
+Eden.AST.registerScript(Eden.AST.ScriptExpr);
 Eden.AST.registerExpression(Eden.AST.ScriptExpr);
 

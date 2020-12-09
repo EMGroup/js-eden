@@ -245,8 +245,15 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 		}
 		//if (this.context) console.error(this.context.currentObservables.map(x => { return x.name; }), e);
 		//else console.error(this.name, e);
-		cache.value = undefined;
 		cache.up_to_date = !this.volatile;
+
+		if (e === -1) {
+			if (this.context) {
+				this.context.endEvaluation(this);
+			}
+			return -1;
+		}
+		cache.value = undefined;
 	}
 	if (this.context) {
 		this.context.endEvaluation(this);
@@ -681,11 +688,6 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 			}
 		} else {
 
-			for (var observer_name in this.observers) {
-				actions_to_fire[observer_name] = this.observers[observer_name];
-			}
-
-
 			if (this.definition && this.needsGlobalNotify != EdenSymbol.ASYNC_UPDATE) {
 				// TODO, Also mark all active scopes for this EdenSymbol as out-of-date.
 				this.cache.up_to_date = false;
@@ -705,7 +707,15 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 				//	for (var i=0; i<this.def_scope.length; i++) this.def_scope[i].reset();
 				//}
 
-				if (this.eager) this.evaluate(this.context.scope, this.cache);
+				if (this.eager) {
+					if (this.evaluate(this.context.scope, this.cache) === -1) {
+						return;
+					}
+				}
+			}
+
+			for (var observer_name in this.observers) {
+				actions_to_fire[observer_name] = this.observers[observer_name];
 			}
 
 			this.needsGlobalNotify = EdenSymbol.EXPIRED;

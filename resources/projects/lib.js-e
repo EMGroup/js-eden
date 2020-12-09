@@ -22,6 +22,14 @@ proc eager:static {
 	};
 };
 
+/**
+ * Abort a dependency evaluation, keeping original value.
+ * #library
+ */
+func abort:static {
+	${{ throw -1; }}$;
+}
+
 #! Get the current time in seconds from epoch.
 func time {
   ${{
