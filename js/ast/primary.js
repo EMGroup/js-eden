@@ -249,7 +249,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		}
 	} else {
 		switch (this.attrib) {
-		case "changed"		: res = `${scope}.symbol(${res}).changed`; break;
+		case "changed"		: res = `${scope}.symbol(${res}).hasChanged()`; break;
 		case "source"		: res = `${scope}.symbol(${res}).getSource()`; break;
 		default: res = scope+".value("+res+")";
 		}

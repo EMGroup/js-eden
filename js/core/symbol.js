@@ -502,6 +502,11 @@ EdenSymbol.prototype.append = function(value, scope, origin) {
 	this.assign(val, scope, origin);
 }
 
+EdenSymbol.prototype.hasChanged = function() {
+	if (!this.cache.up_to_date) this.value();
+	return this.changed;
+}
+
 /**
  * Change the current value of this EdenSymbol and notify.
  *
