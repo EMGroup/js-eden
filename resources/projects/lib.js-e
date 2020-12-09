@@ -2840,7 +2840,7 @@ func roundUp {
 		}
 		
 		if (decimalPlaces === 0) {
-			return Math.round(number);
+			return Math.ceil(number);
 		} else if (decimalPlaces === undefined) {
 			return undefined;
 		} else if (typeof(decimalPlaces) != "number") {
@@ -3270,7 +3270,7 @@ func randomInteger {
 			return undefined;
 		}
 		
-		var n = Math.floor(rt.f.func_random(scope)() * (upperBound - lowerBound + 1) + lowerBound);
+		var n = Math.floor(scope.context.f.func_random(scope)() * (upperBound - lowerBound + 1) + lowerBound);
 		if (n > upperBound) {
 			// 1 / 2^62 chance
 			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
@@ -3304,7 +3304,7 @@ func randomFloat {
 			return undefined;
 		}
 
-		var n = scope.context.lookup("random").definition(root)() * (upperBound - lowerBound + 1) + lowerBound;
+		var n = scope.context.f.func_random(scope)() * (upperBound - lowerBound + 1) + lowerBound;
 		if (n > upperBound) {
 			n = upperBound;
 		}
@@ -3364,14 +3364,14 @@ randomGenerator is xorshiftRandomGenerator;
 	
 func random {
 	auto result;
-	${{ inRandomFunc = true; }}$;
-	randomIndex++;
+	/*${{ inRandomFunc = true; }}$;*/
+	/*randomIndex++;*/
 	if (randomSeed == @) {
 		result = ${{ Math.random() }}$;
 	} else {
 		result = randomGenerator();
 	}
-	${{ inRandomFunc = false; }}$;
+	/*${{ inRandomFunc = false; }}$;*/
 	return result;
 }
 
@@ -3383,7 +3383,7 @@ func random {
 func sin {
 	${{
 		var x = arguments[0];
-		var semicircleAngle = root.lookup("semicircleAngle").value();
+		var semicircleAngle = scope.value("semicircleAngle");
 		if (Number.isInteger(semicircleAngle)) {
 			var xSymmetry, sign;
 			if (x >= 0) {
@@ -3461,7 +3461,7 @@ func sum {
 func tan {
 	${{
 		var x = arguments[0];
-		var semicircleAngle = root.lookup("semicircleAngle").value();
+		var semicircleAngle = scope.value("semicircleAngle");
 		if (Number.isInteger(semicircleAngle)) {
 			var xSymmetry, sign;
 			if (x >= 0) {

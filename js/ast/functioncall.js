@@ -27,9 +27,11 @@ Eden.AST.FunctionCall.prototype.left = function(lvalue) {
 Eden.AST.FunctionCall.prototype.toEdenString = function(scope, state) {
 	var res = "(";
 
-	for (var i=0; i<this.params.length; ++i) {
-		if (i > 0) res += ", ";
-		res += this.params[i].toEdenString(scope, state);
+	if (this.params) {
+		for (var i=0; i<this.params.length; ++i) {
+			if (i > 0) res += ", ";
+			res += this.params[i].toEdenString(scope, state);
+		}
 	}
 
 	return res + ")";
