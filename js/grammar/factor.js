@@ -316,6 +316,28 @@ Eden.AST.prototype.pFACTOR_PRIMARY = function() {
 	}
 }
 
+Eden.AST.prototype.pFACTOR_TYPED_TSTRING = function() {
+	this.next();
+
+	if (this.token !== "OBSERVABLE") {
+		let lit = new Eden.AST.Literal("UNDEFINED");
+		lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN));
+		return lit;
+	}
+	let t = this.data.value;
+	this.next();
+
+	if (this.token !== "'") {
+		let lit = new Eden.AST.Literal("UNDEFINED");
+		lit.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN));
+		return lit;
+	}
+
+	let tstring = this.pTEMPLATE_STRING(true);
+	//tstring.setType(t);  TODO: Implement
+	return tstring;
+}
+
 /*
  * F ->
  *	( EXPRESSION ) |
@@ -350,6 +372,7 @@ Eden.AST.prototype.pFACTOR = function() {
 	case "-"			: return this.pFACTOR_NEGATION();
 	case "<"			: return this.pFACTOR_HTML();
 	case "<<"			: return this.pFACTOR_HEREDOC();
+	case "%"			: return this.pFACTOR_TYPED_TSTRING();
 	case "'"			: return this.pTEMPLATE_STRING(true);
 	case "STRING"		: return this.pFACTOR_STRING();
 	case "BOOLEAN"		: return this.pFACTOR_BOOLEAN();
