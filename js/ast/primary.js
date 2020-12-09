@@ -11,6 +11,7 @@ Eden.AST.Primary = function() {
 	this.isconstant = false;
 	this.isstatic = false;
 	this.isrequired = false;
+	this.attrib = "";
 };
 
 /**
@@ -44,6 +45,11 @@ Eden.AST.Primary.prototype.prepend = function(extra) {
 Eden.AST.Primary.prototype.setAttributes = function(attribs) {
 	for (var a in attribs) {
 		switch(a) {
+		case "changed"		:
+		case "source"		:
+		case "expression"	:
+		case "dependencies"	:
+		case "subscribers"	: this.attrib = a; break;
 		case "static"		: this.isstatic = true; break;
 		case "require"		: this.isrequired = true; break;
 		case "number"		: if (this.typevalue != 0) return false; this.typevalue = Eden.AST.TYPE_NUMBER; break;
@@ -221,24 +227,32 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		varscandidate = options.indef; // && scope == "scope";
 	}
 
-	if (this.typevalue != 0) {
-		switch (this.typevalue) {
-		case Eden.AST.TYPE_NUMBER		: res = `${scope}.assertNumber(${res},this)`; break;
-		case Eden.AST.TYPE_STRING		: res = `${scope}.assertString(${res},this)`; break;
-		case Eden.AST.TYPE_LIST			: res = `${scope}.assertList(${res},this)`; break;
-		case Eden.AST.TYPE_OBJECT		: res = `${scope}.assertObject(${res},this)`; break;
-		case Eden.AST.TYPE_BOOLEAN		: res = `${scope}.assertBoolean(${res},this)`; break;
+	if (this.attrib.length === 0) {
+		if (this.typevalue != 0) {
+			switch (this.typevalue) {
+			case Eden.AST.TYPE_NUMBER		: res = `${scope}.assertNumber(${res},this)`; break;
+			case Eden.AST.TYPE_STRING		: res = `${scope}.assertString(${res},this)`; break;
+			case Eden.AST.TYPE_LIST			: res = `${scope}.assertList(${res},this)`; break;
+			case Eden.AST.TYPE_OBJECT		: res = `${scope}.assertObject(${res},this)`; break;
+			case Eden.AST.TYPE_BOOLEAN		: res = `${scope}.assertBoolean(${res},this)`; break;
+			}
+		} else if (this.isrequired) {
+			res = `${scope}.assertValid(${res},this)`;
+		} else if (!varscandidate) {
+			res = scope+".value("+res+")";
+		} else {
+			//res = scope+".value("+res+")";
+			//ctx.vars[res] = "v_"+this.observable;
+			var obsname = this.observable+"_"+scopehash(scope);
+			ctx.vars[obsname] = scope;
+			res = scope+".v(v_"+obsname+")";
 		}
-	} else if (this.isrequired) {
-		res = `${scope}.assertValid(${res},this)`;
-	} else if (!varscandidate) {
-		res = scope+".value("+res+")";
 	} else {
-		//res = scope+".value("+res+")";
-		//ctx.vars[res] = "v_"+this.observable;
-		var obsname = this.observable+"_"+scopehash(scope);
-		ctx.vars[obsname] = scope;
-		res = scope+".v(v_"+obsname+")";
+		switch (this.attrib) {
+		case "changed"		: res = `${scope}.symbol(${res}).changed`; break;
+		case "source"		: res = `${scope}.symbol(${res}).getSource()`; break;
+		default: res = scope+".value("+res+")";
+		}
 	}
 
 	return res;

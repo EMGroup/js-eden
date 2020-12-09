@@ -48,6 +48,7 @@ function EdenSymbol(context, name) {
 	this.volatile = false;		// Always evaluate on read
 	this.eager = false;			// Evaluate immediately on expire
 	this.scopecount = 0;
+	this.changed = true;
 
 	// need to keep track of who we subscribe to so
 	// that we can unsubscribe from them when our definition changes
@@ -230,8 +231,10 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 		this.has_evaled = true;
 		this.scopecount = 0;
 
+		let oldval = cache.value;
 		cache.value = this.definition.call(this,this.context, scope, cache);
 		if (this.scopecount > 1000) console.log("Scope count for "+this.name, this.scopecount);
+		this.changed = oldval !== cache.value;
 
 		// Post process with all extensions
 		/*if (this.extend) {
@@ -254,6 +257,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 			return -1;
 		}
 		cache.value = undefined;
+		this.changed = true;
 	}
 	if (this.context) {
 		this.context.endEvaluation(this);
@@ -539,6 +543,7 @@ EdenSymbol.prototype.assign = function (value, scope, origin) {
 
 	this.extend = undefined;
 
+	this.changed = cache.value !== value;
 	cache.value = value;
 	cache.up_to_date = true;
 
@@ -665,6 +670,7 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 					//console.log("PROMISE EVAL = ", v);
 					this.has_evaled = true;
 					this.cache.up_to_date = true;
+					this.changed = this.cache.value !== v;
 					this.cache.value = v;
 					this.expireAsync();
 				});
@@ -681,6 +687,7 @@ EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, ac
 				}
 				console.error(this.name, e);
 				this.cache.value = undefined;
+				this.changed = true;
 				this.cache.up_to_date = true;
 			}
 			if (this.context) {

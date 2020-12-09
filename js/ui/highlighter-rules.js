@@ -35,6 +35,8 @@ var edenAttributes = {
 	"volatile": true,
 	"static": true,
 	"const": true,
+	"changed": true,
+	"all": true,
 
 	"number": true,
 	"string": true,
