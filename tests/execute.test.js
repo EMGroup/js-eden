@@ -135,6 +135,62 @@ describe("Execution of Observable Definitions", () => {
 
 });
 
+describe("Execution of scoped definitions", () => {
+	
+	test("simple direct replacement", async () => {
+		let eden = new Eden();
+		await eden.exec("b is a*a with a = 5;");
+		expect(eden.get("b")).toBe(25);
+	});
+
+	test("simple direct replacement of existing", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 2; b is a*a with a = 5;");
+		expect(eden.get("b")).toBe(25);
+	});
+
+	test("simple indirect replacement of existing", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 2; b is a*a; c is b+2 with a = 5;");
+		expect(eden.get("c")).toBe(27);
+	});
+
+	test("dereferenced indirect replacement", async () => {
+		let eden = new Eden();
+		await eden.exec("d = 5; b is *a * 2; c is b+2 with a = &d;");
+		expect(eden.get("c")).toBe(12);
+		await eden.exec("d = 6;");
+		expect(eden.get("c")).toBe(14);
+		await eden.exec("d = 7;");
+		expect(eden.get("c")).toBe(16);
+	});
+
+	test("range direct replacement", async () => {
+		let eden = new Eden();
+		await eden.exec("b is a*a with a = 1..5;");
+		expect(eden.get("b")).toEqual([1,4,9,16,25]);
+	});
+
+	test("dual range direct replacement", async () => {
+		let eden = new Eden();
+		await eden.exec("e is a+b with a = 1..3, b = 1..2;");
+		expect(eden.get("e")).toEqual([2,3,4,3,4,5]);
+	});
+
+	test("nested expression scopes", async () => {
+		let eden = new Eden();
+		await eden.exec("d is ((a+b) with b = c*2) with a=2,c = 1..2;");
+		expect(eden.get("d")).toEqual([4,6]);
+	});
+
+	test("unnested expression scopes", async () => {
+		let eden = new Eden();
+		await eden.exec("d is ((a+b) with b = c*2); e is d with a=2,c = 1..2;");
+		expect(eden.get("e")).toEqual([4,6]);
+	});
+
+});
+
 describe("Execution of Do Statements", () => {
 
 	test("execute local action", async () => {

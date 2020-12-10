@@ -100,7 +100,7 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 	var res;
 
 	//if (ctx.scopes.length > 0) {
-		res = "new Scope(context, "+scope+", [";
+		res = "new Eden.Scope(context, "+scope+", [";
 	//} else {
 	//	res = "new Scope(context, scope, [";
 	//}
@@ -117,7 +117,7 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 			startstr = over.start.generate(ctx,scope,options); //over.start.type == "primary" || over.start.type == "scope"});
 		}
 
-		res += "new ScopeOverride(\""+o+"\", " + startstr;
+		res += "new Eden.ScopeOverride(\""+o+"\", " + startstr;
 		if (over.end) {
 			var endstr = this.overrides[o].end.generate(ctx,scope, options);
 

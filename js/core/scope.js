@@ -614,3 +614,4 @@ function ScopeList() {
 }
 
 Eden.Scope = Scope;
+Eden.ScopeOverride = ScopeOverride;
