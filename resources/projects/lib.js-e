@@ -2439,7 +2439,7 @@ func substitute {
 					value = observables[varName].value();
 				}
 			}
-			return beforeChar + strFunc(value);
+			return beforeChar + strFunc(scope)(value);
 		};
 
 		var replaced = arguments[0].replace(placeholderRE, replaceFunc);

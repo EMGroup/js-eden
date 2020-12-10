@@ -563,16 +563,16 @@
 					code = code + "<<circular reference>>";
 				} else {
 					refStack.push(value);
-					code = "Object(";
+					code = "{";
 					for (var key in value) {
 						if (!(key in Object.prototype)) {
-							code = code + key + ", " + Eden.edenCodeForValue(value[key], refStack, precision) + ", ";
+							code = code + key + ": " + Eden.edenCodeForValue(value[key], refStack, precision) + ", ";
 						}
 					}
-					if (code != "Object(") {
+					if (code != "{") {
 						code = code.slice(0, -2);
 					}
-					code = code + ")";
+					code = code + "}";
 					refStack.pop();
 				}
 			}
