@@ -385,13 +385,17 @@ Folder.prototype.expireAndFireActions = function () {
 
 	this.expiryCount.value = 0;
 	var EdenSymbolNamesToForce = {};
-	for (var i = 0; i < this.needsExpire.length; i++) {
-		var sym = this.needsExpire[i];
+
+	// Swap here to create a new expire context...
+	var expired = this.needsExpire;
+	this.needsExpire = [];
+
+	for (var i = 0; i < expired.length; i++) {
+		var sym = expired[i];
 		sym.expire(EdenSymbolNamesToForce, this.expiryCount, this.needsTrigger, sym.needsGlobalNotify == EdenSymbol.REDEFINED);
 		//sym.needsGlobalNotify = 2;
 	}
-	var expired = this.needsExpire;
-	this.needsExpire = [];
+	
 	var EdenSymbolNamesArray = Object.keys(EdenSymbolNamesToForce);
 	EdenSymbolNamesArray.sort(function (name1, name2) {
 		return EdenSymbolNamesToForce[name1] - EdenSymbolNamesToForce[name2];

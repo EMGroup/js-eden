@@ -91,7 +91,7 @@ func forget:static {
 				return 1;
 			}
 			nameToDelete = "/" + nameToDelete;
-		} else if (arguments[0] instanceof EdenSymbol) {
+		} else if (arguments[0] instanceof Eden.EdenSymbol) {
 			symbolToDelete = arguments[0];
 			nameToDelete = symbolToDelete.name;
 		} else {
@@ -212,7 +212,7 @@ func forgetAll:static {
 			//Observables given as a list.
 			for (var i = 0; i < obsToDelete.length; i++) {
 				var name;
-				if (obsToDelete[i] instanceof EdenSymbol) {
+				if (obsToDelete[i] instanceof Eden.EdenSymbol) {
 					name = obsToDelete[i].name.slice(1);
 					symbol = obsToDelete[i];
 				} else if (typeof(obsToDelete[i]) == "string") {
@@ -402,6 +402,15 @@ func error:static {
 	} else {
 		append jseden_notifications,["error",msg];
 	}
+}
+
+func valueof:static {
+	para sym;
+	return ${{ sym.cache.value }}$;
+}
+
+func self:static {
+	return ${{ this }}$;
 }
 
 #! Get the name of a symbol pointer.
@@ -1088,7 +1097,7 @@ ${{
 		// Keep track of what to call the next view that is created using the menu bar.
 		var numViewsSym = root.lookup("views_number_created");
 		if (numViewsSym.value() < maxViewNumber) {
-			numViewsSym.assign(maxViewNumber, root.scope, EdenSymbol.hciAgent);
+			numViewsSym.assign(maxViewNumber, root.scope, Eden.EdenSymbol.hciAgent);
 		}
 	});
 }}$;
@@ -1170,7 +1179,7 @@ screenHeight:number is ${{ document.getElementById("jseden-views").clientHeight 
 ${{
 	window.addEventListener("resize", function (event) {
 		let root = scope.context;
-		root.lookup("browser_resize").assign(new Point(window.innerWidth,window.innerHeight), root.scope, EdenSymbol.defaultAgent);
+		root.lookup("browser_resize").assign(new Point(window.innerWidth,window.innerHeight), root.scope, Eden.EdenSymbol.defaultAgent);
 	});
 }}$;
 
@@ -1866,7 +1875,7 @@ proc loadTextFileIntoObservable {
 		var url = arguments[1];
 		var synchronous = arguments[2];
 
-		if (!(symbol instanceof EdenSymbol)) {
+		if (!(symbol instanceof Eden.EdenSymbol)) {
 			scope.error(new Error("loadTextFileIntoObservable: The first argument must be a pointer, not a " + typeof(symbol)), "error");
 			return;
 		}
@@ -2414,7 +2423,7 @@ func substitute {
 				//Case 3: Placeholders refer to observable names.
 				if (!scannedForObservables) {
 					for (var i = 1; i < argList.length ; i++) {
-						if (argList[i] instanceof EdenSymbol) {
+						if (argList[i] instanceof Eden.EdenSymbol) {
 							observables[argList[i].name.slice(1)] = argList[i];
 						}
 					}
@@ -3737,7 +3746,7 @@ func _attribute {
 _volatileExpr is:[eager] func {
 	para sym;
 	${{
-		if (sym instanceof EdenSymbol) {
+		if (sym instanceof Eden.EdenSymbol) {
 			if (sym.origin.generated) {
 				return sym.origin.generated.expression.toEdenString(scope,{})
 			} else {
@@ -3801,7 +3810,7 @@ ${{
 		if (Array.isArray(clocks)) {
 			var incrementClock = function (symbol) {
 				if (!pausedSym.cache.value) {
-					symbol.assign(symbol.cache.value + 1, root.scope, EdenSymbol.localJSAgent);
+					symbol.assign(symbol.cache.value + 1, root.scope, Eden.EdenSymbol.localJSAgent);
 					if (debugSym.cache.value.edenclocks) {
 						console.log("edenclocks: clock " + symbol.name);
 					}
@@ -3821,7 +3830,7 @@ ${{
 				} else {
 					var currentValue = target.value();
 					if (currentValue === undefined) {
-						target.assign(0, root.scope, EdenSymbol.localJSAgent);
+						target.assign(0, root.scope, Eden.EdenSymbol.localJSAgent);
 						return window.setInterval(incrementClock, interval, target);
 					} else if (typeof(currentValue) == "number") {
 						return window.setInterval(incrementClock, interval, target);					
@@ -3837,7 +3846,7 @@ ${{
 				var clockDetails = clocks[i];
 				if (Array.isArray(clockDetails)) {
 					var clockSymbol = clockDetails[0];
-					if (clockSymbol instanceof EdenSymbol) {
+					if (clockSymbol instanceof Eden.EdenSymbol) {
 						var clockName = clockSymbol.name;
 						var clockInterval = clockDetails[1];
 						if (clockInterval !== undefined && typeof(clockInterval) != "number") {
@@ -4809,7 +4818,7 @@ proc bindCSSNumericProperty {
 			scope.error(new Error("bindCSSNumericProperty: The CSS property name must be a string, not a " + typeof(property)), "error");
 			return;
 		}
-		if (obsName instanceof EdenSymbol) {
+		if (obsName instanceof Eden.EdenSymbol) {
 			obsName = obsName.name.slice(1);
 		} else if (typeof(obsName) != "string") {
 			scope.error(new Error("bindCSSNumericProperty: The observable reference must be a string or a pointer, not a " + typeof(obsName)), "error");
