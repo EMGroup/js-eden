@@ -166,6 +166,8 @@ Eden.AST.prototype.pFUNCCALL_STAT = function() {
  */
 Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
 
+	this.scopedependencies = null;
+
 	switch (this.token) {
 	case "is"		: return this.pDEFINITION();
 	case "in"		: return this.pRANGE_STATEMENT();

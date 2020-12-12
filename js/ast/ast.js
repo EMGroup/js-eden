@@ -54,9 +54,7 @@ Eden.AST = function(code, imports, origin, options) {
 	this.src = "input";
 	this.parent = undefined;
 	this.scripts = {};			// Actions table
-	//this.triggers = {};			// Guarded actions
 	this.definitions = {};		// Definitions mapping
-	//this.imports = (imports) ? imports : [];
 	this.origin = origin;		// The agent owner of this script
 	this.lastposition = 0;
 	this.lastline = 0;
@@ -68,6 +66,10 @@ Eden.AST = function(code, imports, origin, options) {
 	this.depth = 0;
 	this.localStatus = false;
 	this.last_error = null;
+
+	// Keep dependency records for some statements.
+	this.dependencies = Object.create(null);
+	this.scopedependencies = null;
 
 	if (!origin) console.error("NO ORIGIN", code);
 

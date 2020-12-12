@@ -3,18 +3,29 @@
  * SCOPE -> ( SCOPE' ) | SCOPE'
  */
 Eden.AST.prototype.pSCOPE = function() {
+	let scope;
+	let deps = this.dependencies;
+	if (!this.scopedependencies) this.scopedependencies = Object.create(null);
+	this.dependencies = this.scopedependencies;
+
 	if (this.token === "(") {
 		this.next();
-		var scope = this.pSCOPE_P();
+		scope = this.pSCOPE_P();
 		if (this.token !== ")") {
 			scope.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPECLOSE));
+			Object.assign(deps, this.dependencies);
+			this.dependencies = deps;
 			return scope;
 		} else {
 			this.next();
 		}
-		return scope;
+	} else {
+		scope = this.pSCOPE_P();
 	}
-	return this.pSCOPE_P();
+
+	Object.assign(deps, this.dependencies);
+	this.dependencies = deps;
+	return scope;
 }
 
 
@@ -24,7 +35,7 @@ Eden.AST.prototype.pSCOPE = function() {
  */
 Eden.AST.prototype.pSCOPEPATTERN = function() {
 	var sname = new Eden.AST.ScopePattern();
-	if (this.token !== "OBSERVABLE") {
+	if (this.token !== "OBSERVABLE" || this.scopedependencies[this.data.value]) {
 		sname.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
 		return sname;
 	}
