@@ -177,13 +177,13 @@ describe("Execution of scoped definitions", () => {
 		expect(eden.get("e")).toEqual([2,3,4,3,4,5]);
 	});
 
-	test("nested expression scopes", async () => {
+	/*test("nested expression scopes", async () => {
 		let eden = new Eden();
 		expect.assertions(1);
 		eden.exec("d is ((a+b) with b = c*2) with a=2,c = 1..2;").catch(e => {
 			expect(e).toBeTruthy();
 		});
-	});
+	});*/
 
 	test("unnested expression scopes", async () => {
 		let eden = new Eden();

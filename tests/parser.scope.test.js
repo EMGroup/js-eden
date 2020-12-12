@@ -65,6 +65,7 @@ describe("Scoped Expressions", () => {
 		expect(ast.isconstant).toEqual(false);
 		expect(ast.isdependant).toEqual(false);
 		expect(ast.isdynamic).toEqual(false);
+		expect(ast.warning).toBeTruthy();
 	});
 
 	test("nested scopes without brackets", () => {

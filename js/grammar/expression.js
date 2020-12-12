@@ -223,6 +223,12 @@ Eden.AST.prototype.pEXPRESSION = function() {
 
 	while (this.token === "with" || this.token === "::") {
 		this.next();
+
+		// Do not allow scope chaining?
+		if (expr.isscoped) {
+			//expr.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.UNKNOWN));
+			this.syntaxWarning(expr, Eden.SyntaxWarning.NESTEDSCOPE, "Should not chain scopes in single expression");
+		}
 		var scope = this.pSCOPE();
 		scope.setExpression(expr);
 		if (expr.isconstant && !scope.range) {

@@ -68,8 +68,8 @@ Eden.AST = function(code, imports, origin, options) {
 	this.last_error = null;
 
 	// Keep dependency records for some statements.
-	this.dependencies = Object.create(null);
-	this.scopedependencies = null;
+	//this.dependencies = Object.create(null);
+	//this.scopedependencies = null;
 
 	if (!origin) console.error("NO ORIGIN", code);
 
@@ -416,6 +416,10 @@ Eden.AST.prototype.syntaxError = function(node, type, msg) {
 Eden.AST.prototype.typeWarning = function(node, expected) {
 	var warn = new Eden.TypeWarning(node, expected);
 	node.warning = warn;
+}
+
+Eden.AST.prototype.syntaxWarning = function(node, type, message) {
+	node.warning = new Eden.SyntaxWarning(this, node, type, message);
 }
 
 Eden.AST.prototype.deprecated = function(node, message) {

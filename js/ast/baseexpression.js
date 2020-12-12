@@ -4,6 +4,7 @@ Eden.AST.BaseExpression = function() {
 	this.isdynamic = false;		// Has dynamic dependency
 	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 	this._is_eden_expression = true;
+	this.isscoped = false;
 	this.errors = [];
 	this.warning = null;
 }
@@ -17,6 +18,7 @@ Eden.AST.BaseExpression.mergeExpr = function(expr) {
 	this.isconstant = this.isconstant && expr.isconstant;
 	this.isdependant = this.isdependant || expr.isdependant;
 	this.isdynamic = this.isdynamic || expr.isdynamic;
+	this.isscoped = this.isscoped || expr.isscoped;
 	if (this.typevalue === 0) {
 		this.typevalue = expr.typevalue;
 	} else if (expr.typevalue === 0) {

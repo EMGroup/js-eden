@@ -30,6 +30,7 @@ Eden.AST.Scope.prototype.getObservable = function() {
 Eden.AST.Scope.prototype.setExpression = function(express) {
 	this.expression = express;
 	this.mergeExpr(express);
+	this.isscoped = true;
 }
 
 /**

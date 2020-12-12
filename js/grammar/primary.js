@@ -97,7 +97,7 @@ Eden.AST.prototype.pIDENTIFIER = function(primary) {
 			return p;
 		}
 
-		this.dependencies[obs] = true;
+		//this.dependencies[obs] = true;
 
 		primary = this.pPRIMARY_P(primary);
 		if (primary.errors.length > 0) return primary;

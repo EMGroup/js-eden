@@ -390,6 +390,9 @@ Folder.prototype.expireAndFireActions = function () {
 	var expired = this.needsExpire;
 	this.needsExpire = [];
 
+	// FIXME: Eager definitions need to occur after non-eager have been expired...
+	// the above must be iterative until no more eager definitions exist to be evaluated.
+	// but that iteration could and should use a timer to be interruptable?
 	for (var i = 0; i < expired.length; i++) {
 		var sym = expired[i];
 		sym.expire(EdenSymbolNamesToForce, this.expiryCount, this.needsTrigger, sym.needsGlobalNotify == EdenSymbol.REDEFINED);
