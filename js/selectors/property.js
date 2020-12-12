@@ -77,6 +77,7 @@ Eden.Selectors.PropertyNode.attributes = {
 	"time":		{local: true,	indexed: false, rank: 3},
 	"date":		{local: false,	indexed: false,	rank: 3},
 	"title":	{local: false,	indexed: false, rank: 10},
+	"warning":	{local: false,	indexed: false, rank: 10},
 	"author":	{local: false,	indexed: false, rank: 10},
 	"v":		{local: false,	indexed: false, rank: 20},
 	"vid":		{local: false,	indexed: false, rank: 20},
@@ -196,6 +197,10 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements) {
 		case ".type"	:	if (!param) break;
 							return (statements.filter(function(stat) {
 								return stat.type == param;
+							})); return;
+
+		case ".warning"	:	return (statements.filter(function(stat) {
+								return stat.warning
 							})); return;
 
 		case ".datatype":	return (statements.filter(function(stat) {
@@ -403,7 +408,7 @@ Eden.Selectors.PropertyNode.prototype._construct = function() {
 	case ":determines"	:	stats = Object.values(eden.root.lookup(this.value).indirectDependencies()); break;
 	case ".determines"	:	stats = Object.values(eden.root.lookup(this.value).dependencies).concat(Object.values(eden.root.lookup(this.value).dynamicDependencies)); break;
 	case ".depends"		:	stats = Object.values(eden.root.lookup(this.value).subscribers); break;
-	default				:	stats = Eden.Index.getAll();
+	default				:	stats = this._filter(Eden.Index.getAll());
 	}
 
 	return stats;

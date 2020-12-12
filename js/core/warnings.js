@@ -30,7 +30,8 @@ Eden.SyntaxWarning.NESTEDWHEN = 2;
 Eden.SyntaxWarning.DEFINWHEN = 3;
 Eden.SyntaxWarning.EXPRESSIONLIT = 4;
 Eden.SyntaxWarning.MISSINGSYNC = 5;
-Eden.SyntaxWarning.NESTEDSCOPES = 6;
+Eden.SyntaxWarning.NESTEDSCOPE = 6;
+Eden.SyntaxWarning.USEOFWHILE = 7;
 
 Eden.SyntaxWarning.prototype.messageText = function() {
 	var res;
