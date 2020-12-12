@@ -40,10 +40,10 @@ Eden.AST.prototype.pLOCALS = function() {
 	locals.kind = "local";
 
 	// Get all locals, there may be many lines of such declarations
-	while (this.token == "auto" || this.token == "local") {
+	while (this.token === "auto" || this.token === "local") {
 		this.next();
 
-		if (this.token == "when") {
+		if (this.token === "when") {
 			this.next();
 			this.localStatus = true;
 			locals = this.pWHEN();
@@ -54,12 +54,12 @@ Eden.AST.prototype.pLOCALS = function() {
 			var olist = this.pOLIST();
 			locals.list.push.apply(locals.list,olist);
 
-			if (olist.length == 0 || olist[olist.length-1] == "NONAME") {
+			if (olist.length === 0 || olist[olist.length-1] === "NONAME") {
 				locals.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LOCALNAME));
 				return locals;
 			}
 
-			if (this.token == ";") {
+			if (this.token === ";") {
 				this.next();
 			} else {
 				locals.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LOCALSEMICOLON));
