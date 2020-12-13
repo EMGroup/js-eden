@@ -37,7 +37,7 @@ Eden.AST.Assignment.prototype.reset = function() {
 
 Eden.AST.Assignment.prototype.left = function(lvalue) {
 	this.lvalue = lvalue;
-	if (lvalue.errors.length > 0) {
+	if (lvalue && lvalue.errors.length > 0) {
 		this.errors.push.apply(this.errors, lvalue.errors);
 	}
 	if (!this.warning && lvalue.warning) this.warning = lvalue.warning;
