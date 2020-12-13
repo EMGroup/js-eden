@@ -18,11 +18,7 @@ Eden.AST.Length.prototype.toEdenString = function(scope, state) {
 Eden.AST.Length.prototype.generate = function(ctx, scope, options) {
 	var left = this.l.generate(ctx, scope, options);
 
-	if (options.bound) {
-		return "new BoundValue(rt.length("+left+"), "+scope+")";
-	} else {
-		return "rt.length(" + left + ")";
-	}
+	return "rt.length(" + left + ")";
 }
 
 Eden.AST.registerExpression(Eden.AST.Length);

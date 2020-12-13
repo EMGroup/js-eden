@@ -25,7 +25,6 @@ Eden.AST.Return.prototype.generate = function(ctx,scope,options) {
 
 Eden.AST.Return.prototype.execute = function(ctx,base,scope,agent) {
 	ctx.result = this.result.execute(ctx, base, scope, agent);
-	console.log("Return result",ctx.result);
 	return -1;
 }
 

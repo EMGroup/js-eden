@@ -103,8 +103,14 @@ Eden.AST.prototype.pTERM_PPP = function() {
 	var left = this.pFACTOR(); //this.pTERM_PPPP();
 	var right = this.pEXPRESSION_PPPPP();
 
+	// This would be a postfix length operator, just assume that
 	if (right) {
 		right.left(left);
+
+		if (left.typevalue !== Eden.AST.TYPE_UNKNOWN && left.typevalue !== Eden.AST.TYPE_LIST && left.typevalue !== Eden.AST.TYPE_STRING) {
+			right.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+		}
+
 		return right;
 	}
 	return left;

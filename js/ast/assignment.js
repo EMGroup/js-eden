@@ -116,7 +116,6 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 		if (this.lvalue.hasListIndices()) {
 			value = this.compiled.call(sym, scope.context, scope, scope.lookup(sym.name));
 			var complist = this.lvalue.executeCompList(ctx, scope);
-			console.log("LIST ASSIGN", complist, sym.name);
 			sym.listAssign(value, scope, this, false, complist);
 		} else {
 			value = this.compiled.call(sym, scope.context, scope, scope.lookup(sym.name));

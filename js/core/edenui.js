@@ -293,7 +293,7 @@ EdenUI.showTooltip = function (event, text) {
 		if (dialogs[i].style.zIndex > zindex) zindex = dialogs[i].style.zIndex;
 	}
 
-	tooltip.style.zIndex = zindex+1;
+	tooltip.style.zIndex = Math.max(zindex,10000)+1;
 }
 
 EdenUI.closeTooltip = function () {

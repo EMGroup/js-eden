@@ -110,7 +110,6 @@ Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
 	if (this.primary) {
 		var sym;
 		sym = this.primary.execute(ctx,base,scope);
-		console.log("PRIM",sym.name);
 		return sym;
 	}
 	if (this.express) {
