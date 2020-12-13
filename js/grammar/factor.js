@@ -242,6 +242,27 @@ Eden.AST.prototype.pFACTOR_DEREFERENCE = function() {
 	
 }
 
+Eden.AST.prototype.pFACTOR_DEREFERENCE_NOIX = function() {
+	this.next();
+
+	if (this.token === "(") {
+		this.next();
+		let p = this.pFACTOR_PRIMARY();
+
+		if (this.token !== ")") {
+			p.error(new Eden.SyntaxError(this, Eden.SyntaxError.EXPCLOSEBRACKET));
+			return p;
+		}
+		this.next();
+		return new Eden.AST.UnaryOp("*", p);
+	} else {
+		let p = this.pPRIMARY();
+		let u = new Eden.AST.UnaryOp("*", p);
+		return u;
+	}
+	
+}
+
 Eden.AST.prototype.pFACTOR_ADDRESSOF = function() {
 	this.next();
 	var lvalue = this.pLVALUE();

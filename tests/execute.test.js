@@ -78,6 +78,10 @@ describe("Execution of Observable Assignments", () => {
 		expect(eden.get("a")).toEqual("hello");
 	});
 
+});
+
+describe("Execution of lvalue forms", () => {
+
 	test("assign to a dereference", async () => {
 		let eden = new Eden();
 		await eden.exec("a = 2; b = &a; *b = 5;");
@@ -90,12 +94,30 @@ describe("Execution of Observable Assignments", () => {
 		expect(eden.get("a")).toBe(5);
 	});
 
+	test("assign to a dereferenced list item", async () => {
+		let eden = new Eden();
+		await eden.exec("a = [3,4]; b = &a; *b[2] = 5;");
+		expect(eden.get("a")).toEqual([3,5]);
+	});
+
 	test("syntax error generates exception", async () => {
 		let eden = new Eden();
 		expect.assertions(1);
 		await eden.exec("a = 5").catch(e => {
 			expect(e).toBeTruthy();
 		});
+	});
+
+	test("assign to a plain backticks", async () => {
+		let eden = new Eden();
+		await eden.exec("`testa` = 88;");
+		expect(eden.get("testa")).toBe(88);
+	});
+
+	test("assign to a list index backticks", async () => {
+		let eden = new Eden();
+		await eden.exec("testa = [1,2,3]; `testa`[2] = 88;");
+		expect(eden.get("testa")).toEqual([1,88,3]);
 	});
 
 });

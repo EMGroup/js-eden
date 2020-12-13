@@ -123,7 +123,7 @@ describe("Assignment to dereferences lvalue", () => {
 		expect(ast).toBeTruthy();
 		expect(ast.errors).toHaveLength(0);
 		expect(ast.type).toEqual("assignment");
-		expect(ast.lvalue.primary.type).toEqual("unaryop");
+		expect(ast.lvalue.primary.type).toEqual("primary");
 	});
 
 	test("assign a numeric literal to list symbol", () => {
@@ -132,8 +132,7 @@ describe("Assignment to dereferences lvalue", () => {
 		expect(ast).toBeTruthy();
 		expect(ast.errors).toHaveLength(0);
 		expect(ast.type).toEqual("assignment");
-		expect(ast.lvalue.primary.type).toEqual("unaryop");
-		expect(ast.lvalue.primary.r.type).toEqual("indexed");
+		expect(ast.lvalue.primary.type).toEqual("indexed");
 	});
 
 });

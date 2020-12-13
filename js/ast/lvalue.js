@@ -74,6 +74,19 @@ Eden.AST.LValue.prototype.setPrimary = function(primary) {
 		this.errors.push.apply(this.errors, primary.errors);
 	}
 	if (!this.warning && primary.warning) this.warning = primary.warning;
+
+	if (primary) {
+		/*if (primary.type === "indexed") {
+			console.log("INDEXED", primary.indexes);
+			this.primary = primary.expression.r;
+			this.lvaluep = primary.indexes;
+		} else*/
+		if (primary.type === "unaryop") {
+			this.primary = primary.r;
+		} else {
+
+		}
+	}
 }
 
 Eden.AST.LValue.prototype.setExpression = function(express) {
@@ -95,7 +108,9 @@ Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
 	if (this.name) return scope.context.lookup(this.name);
 
 	if (this.primary) {
-		var sym = this.primary.execute(ctx,base,scope);
+		var sym;
+		sym = this.primary.execute(ctx,base,scope);
+		console.log("PRIM",sym.name);
 		return sym;
 	}
 	if (this.express) {
@@ -109,7 +124,7 @@ Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
 
 
 Eden.AST.LValue.prototype.hasListIndices = function() {
-	return this.lvaluep && this.lvaluep.length > 0 && this.lvaluep[0].kind == "index";
+	return (this.lvaluep && this.lvaluep.length > 0 && this.lvaluep[0].kind == "index");
 }
 
 Eden.AST.LValue.prototype.generateCompList = function(ctx, scope, options) {

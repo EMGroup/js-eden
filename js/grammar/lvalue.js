@@ -90,7 +90,7 @@ Eden.AST.prototype.pLVALUE = function() {
 		this.next();*/
 	if (this.token === "*") {
 		//this.next();
-		let prim = this.pFACTOR_DEREFERENCE();
+		let prim = this.pFACTOR_DEREFERENCE_NOIX();
 		lvalue.setPrimary(prim);
 	} else if (this.token === "`") {
 		var btick;
