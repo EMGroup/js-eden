@@ -808,4 +808,10 @@
 			else return res;
 		}
 	}
+
+	EdenUI.Highlight.htmlElement = function(str, ele) {
+		var hlighter = new EdenUI.Highlight(ele);
+		hlighter.ast = {stream: new Eden.EdenStream(str)};
+		hlighter.highlight(hlighter.ast,-1,-1,undefined);
+	}
 }(typeof window !== 'undefined' ? window : global));

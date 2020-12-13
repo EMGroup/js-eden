@@ -115,7 +115,7 @@ EdenUI.Explorer = function() {
 	this.console = new EdenUI.ScriptBox(this.consoleele.get(0), {nobuttons: true});
 	this.state = new EdenUI.ExplorerState(this.expstate);
 	this.debug = new EdenUI.ExplorerDebug(this.expdebug);
-	//this.scripts = new EdenUI.ExplorerScripts(this.expscripts);
+	this.scripts = new EdenUI.ExplorerScripts(this.expscripts);
 
 	this.element.on("click", ".clear-button", function(e) {
 		me.console.clear();
@@ -135,6 +135,7 @@ EdenUI.Explorer = function() {
 			me.expsettings.css("display","none");
 			me.expdebug.css("display","none");
 		} else if (name == "scripts") {
+			me.scripts.update();
 			me.expstate.css("display","none");
 			me.expscripts.css("display","flex");
 			me.expsettings.css("display","none");
