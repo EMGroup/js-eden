@@ -130,17 +130,19 @@ EdenUI.Explorer = function() {
 		changeClass(e.currentTarget, "explore-tab-notcurrent", false);
 
 		if (name == "state") {
+			me.scripts.stop();
 			me.expstate.css("display","flex");
 			me.expscripts.css("display", "none");
 			me.expsettings.css("display","none");
 			me.expdebug.css("display","none");
 		} else if (name == "scripts") {
-			me.scripts.update();
+			me.scripts.start();
 			me.expstate.css("display","none");
 			me.expscripts.css("display","flex");
 			me.expsettings.css("display","none");
 			me.expdebug.css("display","none");
 		} else if (name == "debug") {
+			me.scripts.stop();
 			me.expstate.css("display","none");
 			me.expscripts.css("display","none");
 			me.expdebug.css("display","flex");
@@ -148,6 +150,7 @@ EdenUI.Explorer = function() {
 		} else if (name == "palette") {
 
 		} else if (name == "settings") {
+			me.scripts.stop();
 			me.expstate.css("display","none");
 			me.expsettings.css("display","block");
 			me.expscripts.css("display", "none");
@@ -170,6 +173,7 @@ EdenUI.Explorer = function() {
 			me.element.hide();
 			me.state.hide();
 			me.capture = false;
+			me.scripts.stop();
 			//me.clear();
 		} else if (eden.root.lookup("jseden_explorer_visible").value()) {
 			me.element.show();

@@ -5,13 +5,14 @@ function Pointer(initialValue) {
 var EdenSymbol = Eden.EdenSymbol;
 
 function fireActions(actions_to_fire, scope){
+	let ts = Date.now();
 	for (var action_name in actions_to_fire) {
 		var action = actions_to_fire[action_name];
 
 		// if one action fails, it shouldn't prevent all the other
 		// scheduled actions from firing
 		if (action) {
-			action.trigger(scope);
+			action.trigger(scope, ts);
 		}
 	}
 };

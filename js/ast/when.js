@@ -19,6 +19,7 @@ Eden.AST.When = function() {
 	this.roles = null;
 	this.triggercount = 0;
 	this.refreshtimeout = null;
+	this.triggertimestamp = 0;
 };
 
 Eden.AST.registerContext(Eden.AST.When);
@@ -143,7 +144,7 @@ Eden.AST.When.prototype.compile = function(base, scope) {
 	return "";
 }
 
-Eden.AST.When.prototype.trigger = function(scope) {
+Eden.AST.When.prototype.trigger = function(scope, ts) {
 	if (!this.enabled) return;
 
 	//var scope = eden.root.scope;  // FIXME:
@@ -176,12 +177,13 @@ Eden.AST.When.prototype.trigger = function(scope) {
 		var res = this.executeReal(this, base, scope);
 
 		if (res && (eden.peer === undefined || eden.peer.authoriseWhen(this))) {
+			this.triggertimestamp = ts;
 			var me = this;
 			base.executeStatements(res, -1, this, function() {
 				me.active = false;
 				if (me.retrigger) {
 					me.retrigger = false;
-					setTimeout(function(){me.trigger(scope);},0);
+					setTimeout(function(){me.trigger(scope, Date.now());},0);
 				}
 			}, this, scope);
 		} else {

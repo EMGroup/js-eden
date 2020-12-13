@@ -32,6 +32,18 @@ EdenUI.ExplorerScripts.prototype.makeEntry = function(element, entry) {
 	}
 }
 
+EdenUI.ExplorerScripts.prototype.start = function() {
+	if (this.interval) return;
+	this.interval = setInterval(() => {
+		this.update();
+	}, 200);
+}
+
+EdenUI.ExplorerScripts.prototype.stop = function() {
+	clearInterval(this.interval);
+	this.interval = null;
+}
+
 EdenUI.ExplorerScripts.prototype.update = function() {
 	this.scripts.html("");
 
@@ -65,6 +77,8 @@ EdenUI.ExplorerScripts.prototype.update = function() {
 		groups[name].push(when);
 	}
 
+	let ts = Date.now();
+
 	for (let x in groups) {
 		let ele = document.createElement("DIV");
 		ele.className = "explore-sentry";
@@ -78,6 +92,15 @@ EdenUI.ExplorerScripts.prototype.update = function() {
 			let when = g[i];
 			let ele2 = document.createElement("DIV");
 			ele2.className = "explore-sentry";
+
+			let age = (ts - when.triggertimestamp) / 1000.0;
+			const DELAY = 2.0;
+
+			let sage = 1.0 - (Math.max(0, Math.min(DELAY, age)) / DELAY);
+			sage = sage*sage;
+			sage = 1.0 - sage;
+			ele2.style.background = "rgb("+(sage*255.0)+",255,"+(sage*255.0)+")";
+
 			let src = when.getSource();
 			let lineix = src.indexOf("\n");
 			if (lineix > 0) src = src.substring(0,lineix);
