@@ -852,7 +852,7 @@ Eden.DB.adminCommentActivity = function(newerthan, offset, cb) {
 		},
 		error: function(a, status, err){
 			Eden.DB.handleError(a,status,err);
-			if (cb) cb(false);
+			//if (cb) cb(false);
 		}
 	});
 }

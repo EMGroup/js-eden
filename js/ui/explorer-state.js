@@ -391,7 +391,8 @@ EdenUI.ExplorerState.prototype.updateTree = function() {
 	this.results.html("");
 
 	for (var x in tree) {
-		this.results.append(this.makeEntry(x, (this.capture) ? tree[x] : undefined, this.capture));
+		//this.results.append(this.makeEntry(x, (this.capture) ? tree[x] : undefined, this.capture));
+		this.results.append(this.makeEntry(x, undefined, this.capture));
 	}
 }
 
