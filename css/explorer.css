@@ -135,6 +135,10 @@ div.explore-entry.defined {
 	color: #00a000;
 }
 
+div.explore-entry.defined.error {
+	color: red;
+}
+
 div.explore-entry.active:after {
 	border-left: 2px solid #00e000;
 }

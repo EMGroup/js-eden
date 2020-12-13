@@ -49,6 +49,7 @@ function EdenSymbol(context, name) {
 	this.eager = false;			// Evaluate immediately on expire
 	this.scopecount = 0;
 	this.changed = true;
+	this.errored = false;
 
 	// need to keep track of who we subscribe to so
 	// that we can unsubscribe from them when our definition changes
@@ -230,6 +231,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 		if (!this.has_evaled) this.clearDynamicDependencies();
 		this.has_evaled = true;
 		this.scopecount = 0;
+		this.errored = false;
 
 		let oldval = cache.value;
 		cache.value = this.definition.call(this,this.context, scope, cache);
@@ -258,6 +260,7 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 		}
 		cache.value = undefined;
 		this.changed = true;
+		this.errored = true;
 	}
 	if (this.context) {
 		this.context.endEvaluation(this);
@@ -283,6 +286,21 @@ EdenSymbol.prototype.liteEvaluate = function (scope, cache) {
 	}*/
 	
 };
+
+EdenSymbol.prototype.isSourceOfUndefined = function() {
+	if (this.value() !== undefined) return false;
+
+	for (let o in this.dependencies) {
+		let sym = this.dependencies[o];
+		if (sym.cache.value === undefined) return false;
+	}
+	for (let o in this.dynamicDependencies) {
+		let sym = this.dynamicDependencies[o];
+		if (sym.cache.value === undefined) return false;
+	}
+
+	return true;
+}
 
 EdenSymbol.prototype.clearObservees = function () {
 	for (var name in this.observees) {

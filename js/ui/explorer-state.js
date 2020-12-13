@@ -359,12 +359,20 @@ EdenUI.ExplorerState.prototype.makeEntry = function(name, children, active) {
 	var sym = eden.root.symbols[name];
 	var missing = false;
 	var defined = false;
+	var err = sym.isSourceOfUndefined();
 	if (sym && sym.definition) defined = true;
 	if (!sym) missing = true;
 	//var svalue = sym.value();
 	//var value = (Array.isArray(svalue)) ? "[...]" : EdenUI.Highlight.html(Eden.edenCodeForValue(svalue, undefined, 2));
 	//var type = (sym.eden_definition) ? '<span class="eden-keyword">is</span>' : '<b>=</b>';
-	var ele = $('<div class="explore-entry'+((active) ? " active":"")+((missing) ? " missing":"")+((defined) ? " defined":"")+'" data-obs="'+name+'"><div class="explore-entry-inner"><span><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> </span><div class="symvalue"></div></div></div>');
+
+	let classes = "explore-entry";
+	if (active) classes += " active";
+	if (missing) classes += " missing";
+	if (defined) classes += " defined";
+	if (err) classes += " error";
+
+	var ele = $('<div class="'+classes+'" data-obs="'+name+'"><div class="explore-entry-inner"><span><span class="explore-entry-icon">&#xf067;</span><span class="explore-observable">'+name+'</span> </span><div class="symvalue"></div></div></div>');
 	var valele = ele.find(".symvalue").get(0);
 	//if (defined && sym.origin) ele.get(0).title = sym.origin.getSource();
 	this.updateEntry(sym, valele);
