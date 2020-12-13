@@ -419,3 +419,13 @@ div.loadmessage {
   }
 }
 
+
+a.ui-dialog-titlebar-maximize {
+	background: #eee;
+	border: 1px solid #bbb;
+}
+
+a.ui-dialog-titlebar-minimize {
+	background: #eee;
+	border: 1px solid #bbb;
+}
