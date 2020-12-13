@@ -78,6 +78,18 @@ describe("Execution of Observable Assignments", () => {
 		expect(eden.get("a")).toEqual("hello");
 	});
 
+	test("assign to a dereference", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 2; b = &a; *b = 5;");
+		expect(eden.get("a")).toBe(5);
+	});
+
+	test("assign to a dereference inside list", async () => {
+		let eden = new Eden();
+		await eden.exec("a = 2; b = [2,&a]; *(b[2]) = 5;");
+		expect(eden.get("a")).toBe(5);
+	});
+
 });
 
 describe("Execution of Observable Definitions", () => {

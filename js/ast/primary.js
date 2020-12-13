@@ -224,7 +224,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		}
 
 		res = "\""+this.observable+"\"";
-		varscandidate = options.indef; // && scope == "scope";
+		//varscandidate = options.indef; // && scope == "scope";
 	}
 
 	if (this.attrib.length === 0) {

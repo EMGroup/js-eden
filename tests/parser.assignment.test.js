@@ -107,3 +107,26 @@ describe("Assignment to observable", () => {
 	});
 
 });
+
+describe("Assignment to dereferences lvalue", () => {
+
+	test("assign a numeric literal", () => {
+		var ast = Eden.AST.parseStatement("*x = 5;");
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("assignment");
+		expect(ast.lvalue.primary.type).toEqual("unaryop");
+	});
+
+	test("assign a numeric literal to list symbol", () => {
+		var ast = Eden.AST.parseStatement("*(x[1]) = 5;");
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("assignment");
+		expect(ast.lvalue.primary.type).toEqual("unaryop");
+		expect(ast.lvalue.primary.r.type).toEqual("indexed");
+	});
+
+});

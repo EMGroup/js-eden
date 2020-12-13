@@ -168,7 +168,7 @@ Eden.AST.transpileExpressionNode = function(node, scope, state) {
 		symbol: state.symbol,
 		bound: false,
 		scope: scope,
-		indef: (state.statement && state.statement == "definition")
+		indef: (state.statement && state.statement.type === "definition")
 	};
 
 	if (!scope) console.warn("Missing scope in transpile",node);

@@ -125,10 +125,11 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 	} else if (this.op == "-") {
 		res = "-("+r+")";
 	} else if (this.op == "*") {
-		//res = r + ".value("+scope+")";
-		//res = "rt.deref(" + r + ", " + scope + ")";
-		res = "this.subscribeDynValue(0, " + r + ", "+scope+")";
-		//ctx.backtickCount++;
+		if (options.indef) {
+			res = "this.subscribeDynValue(0, " + r + ", "+scope+")";
+		} else {
+			res = r;
+		}
 	}
 
 	return res;
