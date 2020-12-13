@@ -256,13 +256,13 @@ EdenUI.Highlight.prototype.START = function() {
 						this.classes.push("builtin");
 						break;
 
-	case "{"		:	if (this.prevtoken == "OBSERVABLE" && this.prevprevtoken != "action" && this.prevprevtoken != "func" && this.prevprevtoken != "proc" && this.prevprevtoken != "]") {
+	/*case "{"		:	if (this.prevtoken == "OBSERVABLE" && this.prevprevtoken != "action" && this.prevprevtoken != "func" && this.prevprevtoken != "proc" && this.prevprevtoken != "]") {
 							this.pushMode();
 							this.mode = "STARTBACKTICK";
 							this.classes.push("builtin");
 						} else {
 							this.classes.push("operator");
-						} break;
+						} break;*/
 	default			:	if (this.type == "keyword") {
 							if (edenBuiltin[this.token]) this.classes.push("builtin");
 							else this.classes.push("keyword");
@@ -393,7 +393,8 @@ EdenUI.Highlight.prototype.STARTBACKTICK = function() {
 	this.lineelement.appendChild(nline);
 	this.lineelement = nline;
 	this.mode = "BACKTICK";
-	this.START();
+	if (this.cs3) this.classes.push("string");
+	//this.START();
 }
 
 EdenUI.Highlight.prototype.BACKTICK = function() {
@@ -401,10 +402,20 @@ EdenUI.Highlight.prototype.BACKTICK = function() {
 		this.classes.push("builtin");
 		this.popMode();
 		this.popLine();
-	} else if (this.token == "}") {
+	} else if (this.token === "{") {
+		this.classes.push("builtin");
+		this.pushMode();
+		this.mode = "BTICKEXPR";
+	} else {
+		if (this.cs3) this.classes.push("string");
+	}
+}
+
+EdenUI.Highlight.prototype.BTICKEXPR = function() {
+	if (this.token == "}") {
 		this.classes.push("builtin");
 		this.popMode();
-		this.popLine();
+		//this.popLine();
 	} else {
 		this.START();
 	}
