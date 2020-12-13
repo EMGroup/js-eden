@@ -90,6 +90,26 @@ describe("Execution of Observable Assignments", () => {
 		expect(eden.get("a")).toBe(5);
 	});
 
+	test("syntax error generates exception", async () => {
+		let eden = new Eden();
+		expect.assertions(1);
+		await eden.exec("a = 5").catch(e => {
+			expect(e).toBeTruthy();
+		});
+	});
+
+});
+
+describe("Execution of execute statement", () => {
+
+	test("fails with syntax error", async () => {
+		let eden = new Eden();
+		const errcb = jest.fn();
+		eden.listenTo("error", null, errcb);
+		await eden.exec('execute("a = 5");');
+		expect(errcb).toHaveBeenCalled();
+	});
+
 });
 
 describe("Execution of Observable Definitions", () => {
