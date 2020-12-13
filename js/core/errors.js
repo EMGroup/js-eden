@@ -762,7 +762,7 @@ Eden.RuntimeError.ASSERTTYPE = 20;
 
 Eden.RuntimeError.prototype.messageText = function() {
 	var msg = (this.statement && (this.statement.type == "functioncall" || this.statement.type == "definition" || this.statement.type == "assignment")) ? "'" + this.statement.lvalue.name + "': " : "";
-	if (!this.statement && this.context && this.context.currentObservables.length > 0) {
+	if (!this.statement && this.context && this.context.currentObservables && this.context.currentObservables.length > 0) {
 		msg = this.context.currentObservables[this.context.currentObservables.length-1].name + ": ";
 	}
 
