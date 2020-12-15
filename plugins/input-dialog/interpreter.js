@@ -174,6 +174,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var tab_queries = [];
 		var tab_frags = [];
 		//var readonly = false;
+		var tab_state = {};
 
 		var obs_tabix = "view_"+name+"_current";
 		var obs_showtabs = "view_"+name+"_showtabs";
@@ -239,12 +240,32 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 		readonlySym.addJSObserver("scriptview_"+name, readonlyChange);
 		readonlyChange(readonlySym, readonlySym.value());
+
+		function saveTabState() {
+			tab_state[curtab] = {selStart: scriptarea.intextarea.selectionStart, selEnd: scriptarea.intextarea.selectionEnd, scroll: inputhider.scrollTop};
+		}
+
+		function restoreTabState() {
+			if (tab_state.hasOwnProperty(curtab)) {
+				let s = tab_state[curtab];
+				scriptarea.intextarea.focus();
+				scriptarea.intextarea.selectionStart = s.selEnd;
+				scriptarea.intextarea.selectionEnd = s.selEnd;
+				scriptarea.updateLineHighlight();
+				inputhider.scrollTop = s.scroll;
+			}
+		}
+
+		var needsTabRestore = false;
 		
 
 		function curChanged(sym, value) {
 			if (typeof value == "number" && value >= 0 && value < tab_frags.length) {
 				if (curtab != value) {
+					saveTabState();
 					curtab = value;
+					needsTabRestore = true;
+
 					scriptarea.setFragment(tab_frags[curtab]);
 					if (scriptarea.fragment.originast && scriptarea.fragment.originast.doxyComment && scriptarea.fragment.originast.doxyComment.getProperty("nobuttons")) {
 						showButtonsSym.assign(false, eden.root.scope, EdenSymbol.localJSAgent);
@@ -257,6 +278,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 				// Show the script browser
 				if (value == -1) {
+					saveTabState();
 					curtab = -1;
 					scriptarea.setFragment(undefined);
 					browseScripts("");
@@ -333,6 +355,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					updateControls();
 					//scriptarea.setFragment(tab_frags[curtab]);
 					scriptarea.refresh();
+				}
+				
+				if (needsTabRestore) {
+					needsTabRestore = false;
+					restoreTabState();
 				}
 			}
 		});

@@ -241,7 +241,9 @@ EdenUI.ExplorerDebug = function(element) {
 			debug_speed = e.currentTarget.value;
 			console.log("Change speed: " + debug_speed);
 		}).on("click", ".record", function(e) {
-			Eden.AST.logging = true;
+			Eden.AST.logging = !Eden.AST.logging;
+			if (Eden.AST.logging) e.currentTarget.className = "debugger-button record active";
+			else e.currentTarget.className = "debugger-button record";
 		});
 		script.on("click",".debugger-agent", function(e) {
 			if (active_agent) active_agent.html.get(0).className = "debugger-agent";
