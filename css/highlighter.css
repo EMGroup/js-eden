@@ -405,7 +405,7 @@ div.eden-line.script {
 
 div.eden-line.comment {
 	margin-left: -5px;
-	line-height: 1.4em;
+	line-height: initial;
 }
 
 div.eden-customline {
