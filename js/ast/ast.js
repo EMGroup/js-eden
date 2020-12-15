@@ -236,6 +236,7 @@ Eden.AST.executeExpressionNode = function(node, scope, state) {
 
 // Debug controls
 Eden.AST.debug = false;
+Eden.AST.logging = false;
 Eden.AST.debugstep = false;
 Eden.AST.debugstep_cb = undefined;
 Eden.AST.debugspeed = 500;

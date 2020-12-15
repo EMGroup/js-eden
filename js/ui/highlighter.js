@@ -810,6 +810,7 @@
 	}
 
 	EdenUI.Highlight.htmlElement = function(str, ele) {
+		if (!str) return;
 		var hlighter = new EdenUI.Highlight(ele);
 		hlighter.ast = {stream: new Eden.EdenStream(str)};
 		hlighter.highlight(hlighter.ast,-1,-1,undefined);

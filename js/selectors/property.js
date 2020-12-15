@@ -76,6 +76,7 @@ Eden.Selectors.PropertyNode.attributes = {
 	"determines": {local: false,	indexed: false, rank: 4},	// Only immediate subscribers
 	"time":		{local: true,	indexed: false, rank: 3},
 	"date":		{local: false,	indexed: false,	rank: 3},
+	"locked":	{local: true,	indexed: false,	rank: 3},
 	"title":	{local: false,	indexed: false, rank: 10},
 	"warning":	{local: false,	indexed: false, rank: 10},
 	"author":	{local: false,	indexed: false, rank: 10},
@@ -201,6 +202,10 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements) {
 
 		case ".warning"	:	return (statements.filter(function(stat) {
 								return stat.warning
+							})); return;
+
+		case ".locked"	:	return (statements.filter(function(stat) {
+								return stat.lock > 0;
 							})); return;
 
 		case ".datatype":	return (statements.filter(function(stat) {

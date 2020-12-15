@@ -92,7 +92,7 @@ EdenUI.ScriptBox = function(element, options) {
 			$(me.outdiv).find(".fake-caret").remove();
 			me.$codearea.append($('<div class="scriptbox-historic">'+me.outdiv.innerHTML+'</div>'));
 
-			me.ast.execute(EdenUI.ScriptBox.consoleAgent, function(res) {
+			me.ast.execute(EdenUI.ScriptBox.consoleAgent, eden.root.scope, function(res) {
 				let result = (res) ? res : me.ast.lastresult;
 				if (result !== undefined) {
 					if (result instanceof Promise) {
