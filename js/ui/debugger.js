@@ -39,12 +39,15 @@ EdenUI.ExplorerDebug = function(element) {
 			let ts = Date.now();
 			if (ts > data.lasttime+2000) {
 				let ele = document.createElement('DIV');
-				EdenUI.Highlight.htmlElement("\n/* Logging " + (new Date(ts)).toString() + " */\n", ele);
+				EdenUI.Highlight.htmlElement("\n/* " + (new Date(ts)).toString() + " */\n", ele);
 				script[0].appendChild(ele);
 				data.lasttime = ts;
 			}
+
+			let pname = s.getLocationName();
+
 			let ele = document.createElement('DIV');
-			EdenUI.Highlight.htmlElement(s.getSource(), ele);
+			EdenUI.Highlight.htmlElement(s.getSource() + "  /* " + pname + " */", ele);
 			script[0].appendChild(ele);
 			script[0].scrollTop = script[0].scrollHeight;
 		});

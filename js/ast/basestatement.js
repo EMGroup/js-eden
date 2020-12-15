@@ -49,6 +49,20 @@ Eden.AST.BaseStatement.setDoxyComment = function(doxy) {
 	}
 }
 
+Eden.AST.BaseStatement.getLocationName = function() {
+	let p = this.parent;
+	while (p && !p.name) p = p.parent;
+	if (p && p.name) {
+		if (p.name == "*When") {
+			let pp = p.getLocationName();
+			return pp + " > when";
+		} else {
+			return p.name;
+		}
+	}
+	return "*unknown*";
+}
+
 Eden.AST.BaseStatement.buildID = function() {
 	var hash = 0;
 	var ch;

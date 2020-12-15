@@ -153,7 +153,7 @@ Eden.AST.When.prototype.trigger = function(scope, ts) {
 		this.triggercount++;
 
 		if (this.triggercount > 1000) {
-			if (this.name == "*When" && this.parent && this.parent.name) this.name = this.parent.name + ">when";
+			//if (this.name == "*When" && this.parent && this.parent.name) this.name = this.parent.name + ">when";
 			this.enabled = false;
 			var err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.INFINITEWHEN, this);
 			this.errors.push(err);
