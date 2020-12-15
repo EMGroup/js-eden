@@ -88,6 +88,13 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 	var rhs;
 	var name = (this.lvalue && this.lvalue.name) ? "def_"+this.lvalue.name : "";
 
+	// Identical definitions are a nop so save time
+	if (this === sym.origin) {
+		//console.log("Identical def", this.getSource());
+		// TODO: But should the symbol be expired?
+		return;
+	}
+
 	// FIXME: Also dynamic if a local variable is a dependency.
 	var isdynamic = this.lvalue.isDynamic() || this.expression.isdependant;
 
