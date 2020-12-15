@@ -464,7 +464,7 @@ EdenSymbol.prototype.define = function (definition, origin, subscriptions, sourc
 		this.context.expireEdenSymbol(this);
 	}
 
-	if (Eden.AST.logging && origin) {
+	if (Eden.logging && origin) {
 		if (origin.type === "assignment" || origin.type === "definition" || origin.type === "modify") {
 			this.context.instance.emit("debug_log", [origin]);
 		}
@@ -584,7 +584,7 @@ EdenSymbol.prototype.assign = function (value, scope, origin) {
 		this.context.expireEdenSymbol(this);
 	}
 
-	if (Eden.AST.logging && origin) {
+	if (Eden.logging && origin) {
 		if (origin.type === "assignment" || origin.type === "definition" || origin.type === "modify") {
 			this.context.instance.emit("debug_log", [origin]);
 		}

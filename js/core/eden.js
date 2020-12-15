@@ -261,6 +261,8 @@
 		Eden.Utils = Utils;
 	}
 
+	Eden.logging = false;
+
 	Eden.create = function() {
 		return new Promise((resolve,reject) => {
 			let eden = new Eden();
