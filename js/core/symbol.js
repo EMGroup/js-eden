@@ -119,6 +119,10 @@ EdenSymbol.prototype.getStartLine = function(relative) {
 	return (this.origin) ? this.origin.getStartLine(relative) : -1;
 }
 
+EdenSymbol.prototype.getLocationName = function() {
+	return (this.origin) ? this.origin.getLocationName() : "ACTIVE";
+}
+
 EdenSymbol.prototype.getASTOrigin = function() {
 	if (this.origin) {
 		var p = this.origin;

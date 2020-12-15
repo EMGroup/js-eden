@@ -45,6 +45,7 @@ EdenUI.ExplorerDebug = function(element) {
 			}
 
 			let pname = s.getLocationName();
+			if (pname == "*unknown*") console.warn("Unknown", s);
 			if (data.lastloc !== pname) {
 				let ele = document.createElement('DIV');
 				EdenUI.Highlight.htmlElement("\n## " + pname + " \n", ele);

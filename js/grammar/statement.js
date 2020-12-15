@@ -198,11 +198,18 @@ Eden.AST.prototype.pSTATEMENT_PP = function(allowrange) {
  * STATEMENT' -> LVALUE STATEMENT''
  */
 Eden.AST.prototype.pSTATEMENT_P = function(allowrange) {
+	var start = this.stream.prevposition;
 	var lvalue = this.pLVALUE();
 	if (lvalue.errors.length > 0) return lvalue;
 	var formula = this.pSTATEMENT_PP(allowrange);
 	formula.left(lvalue);
 	if (formula.errors.length > 0) return formula;
+
+	var end = this.lastposition;
+	var srcstr = this.stream.code.substring(start,end);
+	formula.setSource(start, end, srcstr);
+	formula.parent = this.parent;
+
 	return formula;
 };
 
