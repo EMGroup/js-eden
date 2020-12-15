@@ -69,6 +69,7 @@ div.debugger-agents {
 	bottom: 0;
 	font-size: 0.8em;
 	line-height: 1.3em !important;
+	padding-left: 15px;
 }
 
 div.debugger-agent {

@@ -115,6 +115,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 
 		// FIXME: Check for errors
 		stat.generated = this;
+		stat.parent = this.parent;
 		stat.addIndex();
 
 		// Third, execute that node.

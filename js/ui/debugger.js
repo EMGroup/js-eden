@@ -33,7 +33,7 @@ EdenUI.ExplorerDebug = function(element) {
 			updateScript();
 		});*/
 
-		var data = {lasttime: 0};
+		var data = {lasttime: 0, lastloc: ""};
 
 		eden.listenTo("debug_log", null, (s) => {
 			let ts = Date.now();
@@ -45,9 +45,15 @@ EdenUI.ExplorerDebug = function(element) {
 			}
 
 			let pname = s.getLocationName();
+			if (data.lastloc !== pname) {
+				let ele = document.createElement('DIV');
+				EdenUI.Highlight.htmlElement("\n## " + pname + " \n", ele);
+				script[0].appendChild(ele);
+				data.lastloc = pname;
+			}
 
 			let ele = document.createElement('DIV');
-			EdenUI.Highlight.htmlElement(s.getSource() + "  /* " + pname + " */", ele);
+			EdenUI.Highlight.htmlElement(s.getSource(), ele); // + "  /* " + pname + " */", ele);
 			script[0].appendChild(ele);
 			script[0].scrollTop = script[0].scrollHeight;
 		});
@@ -242,8 +248,10 @@ EdenUI.ExplorerDebug = function(element) {
 			console.log("Change speed: " + debug_speed);
 		}).on("click", ".record", function(e) {
 			Eden.AST.logging = !Eden.AST.logging;
-			if (Eden.AST.logging) e.currentTarget.className = "debugger-button record active";
-			else e.currentTarget.className = "debugger-button record";
+			if (Eden.AST.logging) {
+				e.currentTarget.className = "debugger-button record active";
+				script[0].innerHTML = "";
+			} else e.currentTarget.className = "debugger-button record";
 		});
 		script.on("click",".debugger-agent", function(e) {
 			if (active_agent) active_agent.html.get(0).className = "debugger-agent";

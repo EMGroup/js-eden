@@ -60,6 +60,7 @@ Eden.AST.BaseStatement.getLocationName = function() {
 			return p.name;
 		}
 	}
+
 	return "*unknown*";
 }
 

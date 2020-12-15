@@ -74,6 +74,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 								var lit = Eden.AST.executeExpressionNode(statement.literal, statement.nscope, state);
 								var scriptast = Eden.AST.parseScript(lit, statement);
 								if (scriptast && scriptast.errors.length > 0) throw scriptast.errors[0];
+								scriptast.parent = statement;
 								statement.statements = (scriptast) ? scriptast.statements : [];
 								//console.log("EXEC",statements[i].statements);
 							}
