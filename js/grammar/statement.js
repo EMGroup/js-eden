@@ -320,16 +320,16 @@ Eden.AST.prototype.pSTAT_RETURN = function() {
 			return ret;
 		}
 	} else {
-		this.next();
+		//this.next();
 		return ret;
 	}
 
-	if (this.token != ";") {
+	/*if (this.token != ";") {
 		ret.error(new Eden.SyntaxError(this,
 					Eden.SyntaxError.SEMICOLON));
 	} else {
 		this.next();
-	}
+	}*/
 
 	return ret;
 }
@@ -353,11 +353,11 @@ Eden.AST.prototype.pSTAT_OBSERVABLE = function(start) {
 		return stat;
 	}
 
-	if (this.token !== ";") {
+	/*if (this.token !== ";") {
 		formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 	} else {
 		this.next();
-	}
+	}*/
 
 	//if (this.definitions[lvalue.name] === undefined) this.definitions[lvalue.name] = [];
 	//this.definitions[lvalue.name].push(formula);
@@ -453,12 +453,12 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							break;
 						}
 
-						if (this.token != ";") {
+						/*if (this.token != ";") {
 							cont.error(new Eden.SyntaxError(this,
 										Eden.SyntaxError.SEMICOLON));
 						} else {
 							this.next();
-						}
+						}*/
 
 						stat = cont; break;
 	case "break"	:	this.next();
@@ -469,12 +469,12 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							break;
 						}
 
-						if (this.token != ";") {
+						/*if (this.token != ";") {
 							breakk.error(new Eden.SyntaxError(this,
 											Eden.SyntaxError.SEMICOLON));
 						} else {
 							this.next();
-						}
+						}*/
 
 						stat = breakk; break;
 	case "{"		:	this.next();
@@ -503,12 +503,12 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	case "?"		  : this.next();
 						expectssemi = true;
 						stat = this.pQUERY();
-						if (this.token !== ";") {
+						/*if (this.token !== ";") {
 							stat.error(new Eden.SyntaxError(this,
 											Eden.SyntaxError.SEMICOLON));
 						} else {
 							this.next();
-						}
+						}*/
 						break;
 	case "("		  :
 	case "`"		  :
@@ -525,11 +525,11 @@ Eden.AST.prototype.pSTATEMENT = function() {
 							lvalue.setObservable("__error__");
 							var formula = this.pSTATEMENT_PP();
 							formula.left(lvalue);
-							if (this.token !== ";") {
+							/*if (this.token !== ";") {
 								formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 							} else {
 								this.next();
-							}
+							}*/
 							stat = formula;
 							console.error("Recovery", stat);
 							break;
@@ -541,7 +541,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	if (stat.errors.length > 0 && stat.errors[stat.errors.length-1] !== this.last_error) {
 		this.last_error = stat.errors[stat.errors.length-1];
 		
-		if (expectssemi && this.token != ";") {
+		/*if (expectssemi && this.token != ";") {
 			if (this.options && this.options.autorecover) {
 				while (this.token != ";" && this.token != "EOF") {
 					//if (this.token == "EOF") break;
@@ -551,7 +551,11 @@ Eden.AST.prototype.pSTATEMENT = function() {
 			} else {
 				stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
 			}
-		}
+		}*/
+	}
+
+	if (this.token === ";") {
+		this.next();
 	}
 
 	//if (!this.warning && stat.warning) this.warning = stat.warning;
@@ -663,17 +667,17 @@ Eden.AST.prototype.pSTATEXPR = function() {
 								break;
 							}
 						} else {
-							this.next();
+							//this.next();
 							stat = ret;
 							break;
 						}
 
-						if (this.token != ";") {
+						/*if (this.token != ";") {
 							ret.error(new Eden.SyntaxError(this,
 										Eden.SyntaxError.SEMICOLON));
 						} else {
 							this.next();
-						}
+						}*/
 
 						stat = ret; break;
 	case "continue"	:	this.next();
@@ -683,12 +687,12 @@ Eden.AST.prototype.pSTATEXPR = function() {
 							break;
 						}
 
-						if (this.token != ";") {
+						/*if (this.token != ";") {
 							cont.error(new Eden.SyntaxError(this,
 										Eden.SyntaxError.SEMICOLON));
 						} else {
 							this.next();
-						}
+						}*/
 
 						stat = cont; break;
 	case "break"	:	this.next();
@@ -698,12 +702,12 @@ Eden.AST.prototype.pSTATEXPR = function() {
 							break;
 						}
 
-						if (this.token != ";") {
+						/*if (this.token != ";") {
 							breakk.error(new Eden.SyntaxError(this,
 											Eden.SyntaxError.SEMICOLON));
 						} else {
 							this.next();
-						}
+						}*/
 
 						stat = breakk; break;
 	case "{"		:	this.next();
@@ -742,20 +746,24 @@ Eden.AST.prototype.pSTATEXPR = function() {
 							break;
 						}
 		
-						if (this.token != ";") {
+						/*if (this.token != ";") {
 							formula.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
-						} else {
+						} else {*/
 							// End source here to avoid bringing comments in
 							end = this.stream.position;
 							endline = this.stream.line;
-							this.next();
-						}
+							//this.next();
+						//}
 
 						if (this.definitions[lvalue.name] === undefined) this.definitions[lvalue.name] = [];
 						this.definitions[lvalue.name].push(formula);
 
 						stat = formula; break;
 	default : return undefined;
+	}
+
+	if (this.token === ";") {
+		this.next();
 	}
 	
 	stat.parent = this.parent;

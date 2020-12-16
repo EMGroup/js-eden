@@ -21,8 +21,8 @@ Eden.AST.prototype.pPARAMS = function() {
 		if (this.token == ";") {
 			this.next();
 		} else {
-			params.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PARAMSEMICOLON));
-			return params;
+			//params.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.PARAMSEMICOLON));
+			//return params;
 		}
 	}
 
@@ -61,10 +61,10 @@ Eden.AST.prototype.pLOCALS = function() {
 
 			if (this.token === ";") {
 				this.next();
-			} else {
+			} /*else {
 				locals.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.LOCALSEMICOLON));
 				return locals;
-			}
+			}*/
 		}
 	}
 

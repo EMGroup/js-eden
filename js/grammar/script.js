@@ -80,11 +80,11 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		//alias.setSelector(this.pCODESELECTOR());
 		alias.setName(name);
 
-		if (this.token !== ";") {
+		/*if (this.token !== ";") {
 			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 			return alias;
 		}
-		this.next();
+		this.next();*/
 
 		return alias;
 	} else if (this.token !== "{") {
@@ -201,8 +201,11 @@ Eden.AST.prototype.pSCRIPT = function() {
 			}*/
 			if (this.token === ";") {
 				this.next();
-			} else {
+			} else if (this.token !== "}") {
 				//this.next();
+				ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
+				break;
+			} else {
 				break;
 			}
 		}

@@ -12,11 +12,11 @@ Eden.AST.prototype.pWAIT = function() {
 		var express = this.pEXPRESSION();
 		wait.setDelay(express);
 
-		if (this.token != ";") {
+		/*if (this.token != ";") {
 			wait.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 			return wait;
-		}
-		this.next();
+		}*/
+		if (this.token === ";") this.next();
 	}
 	return wait;
 }

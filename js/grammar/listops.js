@@ -36,12 +36,12 @@ Eden.AST.prototype.pINSERT = function() {
 
 	if (this.token == ")") this.next();
 
-	if (this.token != ";") {
+	/*if (this.token != ";") {
 		insert.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return insert;
 	} else {
 		this.next();
-	}
+	}*/
 
 	return insert;
 }
@@ -76,12 +76,12 @@ Eden.AST.prototype.pDELETE = function() {
 
 	if (this.token == ")") this.next();
 
-	if (this.token != ";") {
+	/*if (this.token != ";") {
 		del.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return del;
 	} else {
 		this.next();
-	}
+	}*/
 
 	return del;
 }
@@ -116,12 +116,12 @@ Eden.AST.prototype.pAPPEND = function() {
 
 	if (this.token == ")") this.next();
 
-	if (this.token != ";") {
+	/*if (this.token != ";") {
 		append.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return append;
 	} else {
 		this.next();
-	}
+	}*/
 
 	return append;
 }
@@ -146,12 +146,12 @@ Eden.AST.prototype.pSHIFT = function() {
 
 	if (this.token == ")") this.next();
 
-	if (this.token != ";") {
+	/*if (this.token != ";") {
 		shif.error(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return shif;
 	} else {
 		this.next();
-	}
+	}*/
 
 	return shif;
 }

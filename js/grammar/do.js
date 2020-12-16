@@ -49,13 +49,13 @@ Eden.AST.prototype.pEXEC = function() {
 		w.setScope(this.pSCOPE());
 	}
 
-	if (this.token != ";") {
-		w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
-		this.parent = parent;
-		return w;
+	/*if (this.token != ";") {
+		//w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
+		//this.parent = parent;
+		//return w;
 	} else {
 		this.next();
-	}
+	}*/
 
 	this.parent = parent;
 	return w;
