@@ -24,7 +24,9 @@ Eden.Project = function(id, name, source, eden) {
 		//this.ast = null;
 
 		eden.exec("do lib:unexecuted; do lib > recovery;").then(r => {
-			eden.emit("error", [{name: "Project"}, this.ast.script.errors[0]]);
+			for (let i=0; i<this.ast.script.errors.length; ++i) {
+				eden.emit("error", [{name: "Project"}, this.ast.script.errors[i]]);
+			}
 		});
 
 		// Need to create a script view...

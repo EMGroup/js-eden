@@ -5059,10 +5059,47 @@ ${{
 	ele.style.position = "absolute";
 	ele.style.top = "0px";
 	ele.style.bottom = "0px";
-	ele.style.left = "20px";
-	ele.style.width = "90%";
+	ele.style.left = "80px";
+	ele.style.width = "calc(100% - 80px)";
+	ele.style.lineHeight = "20px";
+	ele.style.boxSizing = "border-box";
+	ele.style.fontSize = "11pt";
+	ele.style.paddingTop = "3px";
 	ele.value = eden.project.src;
-	document.getElementById("jseden-views").appendChild(ele);
+
+	let lines = eden.project.src.match(/\n/g).length;
+	let lineele = document.createElement("DIV");
+	for (let i=0; i<lines; ++i) {
+		let lineitem = document.createElement("DIV");
+		lineitem.textContent = "" + (i+1);
+		lineitem.style.paddingRight = "5px";
+
+		if (eden.project.ast.script.errors.length > 0) {
+			if (eden.project.ast.script.errors[0].line == (i+1)) {
+				lineitem.style.backgroundColor = "red";
+			}
+		}
+
+		lineele.appendChild(lineitem);
+	}
+	lineele.style.position = "absolute";
+	lineele.style.top = "0px";
+	lineele.style.bottom = "0px";
+	lineele.style.left = "0px";
+	lineele.style.width = "80px";
+	lineele.style.overflow = "hidden";
+	lineele.style.textAlign = "right";
+	lineele.style.lineHeight = "20px";
+	lineele.style.fontFamily = "mono";
+	lineele.style.fontSize = "11pt";
+
+	ele.addEventListener("scroll", (e) => {
+		lineele.scrollTop = ele.scrollTop;
+	});
+
+	let content = document.getElementById("jseden-views");
+	content.appendChild(lineele);
+	content.appendChild(ele);
 
 	alert("Recovery Mode: There was an error in your construal, please correct it in the text below and save again");
 
