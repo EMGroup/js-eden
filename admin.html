@@ -130,6 +130,7 @@
 			font-family: "FontAwesome";
 			/*color: gold;*/
 			width: 20px;
+			cursor: pointer;
 		}
 	</style>
 </head>
@@ -209,7 +210,7 @@
 					proresults.appendChild(ele);
 				}
 	
-				if (count < 15 && data.length > 0) addProjects(page+1);
+				if (count < 15 && data.length > 0) addProjects(page+1, cb);
 				else {
 					var ele = document.createElement("button");
 					ele.className = "more";
@@ -217,7 +218,7 @@
 					proresults.appendChild(ele);
 					ele.onclick = function() {
 						count = 5;
-						addProjects(page+1);
+						addProjects(page+1, cb);
 						proresults.removeChild(ele);
 					}
 
