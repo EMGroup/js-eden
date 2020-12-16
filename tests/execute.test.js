@@ -132,6 +132,20 @@ describe("Execution of execute statement", () => {
 		expect(errcb).toHaveBeenCalled();
 	});
 
+	test("continues with following statement", async () => {
+		let eden = new Eden();
+		await eden.exec('execute("a = 5"); b = 66;');
+		expect(eden.get("a")).toBe(5);
+		expect(eden.get("b")).toBe(66);
+	});
+
+	test("continues with following statement after error", async () => {
+		let eden = new Eden();
+		await eden.exec('execute("a = 5["); b = 66;');
+		expect(eden.get("a")).toBeUndefined();
+		expect(eden.get("b")).toBe(66);
+	});
+
 });
 
 describe("Execution of Observable Definitions", () => {
