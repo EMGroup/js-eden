@@ -64,11 +64,11 @@ describe("Assignment to observable", () => {
 		expect(ast.errors.length).toBeGreaterThan(0);
 	});
 
-	test("missing a semicolon is an error", () => {
+	test("missing a semicolon is not an error", () => {
 		var ast = Eden.AST.parseStatement('x = 5');
 
 		expect(ast).toBeTruthy();
-		expect(ast.errors.length).toBeGreaterThan(0);
+		expect(ast.errors).toHaveLength(0);
 	});
 
 	test("missing a backtick is an error", () => {

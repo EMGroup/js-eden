@@ -143,10 +143,13 @@ Eden.AST.prototype.pSCRIPT = function() {
 	if (dummy.numlines === null) dummy.numlines = 0;
 	else dummy.numlines = dummy.numlines.length;
 	ast.append(dummy);
-	var lastStat = dummy;	
+	var lastStat = dummy;
+	//var lpos = -10;
 
 	while (this.stream.valid()) {
+	//while (this.token !== "EOF") {
 		var statement = this.pSTATEMENT();
+		//lpos = this.stream.position;
 
 		if (statement !== undefined) {
 
@@ -209,6 +212,10 @@ Eden.AST.prototype.pSCRIPT = function() {
 				break;
 			}
 		}
+	}
+
+	if (this.token !== "}" && this.token !== "EOF") {
+		ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
 	}
 
 	// To make sure it gets indexed later...
