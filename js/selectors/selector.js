@@ -239,6 +239,13 @@ Eden.Selectors.expressionToLists = function(expr) {
 			res.push(Eden.Selectors.expressionToLists(expr.extras[i]));
 		}
 		return res;
+	} else if (expr.type == "indexed") {
+		var res = ["indexed"];
+		res.push(Eden.Selectors.expressionToLists(expr.expression));
+		for (var i=0; i<expr.indexes.length; i++) {
+			res.push(Eden.Selectors.expressionToLists(expr.indexes[i]));
+		}
+		return res;
 	}
 }
 

@@ -186,6 +186,8 @@ Eden.AST.prototype.pSCRIPT = function() {
 					lastStat = dummy;
 				}
 			}
+
+			if (statement.errors.length > 0) break;
 		} else {
 			/*if (this.depth > 0) {
 				this.depth--;
