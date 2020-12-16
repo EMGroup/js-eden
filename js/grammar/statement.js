@@ -207,6 +207,7 @@ Eden.AST.prototype.pSTATEMENT_P = function(allowrange) {
 
 	var end = this.lastposition;
 	var srcstr = this.stream.code.substring(start,end);
+	if (srcstr[srcstr.length-1] !== ";") srcstr += ";";
 	formula.setSource(start, end, srcstr);
 	formula.parent = this.parent;
 
