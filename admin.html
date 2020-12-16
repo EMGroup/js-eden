@@ -232,6 +232,12 @@
 				console.log(e);
 				let pid = parseInt(e.currentTarget.getAttribute("data-pid"));
 				console.log("EXPAND", projects[pid]);
+
+				for (var v of projects[pid]) {
+					let ele = document.createElement("DIV");
+					ele.innerHTML = '<div class="privacy">'+((v.readPassword === null) ? '' : '&#xf023;')+'</div><span class="feedback-author">'+v.name+'</span><a class="projectlink" href="index.html?load='+v.projectID+'&vid='+v.saveID+'&r='+v.readPassword+'">'+v.title+'</a><span class="feedback-date" title="'+v.date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+					e.currentTarget.parentNode.appendChild(ele);
+				}
 			});
 		});
 	});
