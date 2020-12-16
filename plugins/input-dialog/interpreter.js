@@ -414,12 +414,59 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			eden.execute("view_"+name+"_query is jseden_script_query;");
 		}
 
+		function makeScriptEntry(parent, node) {
+			let oele = document.createElement("DIV");
+			let ele = document.createElement("DIV");
+			oele.className = "explore-entry";
+			ele.className = "browse-entry";
+
+			let eles1 = document.createElement("SPAN");
+
+			let icon = "&#xf0f6;";
+			//Choose correct icon.
+			if (node === eden.project.ast.script) {
+				icon = "&#xf015;";
+			} else if (node.lock > 0) {
+				icon = "&#xf023;";
+			} else if (node.name === "ACTIVE") {
+				icon = "&#xf0e7;";
+			}
+
+			eles1.innerHTML = icon;
+			eles1.className = "browse-icon";
+			if (node.executed > 0) eles1.className += " executed";
+			ele.appendChild(eles1);
+
+			let eles2 = document.createElement("SPAN");
+			eles2.textContent = (node instanceof Eden.AST.Alias) ? node.name + "  [external]" : node.name;
+			ele.appendChild(eles2);
+
+			ele.setAttribute("data-path", Eden.Selectors.getID(node));
+			oele.appendChild(ele);
+
+			let subs = Object.keys(node.subscripts);
+			subs.sort();
+
+			for (var s of subs) {
+				let ss = node.subscripts[s];
+				if (ss.name && ss.subscripts) {
+					makeScriptEntry(oele, ss);
+				}
+			}
+
+			parent.appendChild(oele);
+		}
+
 		function browseScripts(path) {
 			if (path == "") path = "*";
 			var selector = eden.root.lookup("view_"+name+"_query").value();
 			if (selector === undefined) selector = ".type(script).name";
+
+			scriptarea.outdiv.innerHTML = "";
+			makeScriptEntry(scriptarea.outdiv, eden.project.ast.script);
+
 			//console.log("BROWSE",selector);
-			Eden.Selectors.query(selector, "path,name,remote,executed,type", {minimum: 0}, (scripts) => { //path + " .type(script).name:not(:remote)","id");
+			/*Eden.Selectors.query(selector, "path,name,remote,executed,type", {minimum: 0}, (scripts) => { //path + " .type(script).name:not(:remote)","id");
 				if (curtab != -1) return;
 
 				scriptarea.outdiv.innerHTML = "";
@@ -449,7 +496,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					var ele = $('<div class="browse-entry" data-path="'+scripts[i][0]+'"><div class="browse-icon'+iconclass+'">'+icon+'</div>'+nname+'</div>');
 					scriptarea.outdiv.appendChild(ele.get(0));
 				}
-			});
+			});*/
 
 			//var folder = {};
 		}
