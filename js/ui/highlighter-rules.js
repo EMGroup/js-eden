@@ -122,6 +122,7 @@ EdenUI.Highlight.prototype.START = function() {
 	case "NUMBER"	:	this.classes.push("number"); break;
 	case "STRING"	:	this.classes.push("string"); break;
 	case "BOOLEAN"	:	this.classes.push("constant"); break;
+	case "NATIVE"	:	this.classes.push("block-comment"); break;
 	case "'":			this.classes.push("string");
 						this.pushMode();
 						this.mode = "TEMPLATESTRING";

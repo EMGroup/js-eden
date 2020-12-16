@@ -66,6 +66,7 @@
 		this.mode = this.startmode;
 		this.incomment = false;
 		this.brline = (options && options.brline);
+		this.hidejs = (options && options.removejs) ? true : false;
 
 		this.custom = {};
 		this.current_custom = null;
@@ -390,6 +391,15 @@
 			prevtoken = token;
 			token = stream.readToken(this.incomment);
 
+			if (this.hidejs && token === "${{") {
+				stream.readJSToken();
+				//token = stream.readToken(this.incomment);
+				token = "NATIVE";
+				this.tokentext = "[[Native]]";
+			} else {
+				this.tokentext = stream.tokenText();
+			}
+
 			if (typeof token != "string") {
 				console.error("Token error: line = " + this.line + " position = " + stream.position);
 			}
@@ -424,7 +434,6 @@
 			this.prevprevtoken = prevprevtoken;
 			this.type = stream.tokenType(token);
 			this.classes = [];
-			this.tokentext = stream.tokenText();
 			this.lineelement = line;
 
 			// Is this token inside the error if there is one?
@@ -633,7 +642,7 @@
 			var lineelement = document.createElement('div');
 			lineelement.className = "eden-line";
 			//lineelement.style.top = "" + curtop + "px";
-			lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
+			lineelement.style.minHeight = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
 			lineelement.setAttribute("data-line",this.line-1);
 			//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
 			lineelement.appendChild(line);
@@ -642,7 +651,7 @@
 			var lineelement = document.createElement('div');
 			if (position >= stream.position) {
 				lineelement.className = "eden-line";
-				lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
+				lineelement.style.minHeight = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
 				lineelement.setAttribute("data-line",this.line-1);
 				var caret = document.createElement('span');
 				caret.className = "fake-caret";
@@ -809,10 +818,10 @@
 		}
 	}
 
-	EdenUI.Highlight.htmlElement = function(str, ele) {
+	EdenUI.Highlight.htmlElement = function(str, ele, options) {
 		if (!str) return;
-		var hlighter = new EdenUI.Highlight(ele);
+		var hlighter = new EdenUI.Highlight(ele, options);
 		hlighter.ast = {stream: new Eden.EdenStream(str)};
-		hlighter.highlight(hlighter.ast,-1,-1,undefined);
+		hlighter.highlight(hlighter.ast,-1,-1);
 	}
 }(typeof window !== 'undefined' ? window : global));

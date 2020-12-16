@@ -284,7 +284,13 @@ EdenUI.showTooltip = function (event, text) {
 	tooltip.style.left = x + "px";
 	tooltip.style.maxWidth = maxWidth + "px";
 	tooltip.style.top = y + "px";
-	tooltip.innerHTML = text;
+
+	if (typeof text === "string") {
+		tooltip.innerHTML = text;
+	} else {
+		tooltip.innerHTML = "";
+		tooltip.appendChild(text);
+	}
 	tooltip.style.display = "block";
 
 	let dialogs = $('.ui-front');

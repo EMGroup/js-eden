@@ -62,9 +62,10 @@ Eden.Fragment = function(selector, cb) {
 		});
 	
 		Eden.Fragment.listenTo("goto", this, function(ast, child) {
-			if (this.originast === ast) {
+			//console.log("GOTO",ast,me.originast);
+			if (me.originast === ast || (ast && me.originast.id === ast.id)) {
 				//console.log("Found goto",me);
-				console.log("Goto line", child.getStartLine(ast));
+				//console.log("Goto line", child.getStartLine(ast));
 				var line = child.getStartLine(ast);
 				Eden.Fragment.emit("gotoline", [me, line]);
 				return true;
