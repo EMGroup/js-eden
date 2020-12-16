@@ -125,6 +125,10 @@
 			width: 20px;
 		}
 
+		div.indented {
+			margin-left: 4em;
+		}
+
 		div.expand {
 			display: inline-block;
 			font-family: "FontAwesome";
@@ -236,7 +240,7 @@
 				for (var v of projects[pid]) {
 					let ele = document.createElement("DIV");
 					var t = v.date.split(/[- :]/);
-					ele.innerHTML = '<div class="privacy">'+((v.readPassword === null) ? '' : '&#xf023;')+'</div><span class="feedback-author">'+v.name+'</span><a class="projectlink" href="index.html?load='+v.projectID+'&vid='+v.saveID+'&r='+v.readPassword+'">'+v.title+'</a><span class="feedback-date" title="'+v.date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+					ele.innerHTML = '<div class="privacy indented">'+((v.readPassword === null) ? '' : '&#xf023;')+'</div><a class="projectlink" href="index.html?load='+v.projectID+'&vid='+v.saveID+'&r='+v.readPassword+'">Version '+v.saveID+'</a><span class="feedback-date" title="'+v.date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
 					e.currentTarget.parentNode.appendChild(ele);
 				}
 			});
