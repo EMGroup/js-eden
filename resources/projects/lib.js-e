@@ -5064,7 +5064,7 @@ ${{
 	ele.style.lineHeight = "20px";
 	ele.style.boxSizing = "border-box";
 	ele.style.fontSize = "11pt";
-	ele.style.paddingTop = "3px";
+	ele.style.whiteSpace = "pre";
 	ele.value = eden.project.src;
 
 	let lines = eden.project.src.match(/\n/g).length;
@@ -5074,8 +5074,8 @@ ${{
 		lineitem.textContent = "" + (i+1);
 		lineitem.style.paddingRight = "5px";
 
-		if (eden.project.ast.script.errors.length > 0) {
-			if (eden.project.ast.script.errors[0].line == (i+1)) {
+		for (let j=0; j<eden.project.ast.script.errors.length; ++j) {
+			if (eden.project.ast.script.errors[j].line == (i+1)) {
 				lineitem.style.backgroundColor = "red";
 			}
 		}
@@ -5092,6 +5092,7 @@ ${{
 	lineele.style.lineHeight = "20px";
 	lineele.style.fontFamily = "mono";
 	lineele.style.fontSize = "11pt";
+	lineele.style.paddingTop = "3px";
 
 	ele.addEventListener("scroll", (e) => {
 		lineele.scrollTop = ele.scrollTop;
