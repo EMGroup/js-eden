@@ -205,7 +205,7 @@
 					ele.className = "project-result";
 					var t = data[i].date.split(/[- :]/);
 
-					ele.innerHTML = '<div class="expand" data-pid="'+data[i].projectID+'">&#xf011;</div><div class="privacy">'+((data[i].readPassword === null) ? '' : '&#xf023;')+'</div><span class="feedback-author">'+data[i].name+'</span><a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'&r='+data[i].readPassword+'">'+data[i].title+'</a><span class="feedback-date" title="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+					ele.innerHTML = '<div class="expand" data-pid="'+data[i].projectID+'">&#xf067;</div><div class="privacy">'+((data[i].readPassword === null) ? '' : '&#xf023;')+'</div><span class="feedback-author">'+data[i].name+'</span><a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'&r='+data[i].readPassword+'">'+data[i].title+'</a><span class="feedback-date" title="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
 					proresults.appendChild(ele);
 				}
 	
@@ -226,7 +226,8 @@
 
 		addProjects(0);
 
-		$('.expand').click((e) => {
+		$('div.expand').click((e) => {
+			console.log(e);
 			let pid = parseInt(e.currentTarget.getAttribute("data-pid"));
 			console.log("EXPAND", projects[pid]);
 		});
