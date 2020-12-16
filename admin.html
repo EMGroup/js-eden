@@ -186,7 +186,7 @@
 
 		var count = 0;
 
-		function addProjects(page) {
+		function addProjects(page, cb) {
 			Eden.DB.adminProjectActivity(undefined, page*30, function(data) {
 				var proresults = document.getElementById("projectlog");
 
@@ -220,16 +220,18 @@
 						addProjects(page+1);
 						proresults.removeChild(ele);
 					}
+
+					if (cb) cb();
 				}
 			});
 		}
 
-		addProjects(0);
-
-		$('div.expand').click((e) => {
-			console.log(e);
-			let pid = parseInt(e.currentTarget.getAttribute("data-pid"));
-			console.log("EXPAND", projects[pid]);
+		addProjects(0, () => {
+			$('div.expand').click((e) => {
+				console.log(e);
+				let pid = parseInt(e.currentTarget.getAttribute("data-pid"));
+				console.log("EXPAND", projects[pid]);
+			});
 		});
 	});
 </script>
