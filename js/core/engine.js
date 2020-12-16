@@ -75,7 +75,9 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 								var scriptast = Eden.AST.parseScript(lit, statement);
 								if (scriptast && scriptast.errors.length > 0) {
 									//throw scriptast.errors[0];
-									scope.context.instance.emit("error", [agent, scriptast.errors[0]]);
+									let err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.EXECUTESYNTAX, statement, '"'+lit+'" - ' + scriptast.errors[0].messageText());
+									err.line = statement.line;
+									scope.context.instance.emit("error", [statement.parent, err]);
 									statement.statements = [];
 								} else {
 									if (scriptast) scriptast.parent = statement.parent;

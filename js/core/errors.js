@@ -759,6 +759,7 @@ Eden.RuntimeError.NOTCHILD = 17;
 Eden.RuntimeError.INFINITEWHEN = 18;
 Eden.RuntimeError.ASSERTVALID = 19;
 Eden.RuntimeError.ASSERTTYPE = 20;
+Eden.RuntimeError.EXECUTESYNTAX = 21;
 
 Eden.RuntimeError.prototype.messageText = function() {
 	var msg = (this.statement && (this.statement.type == "functioncall" || this.statement.type == "definition" || this.statement.type == "assignment")) ? "'" + this.statement.lvalue.name + "': " : "";
@@ -775,6 +776,7 @@ Eden.RuntimeError.prototype.messageText = function() {
 	case Eden.RuntimeError.PROCAGENT		:
 	case Eden.RuntimeError.ARGUMENTS		:
 	case Eden.RuntimeError.EXTENDSTATIC		: return msg + this.extra;
+	case Eden.RuntimeError.EXECUTESYNTAX	: return "Execute: " + this.extra;
 	case Eden.RuntimeError.ASSERTVALID		: return msg + "Assert - " + this.extra;
 	case Eden.RuntimeError.ASSERTTYPE		: return msg + "bad type - " + this.extra;
 	case Eden.RuntimeError.ASSIGNTODEFINED	: return msg + "cannot assign to a defined list, use 'is'";
