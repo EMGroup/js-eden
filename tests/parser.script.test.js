@@ -10,4 +10,18 @@ describe("Script Parsing", () => {
 		expect(ast.type).toEqual("script");
 	});
 
+	test("allow empty scripts", () => {
+		var ast = Eden.AST.parseScript("");
+
+		expect(ast).toBeFalsy();
+	});
+
+	test("allow empty statements", () => {
+		var ast = Eden.AST.parseScript(";");
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("script");
+	});
+
 });

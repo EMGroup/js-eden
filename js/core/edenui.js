@@ -293,10 +293,13 @@ EdenUI.showTooltip = function (event, text) {
 	}
 	tooltip.style.display = "block";
 
-	let dialogs = $('.ui-front');
+	let dialogs = document.querySelectorAll('.ui-front');
 	let zindex = 0;
 	for (var i=0; i<dialogs.length; ++i) {
-		if (dialogs[i].style.zIndex > zindex) zindex = dialogs[i].style.zIndex;
+		if (dialogs[i].style.display === "none") continue;
+		let z = dialogs[i].style.zIndex;
+		if (typeof z === "string") z = parseInt(z);
+		if (z > zindex) zindex = z;
 	}
 
 	tooltip.style.zIndex = Math.max(zindex,10000)+1;
