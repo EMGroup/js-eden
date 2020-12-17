@@ -484,7 +484,7 @@
 		}
 		var e = Eden.AST.parseExpression(expr);
 		if (e.errors.length > 0) {
-			console.error(e.errors[0]);
+			//console.error(e.errors[0]);
 			this.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
 			return undefined;
 		}

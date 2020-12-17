@@ -206,7 +206,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 			}*/
 			if (this.token === ";") {
 				this.next();
-			} else if (this.token !== "}") {
+			} else if (this.token !== "}" && this.token !== "EOF") {
 				//this.next();
 				ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
 				break;
@@ -216,7 +216,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 		}
 	}
 
-	if (this.token !== "}" && this.token !== "EOF") {
+	if (this.token !== "}" && this.token !== "EOF" && this.token !== ";") {
 		ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
 	}
 

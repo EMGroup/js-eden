@@ -17,6 +17,7 @@ describe("Script Parsing", () => {
 	});
 
 	test("allow empty statements", () => {
+		console.log("Allow empty stat");
 		var ast = Eden.AST.parseScript(";");
 
 		expect(ast).toBeTruthy();
