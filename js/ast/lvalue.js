@@ -115,9 +115,12 @@ Eden.AST.LValue.prototype.getSymbol = function(ctx, base, scope) {
 	if (this.express) {
 		//console.log(this.express);
 		var name = this.express.execute(ctx,base,scope);
-		var sym = scope.context.lookup(name);
+		if (Eden.isValidIdentifier(name)) {
+			return scope.context.lookup(name);
+		}
 
-		return sym;
+		//return undefined;
+		throw new Eden.RuntimeError(scope.context, Eden.RuntimeError.IDENTIFIER, this, "Bad identifier - " + name);
 	}
 }
 

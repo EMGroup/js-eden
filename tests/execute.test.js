@@ -120,6 +120,14 @@ describe("Execution of lvalue forms", () => {
 		expect(eden.get("testa")).toEqual([1,88,3]);
 	});
 
+	test("fails when bad identifier", async () => {
+		let eden = new Eden();
+		const errcb = jest.fn();
+		eden.listenTo("error", null, errcb);
+		await eden.exec('execute("`a,,` = 5;");');
+		expect(errcb).toHaveBeenCalled();
+	});
+
 });
 
 describe("Execution of execute statement", () => {

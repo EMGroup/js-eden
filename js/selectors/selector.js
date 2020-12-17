@@ -198,7 +198,8 @@ Eden.Selectors.resultTypes = {
 	"string": true,
 	"object": true,
 	"list": true,
-	"boolean": true
+	"boolean": true,
+	"datatype": true
 };
 
 Eden.Selectors.expressionToLists = function(expr) {

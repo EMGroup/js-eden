@@ -531,6 +531,7 @@ Eden.AST.registerStatement = function(stat) {
 	stat.prototype.removeSubscriber = Eden.AST.BaseStatement.removeSubscriber;
 	stat.prototype.getEdenCode = Eden.AST.BaseStatement.getEdenCode;
 	stat.prototype.getLocationName = Eden.AST.BaseStatement.getLocationName;
+	stat.prototype.attribute = Eden.AST.BaseStatement.attribute;
 }
 
 Eden.AST.registerScript = function(stat) {

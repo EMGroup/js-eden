@@ -21,6 +21,97 @@ Eden.AST.BaseStatement = function() {
 	this.dependencies = Object.create(null);
 }
 
+Eden.AST.BaseStatement.attribute = function(name, scope) {
+	let val;
+
+	switch(name) {
+	case "ast"		:	val = this; break;
+	case "brief"	:	if (this.doxyComment) {
+							val = this.doxyComment.brief();
+						} break;
+	case "comment"	:	if (this.doxyComment) {
+							val = this.doxyComment.stripped();
+						} break;
+	case "source"	:	val = this.getSource();
+						break;
+	case "innersource"	:	if (this.type === "script") {
+								val = this.getInnerSource();
+							} else if (this.type === "custom") {
+								val = this.text;
+							} else {
+								val = this.getSource();
+							} break;
+	case "outersource"	:	val = (this.type === "script") ? this.getOuterSource() : this.getSource();
+							break;
+	case "exprtree"	:	if (this.expression) val = Eden.Selectors.expressionToLists(this.expression);
+						break;
+	case "expression":	if (this.expression && this.lvalue && this.lvalue.source) {
+							val = this.getSource().substr(this.lvalue.source.length).trim();
+							if (this.type === "definition") val = val.substring(2,val.length-1).trim();
+							else if (this.type === "assignment") val = val.substr(1,val.length-1).trim();
+						}
+						break;
+	case "title"	:	if (this.base && this.base.mainDoxyComment) {
+							this.base.mainDoxyComment.stripped();
+							var controls = this.base.mainDoxyComment.getControls();
+							if (controls && controls["@title"]) val = controls["@title"][0];
+						}
+						break;
+	case "type"		:	val = this.type; break;
+	case "locked"	:	val = (this.lock) ? true : false; break;
+	case "location"	:	val = this.getLocationName(); break;
+	case "name"		:	if (this.lvalue) {
+							val = this.lvalue.getSymbol({}, {}, scope).name;
+						} else if (this.name && this.type !== "do") {
+							val = this.name;
+						} else if (this.parent === undefined && this.base && this.base.origin) {
+							val = this.base.origin.name;
+						} else if (this.path !== undefined) {
+							val = this.path;
+						} break;
+	case "symbol"	:	if (this.lvalue) {
+							val = this.lvalue.getSymbol({}, {}, scope);
+						} break;
+	case "line"		:	if (this.line !== undefined) {
+							val = this.line;
+						} break; 
+	case "depends"	:	val = (this.dependencies) ? Object.keys(this.dependencies) : [];
+						break;
+	case "datatype"	:	val = (this.expression) ? this.expression.typevalue : 0; break;
+	case "value"	: 	try {
+							val = (this.expression) ? this.expression.execute({scopes:[]}, {}, scope) : undefined;
+						} catch(e) {
+						} break;
+	case "active"	: 	val = ((this.type === "when" && this.enabled) || (this.lvalue && scope.context.symbols[this.lvalue.name] && scope.context.symbols[this.lvalue.name].origin && scope.context.symbols[this.lvalue.name].origin.id === this.id));
+						break;
+	case "executed"	:	val = this.executed > 0; break;
+	case "historic"	:	val = this.executed == -1; break;
+	case "tags"		:	if (this.doxyComment) {
+							val = this.doxyComment.getHashTags();
+						} break;
+	case "rawcomment"	: if (this.doxyComment) {
+							val = this.doxyComment.content;
+						} break;
+	case "controls" :
+	case "id"		:	val = this.id; break;
+	case "path"		:	val = Eden.Selectors.getID(this); break;
+	//case "script"	: 	val = Eden.Selectors.getScriptBase(stat); break;
+	case "remote"	:	var p = this;
+						while(p.parent) p = p.parent;
+						if (!p.base || !p.base.origin) {
+							val = false;
+							break;
+						}
+						val = p.base.origin.remote;
+						break;
+
+	case "root"		:	val = this.parent === undefined; break;
+	case "static"	:	val = (this.lvalue) ? this.lvalue.isstatic : false; break;
+	}
+
+	return val;
+}
+
 Eden.AST.BaseStatement.addSubscriber = function(dependency) {
 	if (!this.subscribers) this.subscribers = {};
 	this.subscribers[dependency] = eden.root.lookup(dependency);
