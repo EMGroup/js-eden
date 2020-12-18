@@ -30,4 +30,44 @@ describe("Attribute Accessor", () => {
 
 	});
 
+	describe("source", () => {
+
+		test("source of defined observable", () => {
+			let eden = new Eden();
+			var ast = Eden.AST.parseStatement("aa is a + b;");
+			expect(ast.attribute("source", eden.root.scope)).toEqual("aa is a + b;");
+		});
+
+	});
+
+	describe("expression", () => {
+
+		test("expression of defined observable", () => {
+			let eden = new Eden();
+			var ast = Eden.AST.parseStatement("aa is a + b;");
+			expect(ast.attribute("expression", eden.root.scope)).toEqual("a + b");
+		});
+
+	});
+
+	describe("symbol", () => {
+
+		test("symbol of defined observable", () => {
+			let eden = new Eden();
+			var ast = Eden.AST.parseStatement("aa is a + b;");
+			expect(ast.attribute("symbol", eden.root.scope).name).toEqual("aa");
+		});
+
+	});
+
+	describe("value", () => {
+
+		test("value of defined observable", () => {
+			let eden = new Eden();
+			var ast = Eden.AST.parseStatement("aa is 5 + 6;");
+			expect(ast.attribute("value", eden.root.scope)).toEqual(11);
+		});
+
+	});
+
 });

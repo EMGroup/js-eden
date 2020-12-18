@@ -104,39 +104,39 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 	var nstats = [];
 	if (statements === undefined) return nstats;
 	for (var i=0; i<statements.length; i++) {
-		if (statements[i].type == "script") {
-			nstats.push.apply(nstats,statements[i].statements);
+		if (statements[i].type === "script") {
+			nstats.push.apply(nstats,statements[i].statements.map((s) => { return (s.type === "substat" && s.last) ? s.last : s; }));
 			if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statements, recurse));
-		} else if (statements[i].type == "for") {
-			if (statements[i].statement && statements[i].statement.type == "script") {
+		} else if (statements[i].type === "for") {
+			if (statements[i].statement && statements[i].statement.type === "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
-		} else if (statements[i].type == "if") {
-			if (statements[i].statement && statements[i].statement.type == "script") {
+		} else if (statements[i].type === "if") {
+			if (statements[i].statement && statements[i].statement.type === "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
-			if (statements[i].elsestatement && statements[i].elsestatement.type == "script") {
+			if (statements[i].elsestatement && statements[i].elsestatement.type === "script") {
 				nstats.push.apply(nstats,statements[i].elsestatement.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].elsestatement.statements, recurse));
 			}
-		} else if (statements[i].type == "when") {
+		} else if (statements[i].type === "when") {
 			if (statements[i].statement && statements[i].statement.type == "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
-		} else if (statements[i].type == "while") {
+		} else if (statements[i].type === "while") {
 			if (statements[i].statement && statements[i].statement.type == "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
-		} else if (statements[i].type == "do") {
+		} else if (statements[i].type === "do") {
 			if (statements[i].script && statements[i].script.type == "script") {
 				nstats.push.apply(nstats,statements[i].script.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].script.statements, recurse));
 			}
-		} else if (statements[i].type == "section") {
+		} else if (statements[i].type === "section") {
 			var node = statements[i].nextSibling;
 			var chi = [];
 			while (node && (node.type != "section" || node.depth > statements[i].depth)) {
