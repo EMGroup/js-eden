@@ -72,7 +72,7 @@ Eden.AST.prototype.executeGenerator = function*(statements, ctx, base, scope, ag
 									locals: ctx.locals
 								};
 								var lit = Eden.AST.executeExpressionNode(statement.literal, statement.nscope, state);
-								var scriptast = Eden.AST.parseScript(lit, statement);
+								var scriptast = (typeof lit === "string") ? Eden.AST.parseScript(lit, statement) : lit;
 								if (scriptast && scriptast.errors.length > 0) {
 									//throw scriptast.errors[0];
 									let err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.EXECUTESYNTAX, statement, '"'+lit+'" - ' + scriptast.errors[0].messageText());

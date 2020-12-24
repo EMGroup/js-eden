@@ -441,10 +441,16 @@
 	 * @return value of expression
 	 */
 	Eden.prototype.evalEden = function(expr, symbol, scope) {
-		var e = Eden.AST.parseExpression(expr);
-		if (e.errors.length > 0) {
-			this.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
-			return undefined;
+		var e;
+
+		if (typeof expr === "string") {
+			var e = Eden.AST.parseExpression(expr);
+			if (e.errors.length > 0) {
+				this.emit("error", [{name: (symbol)?symbol.name : "Inline"},e.errors[0]]);
+				return undefined;
+			}
+		} else {
+			e = expr;
 		}
 
 		if (!scope) scope = this.root.scope;

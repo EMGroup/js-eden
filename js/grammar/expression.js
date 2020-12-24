@@ -217,7 +217,7 @@ Eden.AST.prototype.pEXPRESSION = function() {
 
 	switch (this.token) {
 	case "func"		: expr = this.pFUNC_EXPR(); break;
-	case "action"	: expr = this.pFUNC_EXPR(); return expr;
+	case "action"	: expr = new Eden.AST.Literal("NODE",this.pSTATEMENT()); break;
 	default			: expr = this.pEXPRESSION_PLAIN(); break;
 	}
 

@@ -17,6 +17,7 @@ Eden.AST.Literal = function(type, literal) {
 	case "STRING"	:
 	case "CHARACTER": this.typevalue = Eden.AST.TYPE_STRING; break;
 	case "BOOLEAN"	: this.typevalue = Eden.AST.TYPE_BOOLEAN; break;
+	case "NODE"		: this.typevalue = Eden.AST.TYPE_AST; break;
 	default			: this.typevalue = Eden.AST.TYPE_UNKNOWN; break;
 	}
 }
@@ -50,6 +51,7 @@ Eden.AST.Literal.prototype.toEdenString = function(scope, state) {
 	case "BOOLEAN"		:	return (this.value) ? "true" : "false";
 	case "JAVASCRIPT"	:	return "${{"+this.value+"}}$";
 	case "UNDEFINED"	:	return "@";	
+	case "NODE"			:	return `parse(${JSON.stringify(this.value.getSource())})`;
 	}
 
 	return "@";
@@ -91,8 +93,9 @@ Eden.AST.Literal.prototype.generate = function(ctx,scope, options) {
 	case "BOOLEAN"	:	res = this.value; break; //if (ctx && ctx.isdynamic) ctx.dynamic_source += (this.value) ? "true" : "false"; break;
 	case "JAVASCRIPT"	: res = this.value; break; //if (ctx && ctx.isdynamic) ctx.dynamic_source += "${{ " + this.value + " }}$"; break;
 	case "UNDEFINED"	: break; //if (ctx && ctx.isdynamic) ctx.dynamic_source += "@"; break;
+	case "NODE"			:	res = `Eden.AST.parseStatement(${JSON.stringify(this.value.getSource())})`; break;
 	}
-
+	
 	return res;
 }
 
@@ -114,6 +117,7 @@ Eden.AST.Literal.prototype.execute = function(ctx, base, scope) {
 						rhs += ";";
 						return (new Function(["context","scope"],rhs))(scope.context,scope);
 	case "JAVASCRIPT"	: return eval(this.value);
+	case "NODE"		:	return this.value;
 	}
 }
 
