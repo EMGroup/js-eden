@@ -166,6 +166,10 @@ Folder.prototype.getOrigin = function() {
 	return eden.project;
 }
 
+Folder.prototype.addIndex = function() {
+	
+}
+
 Folder.prototype.getStatementByLine = function(line) {
 	return undefined;
 }
