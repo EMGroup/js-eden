@@ -2,7 +2,7 @@
  * E''''' -> # | epsilon
  */
 Eden.AST.prototype.pEXPRESSION_PPPPP = function() {
-	if (this.token == "#") {
+	if (this.token === "#" && this.stream.position === this.lastposition+1) {
 		this.next();
 		return new Eden.AST.Length();
 	}
