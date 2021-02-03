@@ -11,14 +11,8 @@
   },
   "scripts": {
     "test": "jest",
-    "start": "electron .",
-    "construit": "electron .",
-    "postinstall": "electron-rebuild -w serialport -f",
     "release": "grunt cssmin; grunt uglify",
-    "devserver": "node ./bin/devserver.js",
-    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=resources/icons/mac/icon.icns --prune=true --out=release-builds",
-    "package-win": "electron-packager . --overwrite --asar=true --platform=win32 --icon=resources/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=Construit --version-string.FileDescription=Construit --version-string.ProductName=\"Construit\"",
-    "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=resources/icons/png/128x128.png --prune=true --out=release-builds"
+    "devserver": "node ./bin/devserver.js"
   },
   "bin": {
     "construit": "bin/construit"
@@ -39,15 +33,14 @@
     "jest": "^26.6.3",
     "serve-static": "~1.13.2",
     "uglify-js": "git+https://github.com/mishoo/UglifyJS2.git#harmony",
-    "wd": "^1.11.4"
+    "wd": "^1.14.0"
   },
   "dependencies": {
     "abcjs": "5.6.2",
-    "electron": "^4.0.8",
-    "electron-rebuild": "^1.11.0",
     "grunt-contrib-uglify-es": "git://github.com/gruntjs/grunt-contrib-uglify.git#harmony",
     "serialport": "^7.1.5",
-    "showdown": "^1.9.1"
+    "showdown": "^1.9.1",
+    "uglify-es": "git+https://github.com/mishoo/UglifyJS2.git#harmony"
   },
   "optionalDependencies": {},
   "engines": {

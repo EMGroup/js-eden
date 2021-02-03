@@ -152,7 +152,8 @@ Eden.AST.When.prototype.trigger = function(scope, ts) {
 	if (this.active == false) {
 		this.triggercount++;
 
-		if (this.triggercount > 1000) {
+		// Disabled because it prevents infinite when loops that might be wanted
+		/* if (this.triggercount > 1000) {
 			//if (this.name == "*When" && this.parent && this.parent.name) this.name = this.parent.name + ">when";
 			this.enabled = false;
 			var err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.INFINITEWHEN, this);
@@ -168,7 +169,7 @@ Eden.AST.When.prototype.trigger = function(scope, ts) {
 				this.refreshtimeout=null;
 				this.triggercount=0;
 			}, 5000);
-		}
+		} */
 
 		this.active = true;
 		scope = this.getScope(this)(scope.context,scope);
