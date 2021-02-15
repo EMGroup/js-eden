@@ -92,10 +92,12 @@ Eden.AST = function(code, imports, origin, options) {
 	if (!options || !options.noparse) {
 		// Get First Token;
 		this.next();
-		while (this.token == "STRING") {
+		while (this.token === "STRING") {
 			// Read parser properties...
-			if (this.data.value == "use cs2;") {
+			if (this.data.value === "use cs2;") {
 				this.version = Eden.AST.VERSION_CS2;
+			} else if (this.data.value === "use cs3;") {
+				this.version = Eden.AST.VERSION_CS3;
 			}
 			this.next();
 		}
@@ -448,6 +450,15 @@ Eden.AST.typeCheck = function(type, value) {
 Eden.AST.parseStatement = function(src, origin) {
 	var ast = new Eden.AST(src, undefined, (origin) ? origin : {}, {noparse: true, noindex: true});
 	ast.next();
+	while (ast.token === "STRING") {
+		// Read parser properties...
+		if (ast.data.value === "use cs2;") {
+			ast.version = Eden.AST.VERSION_CS2;
+		} else if (ast.data.value === "use cs3;") {
+			ast.version = Eden.AST.VERSION_CS3;
+		}
+		ast.next();
+	}
 	var stat = ast.pSTATEMENT();
 	if (stat === undefined) {
 		stat = new Eden.AST.DummyStatement();
@@ -471,6 +482,15 @@ Eden.AST.parseScript = function(src, origin) {
 	if (typeof src != "string") return null;
 	var ast = new Eden.AST(src, undefined, (origin) ? origin : {}, {noparse: true, noindex: true});
 	ast.next();
+	while (ast.token === "STRING") {
+		// Read parser properties...
+		if (ast.data.value === "use cs2;") {
+			ast.version = Eden.AST.VERSION_CS2;
+		} else if (ast.data.value === "use cs3;") {
+			ast.version = Eden.AST.VERSION_CS3;
+		}
+		ast.next();
+	}
 	var script = ast.pSCRIPT();
 	script.base = ast;
 	script.setSource(0,src.length, src);
@@ -788,7 +808,7 @@ if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	require('./proc');
 	require('./querystat');
 	require('./range');
-	//require('./require');
+	require('./require');
 	require('./return');
 	require('./scope');
 	require('./scopedscript');

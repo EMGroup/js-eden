@@ -284,6 +284,14 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "comment"	:	if (stat.doxyComment) {
 										val = stat.doxyComment.stripped();
 									} break;
+				case "standalone_outersource":
+									if (stat) {
+										val = (stat.version === 1) ? '"use cs2;"\n' : '"use cs3;"\n';
+										val += stat.getOuterSource();
+									} else {
+										val = "";
+									}
+									break;
 				case "source"	:	val = (stat && stat.getSource) ? stat.getSource() : "";
 									break;
 				case "innersource"	:	if (stat.type == "script") {
@@ -699,7 +707,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 			// Only search the server if an external query is requested
 			} else if ((!sast.options || !sast.options.local) && Eden.DB) {
 				//Then need to do a remote search
-				Eden.DB.searchSelector(s, (o === undefined) ? ["outersource","path"] : o, function(stats) {
+				Eden.DB.searchSelector(s, (o === undefined) ? ["standalone_outersource","path"] : o, function(stats) {
 					if (o === undefined && stats.length > 0) {
 						// Need to generate an AST for each result
 						// Loop and do all...

@@ -768,6 +768,7 @@ Eden.AST.prototype.pSTATEXPR = function() {
 	
 	stat.parent = this.parent;
 	stat.doxyComment = doxy;
+	stat.version = this.version;
 
 	//this.lines[curline] = stat;
 	//stat.line = curline;

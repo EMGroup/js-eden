@@ -1,14 +1,17 @@
-var config = require("./config.js");
+import config from './config.js';
 
-var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
-  , TwitterStrategy = require("passport-twitter")
-  , FacebookStrategy = require("passport-facebook")
-  , LocalStrategy = require("passport-local").Strategy;
+import passgoogle from 'passport-google-oauth';
+import TwitterStrategy from 'passport-twitter';
+import FacebookStrategy from 'passport-facebook';
+import passlocal from 'passport-local';
 
-var bcrypt = require('bcrypt-nodejs');
+const LocalStrategy = passlocal.Strategy;
+const GoogleStrategy = passgoogle.OAuth2Strategy;
 
-var randomstring = require('randomstring');
-const nodemailer = require('nodemailer');
+import bcrypt from 'bcrypt-nodejs';
+
+import randomstring from 'randomstring';
+import nodemailer from 'nodemailer';
 
 var db;
 
@@ -19,13 +22,7 @@ let transporter = nodemailer.createTransport({
   port: 587
 });
 
-
-var exports = module.exports = {
-		
-};
-var Users = {};
-
-module.exports.Users = Users;
+export const Users = {};
 
 Users.findByEmail = function(email,callback){
 	db.get('SELECT localuserID,hashedPassword FROM localusers WHERE emailaddress = ?',email,function(err,row){
@@ -49,7 +46,7 @@ Users.addUser = function(email,password,callback){
 	});
 };
 
-module.exports.setupPassport = function(passport,database){
+export function setupPassport(passport,database){
 	db = database;
 	passport.serializeUser(function(user, done) {
 		var oauthcode = user.provider + ":" + user.id;

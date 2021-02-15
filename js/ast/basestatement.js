@@ -19,6 +19,7 @@ Eden.AST.BaseStatement = function() {
 	this.line = -1;
 	this.generated = null;
 	this.dependencies = Object.create(null);
+	this.version = 0;
 }
 
 Eden.AST.BaseStatement.attribute = function(name, scope) {
