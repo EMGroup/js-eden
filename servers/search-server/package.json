@@ -3,12 +3,13 @@
   "main": "construal-manager.js",
   "scripts": {
     "test": "jest",
-    "start": "node ./lib/construal-manager.js",
+    "start": "node ./lib/index.js",
     "build": "babel src -d lib"
   },
   "dependencies": {
     "bcrypt-nodejs": "latest",
     "body-parser": "~1.0.0",
+    "colors": "^1.4.0",
     "connect-flash": "~0.1.1",
     "cookie-parser": "~1.0.0",
     "ejs": "~2.6.1",
