@@ -223,6 +223,36 @@ function processNextRating(projectRows, unknownRatings,i,res){
 	}
 }
 
+function rectifySource(source) {
+	let ast = new Eden.AST(source, undefined, {}, {noparse: true, noindex: true, version: 1});
+	ast.next();
+
+	let hasVersionName = false;
+	while (ast.token === "STRING") {
+		switch (ast.data.value) {
+		case "use cs2;":
+		case "use cs3;":
+			hasVersionName = true;
+			break;
+		default:
+			break;	
+		}
+		ast.next();
+	}
+
+	if (hasVersionName) {
+		return source;
+	}
+
+	// Otherwise, needs fixing
+	const script = ast.pSCRIPT();
+	if (script.errors.length === 0) {
+		return `"use cs3;\n${source}`;
+	} else {
+		return `"use cs2;\n${source}`;
+	}
+}
+
 export default function(app) {
 	app.get('/project/tags', function(req,res){
 		  var stmtstr = "SELECT projectID,tag FROM tags WHERE tag LIKE @tagname";
@@ -337,6 +367,9 @@ export default function(app) {
 		if(req.user != undefined){
 			userID = req.user.id;
 		}
+
+		// Do a source rectification for new version
+		const rectify = req.query.rectify;
 		
 		var targetSaveID = null; 
 		if(req.query.to){
@@ -347,8 +380,8 @@ export default function(app) {
 					db.serialize(function(){
 						
 						getFullVersion(saveID,req.query.projectID, metaRow, function(ret){
-							var source = ret.source;
-							var date = ret.date;
+							const source = rectify ? rectifySource(ret.source) : ret.source;
+							const date = ret.date;
 							if(req.query.from){
 								sendDiff(req.query.from,source,req.query.projectID,targetSaveID,res,metaRow);
 							}else{
@@ -371,8 +404,8 @@ export default function(app) {
 						
 						db.serialize(function(){
 							getFullVersion(saveID,req.query.projectID, metaRow, function(ret){
-								var source = ret.source;
-								var date = ret.date;
+								const source = rectify ? rectifySource(ret.source) : ret.source;
+								const date = ret.date;
 								if(req.query.from){
 									sendDiff(req.query.from,source,req.query.projectID,saveID,res,metaRow);
 								}else{

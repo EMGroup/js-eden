@@ -410,7 +410,7 @@ Eden.DB.load = function(pid, vid, readPassword, callback) {
 
 	if (Eden.DB.isConnected()) {
 		$.ajax({
-			url: Eden.DB.remoteURL+"/project/get?projectID="+pid+ ((vid) ? "&to="+vid : "") + ((readPassword) ? "&readPassword="+readPassword : ""),
+			url: Eden.DB.remoteURL+"/project/get?rectify=true&projectID="+pid+ ((vid) ? "&to="+vid : "") + ((readPassword) ? "&readPassword="+readPassword : ""),
 			type: "get",
 			crossDomain: true,
 			xhrFields:{

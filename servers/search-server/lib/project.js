@@ -287,6 +287,43 @@ function processNextRating(projectRows, unknownRatings, i, res) {
   }
 }
 
+function rectifySource(source) {
+  var ast = new Eden.AST(source, undefined, {}, {
+    noparse: true,
+    noindex: true,
+    version: 1
+  });
+  ast.next();
+  var hasVersionName = false;
+
+  while (ast.token === "STRING") {
+    switch (ast.data.value) {
+      case "use cs2;":
+      case "use cs3;":
+        hasVersionName = true;
+        break;
+
+      default:
+        break;
+    }
+
+    ast.next();
+  }
+
+  if (hasVersionName) {
+    return source;
+  } // Otherwise, needs fixing
+
+
+  var script = ast.pSCRIPT();
+
+  if (script.errors.length === 0) {
+    return "\"use cs3;\n".concat(source);
+  } else {
+    return "\"use cs2;\n".concat(source);
+  }
+}
+
 function _default(app) {
   app.get('/project/tags', function (req, res) {
     var stmtstr = "SELECT projectID,tag FROM tags WHERE tag LIKE @tagname";
@@ -412,8 +449,10 @@ function _default(app) {
 
     if (req.user != undefined) {
       userID = req.user.id;
-    }
+    } // Do a source rectification for new version
 
+
+    var rectify = req.query.rectify;
     var targetSaveID = null;
 
     if (req.query.to) {
@@ -422,7 +461,7 @@ function _default(app) {
         getProjectMetaData(req.query.projectID, userID, res, function (metaRow) {
           _database["default"].serialize(function () {
             (0, _common.getFullVersion)(saveID, req.query.projectID, metaRow, function (ret) {
-              var source = ret.source;
+              var source = rectify ? rectifySource(ret.source) : ret.source;
               var date = ret.date;
 
               if (req.query.from) {
@@ -447,7 +486,7 @@ function _default(app) {
           getProjectMetaData(req.query.projectID, userID, res, function (metaRow) {
             _database["default"].serialize(function () {
               (0, _common.getFullVersion)(saveID, req.query.projectID, metaRow, function (ret) {
-                var source = ret.source;
+                var source = rectify ? rectifySource(ret.source) : ret.source;
                 var date = ret.date;
 
                 if (req.query.from) {
