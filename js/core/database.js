@@ -14,8 +14,8 @@ Eden.DB = {
 	userid: undefined,
 	// Note: reverse order, last is popped off to try first
 	repositories: [
-		"http://localhost:18882",
-		document.location.protocol+"//jseden.dcs.warwick.ac.uk/construalmanager"
+		document.location.protocol+"//jseden.dcs.warwick.ac.uk/construalmanager",
+		"http://localhost:18882"
 	],
 	repoindex: 0,
 	retrycount: 0,
