@@ -7,6 +7,8 @@
     "build": "babel src -d lib"
   },
   "dependencies": {
+    "@sentry/node": "^6.2.0",
+    "@sentry/tracing": "^6.2.0",
     "bcrypt-nodejs": "latest",
     "body-parser": "~1.0.0",
     "colors": "^1.4.0",

@@ -4,6 +4,12 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
 var _express = _interopRequireDefault(require("express"));
 
+var Sentry = _interopRequireWildcard(require("@sentry/node"));
+
+var Tracing = _interopRequireWildcard(require("@sentry/tracing"));
+
+var _config = _interopRequireDefault(require("./config.js"));
+
 var _passport = _interopRequireDefault(require("passport"));
 
 var _cookieParser = _interopRequireDefault(require("cookie-parser"));
@@ -11,8 +17,6 @@ var _cookieParser = _interopRequireDefault(require("cookie-parser"));
 var _bodyParser = _interopRequireDefault(require("body-parser"));
 
 var _expressSession = _interopRequireDefault(require("express-session"));
-
-var _config = _interopRequireDefault(require("./config.js"));
 
 var _database = _interopRequireDefault(require("./database"));
 
@@ -36,6 +40,13 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+Sentry.init({
+  dsn: _config["default"].SENTRY,
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0
+});
+
 require(_config["default"].JSEDENPATH + "js/lib/diff_match_patch.js");
 
 passportUsers.setupPassport(_passport["default"], _database["default"]);
@@ -54,6 +65,8 @@ function logErrors(err, req, res, next) {
 } // configure Express
 
 
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.errorHandler());
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use((0, _cookieParser["default"])());

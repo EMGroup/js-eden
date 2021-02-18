@@ -1,9 +1,20 @@
 import express from 'express';
+import * as Sentry from '@sentry/node';
+import * as Tracing from '@sentry/tracing';
+import config from './config.js';
+
+Sentry.init({
+	dsn: config.SENTRY,
+
+	// We recommend adjusting this value in production, or using tracesSampler
+	// for finer control
+	tracesSampleRate: 1.0,
+});
+
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import session from 'express-session';
-import config from './config.js';
 import db from './database';
 import './eden';
 
@@ -29,6 +40,8 @@ function logErrors(err,req,res,next){
 }
 
 // configure Express
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.errorHandler());
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(cookieParser());
