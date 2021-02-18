@@ -3,13 +3,15 @@ import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 import config from './config.js';
 
-Sentry.init({
-	dsn: config.SENTRY,
+if (config.SENTRY) {
+	Sentry.init({
+		dsn: config.SENTRY,
 
-	// We recommend adjusting this value in production, or using tracesSampler
-	// for finer control
-	tracesSampleRate: 1.0,
-});
+		// We recommend adjusting this value in production, or using tracesSampler
+		// for finer control
+		tracesSampleRate: 1.0,
+	});
+}
 
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
@@ -40,8 +42,10 @@ function logErrors(err,req,res,next){
 }
 
 // configure Express
-app.use(Sentry.Handlers.requestHandler());
-app.use(Sentry.Handlers.errorHandler());
+if (config.SENTRY) {
+	app.use(Sentry.Handlers.requestHandler());
+	app.use(Sentry.Handlers.errorHandler());
+}
 app.set('views', __dirname + '/../views');
 app.set('view engine', 'ejs');
 app.use(cookieParser());
