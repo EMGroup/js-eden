@@ -171,6 +171,30 @@ app.get('/logout', function(req, res){
   res.redirect(config.BASEURL);
 });
 
+function registerUser(req, oauthcode,displayName,status,callback){
+	var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?, ?,0)");
+	  stmt.run(oauthcode, displayName, status,function(err){
+		  req.user.id = this.lastID;
+		  if(callback){
+			  callback();
+		  }
+	  });  
+}
+
+app.post('/registration', function(req,res){
+  registerUser(req,req.user.oauthcode, req.body.displayName,"registered",function(){
+	  res.redirect(config.BASEURL);
+  });
+});
+
+app.get('/account', ensureAuthenticated, function(req, res){
+res.render('account', { user: req.user, baseurl: config.BASEURL });
+});
+
+app.get('/login', function(req, res){
+res.render('login', { user: req.user, baseurl: config.BASEURL, message: req.flash('loginMessage') });
+});
+
 
 // Add components
 project(app);

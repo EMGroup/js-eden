@@ -217,6 +217,37 @@ app.get('/auth/facebook/callback', _passport["default"].authenticate('facebook',
 app.get('/logout', function (req, res) {
   req.logout();
   res.redirect(_config["default"].BASEURL);
+});
+
+function registerUser(req, oauthcode, displayName, status, callback) {
+  var stmt = _database["default"].prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?, ?,0)");
+
+  stmt.run(oauthcode, displayName, status, function (err) {
+    req.user.id = this.lastID;
+
+    if (callback) {
+      callback();
+    }
+  });
+}
+
+app.post('/registration', function (req, res) {
+  registerUser(req, req.user.oauthcode, req.body.displayName, "registered", function () {
+    res.redirect(_config["default"].BASEURL);
+  });
+});
+app.get('/account', _common.ensureAuthenticated, function (req, res) {
+  res.render('account', {
+    user: req.user,
+    baseurl: _config["default"].BASEURL
+  });
+});
+app.get('/login', function (req, res) {
+  res.render('login', {
+    user: req.user,
+    baseurl: _config["default"].BASEURL,
+    message: req.flash('loginMessage')
+  });
 }); // Add components
 
 (0, _project["default"])(app);
