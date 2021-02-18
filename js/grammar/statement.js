@@ -574,7 +574,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	//stat.numlines = endline - curline - 1;
 
 	var srcstr = this.stream.code.substring(start,end);
-	//const lines = (srcstr.match(/\n/g) || '').length;
+	// const lines = (srcstr.match(/\n/g) || '').length;
 	const doxylines = (doxy) ? (doxy.content.match(/\n/g) || '').length : 0;
 	stat.numlines = endline-curline-1+doxylines;
 

@@ -34,14 +34,18 @@ Eden.EdenStream = EdenStream;
  * Save the current stream position.
  */
 EdenStream.prototype.pushPosition = function() {
-	this.position_stack.push(this.position);
+	this.position_stack.push([this.position, this.line, this.prevposition, this.prevline]);
 };
 
 /**
  * Restore the last saved stream position.
  */
 EdenStream.prototype.popPosition = function() {
-	this.position = this.position_stack.pop();
+	const [position, line, prevposition, prevline] = this.position_stack.pop();
+	this.position = position;
+	this.line = line;
+	this.prevposition = prevposition;
+	this.prevline = prevline;
 };
 
 /**
