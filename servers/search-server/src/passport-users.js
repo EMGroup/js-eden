@@ -67,7 +67,7 @@ export function setupPassport(passport,database){
 			return done(null, obj);
 		}else{
 			db.get('SELECT userid, oauthstring, name, status, isAdmin FROM oauthusers WHERE userid = ?', obj.id, function(err, row){
-				user = {displayName: row.name, id: row.userid, oauthstring: row.oauthstring, status: row.status, admin: row.isAdmin};
+				const user = {displayName: row.name, id: row.userid, oauthstring: row.oauthstring, status: row.status, admin: row.isAdmin};
 				return done(null, user);
 			});
 		}
