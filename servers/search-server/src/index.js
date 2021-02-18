@@ -42,7 +42,7 @@ function logErrors(err,req,res,next){
 // configure Express
 app.use(Sentry.Handlers.requestHandler());
 app.use(Sentry.Handlers.errorHandler());
-app.set('views', __dirname + '/views');
+app.set('views', __dirname + '../views');
 app.set('view engine', 'ejs');
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({limit: '5mb'}));
