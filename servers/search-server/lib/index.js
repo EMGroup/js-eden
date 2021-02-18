@@ -67,7 +67,7 @@ function logErrors(err, req, res, next) {
 
 app.use(Sentry.Handlers.requestHandler());
 app.use(Sentry.Handlers.errorHandler());
-app.set('views', __dirname + '/views');
+app.set('views', __dirname + '/../views');
 app.set('view engine', 'ejs');
 app.use((0, _cookieParser["default"])());
 app.use(_bodyParser["default"].urlencoded({

@@ -449,10 +449,11 @@ function _default(app) {
 
     if (req.user != undefined) {
       userID = req.user.id;
-    } // Do a source rectification for new version
+    }
 
+    var api = req.query.api; // Do a source rectification for new version
 
-    var rectify = req.query.rectify;
+    var rectify = api >= 3;
     var targetSaveID = null;
 
     if (req.query.to) {

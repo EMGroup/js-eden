@@ -368,8 +368,9 @@ export default function(app) {
 			userID = req.user.id;
 		}
 
+		const api = req.query.api;
 		// Do a source rectification for new version
-		const rectify = req.query.rectify;
+		const rectify = api >= 3;
 		
 		var targetSaveID = null; 
 		if(req.query.to){
