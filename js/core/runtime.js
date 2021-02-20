@@ -6,7 +6,10 @@
  */
 
 //data types
-Point = function(x, y) {
+
+const GLOBAL = (typeof global !== 'undefined') ? global : window;
+
+GLOBAL.Point = function(x, y) {
   this.x = x;
   this.y = y;
 }
@@ -190,7 +193,7 @@ var rt = {
 
 };
 
-this.rt = rt;
+GLOBAL.rt = rt;
 
 // expose as node.js module
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {

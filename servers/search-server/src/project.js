@@ -1,9 +1,9 @@
 import {ERROR_SQL, ERROR_NOTADMIN, ERROR_NO_PROJECTID} from './errors';
-import db from './database';
 import {ensureAuthenticated, getFullVersion, logDBError, logAPI, logAPIError, log} from './common';
 
 const projectRatings = {};
 const projectRatingsCount = {};
+let db;
 
 function checkOwner(req,res,callback, failedcallback,pid){
 	var checkStmt = db.prepare("SELECT owner,writePassword FROM projects WHERE projectID = @projectID");
@@ -170,7 +170,7 @@ function addProjectVersion(req, res, projectID){
 
 	if(req.body.from){
 		db.serialize(function(){
-		getFullVersion(req.body.from, projectID, [],function(ret){
+		getFullVersion(db, req.body.from, projectID, [],function(ret){
 			var baseSrc = ret.source;
 			var dmp = new window.diff_match_patch();
 			var d = dmp.diff_main(baseSrc,req.body.source,false);
@@ -324,7 +324,7 @@ function increaseProjectDownloadStat(req,res){
 
 function sendDiff(fromID,toSource,projectID,toID,res,metaRow){
 	db.serialize(function(){
-		getFullVersion(fromID,projectID,[],function(ret){
+		getFullVersion(db, fromID,projectID,[],function(ret){
 			var source = ret.source;
 			var dmp = new window.diff_match_patch();
 			var d = dmp.diff_main(source,toSource,false);
@@ -473,6 +473,8 @@ function rectifySource(source) {
 }
 
 export default function(app) {
+	db = app.rawdb;
+
 	app.get('/project/tags', function(req,res){
 		  var stmtstr = "SELECT projectID,tag FROM tags WHERE tag LIKE @tagname";
 		  var criteriaObject = {};
@@ -599,7 +601,7 @@ export default function(app) {
 				getProjectMetaData(req.query.projectID, userID, res, function(metaRow){
 					db.serialize(function(){
 						
-						getFullVersion(saveID,req.query.projectID, metaRow, function(ret){
+						getFullVersion(db, saveID,req.query.projectID, metaRow, function(ret){
 							const source = rectify ? rectifySource(ret.source) : ret.source;
 							const date = ret.date;
 							if(req.query.from){
@@ -623,7 +625,7 @@ export default function(app) {
 					getProjectMetaData(req.query.projectID, userID, res, function(metaRow){
 						
 						db.serialize(function(){
-							getFullVersion(saveID,req.query.projectID, metaRow, function(ret){
+							getFullVersion(db, saveID,req.query.projectID, metaRow, function(ret){
 								const source = rectify ? rectifySource(ret.source) : ret.source;
 								const date = ret.date;
 								if(req.query.from){

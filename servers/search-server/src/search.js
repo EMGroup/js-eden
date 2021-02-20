@@ -1,16 +1,16 @@
-import db from './database';
 import {getFullVersion, logAPI} from './common';
 import 'colors';
 
 const allKnownProjects = {};
+let db;
 
 const vstmtStr = "select projects.projectID as projectID,view_listedVersion.saveID as saveID,title,minimisedTitle,projectMetaData,ifnull(group_concat(tag, \" \"),\"\") as tags, view_listedVersion.date as date," +
  		" name as authorname from view_listedVersion, projects, oauthusers left join tags on projects.projectID = tags.projectID where " +
 		"projects.projectID = view_listedVersion.projectID and owner = oauthusers.userid";
 
-const vstmt = db.prepare(vstmtStr + " group by projects.projectid");
-
 function initASTDB(cb){
+	const vstmt = db.prepare(vstmtStr + " group by projects.projectid");
+
 	vstmt.all(function(err,rows){
 		const status = {
 			count: 0,
@@ -27,7 +27,7 @@ function initASTDB(cb){
 		for(var i = 0; i < rows.length; i++){
 			rows[i].stamp = new Date(rows[i].date).getTime();
 			// console.log("Parsing row " + i, rows[i]);
-			getFullVersion(rows[i].saveID, rows[i].projectID, rows[i], function(data) {
+			getFullVersion(db, rows[i].saveID, rows[i].projectID, rows[i], function(data) {
 				const origin = {
 					id: data.meta.projectID,
 					saveID: data.meta.saveID,
@@ -91,7 +91,7 @@ export function reindexProject(projectID){
 			return;
 		}else{
 			var row = rows[0];
-			getFullVersion(row.saveID, row.projectID,row,function(data){
+			getFullVersion(db, row.saveID, row.projectID,row,function(data){
 				if(allKnownProjects[row.projectID])
 					allKnownProjects[row.projectID].destroy();
 
@@ -103,7 +103,9 @@ export function reindexProject(projectID){
 	});
 }
 
-export default function(app) {
+export default function(app, options) {
+	db = app.rawdb;
+
 	app.get('/code/search', function(req, res){
 			var sast = Eden.Selectors.parse(req.query.selector);
 	
@@ -154,7 +156,9 @@ export default function(app) {
 			}
 	});
 
-	return new Promise((resolve, reject) => {
-		initASTDB(() => resolve());
-	});
+	if (!options.noparse) {
+		return new Promise((resolve, reject) => {
+			initASTDB(() => resolve());
+		});
+	}
 }

@@ -2,7 +2,7 @@
   "name": "construal_manager",
   "main": "construal-manager.js",
   "scripts": {
-    "test": "jest",
+    "test": "NODE_ENV=test jest",
     "start": "node ./lib/index.js",
     "build": "babel src -d lib"
   },
@@ -14,6 +14,7 @@
     "colors": "^1.4.0",
     "connect-flash": "~0.1.1",
     "cookie-parser": "~1.0.0",
+    "core-js": "^3.9.0",
     "ejs": "~2.6.1",
     "express": "~4.16.4",
     "express-session": "~1.15.6",
@@ -26,13 +27,16 @@
     "passport-local": "~0.1.6",
     "passport-twitter": "~1.0.2",
     "randomstring": "^1.1.5",
+    "sequelize": "^6.5.0",
     "sqlite3": "^5.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.16",
     "@babel/core": "^7.12.16",
     "@babel/preset-env": "^7.12.16",
+    "babel-jest": "^26.6.3",
     "eslint": "^7.20.0",
-    "jest": "^26.6.3"
+    "jest": "^26.6.3",
+    "supertest": "^6.1.3"
   }
 }

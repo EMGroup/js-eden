@@ -11,13 +11,13 @@ export function ensureAuthenticated(req, res, next) {
   res.status(403).send('logout');
 }
 
-export function getFullVersion(version, projectID, meta, callback){
+export function getFullVersion(db, version, projectID, meta, callback){
 	var versionStmt = db.prepare("SELECT fullsource, forwardPatch,parentDiff,date FROM projectversions WHERE saveID = ? AND projectID = ?");
 	versionStmt.each(version,projectID, function(err,row){
 		if(row.fullsource == null){
 			//Go and get the source from the parentDiff
 //			collateBasesAndPatches(row.parentDiff);
-			getFullVersion(row.parentDiff, projectID, meta, function(ret){
+			getFullVersion(db, row.parentDiff, projectID, meta, function(ret){
 				var parentSource = ret.source;
 				var dmp = new window.diff_match_patch();
 				var p = dmp.patch_fromText(row.forwardPatch);
@@ -30,8 +30,12 @@ export function getFullVersion(version, projectID, meta, callback){
 	});
 }
 
-export function logDBError(str){
-	console.error(`${new Date().toISOString().cyan}: ${str.red}`);
+export function logDBError(api, err){
+	if (typeof api === 'string') {
+		console.log(`${new Date().toISOString().cyan}: ${api.bold} : ${err.toString().red}`);
+	} else {
+		console.log(`${new Date().toISOString().cyan}: ${api.toString().red}`);
+	}
 }
 
 export function logAPI(api, str){

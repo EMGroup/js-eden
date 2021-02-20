@@ -1,124 +1,122 @@
 import {ERROR_SQL, ERROR_NOTADMIN, ERROR_INVALID_FORMAT, ERROR_COMMENT_NOT_MATCHED} from './errors';
-import db from './database';
-import {ensureAuthenticated} from './common';
+import {ensureAuthenticated,logAPI,logDBError} from './common';
+import {Op} from 'sequelize';
 
 export default function(app) {
-	app.post('/comment/post', ensureAuthenticated, function(req,res){
-		var stmt = db.prepare("INSERT INTO comments VALUES (NULL, ?, ?, current_timestamp, ?, ?, ?);");
-		if(req.body.publiclyVisible != 0 && req.body.publiclyVisible != 1)
-			res.json({error: ERROR_INVALID_FORMAT, description: "Invalid range for 'publiclyVisible'"})
-		stmt.run(req.body.projectID,req.body.versionID,req.user.id, req.body.publiclyVisible, req.body.comment,function(err){
-			if(err){
-					res.json({error: ERROR_SQL, description: "SQL Error", err:err});
-			}else{
-				res.json({commentID: this.lastID});  
-			}		  
-		});
+	const db = app.rawdb;
+
+	app.post('/comment/post', ensureAuthenticated, async (req,res) => {
+		if(req.body.publiclyVisible != 0 && req.body.publiclyVisible != 1) {
+			res.status(400).json({error: ERROR_INVALID_FORMAT, description: "Invalid range for 'publiclyVisible'"});
+			return;
+		};
+
+		logAPI('/comment/post', JSON.stringify(req.body));
+
+		try {
+			const result = await app.models.comments.create({
+				projectID: req.body.projectID,
+				versionID: req.body.versionID,
+				public: req.body.publiclyVisible,
+				comment: req.body.comment,
+				author: req.user.id,
+			});
+
+			res.json({commentID: result.commentID});
+		} catch (err) {
+			logDBError('/comment/search', err);
+			res.status(400).json({error: ERROR_SQL, description: "Could not save comment"});
+		}	  
 	});
 
-	app.post('/comment/delete', ensureAuthenticated, function(req,res){
-		var stmt = db.prepare("DELETE FROM comments WHERE commentID = ? AND author = ?");
-		stmt.run(req.body.commentID,req.user.id,function(err){
-				if(err){
-					res.json({error: ERROR_SQL, description: "SQL Error", err:err});
-				}
-				if(this.changes == 0)
-					res.json({error: ERROR_COMMENT_NOT_MATCHED, description: "Matching project not found"});
-				if(this.changes > 0)
-					res.json({status: "deleted", changes: this.changes});  
-		});
-	});
+	app.post('/comment/delete', ensureAuthenticated, async (req,res) => {
+		try {
+			const count = await app.models.comments.destroy({
+				where: {
+					commentID: req.body.commentID,
+					author: req.user.id,
+				},
+			});
 
-	app.get('/comment/search', function(req,res){
-		var stmtstr = "SELECT name,commentID,projectID,versionID,date,author,public,comment FROM comments,oauthusers WHERE projectID = @projectID AND public = 1";
-		var criteriaObject = {};
-		criteriaObject["@projectID"] = req.query.projectID;
-		criteriaObject["@offset"] = 0;
-		criteriaObject["@limit"] = 100;
-
-		if(req.query.newerThan){
-			stmtstr += " AND date > (SELECT date from comments WHERE commentID = @newerThanComment)";
-			criteriaObject["@newerThanComment"] = req.query.newerThan;
+			if (count === 1) {
+				res.json({status: "deleted", changes: 1});
+			} else {
+				res.status(400).json({error: ERROR_COMMENT_NOT_MATCHED, description: "Matching project not found"});	
+			}
+		} catch (err) {
+			logDBError('/comment/search', err);
+			res.status(400).json({error: ERROR_SQL, description: "Error deleting comment"});
 		}
-		if(req.query.offset)
-			criteriaObject["@offset"] = req.query.offset;
-		if(req.query.limit)
-			criteriaObject["@limit"] = req.query.limit;
-		
-		stmtstr += " AND author = userid ORDER BY date DESC LIMIT @limit OFFSET @offset";
-		var stmt = db.prepare(stmtstr);
-		
-		stmt.all(criteriaObject,function(err,rows){
-			if(err){
-				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
-			}else{
-
-				if(req.user){
-					stmtstr = "SELECT name,commentID,projectID,versionID,date,author,public,comment FROM comments,oauthusers WHERE projectID = @projectID AND public = 0 AND author = @author";
-					criteriaObject = {};
-					
-					criteriaObject["@projectID"] = req.query.projectID;
-					criteriaObject["@offset"] = 0;
-					criteriaObject["@limit"] = 100;
-					criteriaObject["@author"] = req.user.id;
-
-					if(req.query.newerThan){
-						stmtstr += " AND date > (SELECT date from comments WHERE commentID = @newerThanComment)";
-						criteriaObject["@newerThanComment"] = req.query.newerThan;
-					}
-					if(req.query.offset)
-						criteriaObject["@offset"] = req.query.offset;
-					if(req.query.limit)
-						criteriaObject["@limit"] = req.query.limit;
-					
-					stmtstr += " AND author = userid LIMIT @limit OFFSET @offset";
-					
-					var privStmt = db.prepare(stmtstr);
-					
-					privStmt.all(criteriaObject, function(err,privRows){
-						if(err){
-								res.json({error: ERROR_SQL, description: "SQL Error", err:err});
-						}else{
-							var mergedRows = rows.concat(privRows);
-							res.json(mergedRows);
-						}
-					});
-				}else{
-					res.json(rows);
-				}
-
-			}		  
-		});
 	});
 
-	app.get('/comment/activity', function(req,res){
-		if (req.user.admin != 1) {
-			res.json({error: ERROR_NOTADMIN, description: "Must be admin to see comment activity"});
+	app.get('/comment/search', async (req,res) => {
+		const userId = req.user ? req.user.id : -1;
+		try {
+			const results = await app.models.comments.findAll({
+				where: {
+					projectID: req.query.projectID,
+					[Op.or]: [
+						{public: 1},
+						{public: 0, author: userId},
+					],
+					commentID: { [Op.gt]: req.query.newerThan || 0 },
+				},
+				offset: req.query.offset || 0,
+				limit: req.query.limit || 100,
+				include: app.models.oauthusers,
+				order: [['date', 'DESC']],
+			});
+
+			const mapped = results.map(result => {
+				const json = result.toJSON();
+				return {
+					...json,
+					oauthuser: undefined,
+					name: json.oauthuser && json.oauthuser.name,
+				};
+			});
+
+			res.json(mapped);
+		} catch (err) {
+			logDBError('/comment/search', err);
+			res.status(400).json({error: ERROR_SQL, description: "Error getting comments"});
+		}
+	});
+
+	app.get('/comment/activity', async (req,res) => {
+		if (!req.user || req.user.admin !== 1) {
+			logAPIError('/comment/activity', 'Non-admin request');
+			res.status(403).json({error: ERROR_NOTADMIN, description: "Must be admin to see comment activity"});
 			return;
 		}
-		var stmtstr = "SELECT name,commentID,comments.projectID,title,versionID,date,author,public,comment FROM comments,oauthusers,projects WHERE public = 1 AND comments.projectID = projects.projectID";
-		var criteriaObject = {};
-		criteriaObject["@offset"] = 0;
-		criteriaObject["@limit"] = 100;
 
-		if(req.query.newerThan){
-			stmtstr += " AND date > (SELECT date from comments WHERE commentID = @newerThanComment)";
-			criteriaObject["@newerThanComment"] = req.query.newerThan;
+		try {
+			const results = await app.models.comments.findAll({
+				where: {
+					commentID: { [Op.gt]: req.query.newerThan || 0 },
+					public: 1,
+				},
+				include: [app.models.oauthusers, app.models.projects],
+				offset: req.query.offset || 0,
+				limit: req.query.limit || 100,
+				order: [['date', 'DESC']],
+			});
+
+			const mapped = results.map(result => {
+				const json = result.toJSON();
+				return {
+					...json,
+					oauthuser: undefined,
+					project: undefined,
+					name: json.oauthuser && json.oauthuser.name,
+					title: json.project.title,
+				};
+			});
+
+			res.json(mapped);
+		} catch (err) {
+			logDBError('/comment/activity', err);
+			res.status(400).json({error: ERROR_SQL, description: "Error getting activity"});
 		}
-		if(req.query.offset)
-			criteriaObject["@offset"] = req.query.offset;
-		if(req.query.limit)
-			criteriaObject["@limit"] = req.query.limit;
-		
-		stmtstr += " AND author = userid ORDER BY date DESC LIMIT @limit OFFSET @offset";
-		var stmt = db.prepare(stmtstr);
-		
-		stmt.all(criteriaObject,function(err,rows){
-			if(err){
-				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
-			}else{
-				res.json(rows);
-			}		  
-		});
 	});
 }

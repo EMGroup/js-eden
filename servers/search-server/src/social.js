@@ -1,6 +1,6 @@
-import db from './database';
-
 export default function(app) {
+	const db = app.rawdb;
+	
 	app.get('/social/projects', function(req, res){
 			var activityStmt = db.prepare("select * from view_projectfollows where follower = ? order by date desc limit 20");
 			activityStmt.all(req.user.id,function(err,rows){
