@@ -41,3 +41,7 @@ export function logAPI(api, str){
 export function logAPIError(api, str){
 	console.error(`${new Date().toISOString().cyan}: ${api.bold} : ${str.red}`);
 }
+
+export function log(str){
+	console.log(`${new Date().toISOString().cyan}: ${str}`);
+}
