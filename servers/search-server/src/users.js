@@ -3,14 +3,13 @@ import {ensureAuthenticated} from './common';
 
 let db;
 
-function registerUser(req, oauthcode,displayName,status,callback){
-	var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?, ?,0)");
-	  stmt.run(oauthcode, displayName, status,function(err){
-		  req.user.id = this.lastID;
-		  if(callback){
-			  callback();
-		  }
-	  });  
+async function registerUser(req, oauthstring,displayName,status){
+	const user = await db.models.oauthusers.create({
+		name: displayName,
+		status,
+		oauthstring,
+	});
+	req.user.id = user.userid; 
 }
 
 export default function(app) {
@@ -35,16 +34,18 @@ export default function(app) {
 		}
 	});
 	
-	app.post("/updateprofile",ensureAuthenticated, function(req,res){
-		var displayName = req.body.displayName;
-		var stmt = db.prepare("UPDATE oauthusers SET name = ?, status = \"registered\" WHERE oauthstring = ?");
-		stmt.run(req.body.displayName, req.user.oauthstring,function(err){
-			if(err){
-				res.json({error: ERROR_SQL, description: "SQL Error", err:err});
-			}else{
-				res.redirect(config.BASEURL);
-			}
-		});
+	app.post("/updateprofile",ensureAuthenticated, async (req,res) => {
+		const {displayName} = req.body;
+
+		try {
+			await app.models.oauthusers.update(
+				{name: displayName},
+				{where: {oauthstring: req.user.oauthstring}}
+			);
+			res.redirect(config.BASEURL);
+		} catch(err) {
+			res.status(400).json({error: ERROR_SQL, description: "SQL Error", err});
+		}
 	});
 	
 	app.get('/join',function(req,res){
@@ -65,10 +66,13 @@ export default function(app) {
 		res.redirect(config.BASEURL);
 	});
 	  
-	app.post('/registration', function(req,res){
-		registerUser(req,req.user.oauthcode, req.body.displayName,"registered",function(){
-			res.redirect(config.BASEURL);
-		});
+	app.post('/registration', async (req,res) => {
+		if (!req.user) {
+			res.status(403).json({error: "Not logged in"});
+			return;
+		}
+		await registerUser(req,req.user.oauthcode, req.body.displayName,"registered");
+		res.redirect(config.BASEURL);
 	});
 	
 	app.get('/account', ensureAuthenticated, function(req, res){

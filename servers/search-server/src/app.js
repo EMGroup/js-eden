@@ -115,6 +115,10 @@ async function start(options = {}) {
 	const rawdb = new sqlite3.Database(dataconfig[env].filename);
 	app.rawdb = rawdb;
 
+	app.setUser = user => {
+		options.user = user;
+	};
+
 	if (options.user) {
 		app.use((req, res, next) => {
 			req.user = options.user;
@@ -123,7 +127,7 @@ async function start(options = {}) {
 	}
 
 	app.eden = global.eden;
-	passportUsers.setupPassport(passport,app.rawdb);
+	passportUsers.setupPassport(passport,app.db);
 
 	// Add components
 	users(app);

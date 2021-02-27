@@ -1,92 +1,64 @@
-import { DataTypes } from 'sequelize';
-
-export const oauthusers = {
-	userid: {
-		type: DataTypes.INTEGER,
-		primaryKey: true,
-		autoIncrement: true,
-		allowNull: false,
-	},
-	oauthstring: {
-		type: DataTypes.STRING,
-		allowNull: false,
-	},
-	name: {
-		type: DataTypes.STRING,
-	},
-	status: {
-		type: DataTypes.STRING,
-	},
-};
-
-export const projects = {
-	projectID: {
-		type: DataTypes.INTEGER,
-		autoIncrement: true,
-		primaryKey: true,
-	},
-	title: {
-		type: DataTypes.STRING,
-		allowNull: false,
-	},
-	minimisedTitle: {
-		type: DataTypes.STRING,
-		allowNull: false,
-	},
-	image: {
-		type: DataTypes.BLOB,
-	},
-	owner: {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-	},
-	publicVersion: {
-		type: DataTypes.INTEGER,
-	},
-	parentProject: {
-		type: DataTypes.INTEGER,
-	},
-	projectMetaData: {
-		type: DataTypes.STRING,
-	},
-};
-
-export const comments = {
-	commentID: {
-		type: DataTypes.INTEGER,
-		primaryKey: true,
-		autoIncrement: true,
-	},
-	projectID: {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-	},
-	versionID: {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-	},
-	date: {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-		defaultValue: DataTypes.NOW,
-	},
-	author: {
-		type: DataTypes.INTEGER,
-	},
-	public: {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-	},
-	comment: {
-		type: DataTypes.STRING,
-		allowNull: false,
-	},
-};
+export {default as oauthusers} from './models/oauthusers';
+export {default as projects} from './models/projects';
+export {default as projectversions} from './models/projectversions';
+export {default as comments} from './models/comments';
+export {default as tags} from './models/tags';
+export {default as projectstats} from './models/projectstats';
+export {default as projectratings} from './models/projectratings';
 
 export default function(db) {
 	db.models.projects.belongsTo(db.models.oauthusers, {
 		foreignKey: 'owner',
-		key: 'userid',
+		as: 'user',
+		allowNull: false,
+	});
+
+	db.models.projects.belongsTo(db.models.projectversions, {
+		foreignKey: 'publicVersion',
+		as: 'public',
+		//sourceKey: 'publicVersion',
+		allowNull: true,
+		constraints: false,
+	});
+
+	db.models.projects.hasMany(db.models.projectversions, {
+		foreignKey: 'projectID',
+		as: 'versions',
+		sourceKey: 'projectID',
+		allowNull: true,
+	});
+
+	db.models.projects.hasMany(db.models.tags, {
+		foreignKey: 'projectID',
+		sourceKey: 'projectID',
+		allowNull: true,
+	});
+
+	db.models.projects.hasOne(db.models.projectstats, {
+		foreignKey: 'projectID',
+		allowNull: true,
+	});
+
+	db.models.projects.hasMany(db.models.projectratings, {
+		foreignKey: 'projectID',
+		allowNull: true,
+	});
+
+	db.models.projectversions.belongsTo(db.models.projects, {
+		foreignKey: 'projectID',
+		sourceKey: 'projectID',
+		allowNull: false,
+	});
+
+	db.models.projectversions.belongsTo(db.models.oauthusers, {
+		foreignKey: 'author',
+		sourceKey: 'userid',
+		allowNull: false,
+	});
+
+	db.models.tags.belongsTo(db.models.projects, {
+		foreignKey: 'projectID',
+		sourceKey: 'projectID',
 		allowNull: false,
 	});
 

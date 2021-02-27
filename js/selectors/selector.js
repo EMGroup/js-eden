@@ -172,6 +172,8 @@ Eden.Selectors.resultTypes = {
 	"comment": true,
 	"source": true,
 	"innersource": true,
+	"outersource": true,
+	"standalone_outersource": true,
 	"title": true,
 	"path": true,
 	"name": true,

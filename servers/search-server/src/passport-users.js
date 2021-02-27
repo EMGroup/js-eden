@@ -50,15 +50,15 @@ export function setupPassport(passport,database){
 	db = database;
 	passport.serializeUser(function(user, done) {
 		var oauthcode = user.provider + ":" + user.id;
-		db.serialize(function(){
-		db.get('SELECT userid FROM oauthusers WHERE oauthstring = ?', oauthcode, function(err,row){
-			if(!row){
-				return done(null, {id: null, oauthcode: oauthcode, displayName: user.displayName});
-			}else{
-				return done(null, {id: row.userid});
-			}
+
+		db.models.oauthusers.findOne({where: {oauthstring: oauthcode}})
+			.then(row => {
+				if(!row){
+					return done(null, {id: null, oauthcode: oauthcode, displayName: user.displayName});
+				}else{
+					return done(null, {id: row.userid});
+				}
 			});
-		});
 	});
 
 
@@ -66,10 +66,17 @@ export function setupPassport(passport,database){
 		if(obj.id == null){
 			return done(null, obj);
 		}else{
-			db.get('SELECT userid, oauthstring, name, status, isAdmin FROM oauthusers WHERE userid = ?', obj.id, function(err, row){
-				const user = {displayName: row.name, id: row.userid, oauthstring: row.oauthstring, status: row.status, admin: row.isAdmin};
-				return done(null, user);
-			});
+			db.models.oauthusers.findOne({
+				where: {userid: obj.id}
+			})
+			.then(result => done(null, {
+				displayName: result.name,
+				id: result.userid,
+				oauthstring: result.oauthstring,
+				status: result.status,
+				admin: result.isAdmin,
+			}))
+			.catch(err => done(err, null));
 		}
 	});
 
@@ -153,7 +160,7 @@ export function setupPassport(passport,database){
 				  						newUser.id = userid;
 										var status = "registered";
 									  	passport.registerUser(req, "local:" + newUser.id,displayName,status,function(newUserID){
-									  		user = {displayName: displayName, id: newUser.id, provider: "local", oauthstring: "local:" + newUser.id};
+									  		const user = {displayName: displayName, id: newUser.id, provider: "local", oauthstring: "local:" + newUser.id};
 									  		return done(null, user);
 										});
 				  					}else{
