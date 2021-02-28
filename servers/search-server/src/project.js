@@ -599,19 +599,22 @@ export default function(app) {
 
 		const where = {};
 		const query = {
-			offset: req.query.offset || 0,
-			limit: req.query.limit || 50,
+			//offset: req.query.offset || 0,
+			// limit: req.query.limit || 50,
 			// where,
 			include: [
-				{model: app.models.tags, attributes: ['tag']}, 
-				{model: app.models.oauthusers, as: 'user', where, order: [['$versions.date$','DESC']], attributes: ['name']},
+				{model: app.models.tags, attributes: ['tag']},
+				{model: app.models.projectversions, as: 'versions', attributes: [[db.fn('MAX', db.col('versions.date')), 'date'],[db.fn('MAX', db.col('versions.saveID')), 'saveID']]},
+				{model: app.models.oauthusers, as: 'user', where, attributes: ['name']},
 				{model: app.models.projectstats, required: true, attributes: ['downloads', 'forks', 'avgStars']},
 				{model: app.models.projectversions, as: 'public', attributes: ['saveID', 'date']},
-				{model: app.models.projectversions, as: 'versions', order: [['date','DESC']], limit: 1, attributes: ['saveID', 'date']},
 				{model: app.models.projectratings},
 			],
+			group: 'projects.projectID',
+			order: [[{model: app.models.projectversions, as: 'versions'}, 'date', 'DESC']],		
 			attributes: {
 				includes: [
+					//[db.literal('(SELECT date FROM projectversions WHERE projectID = projects.projectID ORDER BY date DESC LIMIT 1)'),'date'],
 					'projectID',
 					'title',
 					'minimisedTitle',

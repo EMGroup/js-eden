@@ -22,8 +22,8 @@ export default {
 	},
 	date: {
 		type: DataTypes.INTEGER,
-		allowNull: false,
-		defaultValue: DataTypes.NOW,
+		// allowNull: false,
+		// defaultValue: DataTypes.NOW,
 	},
 	parentDiff: {
 		type: DataTypes.INTEGER,

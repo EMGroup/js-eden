@@ -25,7 +25,8 @@ export default function(db) {
 		foreignKey: 'projectID',
 		as: 'versions',
 		sourceKey: 'projectID',
-		allowNull: true,
+		allowNull: false,
+		constraints: false,
 	});
 
 	db.models.projects.hasOne(db.models.tags, {
