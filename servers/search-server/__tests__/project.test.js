@@ -123,6 +123,63 @@ describe("Project Service", () => {
 			const version = await app.models.projectversions.findOne({where: {saveID: response.body.saveID}});
 			expect(version.from).toBe(parent.saveID);
 		});
+
+		it('can save a new version', async () => {
+			const first = await request(app)
+				.post("/project/add")
+				.type("form")
+				.send({
+					title: 'Test Project 1',
+					minimisedTitle: 'TestProject1',
+					metadata: '{}',
+					source: 'a is b + c;',
+					listed: true,
+				});
+
+			const response = await request(app)
+				.post("/project/add")
+				.type("form")
+				.send({
+					projectID: first.body.projectID,
+					from: first.body.saveID,
+					sorce: 'a is b + c + d;',
+				});
+
+			expect(response.statusCode).toBe(200);
+		});
+
+		it('can save a multiple versions', async () => {
+			const first = await request(app)
+				.post("/project/add")
+				.type("form")
+				.send({
+					title: 'Test Project 1',
+					minimisedTitle: 'TestProject1',
+					metadata: '{}',
+					source: 'a is b + c;',
+					listed: true,
+				});
+
+			const second = await request(app)
+				.post("/project/add")
+				.type("form")
+				.send({
+					projectID: first.body.projectID,
+					from: first.body.saveID,
+					source: 'a is b + c + d;',
+				});
+
+			const response = await request(app)
+				.post("/project/add")
+				.type("form")
+				.send({
+					projectID: first.body.projectID,
+					from: second.body.saveID,
+					source: 'a is b + c + d + 2;',
+				});
+
+			expect(response.statusCode).toBe(200);
+		});
 	});
 
 	describe("getting projects", () => {
@@ -255,10 +312,43 @@ describe("Project Service", () => {
 					tags: ['hello'],
 				});
 
+			await request(app)
+				.post("/project/add")
+				.type("form")
+				.send({
+					title: 'Test Project 2',
+					minimisedTitle: 'hello',
+					metadata: '{}',
+					source: 'a is b + c + d;',
+				});
+
 			const response = await request(app)
 				.get("/project/search")
 				.query({
 					query: '#hello',
+				});
+
+			expect(response.statusCode).toBe(200);
+			expect(response.body).toHaveLength(1);
+			expect(response.body[0].projectID).toBe(original.body.projectID);
+		});
+
+		it('can search by id', async () => {
+			const original = await request(app)
+				.post("/project/add")
+				.type("form")
+				.send({
+					title: 'Test Project 1',
+					minimisedTitle: 'TestProject1',
+					metadata: '{}',
+					source: 'a is b + c;',
+					tags: ['hello'],
+				});
+
+			const response = await request(app)
+				.get("/project/search")
+				.query({
+					query: `.id(${original.body.projectID})`,
 				});
 
 			expect(response.statusCode).toBe(200);

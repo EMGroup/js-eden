@@ -80,6 +80,11 @@ function Construit(options,callback) {
 	var vid = URLUtil.getParameterByName("vid");
 	var readPassword = URLUtil.getParameterByName("r");
 	var writePassword = URLUtil.getParameterByName("w");
+	var api = URLUtil.getParameterByName("api");
+
+	if (api) {
+		Eden.DB.repositories = [api];
+	}
 	
 	var roles = URLUtil.getParameterByName("roles");
 	var master = URLUtil.getParameterByName("master");

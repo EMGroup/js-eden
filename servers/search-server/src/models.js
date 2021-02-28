@@ -28,7 +28,7 @@ export default function(db) {
 		allowNull: true,
 	});
 
-	db.models.projects.hasMany(db.models.tags, {
+	db.models.projects.hasOne(db.models.tags, {
 		foreignKey: 'projectID',
 		sourceKey: 'projectID',
 		allowNull: true,

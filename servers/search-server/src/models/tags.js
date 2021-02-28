@@ -8,7 +8,6 @@ export default {
 	},
 	tag: {
 		type: DataTypes.STRING,
-		primaryKey: true,
 		allowNull: false,
 	},
 };

@@ -37,12 +37,12 @@ async function updateProject(req, transaction) {
 	if (metadata) updates.projectMetadata = metadata;
 
 	if (Object.keys(updates).length > 0) {
-		await db.models.projects.update(updates, {where:{projectID}}, {transaction});
+		await db.models.projects.update(updates, {where:{projectID}, transaction});
 	}
 	
 	if (tags) {
-		await db.models.tags.destroy({where: {projectID}}, {transaction});
-		await updateTags(tags, projectID, {transaction});
+		await db.models.tags.destroy({where: {projectID}, transaction});
+		await updateTags(tags, projectID, transaction);
 	}
 }
 
@@ -55,9 +55,9 @@ async function updateTags(tags, projectID, transaction){
 	else
 		tagList = [tags];
 
-	const entries = tagList.map(tag => ({projectID, tag}));
-
-	return entries.length > 0 ? db.models.tags.bulkCreate(entries, {transaction}) : null;
+	return tagList.length > 0 ? db.models.tags.create({
+		projectID, tag: tagList.join(' '),
+	}, {transaction}) : null;
 }
 
 async function createProject(req, transaction){
@@ -78,7 +78,7 @@ async function createProject(req, transaction){
 	const project = await db.models.projects.create(projectData, {transaction});
 	const {projectID} = project;
 
-	await updateTags(req.body.tags, projectID);
+	await updateTags(req.body.tags, projectID, transaction);
 
 	if (parentProject) {
 		const result = await db.models.projectstats.update(
@@ -112,7 +112,8 @@ async function addProjectVersion(req, res, projectID, transaction){
 	let pTextBackward = null;
 
 	if(req.body.from){
-		const baseSrc = await getFullVersion(db, req.body.from, projectID, []);
+		const version = await getFullVersion(db, req.body.from, projectID, []);
+		const baseSrc = version.source;
 		const dmp = new window.diff_match_patch();
 		let d = dmp.diff_main(baseSrc,req.body.source,false);
 		let p = dmp.patch_make(baseSrc,req.body.source,d);
@@ -142,8 +143,7 @@ async function runAddVersion(entry, listed, req, res, transaction){
 	if (listed) {
 		await db.models.projects.update(
 			{publicVersion: lastSaveID},
-			{where: {projectID}},
-			{transaction}
+			{where: {projectID}, transaction},
 		);
 
 		reindexProject(projectID);
@@ -290,66 +290,16 @@ function processSelectorNode(t, criteria, req){
 	}
 	if (t.type === 'tag') {
 		if (!t.tag) return;
-		criteria['$tags.tag$'] = {[Op.substring]: t.tag.substring(1)};
+		criteria['$projects.projectID$'] = {[Op.in]: db.literal(`(SELECT projectID FROM tags WHERE tag LIKE '%${t.tag.substring(1).replaceAll("'", "''")}%')`)};
 	}
 	if (t.type === 'name') {
 		if (!t.name) return;
 		criteria[Op.or] = [
+			{$title$: {[Op.substring]: t.name}},
 			{$minimisedTitle$: {[Op.substring]: t.name}},
-			{'$tags.tag$': {[Op.substring]: t.name}},
+			{['$projects.projectID$']: {[Op.in]: db.literal(`(SELECT projectID FROM tags WHERE tag LIKE '%${t.name.replaceAll("'", "''")}%')`)}},
 		];
 	}
-
-
-	/*if(t.type == "property"){
-		switch(t.name){
-		case ".id":
-			criteria.push("projectID = @projectID" + i);
-			criteriaVals["@projectID" + i] = t.value;
-			break;
-		case ".title":
-			criteria.push("title LIKE @title" + i);
-			criteriaVals["@title" + i] = t.param.replace(/\* /g,"%");
-			break;
-		case ":me":
-			criteriaVals["@mineOnly"] = true;
-			break;
-		case ".author":
-//			criteria.push("owner = @otherAuthor");
-//			criteriaVals["@otherAuthor"] = 
-			break;
-		case ".name":
-			if(t.param === undefined)
-				return;
-			criteria.push("minimisedTitle LIKE @minimisedTitle" + i);
-			criteriaVals["@minimisedTitle" + i] = t.param.replace(/\* /g,"%");
-			break;
-		case ".parent":
-		case ":parent":
-			criteria.push("parentProject = @parentProject" +i);
-			criteriaVals["@parentProject" + i] = t.value;
-			break;
-		case ".listed":
-			criteriaVals["listedOnly"] = true;
-			break;
-		}
-	}
-	if(t.type == "tag"){
-		if(t.tag === undefined)
-			return;
-		criteria.push("tags like @tag" + i);
-		criteriaVals["@tag" + i] = "% " + t.tag.replace(/\* /g,"%").substring(1) + " %";				
-	}
-	if(t.type == "name"){
-		if(t.name === undefined)
-			return;
-		var tmpCriteria = ["OR"];
-		tmpCriteria.push("minimisedTitle LIKE @minimisedTitle" + i);
-		tmpCriteria.push("tags like @minimisedTitleTag" + i);
-		criteria.push(tmpCriteria);
-		criteriaVals["@minimisedTitle" + i] = t.name.replace(/\* /g,"%");
-		criteriaVals["@minimisedTitleTag" + i] = "% " + t.name.replace(/\* /g,"%") + " %";
-	}*/
 }
 
 function parseCriteria(arr){
@@ -442,7 +392,7 @@ export default function(app) {
 	app.get('/project/tags', async (req,res) => {
 		try {
 			const rows = await app.models.tags.findAll({
-				where: {tag: {[Op.like]: req.query.tag}},
+				where: {tag: {[Op.substring]: req.query.tag}},
 				offset: 0,
 				limit: 100,
 			});
@@ -579,6 +529,9 @@ export default function(app) {
 					const ret = await getFullVersion(db, saveID,projectID, metaRow);
 					const source = rectify ? rectifySource(ret.source) : ret.source;
 					const date = ret.date;
+
+					metaRow.tags = metaRow.tags || '';
+
 					if(from){
 						res.json(await sendDiff(from,source,projectID,saveID,metaRow));
 					}else{
@@ -650,14 +603,25 @@ export default function(app) {
 			limit: req.query.limit || 50,
 			// where,
 			include: [
-				{model: app.models.tags, required: true, where, attributes: ['tag']}, 
-				{model: app.models.oauthusers, as: 'user', required: true, attributes: ['name']},
+				{model: app.models.tags, attributes: ['tag']}, 
+				{model: app.models.oauthusers, as: 'user', where, order: [['$versions.date$','DESC']], attributes: ['name']},
 				{model: app.models.projectstats, required: true, attributes: ['downloads', 'forks', 'avgStars']},
 				{model: app.models.projectversions, as: 'public', attributes: ['saveID', 'date']},
 				{model: app.models.projectversions, as: 'versions', order: [['date','DESC']], limit: 1, attributes: ['saveID', 'date']},
 				{model: app.models.projectratings},
 			],
-			attributes: ['projectID', 'title', 'minimisedTitle', 'image', 'owner', 'publicVersion', 'parentProject', 'projectMetaData'],
+			attributes: {
+				includes: [
+					'projectID',
+					'title',
+					'minimisedTitle',
+					'image',
+					'owner',
+					'publicVersion',
+					'parentProject',
+					'projectMetaData',
+				],
+			},
 		};
 	
 		if(req.query.query && req.query.query != " "){
@@ -668,6 +632,7 @@ export default function(app) {
 					query.where[Op.and] = criteriaList;
 					for(var i = 0; i < selectorAST.children.length; i++){
 						const criteria = {};
+						if (!selectorAST.children[i]) continue;
 						processSelectorNode(selectorAST.children[i], criteria, req);
 						criteriaList.push(criteria);
 					}
@@ -675,8 +640,8 @@ export default function(app) {
 					processSelectorNode(selectorAST, where, req);
 				}
 			}else{
-				//res.json([]);
-				//return;
+				res.json([]);
+				return;
 			}
 		}
 
@@ -691,7 +656,7 @@ export default function(app) {
 				title: project.title,
 				minimisedTitle: project.minimisedTitle,
 				projectMetaData: project.projectMetaData,
-				tags: project.tags.map(tag => tag.tag).filter(tag => tag !== null),
+				tags: project.tags || '',
 				parentProject: project.parentProject,
 				image: project.image,
 				owner: project.owner,
@@ -700,6 +665,8 @@ export default function(app) {
 				downloads: project.projectstat.downloads,
 				forks: project.projectstat.forks,
 				avgStars: project.projectstat.avgStars,
+				overallRating: project.projectstat.avgStars,
+				numRatings: 1,
 			}));
 			res.json(processed.filter(project => project.publicVersion || project.owner === req.user?.id));
 		} catch(err) {
@@ -913,7 +880,7 @@ export default function(app) {
 					res.status(400).json({error: ERROR_INVALID_PROJECTID_FORMAT, description: "Invalid projectID format"});
 				} else {
 					if (await checkOwner(req,res, projectID)) {
-						await updateProject(req, res, t);
+						await updateProject(req, t);
 						if (req.body.source === undefined){
 							res.json({status:"updated", projectID});
 						} else {
