@@ -16,7 +16,7 @@ Eden.AST.prototype.pEXPRESSION_PPPPP = function() {
  *  epsilon
  */
 Eden.AST.prototype.pEXPRESSION_PPPPPP = function() {
-	/*if (this.token == "?") {
+	if (this.version === Eden.AST.VERSION_CS2 && this.token == "?") {
 		this.next();
 		var tern = new Eden.AST.TernaryOp("?");
 		tern.setFirst(this.pEXPRESSION());
@@ -34,9 +34,7 @@ Eden.AST.prototype.pEXPRESSION_PPPPPP = function() {
 		
 		tern.setSecond(this.pEXPRESSION());
 		return tern;
-	} else */
-	
-	if (this.token === "if") {
+	} else if (this.token === "if") {
 		this.next();
 		var tern = new Eden.AST.TernaryOp("?");
 		tern.setCondition(this.pEXPRESSION());
