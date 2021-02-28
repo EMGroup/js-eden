@@ -163,7 +163,7 @@ function getListQueryStr(targetTable){
 }
 
 async function getMaxReadableSaveID(projectID, user, res){
-	try {
+	// try {
 		const row = await db.query(
 			'SELECT max(saveID) as maxSaveID FROM projectversions, projects WHERE projects.projectID = projectversions.projectID ' +
 			'AND projectversions.projectID = :projectID AND (readPassword is NULL OR projects.owner = :user)',
@@ -178,14 +178,14 @@ async function getMaxReadableSaveID(projectID, user, res){
 			res.status(400).json({error: ERROR_SQL, description: ""})
 		}
 		return row.maxSaveID;
-	} catch(err) {
-		logDBError(err);
-		res.status(400).json({error: ERROR_SQL, description: "SQL Error", err: err});
-	}
+	// } catch(err) {
+	// 	logDBError(err);
+	//	res.status(400).json({error: ERROR_SQL, description: "SQL Error", err: err});
+	//}
 }
 
 async function getVersionInfo(saveID,projectID,userID, readPassword, res){
-	try {
+	// try {
 		const row = await db.query(
 			'SELECT date, readPassword, owner FROM projectversions, projects WHERE projectversions.projectid = projects.projectid and saveID = :saveID',
 			{
@@ -203,10 +203,10 @@ async function getVersionInfo(saveID,projectID,userID, readPassword, res){
 			else
 				res.status(400).json({error: ERROR_PROJECT_NOT_MATCHED, description: "No matching saveID"});
 		}
-	} catch(err) {
-		logDBError(err);
-		res.status(400).json({error: ERROR_SQL, description: "SQL Error", err: err});
-	}
+	// } catch(err) {
+	// 	logDBError(err);
+	//	res.status(400).json({error: ERROR_SQL, description: "SQL Error", err: err});
+	//}
 }
 
 function getProjectMetaDataFromSaveID(saveID, res, callback){
@@ -510,7 +510,9 @@ export default function(app) {
 
 				if (to){
 					targetSaveID = to;
-					const [saveID] = await getVersionInfo(targetSaveID,projectID,userID,readPassword,res);	
+					const version = await getVersionInfo(targetSaveID,projectID,userID,readPassword,res);
+					if (!version) return;
+					const [saveID] = version;
 					const metaRow = await getProjectMetaData(projectID, userID);
 					const ret = await getFullVersion(db, saveID,projectID, metaRow);
 					const source = rectify ? rectifySource(ret.source) : ret.source;
@@ -524,7 +526,8 @@ export default function(app) {
 					}
 				} else {
 					const saveID = await getMaxReadableSaveID(projectID, userID, res);
-					await getVersionInfo(saveID,projectID,userID, readPassword, res);
+					const version = await getVersionInfo(saveID,projectID,userID, readPassword, res);
+					if (!version) return;
 					const metaRow = await getProjectMetaData(projectID, userID);
 					const ret = await getFullVersion(db, saveID,projectID, metaRow);
 					const source = rectify ? rectifySource(ret.source) : ret.source;
