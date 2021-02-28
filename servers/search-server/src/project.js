@@ -380,9 +380,9 @@ function rectifySource(source) {
 	// Otherwise, needs fixing
 	const script = ast.pSCRIPT();
 	if (script.errors.length === 0) {
-		return `"use cs3;\n${source}`;
+		return `"use cs3;"\n${source}`;
 	} else {
-		return `"use cs2;\n${source}`;
+		return `"use cs2;"\n${source}`;
 	}
 }
 
