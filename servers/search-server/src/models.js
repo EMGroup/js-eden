@@ -5,6 +5,7 @@ export {default as comments} from './models/comments';
 export {default as tags} from './models/tags';
 export {default as projectstats} from './models/projectstats';
 export {default as projectratings} from './models/projectratings';
+export {default as localusers} from './models/localusers';
 
 export default function(db) {
 	db.models.projects.belongsTo(db.models.oauthusers, {

@@ -17,4 +17,9 @@ export default {
 	status: {
 		type: DataTypes.STRING,
 	},
+	isAdmin: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		defaultValue: 0,
+	}
 };

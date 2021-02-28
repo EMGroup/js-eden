@@ -25,25 +25,22 @@ let transporter = nodemailer.createTransport({
 export const Users = {};
 
 Users.findByEmail = function(email,callback){
-	db.get('SELECT localuserID,hashedPassword FROM localusers WHERE emailaddress = ?',email,function(err,row){
-		if(!row){
-			callback(false);
-		}else{
-			callback({localuserID: row.localuserID, passwordhash: row.hashedPassword});
-		}
-	});
+	db.models.localusers.findOne({
+		where: {emailaddress: email},
+	})
+		.then(row => row ? callback({localuserID: row.localuserID, passwordhash: row.hashedPassword}) : callback(false))
+		.catch(() => callback(false));
 };
 
 Users.addUser = function(email,password,callback){
-	var passHash = bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
-	var stmt = db.prepare("INSERT INTO localusers VALUES (NULL,?,?);");
-	stmt.run(email,passHash,function(err){
-		if(!err){
-			callback(this.lastID);
-		}else{
-			callback(false);
-		}
-	});
+	const passHash = bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+
+	db.models.localusers.create({
+		hashedPassword: passHash,
+		emailaddress: email,
+	})
+		.then(row => row ? callback(row.localuserID) : callback(false))
+		.catch(() => callback(false));
 };
 
 export function setupPassport(passport,database){
@@ -176,12 +173,12 @@ export function setupPassport(passport,database){
 				));
 	
 	passport.registerUser = function(req, oauthcode,displayName,status,callback){
-		  var stmt = db.prepare("INSERT INTO oauthusers VALUES (NULL, ?, ?,?,0)");
-			stmt.run(oauthcode, displayName, status,function(err){
-				if(callback){
-					callback(this.lastID);
-				}
-			});  
+		db.models.oauthusers.create({
+			oauthstring: oauthcode,
+			name: displayName,
+			status,
+			isAdmin: 0,
+		}).then(user => callback(user.userid));
 	  }
 };
 
