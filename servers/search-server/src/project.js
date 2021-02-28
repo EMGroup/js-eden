@@ -431,7 +431,7 @@ export default function(app) {
 		const query = {
 			offset: req.query.offset || 0,
 			limit: req.query.limit || 100,
-			include: [app.models.outhusers, app.models.projects],
+			include: [app.models.oauthusers, app.models.projects],
 			order: [['date','DESC']],
 		};
 
@@ -447,7 +447,7 @@ export default function(app) {
 
 			const versions = await app.models.projectversions.findAll(query);
 			const mapped = versions.map(version => ({
-				name: version.outhuser.name,
+				name: version.oauthuser.name,
 				saveID: version.saveID,
 				projectID: version.projectID,
 				date: version.date,
