@@ -16,13 +16,30 @@ Eden.AST.prototype.pFUNCTION = function() {
 		this.next();
 
 		if (this.token == ":") {
-			this.next();
-			var attribs = this.pATTRIBUTES();
-			if (!lval.setAttributes(attribs)) {
-				lval.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCNAME));
-				func.left(lval);
-				this.parent = parent;
-				return func;
+			if (this.version === Eden.AST.VERSION_CS2 && type === 'proc') {
+				this.next();
+				const olist = this.pOLIST();
+				const attribs = {}
+
+				for (const o of olist) {
+					attribs['depends(' + o + ')'] = true;
+				}
+				
+				if (!lval.setAttributes(attribs)) {
+					lval.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCNAME));
+					func.left(lval);
+					this.parent = parent;
+					return func;
+				}
+			} else {
+				this.next();
+				var attribs = this.pATTRIBUTES();
+				if (!lval.setAttributes(attribs)) {
+					lval.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCNAME));
+					func.left(lval);
+					this.parent = parent;
+					return func;
+				}
 			}
 		}
 
@@ -63,7 +80,7 @@ Eden.AST.prototype.pFUNCTION = function() {
  * FUNCBODY Production
  * FUNCBODY -> \{ PARAS LOCALS SCRIPT \}
  */
-/*Eden.AST.prototype.pFUNCBODY = function() {
+Eden.AST.prototype.pFUNCBODY = function() {
 	var codebody = new Eden.AST.CodeBlock();
 	var parent = this.parent;
 	this.parent = codebody;
@@ -98,5 +115,5 @@ Eden.AST.prototype.pFUNCTION = function() {
 
 	this.parent = parent;
 	return codebody;
-}*/
+}
 

@@ -7,31 +7,69 @@ Eden.AST.prototype.pATTRIBUTES = function() {
 			return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
 		}
 
-		var attribs = {};
-		attribs[this.data.value] = true;
+		const name = this.data.value;
+		const attribs = {};
 		this.next();
+
+		let value = name;
+		if (this.token === '(') {
+			this.next();
+			// Here, support literal or observable
+			switch (this.token) {
+			case 'STRING':
+			case 'NUMBER':
+			case 'OBSERVABLE':
+				value += '(' + this.data.value + ')';
+				break;
+			default:
+				return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
+			}
+
+			this.next();
+			if (this.token !== ')') {
+				return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
+			}
+			this.next();
+		}
+		attribs[value] = true;
+
 		return attribs;
 	}
 
-
 	this.next();
 
-	var attribs = {};
+	const attribs = {};
 
 	while (true) {
 		if (this.token != "OBSERVABLE") {
 			return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
 		}
 
-		attribs[this.data.value] = true;
-
-		/*switch (this.data.value) {
-		case "atomic": stat.setAttribute(this.data.value, true); break;
-		case "nonatomic":	stat.setAttribute(this.data.value, true); stat.setAttribute("atomic", false); break;
-		default: stat.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)); return;
-		}*/
-
+		const name = this.data.value;
 		this.next();
+
+		let value = name;
+		if (this.token === '(') {
+			this.next();
+			// Here, support literal or observable
+			switch (this.token) {
+			case 'STRING':
+			case 'NUMBER':
+			case 'OBSERVABLE':
+				value += '(' + this.data.value + ')';
+				break;
+			default:
+				return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
+			}
+
+			this.next();
+			if (this.token !== ')') {
+				return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
+			}
+			this.next();
+		}
+		attribs[value] = true;
+
 		if (this.token != ",") break;
 		this.next();
 	}

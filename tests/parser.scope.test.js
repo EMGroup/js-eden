@@ -15,6 +15,17 @@ describe("Scoped Expressions", () => {
 		expect(ast.isdynamic).toEqual(false);
 	});
 
+	test("can scope a literal", () => {
+		var ast = Eden.AST.parseExpression("${{ x }}$ with x=4");
+
+		console.log(ast);
+
+		expect(ast).toBeTruthy();
+		expect(ast.errors).toHaveLength(0);
+		expect(ast.type).toEqual("scope");
+		expect(ast.expression.type).toEqual("literal");
+	});
+
 	test("can scope a complex expression", () => {
 		var ast = Eden.AST.parseExpression("b+2 with x=4");
 

@@ -244,3 +244,14 @@ test("Valid empty object literal expression", () => {
 	expect(ast.isdependant).toEqual(false);
 	expect(ast.isdynamic).toEqual(false);
 });
+
+// ==== Javascript =============================================================
+
+test("A Javascript literal", () => {
+	var ast = Eden.AST.parseExpression("${{ x = 5; }}$");
+
+	expect(ast).toBeTruthy();
+	expect(ast.errors).toHaveLength(0);
+	expect(ast.type).toEqual("literal");
+	expect(ast.typevalue).toBe(Eden.AST.TYPE_UNKNOWN);
+});

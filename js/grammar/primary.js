@@ -134,7 +134,7 @@ Eden.AST.prototype.pPRIMARY_P = function(primary) {
 	var attribs;
 
 	// Allow primary attributes
-	if (this.token == ":") {
+	if (this.version >= Eden.AST.VERSION_CS3 && this.token == ":") {
 		this.next();
 		attribs = this.pATTRIBUTES();
 

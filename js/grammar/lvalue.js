@@ -135,7 +135,7 @@ Eden.AST.prototype.pLVALUE = function() {
 			lvalue.setObservable(observable);
 		}
 
-		if (this.token === ":") {
+		if (this.version >= Eden.AST.VERSION_CS3 && this.token === ":") {
 			this.next();
 			var attribs = this.pATTRIBUTES();
 			if (!lvalue.setAttributes(attribs)) {

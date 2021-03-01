@@ -7,7 +7,7 @@ Eden.AST.prototype.pDEFINITION = function() {
 
 	
 	var attribs;
-	if (this.token == ":") {
+	if (this.version >= Eden.AST.VERSION_CS3 && this.token == ":") {
 		this.next();
 		attribs = this.pATTRIBUTES();
 		if (!def.setAttributes(attribs)) {
@@ -57,7 +57,7 @@ Eden.AST.prototype.pASSIGNMENT = function() {
 	this.next();
 
 	var attribs;
-	if (this.token == ":") {
+	if (this.version >= Eden.AST.VERSION_CS3 && this.token == ":") {
 		this.next();
 		attribs = this.pATTRIBUTES();
 	}
@@ -408,7 +408,7 @@ Eden.AST.prototype.pSTATEMENT = function() {
 	var expectssemi = false;
 
 	switch (this.token) {
-	case "proc"		:	//this.next(); stat = this.pACTION(); break;
+	case "proc"		:
 	case "func"		:	stat = this.pFUNCTION(); break;
 	case "when"		:	this.next(); stat = this.pWHEN(); break;
 	case "action"	:	this.next(); stat = this.pNAMEDSCRIPT(); break;

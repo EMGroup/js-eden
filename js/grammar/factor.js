@@ -85,6 +85,7 @@ Eden.AST.prototype.pFACTOR_UNDEFINED = function() {
 
 Eden.AST.prototype.pFACTOR_JAVASCRIPT = function() {
 	var lit = new Eden.AST.Literal("JAVASCRIPT", this.data.value);
+	lit.isconstant = false;
 	this.next();
 	return lit;
 }

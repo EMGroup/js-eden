@@ -46,7 +46,7 @@ Eden.AST.prototype.pQUERY = function() {
 		//return stat;
 	}*/
 
-	if (this.token == ":") {
+	if (this.version >= Eden.AST.VERSION_CS3 && this.token == ":") {
 		this.next();
 		let attribs = this.pATTRIBUTES();
 		restype = Object.keys(attribs);
