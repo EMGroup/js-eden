@@ -635,7 +635,7 @@ export default function(app) {
 			if(selectorAST !== undefined){
 				if(selectorAST.type == "intersection"){
 					const criteriaList = [];
-					query.where[Op.and] = criteriaList;
+					where[Op.and] = criteriaList;
 					for(var i = 0; i < selectorAST.children.length; i++){
 						const criteria = {};
 						if (!selectorAST.children[i]) continue;
