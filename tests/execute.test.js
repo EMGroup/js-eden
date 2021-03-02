@@ -468,3 +468,27 @@ describe("Execution of For Loop", () => {
 	});
 
 });
+
+describe("Execution of Function", () => {
+
+	test("create an undecorated function", async () => {
+		let eden = new Eden();
+		await eden.exec("func x { a = 5; }");
+		expect(typeof eden.get("x")).toBe('function');
+	});
+
+	test("create a dependency function", async () => {
+		let eden = new Eden();
+		await eden.exec("func:depends(y) x { a = 5; }");
+		expect(typeof eden.get("x")).toBe('function');
+		expect(eden.root.lookup('x').dependencies.y).toBeTruthy();
+	});
+
+	test("create an eager dependency function", async () => {
+		let eden = new Eden();
+		await eden.exec("func:[eager,depends(y)] x { a = 5; }");
+		expect(typeof eden.get("x")).toBe('function');
+		expect(eden.root.lookup('x').dependencies.y).toBeTruthy();
+		expect(eden.root.lookup('x').eager).toBe(true);
+	});
+});

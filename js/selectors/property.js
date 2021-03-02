@@ -395,7 +395,9 @@ Eden.Selectors.PropertyNode.prototype._construct = function() {
 	case ":root"		:	stats = [eden.project.ast.script].concat(Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; })); break;
 	case ":remote"		:	stats = Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; }); break;
 	case ":project"		:	stats = [eden.project.ast.script]; break;
-	case ":this"		:	stats = (this.options && this.options.self) ? [this.options.self] : []; break;
+	case ":this"		:	stats = (this.options && this.options.self) ? [this.options.self] : [];
+							console.log("THIS", this.options);
+							break;
 	case ":prev"		:	stats = (this.options && this.options.self) ? [this.options.self] : [];
 							stats = stats.map(stat => {
 								let s = stat.previousSibling;

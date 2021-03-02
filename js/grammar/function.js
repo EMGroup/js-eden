@@ -3,30 +3,40 @@
  * FUNCTION -> observable FUNCBODY
  */
 Eden.AST.prototype.pFUNCTION = function() {
-	var func = new Eden.AST.Assignment();
+	var func = new Eden.AST.Definition();
 	var parent = this.parent;
 	this.parent = func;
 
-	var type = this.token;
+	let type = this.token;
 	this.next();
+
+	if (this.version >= Eden.AST.VERSION_CS3 && this.token === ':') {
+		this.next();
+		var attribs = this.pATTRIBUTES();
+		if (!func.setAttributes(attribs)) {
+			func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCNAME));
+			this.parent = parent;
+			return func;
+		}
+	}
 
 	if (this.token == "OBSERVABLE") {
 		var lval = new Eden.AST.LValue();
 		lval.setObservable(this.data.value);
 		this.next();
 
-		if (this.token == ":") {
+		if (this.token === ":") {
 			if (this.version === Eden.AST.VERSION_CS2 && type === 'proc') {
 				this.next();
 				const olist = this.pOLIST();
-				const attribs = {}
+				const attribs = {eager: true};
 
 				for (const o of olist) {
 					attribs['depends(' + o + ')'] = true;
 				}
 				
-				if (!lval.setAttributes(attribs)) {
-					lval.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCNAME));
+				if (!func.setAttributes(attribs)) {
+					func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCNAME));
 					func.left(lval);
 					this.parent = parent;
 					return func;
@@ -61,6 +71,15 @@ Eden.AST.prototype.pFUNCTION = function() {
 	}
 
 	var expr = this.pSCRIPTEXPR();
+
+	if (type === 'proc' && func.eager) {
+		const fcall = new Eden.AST.FunctionCall();
+		const indexed = new Eden.AST.Indexed();
+		indexed.addIndex(fcall);
+		indexed.setExpression(expr);
+		expr = indexed;
+	}
+
 	func.setExpression(expr);
 
 	if (this.token != "}") {

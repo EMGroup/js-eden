@@ -587,8 +587,8 @@ Eden.Selectors._depend = function(p) {
 	}
 }
 
-Eden.Selectors.queryWithinSync = function(within, s, o) {
-	var sast = Eden.Selectors.parse(s);
+Eden.Selectors.queryWithinSync = function(within, s, o, options) {
+	var sast = Eden.Selectors.parse(s, options ? options.options : null);
 	var res = [];
 	if (!sast) return res;
 

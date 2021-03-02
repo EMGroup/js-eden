@@ -46,13 +46,7 @@ Eden.AST.LValue.prototype.setAttributes = function(attribs) {
 		case "any"		:	this.typevalue = 0; break;
 		case "object"	:	this.typevalue = Eden.AST.TYPE_OBJECT; break;
 		default:
-			if (a.startsWith('depends(')) {
-				// TODO: Do something with this.
-				// console.warn('Unsupported depends attribute', a);
-				return true;
-			} else {
-				return false;
-			}
+			return false;
 		}
 	}
 

@@ -26,7 +26,13 @@ Eden.AST.Definition.prototype.setAttributes = function(attribs) {
 		case "undefined":
 		case "string"	:
 		case "list"		: break;
-		default: return false;
+		default:
+			if (a.startsWith('depends(')) {
+				this.dependencies[attribs[a]] = true;
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 

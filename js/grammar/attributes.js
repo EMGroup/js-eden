@@ -7,11 +7,11 @@ Eden.AST.prototype.pATTRIBUTES = function() {
 			return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
 		}
 
-		const name = this.data.value;
+		let name = this.data.value;
 		const attribs = {};
 		this.next();
 
-		let value = name;
+		let value = true;
 		if (this.token === '(') {
 			this.next();
 			// Here, support literal or observable
@@ -19,7 +19,8 @@ Eden.AST.prototype.pATTRIBUTES = function() {
 			case 'STRING':
 			case 'NUMBER':
 			case 'OBSERVABLE':
-				value += '(' + this.data.value + ')';
+				name += '(' + this.data.value + ')';
+				value = this.data.value;
 				break;
 			default:
 				return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
@@ -31,7 +32,7 @@ Eden.AST.prototype.pATTRIBUTES = function() {
 			}
 			this.next();
 		}
-		attribs[value] = true;
+		attribs[name] = value;
 
 		return attribs;
 	}
@@ -45,10 +46,10 @@ Eden.AST.prototype.pATTRIBUTES = function() {
 			return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
 		}
 
-		const name = this.data.value;
+		let name = this.data.value;
 		this.next();
 
-		let value = name;
+		let value = true;
 		if (this.token === '(') {
 			this.next();
 			// Here, support literal or observable
@@ -56,7 +57,8 @@ Eden.AST.prototype.pATTRIBUTES = function() {
 			case 'STRING':
 			case 'NUMBER':
 			case 'OBSERVABLE':
-				value += '(' + this.data.value + ')';
+				name += '(' + this.data.value + ')';
+				value = this.data.value;
 				break;
 			default:
 				return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
@@ -68,7 +70,7 @@ Eden.AST.prototype.pATTRIBUTES = function() {
 			}
 			this.next();
 		}
-		attribs[value] = true;
+		attribs[name] = value;
 
 		if (this.token != ",") break;
 		this.next();
