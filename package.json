@@ -3,7 +3,7 @@
   "name": "construit",
   "productName": "construit",
   "description": "Construit, the Making Construals Environment on the web.",
-  "version": "2.1.20",
+  "version": "3.0.0",
   "homepage": "jseden.dcs.warwick.ac.uk/construit",
   "repository": {
     "type": "git",
@@ -27,20 +27,18 @@
     "grunt-cli": "^1.2.0",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-cssmin": "~3.0.0",
-    "grunt-contrib-uglify": "git://github.com/gruntjs/grunt-contrib-uglify.git#harmony",
+    "grunt-contrib-uglify": "^5.0.0",
     "grunt-gh-pages": "~3.1.0",
     "http": "0.0.0",
     "jest": "^26.6.3",
     "serve-static": "~1.13.2",
-    "uglify-js": "git+https://github.com/mishoo/UglifyJS2.git#harmony",
+    "uglify-js": "3.13.0",
     "wd": "^1.14.0"
   },
   "dependencies": {
     "abcjs": "5.6.2",
-    "grunt-contrib-uglify-es": "git://github.com/gruntjs/grunt-contrib-uglify.git#harmony",
     "serialport": "^7.1.5",
-    "showdown": "^1.9.1",
-    "uglify-es": "git+https://github.com/mishoo/UglifyJS2.git#harmony"
+    "showdown": "^1.9.1"
   },
   "optionalDependencies": {},
   "engines": {
@@ -48,6 +46,9 @@
   },
   "license": "SEE LICENSE IN LICENSE.txt",
   "jest": {
-	  "testPathIgnorePatterns": ["/servers/", "/node_modules/"]
+    "testPathIgnorePatterns": [
+      "/servers/",
+      "/node_modules/"
+    ]
   }
 }
