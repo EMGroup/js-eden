@@ -56,7 +56,7 @@ Eden.AST.Assignment.prototype.setAttributes = function(attribs) {
 /* For inside func and proc only */
 Eden.AST.Assignment.prototype.generate = function(ctx,scope, options) {
 	if (!options) console.warn("Missing assignment generator options");
-	
+
 	var result = this.lvalue.generate(ctx, scope, options);
 
 	if (this.lvalue.islocal) {
@@ -67,14 +67,14 @@ Eden.AST.Assignment.prototype.generate = function(ctx,scope, options) {
 	} else if (this.lvalue.hasListIndices()) {
 		result = scope+".listAssign("+result+",";
 		result += this.expression.generate(ctx, scope, options);
-		result += ", EdenSymbol.localJSAgent, false, ";
+		result += `, ${options.symbol ? "this" : "EdenSymbol.localJSAgent"}, false, `;
 		result += this.lvalue.generateCompList(ctx, scope);
 		result += ");\n";
 		return result;
 	} else {
 		result = scope+".assign("+result+",";
 		result += this.expression.generate(ctx, scope, options);
-		result += ", EdenSymbol.localJSAgent);\n"
+		result += `, ${options.symbol ? "this" : "EdenSymbol.localJSAgent"});\n`
 		return result;
 	}
 };

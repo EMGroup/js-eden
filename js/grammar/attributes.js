@@ -12,7 +12,8 @@ Eden.AST.prototype.pATTRIBUTES = function() {
 		this.next();
 
 		let value = true;
-		if (this.token === '(') {
+		// This cannot happen here... use []
+		/*if (this.token === '(') {
 			this.next();
 			// Here, support literal or observable
 			switch (this.token) {
@@ -31,7 +32,7 @@ Eden.AST.prototype.pATTRIBUTES = function() {
 				return {errors: new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB)};
 			}
 			this.next();
-		}
+		}*/
 		attribs[name] = value;
 
 		return attribs;

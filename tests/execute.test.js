@@ -477,7 +477,7 @@ describe("Execution of Function", () => {
 		expect(typeof eden.get("x")).toBe('function');
 	});
 
-	test("create a dependency function", async () => {
+	/*test("create a dependency function", async () => {
 		let eden = new Eden();
 		await eden.exec("func:depends(y) x { a = 5; }");
 		expect(typeof eden.get("x")).toBe('function');
@@ -490,5 +490,5 @@ describe("Execution of Function", () => {
 		expect(typeof eden.get("x")).toBe('function');
 		expect(eden.root.lookup('x').dependencies.y).toBeTruthy();
 		expect(eden.root.lookup('x').eager).toBe(true);
-	});
+	});*/
 });

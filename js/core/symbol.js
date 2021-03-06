@@ -252,8 +252,8 @@ EdenSymbol.prototype.evaluate = function (scope, cache) {
 		if (e instanceof Eden.RuntimeError) {
 			this.context.instance.emit("error", [this,e]);
 		}
-		//if (this.context) console.error(this.context.currentObservables.map(x => { return x.name; }), e);
-		//else console.error(this.name, e);
+		// if (this.context) console.error(this.context.currentObservables.map(x => { return x.name; }), e);
+		// else console.error(this.name, e);
 		cache.up_to_date = !this.volatile;
 
 		if (e === -1) {
@@ -690,7 +690,7 @@ EdenSymbol.prototype.fireJSObservers = function () {
  * @param {Object.<string,EdenSymbol>} actions_to_fire set to accumulate all the actions that should be notified about this expiry
  */
 EdenSymbol.prototype.expire = function (EdenSymbols_to_force, insertionIndex, actions_to_fire, fullexpire) {
-	//console.log("Expire",this.name,this.has_evaled,fullexpire);
+	// console.log("Expire",this.name,this.has_evaled,fullexpire);
 	if (this.has_evaled || (fullexpire && this.needsGlobalNotify != EdenSymbol.EXPIRED)) {
 
 		if (this.isasync && this.definition && this.needsGlobalNotify != EdenSymbol.ASYNC_UPDATE) {

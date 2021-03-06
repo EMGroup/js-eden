@@ -78,14 +78,14 @@ var Language = {
 
 	keywords: {
 		"func": "func",			/* To be deprecated */
-		"function": "function",
+		"function": "func",
 		"oracle": "oracle",
 		"handle": "handle",
-		"proc": "proc",			/* Deprecated */
+		"proc": "proc",
 		"auto": "auto",
 		"para": "para",
 		"action": "action",
-		"procedure": "procedure",
+		"procedure": "proc",
 		"local": "local",
 		"role": "role",
 		"if": "if",

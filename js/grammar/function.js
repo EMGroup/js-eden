@@ -26,6 +26,7 @@ Eden.AST.prototype.pFUNCTION = function() {
 		this.next();
 
 		if (this.token === ":") {
+			// Deprecated CS2 triggered procedure syntax
 			if (this.version === Eden.AST.VERSION_CS2 && type === 'proc') {
 				this.next();
 				const olist = this.pOLIST();
@@ -41,6 +42,8 @@ Eden.AST.prototype.pFUNCTION = function() {
 					this.parent = parent;
 					return func;
 				}
+
+				// TODO: Also set func body to static somehow.
 			} else {
 				this.next();
 				var attribs = this.pATTRIBUTES();
@@ -72,6 +75,7 @@ Eden.AST.prototype.pFUNCTION = function() {
 
 	var expr = this.pSCRIPTEXPR();
 
+	// Wrap in a function call for eager triggered procs.
 	if (type === 'proc' && func.eager) {
 		const fcall = new Eden.AST.FunctionCall();
 		const indexed = new Eden.AST.Indexed();

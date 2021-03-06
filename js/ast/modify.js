@@ -55,7 +55,7 @@ Eden.AST.Modify.prototype.generate = function(ctx, scope) {
 	}
 
 	if (this.lvalue.islocal == false) {
-		result = result + ", EdenSymbol.localJSAgent);\n";
+		result = `${result}, ${options.symbol ? "this" : "EdenSymbol.localJSAgent"});\n`;
 	} else {
 		result += ";\n";
 	}
