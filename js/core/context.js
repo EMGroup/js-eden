@@ -2,19 +2,26 @@ function Pointer(initialValue) {
 	this.value = initialValue;
 }
 
-function copy(value) {
-	var i, copied;
-	if (value instanceof Array) {
-		copied = value.slice();
-		for (i = 0; i < value.length; ++i) {
-			copied[i] = copy(copied[i]);
-		}
-		return copied;
-	}
-	return value;
-}
+var EdenSymbol = Eden.EdenSymbol;
 
-edenCopy = copy;
+function fireActions(actions_to_fire, scope){
+	let ts = Date.now();
+	for (var action_name in actions_to_fire) {
+		var action = actions_to_fire[action_name];
+
+		// if one action fails, it shouldn't prevent all the other
+		// scheduled actions from firing
+		if (action) {
+			action.trigger(scope, ts);
+		}
+	}
+};
+
+function fireJSActions(EdenSymbols_to_fire_for) {
+	for (var i = 0; i < EdenSymbols_to_fire_for.length; i++) {
+		EdenSymbols_to_fire_for[i].fireJSObservers();
+	}
+}
 
 
 /**
@@ -26,7 +33,7 @@ edenCopy = copy;
  * @param {Folder?} parent Parent Folder for this Folder.
  * @param {Folder?} root The top most parent of this Folder.
  */
-function Folder(name, parent, root) {
+function Folder(name, instance, parent, root) {
 	this.type = "script";
 	this.executed = 1;
 	this.start = 0;
@@ -34,6 +41,7 @@ function Folder(name, parent, root) {
 	this.prefix = "";
 	this.postfix = "";
 	this.id = "ACTIVE";
+	this.instance = instance || {};
 
 	/**
 	 * @type {string}
@@ -58,7 +66,7 @@ function Folder(name, parent, root) {
 	 */
 	this.root = root || this;
 
-	this.scope = new Scope(this, undefined, {});
+	this.scope = new Eden.Scope(this, undefined, {});
 
 	/**
 	 * @type {Object.<string, EdenSymbol>}
@@ -68,7 +76,8 @@ function Folder(name, parent, root) {
 
 	this.f = Object.create(null);
 	
-	this.evalResults = {};
+	this.delayedaction = Object.create(null);
+	this.autoaction = true;  // TODO: Experiment with this starting on false.
 
 	/**
 	 * @type {Array.<function(EdenSymbol, boolean)>}
@@ -133,6 +142,10 @@ function Folder(name, parent, root) {
 	});
 }
 
+Folder.prototype.registerAgent = function(whenstat) {
+	// TODO: All when statements without a project.
+}
+
 Folder.prototype.addSubscriber = function(dependency) {
 	this.subscribers[dependency] = this.lookup(dependency);
 }
@@ -151,6 +164,10 @@ Folder.prototype.hasErrors = function() {
 
 Folder.prototype.getOrigin = function() {
 	return eden.project;
+}
+
+Folder.prototype.addIndex = function() {
+	
 }
 
 Folder.prototype.getStatementByLine = function(line) {
@@ -206,7 +223,7 @@ Folder.prototype.execute = function() {}
  */
 Folder.prototype.lookup = function (name) {
 	if (this.symbols[name] === undefined) {
-		this.symbols[name] = new EdenSymbol(this, name);
+		this.symbols[name] = new Eden.EdenSymbol(this, name);
 		for (var s in this.subscribers) {
 			this.expireEdenSymbol(this.subscribers[s]);
 		}
@@ -373,13 +390,20 @@ Folder.prototype.expireAndFireActions = function () {
 
 	this.expiryCount.value = 0;
 	var EdenSymbolNamesToForce = {};
-	for (var i = 0; i < this.needsExpire.length; i++) {
-		var sym = this.needsExpire[i];
+
+	// Swap here to create a new expire context...
+	var expired = this.needsExpire;
+	this.needsExpire = [];
+
+	// FIXME: Eager definitions need to occur after non-eager have been expired...
+	// the above must be iterative until no more eager definitions exist to be evaluated.
+	// but that iteration could and should use a timer to be interruptable?
+	for (var i = 0; i < expired.length; i++) {
+		var sym = expired[i];
 		sym.expire(EdenSymbolNamesToForce, this.expiryCount, this.needsTrigger, sym.needsGlobalNotify == EdenSymbol.REDEFINED);
 		//sym.needsGlobalNotify = 2;
 	}
-	var expired = this.needsExpire;
-	this.needsExpire = [];
+	
 	var EdenSymbolNamesArray = Object.keys(EdenSymbolNamesToForce);
 	EdenSymbolNamesArray.sort(function (name1, name2) {
 		return EdenSymbolNamesToForce[name1] - EdenSymbolNamesToForce[name2];
@@ -394,27 +418,45 @@ Folder.prototype.expireAndFireActions = function () {
 	}
 	var actions_to_fire = this.needsTrigger;
 	this.needsTrigger = {};
-	fireActions(actions_to_fire);
-	fireJSActions(expired);
-	fireJSActions(symbolsToForce);
+	fireActions(actions_to_fire, this.scope);
 
-	if (this.needsGlobalNotify.length == 0) {
-		//Append expired onto symbolsToForce, create a notification queue and schedule notifications.
-		symbolsToForce.push.apply(symbolsToForce, expired);
-		if (symbolsToForce.length > 0) {
-			this.needsGlobalNotify = symbolsToForce;
-			var me = this;
-			setTimeout(function () {
-				me.processGlobalNotifyQueue();
-			}, 0);
+
+	if (this.autoaction) {
+		fireJSActions(expired);
+		fireJSActions(symbolsToForce);
+
+		if (this.needsGlobalNotify.length == 0) {
+			//Append expired onto symbolsToForce, create a notification queue and schedule notifications.
+			symbolsToForce.push.apply(symbolsToForce, expired);
+			if (symbolsToForce.length > 0) {
+				this.needsGlobalNotify = symbolsToForce;
+				var me = this;
+				setTimeout(function () {
+					me.processGlobalNotifyQueue();
+				}, 0);
+			}
+		} else {
+			//Append both expired and symbolsToForce onto the existing notification queue.
+			var globalNotifyList = this.needsGlobalNotify;
+			globalNotifyList.push.apply(globalNotifyList, symbolsToForce);
+			globalNotifyList.push.apply(globalNotifyList, expired);
 		}
 	} else {
-		//Append both expired and symbolsToForce onto the existing notification queue.
-		var globalNotifyList = this.needsGlobalNotify;
-		globalNotifyList.push.apply(globalNotifyList, symbolsToForce);
-		globalNotifyList.push.apply(globalNotifyList, expired);
+		for (var a of expired) {
+			this.delayedaction[a.name] = a;
+		}
+		for (var a of symbolsToForce) {
+			this.delayedaction[a.name] = a;
+		}
 	}
 };
+
+Folder.prototype.enableActions = function() {
+	this.autoaction = true;
+	var acts = Object.values(this.delayedaction);
+	if (acts.length > 0) fireJSActions(acts);
+	this.delayedaction = Object.create(null);
+}
 
 Folder.prototype.processGlobalNotifyQueue = function () {
 	var notifyList = this.needsGlobalNotify;
@@ -680,3 +722,5 @@ Folder.prototype.forgetAll = function() {
 		return [[], unableToDelete, []];
 	}
 }
+
+Eden.Folder = Folder;

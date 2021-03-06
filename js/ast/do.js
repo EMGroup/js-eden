@@ -3,27 +3,20 @@ Eden.AST.Do = function() {
 	Eden.AST.BaseStatement.apply(this);
 
 	this.name = undefined;
-	this.script = undefined;
-	this.parameters = [];
-	this.params = []; // The evaluated params
+	this.script = undefined;			// Direct script
 	this.scope = undefined;
 	this.compScope = undefined;
 	this.nscope = undefined;
-	this.selector = undefined;
-	this.attribs = {atomic: false};
+	this.selector = undefined;			// Query execution
+	this.literal = undefined;			// Literal expression execution (eden string etc)
+	this.statements = undefined;
+	this.attribs = {};
 };
 
 Eden.AST.Do.attributes = {
 	"atomic": true,
 	"nonatomic": true
 };
-
-Eden.AST.Do.prototype.addParameter = function(express) {
-	this.parameters.push(express);
-	if (express && express.errors.length > 0) {
-		this.errors.push.apply(this.errors, express.errors);
-	}
-}
 
 Eden.AST.Do.prototype.setScript = function(script) {
 	this.script = script;
@@ -32,9 +25,21 @@ Eden.AST.Do.prototype.setScript = function(script) {
 	}
 }
 
-Eden.AST.Do.prototype.setAttribute = function(name, value) {
-	if (!this.attribs) this.attribs = {};
-	this.attribs[name] = value;
+Eden.AST.Do.prototype.setAttributes = function(attr) {
+	this.attribs = attr;
+	for (var a in attr) {
+		if (!Eden.AST.Do.attributes.hasOwnProperty(a)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+Eden.AST.Do.prototype.setLiteral = function(literal) {
+	this.literal = literal;
+	if (literal && literal.errors.length > 0) {
+		this.errors.push.apply(this.errors, literal.errors);
+	}
 }
 
 Eden.AST.Do.prototype.setName = function(name) {
@@ -51,15 +56,22 @@ Eden.AST.Do.prototype.setScope = function(scope) {
 	}
 }
 
-Eden.AST.Do.prototype.getScope = function(ctx) {
-	// FIXME: Can't pre-compile because context changes.
-	//if (this.scope && this.compScope === undefined) {
-		try {
-			this.compScope = new Function(["context","scope"], "var s = " + this.scope.generateConstructor(ctx, "scope", {bound: false}) + "; s.rebuild(); return s;");
-		} catch (e) {
-
+Eden.AST.Do.prototype.getScope = function(ctx, scope) {
+	// FIXME: Can't pre-compile because context changes. (fixed?)
+	if (this.compScope === undefined) {
+		if (this.scope) {
+			try {
+				this.compScope = new Function(["context","scope"], "var s = " + this.scope.generateConstructor(ctx, "scope", {bound: false, scope: scope}) + "; s.rebuild(); return s;");
+			} catch (e) {
+				console.error("Scope generate failed", e);
+			}
+		} else {
+			// Just create an empty scope
+			this.compScope = function(context, scope) {
+				return new Eden.Scope(context, scope, [], false, null, false);
+			};
 		}
-	//}
+	}
 	return this.compScope;
 }
 
@@ -77,42 +89,19 @@ Eden.AST.Do.prototype.setStatement = function(statement) {
 
 
 
-Eden.AST.Do.prototype.generate = function(ctx) {
-	var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'do' here");
-	this.errors.push(err);
-	eden.emit("error", [EdenSymbol.defaultAgent,err]);
-	return "";
-}
-
-Eden.AST.Do.prototype.getParameters = function(ctx,base,scope) {
-	var params = [];
-	for (var i=0; i<this.parameters.length; i++) {
-		params.push(this.parameters[i].execute(ctx,base,scope));
+Eden.AST.Do.prototype.generate = function(ctx, scope, options) {
+	if (this.literal) {
+		return "context.instance.execute("+this.literal.generate(ctx, scope, options)+");";
+	} else {
+		var err = new Eden.RuntimeError(options.scope.context, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'do' here");
+		this.errors.push(err);
+		options.scope.emit("error", [EdenSymbol.defaultAgent,err]);
+		return "";
 	}
-	return params;
 }
-
 
 Eden.AST.Do.prototype.execute = function(ctx,base,scope, agent) {
-	this.executed = 1;
-
-	var script;
-	if (this.script) {
-		script = this.script;
-	} else {
-		script = base.getActionByName(this.name);
-	}
-
-	if (script) {
-		return script.execute(ctx,base, scope, agent);
-	} else {
-		this.executed = 3;
-		var err = new Eden.RuntimeError(base, Eden.RuntimeError.ACTIONNAME, this, "Action '"+this.name+"' does not exist");
-		if (this.parent) this.parent.executed = 3;
-		err.line = this.line;
-		this.errors.push(err);
-		Eden.Agent.emit("error", [agent,err]);
-	}
+	// Never called?
 }
 
 Eden.AST.registerStatement(Eden.AST.Do);

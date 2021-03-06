@@ -22,10 +22,10 @@ Eden.AST.Wait.prototype.compile = function(ctx) {
 	this.compiled_delay = new Function(["context","scope"],source);
 }
 
-Eden.AST.Wait.prototype.generate = function(ctx, scope) {
-	var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'wait' here");
+Eden.AST.Wait.prototype.generate = function(ctx, scope, options) {
+	var err = new Eden.RuntimeError(options.scope.context, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use 'wait' here");
 	this.errors.push(err);
-	eden.emit("error", [EdenSymbol.defaultAgent,err]);
+	options.scope.context.instance.emit("error", [EdenSymbol.defaultAgent,err]);
 	return "";
 	//return "yield "+this.delay+";";
 }

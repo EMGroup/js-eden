@@ -18,12 +18,29 @@ Eden.AST.Declarations = function() {
 	this.kind = "local";
 };
 
+Eden.AST.Declarations.prototype.toEdenString = function(scope, state) {
+	var res = (this.kind == "local") ? "local " : "para ";
+	var first = true;
+	for (var d of this.list) {
+		if (!first) res += ", ";
+		first = false;
+		res += d;
+	}
+	return res + ";";
+}
+
 Eden.AST.Declarations.prototype.execute = function(ctx, base, scope, agent) {
-	if (ctx) {
-		// Shouldn't be needed!
-		if (ctx.locals === undefined) ctx.locals = {};
+	if (this.kind == "local") {
 		for (var i=0; i<this.list.length; i++) {
-			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
+			var sym = new Eden.AST.Local(this.list[i]);
+			scope.addIfNotExist(this.list[i], sym);
+			ctx.locals[this.list[i]] = sym;  // Deprecated?
+		}
+	} else if (this.kind == "oracle") {
+		for (var i=0; i<this.list.length; i++) {
+			var sym = new Eden.AST.Local(this.list[i]);
+			scope.addAlias(this.list[i], "$"+(i+1), sym);
+			ctx.locals[this.list[i]] = sym;  // Deprecated?
 		}
 	}
 }
@@ -33,7 +50,7 @@ Eden.AST.Declarations.prototype.generate = function(ctx,scope,options) {
 		var res = "var ";
 		if (ctx.locals === undefined) ctx.locals = {};
 		for (var i=0; i<this.list.length; i++) {
-			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
+			ctx.locals[this.list[i]] = "local"; //new Eden.AST.Local(this.list[i]);
 			res += this.list[i];
 			if (i < this.list.length-1) res += ",";
 		}
@@ -45,8 +62,9 @@ Eden.AST.Declarations.prototype.generate = function(ctx,scope,options) {
 		var res = "";
 		if (ctx.locals === undefined) ctx.locals = {};
 		for (var i=0; i<this.list.length; i++) {
-			ctx.locals[this.list[i]] = new Eden.AST.Local(this.list[i]);
-			res += "var "+this.list[i] + " = "+scope+".value(\""+this.list[i]+"\");\n";
+			ctx.locals[this.list[i]] = "oracle";  //new Eden.AST.Local(this.list[i]);
+			//res += "var "+this.list[i] + " = "+scope+".value(\""+this.list[i]+"\");\n";
+			//res += "var "+this.list[i] + " = "+scope+".value(\"$"+(i+1)+"\");\n";
 		}
 		return res;
 	}

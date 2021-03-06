@@ -337,6 +337,10 @@
 			if (viewData.titleBarInfo !== undefined) {
 				title = title + " (" + viewData.titleBarInfo + ")";
 			}
+			if (viewData.title === title) {
+				return;
+			}
+			viewData.title = title;
 			diag.dialog("option", "title", title);
 			if (edenUI.menu) edenUI.menu.updateViewsMenu();
 		}
@@ -832,21 +836,21 @@
 		}
 		
 		var diag = dialog(name);
-		var position = diag.parent().position();
-		var left = position.left;
-		var top = position.top;
+		//var position = diag.parent().position();
+		//var left = position.left;
+		//var top = position.top;
 		var widthSym = view(name, 'width');
 		var newWidth = widthSym.value();
 		var heightSym = view(name, 'height');
 		var newHeight = heightSym.value() + this.titleBarHeight;
-		var locked = view(name, 'lock');
-		var tbarheight = (locked) ? 0 : this.titleBarHeight;
-		var right = left + newWidth + this.scrollBarSize + this.dialogBorderWidth;
-		var bottom = top + newHeight + this.titleBarHeight - 1;
-		var xMax = window.innerWidth + document.body.scrollLeft;
-		var yMax = window.innerHeight + document.body.scrollTop - this.scrollBarSize2;
-		var bottomBarY = yMax - this.bottomBarHeight;			
-		var hciName = EdenSymbol.hciAgent.name;
+		//var locked = view(name, 'lock');
+		//var tbarheight = (locked) ? 0 : this.titleBarHeight;
+		//var right = left + newWidth + this.scrollBarSize + this.dialogBorderWidth;
+		//var bottom = top + newHeight + this.titleBarHeight - 1;
+		//var xMax = window.innerWidth + document.body.scrollLeft;
+		//var yMax = window.innerHeight + document.body.scrollTop - this.scrollBarSize2;
+		//var bottomBarY = yMax - this.bottomBarHeight;			
+		//var hciName = EdenSymbol.hciAgent.name;
 		//Round the width.  For some reason the width set by jquery.ui isn't always aligned to the grid.
 		/*var adjustedWidth = Math.round((newWidth + this.scrollBarSize + this.dialogBorderWidth) / this.gridSizeX) * this.gridSizeX - 2 * this.dialogBorderWidth;
 		if (widthSym.last_modified_by != hciName) {

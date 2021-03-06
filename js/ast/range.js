@@ -1,11 +1,13 @@
 Eden.AST.Range = function(expression) {
 	this.type = "range";
+	Eden.AST.BaseStatement.apply(this);
 	this.parent = undefined;
 	this.errors = (expression) ? expression.errors : [];
 	this.expression = expression;
 	this.lvalue = undefined;
 	this.start = 0;
 	this.end = 0;
+	this.second = null;
 	//this.scopes = [];
 	//this.backtickCount = 0;
 	//this.executed = 0;
@@ -34,4 +36,6 @@ Eden.AST.Range.prototype.left = function(lvalue) {
 };
 
 Eden.AST.Range.prototype.error = Eden.AST.fnEdenASTerror;
+
+Eden.AST.registerStatement(Eden.AST.Range);
 

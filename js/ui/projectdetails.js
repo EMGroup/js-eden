@@ -344,7 +344,7 @@ EdenUI.ProjectDetails.localProjects = function(output, projects, newtab) {
 		ele.click(function(e) {
 			var path = e.currentTarget.getAttribute("data-path");
 			console.log("Load project: " + path); // + "@"+tag);
-			Eden.Project.newFromExisting(path, function() {});
+			Eden.Project.newFromExisting(path, eden, function() {});
 		});
 
 		var astars = meta.rating;

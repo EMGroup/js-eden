@@ -3,28 +3,77 @@
  */
 Eden.AST.UnaryOp = function(op, right) {
 	this.type = "unaryop";
+	Eden.AST.BaseExpression.apply(this);
 	this.op = op;
-	this.errors = right.errors;
 	this.r = right;
-	this.typevalue = Eden.AST.TYPE_UNKNOWN;
-}
-Eden.AST.UnaryOp.prototype.error = Eden.AST.fnEdenASTerror;
+	this.mergeExpr(right);
 
-Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
-	if (this.op == "eval") {
-		var tmpconst = ctx.isconstant;
-		var tmpdep = ctx.dependencies;
-		var tmpdynsrc = ctx.dynamic_source;
-		ctx.dependencies = {};
-		var val = this.r.execute(ctx, null, eden.root.scope);
-		ctx.isconstant = tmpconst;
-		ctx.dependencies = tmpdep;
-		val = Eden.edenCodeForValue(val);
-		if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc + val;
+	switch (op) {
+	case "&"	:	this.typevalue = Eden.AST.TYPE_SYMBOL; break;
+	case "!"	:	this.typevalue = Eden.AST.TYPE_BOOLEAN; break;
+	case "-"	:	this.typevalue = Eden.AST.TYPE_NUMBER; break;
+
+	case "*"	:	this.typevalue = Eden.AST.TYPE_UNKNOWN;
+					this.isconstant = false;
+					this.isdynamic = true;
+					break;
+
+	case "sub"	:	this.isdependant = true; //!this.isconstant;
+					this.isconstant = true;
+					this.isdynamic = false;
+					break;
+
+	case "compile": this.typevalue = Eden.AST.TYPE_STRING; break;
+	case "parse":	this.typevalue = Eden.AST.TYPE_AST; break;
+	}
+}
+
+
+Eden.AST.UnaryOp.prototype.toEdenString = function(scope, state) {
+	if (this.op == "sub") {
+		var val = Eden.AST.executeExpressionNode(this.r, scope, state);
+		var type = typeof val;
+		if (type == "object" && val._is_eden_expression) {
+			return val.toEdenString(scope,state);
+		} else if (type == "object" && val instanceof EdenSymbol) {
+			val = "&"+val.name;
+		} else {
+			val = Eden.edenCodeForValue(val);
+		}
 		return val;
 	}
 
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += this.op;
+	switch (this.op) {
+	case "*"	:
+	case "&"	: return `${this.op}${this.r.toEdenString(scope, state)}`;
+	case "compile":
+	case "eval"	:
+	case "parse":
+	case "!"	:
+	case "-"	: return `${this.op}(${this.r.toEdenString(scope, state)})`;
+	}
+	
+}
+
+Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
+	if (this.op == "sub") {
+		var state = {
+			isconstant: true,
+			locals: ctx.locals
+		}
+		var val = Eden.AST.executeExpressionNode(this.r, options.scope, state);
+
+		var type = typeof val;
+		if (type == "object" && val._is_eden_expression) {
+			val = val.generate(ctx, scope, options);
+		} else if (type == "object" && val instanceof EdenSymbol) {
+			val = `${scope}.context.lookup("${val.name}")`;
+		} else {
+			val = JSON.stringify(val);
+		}
+		ctx.dependant = true;  // Mark as context dependant source
+		return val;
+	}
 
 	var tmpconst;
 	if (ctx) {
@@ -42,18 +91,24 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 		ctx.isconstant = tmpconst && wasconst;
 	}
 
-	if (this.op == "!") {
+	if (this.op == "compile") {
+		return "scope.context.instance.transpileExpression("+r+", this, "+scope+")";  // TODO: Needs local variable context
+	} else if (this.op == "parse") {
+		return "scope.context.instance.parseExpression("+r+", this)";
+	} else if (this.op == "eval") {
+		return "scope.context.instance.evalEden("+r+", this, "+scope+")";  // TODO: Needs local variable context
+	} else if (this.op == "!") {
 		res = "!("+r+")";
 	} else if (this.op == "&") {
 		if (ctx && ctx.dependencies) {
-			if (this.r.name) {
+			if (this.r.observable) {
 				//ctx.dependencies[this.r.name] = true;
 				//ctx.isconstant = false;
 			} else if (wasconst) {
 				var btickval = "ERROR";
 				try {
-					btickval = (new Function("return "+r+";"))();
-					console.log("Btick eval "+r);
+					btickval = (new Function(["context","scope"], "return "+r+";"))(options.scope.context, options.scope);
+					//console.log("Btick eval "+r);
 				} catch (e) {
 					console.error("Backtick evaluation error",e);
 				}
@@ -66,27 +121,19 @@ Eden.AST.UnaryOp.prototype.generate = function(ctx, scope, options) {
 				//ctx.isconstant = false;
 			}
 		}
-		res = "context.lookup("+r+")";
+		res = "scope.context.lookup("+r+")";
 	} else if (this.op == "-") {
 		res = "-("+r+")";
 	} else if (this.op == "*") {
-		//res = r + ".value("+scope+")";
-		//res = "rt.deref(" + r + ", " + scope + ")";
-		res = "this.subscribeDynValue(0, " + r + ", "+scope+")";
-		//ctx.backtickCount++;
+		//if (options.indef) {
+			res = "this.subscribeDynValue(0, " + r + ", "+scope+")";
+		//} else {
+		//	res = scope+".valuer;
+		//}
 	}
 
-	if (options.bound) {
-		return "new BoundValue("+res+","+scope+")";
-	} else {
-		return res;
-	}
+	return res;
 }
 
-Eden.AST.UnaryOp.prototype.execute = function(ctx, base, scope) {
-	var rhs = "(function(context,scope) { return ";
-	rhs += this.generate(ctx, "scope", {bound: false});
-	rhs += ";})";
-	return eval(rhs)(eden.root,scope);
-}
+Eden.AST.registerExpression(Eden.AST.UnaryOp);
 

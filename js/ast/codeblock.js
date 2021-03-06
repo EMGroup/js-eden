@@ -1,4 +1,4 @@
-Eden.AST.CodeBlock = function() {
+/*Eden.AST.CodeBlock = function() {
 	this.type = "codeblock";
 	Eden.AST.BaseContext.apply(this);
 	this.params = undefined;
@@ -24,11 +24,11 @@ Eden.AST.CodeBlock.prototype.setScript = function(script) {
 	}
 }
 
-Eden.AST.CodeBlock.prototype.generate = function(ctx) {
+Eden.AST.CodeBlock.prototype.generate = function(ctx, scope, options) {
 	var res = "";
 	//res += "var lscope = new Scope(context,pscope,[";
 	//res += "]);\n";
-	res += "var scope = eden.root.scope;\nvar context = eden.root;\n";
+	res += "var context = scope.context;\n";
 	if (this.locals && this.locals.list) {
 		for (var i=0; i<this.locals.list.length; i++) {
 			//res += "new ScopeOverride(\"" + this.locals.list[i] + "\", undefined)";
@@ -45,9 +45,9 @@ Eden.AST.CodeBlock.prototype.generate = function(ctx) {
 		}
 	}
 	//res += "]);\n";
-	res += this.script.generate(this, "scope");
+	res += this.script.generate(this, "scope", options);
 	return res;
 }
 
 Eden.AST.registerContext(Eden.AST.CodeBlock);
-
+*/

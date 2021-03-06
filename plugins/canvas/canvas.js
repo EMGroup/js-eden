@@ -535,7 +535,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			return undefined;
 		}
 
-		if (edenUI.eden.isValidIdentifier(name)) {
+		if (Eden.isValidIdentifier(name)) {
 			var clickSym = root.lookup(name + "_click");
 			if (clickSym.value() === undefined) {
 				clickSym.assign(false, root.scope, root.lookup(agentName));
@@ -545,7 +545,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	}
 
 	this.initZoneFromName = function (name, agentName) {
-		if (edenUI.eden.isValidIdentifier(name)) {
+		if (Eden.isValidIdentifier(name)) {
 			var clickSym = root.lookup(name + "_click");
 			if (clickSym.value() === undefined) {
 				clickSym.assign(false, root.scope, root.lookup(agentName));
@@ -1475,7 +1475,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	}
 
 	root.lookup("mouseDownZone").addJSObserver("recordClick", function (symbol, zone) {
-		if (eden.isValidIdentifier(zone)) {
+		if (Eden.isValidIdentifier(zone)) {
 			var clickSym = root.lookup(zone + "_click");
 			if (clickSym.value() === false) {
 				clickSym.assign(true, root.scope, EdenSymbol.hciAgent, true);
@@ -1485,7 +1485,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	
 	this.endClick = function () {
 		var zoneDown = root.lookup("mouseDownZone").value();
-		if (eden.isValidIdentifier(zoneDown)) {
+		if (Eden.isValidIdentifier(zoneDown)) {
 			var clickSym = root.lookup(zoneDown + "_click");
 			if (clickSym.value() === true) {
 				clickSym.assign(false, root.scope, EdenSymbol.hciAgent, true);
@@ -1607,7 +1607,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if (success) success();
 	});*/
 
-	Eden.Selectors.execute("plugins > canvas_merged", function() {
+	Eden.Selectors.execute("plugins > canvas_merged", eden.root.scope, function() {
 		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
 		if (success) success();
 	});

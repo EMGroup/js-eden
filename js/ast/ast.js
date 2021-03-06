@@ -47,16 +47,14 @@
  * @param code String containing the script.
  */
 Eden.AST = function(code, imports, origin, options) {
-	this.stream = (code !== undefined) ? new EdenStream(code) : undefined;
-	this.data = new EdenSyntaxData();
+	this.stream = (code !== undefined) ? new Eden.EdenStream(code) : undefined;
+	this.data = new Eden.EdenSyntaxData();
 	this.token = "INVALID";
 	this.previous = "INVALID";
 	this.src = "input";
 	this.parent = undefined;
 	this.scripts = {};			// Actions table
-	//this.triggers = {};			// Guarded actions
 	this.definitions = {};		// Definitions mapping
-	//this.imports = (imports) ? imports : [];
 	this.origin = origin;		// The agent owner of this script
 	this.lastposition = 0;
 	this.lastline = 0;
@@ -67,7 +65,11 @@ Eden.AST = function(code, imports, origin, options) {
 	this.lastresult = undefined;
 	this.depth = 0;
 	this.localStatus = false;
-	this.isdynamic = false;
+	this.last_error = null;
+
+	// Keep dependency records for some statements.
+	//this.dependencies = Object.create(null);
+	//this.scopedependencies = null;
 
 	if (!origin) console.error("NO ORIGIN", code);
 
@@ -83,19 +85,24 @@ Eden.AST = function(code, imports, origin, options) {
 
 	this.strict = (options && options.strict);
 
+	this.version = Eden.AST.version;
+	if (options && options.version !== undefined) this.version = options.version;
+
 	// Start parse with SCRIPT production
 	if (!options || !options.noparse) {
 		// Get First Token;
 		this.next();
-
-		while (this.token == "STRING") {
+		while (this.token === "STRING") {
 			// Read parser properties...
-			if (this.data.value == "use cs2;") {
-				//this.version = Eden.AST.VERSION_CS2;
+			if (this.data.value === "use cs2;") {
+				this.version = Eden.AST.VERSION_CS2;
+			} else if (this.data.value === "use cs3;") {
+				this.version = Eden.AST.VERSION_CS3;
 			}
 			this.next();
-			//if (this.token == ";") this.next();
 		}
+
+		//console.log("Parsing with version "+this.version);
 
 		this.script = this.pSCRIPT();
 		this.script.base = this;
@@ -121,7 +128,14 @@ Eden.AST.TYPE_NUMBER = 1;
 Eden.AST.TYPE_STRING = 2;
 Eden.AST.TYPE_LIST = 3;
 Eden.AST.TYPE_BOOLEAN = 4;
-Eden.AST.TYPE_OBJECT;
+Eden.AST.TYPE_SYMBOL = 5;
+Eden.AST.TYPE_OBJECT = 6;
+Eden.AST.TYPE_PROMISE = 7;
+Eden.AST.TYPE_AST = 8;
+
+Eden.AST.VERSION_CS2 = 0;
+Eden.AST.VERSION_CS3 = 1;
+Eden.AST.version = 1;
 
 /* Generic functions to be reused */
 Eden.AST.fnEdenASTerror = function(err) {
@@ -130,11 +144,97 @@ Eden.AST.fnEdenASTerror = function(err) {
 
 Eden.AST.fnEdenASTleft = function(left) {
 	this.l = left;
-	if (left.errors.length > 0) {
-		this.errors.push.apply(this.errors, left.errors);
-	}
-	if (left && left.warning) this.warning = left.warning;
+	this.mergeExpr(left);
 };
+
+function removeHash(str) {
+	var ix = str.lastIndexOf("_");
+	return str.substring(0,ix);
+}
+
+/* Transpile an expression AST node into a javascript function body */
+Eden.AST.transpileExpressionNode = function(node, scope, state) {
+	if (state) {
+		if (!state.dependencies) state.dependencies = {};
+	}
+
+	var ctx = {
+		dependencies: (state)?state.dependencies:{},
+		vars: Object.create(null),
+		isconstant: true,
+		scopes: [],
+		locals: (state)?state.locals:undefined
+	};
+
+	var opts = {
+		symbol: state.symbol,
+		bound: false,
+		scope: scope,
+		indef: (state.statement && state.statement.type === "definition")
+	};
+
+	if (!scope) console.warn("Missing scope in transpile",node);
+	
+	var result = "";
+	var express = node.generate(ctx, "scope", opts);
+	var scopedvars = {};
+
+	for (var v in ctx.vars) {
+		var sv = ctx.vars[v];
+		if (!scopedvars.hasOwnProperty(sv)) scopedvars[sv] = "";
+		scopedvars[sv] += "\tlet v_"+v+" = "+sv+".l(\""+removeHash(v)+"\");\n";
+	}
+
+	if (scopedvars.hasOwnProperty("scope")) result += scopedvars["scope"];
+
+	// Generate array of all scopes used in this definition (if any).
+	if (ctx.scopes.length > 0) {
+		result += "\tvar _scopes = [];\n";
+		for (var i=0; i<ctx.scopes.length; i++) {
+			result += "\t_scopes.push(" + ctx.scopes[i];
+			result += ");\n";
+			result += "\tif (cache && cache.scopes && "+i+" < cache.scopes.length) { _scopes["+i+"].mergeCache(cache.scopes["+i+"]); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
+			if (scopedvars.hasOwnProperty("_scopes["+i+"]")) result += scopedvars["_scopes["+i+"]"];
+		}
+
+		result += "if (cache) cache.scopes = _scopes;\n";
+	}
+
+	if (node.type == "async") {
+		result += "\tvar _r = rt.flattenPromise(" + express + ");\n";
+		result += "\treturn _r;";
+	} else {
+		result += "\treturn " + express + ";";
+	}
+	
+	state.isconstant = ctx.isconstant && state.isconstant;
+	return result;
+}
+
+/* Execute an expression AST node in a given scope */
+Eden.AST.executeExpressionNode = function(node, scope, state) {
+	var rhs = Eden.AST.transpileExpressionNode(node, scope, state);
+
+	//console.log("Expr dependencies:", JSON.stringify(state.dependencies));
+
+	try {
+		var f = new Function(["context","scope","cache"],rhs);
+		
+		if (state.symbol) {
+			return f.call(state.symbol, scope.context, scope, scope.lookup(state.symbol.name));
+		} else {
+			return f(scope.context, scope, null);
+		}
+	} catch(e) {
+		err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.UNKNOWN, (state.statement)?state.statement:node, "Expression evaluation failed: "+node.toEdenString(scope,state));
+		if (state.statement) {
+			err.line = state.statement.line;
+			state.statement.errors.push(err);
+		} else node.errors.push(err);
+		scope.context.instance.emit("error", [{name: (state.symbol)?state.symbol.name : "Inline"},err]);
+		return undefined;
+	}
+}
 
 // Debug controls
 Eden.AST.debug = false;
@@ -260,9 +360,9 @@ Eden.AST.prototype.generate = function() {
 
 
 
-Eden.AST.prototype.execute = function(agent, cb) {
+Eden.AST.prototype.execute = function(agent, scope, cb) {
 	//this.script.execute(undefined, this, root.scope);
-	this.executeStatement(this.script, 0, agent, cb);
+	this.executeStatement(this.script, scope, agent, cb);
 }
 
 
@@ -310,6 +410,37 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 	this.executeStatement(statement, line, agent, cb);
 }
 
+Eden.AST.prototype.syntaxError = function(node, type, msg) {
+	var err = new Eden.SyntaxError(this, type, msg);
+	node.errors.push(err);
+}
+
+Eden.AST.prototype.typeWarning = function(node, expected) {
+	var warn = new Eden.TypeWarning(node, expected);
+	node.warning = warn;
+}
+
+Eden.AST.prototype.syntaxWarning = function(node, type, message) {
+	node.warning = new Eden.SyntaxWarning(this, node, type, message);
+}
+
+Eden.AST.prototype.deprecated = function(node, message) {
+	node.warning = new Eden.SyntaxWarning(this, node, Eden.SyntaxWarning.DEPRECATED, message);
+}
+
+Eden.AST.typeCheck = function(type, value) {
+	var typeval = typeof value;
+
+	switch (type) {
+	case 0							: return true;
+	case Eden.AST.TYPE_BOOLEAN		: return typeval == "boolean";
+	case Eden.AST.TYPE_STRING		: return typeval == "string";
+	case Eden.AST.TYPE_NUMBER		: return typeval == "number";
+	case Eden.AST.TYPE_OBJECT		: return typeval == "object";
+	case Eden.AST.TYPE_LIST			: return Array.isArray(value);
+	default: return true;
+	}
+}
 
 /**
  * Construct an AST statement node from a string. It correctly sets up the node
@@ -319,11 +450,24 @@ Eden.AST.prototype.executeLine = function(lineno, agent, cb) {
 Eden.AST.parseStatement = function(src, origin) {
 	var ast = new Eden.AST(src, undefined, (origin) ? origin : {}, {noparse: true, noindex: true});
 	ast.next();
+	while (ast.token === "STRING") {
+		// Read parser properties...
+		if (ast.data.value === "use cs2;") {
+			ast.version = Eden.AST.VERSION_CS2;
+		} else if (ast.data.value === "use cs3;") {
+			ast.version = Eden.AST.VERSION_CS3;
+		}
+		ast.next();
+	}
 	var stat = ast.pSTATEMENT();
 	if (stat === undefined) {
 		stat = new Eden.AST.DummyStatement();
 		console.error("Invalid statement: ",src);
+		ast.syntaxError(stat, Eden.SyntaxError.UNKNOWN);
 		//return undefined;
+	}
+	if (ast.token != "EOF") {
+		ast.syntaxError(stat, Eden.SyntaxError.UNKNOWN);
 	}
 	stat.base = ast;
 	stat.setSource(0,src.length, src);
@@ -335,8 +479,18 @@ Eden.AST.parseStatement = function(src, origin) {
 }
 
 Eden.AST.parseScript = function(src, origin) {
+	if (typeof src != "string") return null;
 	var ast = new Eden.AST(src, undefined, (origin) ? origin : {}, {noparse: true, noindex: true});
 	ast.next();
+	while (ast.token === "STRING") {
+		// Read parser properties...
+		if (ast.data.value === "use cs2;") {
+			ast.version = Eden.AST.VERSION_CS2;
+		} else if (ast.data.value === "use cs3;") {
+			ast.version = Eden.AST.VERSION_CS3;
+		}
+		ast.next();
+	}
 	var script = ast.pSCRIPT();
 	script.base = ast;
 	script.setSource(0,src.length, src);
@@ -351,7 +505,28 @@ Eden.AST.parseExpression = function(src) {
 	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
 	ast.next();
 	var expr = ast.pEXPRESSION();
+	if (ast.token != "EOF") {
+		ast.syntaxError(expr, Eden.SyntaxError.UNKNOWN);
+	}
 	return expr;
+}
+
+Eden.AST.parseRule = function(rule, src, args) {
+	var ast = new Eden.AST(src, undefined, {}, {noparse: true, noindex: true});
+	ast.next();
+	var expr = (args) ? ast[rule].apply(ast, args) : ast[rule]();
+	if (ast.token != "EOF") {
+		ast.syntaxError(expr, Eden.SyntaxError.UNKNOWN);
+	}
+	return expr;
+}
+
+Eden.AST.registerExpression = function(expr) {
+	expr.prototype.execute = Eden.AST.BaseExpression.execute;
+	expr.prototype.mergeExpr = Eden.AST.BaseExpression.mergeExpr;
+	expr.prototype.error = Eden.AST.fnEdenASTerror;
+	expr.prototype.toString = Eden.AST.BaseExpression.toString;
+	expr.prototype.getEdenCode = Eden.AST.BaseExpression.getEdenCode;
 }
 
 
@@ -374,6 +549,9 @@ Eden.AST.registerStatement = function(stat) {
 	stat.prototype.setDoxyComment = Eden.AST.BaseStatement.setDoxyComment;
 	stat.prototype.addSubscriber = Eden.AST.BaseStatement.addSubscriber;
 	stat.prototype.removeSubscriber = Eden.AST.BaseStatement.removeSubscriber;
+	stat.prototype.getEdenCode = Eden.AST.BaseStatement.getEdenCode;
+	stat.prototype.getLocationName = Eden.AST.BaseStatement.getLocationName;
+	stat.prototype.attribute = Eden.AST.BaseStatement.attribute;
 }
 
 Eden.AST.registerScript = function(stat) {
@@ -502,7 +680,7 @@ Eden.AST.prototype.next = function() {
 	//Skip comments
 	while (true) {
 		// Skip block comments
-		if (this.token == "/*") {
+		if (this.token === "/*") {
 			var count = 1;
 			var isDoxy = false;
 			var start = this.stream.position-2;
@@ -512,17 +690,17 @@ Eden.AST.prototype.next = function() {
 			if (this.stream.peek() == 42) isDoxy = true;
 
 			// Find terminating comment token
-			while (this.stream.valid() && (this.token != "*/" || count > 0)) {
-				this.token = this.stream.readToken();
+			while (this.stream.valid() && (this.token !== "*/" || count > 0)) {
+				this.token = this.stream.readCommentToken();
 				// But make sure we count any inner comment tokens
-				if (this.token == "/*") {
+				if (this.token === "/*") {
 					count++;
-				} else if (this.token == "*/") {
+				} else if (this.token === "*/") {
 					count--;
 				}
 			}
 
-			if (this.token != "*/") {
+			if (this.token !== "*/") {
 				var err = new Eden.SyntaxError(this, Eden.SyntaxError.BLOCKCOMMENT);
 				err.line = startline;
 				this.errors.push(err);
@@ -543,14 +721,14 @@ Eden.AST.prototype.next = function() {
 			}
 			this.token = this.stream.readToken();
 		// Extract javascript code blocks
-		} else if (this.token == "${{") {
+		} else if (this.token === "${{") {
 			var start = this.stream.position;
 			var startline = this.stream.line;
 			this.data.line = startline;
 
 			// Go until terminating javascript block token
-			while (this.stream.valid() && this.token != "}}$") {
-				this.token = this.stream.readToken();
+			while (this.stream.valid() && this.token !== "}}$") {
+				this.token = this.stream.readJSToken();
 			}
 
 			// Return code as value and generate JAVASCRIPT token
@@ -585,6 +763,99 @@ Eden.AST.prototype.peekNext = function(count) {
 
 
 
-
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+	require('./basestatement');
+	require('./baseexpression');
+	require('./basescript');
+	require('./basecontext');
+	require('./after');
+	require('./alias');
+	require('./append');
+	require('./assignment');
+	require('./async');
+	require('./binaryop');
+	require('./break');
+	require('./case');
+	require('./codeblock');
+	require('./context');
+	require('./continue');
+	require('./cs3_html');
+	require('./customblock');
+	require('./declarations');
+	require('./default');
+	require('./definition');
+	require('./delete');
+	require('./do');
+	require('./doxycomments');
+	require('./dummy');
+	require('./for');
+	require('./function');
+	require('./functioncall');
+	require('./handle');
+	require('./if');
+	require('./import');
+	require('./index');
+	require('./indexed');
+	require('./insert');
+	require('./length');
+	require('./literal');
+	require('./llist');
+	require('./local');
+	require('./lvalue');
+	require('./modify');
+	require('./parameter');
+	require('./primary');
+	require('./proc');
+	require('./querystat');
+	require('./range');
+	require('./require');
+	require('./return');
+	require('./scope');
+	require('./scopedscript');
+	require('./scopepath');
+	require('./scopepattern');
+	require('./script');
+	require('./scriptexpr');
+	require('./section');
+	require('./shift');
+	require('./subscribers');
+	require('./substatement');
+	require('./switch');
+	require('./ternaryop');
+	require('./unaryop');
+	require('./virtual');
+	require('./wait');
+	require('./when');
+	require('./while');
+	require('../grammar/template');
+	require('../grammar/actionbody');
+	require('../grammar/after');
+	require('../grammar/attributes');
+	require('../grammar/cs3_html');
+	require('../grammar/declarations');
+	require('../grammar/do');
+	require('../grammar/expression');
+	require('../grammar/factor');
+	require('../grammar/for');
+	require('../grammar/function');
+	require('../grammar/if');
+	require('../grammar/import');
+	require('../grammar/listops');
+	require('../grammar/lists');
+	require('../grammar/lvalue');
+	require('../grammar/primary');
+	require('../grammar/proc');
+	require('../grammar/query');
+	require('../grammar/scope');
+	require('../grammar/script');
+	require('../grammar/section');
+	require('../grammar/selector');
+	require('../grammar/statement');
+	require('../grammar/switch');
+	require('../grammar/terms');
+	require('../grammar/wait');
+	require('../grammar/when');
+	require('../grammar/while');
+}
 
 

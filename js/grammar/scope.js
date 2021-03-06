@@ -3,18 +3,29 @@
  * SCOPE -> ( SCOPE' ) | SCOPE'
  */
 Eden.AST.prototype.pSCOPE = function() {
-	if (this.token == "(") {
+	let scope;
+	//let deps = this.dependencies;
+	//if (!this.scopedependencies) this.scopedependencies = Object.create(null);
+	//this.dependencies = this.scopedependencies;
+
+	if (this.token === "(") {
 		this.next();
-		var scope = this.pSCOPE_P();
-		if (this.token != ")") {
+		scope = this.pSCOPE_P();
+		if (this.token !== ")") {
 			scope.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPECLOSE));
+			//Object.assign(deps, this.dependencies);
+			//this.dependencies = deps;
 			return scope;
 		} else {
 			this.next();
 		}
-		return scope;
+	} else {
+		scope = this.pSCOPE_P();
 	}
-	return this.pSCOPE_P();
+
+	//Object.assign(deps, this.dependencies);
+	//this.dependencies = deps;
+	return scope;
 }
 
 
@@ -24,7 +35,7 @@ Eden.AST.prototype.pSCOPE = function() {
  */
 Eden.AST.prototype.pSCOPEPATTERN = function() {
 	var sname = new Eden.AST.ScopePattern();
-	if (this.token != "OBSERVABLE") {
+	if (this.token !== "OBSERVABLE") {
 		sname.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPENAME));
 		return sname;
 	}
@@ -32,17 +43,17 @@ Eden.AST.prototype.pSCOPEPATTERN = function() {
 	this.next();
 
 	while (true) {
-		if (this.token == "[") {
+		if (this.token === "[") {
 			this.next();
 			var express = this.pEXPRESSION();
 			sname.addListIndex(express);
 			if (express.errors.length > 0) return sname;
-			if (this.token != "]") {
+			if (this.token !== "]") {
 				sname.error(new Eden.SyntaxError(this, Eden.SyntaxError.LISTINDEXCLOSE));
 				return sname;
 			}
 			this.next();
-		} else if (this.token == ".") {
+		} else if (this.token === ".") {
 
 		} else {
 			break;
@@ -73,7 +84,7 @@ Eden.AST.prototype.pSCOPE_P = function(count) {
 	var obs;
 	if (count === undefined) count = 1;
 
-	if (peek != "is" && peek != "=" && peek != "in") {
+	if (peek !== "is" && peek !== "=" && peek !== "in") {
 		obs = new Eden.AST.ScopePattern();
 		obs.setObservable("$"+count);
 		count++;
@@ -87,12 +98,12 @@ Eden.AST.prototype.pSCOPE_P = function(count) {
 			return scope;
 		}
 
-		if (this.token != "is" && this.token != "=" && this.token != "in") {
+		if (this.token !== "is" && this.token !== "=" && this.token !== "in") {
 			var scope = new Eden.AST.Scope();
 			scope.error(new Eden.SyntaxError(this, Eden.SyntaxError.SCOPEEQUALS));
 			return scope;
 		}
-		if (this.token == "in") isin = true;
+		if (this.token === "in") isin = true;
 		this.next();
 	}
 
@@ -104,9 +115,21 @@ Eden.AST.prototype.pSCOPE_P = function(count) {
 		scope.errors.push.apply(scope.errors, expression.errors);
 		return scope;
 	}
+	if (isin && this.token !== ".." && expression.typevalue !== 0 && expression.typevalue !== Eden.AST.TYPE_LIST) {
+		var scope = new Eden.AST.Scope();
+		scope.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+		return scope
+	}
 
 	var exp2 = undefined;
-	if (this.token == "..") {
+	if (this.token === "..") {
+		// Check type of first expression
+		if (expression.typevalue !== 0 && expression.typevalue !== Eden.AST.TYPE_NUMBER) {
+			var scope = new Eden.AST.Scope();
+			scope.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			return scope
+		}
+
 		this.next();
 		exp2 = this.pEXPRESSION();
 		if (exp2.errors.length > 0) {
@@ -114,16 +137,27 @@ Eden.AST.prototype.pSCOPE_P = function(count) {
 			scope.addOverride(obs, expression, exp2, undefined, false);
 			return scope;
 		}
+		if (exp2.typevalue !== 0 && exp2.typevalue !== Eden.AST.TYPE_NUMBER) {
+			var scope = new Eden.AST.Scope();
+			scope.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			return scope
+		}
 	}
 
 	var exp3 = undefined;
-	if (this.token == "..") {
+	if (this.token === "..") {
 		this.next();
 		exp3 = this.pEXPRESSION();
 		if (exp3.errors.length > 0) {
 			var scope = new Eden.AST.Scope();
 			scope.addOverride(obs, expression, exp2, exp3, false);
 			return scope;
+		}
+
+		if (exp3.typevalue !== 0 && exp3.typevalue !== Eden.AST.TYPE_NUMBER) {
+			var scope = new Eden.AST.Scope();
+			scope.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+			return scope
 		}
 	}
 
@@ -139,7 +173,7 @@ Eden.AST.prototype.pSCOPE_P = function(count) {
  * SCOPE'' -> , SCOPE' | epsilon
  */
 Eden.AST.prototype.pSCOPE_PP = function(count) {
-	if (this.token == ",") {
+	if (this.token === ",") {
 		this.next();
 		return this.pSCOPE_P(count);
 	} else {

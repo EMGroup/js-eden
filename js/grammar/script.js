@@ -4,9 +4,20 @@
  */
 Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	var name;
+	var attribs = null;
+
+	// Allow for execution attributes
+	if (this.token === "[") {
+		attribs = this.pATTRIBUTES();
+		/*if (!stat.setAttributes(attribs)) {
+			w.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+			this.parent = parent;
+			return;
+		}*/
+	}
 
 	// Expect an action name with same syntax as an observable name
-	if (this.token != "OBSERVABLE") {
+	if (this.token !== "OBSERVABLE") {
 		var script = new Eden.AST.Script();
 		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONNAME));
 		return script;
@@ -15,19 +26,20 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		this.next();
 	}
 
+	// TODO: Do we need this? Can it be removed??
 	let readables,writables;
-	if (this.token == "(") {
+	if (this.token === "(") {
 		this.next();
-		if (this.token == "oracle") {
+		if (this.token === "oracle") {
 			this.next();
 			readables = this.pCODESELECTOR();
 		}
-		if (this.token == ";") this.next();
-		if (this.token == "handle") {
+		if (this.token === ";") this.next();
+		if (this.token === "handle") {
 			this.next();
 			writables = this.pCODESELECTOR();
 		}
-		if (this.token != ")") {
+		if (this.token !== ")") {
 			var script = new Eden.AST.Script();
 			script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
 			return script;
@@ -35,18 +47,23 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		this.next();
 	}
 
-	if (this.token == "is") {
+	if (this.token === "is") {
 		this.next();
 		var alias = new Eden.AST.Alias();
 
+		if (!alias.setAttributes(attribs)) {
+			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+			return alias;
+		}
+
 		// For now it must be a query
-		if (this.token != "?") {
+		if (this.token !== "?") {
 			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ALIASQUERY));
 			return alias;
 		}
 		this.next();
 
-		if (this.token != "(") {
+		if (this.token !== "(") {
 			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYOPEN));
 			return alias;
 		}
@@ -54,7 +71,7 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	
 		alias.setSelector(this.pCODESELECTOR());
 	
-		if (this.token != ")") {
+		if (this.token !== ")") {
 			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.QUERYCLOSE));
 			return alias;
 		}
@@ -63,14 +80,14 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 		//alias.setSelector(this.pCODESELECTOR());
 		alias.setName(name);
 
-		if (this.token != ";") {
+		/*if (this.token !== ";") {
 			alias.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 			return alias;
 		}
-		this.next();
+		this.next();*/
 
 		return alias;
-	} else if (this.token != "{") {
+	} else if (this.token !== "{") {
 		var script = new Eden.AST.Script();
 		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONOPEN));
 		return script;
@@ -79,13 +96,18 @@ Eden.AST.prototype.pNAMEDSCRIPT = function() {
 	}
 
 	var script = this.pSCRIPT();
-	if (script.errors.length > 0) return script;
+	//if (script.errors.length > 0) return script;
+
+	if (!script.setAttributes(attribs)) {
+		script.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.DOBADATTRIB));
+		return script;
+	}
 
 	script.setName(this,name);
 	if (readables) script.setReadables(readables);
 	if (writables) script.setWritables(writables);
 
-	if (this.token != "}") {
+	if (this.token !== "}") {
 		script.error(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
 		return script;
 	} else {
@@ -121,21 +143,25 @@ Eden.AST.prototype.pSCRIPT = function() {
 	if (dummy.numlines === null) dummy.numlines = 0;
 	else dummy.numlines = dummy.numlines.length;
 	ast.append(dummy);
-	var lastStat = dummy;	
+	var lastStat = dummy;
+	//var lpos = -10;
 
-	while (this.token != "EOF") {
+	while (this.stream.valid()) {
+	//while (this.token !== "EOF") {
 		var statement = this.pSTATEMENT();
+		//lpos = this.stream.position;
 
 		if (statement !== undefined) {
 
-			if (statement.errors.length > 0) {
+			/*if (statement.errors.length > 0) {
 				ast.appendChild(statement);
 				break;
-			}
+			}*/
+			if (!ast.warning && statement.warning) ast.warning = statement.warning;
 
 			var end = statement.end;
 
-			if (statement.type == "dummy" && lastStat && lastStat.type == "dummy") {
+			if (statement.type === "dummy" && lastStat && lastStat.type === "dummy") {
 				lastStat.setSource(statement.start, statement.end, statement.source);
 				lastStat.numlines += statement.numlines;
 			} else {
@@ -152,7 +178,7 @@ Eden.AST.prototype.pSCRIPT = function() {
 				else dummy.numlines = dummy.numlines.length;
 				//ast.appendChild(dummy);
 
-				if (lastStat && lastStat.type == "dummy") {
+				if (lastStat && lastStat.type === "dummy") {
 					lastStat.setSource(dummy.start, dummy.end, dummy.source);
 					lastStat.numlines += dummy.numlines;
 				} else {
@@ -160,12 +186,15 @@ Eden.AST.prototype.pSCRIPT = function() {
 					lastStat = dummy;
 				}
 			}
+
+			if (statement.errors.length > 0) break;
 		} else {
 			/*if (this.depth > 0) {
 				this.depth--;
 				break;
 			}*/
-			if (this.token != "}" && this.token != ";") {
+
+			/*if (this.token != "}" && this.token != ";") {
 				if (this.options && this.options.autorecover) {
 					while (this.token != ";" && this.token != "}" && this.token != "EOF") {
 						//if (this.token == "EOF") break;
@@ -174,14 +203,21 @@ Eden.AST.prototype.pSCRIPT = function() {
 				} else {
 					ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
 				}
-			}
-			if (this.token == ";") {
+			}*/
+			if (this.token === ";") {
 				this.next();
-			} else {
+			} else if (this.token !== "}" && this.token !== "EOF") {
 				//this.next();
+				ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
+				break;
+			} else {
 				break;
 			}
 		}
+	}
+
+	if (this.token !== "}" && this.token !== "EOF" && this.token !== ";") {
+		ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
 	}
 
 	// To make sure it gets indexed later...
@@ -196,37 +232,8 @@ Eden.AST.prototype.pSCRIPT = function() {
  */
 Eden.AST.prototype.pSCRIPTEXPR = function() {
 	var ast = new Eden.AST.ScriptExpr();
-	ast.parent = this.parent;
-	var parent = this.parent;
-	//this.parent = ast;
-
-	//ast.setLocals(this.pLOCALS());
-
-	while (this.token != "EOF") {
-		var statement = this.pSTATEXPR();
-
-		if (statement !== undefined) {
-			ast.append(statement);
-			if (statement.errors.length > 0) {
-				break;
-				// Skip until colon
-				/*while (this.token != ";" && this.token != "EOF") {
-					this.next();
-				}*/
-			}
-		} else {
-			if (this.token != "}" && this.token != ";") {
-				ast.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.STATEMENT));
-			}
-			if (this.token == ";") {
-				this.next();
-			} else {
-				break;
-			}
-		}
-	}
-
-	//this.parent = parent;
+	var script = this.pSCRIPT();
+	ast.setScript(script);
 	return ast;
 };
 

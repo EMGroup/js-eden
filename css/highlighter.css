@@ -11,11 +11,16 @@ span.eden-keyword {
 
 span.eden-storage {
 	font-weight: bold;
-	color: #4e9a06;
+	color: #4e9a0699;
 }
 
 span.eden-special {
 	color: #c4a000;
+}
+
+span.eden-builtin {
+	font-weight: bold;
+	color: #3465a4;
 }
 
 span.eden-parameter {
@@ -67,10 +72,10 @@ span.eden-section-line {
 .eden-line button {
 	/*font-family: "FontAwesome";*/
 	font-size: 10pt;
-	border-radius: 5px;
-	background: #666;
+	border-radius: 2px;
+	background:#49696f;
 	outline: none;
-	border: 1px solid #aaa;
+	border: none;
 	margin-left: 3px;
 	margin-right: 3px;
 	padding: 2px;
@@ -79,7 +84,8 @@ span.eden-section-line {
 	height: 24px;
 	cursor: pointer;
 	color: white;
-	text-shadow: 0 3px 3px black;
+	text-shadow: none;
+	font-weight: bold;
 }
 
 .eden-line button:hover {
@@ -107,10 +113,10 @@ span.eden-blockcomment {
 }
 
 div.eden-comment-line {
-	color: #777;
+	color: #585858;
 	font-size: 14px;
 	font-family: "Source Sans Pro",Arial,Helvetica,sans-serif;
-	line-height: 20px;
+	/*line-height: 20px;*/
 	white-space: pre-wrap;
 	word-wrap: initial;
 	text-align: justify;
@@ -141,9 +147,10 @@ span.eden-comment-hidden {
 
 div.current span.eden-comment-hidden {
 	display: initial;
-	color: red;
+	color: blue;
 	font: 14px "Source Sans Pro",Arial,Helvetica,sans-serif;
 	font-weight: bold;
+	opacity: 0.6;
 }
 
 span.eden-comment-ul {
@@ -192,6 +199,7 @@ div.eden-comment-h1 {
 	color: #666;
 	font: 16pt "Source Sans Pro",Arial,Helvetica,sans-serif;
 	font-weight: bold;
+	margin-bottom: 0.2em;
 }
 
 div.eden-comment-h2 {
@@ -218,6 +226,9 @@ span.eden-comment-icon {
 div.eden-line-script {
 	margin-left: 20px;
 	display: inline-block;
+	font-family: 'Roboto Mono',monospace;
+	-webkit-font-smoothing: antialiased;
+	color: #2b4957;
 }
 
 span.eden-doxycomment {
@@ -247,6 +258,11 @@ span.eden-selector2 {
 
 span.eden-selector3 {
 	color: #ad7fa8;
+	/*font-weight: bold;*/
+}
+
+span.eden-selectorerror {
+	color: red;
 	/*font-weight: bold;*/
 }
 
@@ -284,7 +300,15 @@ span.eden-doxytagerror {
 }
 
 span.eden-backticks {
-	background-color: #f6e1f4;
+	background-color: #fdf9f1;
+	border: 1px dashed  #fddc98;
+	font-style: italic;
+}
+
+span.eden-subexpression {
+	background-color: #f4fbff;
+	border: 1px dashed #8bd2fd;
+	font-style: italic;
 }
 
 
@@ -366,13 +390,23 @@ div.eden-line {
 	/*min-width: 6px;*/
 	/*width: 100%;*/
 	/*height: 20px;*/
-	margin-left: -5px;
+	margin-left: 8px;
 	padding-left: 5px;
 	margin-right: 20px;
 	line-height: 20px;
 	/*right: 0;*/
 	/*left: 43px;*/
 	/*z-index: 2;*/
+}
+
+div.eden-line.script {
+	/*background: #f6fbff;*/
+	margin-left: 8px;
+}
+
+div.eden-line.comment {
+	margin-left: -5px;
+	line-height: 1.1em;
 }
 
 div.eden-customline {

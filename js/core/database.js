@@ -410,7 +410,7 @@ Eden.DB.load = function(pid, vid, readPassword, callback) {
 
 	if (Eden.DB.isConnected()) {
 		$.ajax({
-			url: Eden.DB.remoteURL+"/project/get?projectID="+pid+ ((vid) ? "&to="+vid : "") + ((readPassword) ? "&readPassword="+readPassword : ""),
+			url: Eden.DB.remoteURL+"/project/get?api=3&projectID="+pid+ ((vid) ? "&to="+vid : "") + ((readPassword) ? "&readPassword="+readPassword : ""),
 			type: "get",
 			crossDomain: true,
 			xhrFields:{
@@ -852,7 +852,7 @@ Eden.DB.adminCommentActivity = function(newerthan, offset, cb) {
 		},
 		error: function(a, status, err){
 			Eden.DB.handleError(a,status,err);
-			if (cb) cb(false);
+			//if (cb) cb(false);
 		}
 	});
 }

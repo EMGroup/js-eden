@@ -55,6 +55,7 @@
 
 		this.token = undefined;
 		this.prevtoken = undefined;
+		this.prevprevtoken = undefined;
 		this.modestack = [];
 		this.linestack = undefined;
 		this.outerline = undefined;
@@ -65,6 +66,7 @@
 		this.mode = this.startmode;
 		this.incomment = false;
 		this.brline = (options && options.brline);
+		this.hidejs = (options && options.removejs) ? true : false;
 
 		this.custom = {};
 		this.current_custom = null;
@@ -87,15 +89,18 @@
 		"constant": "eden-constant",
 		"parameter": "eden-parameter",
 		"keyword": "eden-keyword",
+		"builtin": "eden-builtin",
 		"javascript": "eden-javascript",
 		"selector": "eden-selector",
 		"selector2": "eden-selector2",
 		"selector3": "eden-selector3",
 		"selector4": "eden-selector4",
+		"error": "eden-selectorerror",
 		"function": "eden-function",
 		"type": "eden-type",
 		"special": "eden-special",
 		"backticks": "eden-backticks",
+		"subexpr": "eden-subexpression",
 		"doxycomment": "eden-doxycomment",
 		"pathblock": "eden-pathblock",
 		"comment-h1": "eden-comment-h1",
@@ -260,6 +265,7 @@
 		var linestart = 0;
 		var token = "INVALID";
 		var prevtoken = "INVALID";
+		var prevprevtoken = "INVALID";
 		//var commentmode = 0;
 
 		//Reset line class
@@ -381,8 +387,18 @@
 				wsline = "";
 			}
 
+			prevprevtoken = prevtoken;
 			prevtoken = token;
 			token = stream.readToken(this.incomment);
+
+			if (this.hidejs && token === "${{") {
+				stream.readJSToken();
+				//token = stream.readToken(this.incomment);
+				token = "NATIVE";
+				this.tokentext = "[[Native]]";
+			} else {
+				this.tokentext = stream.tokenText();
+			}
 
 			if (typeof token != "string") {
 				console.error("Token error: line = " + this.line + " position = " + stream.position);
@@ -415,9 +431,9 @@
 
 			this.token = token;
 			this.prevtoken = prevtoken;
+			this.prevprevtoken = prevprevtoken;
 			this.type = stream.tokenType(token);
 			this.classes = [];
-			this.tokentext = stream.tokenText();
 			this.lineelement = line;
 
 			// Is this token inside the error if there is one?
@@ -626,7 +642,7 @@
 			var lineelement = document.createElement('div');
 			lineelement.className = "eden-line";
 			//lineelement.style.top = "" + curtop + "px";
-			lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
+			lineelement.style.minHeight = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
 			lineelement.setAttribute("data-line",this.line-1);
 			//lineelement.className = generateLineClass(this, stream, linestart,lineerror,position);
 			lineelement.appendChild(line);
@@ -635,7 +651,7 @@
 			var lineelement = document.createElement('div');
 			if (position >= stream.position) {
 				lineelement.className = "eden-line";
-				lineelement.style.height = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
+				lineelement.style.minHeight = "" + ((options && options.spacing && options.spacing[this.line]) ? options.spacing[this.line] : 20) + "px";
 				lineelement.setAttribute("data-line",this.line-1);
 				var caret = document.createElement('span');
 				caret.className = "fake-caret";
@@ -787,7 +803,7 @@
 	EdenUI.Highlight.html = function(str, single, play) {
 		var dummy = document.createElement("div");
 		var hlighter = new EdenUI.Highlight(dummy);
-		hlighter.ast = {stream: new EdenStream(str)};
+		hlighter.ast = {stream: new Eden.EdenStream(str)};
 		hlighter.highlight(hlighter.ast,-1,-1,undefined);
 		if (single) {
 			return dummy.childNodes[0].innerHTML;
@@ -800,5 +816,12 @@
 			if (play) return '<div style="display: flex; align-items: center;"><div class="eden-hl-play" data-src="'+str+'">&#xf04b;</div><div>'+res+"</div></div>";
 			else return res;
 		}
+	}
+
+	EdenUI.Highlight.htmlElement = function(str, ele, options) {
+		if (!str) return;
+		var hlighter = new EdenUI.Highlight(ele, options);
+		hlighter.ast = {stream: new Eden.EdenStream(str)};
+		hlighter.highlight(hlighter.ast,-1,-1);
 	}
 }(typeof window !== 'undefined' ? window : global));

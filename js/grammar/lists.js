@@ -36,8 +36,20 @@ Eden.AST.prototype.pELIST_P = function() {
  * LLIST -> OBSERVABLE : EXPRESSION ELIST' | epsilon
  */
 Eden.AST.prototype.pLLIST = function() {
+	if (this.token != "OBSERVABLE") {
+		var expr = new Eden.AST.Literal("UNDEFINED");
+		this.syntaxError(expr, Eden.SyntaxError.UNKNOWN);  // TODO: error type
+		return {"__error__": expr};
+	}
+
 	var label = this.data.value;
 	this.next();
+
+	if (this.token != ":") {
+		var expr = new Eden.AST.Literal("UNDEFINED");
+		this.syntaxError(expr, Eden.SyntaxError.UNKNOWN);  // TODO: error type
+		return {label: expr};
+	}
 	this.next();  // The :
 
 	var expression = this.pEXPRESSION();
@@ -47,7 +59,13 @@ Eden.AST.prototype.pLLIST = function() {
 		return obj;
 	}
 	var obj = this.pLLIST_P();
-	obj[label] = expression;
+
+	if (obj.hasOwnProperty(label)) {
+		this.syntaxError(expression, Eden.SyntaxError.UNKNOWN);  // TODO: error type
+		obj[label] = expression;
+	} else {
+		obj[label] = expression;
+	}
 	return obj;
 }
 
@@ -61,12 +79,32 @@ Eden.AST.prototype.pLLIST_P = function() {
 	var result = {};
 	while (this.token == ",") {
 		this.next();
+
+		if (this.token != "OBSERVABLE") {
+			var expr = new Eden.AST.Literal("UNDEFINED");
+			this.syntaxError(expr, Eden.SyntaxError.UNKNOWN);  // TODO: error type
+			return {"__error__": expr};
+		}
+
 		var label = this.data.value;
 		this.next();
+
+		if (this.token != ":") {
+			var expr = new Eden.AST.Literal("UNDEFINED");
+			this.syntaxError(expr, Eden.SyntaxError.UNKNOWN);  // TODO: error type
+			return {label: expr};
+		}
 		this.next();  // The :
 
 		var expression = this.pEXPRESSION();
-		result[label] = expression;
+
+
+		if (result.hasOwnProperty(label)) {
+			this.syntaxError(expression, Eden.SyntaxError.UNKNOWN);  // TODO: error type
+			result[label] = expression;
+		} else {
+			result[label] = expression;
+		}
 		if (expression.errors.length > 0) {
 			return result;
 		}

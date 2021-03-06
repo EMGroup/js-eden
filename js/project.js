@@ -1,11 +1,11 @@
-Eden.Project = function(id, name, source) {
+Eden.Project = function(id, name, source, eden) {
 	this.title = name;
 	this.name = name.replace(/[^a-zA-Z0-9]/g, "");
 	this.author = undefined;
 	this.authorid = -1;
 	this.tags = name.toLowerCase().split(" ");
 	this.src = source;
-	this.ast = new Eden.AST(source, undefined, this, {autorecover: true});
+	this.ast = new Eden.AST(source, undefined, this, {autorecover: true, tolerant: true});
 	//this.ast.script.lock = 1;
 	this.id = id;
 	this.vid = undefined;
@@ -15,12 +15,42 @@ Eden.Project = function(id, name, source) {
 	this.desc = undefined;
 	this.readPassword = undefined;
 	this.autosavetimeout = undefined;
+	this.success = (this.ast && this.ast.script.errors.length == 0);
+	this.instance = eden;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
+	} else {
+		console.error("Project Error", this.ast.script.errors);
+		//this.ast = null;
+
+		eden.exec("do lib:unexecuted; do lib > recovery;").then(r => {
+			for (let i=0; i<this.ast.script.errors.length; ++i) {
+				eden.emit("error", [{name: "Project"}, this.ast.script.errors[i]]);
+			}
+		});
+
+		// Need to create a script view...
+		/*this.ast.script.addIndex();
+
+		setTimeout( () => {
+			edenUI.createView("recoverscript","ScriptInput");
+			var tabs = [":project"];
+			eden.root.lookup("view_recoverscript_tabs").assign(tabs, eden.root.scope, EdenSymbol.localJSAgent);
+			eden.root.lookup("view_recoverscript_current").assign(0, eden.root.scope, EdenSymbol.localJSAgent);
+		}, 100);*/
+
 	}
 
 	//eden.root.lookup("jseden_project_title").assign(name, eden.root.scope, Symbol.localJSAgent);
 	eden.root.lookup("jseden_project_name").assign(this.name, eden.root.scope, EdenSymbol.localJSAgent);
+
+	/* Virtual AST Statements */
+	Object.defineProperty(this, "statements", {
+		enumerable: true,
+		get: function() {
+			return this.ast.script.statements;
+		}
+	});
 }
 
 Eden.Project.listenTo = listenTo;
@@ -28,7 +58,7 @@ Eden.Project.emit = emit;
 Eden.Project.unListen = unListen;
 Eden.Project.listeners = {};
 
-Eden.Project.init = function() {
+Eden.Project.init = function(eden) {
 	var titleSym = eden.root.lookup("jseden_project_title");
 	titleSym.addJSObserver("project", function(sym, value) {
 		if (sym.origin !== eden.project) {
@@ -53,38 +83,40 @@ Eden.Project.init = function() {
 	//	if (eden.project) eden.project.autosave();
 	//});
 
-	$.get("resources/projects.db.json", function(data) {
-		Eden.Project.local = data;
+	return Eden.Utils.getURL("resources/projects.db.json").then(function(data) {
+		Eden.Project.local = JSON.parse(data);
 
 		// Also add local storage projects
-		var plist = JSON.parse(window.localStorage.getItem("project_list"));
-		if (plist !== null) {
-			for (var x in plist) {
-				var prefix = "project_"+x;
-				//var src = window.localStorage.getItem(prefix+"_project");
-				var id = window.localStorage.getItem(prefix+"_id");
-				if (id == "undefined") id = undefined;
-				var vid = window.localStorage.getItem(prefix+"_vid");
-				if (vid == "undefined") vid = undefined;
-				var author = window.localStorage.getItem(prefix+"_author");
-				if (author == "undefined") author = undefined;
-				var authorid = window.localStorage.getItem(prefix+"_authorid");
-				var name = window.localStorage.getItem(prefix+"_name");
-				var thumb = window.localStorage.getItem(prefix+"_thumb");
-				if (thumb == "undefined") thumb = undefined;
-				var desc = window.localStorage.getItem(prefix+"_desc");
-				var title = window.localStorage.getItem(prefix+"_title");
+		/*if (typeof window != "undefined" && window.localStorage) {
+			var plist = JSON.parse(window.localStorage.getItem("project_list"));
+			if (plist !== null) {
+				for (var x in plist) {
+					var prefix = "project_"+x;
+					//var src = window.localStorage.getItem(prefix+"_project");
+					var id = window.localStorage.getItem(prefix+"_id");
+					if (id == "undefined") id = undefined;
+					var vid = window.localStorage.getItem(prefix+"_vid");
+					if (vid == "undefined") vid = undefined;
+					var author = window.localStorage.getItem(prefix+"_author");
+					if (author == "undefined") author = undefined;
+					var authorid = window.localStorage.getItem(prefix+"_authorid");
+					var name = window.localStorage.getItem(prefix+"_name");
+					var thumb = window.localStorage.getItem(prefix+"_thumb");
+					if (thumb == "undefined") thumb = undefined;
+					var desc = window.localStorage.getItem(prefix+"_desc");
+					var title = window.localStorage.getItem(prefix+"_title");
 
-				Eden.Project.local[name] = {
-					author: author,
-					listed: true,
-					title: title,
-					image: thumb,
-					id: id
-				};
+					Eden.Project.local[name] = {
+						author: author,
+						listed: true,
+						title: title,
+						image: thumb,
+						id: id
+					};
+				}
 			}
-		}
-	}, "json");
+		}*/
+	});
 
 	// Watch to trigger whens
 	/*eden.root.addGlobal(function(sym, create) {
@@ -114,14 +146,14 @@ Eden.Project.loadFromFile = function(file) {
 	var reader = new FileReader();
 	reader.onload = function(e) {
 		//Eden.loadFromString(e.target.result);
-		eden.project = new Eden.Project(undefined, filename, e.target.result.replace(/\r/g,""));
+		eden.project = new Eden.Project(undefined, filename, e.target.result.replace(/\r/g,""), eden);
 		eden.project.start();
 		//importfile.css("display","none");
 	};
 	reader.readAsText(file);
 }
 
-Eden.Project.newFromExisting = function(name, cb) {
+Eden.Project.newFromExisting = function(name, eden, cb) {
 	var me = this;
 	Eden.Project.emit("loading", [me]);
 
@@ -129,14 +161,14 @@ Eden.Project.newFromExisting = function(name, cb) {
 		if (Eden.Project.local[name].id) {
 			Eden.Project.load(Eden.Project.local[name].id, undefined, undefined, cb);
 		} else {
-			$.get(Eden.Project.local[name].file, function(data) {
+			Eden.Utils.getURL(Eden.Project.local[name].file).then(function(data) {
 				eden.root.lookup("jseden_project_mode").assign("restore", eden.root.scope, EdenSymbol.defaultAgent);
-				eden.project = new Eden.Project(undefined, name, data);
+				eden.project = new Eden.Project(undefined, name, data, eden);
 				eden.project.start(function () {
 					Eden.Project.emit("load", [me]);
 					if (cb) cb(eden.project);
 				});
-			}, "text");
+			});
 		}
 	} else {
 		
@@ -171,6 +203,8 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 				var meta = data;
 				var extra;
 
+				var usecs2 = true;
+
 				if (meta.projectMetaData !== null) {
 					extra = JSON.parse(meta.projectMetaData);
 
@@ -188,10 +222,16 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 								alert("This project needs a different version of JS-Eden");
 							}
 						}
+
+						if (extra.env.parser_cs3) {
+							usecs2 = false;
+						}
 					}
 				}
 
-				eden.project = new Eden.Project(pid, meta.minimisedTitle, data.source);
+				var src = (usecs2 && !data.source.startsWith('"use cs2;"')) ? '"use cs2;"\n'+data.source : data.source;
+
+				eden.project = new Eden.Project(pid, meta.minimisedTitle, src, eden);
 				console.log("LOAD PROJECT",data);
 				eden.project.vid = data.saveID;
 				eden.project.title = meta.title;
@@ -233,11 +273,20 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 }
 
 Eden.Project.verifyEnvironment = function(env) {
+
+	console.log("Environment:",env);
+
+	if (!env.hasOwnProperty("parser_cs3") || env.parser_cs3 == false) {
+		Eden.AST.version = Eden.AST.VERSION_CS2;
+		eden.root.lookup("jseden_parser_cs3").assign(false, eden.root.scope, EdenSymbol.defaultAgent);
+		console.log("Disable cs3");
+	}
+
 	for (var x in env) {
 		var val = eden.root.lookup("jseden_"+x).value();
 		/*if (x == "parser_cs3") {
-			eden.root.lookup("jseden_parser_cs3").assign(true, eden.root.scope, EdenSymbol.defaultAgent);
-		} else */
+			Eden.AST.version = Eden.AST.VERSION_CS3;
+			eden.root.lookup("jseden_parser_cs3").assign(true, eden.root.scope, EdenSymbol.defaultAgent);*/
 		if (typeof env[x] == "string") {
 			var ch0 = env[x].charAt(0);
 
@@ -249,7 +298,10 @@ Eden.Project.verifyEnvironment = function(env) {
 			case "="	:	if (val !== parseInt(env[x].substring(1))) return false; break;
 			default		:	if (val != env[x]) return false;
 			}
-		} else if (val != env[x]) return false;
+		} else if (val != env[x]) {
+			console.log("Environment mismatch: ", x, val, env[x]);
+			return false;
+		}
 	}
 	return true;
 }
@@ -286,7 +338,16 @@ Eden.Project.prototype.start = function(cb) {
 		return;
 	}
 
-	this.ast.execute(this, function() {
+	if (this.instance.get("jseden_project_mode") == "recover") {
+		this.success = false;
+		eden.exec("do lib:unexecuted; do lib > recovery;").then(r => {
+			eden.root.enableActions();
+			if (cb) cb();
+		});
+		return;
+	}
+
+	this.ast.execute(this, eden.root.scope, function() {
 		if (me.ast.scripts["ACTIVE"]) {
 			// Find the active action and replace
 			for (var i=0; i<me.ast.script.statements.length; i++) {
@@ -314,6 +375,7 @@ Eden.Project.prototype.start = function(cb) {
 		eden.root.parent = me.ast.script;
 		me.ast.scripts["ACTIVE"] = eden.root;
 
+		eden.root.enableActions();
 		if (cb) cb();
 	});
 }
@@ -394,7 +456,7 @@ Eden.Project.prototype.addAction = function(name) {
 }
 
 Eden.Project.prototype.generate = function() {
-	return this.ast.getSource();
+	return (this.success) ? this.ast.getSource() : this.src;
 }
 
 Eden.Project.prototype.getDescription = function() {

@@ -160,7 +160,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 				stop = Math.floor((stop - 50) / 20);
 				if (stop < 0) stop = 0;
 
-				if (Math.abs(stop - scrolltopline) >= 50) {
+				if (Math.abs(stop - scrolltopline) >= 50 && !scriptarea.disablehl) {
 					console.log("FORCE RE HIGHLIGHT", stop);
 					scriptarea.highlighter.setScrollTop(stop);
 					scrolltopline = stop;
@@ -174,6 +174,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		var tab_queries = [];
 		var tab_frags = [];
 		//var readonly = false;
+		var tab_state = {};
 
 		var obs_tabix = "view_"+name+"_current";
 		var obs_showtabs = "view_"+name+"_showtabs";
@@ -239,12 +240,32 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 		}
 		readonlySym.addJSObserver("scriptview_"+name, readonlyChange);
 		readonlyChange(readonlySym, readonlySym.value());
+
+		function saveTabState() {
+			tab_state[curtab] = {selStart: scriptarea.intextarea.selectionStart, selEnd: scriptarea.intextarea.selectionEnd, scroll: inputhider.scrollTop};
+		}
+
+		function restoreTabState() {
+			if (tab_state.hasOwnProperty(curtab)) {
+				let s = tab_state[curtab];
+				scriptarea.intextarea.focus();
+				scriptarea.intextarea.selectionStart = s.selEnd;
+				scriptarea.intextarea.selectionEnd = s.selEnd;
+				scriptarea.updateLineHighlight();
+				inputhider.scrollTop = s.scroll;
+			}
+		}
+
+		var needsTabRestore = false;
 		
 
 		function curChanged(sym, value) {
 			if (typeof value == "number" && value >= 0 && value < tab_frags.length) {
 				if (curtab != value) {
+					saveTabState();
 					curtab = value;
+					needsTabRestore = true;
+
 					scriptarea.setFragment(tab_frags[curtab]);
 					if (scriptarea.fragment.originast && scriptarea.fragment.originast.doxyComment && scriptarea.fragment.originast.doxyComment.getProperty("nobuttons")) {
 						showButtonsSym.assign(false, eden.root.scope, EdenSymbol.localJSAgent);
@@ -257,6 +278,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 
 				// Show the script browser
 				if (value == -1) {
+					saveTabState();
 					curtab = -1;
 					scriptarea.setFragment(undefined);
 					browseScripts("");
@@ -334,6 +356,11 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					//scriptarea.setFragment(tab_frags[curtab]);
 					scriptarea.refresh();
 				}
+				
+				if (needsTabRestore) {
+					needsTabRestore = false;
+					restoreTabState();
+				}
 			}
 		});
 
@@ -387,12 +414,59 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			eden.execute("view_"+name+"_query is jseden_script_query;");
 		}
 
+		function makeScriptEntry(parent, node) {
+			let oele = document.createElement("DIV");
+			let ele = document.createElement("DIV");
+			oele.className = "explore-entry";
+			ele.className = "browse-entry";
+
+			let eles1 = document.createElement("SPAN");
+
+			let icon = "&#xf0f6;";
+			//Choose correct icon.
+			if (node === eden.project.ast.script) {
+				icon = "&#xf015;";
+			} else if (node.lock > 0) {
+				icon = "&#xf023;";
+			} else if (node.name === "ACTIVE") {
+				icon = "&#xf0e7;";
+			}
+
+			eles1.innerHTML = icon;
+			eles1.className = "browse-icon";
+			if (node.executed > 0) eles1.className += " executed";
+			ele.appendChild(eles1);
+
+			let eles2 = document.createElement("SPAN");
+			eles2.textContent = (node instanceof Eden.AST.Alias) ? node.name + "  [external]" : node.name;
+			ele.appendChild(eles2);
+
+			ele.setAttribute("data-path", Eden.Selectors.getID(node));
+			oele.appendChild(ele);
+
+			let subs = Object.keys(node.subscripts);
+			subs.sort();
+
+			for (var s of subs) {
+				let ss = node.subscripts[s];
+				if (ss.name && ss.subscripts) {
+					makeScriptEntry(oele, ss);
+				}
+			}
+
+			parent.appendChild(oele);
+		}
+
 		function browseScripts(path) {
 			if (path == "") path = "*";
 			var selector = eden.root.lookup("view_"+name+"_query").value();
 			if (selector === undefined) selector = ".type(script).name";
+
+			scriptarea.outdiv.innerHTML = "";
+			makeScriptEntry(scriptarea.outdiv, eden.project.ast.script);
+
 			//console.log("BROWSE",selector);
-			Eden.Selectors.query(selector, "path,name,remote,executed,type", {minimum: 0}, (scripts) => { //path + " .type(script).name:not(:remote)","id");
+			/*Eden.Selectors.query(selector, "path,name,remote,executed,type", {minimum: 0}, (scripts) => { //path + " .type(script).name:not(:remote)","id");
 				if (curtab != -1) return;
 
 				scriptarea.outdiv.innerHTML = "";
@@ -422,7 +496,7 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 					var ele = $('<div class="browse-entry" data-path="'+scripts[i][0]+'"><div class="browse-icon'+iconclass+'">'+icon+'</div>'+nname+'</div>');
 					scriptarea.outdiv.appendChild(ele.get(0));
 				}
-			});
+			});*/
 
 			//var folder = {};
 		}
@@ -642,9 +716,9 @@ EdenUI.plugins.ScriptInput = function(edenUI, success) {
 			if (curtab >= 0 && tab_frags[curtab]) {
 				if (tab_frags[curtab].originast) {
 					console.log("ONRUN",tab_frags[curtab].originast);
-					tab_frags[curtab].ast.executeStatement(tab_frags[curtab].originast, 0, tab_frags[curtab]);
+					tab_frags[curtab].ast.executeStatement(tab_frags[curtab].originast, eden.root.scope, tab_frags[curtab]);
 				} else {
-					tab_frags[curtab].ast.execute(tab_frags[curtab]);
+					tab_frags[curtab].ast.execute(tab_frags[curtab], eden.root.scope);
 				}
 				rebuildTabs();
 			}

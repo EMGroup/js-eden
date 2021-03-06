@@ -76,7 +76,9 @@ Eden.Selectors.PropertyNode.attributes = {
 	"determines": {local: false,	indexed: false, rank: 4},	// Only immediate subscribers
 	"time":		{local: true,	indexed: false, rank: 3},
 	"date":		{local: false,	indexed: false,	rank: 3},
+	"locked":	{local: true,	indexed: false,	rank: 3},
 	"title":	{local: false,	indexed: false, rank: 10},
+	"warning":	{local: false,	indexed: false, rank: 10},
 	"author":	{local: false,	indexed: false, rank: 10},
 	"v":		{local: false,	indexed: false, rank: 20},
 	"vid":		{local: false,	indexed: false, rank: 20},
@@ -142,7 +144,7 @@ Eden.Selectors.PropertyNode.prototype.depend = Eden.Selectors._depend;
 Eden.Selectors.PropertyNode.prototype.filter = function(statements) {
 	if (!statements) return this.depend(this.construct());
 	else return this.depend(new Promise((resolve, reject) => {
-		this._filter(statements, resolve);
+		resolve(this._filter(statements));
 	}));
 }
 
@@ -162,10 +164,12 @@ Eden.Selectors.PropertyNode.prototype._indirectDepFilter = function(statements, 
 	});
 }
 
-Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
+Eden.Selectors.PropertyNode.prototype._filter = function(statements) {
 	var me = this;
 	var param = this.value;
 	var command = this.name;
+
+	if (!statements) return this._construct();
 
 	//console.log("Property",command,param,statements);
 
@@ -176,56 +180,64 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 	} else {
 		switch(command) {
 		case ".name"	:	if (!param) {
-								resolve(statements.filter(function(stat) {
+								return (statements.filter(function(stat) {
 									return (stat.lvalue !== undefined || stat.name !== undefined);
 								})); return;
 							}
 							var regex = edenUI.regExpFromStr(param);
-							resolve(statements.filter(function(stat) {
+							return (statements.filter(function(stat) {
 								return (stat.lvalue && regex.test(stat.lvalue.name)) || (stat.name && regex.test(stat.name));
 							})); return;
 
-		case ".id"		:	resolve(statements.filter(function(stat) {
+		case ".id"		:	return (statements.filter(function(stat) {
 								if (stat.id == 0) stat.buildID();
 								return (stat.parent === undefined && stat.base && stat.base.origin && stat.base.origin.id) ?
 									stat.base.origin.id == param : stat.id == param;
 							})); return;
 
 		case ".type"	:	if (!param) break;
-							resolve(statements.filter(function(stat) {
+							return (statements.filter(function(stat) {
 								return stat.type == param;
 							})); return;
 
-		case ".datatype":	resolve(statements.filter(function(stat) {
+		case ".warning"	:	return (statements.filter(function(stat) {
+								return stat.warning
+							})); return;
+
+		case ".locked"	:	return (statements.filter(function(stat) {
+								return stat.lock > 0;
+							})); return;
+
+		case ".datatype":	return (statements.filter(function(stat) {
 								return (stat.expression && Eden.Selectors.testType(stat.expression) == param) ||
 										(stat.expression && stat.expression.type == "scope" && stat.expression.range && param == "list");
 							})); return;
 
-		case ".lines"	:	resolve(statements); return;
+		case ".lines"	:	return (statements); return;
 
-		case ":line"	:	resolve(statements); return;
+		case ":line"	:	return (statements); return;
 
 		case ".op"			:
-		case ".operator"	: resolve(statements); return;
+		case ".operator"	: return (statements); return;
 
 		// Match an expression pattern
-		case ":pattern"		: resolve(statements); return;
+		case ":pattern"		: return (statements); return;
 
 		case ".depends"	:	//var regex = edenUI.regExpFromStr(param);
-							resolve(statements.filter(function(stat) {
+							return (statements.filter(function(stat) {
 								return (stat.type == "definition" || stat.type == "when") && (stat.dependencies[param] || (stat.dynamicDependencies && stat.dynamicDependencies[param]));
 							})); return;
 
 		case ".determines"	:
-							resolve(statements.filter(function(stat) {
+							return (statements.filter(function(stat) {
 								return (stat instanceof EdenSymbol) && stat.subscribers[param];
 							})); return;
 
-		case ":depends"		: resolve(this._indirectSubFilter(statements, param)); return;
+		case ":depends"		: return (this._indirectSubFilter(statements, param)); return;
 
-		case ":determines"	: resolve(this._indirectDepFilter(statements, param)); return;
+		case ":determines"	: return (this._indirectDepFilter(statements, param)); return;
 
-		case ":active"	:	resolve(statements.filter(function(stat) {
+		case ":active"	:	return (statements.filter(function(stat) {
 								if (stat.type == "definition" || stat.type == "assignment") {
 									var sym = eden.root.symbols[stat.lvalue.name];
 
@@ -234,13 +246,13 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 								return false;
 							})); return;
 
-		case ":first"	:	resolve((statements.length > 0) ? [statements[0]] : []); return;
-		case ":last"	:	resolve((statements.length > 0) ? [statements[statements.length-1]] : []);
+		case ":first"	:	return ((statements.length > 0) ? [statements[0]] : []); return;
+		case ":last"	:	return ((statements.length > 0) ? [statements[statements.length-1]] : []);
 
-		case ":unexecuted"	:	resolve(statements.filter(function(stat) {
+		case ":unexecuted"	:	return (statements.filter(function(stat) {
 									return stat.executed == 0;
 								})); return;
-		case ":executed":	resolve(statements.filter(function(stat) {
+		case ":executed":	return (statements.filter(function(stat) {
 								return stat.executed == 1;
 							})); return
 
@@ -249,73 +261,73 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 							});*/
 
 		//case ":no-parent":
-		case ":root"	:	resolve(statements.filter(function(stat) {
+		case ":root"	:	return (statements.filter(function(stat) {
 								return stat.parent === undefined;
 							})); return;
 
-		case ":project"	:	resolve([eden.project.ast.script]); return;
+		case ":project"	:	return ([eden.project.ast.script]); return;
 
-		case ":nth"		:	resolve(statements.filter(function(stat) {
+		case ":nth"		:	return (statements.filter(function(stat) {
 								return stat.parent && Eden.Selectors.getChildren([stat.parent], false)[me.value-1] === stat;
 							})); return;
 
-		case ":prev"	:	resolve(statements.map(function(stat) {
+		case ":prev"	:	return (statements.map(function(stat) {
 								let s = stat.previousSibling;
 								while (s && s.type == "dummy") s = s.previousSibling;
 								return s;
 							})); return;
 
-		case ":next"	:	resolve(statements.map(function(stat) {
+		case ":next"	:	return (statements.map(function(stat) {
 								let s = stat.nextSibling;
 								while (s && s.type == "dummy") s = s.nextSibling;
 								return s;
 							})); return;
 
-		case ":value"	:	resolve(statements); return;
+		case ":value"	:	return (statements); return;
 
 		// Additional selector unions to check
 		case ":"		:
 		case ":matches"	:	var sast = Eden.Selectors.parse(this.param);
-							if (sast) sast.filter(statements).then(s => resolve(s));
-							else resolve([]);
+							if (sast) return sast._filter(statements);
+							else return ([]);
 							return;
 
 		case ".title"	:	if (this.isreg) {
-								resolve(statements.filter(function(stat) {
+								return(statements.filter(function(stat) {
 									if (!stat.doxyComment) return false;
 									var title = stat.doxyComment.getProperty("title");
 									return title && me.value.test(title);
 								})); return;
 							} else {
-								resolve(statements.filter(function(stat) {
+								return(statements.filter(function(stat) {
 									if (!stat.doxyComment) return false;
 									var title = stat.doxyComment.getProperty("title");
 									return title && title == me.value;
 								})); return;
 							}
 
-		case ".author"	:	resolve(statements); return;
+		case ".author"	:	return(statements); return;
 
 		case ".v"		:
 		case ".vid"		:
-		case ".version"	:	resolve(statements); return;
+		case ".version"	:	return(statements); return;
 
 		case ".source"	:	if (this.isreg) {
-								resolve(statements.filter(function(stat) {
+								return(statements.filter(function(stat) {
 									return me.value.test(stat.getSource());
 								})); return;
 							} else {
-								resolve(statements.filter(function(stat) {
+								return(statements.filter(function(stat) {
 									return stat.getSource() == me.value;
 								})); return;
 							}
 
 		case ".comment"	:	if (this.isreg) {
-								resolve(statements.filter(function(stat) {
+								return(statements.filter(function(stat) {
 									return stat.doxyComment && me.value.test(stat.doxyComment.stripped());
 								})); return;
 							} else {
-								resolve(statements.filter(function(stat) {
+								return(statements.filter(function(stat) {
 									return stat.doxyComment && stat.doxyComment.stripped() == me.value;
 								})); return;
 							}
@@ -326,20 +338,20 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 							var diff = now - ts;
 							console.log("AGE",ts,now,diff);
 							if (this.compare === undefined || this.compare == "<") {
-								resolve(statements.filter(function(stat) {
+								return(statements.filter(function(stat) {
 									return stat.stamp > diff;
 								})); return;
 							} else {
-								resolve(statements.filter(function(stat) {
+								return(statements.filter(function(stat) {
 									return stat.stamp < diff;
 								})); return;
 							}
 
 		// Absolute time
 		case ".time"		:
-		case ".date"		:	resolve(statements); return;
+		case ".date"		:	return(statements); return;
 
-		case ":remote"	:	resolve(statements.filter(function(stat) {
+		case ":remote"	:	return(statements.filter(function(stat) {
 								var p = stat;
 								while(p.parent) p = p.parent;
 								if (!p.base || !p.base.origin) return false;
@@ -347,62 +359,71 @@ Eden.Selectors.PropertyNode.prototype._filter = function(statements, resolve) {
 							})); return;
 
 		case ":not"		:	if (this.param) {
-							Eden.Selectors.parse(this.param).filter(statements).then(positive => {
-								resolve(statements.filter(function(stat) {
+								var positive = Eden.Selectors.parse(this.param)._filter(statements);
+								
+								return statements.filter(function(stat) {
 									for (var i=0; i<positive.length; i++) {
 										if (stat === positive[i]) return false;
 									}
 									return true;
-								}));
-							}); return;
+								});
+							
 							}
 
-		default: resolve([]);
+		default: return([]);
 		}
 	}
 }
 
+Eden.Selectors.PropertyNode.prototype._construct = function() {
+	var stats;
+
+	switch (this.name) {
+	case ".type"		:	stats = Eden.Index.getByType(this.value); break;
+	case ".id"			:	stats = Eden.Index.getByID(this.value); break;
+	case ".v"			:
+	case ".vid"			:
+	case ".version"		:	stats = []; break;  // Local version always is empty
+	case ".name"		:	if (this.param === undefined) {
+								stats = Eden.Index.getAllWithName();
+							} else if (this.isreg) {
+								stats = Eden.Index.getByNameRegex(this.value);
+							} else {
+								stats = Eden.Index.getByName(this.value);
+							} break;
+	// TODO this doesn't capture executes.
+	case ":root"		:	stats = [eden.project.ast.script].concat(Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; })); break;
+	case ":remote"		:	stats = Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; }); break;
+	case ":project"		:	stats = [eden.project.ast.script]; break;
+	case ":this"		:	stats = (this.options && this.options.self) ? [this.options.self] : [];
+							console.log("THIS", this.options);
+							break;
+	case ":prev"		:	stats = (this.options && this.options.self) ? [this.options.self] : [];
+							stats = stats.map(stat => {
+								let s = stat.previousSibling;
+								while (s && s.type == "dummy") s = s.previousSibling;
+								return s;
+							}); break;
+	case ":next"		:	stats = (this.options && this.options.self) ? [this.options.self] : [];
+							stats = stats.map(stat => {
+								let s = stat.nextSibling;
+								while (s && s.type == "dummy") s = s.nextSibling;
+								return s;
+							}); break;
+	case ":active"		:	stats = [eden.root]; break;
+	case ":depends"		:	stats = Object.values(eden.root.lookup(this.value).indirectSubscribers()); break;
+	case ":determines"	:	stats = Object.values(eden.root.lookup(this.value).indirectDependencies()); break;
+	case ".determines"	:	stats = Object.values(eden.root.lookup(this.value).dependencies).concat(Object.values(eden.root.lookup(this.value).dynamicDependencies)); break;
+	case ".depends"		:	stats = Object.values(eden.root.lookup(this.value).subscribers); break;
+	default				:	stats = this._filter(Eden.Index.getAll());
+	}
+
+	return stats;
+}
+
 Eden.Selectors.PropertyNode.prototype.construct = function() {
 	//return new Promise((resolve, reject) => {
-		var stats;
-
-		switch (this.name) {
-		case ".type"		:	stats = Eden.Index.getByType(this.value); break;
-		case ".id"			:	stats = Eden.Index.getByID(this.value); break;
-		case ".v"			:
-		case ".vid"			:
-		case ".version"		:	stats = []; break;  // Local version always is empty
-		case ".name"		:	if (this.param === undefined) {
-									stats = Eden.Index.getAllWithName();
-								} else if (this.isreg) {
-									stats = Eden.Index.getByNameRegex(this.value);
-								} else {
-									stats = Eden.Index.getByName(this.value);
-								} break;
-		// TODO this doesn't capture executes.
-		case ":root"		:	stats = [eden.project.ast.script].concat(Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; })); break;
-		case ":remote"		:	stats = Object.keys(Eden.Selectors.cache).map(function(e) { return Eden.Selectors.cache[e]; }); break;
-		case ":project"		:	stats = [eden.project.ast.script]; break;
-		case ":this"		:	stats = (this.options && this.options.self) ? [this.options.self] : []; break;
-		case ":prev"		:	stats = (this.options && this.options.self) ? [this.options.self] : [];
-								stats = stats.map(stat => {
-									let s = stat.previousSibling;
-									while (s && s.type == "dummy") s = s.previousSibling;
-									return s;
-								}); break;
-		case ":next"		:	stats = (this.options && this.options.self) ? [this.options.self] : [];
-								stats = stats.map(stat => {
-									let s = stat.nextSibling;
-									while (s && s.type == "dummy") s = s.nextSibling;
-									return s;
-								}); break;
-		case ":active"		:	stats = [eden.root]; break;
-		case ":depends"		:	stats = Object.values(eden.root.lookup(this.value).indirectSubscribers()); break;
-		case ":determines"	:	stats = Object.values(eden.root.lookup(this.value).indirectDependencies()); break;
-		case ".determines"	:	stats = Object.values(eden.root.lookup(this.value).dependencies).concat(Object.values(eden.root.lookup(this.value).dynamicDependencies)); break;
-		case ".depends"		:	stats = Object.values(eden.root.lookup(this.value).subscribers); break;
-		default				:	stats = Eden.Index.getAll();
-		}
+	var stats = this._construct();
 
 		if (!this.options || !this.options.history) {
 			return Promise.resolve(stats.filter(function(e) {

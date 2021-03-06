@@ -345,7 +345,7 @@ EdenScriptGutter.prototype.executeSelected = function() {
 			var stat = this.ast.getStatementByLine(i);
 			var sellines = this.ast.getStatementByLine(i).getRange();
 			//this.ast.executeLine(i, agent);
-			eden.project.ast.executeStatement(stat, i, eden.project);
+			eden.project.ast.executeStatement(stat, eden.root.scope, eden.project);
 			i = sellines[1];
 			eden.root.lookup("jseden_fragment_executed").assign(".id("+stat.id+")", eden.root.scope, EdenSymbol.hciAgent);
 		}
@@ -540,13 +540,13 @@ EdenScriptGutter.prototype.updateLine = function(i, globaldoupdate) {
 				this.lines[i].errored = false;
 			}
 			if (stat.warning) {
-				if (stat.warning.warnno != 1 || eden.root.lookup("jseden_parser_warndeprecate").value()) {
+				//if (stat.warning.warnno != 1 || eden.root.lookup("jseden_parser_warndeprecate").value()) {
 					//console.log("WARNING: ", stat.warning);
 					className += " warning";
 					content = "&#xf071";
 					doupdate = true;
 					if (stat.warning) title = stat.warning.messageText();
-				}
+				//}
 			}
 			if (stat.executed == 1) {
 				className += " executed";

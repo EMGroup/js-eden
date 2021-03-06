@@ -9,26 +9,10 @@ Eden.AST.prototype.pWHILE = function() {
 
 	w.warning = new Eden.SyntaxWarning(this, w, Eden.SyntaxWarning.USEOFWHILE);
 
-	if (this.token != "(") {
-		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILEOPEN));
-		this.parent = parent;
-		return w;
-	} else {
-		this.next();
-	}
-
 	w.setCondition(this.pEXPRESSION());
 	if (w.errors.length > 0) {
 		this.parent = parent;
 		return w;
-	}
-
-	if (this.token != ")") {
-		w.error(new Eden.SyntaxError(this, Eden.SyntaxError.WHILECLOSE));
-		this.parent = parent;
-		return w;
-	} else {
-		this.next();
 	}
 
 	w.setStatement(this.pSTATEMENT());

@@ -91,6 +91,7 @@ EdenUI.Highlight.prototype.BLOCK_COMMENT = function() {
 	switch(this.token) {
 	case "*/"		:	//this.mode = this.startmode;
 						this.popMode();
+						if (this.mode == "BLOCK_COMMENT") this.mode = this.startmode;
 						this.classes.push("block-comment");
 						break;
 	default			:	this.classes.push("block-comment");
@@ -200,7 +201,7 @@ EdenUI.Highlight.prototype.COMMENT = function() {
 							this.classes.push("comment");
 						}
 						break;
-	case "\""		:	this.pushMode();
+	case "\\"		:	this.pushMode();
 						this.mode = "COMMENT_ESCAPE";
 						this.classes.push("hidden-comment");
 						break;

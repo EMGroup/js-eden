@@ -1,31 +1,41 @@
 Eden.AST.BinaryOp = function(op) {
 	this.type = "binaryop";
+	Eden.AST.BaseExpression.apply(this);
 	this.op = op;
-	this.errors = [];
 	this.l = undefined;
 	this.r = undefined;
-	this.warning = undefined;
-	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 
 	if (this.op == "&" || this.op == "and") this.op = "&&";
 	else if (this.op == "|" || this.op == "or") this.op = "||";
+
+	switch(op) {
+	case ">"	:
+	case "<"	:
+	case ">="	:
+	case "<="	:
+	case "=="	:
+	case "!="	:	this.typevalue = Eden.AST.TYPE_BOOLEAN; break;
+	case "*"	:
+	case "/"	:
+	case "^"	:
+	case "%"	:	this.typevalue = Eden.AST.TYPE_NUMBER; break;
+	}
 }
 Eden.AST.BinaryOp.prototype.left = Eden.AST.fnEdenASTleft;
-Eden.AST.BinaryOp.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.BinaryOp.prototype.setRight = function(right) {
 	this.r = right;
-	this.errors.push.apply(this.errors, right.errors);
-	if (right && right.warning) this.warning = right.warning;
+	this.mergeExpr(right);
+}
+
+Eden.AST.BinaryOp.prototype.toEdenString = function(scope, state) {
+	return `(${this.l.toEdenString(scope, state)} ${this.op} ${this.r.toEdenString(scope, state)})`;
 }
 
 Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
-	var opts = options; //{bound: false, usevar: options.usevar};
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += "(";
+	var opts = options;
 	var left = this.l.generate(ctx, scope, opts);
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += " " + this.op + " ";
 	var right = this.r.generate(ctx, scope, opts);
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += ")";
 	var opstr;
 
 	var tval = 0;
@@ -87,17 +97,8 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 		res = "(" + left + ") " + op + " (" + right + ")";
 	}
 
-	if (options.bound) {
-		return "new BoundValue("+res+", "+scope+")";
-	} else {
-		return res;
-	}
+
+	return res;
 }
 
-Eden.AST.BinaryOp.prototype.execute = function(ctx, base, scope) {
-	var rhs = "return ";
-	rhs += this.generate(ctx, "scope",{bound: false});
-	rhs += ";";
-	return (new Function(["context","scope"],rhs))(eden.root,scope);
-}
-
+Eden.AST.registerExpression(Eden.AST.BinaryOp);

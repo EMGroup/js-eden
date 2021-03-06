@@ -1,6 +1,7 @@
 Eden.AST.Query = function() {
 	this.type = "query";
 	Eden.AST.BaseStatement.apply(this);
+	Eden.AST.BaseExpression.apply(this);
 	this.selector = undefined;
 	this.observable = undefined;
 	this.restypes = [];
@@ -34,12 +35,10 @@ Eden.AST.Query.prototype.setModify = function(expr, kind) {
 
 Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 	var res = "";
-
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += "?(";
 	
-	if (this.restypes.length == 0) {
+	//if (this.restypes.length == 0) {
 		//res = "Eden.Selectors.query("+this.selector.generate(ctx,scope,{bound: false})+", null, {minimum: 1}, (r) => {})";
-		if (!this._expr) {
+		/*if (!this._expr) {
 			let s = this.selector.execute(ctx,this,scope,this);
 			Eden.Selectors.query(s, undefined, {minimum: 1}, (r) => {
 				if (r.length > 0 && r[0].expression) {
@@ -56,14 +55,14 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 			});
 		} else {
 			res = this._expr.expression.generate(ctx, scope, options);
-		}
-	} else {
+		}*/
+	//} else {
 		var selsrc = this.selector.generate(ctx,scope,{bound: false});
 
 		if (this.modexpr) {
-			var err = new Eden.RuntimeError(ctx, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use '?' on lhs here");
+			var err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.NOTSUPPORTED, this, "Cannot use '?' on lhs here");
 			this.errors.push(err);
-			eden.emit("error", [EdenSymbol.defaultAgent,err]);
+			options.scope.context.instance.emit("error", [EdenSymbol.defaultAgent,err]);
 			return "";
 
 			var modexpr = this.modexpr.generate(ctx,scope,{bound: false});
@@ -80,16 +79,13 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 				eden.emit("error", [EdenSymbol.defaultAgent,err]);
 				return "";	
 			}*/
-			res = "Eden.Selectors.queryPromise("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1, options: {self: this.origin}})";
+			if (this.restypes.length == 0) {
+				res = "Eden.Selectors.queryWithinSync(null, "+selsrc+", \"value\", {minimum: 1, options: {self: this.origin}})";
+			} else {
+				res = "Eden.Selectors.queryWithinSync(null, "+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1, options: {self: this.origin}})";
 			//res = "Eden.Selectors.query("+selsrc+", \""+this.restypes.join(",")+"\", {minimum: 1, returnvalue: cache.value}, (s) => { cache.value = s; this.expireAsync(); })";
-		}
-	}
-
-	if (ctx && ctx.isdynamic) {
-		ctx.dynamic_source += ")";
-		if (this.restypes.length > 0) {
-			ctx.dynamic_source += "[" + this.restypes.join(",") + "]";
-		}
+			}
+			//}
 	}
 
 	if (options.bound) {
@@ -99,11 +95,13 @@ Eden.AST.Query.prototype.generate = function(ctx, scope, options) {
 	}
 }
 
+Eden.AST.registerExpression(Eden.AST.Query);
+
 Eden.AST.Query.prototype.execute = function(ctx,base,scope, agent) {
 	this.executed = 1;
 
 	if (this.observable) {
-		var val = eden.root.lookup(this.observable).value(scope);
+		var val = scope.context.lookup(this.observable).value(scope);
 		console.log(val);
 		base.lastresult = val;
 		//if (ctx.cb) ctx.cb(val);

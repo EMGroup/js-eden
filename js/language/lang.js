@@ -1,3 +1,5 @@
+(function(){
+
 var Language = {
 	language: "en",
 
@@ -76,14 +78,14 @@ var Language = {
 
 	keywords: {
 		"func": "func",			/* To be deprecated */
-		"function": "function",
+		"function": "func",
 		"oracle": "oracle",
 		"handle": "handle",
-		"proc": "proc",			/* Deprecated */
+		"proc": "proc",
 		"auto": "auto",
 		"para": "para",
 		"action": "action",
-		"procedure": "procedure",
+		"procedure": "proc",
 		"local": "local",
 		"role": "role",
 		"if": "if",
@@ -106,14 +108,18 @@ var Language = {
 		"append": "append",		/* Deprecated, use += */
 		"delete": "delete",		/* Should be repurposed to remove observables */
 		"require": "require",
-		"after": "after",		/* Deprecatedm use wait */
+		//"after": "after",		/* Deprecatedm use wait */
 		"shift": "shift",		/* Deprecated, use a function */
 		"with": "with",
 		"and": "and",
 		"or": "or",
 		"not": "not",
 		"eval": "eval",
-		"sync": "sync"
+		"sync": "sync",
+		"parse": "parse",
+		"compile": "compile",
+		"exec": "exec",
+		"execute": "exec"
 	},
 	symbols: {
 		"int": "int",
@@ -181,7 +187,21 @@ var Language = {
 	errors: {}
 };
 
+Eden.Language = Language;
+
+function removeProto(obj) {
+	let tmp = Object.create(null);
+	Object.assign(tmp, obj);
+	return tmp;
+}
+
+// Remove keywords prototype;
+Language.keywords = removeProto(Language.keywords);
+Language.values = removeProto(Language.values);
+
 // expose as node.js module
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	exports.Language = Language;
 }
+
+})();

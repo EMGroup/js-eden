@@ -37,7 +37,7 @@ Eden.Peer = function(master, id) {
 	}
 
 	//Eden.Agent.importAgent("lib/p2p","default",[],function() {});
-	Eden.Selectors.execute("lib > p2p");
+	Eden.Selectors.execute("lib > p2p", eden.root.scope);
 
 	function processAssign(obj) {
 		//console.log("process assign",obj);

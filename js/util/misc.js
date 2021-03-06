@@ -186,6 +186,54 @@ function concatAndResolveUrl(url, concat) {
 	return url3.join('/');
 }
 
+function ajaxGet(url) {
+	return new Promise((resolve, reject) => {
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', url);
+		xhr.onload = function () {
+			if (this.status >= 200 && this.status < 300) {
+				resolve(xhr.response);
+			} else {
+				reject({
+					status: this.status,
+					statusText: xhr.statusText
+				});
+			}
+		};
+		xhr.onerror = function () {
+			reject({
+				status: this.status,
+				statusText: xhr.statusText
+			});
+		};
+		xhr.send();
+	});
+}
+
+function ajaxPost(url, data) {
+	return new Promise((resolve, reject) => {
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', url);
+		xhr.onload = function () {
+			if (this.status >= 200 && this.status < 300) {
+				resolve(JSON.parse(xhr.response));
+			} else {
+				reject({
+					status: this.status,
+					statusText: xhr.statusText
+				});
+			}
+		};
+		xhr.onerror = function () {
+			reject({
+				status: this.status,
+				statusText: xhr.statusText
+			});
+		};
+		xhr.send(data);
+	});
+}
+
 Utils = {
 	flatten: function (array) {
 		var flat = [];
@@ -212,3 +260,31 @@ Utils = {
 	})()
 };
 
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+	const fs = require('fs');
+
+	Utils.getURL = function (url) {
+		return new Promise((resolve, reject) => {
+			fs.readFile(url, 'utf8', function(err, data) {
+				if (err) reject(err);
+				else resolve(data)
+			});
+		});
+	}
+} else {
+	Utils.getURL = function (url) {
+		return ajaxGet(url);
+	}
+}
+
+
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+	exports.get_time_diff = get_time_diff;
+	exports.noop = noop;
+	exports.listenTo = listenTo;
+	exports.emit = emit;
+	exports.unListen = unListen;
+	exports.flatten = Utils.flatten;
+	exports.construct = Utils.construct;
+	exports.getURL = Utils.getURL;
+}

@@ -38,13 +38,22 @@ function Scope(context, parent, overrides, range, cause, nobuild) {
 	this.parent = parent;
 	this.context = context;
 	this.cache = undefined;
+	this.pcache = Object.create(null);
 	this.overrides = overrides;
 	this.cause = (parent && parent.cause) ? parent.cause : cause;
 	this.causecount = 0;
 	this.range = range;
 	this.isolate = false;
+	this.depth = (parent) ? parent.depth+1 : 0;
+
+	if (!context) console.error("MISSING SCOPE CONTEXT");
 
 	this.cachearray = null;
+
+	if (this.depth > 50) {
+		console.error("Recursive scope detected : "+((cause) ? cause.name : ""));
+		throw "Scope Depth Exceeded";
+	}
 
 	if (this.cause && this.cause.hasOwnProperty("scopecount")) {
 		if (++this.cause.scopecount > 100000) {
@@ -55,6 +64,85 @@ function Scope(context, parent, overrides, range, cause, nobuild) {
 
 	if (!nobuild) this.rebuild();
 }
+
+// ==== Context wrappers =======================================================
+
+Scope.prototype.error = function(err,origin) {
+	this.context.instance.error(err,origin);
+}
+
+Scope.prototype.execute = function (code, agent, success) {
+	return this.context.instance.execute(code, agent, success);
+}
+
+Scope.prototype.exec = function(code) {
+	return this.context.instance.exec(code);
+}
+
+Scope.prototype.evalEden = function(code, sym) {
+	return this.context.instance.evalEden(code, sym, this);
+}
+
+Scope.prototype.symbol = function(name) {
+	let cache = this.l(name);
+	if (cache) return cache.symbol;
+	else return null;
+}
+
+Scope.prototype.project = function() {
+	let proj = this.context.instance.project;
+	return (proj) ? proj : this.context;
+}
+
+Scope.prototype.assertNumber = function(name, sym) {
+	let v = this.value(name);
+	if (typeof v != "number") {
+		this.context.instance.error(`expected a number from '${name}'`, sym, Eden.RuntimeError.ASSERTTYPE);
+	}
+	return v;
+}
+
+Scope.prototype.assertBoolean = function(name, sym) {
+	let v = this.value(name);
+	if (typeof v != "boolean") {
+		this.context.instance.error(`expected a boolean from '${name}'`, sym, Eden.RuntimeError.ASSERTTYPE);
+	}
+	return v;
+}
+
+Scope.prototype.assertString = function(name, sym) {
+	let v = this.value(name);
+	if (typeof v != "string") {
+		this.context.instance.error(`expected a string from '${name}'`, sym, Eden.RuntimeError.ASSERTTYPE);
+	}
+	return v;
+}
+
+Scope.prototype.assertList = function(name, sym) {
+	let v = this.value(name);
+	if (!Array.isArray(v)) {
+		this.context.instance.error(`expected a list from '${name}'`, sym, Eden.RuntimeError.ASSERTTYPE);
+	}
+	return v;
+}
+
+Scope.prototype.assertObject = function(name, sym) {
+	let v = this.value(name);
+	if (typeof v != "object") {
+		this.context.instance.error(`expected an object from '${name}'`, sym, Eden.RuntimeError.ASSERTTYPE);
+	}
+	return v;
+}
+
+Scope.prototype.assertValid = function(name, sym) {
+	let v = this.value(name);
+	if (v === undefined) {
+		this.context.instance.error(`Missing required value for '${name}'`, sym, Eden.RuntimeError.ASSERTVALID);
+	}
+	return v;
+}
+
+// =============================================================================
 
 /**
  * Query if somewhere in the scope hierarchy there is a cause matching
@@ -195,34 +283,6 @@ Scope.prototype.cloneAt = function(index) {
 	return nscope;
 }
 
-Scope.prototype.clone = function() {
-	// TODO, be more selective on use of clone, currently disabled.
-	return this;
-	var nover = [];
-
-	// Copy the overrides
-	for (var i = 0; i < this.overrides.length; i++) {
-		var nov = new ScopeOverride(this.overrides[i].name, this.overrides[i].start, this.overrides[i].end);
-		nov.current = this.overrides[i].current;
-		nover.push(nov);
-	}
-
-	// Make a new exact copy of this scope
-	var nscope = new Scope(this.context, this.parent, nover, this.range, this.cause, true);
-
-	// Copy the cache
-	var ncache = {};
-	for (var x in this.cache) {
-		//if (this.cache[x].up_to_date) {
-			ncache[x] = new ScopeCache(false, this.cache[x].value, nscope, this.cache[x].override);
-		//}
-	}
-	nscope.cache = ncache;
-	nscope.refresh();
-
-	return nscope;
-}
-
 Scope.prototype.lookup = function(name) {
 	var symcache = this.cache[name];
 	if (symcache) {
@@ -245,7 +305,17 @@ Scope.prototype.l = function(name) {
 	if (symcache) {
 		return symcache;
 	} else if (this.parent) {
-		return this.parent.lookup(name);
+		if (this.depth > 3) {
+			//if (!this.pcache) this.pcache = Object.create(null);
+			let pc = this.pcache[name];
+			if (pc) return pc;
+			
+			pc = this.parent.l(name);
+			if (pc) this.pcache[name] = pc;
+			return pc;
+		} else {
+			return this.parent.l(name);
+		}
 	}
 }
 
@@ -265,7 +335,7 @@ Scope.prototype.v = function(symcache) {
 }
 
 Scope.prototype.value = function(name) {
-	var symcache = this.cache[name];
+	var symcache = this.l(name); //this.cache[name];
 	if (symcache !== undefined) {
 		if (symcache.up_to_date) return symcache.value;
 		var sym = symcache.symbol;
@@ -279,6 +349,7 @@ Scope.prototype.value = function(name) {
 		}
 		return symcache.value;
 	}
+	// FIXME: Eager definitions don't work because of this.
 	return (this.parent)?this.parent.value(name):undefined;
 }
 
@@ -333,6 +404,20 @@ Scope.prototype.lookup2 = function(name) {
 Scope.prototype.add = function(name, sym) {
 	var cache = new ScopeCache( false, undefined, sym, false);
 	this.cache[name] = cache;
+	return cache;
+}
+
+Scope.prototype.addIfNotExist = function(name, sym) {
+	var cache = this.cache[name];
+	if (cache) return cache;
+	cache = new ScopeCache( false, undefined, sym, false);
+	this.cache[name] = cache;
+	return cache;
+}
+
+Scope.prototype.addAlias = function(alias, name, sym) {
+	var cache = this.cache[name];
+	this.cache[alias] = cache;
 	return cache;
 }
 
@@ -527,3 +612,6 @@ function ScopeList() {
 	this.raw = [];
 	this.caches = [];
 }
+
+Eden.Scope = Scope;
+Eden.ScopeOverride = ScopeOverride;

@@ -6,6 +6,7 @@ Eden.AST.Alias = function() {
 	this.selector = undefined;
 	this._statements = null;
 	this.lock = 1;
+	this.subscripts = {};
 };
 
 Eden.AST.Alias.prototype.setName = function(name) {
@@ -17,6 +18,10 @@ Eden.AST.Alias.prototype.setSelector = function(selector) {
 	if (selector && selector.errors.length > 0) {
 		this.errors.push.apply(this.errors, selector.errors);
 	}
+}
+
+Eden.AST.Alias.prototype.setAttributes = function(attribs) {
+	return true;
 }
 
 Eden.AST.Alias.prototype.execute = function(ctx, base, scope, agent) {
@@ -71,6 +76,9 @@ Object.defineProperty(Eden.AST.Alias.prototype, "statements", {
 				for (let i=0; i<this._statements.length; i++) {
 					if (this._statements[i].type != "dummy") {
 						this._statements[i].addIndex();
+						if (this._statements[i].type === "script" && this._statements[i].name) {
+							this.subscripts[this._statements[i].name] = this._statements[i];
+						}
 					}
 				}
 			});

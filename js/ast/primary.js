@@ -4,11 +4,14 @@
  */
 Eden.AST.Primary = function() {
 	this.type = "primary";
-	this.errors = [];
+	Eden.AST.BaseExpression.apply(this);
 	this.observable = "";
 	this.extras = [];
 	this.backtick = undefined;
-	this.typevalue = Eden.AST.TYPE_UNKNOWN;
+	this.isconstant = false;
+	this.isstatic = false;
+	this.isrequired = false;
+	this.attrib = "";
 };
 
 /**
@@ -17,7 +20,9 @@ Eden.AST.Primary = function() {
  */
 Eden.AST.Primary.prototype.setBackticks = function(backtick) {
 	this.backtick = backtick;
-	this.errors.push.apply(this.errors, backtick.errors);
+	this.mergeExpr(backtick);
+	this.typevalue = Eden.AST.TYPE_UNKNOWN;
+	this.isdynamic = true;
 };
 
 Eden.AST.Primary.prototype.setObservable = function(obs) {
@@ -34,7 +39,29 @@ Eden.AST.Primary.prototype.prepend = function(extra) {
 	if (extra.errors.length > 0) {
 		this.errors.push.apply(this.errors, extra.errors);
 	}
+	if (extra.warning && !this.warning) this.warning = extra.warning;
 };
+
+Eden.AST.Primary.prototype.setAttributes = function(attribs) {
+	for (var a in attribs) {
+		switch(a) {
+		case "changed"		:
+		case "source"		:
+		case "expression"	:
+		case "dependencies"	:
+		case "subscribers"	: this.attrib = a; break;
+		case "static"		: this.isstatic = true; break;
+		case "require"		: this.isrequired = true; break;
+		case "number"		: if (this.typevalue != 0) return false; this.typevalue = Eden.AST.TYPE_NUMBER; break;
+		case "string"		: if (this.typevalue != 0) return false; this.typevalue = Eden.AST.TYPE_STRING; break;
+		case "boolean"		: if (this.typevalue != 0) return false; this.typevalue = Eden.AST.TYPE_BOOLEAN; break;
+		case "object"		: if (this.typevalue != 0) return false; this.typevalue = Eden.AST.TYPE_OBJECT; break;
+		case "list"			: if (this.typevalue != 0) return false; this.typevalue = Eden.AST.TYPE_LIST; break;
+		default: return false;
+		}
+	}
+	return true;
+}
 
 function scopehash(hashstr) {
 	var hash = 0;
@@ -46,6 +73,49 @@ function scopehash(hashstr) {
 		hash = hash & hash;
 	}
 	return hash;
+}
+
+Eden.AST.Primary.prototype.toEdenString = function(scope, state) {
+	var obs;
+
+	state.isconstant = false;
+
+	if (this.observable == "__BACKTICKS__") {
+		var ctx = {dependencies: {}, isconstant: true, scopes: [], locals: state.locals};
+		var expr = "return "+this.backtick.generate(ctx, "scope", {bound: false, scope: scope})+";";
+
+		if (ctx.isconstant) {
+			//console.log(expr);
+			var val = (new Function(["context","scope"], expr))(scope.context, scope);
+			if (!Eden.isValidIdentifier(val)) {
+				return "__error__";
+			} else {
+				obs = val;
+			}
+		} else {
+			obs = "`"+this.backtick.toEdenString(scope, state)+"`";
+		}
+	} else {
+		obs = this.observable;
+		if (state.locals && state.locals.hasOwnProperty(obs)) state.isconstant = true;
+	}
+
+	for (var i=0; i<this.extras.length; i++) {
+		if (this.extras[i].type == "index") obs += "[";
+		obs += this.extras[i].toEdenString(scope, state);
+		if (this.extras[i].type == "index") obs += "]";
+	}
+
+	return obs;
+}
+
+Eden.AST.Primary.prototype._checkFunction = function(scope) {
+	var fsym = scope.context.lookup(this.observable);
+	if (fsym.origin && fsym.origin.isstatic && scope.context.f.hasOwnProperty("func_"+this.observable)) {
+		console.log("has static function: "+this.observable);
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -68,42 +138,25 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 	if (ctx && ctx.locals) {
 		if (ctx.locals.type == "declarations") {
 			if (ctx.locals.list.indexOf(this.observable) != -1) {
-				//console.log("OUT OF DATE DECLARATIONS");
 				res = this.observable;
-				for (var i=0; i<this.extras.length; i++) {
-					res += this.extras[i].generate(ctx, scope, {bound: false});
-				}
-				if (options.bound) {
-					return "new BoundValue("+res+","+scope+")";
-				} else {
-					return res;
-				}
+				return res;
 			}
 		} else if (ctx.locals.hasOwnProperty(this.observable)) {
-			//console.log("FOUND LOCAL",this.observable);
+			//console.log("FOUND LOCAL",this.observable, options);
 			// Otherwise we need to eval the value and embed it
 			// TODO only if ctx is of type definition??
 			ctx.dirty = true;
 			if (options.usevar) {
 				res = this.observable;
 			} else if (options.indef) {
-				res = JSON.stringify(ctx.locals[this.observable].value()); //"ctx.locals[\""+this.observable+"\"]";
+				res = JSON.stringify(ctx.locals[this.observable].value(options.scope)); //"ctx.locals[\""+this.observable+"\"]";
 			} else {
-				//res = ctx.locals[this.observable].value();
-				var val = ctx.locals[this.observable].value();
-				if (ctx && ctx.isdynamic) ctx.dynamic_source += Eden.edenCodeForValue(val);
-				res = JSON.stringify(val);
+				var val = ctx.locals[this.observable].value(options.scope);
+				res = `${scope}.value("${this.observable}")`;
 				if (val === undefined) console.error("Local variable undefined", this.observable);
 			}
-			for (var i=0; i<this.extras.length; i++) {
-				res += this.extras[i].generate(ctx, scope, {bound: false});
-			}
 
-			if (options.bound) {
-				return "new BoundValue("+res+","+scope+")";
-			} else {
-				return res;
-			}
+			return res;
 		}
 	}
 
@@ -112,27 +165,12 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 		var ix = ctx.params.list.indexOf(this.observable);
 		if (ix != -1) {
 			res = this.observable;
-			for (var i=0; i<this.extras.length; i++) {
-				res += this.extras[i].generate(ctx, scope, {bound: false});
-			}
-
-			if (options.bound) {
-				return "new BoundValue("+res+","+scope+")";
-			} else {
-				return res;
-			}
+			return res;
 		}
 	}
 
 	// We have a backticks expression? Use that instead...
 	if (this.observable == "__BACKTICKS__") {
-		//var id = 0;
-		//console.log("CTX",ctx);
-		// Need to give each backtick a unique number in a given context.
-		//if (ctx && ctx.backtickCount !== undefined) {
-		//	id = ctx.backtickCount;
-		//	ctx.backtickCount++;
-		//}
 
 		var tmpdeplog;
 		var tmpdynsrc;
@@ -143,7 +181,7 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 			tmpdynsrc = ctx.dynamic_source;
 		}
 
-		var btickgen = this.backtick.generate(ctx, scope,{bound: false, usevar: options.usevar});
+		var btickgen = this.backtick.generate(ctx, scope,options);
 
 		if (!ctx || ctx.isconstant || ctx.type != "definition") {
 			if (ctx && ctx.isconstant && ctx.type == "definition") {
@@ -152,105 +190,73 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 					btickgen = (new Function("return "+btickgen+";"))();
 				} catch (e) {
 					console.error(e);
-					return "\"ERROR\"";
+					return "\"__error__\"";
 				}
-				ctx.dependencies[btickgen] = true;
+				if (!this.isstatic) ctx.dependencies[btickgen] = true;
 				tmpdeplog = false;
-				if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc + btickgen;
-				//btickgen = Eden.edenCodeForValue(btickgen);
-				btickgen = JSON.stringify(btickgen);
-			} else {
-				if (ctx && ctx.isdynamic) ctx.dynamic_source = tmpdynsrc;
-			}
-			res = btickgen;
-			//res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";
-		} else {
-			// A dynamic dependency must be added if we are in a definition
-			res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";
+				
+				if (!Eden.isValidIdentifier(btickgen)) {
+					btickgen = "__error__";
+				}
 
-			if (ctx && ctx.isdynamic) ctx.dynamic_source = "`" + ctx.dynamic_source + "`";
+				btickgen = JSON.stringify(btickgen);
+			}
+
+			res = btickgen;
+
+		} else {
+			if (this.isstatic) {
+				res = btickgen;
+			} else {
+			// A dynamic dependency must be added if we are in a definition
+				res = "this.subscribeDynamic(0," + btickgen +", "+scope+")";
+			}
+
 		}
 
 		if (ctx) ctx.isconstant = tmpdeplog;
 
 	} else {
 		// Record the use of this primary as a dependency
-		if (ctx && ctx.dependencies) {
+		if (ctx && ctx.dependencies && !this.isstatic) {
 			ctx.dependencies[this.observable] = true;
 			ctx.isconstant = false;
 		}
-		if (ctx && ctx.isdynamic) ctx.dynamic_source += this.observable;
+
 		res = "\""+this.observable+"\"";
-		varscandidate = options.indef; // && scope == "scope";
+		//varscandidate = options.indef; // && scope == "scope";
 	}
 
-	// Extras are the list indices or function calls
-	if (this.extras.length == 0) {
-		// No extras so check what kind of value is wanted
-		// Value only, scope only or both.
-		if (!options.bound) {
-			if (!varscandidate) {
-				res = scope+".value("+res+")";
-			} else {
-				//res = scope+".value("+res+")";
-				//ctx.vars[res] = "v_"+this.observable;
-				var obsname = this.observable+"_"+scopehash(scope);
-				ctx.vars[obsname] = scope;
-				res = scope+".v(v_"+obsname+")";
+	if (this.attrib.length === 0) {
+		if (this.typevalue != 0) {
+			switch (this.typevalue) {
+			case Eden.AST.TYPE_NUMBER		: res = `${scope}.assertNumber(${res},this)`; break;
+			case Eden.AST.TYPE_STRING		: res = `${scope}.assertString(${res},this)`; break;
+			case Eden.AST.TYPE_LIST			: res = `${scope}.assertList(${res},this)`; break;
+			case Eden.AST.TYPE_OBJECT		: res = `${scope}.assertObject(${res},this)`; break;
+			case Eden.AST.TYPE_BOOLEAN		: res = `${scope}.assertBoolean(${res},this)`; break;
 			}
-		} else {
-			if (options.scopeonly) {
-				res = scope+".scope("+res+")";
-			} else {
-				res = scope+".boundValue("+res+")";
-			}
-		}
-	} else {
-		// List indices and function calls only work on values not scopes.
-		if (this.extras[0].type == "functioncall") {
-			res = "context.f.func_"+this.observable;
+		} else if (this.isrequired) {
+			res = `${scope}.assertValid(${res},this)`;
+		} else if (!varscandidate) {
+			res = scope+".value("+res+")";
 		} else {
 			//res = scope+".value("+res+")";
-
-			if (!varscandidate) {
-				res = scope+".value("+res+")";
-			} else {
-				//res = scope+".value("+res+")";
-				//ctx.vars[res] = "v_"+this.observable;
-				var obsname = this.observable+"_"+scopehash(scope);
-				ctx.vars[obsname] = scope;
-				res = scope+".v(v_"+obsname+")";
-			}
+			//ctx.vars[res] = "v_"+this.observable;
+			var obsname = this.observable+"_"+scopehash(scope);
+			ctx.vars[obsname] = scope;
+			res = scope+".v(v_"+obsname+")";
 		}
-
-		// Generate each extra
-		for (var i=0; i<this.extras.length; i++) {
-			if (ctx && ctx.isdynamic) {
-				if (this.extras[i].type == "index") ctx.dynamic_source += "[";
-			}
-			res += this.extras[i].generate(ctx, scope,options);
-			if (ctx && ctx.isdynamic) {
-				if (this.extras[i].type == "index") ctx.dynamic_source += "]";
-			}
+	} else {
+		switch (this.attrib) {
+		case "changed"		: res = `${scope}.symbol(${res}).hasChanged()`; break;
+		case "source"		: res = `${scope}.symbol(${res}).getSource()`; break;
+		default: res = scope+".value("+res+")";
 		}
-
-		// If a bound value is requested, then generate a new/fake one.
-		if (options.bound) {
-			res = "new BoundValue("+res+","+scope+")";
-		}
-
-		// TODO Might be a scopeonly request
 	}
 
 	return res;
 }
 
-Eden.AST.Primary.prototype.execute = function(ctx, base, scope) {
-	var rhs = "return ";
-	rhs += this.generate(ctx, "scope", {bound: false});
-	rhs += ";";
-	return (new Function(["context","scope"], rhs))(eden.root,scope);
-}
-
-Eden.AST.Primary.prototype.error = Eden.AST.fnEdenASTerror;
+Eden.AST.registerExpression(Eden.AST.Primary);
 

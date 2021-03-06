@@ -1,25 +1,32 @@
 Eden.AST.Indexed = function() {
 	this.type = "indexed";
+	Eden.AST.BaseExpression.apply(this);
 	this.indexes = [];
 	this.expression = undefined;
-	this.errors = [];
 }
 
 Eden.AST.Indexed.prototype.left = Eden.AST.fnEdenASTleft;
-Eden.AST.Indexed.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.Indexed.prototype.setExpression = function(expr) {
 	this.expression = expr;
-	if (expr && expr.errors.length > 0) {
-		this.errors.push.apply(this.errors, expr.errors);
-	}
+	this.mergeExpr(expr);
+
+	// Analyse types?
+
+	this.typevalue = 0;
 }
 
 Eden.AST.Indexed.prototype.addIndex = function(index) {
 	this.indexes.push(index);
-	if (index && index.errors.length > 0) {
-		this.errors.push.apply(this.errors, index.errors);
+	this.mergeExpr(index);
+}
+
+Eden.AST.Indexed.prototype.toEdenString = function(scope, state) {
+	var ixres = "";
+	for (var i=0; i<this.indexes.length; i++) {
+		ixres += this.indexes[i].toEdenString(scope, state);
 	}
+	return "("+this.expression.toEdenString(scope,state)+")"+ixres;
 }
 
 Eden.AST.Indexed.prototype.generate = function(ctx, scope, options) {
@@ -28,11 +35,13 @@ Eden.AST.Indexed.prototype.generate = function(ctx, scope, options) {
 		ixres += this.indexes[i].generate(ctx,scope,options);
 	}
 
-	var res = "("+this.expression.generate(ctx,scope,{bound:false})+")"+ixres;
+	var res = "("+this.expression.generate(ctx,scope,options)+")"+ixres;
 	if (options.bound) {
 		return "new BoundValue("+res+","+scope+")";
 	} else {
 		return res;
 	}
 }
+
+Eden.AST.registerExpression(Eden.AST.Indexed);
 

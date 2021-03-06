@@ -66,8 +66,8 @@ var confirmUnload = function (event) {
  * lang: Human language to use for parser and UI. E.g. lang=en for English.
 */
 function Construit(options,callback) {
-	root = new Folder();
-	eden = new Eden(root);
+	eden = new Eden();
+	root = eden.root;
 	
 	var menuBar = URLUtil.getParameterByName("menus") != "false";
 	var pluginsStr = URLUtil.getParameterByName("plugins");
@@ -80,6 +80,11 @@ function Construit(options,callback) {
 	var vid = URLUtil.getParameterByName("vid");
 	var readPassword = URLUtil.getParameterByName("r");
 	var writePassword = URLUtil.getParameterByName("w");
+	var api = URLUtil.getParameterByName("api");
+
+	if (api) {
+		Eden.DB.repositories = [api];
+	}
 	
 	var roles = URLUtil.getParameterByName("roles");
 	var master = URLUtil.getParameterByName("master");
@@ -171,10 +176,20 @@ function Construit(options,callback) {
 
 		edenUI = new EdenUI(eden);
 		edenUI.scrollBarSize2 = window.innerHeight - $(window).height();
-		Eden.Project.init();
+		//Eden.Project.init();
 
 		eden.ismobile = mobilecheck();
 		eden.root.lookup("jseden_mobile").assign(eden.ismobile, eden.root.scope, Symbol.defaultAgent);
+
+		// Default to new parser
+		eden.root.lookup("jseden_parser_cs3").assign(true, eden.root.scope, EdenSymbol.defaultAgent);
+		eden.root.lookup("jseden_parser_cs3").addJSObserver("parser", (sym, value) => {
+			if (value) {
+				Eden.AST.version = Eden.AST.VERSION_CS3;
+			} else {
+				Eden.AST.version = Eden.AST.VERSION_CS2;
+			}
+		});
 
 		// Put JS-EDEN version number or name in top-right corner.
 		$.ajax({

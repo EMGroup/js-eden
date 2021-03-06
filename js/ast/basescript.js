@@ -6,6 +6,7 @@ Eden.AST.BaseScript = function() {
 	this.parameters = undefined;
 	this.locals = undefined;
 	this.indexed = false;
+	this.subscripts = {};
 }
 
 Eden.AST.BaseScript.appendChild = function (ast) {
@@ -23,7 +24,8 @@ Eden.AST.BaseScript.appendChild = function (ast) {
 
 	//if (ast.type != "dummy" && this.indexed && ast.addIndex === undefined) console.error("No index",ast);
 	// WHY WAS THIS COMMENTED OUT!!!!!
-	if (ast.type != "dummy" && this.indexed) ast.addIndex(); //Eden.Index.update(ast);
+	if (ast.type !== "dummy" && this.indexed) ast.addIndex(); //Eden.Index.update(ast);
+	if (ast.type === "script" && ast.name) this.subscripts[ast.name] = ast;
 	if (ast.errors.length > 0) {
 		this.errors.push.apply(this.errors, ast.errors);
 	}
@@ -52,6 +54,7 @@ Eden.AST.BaseScript.insertAfter = function(after, ast) {
 
 	ast.parent = this;	
 	if (ast.type != "dummy" && this.indexed) ast.addIndex();
+	if (ast.type === "script" && ast.name) this.subscripts[ast.name] = ast;
 	if (ast.errors.length > 0) {
 		this.errors.push.apply(this.errors, ast.errors);
 	}
@@ -82,6 +85,7 @@ Eden.AST.BaseScript.insertBefore = function(before, ast) {
 
 	ast.parent = this;	
 	if (ast.type != "dummy" && this.indexed) ast.addIndex();
+	if (ast.type === "script" && ast.name) this.subscripts[ast.name] = ast;
 	if (ast.errors.length > 0) {
 		this.errors.push.apply(this.errors, ast.errors);
 	}
@@ -103,6 +107,7 @@ Eden.AST.BaseScript.removeChild = function(child) {
 
 	if (child.nextSibling) child.nextSibling.previousSibling = child.previousSibling;
 	if (child.previousSibling) child.previousSibling.nextSibling = child.nextSibling;
+	if (child.type === "script" && child.name && this.subscripts[child.name] === child) delete this.subscripts[child.name];
 	child.destroy();
 	//if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
 }
@@ -136,6 +141,8 @@ Eden.AST.BaseScript.replaceChild = function(oldchild, newchild) {
 	this.statements[oix] = newchild;
 	newchild.parent = this;
 	if (newchild.type != "dummy" && this.indexed) newchild.addIndex();
+	if (newchild.type === "script" && newchild.name) this.subscripts[newchild.name] = newchild;
+	if (oldchild.type === "script" && oldchild.name && this.subscripts[oldchild.name] === child) delete this.subscripts[oldchild.name];
 	if (this.indexed && this.id != 0) console.log("INVALIDATE ID",this);
 }
 

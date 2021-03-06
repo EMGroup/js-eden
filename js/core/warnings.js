@@ -30,6 +30,8 @@ Eden.SyntaxWarning.NESTEDWHEN = 2;
 Eden.SyntaxWarning.DEFINWHEN = 3;
 Eden.SyntaxWarning.EXPRESSIONLIT = 4;
 Eden.SyntaxWarning.MISSINGSYNC = 5;
+Eden.SyntaxWarning.NESTEDSCOPE = 6;
+Eden.SyntaxWarning.USEOFWHILE = 7;
 
 Eden.SyntaxWarning.prototype.messageText = function() {
 	var res;
@@ -69,6 +71,37 @@ Eden.RuntimeWarning.prototype.messageText = function() {
 
 	if (this.extra !== undefined) res += this.extra;
 	return res;
+}
+
+
+Eden.TypeWarning = function(node, expected, got) {
+	this.type = "type";
+	this.node = node;
+	this.expected = expected;
+	this.got = got;
+}
+
+Eden.TypeWarning.prototype.messageText = function() {
+	function makeTypeString(type) {
+		switch (type) {
+		case Eden.AST.TYPE_BOOLEAN		: return "boolean";
+		case Eden.AST.TYPE_STRING		: return "string";
+		case Eden.AST.TYPE_LIST			: return "list";
+		case Eden.AST.TYPE_OBJECT		: return "object";
+		case Eden.AST.TYPE_NUMBER		: return "number";
+		default: return "unknown";
+		}
+	}
+
+	if (this.got && this.expected) {
+		return `Expected type '${makeTypeString(this.expected)}' but got '${makeTypeString(this.got)}'`;	
+	} else if (this.expected) {
+		return `Expected type '${makeTypeString(this.expected)}'`;
+	} else if (this.got) {
+		return `Got unexpected type '${makeTypeString(this.got)}'`;
+	} else {
+		return `Type mismatch`;
+	}
 }
 
 

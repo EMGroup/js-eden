@@ -17,7 +17,7 @@ EdenUI.ExplorerDebug = function(element) {
 		var content = $('<div class="debugger"></div>');
 		//var controls = $('<div></div>');
 
-		var controls = $('<div class="debugger-controls"><button title="Toggle capture all agents" style="margin-left: 20px; margin-right: 20px;" class="debugger-button debug">&#xf188;</button><button class="debugger-button play" title="Auto Play">&#xf04b;</button><button class="debugger-button stepforward">&#xf051;</button><button class="debugger-button autostep">&#xf050;</button><input type="range" class="debugger-speed" value="500" max="1000" min="50"></input></div>');
+		var controls = $('<div class="debugger-controls"><button title="Toggle capture all agents" style="margin-left: 20px; margin-right: 20px;" class="debugger-button debug">&#xf188;</button><button class="debugger-button play" title="Auto Play">&#xf04b;</button><button class="debugger-button stepforward">&#xf051;</button><button class="debugger-button autostep">&#xf050;</button><input type="range" class="debugger-speed" value="500" max="1000" min="50"></input><button class="debugger-button record" title="Log all redefinitions">&#xf111;</button></div>');
 		//controls.append(controlsLeft);
 		//var controlsRight = $('<div class="debugger-controls" style="float: right"></div>');
 		//controls.append(controlsRight);
@@ -32,6 +32,32 @@ EdenUI.ExplorerDebug = function(element) {
 			else forcedinclude[agent] = true;
 			updateScript();
 		});*/
+
+		var data = {lasttime: 0, lastloc: ""};
+
+		eden.listenTo("debug_log", null, (s) => {
+			let ts = Date.now();
+			if (ts > data.lasttime+2000) {
+				let ele = document.createElement('DIV');
+				EdenUI.Highlight.htmlElement("\n/* " + (new Date(ts)).toString() + " */\n", ele);
+				script[0].appendChild(ele);
+				data.lasttime = ts;
+			}
+
+			let pname = s.getLocationName();
+			if (pname == "*unknown*") console.warn("Unknown", s);
+			if (data.lastloc !== pname) {
+				let ele = document.createElement('DIV');
+				EdenUI.Highlight.htmlElement("\n## " + pname + " \n", ele);
+				script[0].appendChild(ele);
+				data.lastloc = pname;
+			}
+
+			let ele = document.createElement('DIV');
+			EdenUI.Highlight.htmlElement(s.getSource(), ele); // + "  /* " + pname + " */", ele);
+			script[0].appendChild(ele);
+			script[0].scrollTop = script[0].scrollHeight;
+		});
 
 		var agentcapture = {};
 		var agentid = 1;
@@ -221,6 +247,12 @@ EdenUI.ExplorerDebug = function(element) {
 		}).on("change", ".debugger-speed", function(e) {
 			debug_speed = e.currentTarget.value;
 			console.log("Change speed: " + debug_speed);
+		}).on("click", ".record", function(e) {
+			Eden.logging = !Eden.logging;
+			if (Eden.logging) {
+				e.currentTarget.className = "debugger-button record active";
+				script[0].innerHTML = "";
+			} else e.currentTarget.className = "debugger-button record";
 		});
 		script.on("click",".debugger-agent", function(e) {
 			if (active_agent) active_agent.html.get(0).className = "debugger-agent";

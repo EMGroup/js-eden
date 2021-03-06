@@ -16,6 +16,8 @@ Eden.Selectors.NameNode.prototype.filter = function(statements) {
 Eden.Selectors.NameNode.prototype._filter = function(statements) {
 	var name = this.name;
 
+	if (!statements) return this._construct();
+
 	if (this.isreg) {
 		var reg = Eden.Selectors.makeRegex(this.name);
 		return statements.filter(function(stat) {
@@ -28,31 +30,36 @@ Eden.Selectors.NameNode.prototype._filter = function(statements) {
 	}
 }
 
+Eden.Selectors.NameNode.prototype._construct = function() {
+	var stats = [];
+
+	if (this.isreg) {
+		var reg = Eden.Selectors.makeRegex(this.name);
+		stats = Eden.Index.getByNameRegex(reg);
+	} else {
+		stats = Eden.Index.getByName(this.name);
+		var tags = this.name.toLowerCase().split(" ");
+		var tagres = Eden.Index.getByTag("#"+tags[0]);
+		for (var i=1; i<tags.length; i++) {
+			tagres = tagres.filter(function(stat) {
+				return (!eden.project || stat !== eden.project.ast.script) && stat.doxyComment && stat.doxyComment.hasTag("#"+tags[i]);
+			});
+		}
+		stats.push.apply(stats, tagres);
+	}
+	return stats;
+}
+
 Eden.Selectors.NameNode.prototype.construct = function() {
 	//return new Promise((resolve,reject) => {
-		var stats = [];
+	let stats = this._construct();
 
-		if (this.isreg) {
-			var reg = Eden.Selectors.makeRegex(this.name);
-			stats = Eden.Index.getByNameRegex(reg);
-		} else {
-			stats = Eden.Index.getByName(this.name);
-			var tags = this.name.toLowerCase().split(" ");
-			var tagres = Eden.Index.getByTag("#"+tags[0]);
-			for (var i=1; i<tags.length; i++) {
-				tagres = tagres.filter(function(stat) {
-					return (!eden.project || stat !== eden.project.ast.script) && stat.doxyComment && stat.doxyComment.hasTag("#"+tags[i]);
-				});
-			}
-			stats.push.apply(stats, tagres);
-		}
-
-		if (!this.options || !this.options.history) {
-			return Promise.resolve(stats.filter(function(e) {
-				return e.executed >= 0;
-			}));
-		}
-		return Promise.resolve(stats);
+	if (!this.options || !this.options.history) {
+		return Promise.resolve(stats.filter(function(e) {
+			return e.executed >= 0;
+		}));
+	}
+	return Promise.resolve(stats);
 	//});
 }
 

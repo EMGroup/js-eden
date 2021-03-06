@@ -676,8 +676,8 @@ mouseWheel = 0;
 mouseWheelEnabled = false;
 mouseWheelVelocity = 0;
 mouseView = @;
-mouseX is mousePosition == @? @ : mousePosition["x"];
-mouseY is mousePosition == @? @ : mousePosition["y"];
+mouseX is @ if mousePosition == @ else mousePosition["x"];
+mouseY is @ if mousePosition == @ else mousePosition["y"];
 mouseZone = @;
 pixel is 1 / view_picture_scale;
 touchPanX = 0;
@@ -743,7 +743,7 @@ proc attemptMouseCapture {
 * @param viewTitle
 * 
 */
-proc createCanvas {
+func createCanvas {
 	para p1, p2, p3;
 	auto obsName, viewTitle, viewName;
 	auto titleSymName, contentSymName, addJSObserver;
@@ -788,18 +788,18 @@ proc createCanvas {
 		return;
 	}
 
-	if (`obsName` == @) {
-		`obsName` = [];
+	if (`{obsName}` == @) {
+		`{obsName}` = [];
 	}
 
 	createView(viewName, "Canvas2D");
-	execute2("view_" // viewName // "_content is " // obsName // ";", "*Default");
+	execute("view_" // viewName // "_content is " // obsName // ";");
 	if (viewTitle == @) {
 		# don't attempt to make this update by dependency on redefinition of _view_viewName_content.
 		# Severe performance problems result.
 		viewTitle = "Canvas " // obsName;
 	}
-	`"view_" // viewName // "_title"` = viewTitle;
+	`view_{viewName}_title` = viewTitle;
 }
 
 /**
@@ -4624,7 +4624,7 @@ HTMLImage.prototype.draw = function(context) {
 			}
 			mapJQ.append(areaJQ);
 
-			if (eden.isValidIdentifier(regionName)) {
+			if (Eden.isValidIdentifier(regionName)) {
 				var clickSym = root.lookup(regionName + "_click");
 				if (clickSym.value() === undefined) {
 					clickSym.assign(false, root.scope, root.lookup("HTMLImage"));
@@ -4685,7 +4685,7 @@ func imageWithZones {
 		for (i = 1; i <= imageMap#; i++) {
 			shape = imageMap[i];
 			append items, shape;
-			zoneName = shape["drawingOptions"] == @? @ : shape["drawingOptions"]["name"];
+			zoneName = shape["drawingOptions"] == @ if @ else shape["drawingOptions"]["name"];
 			if (zoneName != @) {
 				centre = shape["centre"]();
 				append items, Div(zoneName, centre["x"] - 5.5 * zoneName#, centre["y"] - 15, @, @, "color: white; background-color: black; font-size: 20px; font-family: monospace");

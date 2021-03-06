@@ -22,6 +22,7 @@ Eden.AST.If.prototype.setStatement = function(statement) {
 		this.statements.push(statement);
 		statement.parent = this;
 		this.errors.push.apply(this.errors, statement.errors);
+		if (statement.warning && !this.warning) this.warning = statement.warning;
 	}
 };
 
@@ -31,23 +32,24 @@ Eden.AST.If.prototype.setElse = function(statement) {
 		this.statements.push(statement);
 		statement.parent = this;
 		this.errors.push.apply(this.errors, statement.errors);
+		if (statement.warning && !this.warning) this.warning = statement.warning;
 	}
 };
 
-Eden.AST.If.prototype.generate = function(ctx, scope) {
+Eden.AST.If.prototype.generate = function(ctx, scope, options) {
 	var res = "if (";
-	res += this.condition.generate(ctx, scope,{bound: false});
+	res += this.condition.generate(ctx, scope, options);
 	res += ") ";
-	res += this.statement.generate(ctx, scope) + " ";
+	res += this.statement.generate(ctx, scope, options) + " ";
 	if (this.elsestatement) {
-		res += "\nelse " + this.elsestatement.generate(ctx, scope) + "\n";
+		res += "\nelse " + this.elsestatement.generate(ctx, scope, options) + "\n";
 	}
 	return res;
 }
 
-Eden.AST.If.prototype.getCondition = function(ctx) {
+Eden.AST.If.prototype.getCondition = function(ctx, scope) {
 	var cond = "return ";
-	cond += this.condition.generate(ctx, "scope",{bound: false});
+	cond += this.condition.generate(ctx, "scope",{bound: false, scope: scope});
 	cond += ";";
 	return new Function(["context","scope","ctx"],cond);
 }
@@ -55,7 +57,7 @@ Eden.AST.If.prototype.getCondition = function(ctx) {
 Eden.AST.If.prototype.execute = function(ctx, base, scope, agent) {
 	this.executed = 1;
 	
-	if (this.getCondition(ctx)(eden.root,scope,ctx)) {
+	if (this.getCondition(ctx, scope)(scope.context,scope,ctx)) {
 		return [this.statement];
 	} else {
 		this.executed = 2;

@@ -1,7 +1,7 @@
 /**
  * "after" statement. This is deprecated/
  */
-Eden.AST.After = function () {
+/*Eden.AST.After = function () {
 	this.type = "after";
 	Eden.AST.BaseStatement.apply(this);
 	this.expression = undefined;
@@ -34,5 +34,5 @@ Eden.AST.After.prototype.execute = function(ctx, base, scope) {
 	setTimeout(eval(statement),this.expression.execute(ctx,base,scope));
 }
 
-Eden.AST.registerStatement(Eden.AST.After);
+Eden.AST.registerStatement(Eden.AST.After);*/
 

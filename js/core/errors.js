@@ -6,6 +6,7 @@
  */
 
 
+(function() {
 
 /**
  * Constructor for syntax errors detected in the new parser. It captures the
@@ -119,6 +120,7 @@ Eden.SyntaxError.DOATTRIBCLOSE = 92;
 Eden.SyntaxError.DOBADATTRIB = 93;
 Eden.SyntaxError.QUERYNOTALLOWED = 94;
 Eden.SyntaxError.SYNCNOTALLOWED = 95;
+Eden.SyntaxError.BADEXPRTYPE = 96;
 
 Eden.SyntaxError.db = [
 /* EDEN_ERROR_UNKNOWN */
@@ -613,10 +615,15 @@ Eden.SyntaxError.db = [
 /* EDEN_ERROR_SYNCNOTALLOWED */
 	{	message: function() { return 0; },
 		suggestion: {expected: [], next: []}
+	},
+/* EDEN_ERROR_BADEXPRTYPE */
+	{	message: function() { return 0; },
+		suggestion: {expected: [], next: []}
 	}
 ];
 
 
+const Language = Eden.Language;
 
 Eden.SyntaxError.prototype.extractBefore = function(maxchar) {
 	var pos = this.prevposition;
@@ -716,6 +723,8 @@ Eden.SyntaxError.prototype.toString = function() {
 /**
  * Constructor for AST runtime errors. This must be given positional info
  * because it can't be extracted from context.
+ * 
+ * @param {object} context Eden.Folder symbol table
  */
 Eden.RuntimeError = function(context, errno, statement, extra) {
 	this.type = "runtime";
@@ -724,9 +733,9 @@ Eden.RuntimeError = function(context, errno, statement, extra) {
 	this.extra = extra;
 	this.errno = errno;
 	this.context = context;
-	this.lastsymbol = eden.root.lastlookup;
+	//this.lastsymbol = context.lastlookup;
 
-	console.error(extra);
+	//console.error(extra);
 }
 
 Eden.RuntimeError.UNKNOWN = 0;
@@ -748,9 +757,16 @@ Eden.RuntimeError.PROCAGENT = 15;
 Eden.RuntimeError.ARGUMENTS = 16;
 Eden.RuntimeError.NOTCHILD = 17;
 Eden.RuntimeError.INFINITEWHEN = 18;
+Eden.RuntimeError.ASSERTVALID = 19;
+Eden.RuntimeError.ASSERTTYPE = 20;
+Eden.RuntimeError.EXECUTESYNTAX = 21;
+Eden.RuntimeError.IDENTIFIER = 22;
 
 Eden.RuntimeError.prototype.messageText = function() {
 	var msg = (this.statement && (this.statement.type == "functioncall" || this.statement.type == "definition" || this.statement.type == "assignment")) ? "'" + this.statement.lvalue.name + "': " : "";
+	if (!this.statement && this.context && this.context.currentObservables && this.context.currentObservables.length > 0) {
+		msg = this.context.currentObservables[this.context.currentObservables.length-1].name + ": ";
+	}
 
 	switch (this.errno) {
 	case Eden.RuntimeError.ACTIONNAME		:
@@ -760,7 +776,11 @@ Eden.RuntimeError.prototype.messageText = function() {
 	case Eden.RuntimeError.JSOBSERVER		:
 	case Eden.RuntimeError.PROCAGENT		:
 	case Eden.RuntimeError.ARGUMENTS		:
+	case Eden.RuntimeError.IDENTIFIER		:
 	case Eden.RuntimeError.EXTENDSTATIC		: return msg + this.extra;
+	case Eden.RuntimeError.EXECUTESYNTAX	: return "Execute: " + this.extra;
+	case Eden.RuntimeError.ASSERTVALID		: return msg + "Assert - " + this.extra;
+	case Eden.RuntimeError.ASSERTTYPE		: return msg + "bad type - " + this.extra;
 	case Eden.RuntimeError.ASSIGNTODEFINED	: return msg + "cannot assign to a defined list, use 'is'";
 	case Eden.RuntimeError.ASSIGNDIMENSION	: return msg + "list does not have this many dimensions";
 	case Eden.RuntimeError.RIGHTCONCAT		: return msg + "Concatenation: When the right hand side is a list then the left hand side must also be a list";
@@ -784,14 +804,12 @@ Eden.RuntimeError.prototype.messageText = function() {
 Eden.RuntimeError.prototype.edenSource = function() {
 	if (this.statement) {
 		if (this.statement.type == "definition") {
-			var sym = eden.root.symbols[this.statement.lvalue.name];
+			var sym = this.context.symbols[this.statement.lvalue.name];
 			if (sym && sym.definition) {
 				return sym.getSource();
 			}
 		} else if (this.statement.getSource) {
 			return this.statement.getSource();
-		} else if (this.context) {
-			return this.context.getSource(this.statement);
 		}
 	}
 }
@@ -823,4 +841,5 @@ Eden.RuntimeError.prototype.prettyPrint = function() {
 	}
 }
 
+})();
 

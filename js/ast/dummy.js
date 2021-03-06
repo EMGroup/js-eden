@@ -23,6 +23,10 @@ Eden.AST.DummyStatement.prototype.setSource = function(start, end, src) {
 	}
 }
 
+Eden.AST.DummyStatement.prototype.toEdenString = function(scope, state) {
+	return "";
+}
+
 Eden.AST.DummyStatement.prototype.buildID = function() {
 	var hash = 0;
 	var ch;

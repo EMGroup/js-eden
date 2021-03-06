@@ -81,7 +81,7 @@ Eden.Query.search = function(q, cb) {
 			if (words[0] == "select:") {
 				// Do a code selector query...
 				var selector = q.substring(words[0].length).trim();
-				res.all = Eden.Selectors.query(selector, "source");
+				res.all = Eden.Selectors.queryWithinSync(null, selector, "source");
 				if (res.all === undefined) res.all = [];
 				if (cb) cb(res);
 

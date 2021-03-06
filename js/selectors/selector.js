@@ -1,7 +1,11 @@
+(function() {
+
 Eden.Selectors = {
 	cache: {}
 	//imported: new Eden.AST.Virtual("imported")
 };
+
+const EdenSymbol = Eden.EdenSymbol;
 
 Eden.Selectors.getScriptBase = function(stat) {
 	var p = stat;
@@ -100,39 +104,39 @@ Eden.Selectors.getChildren = function(statements, recurse) {
 	var nstats = [];
 	if (statements === undefined) return nstats;
 	for (var i=0; i<statements.length; i++) {
-		if (statements[i].type == "script") {
-			nstats.push.apply(nstats,statements[i].statements);
+		if (statements[i].type === "script") {
+			nstats.push.apply(nstats,statements[i].statements.map((s) => { return (s.type === "substat" && s.last) ? s.last : s; }));
 			if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statements, recurse));
-		} else if (statements[i].type == "for") {
-			if (statements[i].statement && statements[i].statement.type == "script") {
+		} else if (statements[i].type === "for") {
+			if (statements[i].statement && statements[i].statement.type === "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
-		} else if (statements[i].type == "if") {
-			if (statements[i].statement && statements[i].statement.type == "script") {
+		} else if (statements[i].type === "if") {
+			if (statements[i].statement && statements[i].statement.type === "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
-			if (statements[i].elsestatement && statements[i].elsestatement.type == "script") {
+			if (statements[i].elsestatement && statements[i].elsestatement.type === "script") {
 				nstats.push.apply(nstats,statements[i].elsestatement.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].elsestatement.statements, recurse));
 			}
-		} else if (statements[i].type == "when") {
+		} else if (statements[i].type === "when") {
 			if (statements[i].statement && statements[i].statement.type == "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
-		} else if (statements[i].type == "while") {
+		} else if (statements[i].type === "while") {
 			if (statements[i].statement && statements[i].statement.type == "script") {
 				nstats.push.apply(nstats,statements[i].statement.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].statement.statements, recurse));
 			}
-		} else if (statements[i].type == "do") {
+		} else if (statements[i].type === "do") {
 			if (statements[i].script && statements[i].script.type == "script") {
 				nstats.push.apply(nstats,statements[i].script.statements);
 				if (recurse) nstats.push.apply(nstats, Eden.Selectors.getChildren(statements[i].script.statements, recurse));
 			}
-		} else if (statements[i].type == "section") {
+		} else if (statements[i].type === "section") {
 			var node = statements[i].nextSibling;
 			var chi = [];
 			while (node && (node.type != "section" || node.depth > statements[i].depth)) {
@@ -168,6 +172,8 @@ Eden.Selectors.resultTypes = {
 	"comment": true,
 	"source": true,
 	"innersource": true,
+	"outersource": true,
+	"standalone_outersource": true,
 	"title": true,
 	"path": true,
 	"name": true,
@@ -185,7 +191,17 @@ Eden.Selectors.resultTypes = {
 	"exprtree": true,
 	"single": true,
 	"expression": true,
-	"locked": true
+	"locked": true,
+	"ast": true,
+	"static": true,
+	"volatile": true,
+	"eager": true,
+	"number": true,
+	"string": true,
+	"object": true,
+	"list": true,
+	"boolean": true,
+	"datatype": true
 };
 
 Eden.Selectors.expressionToLists = function(expr) {
@@ -226,6 +242,13 @@ Eden.Selectors.expressionToLists = function(expr) {
 			res.push(Eden.Selectors.expressionToLists(expr.extras[i]));
 		}
 		return res;
+	} else if (expr.type == "indexed") {
+		var res = ["indexed"];
+		res.push(Eden.Selectors.expressionToLists(expr.expression));
+		for (var i=0; i<expr.indexes.length; i++) {
+			res.push(Eden.Selectors.expressionToLists(expr.indexes[i]));
+		}
+		return res;
 	}
 }
 
@@ -255,6 +278,7 @@ Eden.Selectors.processResults = function(statements, o) {
 				var val = undefined;
 
 				switch(kinds[j]) {
+				case "ast"		:	val = stat; break;
 				case "single"	:	single = true; break;
 				case "brief"	:	if (stat.doxyComment) {
 										val = stat.doxyComment.brief();
@@ -262,6 +286,14 @@ Eden.Selectors.processResults = function(statements, o) {
 				case "comment"	:	if (stat.doxyComment) {
 										val = stat.doxyComment.stripped();
 									} break;
+				case "standalone_outersource":
+									if (stat) {
+										val = (stat.version === 1) ? '"use cs2;"\n' : '"use cs3;"\n';
+										val += stat.getOuterSource();
+									} else {
+										val = "";
+									}
+									break;
 				case "source"	:	val = (stat && stat.getSource) ? stat.getSource() : "";
 									break;
 				case "innersource"	:	if (stat.type == "script") {
@@ -340,6 +372,7 @@ Eden.Selectors.processResults = function(statements, o) {
 									break;
 
 				case "root"		:	val = stat.parent === undefined; break;
+				case "static"	:	val = (stat instanceof EdenSymbol && stat.origin) ? stat.origin.lvalue.isstatic : false; break;
 				}
 
 				//if (val !== undefined)
@@ -554,6 +587,18 @@ Eden.Selectors._depend = function(p) {
 	}
 }
 
+Eden.Selectors.queryWithinSync = function(within, s, o, options) {
+	var sast = Eden.Selectors.parse(s, options ? options.options : null);
+	var res = [];
+	if (!sast) return res;
+
+	let statements = sast._filter(within);
+	if (!statements) return [];
+	statements = Eden.Selectors.unique(statements);
+	res = (o) ? Eden.Selectors.processResults(statements, o) : statements;
+	return res;
+}
+
 Eden.Selectors.queryWithin = function(within, s, o, cb) {
 	if (!cb) console.error("QUERY WITHIN WITHOUT CB");
 	var sast = Eden.Selectors.parse(s);
@@ -651,25 +696,20 @@ Eden.Selectors._query = function(s, o, options, cb) {
 					}
 				}
 
-				$.ajax({
-					url: url+".js-e",
-					dataType: "text",
-					success: function(data) {
-						var res = [(new Eden.AST(data, undefined, {name: urlparts[urlparts.length-1], remote: true})).script];
-						Eden.Selectors.cache[s] = res[0];
-						//Eden.Index.update(res[0]);
-						//statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
-						//statements = Eden.Selectors.processResults(res, o);
-						cb(res);
-					},
-					error: function() {
-						cb([]);
-					}
+				Eden.Utils.getURL(url+".js-e").then(function(data) {
+					var res = [(new Eden.AST(data, undefined, {name: urlparts[urlparts.length-1], remote: true})).script];
+					Eden.Selectors.cache[s] = res[0];
+					//Eden.Index.update(res[0]);
+					//statements = Eden.Selectors.processNode(statements, s.substring(pathix).trim());
+					//statements = Eden.Selectors.processResults(res, o);
+					cb(res);
+				}).catch((e) => {
+					cb([]);
 				});
 			// Only search the server if an external query is requested
-			} else if (!sast.options || !sast.options.local) {
+			} else if ((!sast.options || !sast.options.local) && Eden.DB) {
 				//Then need to do a remote search
-				Eden.DB.searchSelector(s, (o === undefined) ? ["outersource","path"] : o, function(stats) {
+				Eden.DB.searchSelector(s, (o === undefined) ? ["standalone_outersource","path"] : o, function(stats) {
 					if (o === undefined && stats.length > 0) {
 						// Need to generate an AST for each result
 						// Loop and do all...
@@ -683,7 +723,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 								//	
 								//} else {
 									//console.log("Get Outersource", stats[i][0]);
-									script = Eden.AST.parseStatement(stats[i][0], {remote: true});
+									script = Eden.AST.parseStatement(stats[i][0], {remote: true, version: 0});
 									//console.log("External AST", script);
 									var origin = Eden.AST.originFromDoxy(script.doxyComment);
 									origin.remote = true;
@@ -717,7 +757,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 
 					} else if (stats === undefined || stats.length == 0) {
 						if (Eden.Project.local && Eden.Project.local[path]) {
-							$.get(Eden.Project.local[path].file, function(data) {
+							Eden.Utils.getURL(Eden.Project.local[path].file).then(function(data) {
 								var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 								Eden.Selectors.cache[path] = res[0];
 								//Eden.Index.update(res[0]);
@@ -726,7 +766,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 									var u = Eden.Selectors.unique(s);
 									cb(u);
 								});
-							}, "text");
+							});
 						} else {
 							cb(statements);
 						}
@@ -736,7 +776,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 					}
 				});
 			} else if (Eden.Project.local && Eden.Project.local[path]) {
-				$.get(Eden.Project.local[path].file, function(data) {
+				Eden.Utils.getURL(Eden.Project.local[path].file).then(function(data) {
 					var res = [(new Eden.AST(data, undefined, {name: path, remote: true})).script];
 					Eden.Selectors.cache[path] = res[0];
 					//Eden.Index.update(res[0]);
@@ -745,7 +785,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 						var u = Eden.Selectors.unique(s);
 						cb(u);
 					});
-				}, "text");
+				});
 			} else {
 				//results.result = Eden.Selectors.processResults(statements, o, num);
 				cb(statements);
@@ -798,12 +838,12 @@ Eden.Selectors.queryPromise = function(s, o, options) {
 }*/
 
 
-Eden.Selectors.execute = function(selector, cb) {
+Eden.Selectors.execute = function(selector, scope, cb) {
 	Eden.Selectors.query(selector, undefined, {minimum: 1}, function(stats) {
 		function doStat(i) {
 			var p = stats[i];
 			while (p.parent) p = p.parent;
-			p.base.executeStatement(stats[i], -1, EdenSymbol.localJSAgent, function() {
+			p.base.executeStatement(stats[i], scope, EdenSymbol.localJSAgent, function() {
 				i++;
 				if (i < stats.length) doStat(i);
 				else if (cb) cb();
@@ -1079,4 +1119,15 @@ Eden.Selectors.append = function(selector, attributes, values, ctx, cb) {
 	});
 }
 
+
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
+	require('./property');
+	require('./navigate');
+	require('./name');
+	require('./tag');
+	require('./union');
+	require('./intersection');
+}
+
+})();
 

@@ -1,0 +1,10 @@
+export const ERROR_SQL = -1;
+export const ERROR_UNAUTHENTICATED = 1;
+export const ERROR_INVALID_PROJECTID_FORMAT = 9;
+export const ERROR_NO_EXISTING_PROJECT = 5;
+export const ERROR_USER_NOT_OWNER = 6;
+export const ERROR_NO_PROJECTID = 7;
+export const ERROR_PROJECT_NOT_MATCHED = 10;
+export const ERROR_COMMENT_NOT_MATCHED = 11;
+export const ERROR_INVALID_FORMAT = 12;
+export const ERROR_NOTADMIN = 13;

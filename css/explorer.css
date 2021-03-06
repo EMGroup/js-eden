@@ -5,7 +5,7 @@ div.explore-main {
 	bottom: 0;*/
 	width: 415px;
 	background: white;
-	z-index: 65533;
+	/*z-index: 65533;*/
 	display: flex;
 	flex-direction: column;
 	/*box-shadow: 0 0 10px #4a6887;*/
@@ -94,6 +94,28 @@ div.explore-entry:before {
 	height: 0;
 }
 
+div.explore-entry.subscriber:before {
+	display: inline-block;
+	position: absolute;
+	content: "";
+	left: -15px;
+	border-top: 5px solid rgb(89, 89, 255);
+	top: 7px;
+	width: 12px;
+	height: 0;
+}
+
+div.explore-entry.dependency:before {
+	display: inline-block;
+	position: absolute;
+	content: "";
+	left: -15px;
+	border-top: 5px solid rgb(185, 136, 62);
+	top: 7px;
+	width: 12px;
+	height: 0;
+}
+
 div.explore-entry:after {
 	display: inline-block;
 	position: absolute;
@@ -111,6 +133,10 @@ div.explore-entry.missing {
 
 div.explore-entry.defined {
 	color: #00a000;
+}
+
+div.explore-entry.defined.error {
+	color: red;
 }
 
 div.explore-entry.active:after {
@@ -326,6 +352,7 @@ div.explore-state {
 	display: flex;
 	flex-direction: column;
 	flex-grow: 2;
+	overflow: auto;
 }
 
 div.explore-settings {
@@ -357,6 +384,7 @@ div.explore-script {
 	display: flex;
 	flex-direction: column;
 	flex-grow: 2;
+	overflow: auto;
 }
 
 div.explore-scripts {

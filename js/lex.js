@@ -1,8 +1,16 @@
+(function() {
+
 function EdenSyntaxData() {
 	this.value = undefined;
 	this.error = false;
 	this.line = 0;
 }
+
+Eden.EdenSyntaxData = EdenSyntaxData;
+
+var Language = Eden.Language;
+var kwords = Language.keywords;
+var vwords = Language.values;
 
 /**
  * A basic stream wrapper for a javascript string that allows for sequential
@@ -20,18 +28,24 @@ function EdenStream(code) {
 	this.data = new EdenSyntaxData();
 };
 
+Eden.EdenStream = EdenStream;
+
 /**
  * Save the current stream position.
  */
 EdenStream.prototype.pushPosition = function() {
-	this.position_stack.push(this.position);
+	this.position_stack.push([this.position, this.line, this.prevposition, this.prevline]);
 };
 
 /**
  * Restore the last saved stream position.
  */
 EdenStream.prototype.popPosition = function() {
-	this.position = this.position_stack.pop();
+	const [position, line, prevposition, prevline] = this.position_stack.pop();
+	this.position = position;
+	this.line = line;
+	this.prevposition = prevposition;
+	this.prevline = prevline;
 };
 
 /**
@@ -124,6 +138,7 @@ EdenStream.prototype.tokenText = function() {
  * Is the stream at the beginning or end of a line.
  */
 EdenStream.prototype.isBEOL = function() {
+	if (this.prevposition == 0) return true;
 	if (this.peek2() == 10) return true;
 	var pastpos = this.prevposition-1;
 	var pastchar = this.code.charCodeAt(pastpos);
@@ -134,6 +149,26 @@ EdenStream.prototype.isBEOL = function() {
 	if (pastchar == 10) return true;
 	return false;
 };
+
+EdenStream.prototype.isBOL = function() {
+	if (this.prevposition == 0) return true;
+	var pastpos = this.prevposition-1;
+	var pastchar = this.code.charCodeAt(pastpos);
+	//while ((pastchar == 9 || pastchar == 32) && pastpos >= 0) {
+	//	pastchar = this.code.charCodeAt(pastpos--);
+	//}
+	if (pastchar == 10) return true;
+	return false;
+};
+
+EdenStream.prototype.isFollowingWhiteSpace = function() {
+	var ch = (this.prevposition-1 >= 0) ? this.code.charCodeAt(this.prevposition-1) : 0;
+	return this.prevposition == 0 || this.isWhiteSpace(ch);
+}
+
+EdenStream.prototype.previousChar = function() {
+	return (this.prevposition-1 >= 0) ? this.code.charCodeAt(this.prevposition-1) : 0;
+}
 
 /**
  * Move forward one character.
@@ -172,8 +207,8 @@ EdenStream.prototype.unget = function() {
 EdenStream.prototype.skipWhiteSpace = function() {
 	while (this.valid()) {
 		var ch= this.peek();
-		if (ch == 10) this.line++;
-		if (ch == 9 || ch == 10 || ch == 13 || ch == 32 || ch == 160) {
+		if (ch === 10) this.line++;
+		if (ch === 9 || ch === 10 || ch === 13 || ch === 32 || ch === 160) {
 			this.skip();
 		} else {
 			break;
@@ -181,10 +216,14 @@ EdenStream.prototype.skipWhiteSpace = function() {
 	}
 };
 
+EdenStream.prototype.isWhiteSpace = function(ch) {
+	return (ch === 9 || ch === 10 || ch === 13 || ch === 32 || ch === 160);	
+}
+
 
 
 EdenStream.prototype.skipLine = function() {
-	while (this.valid() && this.peek() != 10) this.skip();
+	while (this.valid() && this.peek() !== 10) this.skip();
 }
 
 
@@ -193,7 +232,7 @@ EdenStream.prototype.skipLine = function() {
  * Check if a character matches [a-zA-Z0-9_] or unicode...
  */
 EdenStream.prototype.isAlphaNumeric = function(ch) {
-	return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == 95) || (ch >= 128 || ch == 36); //(ch >= 0xc0);
+	return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch === 95) || (ch >= 128 || ch === 36); //(ch >= 0xc0);
 };
 
 
@@ -212,24 +251,26 @@ EdenStream.prototype.isNumeric = function(ch) {
  * Used in error context checking.
  */
 EdenStream.prototype.tokenType = function(token) {
-	if (token == "OBSERVABLE") {
-		return "identifier";
+
+	switch (token) {
+	case "OBSERVABLE"		: return "identifier";
+	case "JAVASCRIPT"		: return "javascript";
+	case "NUMBER"			: return "number";
+	case "STRING"			: return "string";
+	case "CHARACTER"		: return "character";
+	case "BOOLEAN"			: return "boolean";
+	case "("				:
+	case "["				:
+	case "{"				: return "openbracket";
+	case ")"				:
+	case "]"				:
+	case "}"				: return "closebracket";
+	case ","				:
+	case "."				:
+	case ";"				:
+	case ":"				: return "separator";
 	}
-	if (token == "JAVASCRIPT") {
-		return "javascript";
-	}
-	if (token == "NUMBER") {
-		return "number";
-	}
-	if (token == "STRING") {
-		return "string";
-	}
-	if (token == "CHARACTER") {
-		return "character";
-	}
-	if (token == "BOOLEAN") {
-		return "boolean";
-	}
+
 	if (typeof token != "string") {
 		console.error(token);
 		return "INVALID";
@@ -237,15 +278,7 @@ EdenStream.prototype.tokenType = function(token) {
 	if (this.isAlphaNumeric(token.charCodeAt(0))) {
 		return "keyword";
 	}
-	if (token == "(" || token == "[" || token == "{") {
-		return "openbracket";
-	}
-	if (token == ")" || token == "]" || token == "}") {
-		return "closebracket";
-	}
-	if (token == "," || token == "." || token == ";" || token == ":") {
-		return "separator";
-	}
+	
 	return "operator";
 };
 
@@ -256,7 +289,7 @@ EdenStream.prototype.tokenType = function(token) {
  * Fills data.value with the string read.
  */
 EdenStream.prototype.parseAlphaNumeric = function(data) {
-	var result = "";
+	/*var result = "";
 
 	if (this.isAlphaNumeric(this.peek()) == false) {
 		return false;
@@ -266,7 +299,14 @@ EdenStream.prototype.parseAlphaNumeric = function(data) {
 		result += String.fromCharCode(this.get());
 	}
 	data.value = result;
-	return true;
+	return true;*/
+
+	var start = this.position;
+	while (this.isAlphaNumeric(this.peek())) ++this.position;
+
+	var result = this.code.substring(start,this.position);
+	data.value = result;
+	return this.position - start > 0;
 };
 
 
@@ -276,7 +316,7 @@ EdenStream.prototype.parseString = function(data, kind) {
 
 	while (this.valid() && this.peek() != kind) {
 		var chr = String.fromCharCode(this.get());
-		if (chr == "\n"){
+		if (chr === "\n"){
 			this.unget();
 			data.error = true;
 			data.value = "LINEBREAK";
@@ -284,16 +324,19 @@ EdenStream.prototype.parseString = function(data, kind) {
 		}
 		// TODO, the following allows multi-line strings if highlighter can
 		//if (chr == "\n") this.line++;
-		if (chr == "\\") {
+		if (chr === "\\") {
 			chr = String.fromCharCode(this.get());
-			result += "\\" + chr;
+			//result += "\\" + chr;
+			if (chr === 'n') result += "\n";
+			else if (chr === 't') result += "\t";
+			else result += chr;
 		} else {
 			result += chr;
 		}
 	}
 
 	// Remove end quote
-	if (this.valid() && this.peek() == kind) {
+	if (this.valid() && this.peek() === kind) {
 		this.skip();
 		data.error = false;
 	} else {
@@ -306,14 +349,14 @@ EdenStream.prototype.parseString = function(data, kind) {
 EdenStream.prototype.parseCharacter = function(data) {
 	var result = String.fromCharCode(this.get());
 
-	if (result == "'") {
+	if (result === "'") {
 		data.value = "";
 		data.error = true;
 		return;
 	}
 
 	// Escaped char
-	if (result == "\\") {
+	if (result === "\\") {
 		result = String.fromCharCode(this.get());
 	}
 
@@ -336,7 +379,7 @@ EdenStream.prototype.parseNumber = function(data) {
 		result += String.fromCharCode(this.get());
 	}
 
-	if (this.peek() == 46 && this.isNumeric(this.peek2())) {
+	if (this.peek() === 46 && this.isNumeric(this.peek2())) {
 		this.skip();
 		result += ".";
 		while (this.valid() && this.isNumeric(this.peek())) {
@@ -348,7 +391,55 @@ EdenStream.prototype.parseNumber = function(data) {
 };
 
 
+EdenStream.prototype.readCommentToken = function() {
+	this.prevline = this.line;
+	this.skipWhiteSpace();
+	this.prevposition = this.position;
 
+	if (this.eof()) return "EOF";
+
+	//var ch = this.get();
+	var pch = 0;
+
+	while (this.valid()) {
+		var ch = this.code.charCodeAt(this.position++);
+		if (ch === 10) ++this.line;
+		if (ch === 47) {
+			if (pch === 42) return "*/";
+			if (this.peek() == 42) {
+				this.skip();
+				return "/*";
+			}
+		}
+		pch = ch;
+	}
+
+	return "INVALID";
+}
+
+EdenStream.prototype.readJSToken = function() {
+	this.prevline = this.line;
+	this.skipWhiteSpace();
+	this.prevposition = this.position;
+
+	if (this.eof()) return "EOF";
+
+	//var ch = this.get();
+	var pch = 0;
+	var pch2 = 0;
+
+	while (this.valid()) {
+		var ch = this.code.charCodeAt(this.position++);
+		if (ch === 10) ++this.line;
+		if (ch === 36) {
+			if (pch === 125 && pch2 == 125) return "}}$";
+		}
+		pch2 = pch;
+		pch = ch;
+	}
+
+	return "INVALID";
+}
 
 EdenStream.prototype.readToken = function(ignorestrings) {
 	this.prevline = this.line;
@@ -363,43 +454,47 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	this.position++;
 
 	switch (ch) {
-	case 33	:	if (this.peek() == 61) { this.skip(); return "!="; }
-				if (this.peek() == 126) { this.skip(); return "!~"; }
+	case 33	:	if (this.peek() === 61) { this.skip(); return "!="; }
+				if (this.peek() === 126) { this.skip(); return "!~"; }
 				return "!";
-	case 34	:	if (!ignorestrings) { this.parseString(this.data, 34); return "STRING"; }
-				else return "\"";
-	case 35	:	if (this.peek() == 35) { this.skip(); return "##"; }
+	case 34	:	//if (!ignorestrings) { this.parseString(this.data, 34); return "STRING"; }
+				//else return "\"";
+				this.parseString(this.data, 34); return "STRING";
+	case 35	:	if (this.peek() === 35) { this.skip(); return "##"; }
 				return "#";
-	case 36	:	if (this.peek() == 123 && this.peek2() == 123) {
+	case 36	:	if (this.peek() === 123 && this.peek2() === 123) {
 					this.skip(); this.skip();
 					return "${{";
+				} else if (this.peek() === 123) {
+					this.skip();
+					return "${";
 				}
 				break;
 	case 37	:	return "%";
-	case 38	:	if (this.peek() == 38) { this.skip(); return "&&"; }
-				if (this.peek() == 61) { this.skip(); return "&="; }
+	case 38	:	if (this.peek() === 38) { this.skip(); return "&&"; }
+				if (this.peek() === 61) { this.skip(); return "&="; }
 				return "&";
-	case 39 :	if (!ignorestrings) { this.parseString(this.data, 39); return "STRING"; }
-				else return "'";
+	case 39 :	//if (!ignorestrings) { this.parseString(this.data, 39); return "STRING"; }
+				return "'";
 	case 40	:	return "(";
 	case 41	:	return ")";
-	case 42	:	if (this.peek() == 61) { this.skip(); return "*="; }
-				if (this.peek() == 47) { this.skip(); return "*/"; }
+	case 42	:	if (this.peek() === 61) { this.skip(); return "*="; }
+				if (this.peek() === 47) { this.skip(); return "*/"; }
 				return "*";
-	case 43	:	if (this.peek() == 43) { this.skip(); return "++"; }
-				if (this.peek() == 61) { this.skip(); return "+="; }
+	case 43	:	if (this.peek() === 43) { this.skip(); return "++"; }
+				if (this.peek() === 61) { this.skip(); return "+="; }
 				return "+";
 	case 44 :	return ",";
-	case 45	:	if (this.peek() == 45) { this.skip(); return "--"; }
-				if (this.peek() == 61) { this.skip(); return "-="; }
+	case 45	:	if (this.peek() === 45) { this.skip(); return "--"; }
+				if (this.peek() === 61) { this.skip(); return "-="; }
 				//if (this.isNumeric(this.peek())) { this.parseNumber(this.data); this.data.value = -this.data.value; return "NUMBER"; }
 				return "-";
-	case 46	:	if (this.peek() == 46) { this.skip(); return ".."; }
+	case 46	:	if (this.peek() === 46) { this.skip(); return ".."; }
 				return ".";
-	case 47	:	if (this.peek() == 47 && this.peek2() == 61) { this.skip(); return "//="; }
-				if (this.peek() == 47) { this.skip(); return "//"; }
-				if (this.peek() == 61) { this.skip(); return "/="; }
-				if (this.peek() == 42) { this.skip(); return "/*"; }
+	case 47	:	if (this.peek() === 47 && this.peek2() == 61) { this.skip(); this.skip(); return "//="; }
+				if (this.peek() === 47) { this.skip(); return "//"; }
+				if (this.peek() === 61) { this.skip(); return "/="; }
+				if (this.peek() === 42) { this.skip(); return "/*"; }
 				return "/";
 	case 48 :
 	case 49 :
@@ -411,36 +506,39 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	case 55 :
 	case 56 :
 	case 57 :	this.unget(); this.parseNumber(this.data); return "NUMBER";
-	case 58	:	if (this.peek() == 58) { this.skip(); return "::"; }
+	case 58	:	if (this.peek() === 58) { this.skip(); return "::"; }
 				return ":";
 	case 59	:	return ";";
-	case 60	:	if (this.peek() == 60) { this.skip(); return "<<"; }
-				if (this.peek() == 61) { this.skip(); return "<="; }
-				if (this.peek() == 47) { this.skip(); return "</"; }
+	case 60	:	if (this.peek() === 60) { this.skip(); return "<<"; }
+				if (this.peek() === 61) { this.skip(); return "<="; }
+				if (this.peek() === 47) { this.skip(); return "</"; }
 				return "<";
-	case 61 :	if (this.peek() == 61) { this.skip(); return "=="; }
-				if (this.peek() == 126) { this.skip(); return "=~"; }
+	case 61 :	if (this.peek() === 61) { this.skip(); return "=="; }
+				if (this.peek() === 126) { this.skip(); return "=~"; }
 				return "=";
-	case 62	:	if (this.peek() == 62) { this.skip(); return ">>"; }
-				if (this.peek() == 61) { this.skip(); return ">="; }
+	case 62	:	if (this.peek() === 62) { this.skip(); return ">>"; }
+				if (this.peek() === 61) { this.skip(); return ">="; }
 				return ">";
 	case 63	:	return "?";
 	case 64	:	return "@";
 	case 91	:	return "[";
-	case 92	:	return "\"";	//TODO: Escape chars
+	case 92	:	return "\\";	//TODO: Escape chars
 	case 93	:	return "]";
 	case 94	:	return "^";
 	case 96	:	return "`";
 	case 123:	return "{";
-	case 124:	if (this.peek() == 124) { this.skip(); return "||"; }
-				if (this.peek() == 61) { this.skip(); return "|="; }
+	case 124:	if (this.peek() === 124) { this.skip(); return "||"; }
+				if (this.peek() === 61) { this.skip(); return "|="; }
 				return "|";
-	case 125:	if (this.peek() == 125 && this.peek2() == 36) {
+	case 125:	if (this.peek() === 125 && this.peek2() === 36) {
 					this.skip(); this.skip();
 					return "}}$";
-				}	
+				}/* else if (this.peek() == 36) {
+					this.skip();
+					return "}$";
+				}*/
 				return "}";
-	case 126:	if (this.peek() == 62) { this.skip(); return "~>"; }
+	case 126:	if (this.peek() === 62) { this.skip(); return "~>"; }
 				return "~";
 	default: break; 
 	};
@@ -448,11 +546,15 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	this.unget();
 
 	if (this.parseAlphaNumeric(this.data)) {
-		if (Language.keywords.hasOwnProperty(this.data.value)) return Language.keywords[this.data.value];
-		if (Language.values.hasOwnProperty(this.data.value)) {
-			this.data.value = Language.values[this.data.value];
+		let kword = kwords[this.data.value];
+		if (kword) return kword;
+
+		let vword = vwords[this.data.value];
+		if (vword) {
+			this.data.value = vword;
 			return "BOOLEAN";
 		}
+
 		return "OBSERVABLE";
 	}
 
@@ -460,7 +562,7 @@ EdenStream.prototype.readToken = function(ignorestrings) {
 	this.skip();
 	//return this.readToken();
 	//console.error("Invalid Token: " + ch);
-	throw new Error("Invalid Token: " + ch);
+	//throw new Error("Invalid Token: " + ch);
 	return "INVALID";
 };
 
@@ -482,4 +584,8 @@ function edenTokenTest(code) {
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	exports.EdenStream = EdenStream;
 	exports.EdenSyntaxData = EdenSyntaxData;
+} else {
+	window.EdenStream = EdenStream;
 }
+
+})();

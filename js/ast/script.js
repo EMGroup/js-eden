@@ -45,6 +45,8 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 		p = p.parent;
 	}
 
+	this.source = null;
+
 	var added = [];
 	var removed = [];
 
@@ -129,6 +131,7 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 
 	if (this.subscribers) {
 		for (var sub in this.subscribers) {
+			// FIXME: Bad reference to eden
 			eden.root.expireEdenSymbol(this.subscribers[sub]);
 		}
 	}
@@ -190,6 +193,10 @@ Eden.AST.Script.prototype.setName = function(base, name) {
 	this.shortName = name;
 }
 
+Eden.AST.Script.prototype.setAttributes = function(attribs) {
+	return true;
+}
+
 Eden.AST.Script.prototype.setReadables = function(readables) {
 	this.readables = readables;
 }
@@ -238,10 +245,10 @@ Eden.AST.Script.prototype.execute = function(ctx, base, scope, agent) {
 	return filtered;
 }
 
-Eden.AST.Script.prototype.generate = function(ctx, scope) {
+Eden.AST.Script.prototype.generate = function(ctx, scope, options) {
 	var result = "{\n";
 	for (var i = 0; i < this.statements.length; i++) {
-		result = result + this.statements[i].generate(ctx, scope, {bound: false});
+		result = result + this.statements[i].generate(ctx, scope, options);
 	}
 	result = result + "}";
 	return result;

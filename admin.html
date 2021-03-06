@@ -19,9 +19,10 @@
 	<script src="js/lib/showdown.min.js"></script>
 	<script src="js/util/misc.js"></script>
 	<script src="js/core/eden.js"></script>
-	<script src="js/core/context.js"></script>
-	<script src="js/core/scope.js"></script>
 	<script src="js/core/symbol.js"></script>
+	<script src="js/core/context.js"></script>
+	<script src="js/core/edenui.js"></script>
+	<script src="js/core/scope.js"></script>
 	<script src="js/project.js"></script>
 	<script src="js/core/window-highlighter.js"></script>
 	<script src="js/core/database.js"></script>
@@ -123,6 +124,18 @@
 			color: gold;
 			width: 20px;
 		}
+
+		div.indented {
+			margin-left: 4em;
+		}
+
+		div.expand {
+			display: inline-block;
+			font-family: "FontAwesome";
+			/*color: gold;*/
+			width: 20px;
+			cursor: pointer;
+		}
 	</style>
 </head>
 
@@ -178,7 +191,7 @@
 
 		var count = 0;
 
-		function addProjects(page) {
+		function addProjects(page, cb) {
 			Eden.DB.adminProjectActivity(undefined, page*30, function(data) {
 				var proresults = document.getElementById("projectlog");
 
@@ -197,11 +210,11 @@
 					ele.className = "project-result";
 					var t = data[i].date.split(/[- :]/);
 
-					ele.innerHTML = '<div class="privacy">'+((data[i].readPassword === null) ? '' : '&#xf023;')+'</div><span class="feedback-author">'+data[i].name+'</span><a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'&r='+data[i].readPassword+'">'+data[i].title+'</a><span class="feedback-date" title="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+					ele.innerHTML = '<div class="expand" data-pid="'+data[i].projectID+'">&#xf067;</div><div class="privacy">'+((data[i].readPassword === null) ? '' : '&#xf023;')+'</div><span class="feedback-author">'+data[i].name+'</span><a class="projectlink" href="index.html?load='+data[i].projectID+'&vid='+data[i].saveID+'&r='+data[i].readPassword+'">'+data[i].title+'</a><span class="feedback-date" title="'+data[i].date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
 					proresults.appendChild(ele);
 				}
 	
-				if (count < 15 && data.length > 0) addProjects(page+1);
+				if (count < 15 && data.length > 0) addProjects(page+1, cb);
 				else {
 					var ele = document.createElement("button");
 					ele.className = "more";
@@ -209,14 +222,29 @@
 					proresults.appendChild(ele);
 					ele.onclick = function() {
 						count = 5;
-						addProjects(page+1);
+						addProjects(page+1, cb);
 						proresults.removeChild(ele);
 					}
+
+					if (cb) cb();
 				}
 			});
 		}
 
-		addProjects(0);
+		addProjects(0, () => {
+			$('div.expand').click((e) => {
+				//console.log(e);
+				let pid = parseInt(e.currentTarget.getAttribute("data-pid"));
+				//console.log("EXPAND", projects[pid]);
+
+				for (var v of projects[pid]) {
+					let ele = document.createElement("DIV");
+					var t = v.date.split(/[- :]/);
+					ele.innerHTML = '<div class="privacy indented">'+((v.readPassword === null) ? '' : '&#xf023;')+'</div><a class="projectlink" href="index.html?load='+v.projectID+'&vid='+v.saveID+'&r='+v.readPassword+'">Version '+v.saveID+'</a><span class="feedback-date" title="'+v.date+'">'+get_time_diff((new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5])).getTime()/1000)+'</span>';
+					e.currentTarget.parentNode.appendChild(ele);
+				}
+			});
+		});
 	});
 </script>
 

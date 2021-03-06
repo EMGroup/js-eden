@@ -4,6 +4,7 @@
  */
 Eden.AST.Index = function() {
 	this.type = "index";
+	Eden.AST.BaseExpression.apply(this);
 	this.expression = undefined;
 	this.errors = [];
 }
@@ -16,8 +17,12 @@ Eden.AST.Index.prototype.setExpression = function(express) {
 	}
 }
 
+Eden.AST.Index.prototype.toEdenString = function(scope, state) {
+	return `[${this.expression.toEdenString(scope,state)}]`;
+}
+
 Eden.AST.Index.prototype.generate = function(ctx, scope, options) {
-	var ix = this.expression.generate(ctx, scope, {bound: false});
+	var ix = this.expression.generate(ctx, scope, options);
 	// Return final string with -1 adjustment applied.
 	if (this.expression.type == "literal" && this.expression.datatype == "NUMBER") {
 		return "["+ix+"-1]";
@@ -26,5 +31,5 @@ Eden.AST.Index.prototype.generate = function(ctx, scope, options) {
 	}
 }
 
-Eden.AST.Index.prototype.error = Eden.AST.fnEdenASTerror;
+Eden.AST.registerExpression(Eden.AST.Index);
 

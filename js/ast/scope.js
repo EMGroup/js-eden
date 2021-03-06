@@ -6,14 +6,11 @@
  */
 Eden.AST.Scope = function() {
 	this.type = "scope";
-	this.errors = [];
+	Eden.AST.BaseExpression.apply(this);
 	this.range = false;
-	this.overrides = {};
+	this.overrides = {};  // FIXME: This must be an array to maintain order!!
 	this.expression = undefined; // = new Eden.AST.Primary();
-	this.typevalue = Eden.AST.TYPE_UNKNOWN;
 }
-
-Eden.AST.Scope.prototype.error = Eden.AST.fnEdenASTerror;
 
 Eden.AST.Scope.prototype.prepend = function(extra) {
 	this.primary.prepend(extra);
@@ -32,10 +29,8 @@ Eden.AST.Scope.prototype.getObservable = function() {
  */
 Eden.AST.Scope.prototype.setExpression = function(express) {
 	this.expression = express;
-	// Bubble errors if there are any
-	if (express) {
-		this.errors.push.apply(this.errors, express.errors);
-	}
+	this.mergeExpr(express);
+	this.isscoped = true;
 }
 
 /**
@@ -67,11 +62,46 @@ Eden.AST.Scope.prototype.addOverride = function(obs, exp1, exp2, exp3, isin) {
 	}
 }
 
+Eden.AST.Scope.prototype.toEdenString = function(scope, state) {
+	var expr = "("+this.expression.toEdenString(scope, state) + " with ";
+	if (state.isconstant) return expr;
+
+	var first = true;
+
+	for (var o in this.overrides) {
+		var over = this.overrides[o];
+		var overexpr = o;
+		var ostate = {isconstant: true, locals: state.locals};
+
+		if (!first) overexpr = ", "+overexpr;
+		first = false;
+
+		if (over.isin || over.end) overexpr += " in ";
+		else overexpr += " = ";
+
+		var sexpr = over.start.toEdenString(scope, ostate);
+		if (ostate.isconstant) overexpr += Eden.AST.executeExpressionNode(over.start, scope, ostate);
+		else overexpr += sexpr;
+		ostate.isconstant = true;
+
+		if (over.increment) {
+			overexpr += ".."+over.increment.toEdenString(scope, state);
+		}
+		if (over.end) {
+			overexpr += ".."+over.end.toEdenString(scope, state);
+		}
+
+		expr += overexpr;
+	}
+
+	return expr+")";
+}
+
 Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 	var res;
 
 	//if (ctx.scopes.length > 0) {
-		res = "new Scope(context, "+scope+", [";
+		res = "new Eden.Scope(context, "+scope+", [";
 	//} else {
 	//	res = "new Scope(context, scope, [";
 	//}
@@ -81,12 +111,6 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 		var over = this.overrides[o];
 		var startstr;
 
-		if (ctx && ctx.isdynamic) {
-			ctx.dynamic_source += o;
-			if (over.isin && !over.end) ctx.dynamic_source += " in ";
-			else ctx.dynamic_source += " = ";
-		}
-
 		// TODO Don't use main range
 		if (this.range) {
 			startstr = over.start.generate(ctx,scope,options);
@@ -94,11 +118,8 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 			startstr = over.start.generate(ctx,scope,options); //over.start.type == "primary" || over.start.type == "scope"});
 		}
 
-		res += "new ScopeOverride(\""+o+"\", " + startstr;
+		res += "new Eden.ScopeOverride(\""+o+"\", " + startstr;
 		if (over.end) {
-			if (ctx && ctx.isdynamic) {
-				ctx.dynamic_source += "..";
-			}
 			var endstr = this.overrides[o].end.generate(ctx,scope, options);
 
 			if (over.increment) {
@@ -110,8 +131,6 @@ Eden.AST.Scope.prototype.generateConstructor = function(ctx, scope, options) {
 		} else {
 			res += ", undefined, undefined, "+over.isin+"),";
 		}
-
-		if (ctx && ctx.isdynamic) ctx.dynamic_source += ", ";  // FIXME: Remove last comma.
 	}
 	// remove last comma
 	res = res.slice(0,-1);
@@ -181,11 +200,6 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 	ctx.scopes.push(this.generateConstructor(ctx,scope,options));
 
 	var res = "";
-	var dynsrctmp;
-	if (ctx && ctx.isdynamic) {
-		dynsrctmp = ctx.dynamic_source;
-		ctx.dynamic_source = "";
-	}
 
 	if (this.range) {
 		// Check for any isin
@@ -217,30 +231,7 @@ Eden.AST.Scope.prototype.generate = function(ctx, scope, options) {
 		}
 	}
 
-	if (ctx && ctx.isdynamic) ctx.dynamic_source += " with (" + dynsrctmp + ")";
 	return res;
 }
 
-Eden.AST.Scope.prototype.execute = function(ctx, base, scope) {
-	var context = {scopes: []};
-	var gen = this.generate(context, "scope",{bound: false});
-	var rhs = "(function(context,scope) {\n";
-
-	if (context.scopes.length > 0) {
-		rhs += "\tvar _scopes = [];\n";
-		for (var i=0; i<context.scopes.length; i++) {
-			rhs += "\t_scopes.push(" + context.scopes[i];
-			rhs += ");\n";
-			rhs += "if (this.def_scope) { _scopes["+i+"].mergeCache(this.def_scope["+i+"]); _scopes["+i+"].reset(); } else _scopes["+i+"].rebuild();\n";
-		}
-
-		rhs += "this.def_scope = _scopes;\n";
-	}
-
-	rhs += "return ";
-	rhs += gen;
-	rhs += ";})";
-	//console.log(rhs);
-	return eval(rhs)(eden.root,scope);
-}
-
+Eden.AST.registerExpression(Eden.AST.Scope);

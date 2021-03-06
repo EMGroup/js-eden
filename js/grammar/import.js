@@ -7,11 +7,11 @@ Eden.AST.prototype.pREQUIRE = function() {
 	var express = this.pEXPRESSION();
 	req.setExpression(express);
 	req.warning = new Eden.SyntaxWarning(this, req, Eden.SyntaxWarning.DEPRECATED, "require.");
-	if (this.token != ";") {
+	/*if (this.token != ";") {
 		req.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return req;
 	}
-	this.next();
+	this.next();*/
 	return req;
 }
 
@@ -39,11 +39,11 @@ Eden.AST.prototype.pIMPORT = function() {
 	}
 	imp.setPath(path);
 
-	if (this.token != ";") {
+	/*if (this.token != ";") {
 		imp.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.SEMICOLON));
 		return imp;
 	}
-	this.next();
+	this.next();*/
 
 	return imp;
 }

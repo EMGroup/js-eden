@@ -6,7 +6,10 @@
  */
 
 //data types
-Point = function(x, y) {
+
+const GLOBAL = (typeof global !== 'undefined') ? global : window;
+
+GLOBAL.Point = function(x, y) {
   this.x = x;
   this.y = y;
 }
@@ -17,6 +20,8 @@ Point.prototype.getEdenCode = Point.prototype.toString;
 
 // functions to act in the same way as EDEN operators
 var rt = {
+	f: {},  // User generate functions
+
 	index: function (ix) {
 		var type = typeof ix;
 		if (type == "number") {
@@ -188,7 +193,7 @@ var rt = {
 
 };
 
-this.rt = rt;
+GLOBAL.rt = rt;
 
 // expose as node.js module
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {

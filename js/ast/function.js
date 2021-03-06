@@ -1,10 +1,14 @@
-Eden.AST.Function = function() {
+/*Eden.AST.Function = function() {
 	this.type = "function";
 	Eden.AST.BaseStatement.apply(this);
 
 	this.body = undefined;
 	this.name = "";
 };
+
+Eden.AST.Function.prototype.setAttributes = function(attribs) {
+	return true;
+}
 
 Eden.AST.Function.prototype.setBody = function(body) {
 	this.body = body;
@@ -15,8 +19,9 @@ Eden.AST.Function.prototype.setBody = function(body) {
 }
 
 Eden.AST.Function.prototype.generate = function(ctx) {
-	var body = this.body.generate(ctx, "scope");
-	var res = "context.lookup(\""+this.name+"\").define(function(){"+body+"}, this, []);\n";
+	console.error("SHOULD NOT USE");
+	var body = this.body.generate(ctx, "scope", {usevar: true, scope: eden.root.scope});
+	var res = "context.lookup(\""+this.name+"\").define(function(scope){ return function() {"+body+"}; }, this, []);\n";
 	return res;
 }
 
@@ -28,11 +33,17 @@ Eden.AST.Function.prototype.execute = function(ctx,base,scope,agent) {
 		eden.updateDictionary(this.name, this.doxyComment);
 	}
 
-	var body = this.body.generate(ctx,"scope");
 	var sym = eden.root.lookup(this.name);
-	eden.root.f["func_"+this.name] = new Function(body);
-	sym.assign(eden.root.f["func_"+this.name], scope, this);
+	var body = `return function func_${this.name}(){ ${this.body.generate(ctx,"scope",{scope: scope, symbol: sym})} };`;
+
+	try {
+		rt.f["func_"+this.name] = new Function(["scope"],body);
+		sym.assign(rt.f["func_"+this.name], scope, this);
+	} catch(e) {
+		console.log(body);
+		console.error("func "+sym.name,e);
+	}
 }
 
-Eden.AST.registerStatement(Eden.AST.Function);
+Eden.AST.registerStatement(Eden.AST.Function);*/
 

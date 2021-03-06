@@ -32,10 +32,22 @@ EdenUI.ExplorerScripts.prototype.makeEntry = function(element, entry) {
 	}
 }
 
+EdenUI.ExplorerScripts.prototype.start = function() {
+	if (this.interval) return;
+	this.interval = setInterval(() => {
+		this.update();
+	}, 200);
+}
+
+EdenUI.ExplorerScripts.prototype.stop = function() {
+	clearInterval(this.interval);
+	this.interval = null;
+}
+
 EdenUI.ExplorerScripts.prototype.update = function() {
 	this.scripts.html("");
 
-	var scripts = Eden.Selectors.query(">> script:has-name","id");
+	/*var scripts = Eden.Selectors.queryWithinSync(null, ">> .type(when).enabled","id");
 	var project = this.buildScriptTree(scripts);
 	var cached = [];
 	var snames = [];
@@ -43,13 +55,60 @@ EdenUI.ExplorerScripts.prototype.update = function() {
 		snames.push(x);
 		cached.push(Eden.Selectors.cache[x]);
 	}
-	scripts = Eden.Selectors.queryWithin(cached, ">> script:has-name","id");
+	scripts = Eden.Selectors.queryWithinSync(cached, ">> .type(when).enabled","id");
 	scripts.push.apply(scripts, snames);
 	var externals = {"External": this.buildScriptTree(scripts)};
 	//var project = this.buildScriptTree(scripts);
 
 	this.makeEntry(this.scripts, project);
-	this.makeEntry(this.scripts, externals);
+	this.makeEntry(this.scripts, externals);*/
+
+	let groups = {};
+
+	for (let x in eden.project.ast.whens) {
+		let when = eden.project.ast.whens[x];
+		if (!when.enabled) continue;
+
+		let s = when.parent;
+		while (s && !s.name) s = s.parent;
+
+		let name = (s && s.name) ? s.name : "Unknown";
+		if (!groups.hasOwnProperty(name)) groups[name] = [];
+		groups[name].push(when);
+	}
+
+	let ts = Date.now();
+
+	for (let x in groups) {
+		let ele = document.createElement("DIV");
+		ele.className = "explore-sentry";
+		let inner = document.createElement("DIV");
+		inner.className = "explore-script-inner";
+		inner.textContent = x;
+		ele.appendChild(inner);
+
+		let g = groups[x];
+		for (let i=0; i<g.length; ++i) {
+			let when = g[i];
+			let ele2 = document.createElement("DIV");
+			ele2.className = "explore-sentry";
+
+			let age = (ts - when.triggertimestamp) / 1000.0;
+			const DELAY = 2.0;
+
+			let sage = 1.0 - (Math.max(0, Math.min(DELAY, age)) / DELAY);
+			sage = sage*sage;
+			sage = 1.0 - sage;
+			ele2.style.background = "rgb("+(sage*255.0)+",255,"+(sage*255.0)+")";
+
+			let src = when.getSource();
+			let lineix = src.indexOf("\n");
+			if (lineix > 0) src = src.substring(0,lineix);
+			EdenUI.Highlight.htmlElement(src, ele2);
+			ele.appendChild(ele2);
+		}
+		this.scripts[0].appendChild(ele);
+	}
 
 	//console.log(base);
 }

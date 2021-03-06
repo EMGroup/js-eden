@@ -206,7 +206,7 @@ EdenUI.ScriptArea.prototype.runScript = function(line) {
 		//this.fragment.ast.executeLine(line-1);
 		var stat = this.fragment.ast.script.getStatementByLine(line-1);
 		//console.log("LIVE LINE",stat);
-		this.fragment.ast.executeStatement(stat, line, this.fragment);
+		this.fragment.ast.executeStatement(stat, eden.root.scope, this.fragment);
 	}
 }
 

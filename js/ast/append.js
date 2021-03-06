@@ -27,9 +27,9 @@ Eden.AST.Append.prototype.setIndex = function(index) {
 	}
 }
 
-Eden.AST.Append.prototype.generate = function(ctx, scope) {
-	var express = this.index.generate(ctx, scope, {bound: false, usevar: ctx.type == "scriptexpr"});
-	var lvalue = this.destination.generate(ctx, scope);
+Eden.AST.Append.prototype.generate = function(ctx, scope, options) {
+	var express = this.index.generate(ctx, scope, options);
+	var lvalue = this.destination.generate(ctx, scope, options);
 
 	if (this.destination.islocal) {
 		return lvalue + ".push("+express+");\n";
@@ -46,7 +46,7 @@ Eden.AST.Append.prototype.execute = function(ctx, base, scope, agent) {
 		s.value().push(val);
 	}, undefined);*/
 
-	var sym = eden.root.lookup(this.destination.name);
+	var sym = scope.context.lookup(this.destination.name);
 	var val2 = sym.value(scope);
 	val2.push(val);
 	//console.log("VALUE: ", sym.value(scope));

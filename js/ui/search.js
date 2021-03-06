@@ -83,10 +83,12 @@ EdenUI.SearchBox.prototype.updateSymbolDetails = function(element, name) {
 	
 	if (type == "assignment" || type == "definition") {
 		symstr = source;
+		if (symstr.length > 200) symstr = symstr.substring(0,200)+"...";
+
 		if (element.firstChild.className == "") {
-			element.firstChild.innerHTML = EdenUI.Highlight.html(symstr);
+			EdenUI.Highlight.htmlElement(symstr, element.firstChild, {removejs: true});
 		} else {
-			element.childNodes[1].innerHTML = EdenUI.Highlight.html(symstr);
+			EdenUI.Highlight.htmlElement(symstr, element.childNodes[1], {removejs: true});
 		}
 	}
 
@@ -187,7 +189,7 @@ EdenUI.SearchBox.prototype.makeStatementResult = function(stat) {
 		if (symstr.length > 55) {
 			symstr = symstr.substr(0,55) + "...";
 		}
-		symstr = EdenUI.Highlight.html(symstr);
+		symstr = "<div class='eden-wrapline'>"+EdenUI.Highlight.html(symstr)+"</div>";
 	}
 
 	//var ctrlstr = '<div class="menubar-search-rescontrols"><span>&#xf044;</span><span>&#xf06e;</span></div>';

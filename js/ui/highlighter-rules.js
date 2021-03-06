@@ -1,195 +1,3 @@
-var edenFunctions = {
-"apply": true,
-"array": true,
-"canvasURL": true,
-"centroid": true,
-"char": true,
-"charCode": true,
-"choose": true,
-"compose": true,
-"concat": true,
-"curry": true,
-"decodeHTML": true,
-"definitionOf": true,
-"definitionRHS": true,
-"doDefault": true,
-"edenCode": true,
-"escapeRE": true,
-"foldl": true,
-"foldr": true,
-"hasProperty": true,
-"hslColour": true,
-"htmlBulletList": true,
-"htmlNumberedList": true,
-"positionInList": true,
-"positionOfRE": true,
-"substringPosition": true,
-"int": true,
-"isBoolean": true,
-"isCallable": true,
-"isChar": true,
-"isDefined": true,
-"isDependency": true,
-"isDependent": true,
-"isFunc": true,
-"isInt": true,
-"isList": true,
-"isNaN": true,
-"isNumber": true,
-"isObject": true,
-"isPoint": true,
-"isPointer": true,
-"isProc": true,
-"isString": true,
-"isValue": true,
-"distanceMoved": true,
-"angleTurned": true,
-"List": true,
-"listcat": true,
-"lookup": true,
-"lowercase": true,
-"map": true,
-"mapPartial": true,
-"max": true,
-"Menu": true,
-"MenuItem": true,
-"min": true,
-"mod": true,
-"nameof": true,
-"partApply": true,
-"Point": true,
-"pow": true,
-"properties": true,
-"randomBoolean": true,
-"randomFloat": true,
-"randomInteger": true,
-"RE": true,
-"replaceFirst": true,
-"reverse": true,
-"rgbColour": true,
-"rotatePoint": true,
-"round": true,
-"roundMultiple": true,
-"scalePoint": true,
-"search": true,
-"sequenceItoJ": true,
-"sequenceN": true,
-"sequenceArithmeticN": true,
-"sequenceList": true,
-"sequencePrevious": true,
-"sort": true,
-"str": true,
-"sqrt": true,
-"strcat": true,
-"sublist": true,
-"substitute": true,
-"substr": true,
-"sum": true,
-"tail": true,
-"trim": true,
-"type": true,
-"uppercase": true,
-"include_css": true,
-"html": true,
-"time": true,
-"execute": true,
-"Text": true,
-"textWidth": true,
-"textHeight": true,
-"Arc": true,
-"Curve": true,
-"FillPattern": true,
-"Ellipse": true,
-"Line": true,
-"LinearGradient": true,
-"LineSequence": true,
-"PixelList": true,
-"GreyPixelList": true,
-"Rectangle": true,
-"RotateAboutCentre": true,
-"RotateAboutPoint": true,
-"CombinedRotation": true,
-"Scale": true,
-"Translate": true,
-"RoundedRectangle": true,
-"Polygon": true,
-"RegularPolygon": true,
-"Sector": true,
-"Shadow": true,
-"Circle": true,
-"Button": true,
-"Checkbox": true,
-"Div": true,
-"Image": true,
-"imageWithZones": true,
-"HTMLImage": true,
-"RadioButtons": true,
-"Slider": true,
-"Textbox": true,
-"DropDownList": true,
-"Combobox": true,
-"BulletSlide": true,
-"Video": true,
-"Audio": true,
-"Slide": true,
-"TitledSlide": true,
-"TitleSlide": true,
-"cos": true,
-"sin": true,
-"tan": true,
-"abs": true,
-"acos": true,
-"asin": true,
-"atan": true,
-"ceil": true,
-"roundUp": true,
-"exp": true,
-"floor": true,
-"roundDown": true,
-"log": true,
-"random": true,
-"forget": true,
-"forgetAll": true,
-"shapeOnTopAt": true,
-"zoneOnTopAt": true,
-"observableOnTopAt": true,
-"shapeOnBottomAt": true,
-"zoneOnBottomAt": true,
-"observableOnBottomAt": true,
-"shapesAt": true,
-"zonesAt": true,
-"observablesAt": true,
-"observableForShape": true,
-"alias": true,
-"arrangeWindows": true,
-"attemptMouseCapture": true,
-"bindCSSNumericProperty": true,
-"bindCSSProperty": true,
-"bindCSSRule": true,
-"createCanvas": true,
-"createHTMLView": true,
-"createProjectList": true,
-"createView": true,
-"destroyView": true,
-"eager": true,
-"error": true,
-"hideView": true,
-"highlightView": true,
-"moveView": true,
-"patch": true,
-"removeedenclock": true,
-"resizeView": true,
-"setedenclock": true,
-"showObservables": true,
-"showView": true,
-"stopHighlightingView": true,
-"todo": true,
-"touch": true,
-"unbind": true,
-"withAppendedItem": true,
-"writeln": true
-};
-
 var edenSpecials = {
 "autocalc": true,
 "mouseX": true,
@@ -204,6 +12,38 @@ var edenValues = {
 "true": true,
 "false": true,
 "green": true
+};
+
+var edenBuiltin = {
+	"exec": true,
+	"execute": true,
+	"parse": true,
+	"eval": true,
+	"compile": true,
+	"append": true,
+	"insert": true,
+	"delete": true
+	};
+
+var edenAttributes = {
+	"atomic": true,
+	"nonatomic": true,
+	"fixed": true,
+	"nodepend": true,
+	"depend": true,
+	"eager": true,
+	"volatile": true,
+	"static": true,
+	"const": true,
+	"changed": true,
+	"all": true,
+
+	"number": true,
+	"string": true,
+	"list": true,
+	"boolean": true,
+	"undefined": true,
+	"object": true
 };
 
 var jskeywords = {
@@ -223,8 +63,11 @@ var jskeywords = {
 }
 
 EdenUI.Highlight.prototype.START = function() {
+	if (this.outerline.length == 9) this.outerline = "eden-line script";
+
 	switch(this.token) {
-	case "##"		:	if (this.prevtoken == "INVALID") {
+	case "##"		:	if (this.stream.isBOL()) {
+							this.outerline = "eden-line comment";
 							this.classes.push("hidden-comment");
 							//this.lineelement.className = "eden-comment-line";
 							this.mode = "SECTION_TITLE";
@@ -240,7 +83,7 @@ EdenUI.Highlight.prototype.START = function() {
 							this.mode = "COMMENT";
 						}
 						break;
-	case "#"		:	if (this.prevtoken == "INVALID" || this.prevtoken == ";") {
+	case "#"		:	if (this.stream.isFollowingWhiteSpace()) {
 							var isdoxy = this.stream.peek() == 33;
 							if (isdoxy) {
 								this.tokentext += "!";
@@ -249,6 +92,8 @@ EdenUI.Highlight.prototype.START = function() {
 							this.classes.push("hidden-comment");
 							this.mode = "COMMENT";
 							this.incomment = true;
+
+							if (this.stream.isBOL()) this.outerline = "eden-line comment";
 
 							if (this.prevtoken == "INVALID") this.lineelement.style.marginLeft = "0";
 							//else {
@@ -277,11 +122,24 @@ EdenUI.Highlight.prototype.START = function() {
 	case "NUMBER"	:	this.classes.push("number"); break;
 	case "STRING"	:	this.classes.push("string"); break;
 	case "BOOLEAN"	:	this.classes.push("constant"); break;
-	case "CHARACTER":	this.classes.push("string"); break;
+	case "NATIVE"	:	this.classes.push("block-comment"); break;
+	case "'":			this.classes.push("string");
+						this.pushMode();
+						this.mode = "TEMPLATESTRING";
+						break;
+	case ":"		:	this.classes.push("operator");
+						// FIXME: Doesn't work for object literals
+						if (this.prevtoken == "is" || this.prevtoken == "OBSERVABLE" || this.prevtoken == ")") {
+							this.pushMode();
+							this.mode = "ATTRIBUTES";
+						}
+						break;
 	case "import"	:
 	case "do"		:	this.classes.push("keyword");
 						this.pushMode();
 						this.mode = "SELECTOR";
+						this.pushMode();
+						this.mode = "ATTRIBUTES";
 						break;
 	case "${{"		:	this.classes.push("javascript");
 						this.mode = "JAVASCRIPT";
@@ -311,7 +169,7 @@ EdenUI.Highlight.prototype.START = function() {
 						this.classes.push("storage");
 						this.mode = "HEREDOC";
 						break;
-	case "%"		:	if (this.stream.isBEOL()) {
+	case "%"		:	if (this.stream.isBOL()) {
 							var p = this.stream.peek();
 							if (p != 10 && p != 32) {
 								var t = this.stream.readToken();
@@ -371,7 +229,7 @@ EdenUI.Highlight.prototype.START = function() {
 								//this.startmode = "CUSTOMBLOCK";
 							}
 						} break;
-	case "OBSERVABLE":	if (edenFunctions[this.stream.data.value]) {
+	case "OBSERVABLE":	if (Eden.edenFunctions[this.stream.data.value]) {
 							this.classes.push("function");
 						} else if (EdenUI.Highlight.isType(this.stream.data.value)) {
 							this.classes.push("type");
@@ -390,17 +248,25 @@ EdenUI.Highlight.prototype.START = function() {
 						break;
 
 	case "`"		:	this.pushMode();
-						this.mode = "BACKTICK";
-						this.pushLine();
-						var nline = document.createElement("span");
-						//nline.className = this.styles["backticks"];
-						this.applyClasses(nline, ["backticks"]);
-						this.lineelement.appendChild(nline);
-						this.lineelement = nline;
+						this.mode = "STARTBACKTICK";
+						this.classes.push("builtin");
 						break;
 
+	case "${"		:	this.pushMode();
+						this.mode = "STARTSUBEXPRESSION";
+						this.classes.push("builtin");
+						break;
+
+	/*case "{"		:	if (this.prevtoken == "OBSERVABLE" && this.prevprevtoken != "action" && this.prevprevtoken != "func" && this.prevprevtoken != "proc" && this.prevprevtoken != "]") {
+							this.pushMode();
+							this.mode = "STARTBACKTICK";
+							this.classes.push("builtin");
+						} else {
+							this.classes.push("operator");
+						} break;*/
 	default			:	if (this.type == "keyword") {
-							this.classes.push("keyword");
+							if (edenBuiltin[this.token]) this.classes.push("builtin");
+							else this.classes.push("keyword");
 						} else {
 							// Bind negative to number if no whitespace.
 							if (this.token == "-" && this.stream.isNumeric(this.stream.peek())) {
@@ -425,6 +291,8 @@ EdenUI.Highlight.prototype.START = function() {
 }
 
 EdenUI.Highlight.prototype.START_MINIMAL = function() {
+	if (this.outerline.length == 9) this.outerline = "eden-line script";
+
 	switch(this.token) {
 	/*case "##"		:
 	case "#"		:	if (this.prevtoken == "INVALID" || this.prevtoken == ";") {
@@ -496,23 +364,88 @@ EdenUI.Highlight.prototype.START_MINIMAL = function() {
 	}
 }
 
-EdenUI.Highlight.prototype.BACKTICK = function() {
-	if (this.token == "`") this.mode = "ENDBACKTICK";
-	else if (this.token == "}") {
+EdenUI.Highlight.prototype.TEMPLATESTRING = function() {
+	if (this.outerline.length == 9) this.outerline = "eden-line script";
+	if (this.token == "'" && this.prevtoken != "\\") {
+		this.classes.push("string");
 		this.popMode();
-		this.classes.push("operator");
+	} else if (this.token == "{" && this.prevtoken != "\\") {
+		this.pushMode();
+		this.classes.push("builtin");
+		this.mode = "TEMPLATESUBEXPR";
+	} else {
+		this.classes.push("string");
+	}
+}
+
+EdenUI.Highlight.prototype.TEMPLATESUBEXPR = function() {
+	if (this.token == "}" && this.prevtoken != "\\") {
+		this.classes.push("builtin");
+		this.popMode();
 	} else {
 		this.START();
 	}
 }
 
-EdenUI.Highlight.prototype.ENDBACKTICK = function() {
-	this.popLine();
-	this.popMode();
+EdenUI.Highlight.prototype.STARTBACKTICK = function() {
+	this.pushLine();
+	var nline = document.createElement("span");
+	this.applyClasses(nline, ["backticks"]);
+	this.lineelement.appendChild(nline);
+	this.lineelement = nline;
+	this.mode = "BACKTICK";
+	if (this.cs3) this.classes.push("string");
+	//this.START();
+}
+
+EdenUI.Highlight.prototype.BACKTICK = function() {
+	if (this.token == "`") {
+		this.classes.push("builtin");
+		this.popMode();
+		this.popLine();
+	} else if (this.token === "{") {
+		this.classes.push("builtin");
+		this.pushMode();
+		this.mode = "BTICKEXPR";
+	} else {
+		if (this.cs3) this.classes.push("string");
+	}
+}
+
+EdenUI.Highlight.prototype.BTICKEXPR = function() {
+	if (this.token == "}") {
+		this.classes.push("builtin");
+		this.popMode();
+		//this.popLine();
+	} else {
+		this.START();
+	}
+}
+
+EdenUI.Highlight.prototype.STARTSUBEXPRESSION = function() {
+	this.pushLine();
+	var nline = document.createElement("span");
+	//nline.className = this.styles["backticks"];
+	this.applyClasses(nline, ["subexpr"]);
+	this.lineelement.appendChild(nline);
+	this.lineelement = nline;
+	this.mode = "SUBEXPRESSION";
 	this.START();
 }
 
-EdenUI.Highlight.prototype.SELECTOR = function() {
+EdenUI.Highlight.prototype.SUBEXPRESSION = function() {
+	//if (this.token == "}") this.mode = "ENDBACKTICK";
+	if (this.token == "}") {
+		this.classes.push("builtin");
+		this.popMode();
+		this.popLine();
+		//this.START();
+	} else {
+		this.START();
+	}
+}
+
+EdenUI.Highlight.prototype.ATTRIBUTES = function() {
 	if (this.token == "[") {
 		this.pushLine();
 		var nline = document.createElement("span");
@@ -520,9 +453,46 @@ EdenUI.Highlight.prototype.SELECTOR = function() {
 		this.applyClasses(nline, ["pathblock"]);
 		this.lineelement.appendChild(nline);
 		this.lineelement = nline;
-		this.mode = "DO_ATTRIBS";
-		this.DO_ATTRIBS();
+		this.mode = "ATTRIBS";
+		this.ATTRIBS();
+	} else if (this.token == "OBSERVABLE") {
+		this.popMode();
+		if (edenAttributes[this.tokentext] || Eden.Selectors.resultTypes[this.tokentext]) {
+			this.classes.push("selector3");
+		} else {
+			this.classes.push("error");
+		}
 	} else {
+		this.popMode();
+		this[this.mode]();
+	}
+}
+
+EdenUI.Highlight.prototype.ATTRIBS = function() {
+	if (this.token == "OBSERVABLE" && (edenAttributes[this.tokentext] || Eden.Selectors.resultTypes[this.tokentext])) {
+		this.classes.push("selector3");
+	} else if (this.token == "]") {
+		this.classes.push("selector");
+		this.popMode();
+		this.popLine();
+	} else if (this.token == "[") {
+		this.classes.push("selector");
+	} else {
+		this.classes.push("error");
+	}
+}
+
+EdenUI.Highlight.prototype.SELECTOR = function() {
+	/*if (this.token == ":") {
+		this.pushLine();
+		var nline = document.createElement("span");
+		//nline.className = this.styles["pathblock"];
+		this.applyClasses(nline, ["pathblock"]);
+		this.lineelement.appendChild(nline);
+		this.lineelement = nline;
+		this.mode = "ATTRIBUTES";
+		//this.DO_ATTRIBS();
+	} else {*/ //if (this.token == "(") {
 		this.pushLine();
 		var nline = document.createElement("span");
 		//nline.className = this.styles["pathblock"];
@@ -531,11 +501,11 @@ EdenUI.Highlight.prototype.SELECTOR = function() {
 		this.lineelement = nline;
 		this.mode = "SELECTOR2";
 		this.SELECTOR2();
-	}
+	//}
 }
 
 EdenUI.Highlight.prototype.DO_ATTRIBS = function() {
-	if (this.token == "OBSERVABLE" && Eden.AST.Do.attributes[this.tokentext]) {
+	if (this.token == "OBSERVABLE" && edenAttributes[this.tokentext]) {
 		this.classes.push("selector3");
 	} else if (this.token == "]") {
 		this.classes.push("selector");
@@ -558,9 +528,9 @@ EdenUI.Highlight.prototype.SELECTOR2 = function() {
 		this.classes.push("operator");
 		this.pushMode();
 		this.mode = "SUB_EXPRESSION";
-	} else if (this.token == "[") {
-		this.classes.push("selector");
-		this.mode = "SELECTOR_TYPES";
+	//} else if (this.token == "[") {
+	//	this.classes.push("selector");
+	//	this.mode = "SELECTOR_TYPES";
 	} else if (this.token == ";" || this.token == "=" || this.token == "+=" || this.token == "//=") {
 		this.popLine();
 		this.classes.push("operator");
@@ -575,8 +545,24 @@ EdenUI.Highlight.prototype.SELECTOR2 = function() {
 		this.classes.push("selector4");
 	} else if (this.token == "OBSERVABLE" && (this.prevtoken == "." || this.prevtoken == ":") && (Eden.Selectors.PropertyNode.attributes[this.tokentext] || Eden.Selectors.PropertyNode.pseudo[this.tokentext])) {
 		this.classes.push("selector2");
+		this.pushMode();
+		this.mode = "SELECTOR3";
+	} else if (this.token == ")") {
+		this.popMode();
+		this.popLine();
+		this.classes.push("selector");
 	} else {
 		this.classes.push("selector");
+	}
+}
+
+EdenUI.Highlight.prototype.SELECTOR3 = function() {
+	if (this.token == "(") {
+		this.pushLine();
+		this.mode = "SELECTOR2";
+	} else {
+		this.popMode();
+		this[this.mode]();
 	}
 }
 
@@ -600,6 +586,7 @@ EdenUI.Highlight.prototype.JAVASCRIPT = function() {
 }
 
 EdenUI.Highlight.prototype.HEREDOC = function() {
+	if (this.outerline.length == 9) this.outerline = "eden-line script";
 	if (this.prevtoken == "INVALID" && this.tokentext == this.heredocend) {
 		this.classes.push("storage");
 		this.mode = this.startmode;
@@ -609,6 +596,7 @@ EdenUI.Highlight.prototype.HEREDOC = function() {
 }
 
 EdenUI.Highlight.prototype.CUSTOMBLOCK = function() {
+	if (this.outerline.length == 9) this.outerline = "eden-line script";
 	if (this.token == "%") {
 		var p = this.stream.peek();
 		if (p != 10 && p != 32) {
@@ -618,7 +606,7 @@ EdenUI.Highlight.prototype.CUSTOMBLOCK = function() {
 			if (this.tokentext == "%"+this.heredocend) {
 				this.classes.push("storage");
 				//this.startmode = "START";
-				this.outerline = "eden-line";
+				//this.outerline = "eden-line";
 				this.mode = this.startmode;
 				return;
 			}

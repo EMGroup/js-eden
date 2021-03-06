@@ -1,4 +1,5 @@
-/config.js
+**/config.js
 /pmdb.sqlite3
 /csdb.sqlite3
-/construals.sqlite3
+/*.sqlite3
+/lib

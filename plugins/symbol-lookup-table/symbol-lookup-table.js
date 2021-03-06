@@ -111,7 +111,7 @@ EdenUI.plugins.SymbolLookUpTable = function (edenUI, success) {
 			}
 			updates = updates + subscribers;
 
-			var backticks = referencedObservablesList(symbol.dynamicDependencyTable, matchingNames, viewName);
+			var backticks = referencedObservablesList(Object.keys(symbol.dynamicDependencies), matchingNames, viewName);
 
 			//var lastModifiedBy = symbol.last_modified_by ? symbol.last_modified_by : 'Not yet defined';
 			//lastModifiedBy = referencedObservable(lastModifiedBy, matchingNames, viewName);

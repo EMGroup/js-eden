@@ -19,14 +19,14 @@ Eden.AST.prototype.pTERM_A = function() {
 	var left = this.pTERM_P();
 
 	// For all tokens of this precedence do...
-	while (this.token == "<" || this.token == "<=" || this.token == ">"
-			|| this.token == ">=" || this.token == "==" || this.token == "!=") {
+	while (this.token === "<" || this.token === "<=" || this.token === ">"
+			|| this.token === ">=" || this.token === "==" || this.token === "!=") {
 		var binop = new Eden.AST.BinaryOp(this.token);
 		this.next();
 		binop.left(left);
 		binop.setRight(this.pTERM_P());
-		binop.typevalue = Eden.AST.TYPE_BOOLEAN;
 		left = binop;
+		binop.typevalue = Eden.AST.TYPE_BOOLEAN;
 	}
 
 	return left;
@@ -40,18 +40,31 @@ Eden.AST.prototype.pTERM_A = function() {
 Eden.AST.prototype.pTERM_P = function() {
 	var left = this.pTERM_PP();
 
-	while (this.token == "+" || this.token == "-" || this.token == "//") {
+	while (this.token === "+" || this.token === "-" || this.token === "//") {
 		var binop = new Eden.AST.BinaryOp(this.token);
 		this.next();
 		binop.left(left);
 		binop.setRight(this.pTERM_PP());
-
-		// Update type
-		if (binop.l.typevalue == binop.r.typevalue) binop.typevalue = binop.l.typevalue;
-		else if (binop.l.typevalue == Eden.AST.TYPE_UNKNOWN) binop.typevalue = binop.r.typevalue;
-		else binop.typevalue = binop.l.typevalue;
-		
 		left = binop;
+
+		if (binop.op === "//") {
+			if (binop.l.typevalue !== 0 && binop.r.typevalue !== 0 && binop.l.typevalue !== binop.r.typevalue) {
+				this.typeWarning(binop);
+			}
+			if (binop.l.typevalue === Eden.AST.TYPE_NUMBER || binop.r.typevalue === Eden.AST.TYPE_NUMBER) {
+				this.typeWarning(binop, null, Eden.AST.TYPE_NUMBER);
+			}
+			if (binop.l.typevalue === Eden.AST.TYPE_OBJECT || binop.r.typevalue === Eden.AST.TYPE_OBJECT) {
+				this.typeWarning(binop, null, Eden.AST.TYPE_OBJECT);
+			}
+		} else {
+			if (binop.l.typevalue === Eden.AST.TYPE_OBJECT || binop.r.typevalue === Eden.AST.TYPE_OBJECT) {
+				this.typeWarning(binop, null, Eden.AST.TYPE_OBJECT);
+			}
+			if (binop.l.typevalue === Eden.AST.TYPE_LIST || binop.r.typevalue === Eden.AST.TYPE_LIST) {
+				this.typeWarning(binop, null, Eden.AST.TYPE_LIST);
+			}
+		}
 	}
 
 	return left;
@@ -65,14 +78,17 @@ Eden.AST.prototype.pTERM_P = function() {
 Eden.AST.prototype.pTERM_PP = function() {
 	var left = this.pTERM_PPP();
 
-	while (this.token == "*" || this.token == "/" || this.token == "%"
-			|| this.token == "^") {
+	while (this.token === "*" || this.token === "/" || this.token === "%"
+			|| this.token === "^") {
 		var binop = new Eden.AST.BinaryOp(this.token);
 		this.next();
 		binop.left(left);
 		binop.setRight(this.pTERM_PPP());
-		binop.typevalue = Eden.AST.TYPE_NUMBER;  // Probably true!
 		left = binop;
+
+		if ((binop.l.typevalue !== 0 && binop.l.typevalue !== Eden.AST.TYPE_NUMBER) || (binop.r.typevalue !== 0 && binop.r.typevalue !== Eden.AST.TYPE_NUMBER)) {
+			this.typeWarning(binop, Eden.AST.TYPE_NUMBER);
+		}
 	}
 
 	return left;
@@ -87,8 +103,14 @@ Eden.AST.prototype.pTERM_PPP = function() {
 	var left = this.pFACTOR(); //this.pTERM_PPPP();
 	var right = this.pEXPRESSION_PPPPP();
 
+	// This would be a postfix length operator, just assume that
 	if (right) {
 		right.left(left);
+
+		if (left.typevalue !== Eden.AST.TYPE_UNKNOWN && left.typevalue !== Eden.AST.TYPE_LIST && left.typevalue !== Eden.AST.TYPE_STRING) {
+			right.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.BADEXPRTYPE));
+		}
+
 		return right;
 	}
 	return left;

@@ -211,7 +211,7 @@ EdenUI.Markdown.html = function(str, single, play) {
 		EdenUI.Markdown.styles["hidden-comment"] = "eden-comment-hidden";
 		EdenUI.Markdown.styles["script-line"] = "markdown-comment-line2";
 
-		hlighter.ast = {stream: new EdenStream(str)};
+		hlighter.ast = {stream: new Eden.EdenStream(str)};
 		hlighter.highlight(hlighter.ast,-1,-1,undefined);
 
 		EdenUI.Markdown.styles["hidden-comment"] = "markdown-comment-hidden";
