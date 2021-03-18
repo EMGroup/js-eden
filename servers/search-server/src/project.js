@@ -34,7 +34,7 @@ async function updateProject(req, transaction) {
 	if (title) updates.title = title;
 	if (minimisedTitle) updates.minimisedTitle = minimisedTitle;
 	if (image) updates.image = image;
-	if (metadata) updates.projectMetadata = metadata;
+	if (metadata) updates.projectMetaData = metadata;
 
 	if (Object.keys(updates).length > 0) {
 		await db.models.projects.update(updates, {where:{projectID}, transaction});
@@ -113,6 +113,7 @@ async function addProjectVersion(req, res, projectID, transaction){
 
 	if(req.body.from){
 		const version = await getFullVersion(db, req.body.from, projectID, []);
+		if (!version) throw new Error('Project version not found');
 		const baseSrc = version.source;
 		const dmp = new window.diff_match_patch();
 		let d = dmp.diff_main(baseSrc,req.body.source,false);
@@ -236,6 +237,10 @@ async function getProjectMetaData(projectID, userID){
 		}
 	);
 
+	if (row?.image) {
+		row.image = row.image.toString();
+	}
+
 	return row;
 }
 
@@ -251,6 +256,7 @@ async function increaseProjectDownloadStat(projectID, transaction){
 
 async function sendDiff(fromID,toSource,projectID,toID,metaRow){
 	const ret = await getFullVersion(db, fromID,projectID,[]);
+	if (!ret) throw new Error('Project version not found');
 
 	const source = ret.source;
 	const dmp = new window.diff_match_patch();
@@ -451,7 +457,7 @@ export default function(app) {
 				saveID: version.saveID,
 				projectID: version.projectID,
 				date: version.date,
-				title: version.project.title,
+				title: version.project?.title || '[Missing Title]',
 				readPassword: version.readPassword,
 			}));
 			res.json(mapped);
@@ -515,6 +521,7 @@ export default function(app) {
 					const [saveID] = version;
 					const metaRow = await getProjectMetaData(projectID, userID);
 					const ret = await getFullVersion(db, saveID,projectID, metaRow);
+					if (!ret) throw new Error('Project version not found');
 					const source = rectify ? rectifySource(ret.source) : ret.source;
 					const date = ret.date;
 
@@ -530,6 +537,7 @@ export default function(app) {
 					if (!version) return;
 					const metaRow = await getProjectMetaData(projectID, userID);
 					const ret = await getFullVersion(db, saveID,projectID, metaRow);
+					if (!ret) throw new Error('Project version not found');
 					const source = rectify ? rectifySource(ret.source) : ret.source;
 					const date = ret.date;
 
@@ -664,7 +672,7 @@ export default function(app) {
 				projectMetaData: project.projectMetaData,
 				tags: project.tags || '',
 				parentProject: project.parentProject,
-				image: project.image,
+				image: project?.image ? project.image.toString() : null,
 				owner: project.owner,
 				ownername: project.user.name,
 				publicVersion: project.publicVersion,

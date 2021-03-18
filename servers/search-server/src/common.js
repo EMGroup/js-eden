@@ -19,6 +19,8 @@ export async function getFullVersion(db, version, projectID, meta){
 		attributes: ['parentDiff', 'forwardPatch', 'fullsource', 'date'],
 	});
 
+	if (!row) return null;
+
 	if(row.fullsource == null){
 		const ret = await getFullVersion(db, row.parentDiff, projectID, meta);
 		const parentSource = ret.source;

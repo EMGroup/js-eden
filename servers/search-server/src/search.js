@@ -30,6 +30,7 @@ async function initASTDB(){
 		rows[i].stamp = new Date(rows[i].date).getTime();
 		// console.log("Parsing row " + i, rows[i]);
 		const data = await getFullVersion(db, rows[i].saveID, rows[i].projectID, rows[i]);
+		if (!data) continue;
 		const origin = {
 			id: data.meta.projectID,
 			saveID: data.meta.saveID,
@@ -88,6 +89,7 @@ export async function reindexProject(projectID){
 
 	for	(const row of rows){
 		const data = await getFullVersion(db, row.saveID, row.projectID, row);
+		if (!data) continue;
 		const origin = {
 			id: data.meta.projectID,
 			saveID: data.meta.saveID,
