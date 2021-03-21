@@ -56,6 +56,23 @@ Eden.AST.prototype.pFUNCTION = function() {
 			}
 		}
 
+		if (this.token === '<~') {
+			this.next();
+			const olist = this.pOLIST();
+			const attribs = {eager: true};
+
+			for (const o of olist) {
+				attribs['depends(' + o + ')'] = true;
+			}
+			
+			if (!func.setAttributes(attribs)) {
+				func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.FUNCNAME));
+				func.left(lval);
+				this.parent = parent;
+				return func;
+			}
+		}
+
 		func.left(lval);
 
 		//if (type == "proc") console.warn("Parsed proc", lval.name);
@@ -89,7 +106,7 @@ Eden.AST.prototype.pFUNCTION = function() {
 	if (this.token != "}") {
 		func.errors.push(new Eden.SyntaxError(this, Eden.SyntaxError.ACTIONCLOSE));
 		this.parent = parent;
-		return expr;
+		return func;
 	}
 	this.next();
 
