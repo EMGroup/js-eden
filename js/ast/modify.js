@@ -27,7 +27,7 @@ Eden.AST.Modify.prototype.left = function(lvalue) {
 	if (!this.warning && lvalue.warning) this.warning = lvalue.warning;
 };
 
-Eden.AST.Modify.prototype.generate = function(ctx, scope) {
+Eden.AST.Modify.prototype.generate = function(ctx, scope, options) {
 	var lval = this.lvalue.generate(ctx,scope);
 	var result = lval;
 

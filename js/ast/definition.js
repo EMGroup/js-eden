@@ -180,7 +180,7 @@ Eden.AST.Definition.prototype.execute = function(ctx, base, scope, agent) {
 			//}
 		} catch(e) {
 			var err;
-			console.log(rhs);
+			console.log(rhs, e);
 			if (e.message == Eden.RuntimeError.EXTENDSTATIC) {
 				err = new Eden.RuntimeError(scope.context, Eden.RuntimeError.EXTENDSTATIC, this, "Can only define list items if the list is defined");
 			} else {
