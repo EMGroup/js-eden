@@ -173,6 +173,23 @@ describe("Execution of Observable Definitions", () => {
 		expect(eden.get("b")).toBe(6);
 	});
 
+	test("define as a constant backtick", async () => {
+		let eden = new Eden();
+		await eden.exec('a = 5; b is `{"a"}`;');
+		expect(eden.get("b")).toBe(5);
+		expect(eden.getAttribute("b","depends")).toEqual(["a"]);
+		await eden.exec("a = 6;");
+		expect(eden.get("b")).toBe(6);
+	});
+
+	test("define as a non-constant backtick", async () => {
+		let eden = new Eden();
+		await eden.exec('a = 5; c = "a"; b is `{c}`;');
+		expect(eden.get("b")).toBe(5);
+		await eden.exec("a = 6;");
+		expect(eden.get("b")).toBe(6);
+	});
+
 	test("define as a function call", async () => {
 		let eden = new Eden();
 		await eden.exec("func tfunc { para a; return a*a; } b is tfunc(5);");

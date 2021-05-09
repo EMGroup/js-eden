@@ -185,7 +185,6 @@ Eden.AST.Primary.prototype.generate = function(ctx, scope, options) {
 
 		if (!ctx || ctx.isconstant || ctx.type != "definition") {
 			if (ctx && ctx.isconstant && ctx.type == "definition") {
-				//console.log("Constant bticks: ", btickgen, this.backtick);
 				try {
 					btickgen = (new Function("return "+btickgen+";"))();
 				} catch (e) {

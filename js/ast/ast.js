@@ -159,6 +159,7 @@ Eden.AST.transpileExpressionNode = function(node, scope, state) {
 	}
 
 	var ctx = {
+		type: state.statement ? state.statement.type : null,
 		dependencies: (state)?state.dependencies:{},
 		vars: Object.create(null),
 		isconstant: true,
