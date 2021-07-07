@@ -56,7 +56,7 @@ EdenUI.ScriptArea = function() {
 					var astr = metric.qelements[i].getAttribute("data-attribs");
 
 					let f = function(ele) {
-					Eden.Selectors.query(qstr,(astr !== null && astr.length > 0) ? astr : "value", {minimum: 1}, (res) => {
+					Eden.Selectors.query(qstr,(astr !== null && astr.length > 0) ? astr : "value", {minimum: 0, options: {local: true}}, (res) => {
 						if (res.length == 1) res = res[0];
 						else if (res.length > 1) res = res.join(", ");
 						else res = "";
