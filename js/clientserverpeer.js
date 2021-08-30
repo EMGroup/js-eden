@@ -5,16 +5,20 @@ Eden.CSPeer = function(master,id){
     this.room = master;
     this.masterMode = false;
     var me = this;
-    if(id){
-        this.masterMode = true;
-        this.room = id;
-    }
     this.config = {
 		control: true,
 		share: false,
 		observe: false,
 		logging: false
 	};
+	if(id){
+		this.masterMode = true;
+		this.room = id;
+		this.config.share = true;
+	}else{
+		this.config.observe = true;
+		this.config.share = false;
+	}
     this.callbacks = {};
 	this.callbackid = 0;
 	this.capturepatch = false;
@@ -37,17 +41,16 @@ Eden.CSPeer = function(master,id){
     this.socket.on("room-entry",function(newEntryID){
         console.log("Room entry");
         var script = eden.project.generate();
-        me.socket.emit('restore',newEntryID,JSON.stringify({script: script, pid: eden.project.id,
+        me.socket.emit('restore',newEntryID,JSON.stringify({cmd: "restore",script: script, pid: eden.project.id,
         vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
         name: eden.project.name, title: eden.project.title}));
     });
 
-    this.socket.on("restore",function(message){
-        console.log("Restoring " + message);
-        me.processRestore(JSON.parse(message));
-    });
+	this.socket.on("data", function(obj){
+		me.processData(me.socket,obj);
+	});
 
-    function processAssign(obj){
+    this.processAssign = function(obj){
         var sym = eden.root.lookup(obj.symbol);
         var express = Eden.AST.parseExpression(obj.value);
         sym.assign(express.execute({}, EdenSymbol.netAgent,eden.root.scope), eden.root.scope, EdenSymbol.netAgent);
@@ -363,29 +366,31 @@ Eden.CSPeer.emit = emit;
 Eden.CSPeer.listenTo = listenTo;
 
 Eden.CSPeer.prototype.processData = function(socket, data) {
-	// var obj = JSON.parse(data);
-	// obj.id = socket.id;
+	console.log(data);
+	var obj = JSON.parse(data);
+	console.log(obj);
+	obj.id = socket.id;
 
-	// switch(obj.cmd) {
-	// case "assign"		: if (pconn.observe) processAssign(obj); break;
-	// case "define"		: if (pconn.observe) processDefine(obj); break;
-	// case "do"			: if (pconn.observe) processDo(obj); break;
-	// case "listassign"	: if (pconn.observe) processListAssign(obj); break;
-	// case "restore"		: eden.peer.processRestore(obj); break;
-	// case "execstatus"	: if (pconn.observe) processExecStatus(obj); break;
-	// case "register"		: processRegister(obj); break;
-	// case "status"		: Eden.Peer.emit("status", [obj.status, obj.code]); break;
-	// case "getsnapshot"	: processGetSnapshot(obj); break;
-	// case "callback"		: processCallback(obj); break;
-	// case "reqshare"		: processReqShare(obj); break;
-	// case "reqobserve"	: processReqObserve(obj); break;
-	// case "patch"		: processPatch(obj); break;
-	// case "when"			: processWhen(obj); break;
-	// case "require"		: processRequire(obj); break;
-	// case "call"			: processCall(obj); break;
-	// //case "ownership"	: processOwnership(obj); break;
-	// //case "doxy"			: processDoxy(obj); break;
-	// }
+	switch(obj.cmd) {
+	case "assign"		: if (this.config.observe) eden.peer.processAssign(obj); break;
+	case "define"		: if (this.config.observe) eden.peer.processDefine(obj); break;
+	case "do"			: if (this.config.observe) eden.peer.processDo(obj); break;
+	case "restore"		: if (this.config.observe) eden.peer.processRestore(obj); break;
+	case "execstatus"	: if (this.config.observe) eden.peer.processExecStatus(obj); break;
+	case "listassign"	: if (this.config.observe) eden.peer.processListAssign(obj); break;
+	case "register"		: processRegister(obj); break;
+	case "status"		: Eden.Peer.emit("status", [obj.status, obj.code]); break;
+	case "getsnapshot"	: processGetSnapshot(obj); break;
+	case "callback"		: processCallback(obj); break;
+	case "reqshare"		: processReqShare(obj); break;
+	case "reqobserve"	: processReqObserve(obj); break;
+	case "patch"		: processPatch(obj); break;
+	case "when"			: processWhen(obj); break;
+	case "require"		: processRequire(obj); break;
+	case "call"			: processCall(obj); break;
+	//case "ownership"	: processOwnership(obj); break;
+	//case "doxy"			: processDoxy(obj); break;
+	}
 
 	// if (me.config.logging) {
 	// 	console.log(obj);
@@ -394,12 +399,16 @@ Eden.CSPeer.prototype.processData = function(socket, data) {
 
 Eden.CSPeer.prototype.broadcast = function(msg) {
 	//console.log(msg); return;
-	// if (this.loading) return;
-	// msg = JSON.stringify(msg);
+	if (this.loading) return;
+	msg = JSON.stringify(msg);
 
-	// if (this.record) {
-	// 	this.log.push('{"timestamp": ' + (Date.now() - this.startrecordtime) + ', "message": "'+msg+'"}');
-	// }
+	if (this.record) {
+	 	this.log.push('{"timestamp": ' + (Date.now() - this.startrecordtime) + ', "message": "'+msg+'"}');
+	}
+
+	if(this.config.share){
+		this.socket.emit("data",msg);
+	}
 
 	// for (var x in this.connections) {
 	// 	var pconn = this.connections[x];
@@ -411,6 +420,17 @@ Eden.CSPeer.prototype.broadcast = function(msg) {
 };
 
 Eden.CSPeer.prototype.broadcastExcept = function(id, msg) {
+	me.broadcast(msg);
+
+
+
+
+
+
+
+
+
+
 	//console.log(msg); return;
 	// if (this.loading || this.id === undefined) return;
 	// msg = JSON.stringify(msg);
@@ -445,18 +465,20 @@ Eden.CSPeer.prototype.authoriseWhen = function(when) {
 };
 
 Eden.CSPeer.prototype.assign = function(agent,sym,value){
-    // if(agent && !agent.loading && !agent.local){
-    //     this.broadcast({cmd: "assign", symbol: sym, value : Eden.edenCodeForValue(value)});
-    // }
+    if(agent && !agent.loading && !agent.local){
+        this.broadcast({cmd: "assign", symbol: sym, value : Eden.edenCodeForValue(value)});
+    }
 };
 
 
 Eden.CSPeer.prototype.define = function(agent, sym, source,deps){
-
+	if (agent && !agent.loading && !agent.local) {
+		this.broadcast({cmd: "define", symbol: sym, source: source, dependencies: deps});
+	}
 };
 
 Eden.CSPeer.prototype.doRequire = function(str) {
-	// this.broadcast({cmd: "require", name: str});
+	this.broadcast({cmd: "require", name: str});
 };
 
 Eden.CSPeer.prototype.doImport = function(agent, selector) {
@@ -464,27 +486,27 @@ Eden.CSPeer.prototype.doImport = function(agent, selector) {
 };
 
 Eden.CSPeer.prototype.callProcedure = function(name, args) {
-	// this.broadcast({cmd: "call", name: name, args: args});
+	this.broadcast({cmd: "call", name: name, args: args});
 };
 
 Eden.CSPeer.prototype.activateWhen = function(whenid) {
-	// this.broadcast({cmd: "when", status: true, wid: whenid});
+	this.broadcast({cmd: "when", status: true, wid: whenid});
 };
 
 Eden.CSPeer.prototype.deactivateWhen = function(whenid) {
-	// this.broadcast({cmd: "when", status: false, wid: whenid});
+	this.broadcast({cmd: "when", status: false, wid: whenid});
 };
 
 Eden.CSPeer.prototype.listAssign = function(agent, sym, value, components) {
-	// if (agent && !agent.loading && !agent.local) {
-	// 	this.broadcast({cmd: "listassign", symbol: sym, value : Eden.edenCodeForValue(value), components: components});
-	// }
+	if (agent && !agent.loading && !agent.local) {
+		this.broadcast({cmd: "listassign", symbol: sym, value : Eden.edenCodeForValue(value), components: components});
+	}
 };
 
 Eden.CSPeer.prototype.addCallback = function(func) {
-	// var id = this.callbackid++;
-	// this.callbacks[id] = func;
-	// return id;
+	var id = this.callbackid++;
+	this.callbacks[id] = func;
+	return id;
 };
 
 Eden.CSPeer.prototype.getSnapshot = function(id, cb) {
@@ -581,6 +603,6 @@ Eden.CSPeer.prototype.processRestore = function(obj){
 	eden.project.authorid = obj.owner;
 	eden.project.start(function() {
 		Eden.Project.emit("load", [eden.project]);
-		me.loading = false;
+		this.loading = false;
 	});
 };

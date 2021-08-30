@@ -47,7 +47,7 @@ io.on('connection',(socket) => {
 
 	socket.on('restore',function(targSocket, targMessage){
 		console.log("Restoring");
-		socket.to(targSocket).emit('restore',targMessage);
+		socket.to(targSocket).emit('data',targMessage);
 	});
 });
 
