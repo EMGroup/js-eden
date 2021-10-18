@@ -20,7 +20,7 @@
     "express-session": "~1.15.6",
     "method-override": "~3.0.0",
     "morgan": "^1.10.0",
-    "nodemailer": "^3.1.4",
+    "nodemailer": "^6.4.16",
     "passport": "~0.1.17",
     "passport-facebook": "~1.0.2",
     "passport-google-oauth": "~0.1.5",
