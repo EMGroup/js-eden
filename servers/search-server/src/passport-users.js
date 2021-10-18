@@ -1,12 +1,12 @@
 import config from './config.js';
 
-import passgoogle from 'passport-google-oauth';
+import passgoogle from 'passport-google-oauth2';
 import TwitterStrategy from 'passport-twitter';
 import FacebookStrategy from 'passport-facebook';
 import passlocal from 'passport-local';
 
 const LocalStrategy = passlocal.Strategy;
-const GoogleStrategy = passgoogle.OAuth2Strategy;
+const GoogleStrategy = passgoogle.Strategy;
 
 import bcrypt from 'bcrypt-nodejs';
 
