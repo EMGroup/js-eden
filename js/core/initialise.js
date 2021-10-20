@@ -289,7 +289,7 @@ function Construit(options,callback) {
 
 			// Set up P2P networking
 			if (myid != "" || master != "") {
-				eden.peer = new Eden.CSPeer((master != "") ? master : undefined, (myid != "") ? myid : undefined);
+				eden.peer = new Eden.Peer((master != "") ? master : undefined, (myid != "") ? myid : undefined);
 				if (roles) {
 					roles = roles.split(",");
 					for (var i=0; i<roles.length; i++) {

@@ -18,15 +18,15 @@ EdenUI.Notifications = function(element, jewel) {
 
 	////////////////////////////////////////////////////////////////////////////
 
-	Eden.CSPeer.listenTo("user", undefined, function(id,username) {
+	Eden.Peer.listenTo("user", undefined, function(id,username) {
 		me.notification("net", $('<div class="notification-content">User \'<a href="javascript:eden.peer.showConnection(\''+id+'\');">'+username+'</a>\' connected to you.<br/><a href="javascript: eden.peer.requestShare(\''+id+'\');">Watch</a> <a href="javascript: eden.peer.requestObserve(\''+id+'\');">Broadcast</a> <a href="javascript: eden.peer.requestCollaborate(\''+id+'\');">Collaborate</a></div>'));
 	});
 
-	Eden.CSPeer.listenTo("share", undefined, function(id,username) {
+	Eden.Peer.listenTo("share", undefined, function(id,username) {
 		me.notification("net", $('<div class="notification-content">Your model is being shared...</div>'));
 	});
 
-	Eden.CSPeer.listenTo("disconnect", undefined, function(id,username) {
+	Eden.Peer.listenTo("disconnect", undefined, function(id,username) {
 		if (username) {
 			me.notification("net", $('<div class="notification-content">User \''+username+'\' disconnected.</div>'));
 		} else {
@@ -34,7 +34,7 @@ EdenUI.Notifications = function(element, jewel) {
 		}
 	});
 
-	Eden.CSPeer.listenTo("error", undefined, function(err) {
+	Eden.Peer.listenTo("error", undefined, function(err) {
 		me.notification("error", $('<div class="notification-content">P2P: '+err+'</div>'));
 	});
 

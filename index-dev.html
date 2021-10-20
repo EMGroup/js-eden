@@ -84,6 +84,7 @@ See LICENSE.txt
 <script src="js/lib/json2.js"></script>
 <script src="js/lib/diff_match_patch.js"></script>
 <script src="js/lib/showdown.min.js"></script>
+<script src="js/lib/peer.min.js"></script>
 <script src="js/util/misc.js"></script>
 <script src="js/util/diff.js"></script>
 <script src="js/core/runtime.js"></script>
@@ -208,7 +209,7 @@ See LICENSE.txt
 <script src="js/project.js"></script>
 <script src="js/fragment.js"></script>
 <script src="js/util/css.js"></script>
-<script src="js/clientserverpeer.js"></script>
+<script src="js/peer.js"></script>
 <script src="js/query.js"></script>
 <script src="js/generator.js"></script>
 <script src="plugins/input-dialog/scriptarea.js"></script>
@@ -279,7 +280,6 @@ See LICENSE.txt
 <script src="plugins/veden/list.js"></script>
 <script src="plugins/speech-synthesis/speech-synthesis.js"></script>
 <script src="plugins/observable-palette/observable-palette.js"></script>
-<script src="/node_modules/socket.io/client-dist/socket.io.js"></script>
 
 <script type="text/javascript">
 	var projects;
@@ -474,18 +474,18 @@ See LICENSE.txt
 
 
 			// P2P Dialog
-/*			var p2p = $('#p2pconnect');
+			var p2p = $('#p2pconnect');
 			p2p.on("click", "#p2pgo", function(e) {
 				var p2ppeer = document.getElementById("p2ppeer");
 				var p2proles = document.getElementById("p2proles");
 				//document.location = "?master="+p2ppeer.value;
-				eden.peer = new Eden.CSPeer(p2ppeer.value, undefined);
+				eden.peer = new Eden.Peer(p2ppeer.value, undefined);
 			})
 			.on("click", "#p2plisten", function(e) {
 				var p2ppeer = document.getElementById("p2ppeer");
 				p2p.get(0).style.display = "none";
-				eden.peer = new Eden.CSPeer(undefined, p2ppeer.value);
-			});*/
+				eden.peer = new Eden.Peer(undefined, p2ppeer.value);
+			});
 
 
 
@@ -648,13 +648,13 @@ See LICENSE.txt
 				$(".loadmodal").hide();
 			});
 
-			// Eden.CSPeer.listenTo("status", this, function(msg, code) {
-			// 	document.getElementById("p2pconnect").style.display = "none";
-			// 	var ele = document.getElementById("p2pconnected");
-			// 	if (code == 1) {
-			// 		ele.style.display = "block";
-			// 	}
-			// });
+			Eden.Peer.listenTo("status", this, function(msg, code) {
+				document.getElementById("p2pconnect").style.display = "none";
+				var ele = document.getElementById("p2pconnected");
+				if (code == 1) {
+					ele.style.display = "block";
+				}
+			});
 		}
 	});
 </script>
