@@ -58,6 +58,10 @@ Eden.Project.emit = emit;
 Eden.Project.unListen = unListen;
 Eden.Project.listeners = {};
 
+if(Eden.projectPath == undefined){
+	Eden.projectPath = "";
+}
+
 Eden.Project.init = function(eden) {
 	var titleSym = eden.root.lookup("jseden_project_title");
 	titleSym.addJSObserver("project", function(sym, value) {
@@ -83,7 +87,7 @@ Eden.Project.init = function(eden) {
 	//	if (eden.project) eden.project.autosave();
 	//});
 
-	return Eden.Utils.getURL("resources/projects.db.json").then(function(data) {
+	return Eden.Utils.getURL(Eden.projectPath + "resources/projects.db.json").then(function(data) {
 		Eden.Project.local = JSON.parse(data);
 
 		// Also add local storage projects
