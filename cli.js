@@ -1,25 +1,27 @@
 // Eden = {};
+let CLIEden = {};
+CLIEden.EdenSymbol = function(){};
 global.EdenSymbol = function(){};
-EdenSymbol.prototype.value = function(){};
-edenFunctions = {};
+global.EdenSymbol.prototype.value = function(){};
+global.edenFunctions = {};
 
 let config ={};
 // Eden = {};
 // Eden.Language = {};
 config.JSEDENPATH = "./";
-require(config.JSEDENPATH + "js/core/eden.js");
+global.Eden = require(config.JSEDENPATH + "js/core/eden.js").Eden;
 require(config.JSEDENPATH + "js/core/scope.js");
 require(config.JSEDENPATH + "js/core/symbol.js");
 require(config.JSEDENPATH + "js/core/context.js");
 // require(config.JSEDENPATH + "js/core/database.js");
 // require(config.JSEDENPATH + "js/core/plugins.js");
-var lex = require(config.JSEDENPATH + "js/lex.js");
-EdenStream = lex.EdenStream;
-EdenSyntaxData = lex.EdenSyntaxData;
-var lang = require(config.JSEDENPATH + "js/language/lang.js");
+global.lex = require(config.JSEDENPATH + "js/lex.js");
+global.EdenStream = global.lex.EdenStream;
+global.EdenSyntaxData = global.lex.EdenSyntaxData;
+global.lang = require(config.JSEDENPATH + "js/language/lang.js");
 // console.log(lang.Language);
-Language = lang.Language;
-var en = require(config.JSEDENPATH + "js/language/en.js");
+global.Language = global.lang.Language;
+global.en = require(config.JSEDENPATH + "js/language/en.js");
 require(config.JSEDENPATH + "js/index.js");  
 require(config.JSEDENPATH + "js/selectors/selector.js");  
 require(config.JSEDENPATH + "js/selectors/property.js");  
@@ -115,13 +117,11 @@ require(config.JSEDENPATH + "js/grammar/while.js");
 require(config.JSEDENPATH + "js/grammar/query.js");
 require(config.JSEDENPATH + "js/grammar/section.js");
 
-// global.Eden = Eden;
-let eden = new Eden();
+let eden = new global.Eden();
 let readline = require('readline');
 
 var rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout,
     terminal: false
   });
   
