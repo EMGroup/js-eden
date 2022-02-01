@@ -110,36 +110,37 @@ require("./grammar/when.js");
 require("./grammar/while.js"); 
 require("./grammar/query.js");
 require("./grammar/section.js");
-CLIEden.Eden.projectPath = "./js-eden/";
 
-(function(){
-    let eden = new CLIEden.Eden();
-    function startCommandLine(){
-        let readline = require('readline');
+CLIEden.startCommandLine = function(){
+    let readline = require('readline');
+    if(CLIEden.Eden.projectPath === undefined || CLIEden.Eden.projectPath == ""){
+        CLIEden.Eden.projectPath = "./js-eden/";
+    }
+
+    CLIEden.eden = new CLIEden.Eden();
+
+    var rl = readline.createInterface({
+        input: process.stdin,
+        terminal: false
+    });
     
-        var rl = readline.createInterface({
-            input: process.stdin,
-            terminal: false
-        });
-        
-        function getValue(str){
-            console.log(eden.root.lookup(str).value());
-        }
-        async function exec(str){
-            return await eden.exec(str);
-        }
-        function printPrompt(){
-            process.stdout.write("EDEN > ");
+    function getValue(str){
+        console.log(CLIEden.eden.root.lookup(str).value());
+    }
+    async function exec(str){
+        return await CLIEden.eden.exec(str);
+    }
+    function printPrompt(){
+        process.stdout.write("EDEN > ");
+    }
+    printPrompt();
+
+    rl.on('line',function(line){
+        exec(line);
+        if(line.startsWith("?")){
+            getValue(line.substring(1));
         }
         printPrompt();
-    
-        rl.on('line',function(line){
-            exec(line);
-            if(line.startsWith("?")){
-                getValue(line.substring(1));
-            }
-            printPrompt();
-        });
-    }
-    exports.CLIEden = {eden,startCommandLine};
-}(typeof window !== 'undefined' ? window : global));
+    });
+}
+module.exports = {CLIEden};
