@@ -89,6 +89,11 @@ Eden.Project.init = function(eden) {
 
 	return Eden.Utils.getURL(Eden.projectPath + "resources/projects.db.json").then(function(data) {
 		Eden.Project.local = JSON.parse(data);
+		if(Eden.projectPath != ""){
+			for(p in Eden.Project.local){
+				Eden.Project.local[p].file = Eden.projectPath + Eden.Project.local[p].file;
+			}
+		}
 
 		// Also add local storage projects
 		/*if (typeof window != "undefined" && window.localStorage) {

@@ -116,9 +116,10 @@ CLIEden.startCommandLine = function(){
     if(CLIEden.Eden.projectPath === undefined || CLIEden.Eden.projectPath == ""){
         CLIEden.Eden.projectPath = "./js-eden/";
     }
-
     CLIEden.eden = new CLIEden.Eden();
+    
 
+    global.root = CLIEden.eden.root;
     var rl = readline.createInterface({
         input: process.stdin,
         terminal: false
