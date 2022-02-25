@@ -110,6 +110,7 @@ require("./grammar/when.js");
 require("./grammar/while.js"); 
 require("./grammar/query.js");
 require("./grammar/section.js");
+require("./fragment.js");
 
 CLIEden.startCommandLine = function(){
     let readline = require('readline');
