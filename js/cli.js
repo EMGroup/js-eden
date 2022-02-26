@@ -9,6 +9,11 @@ localStorage.getItem = function(key){
 localStorage.setItem = function(key, value){
     console.log("Setting Dummy Storage ", key, value);
 }
+function EdenUI(eden){
+
+}
+global.EdenUI = EdenUI;
+
 CLIEden.config ={};
 CLIEden.Eden = require("./core/eden.js").Eden;
 // global.Eden = CLIEden.Eden;
@@ -17,7 +22,7 @@ require("./core/scope.js");
 require("./core/symbol.js");
 require("./core/context.js");
 require("./core/database.js");
-// require("./core/plugins.js");
+require("./core/plugins.js");
 CLIEden.lex = require("./lex.js");
 CLIEden.EdenStream = CLIEden.lex.EdenStream;
 CLIEden.EdenSyntaxData = CLIEden.lex.EdenSyntaxData;

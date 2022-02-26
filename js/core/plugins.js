@@ -34,22 +34,24 @@
 	}
 
 	//Dimensions of various UI components.
-	EdenUI.prototype.menuBarHeight = 45;
-	EdenUI.prototype.dialogBorderWidth = 1;
-	EdenUI.prototype.titleBarHeight = 0; //27.75 + EdenUI.prototype.dialogBorderWidth; //41.22 for script view
-	EdenUI.prototype.largeTitleBar = 41.22 + EdenUI.prototype.dialogBorderWidth;
-	EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
-	EdenUI.prototype.scrollBarSize2 = window.innerHeight-$(window).height();
-	EdenUI.prototype.dialogFrameWidth = 2 * EdenUI.prototype.dialogBorderWidth;
-	EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight + EdenUI.prototype.dialogBorderWidth;
-	EdenUI.prototype.bottomBarHeight = 34.906;
+	if(typeof window !== 'undefined'){
+		EdenUI.prototype.menuBarHeight = 45;
+		EdenUI.prototype.dialogBorderWidth = 1;
+		EdenUI.prototype.titleBarHeight = 0; //27.75 + EdenUI.prototype.dialogBorderWidth; //41.22 for script view
+		EdenUI.prototype.largeTitleBar = 41.22 + EdenUI.prototype.dialogBorderWidth;
+		EdenUI.prototype.scrollBarSize = 14 + EdenUI.prototype.dialogBorderWidth;
+		EdenUI.prototype.scrollBarSize2 = window.innerHeight-$(window).height();
+		EdenUI.prototype.dialogFrameWidth = 2 * EdenUI.prototype.dialogBorderWidth;
+		EdenUI.prototype.dialogFrameHeight = EdenUI.prototype.titleBarHeight + EdenUI.prototype.dialogBorderWidth;
+		EdenUI.prototype.bottomBarHeight = 34.906;
+		//Configuration options
+		//30 pixels seems like a good grid cell width on a display 1920 pixels wide.
+		EdenUI.prototype.gridSizeX = Math.floor(window.innerWidth * 30 / 1920);
+		EdenUI.prototype.gridSizeY = Math.floor(window.innerHeight * 30 / 1920);
+		//Case when a window is moved off to the left of the screen.
+		EdenUI.prototype.minimumWindowWidthShowing = 72 + EdenUI.prototype.dialogBorderWidth;
+	}
 
-	//Configuration options
-	//30 pixels seems like a good grid cell width on a display 1920 pixels wide.
-	EdenUI.prototype.gridSizeX = Math.floor(window.innerWidth * 30 / 1920);
-	EdenUI.prototype.gridSizeY = Math.floor(window.innerHeight * 30 / 1920);
-	//Case when a window is moved off to the left of the screen.
-	EdenUI.prototype.minimumWindowWidthShowing = 72 + EdenUI.prototype.dialogBorderWidth;
 
 
 	EdenUI.prototype.createEmbedded = function(name, type) {
