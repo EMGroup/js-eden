@@ -2,19 +2,27 @@ let CLIEden = {};
 CLIEden.EdenSymbol = function(){};
 CLIEden.EdenSymbol.prototype.value = function(){};
 CLIEden.edenFunctions = {};
-
+localStorage = {};
+localStorage.getItem = function(key){
+    console.log("Dummy Storage ", key);
+}
+localStorage.setItem = function(key, value){
+    console.log("Setting Dummy Storage ", key, value);
+}
 CLIEden.config ={};
 CLIEden.Eden = require("./core/eden.js").Eden;
+// global.Eden = CLIEden.Eden;
+// console.log(Eden);
 require("./core/scope.js");
 require("./core/symbol.js");
 require("./core/context.js");
-// require("./core/database.js");
+require("./core/database.js");
 // require("./core/plugins.js");
 CLIEden.lex = require("./lex.js");
-// CLIEden.EdenStream = CLIEden.lex.EdenStream;
-// CLIEden.EdenSyntaxData = CLIEden.lex.EdenSyntaxData;
+CLIEden.EdenStream = CLIEden.lex.EdenStream;
+CLIEden.EdenSyntaxData = CLIEden.lex.EdenSyntaxData;
 CLIEden.lang = require("./language/lang.js");
-// CLIEden.Language = CLIEden.lang.Language;
+CLIEden.Language = CLIEden.lang.Language;
 CLIEden.en = require("./language/en.js");
 require("./index.js");  
 require("./selectors/selector.js");  
