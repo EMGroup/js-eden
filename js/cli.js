@@ -13,6 +13,8 @@ function EdenUI(eden){
 
 }
 global.EdenUI = EdenUI;
+global.EdenSymbol = function(){};
+global.EdenSymbol.prototype.value = function(){};
 
 CLIEden.config ={};
 CLIEden.Eden = require("./core/eden.js").Eden;
@@ -21,7 +23,7 @@ CLIEden.Eden = require("./core/eden.js").Eden;
 require("./core/scope.js");
 require("./core/symbol.js");
 require("./core/context.js");
-require("./core/database.js");
+// require("./core/database.js");
 require("./core/plugins.js");
 CLIEden.lex = require("./lex.js");
 CLIEden.EdenStream = CLIEden.lex.EdenStream;
@@ -131,6 +133,7 @@ CLIEden.startCommandLine = function(){
         CLIEden.Eden.projectPath = "./js-eden/";
     }
     CLIEden.eden = new CLIEden.Eden();
+    global.eden = CLIEden.eden;
     
 
     global.root = CLIEden.eden.root;
