@@ -228,7 +228,7 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 									r: (readPassword) ? readPassword : ""
 								});
 							} else {
-								alert("This project needs a different version of JS-Eden");
+								console.log("This project needs a different version of JS-Eden");
 							}
 						}
 

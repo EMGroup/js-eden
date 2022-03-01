@@ -60,9 +60,9 @@ function EdenUI(eden) {
 		},
 	});*/
 
-	this.$uimsg = $("<div class='message-box'></div>");
-	this.$uimsg.appendTo("body");
-	this.$uimsg.hide();
+	// this.$uimsg = $("<div class='message-box'></div>");
+	// this.$uimsg.appendTo("body");
+	// this.$uimsg.hide();
 	this.messagetimeout = undefined;
 	this.messagedisplaytime = 5000;
 
@@ -105,7 +105,7 @@ function EdenUI(eden) {
 	 */
 	this.listeners = {};
 
-	this.windowHighlighter = new WindowHighlighter(this);
+	// this.windowHighlighter = new WindowHighlighter(this);
 	this.currentView = undefined; //Used for cycling between views.
 	
 	this.viewCategories = {};
@@ -126,24 +126,24 @@ function EdenUI(eden) {
 	this.addViewCategory("environment", "Management");
 
 	// Allow ctrl-click observable identification in the UI...
-	$(document).on("click", function(e) {
-		if (e.ctrlKey || e.metaKey) {
-			var observables = [];
-			var current = e.target;
+	// $(document).on("click", function(e) {
+	// 	if (e.ctrlKey || e.metaKey) {
+	// 		var observables = [];
+	// 		var current = e.target;
 
-			// Navigate back through DOM finding associated observables.
-			while (current.nodeName != "BODY") {
-				var data = current.getAttribute("data-observables");
-				if (data && data != "") {
-					observables.push.apply(observables, data.split(","));
-				}
-				current = current.parentNode;
-			}
+	// 		// Navigate back through DOM finding associated observables.
+	// 		while (current.nodeName != "BODY") {
+	// 			var data = current.getAttribute("data-observables");
+	// 			if (data && data != "") {
+	// 				observables.push.apply(observables, data.split(","));
+	// 			}
+	// 			current = current.parentNode;
+	// 		}
 
-			//console.log("Associated: ",);
-			//edenUI.explorer.watch(observables);
-		}
-	});
+	// 		//console.log("Associated: ",);
+	// 		//edenUI.explorer.watch(observables);
+	// 	}
+	// });
 }
 
 /**Momentarily provides a visual cue to direct the user's gaze towards a particular view.
@@ -231,7 +231,7 @@ EdenUI.prototype.updateStatus = function(message) {
 	// If loading, update the loader message
 	if (!this.loaded) {
 		console.log(message);
-		$(".loadmessage").html(message);
+		// $(".loadmessage").html(message);
 	} else {
 		// Otherwise show status bubble for a bit.
 		this.showMessage("info", message);
@@ -239,16 +239,16 @@ EdenUI.prototype.updateStatus = function(message) {
 };
 
 EdenUI.prototype.hideMessage = function() {
-	edenUI.$uimsg.hide("slow");
+	// edenUI.$uimsg.hide("slow");
 }
 
 EdenUI.prototype.showMessage = function(type, message) {
 	if (type == "info") {
-		this.$uimsg.html("<div class='message-infotext'>"+message+"</div>");
+		// this.$uimsg.html("<div class='message-infotext'>"+message+"</div>");
 	} else if (type == "error") {
-		this.$uimsg.html("<div class='message-errortext'>"+message+"</div>");
+		// this.$uimsg.html("<div class='message-errortext'>"+message+"</div>");
 	}
-	this.$uimsg.show("fast");
+	// this.$uimsg.show("fast");
 	clearTimeout(this.messagetimeout);
 	this.messagetimeout = setTimeout(this.hideMessage, this.messagedisplaytime);
 };
@@ -264,13 +264,13 @@ EdenUI.prototype.finishedLoading = function() {
  * @param {*} target
  * @param {function(...[*])} callback
  */
-EdenUI.prototype.listenTo = listenTo;
+// EdenUI.prototype.listenTo = listenTo;
 
 /**
  * @param {string} eventName
  * @param {Array.<*>} eventArgs
  */
-EdenUI.prototype.emit = emit;
+// EdenUI.prototype.emit = emit;
 
 EdenUI.showTooltip = function (event, text) {
 	var tooltip = document.getElementById("tooltip");
