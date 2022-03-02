@@ -45,14 +45,6 @@ Eden.DB.fetch = function(data){
 	}
 	let crossDomain = data.crossDomain;
 	if(typeof document === 'undefined'){
-<<<<<<< HEAD
-=======
-
-
-
-
-
->>>>>>> 4353cd57996fe793dcb190e7a84f35b3acdea6a3
 		(async () => {
 			fetch(url,data).then(response => response.json()).then(data=>{
 				success(data);
