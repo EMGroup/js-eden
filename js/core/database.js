@@ -5,6 +5,9 @@
  * See LICENSE.txt
  */
 
+const fetch = require('cross-fetch');
+
+
 Eden.DB = {
 	directory: {},
 	meta: {},
@@ -25,6 +28,33 @@ Eden.DB = {
 	qcacheloaded: false,
 	qcachetimeout: undefined
 }
+
+Eden.DB.fetch = function(data){
+	let success = data.success;
+	let error = data.error;
+	let url = data.url;
+	data.method = data.type;
+	delete data.url;
+	delete data.success;
+	delete data.error;
+	delete data.type;
+	data.body = JSON.stringify(data.data);
+	delete data.data;
+	if(data.xhrFields.withCredentials){
+		data.credentials = "include";
+	}
+	let crossDomain = data.crossDomain;
+	if(typeof document === 'undefined'){
+		(async () => {
+			fetch(url,data).then(response => response.json()).then(data=>{
+				success(data);
+			}).catch((error)=>{
+				console.log(error);
+				Eden.DB.handleError(null,"error",error.message);
+			});
+		  })();
+	}
+};
 
 Eden.DB.storageSpace = function() {
 	var _lsTotal=0,_xLen,_x;
@@ -64,7 +94,7 @@ Eden.DB.isLoggedIn = function() {
 
 Eden.DB.logOut = function(cb) {
 	if (Eden.DB.isLoggedIn()) {
-		$.ajax({
+		Eden.DB.fetch({
 			url: Eden.DB.remoteURL+"/logout",
 			type: "get",
 			crossDomain: true,
@@ -204,7 +234,7 @@ Eden.DB.disconnect = function(retry) {
 
 Eden.DB.getLoginName = function(callback) {
 	if (Eden.DB.isConnecting()) {
-		$.ajax({
+		Eden.DB.fetch({
 			url: Eden.DB.remoteURL+"/user/details",
 			type: "get",
 			crossDomain: true,
@@ -238,11 +268,11 @@ Eden.DB.getLoginName = function(callback) {
 }
 
 Eden.DB.getStorageItem = function(key){
-	if(!localStorage || typeof localStorage !== 'undefined') return;
+	if(!localStorage || typeof localStorage !== 'undefined') return null;
 	return localStorage.getItem(key);
 }
 Eden.DB.setStorageItem = function(key, value){
-	if(!localStorage || typeof localStorage !== 'undefined') return;
+	if(!localStorage || typeof localStorage !== 'undefined') return null;
 	localStorage.setItem(key,value);
 }
 
@@ -268,7 +298,7 @@ Eden.DB.localSave = function(project) {
 
 Eden.DB.save = function(project, ispublic, callback) {
 	if (Eden.DB.isConnected()) {
-		$.ajax({
+		Eden.DB.fetch({
 			url: this.remoteURL+"/project/add",
 			type: "post",
 			crossDomain: true,
@@ -325,7 +355,7 @@ Eden.DB.save = function(project, ispublic, callback) {
 
 Eden.DB.getVersions = function(pid, callback) {
 	if (Eden.DB.isConnected()) {
-		$.ajax({
+		Eden.DB.fetch({
 			url: Eden.DB.remoteURL+"/project/versions?projectID="+pid,
 			type: "get",
 			crossDomain: true,
@@ -418,7 +448,7 @@ Eden.DB.load = function(pid, vid, readPassword, callback) {
 	}
 
 	if (Eden.DB.isConnected()) {
-		$.ajax({
+		Eden.DB.fetch({
 			url: Eden.DB.remoteURL+"/project/get?api=3&projectID="+pid+ ((vid) ? "&to="+vid : "") + ((readPassword) ? "&readPassword="+readPassword : ""),
 			type: "get",
 			crossDomain: true,
@@ -474,7 +504,7 @@ Eden.DB.search = function(q, pagenum, pagecount, sortby, callback) {
 
 	//console.log("PATH",path)
 
-	$.ajax({
+	Eden.DB.fetch({
 		url: path,
 		type: "get",
 		crossDomain: true,
@@ -506,7 +536,7 @@ Eden.DB.getMeta = function(id, callback) {
 	var path = this.remoteURL+"/project/";
 	path += "search?limit=20&query=.id("+id+")";
 
-	$.ajax({
+	Eden.DB.fetch({
 		url: path,
 		type: "get",
 		crossDomain: true,
@@ -534,7 +564,7 @@ Eden.DB.getMeta = function(id, callback) {
 }
 
 Eden.DB.remove = function(projectid, callback) {
-	$.ajax({
+	Eden.DB.fetch({
 		url: this.remoteURL+"/project/remove",
 		type: "post",
 		crossDomain: true,
@@ -566,7 +596,7 @@ Eden.DB.remove = function(projectid, callback) {
 }
 
 Eden.DB.rate = function(projectid, stars) {
-	$.ajax({
+	Eden.DB.fetch({
 		url: this.remoteURL+"/project/rate",
 		type: "post",
 		crossDomain: true,
@@ -595,7 +625,7 @@ Eden.DB.rate = function(projectid, stars) {
 }
 
 Eden.DB.patch = function(selector, src) {
-	$.ajax({
+	Eden.DB.fetch({
 		url: this.remoteURL+"/project/patch",
 		type: "post",
 		crossDomain: true,
@@ -625,7 +655,7 @@ Eden.DB.patch = function(selector, src) {
 
 Eden.DB.getSelector = function(q, timestamp, callback) {
 	if (Eden.DB.isConnected()) {
-		$.ajax({
+		Eden.DB.fetch({
 			url: this.remoteURL+"/code/get?selector="+q.replace("#","%23")+"&timestamp="+timestamp,
 			type: "get",
 			crossDomain: true,
@@ -657,7 +687,7 @@ Eden.DB.getSelector = function(q, timestamp, callback) {
 
 Eden.DB.searchSelector = function(q, kind, callback) {
 	if (Eden.DB.isConnected()) {
-		$.ajax({
+		Eden.DB.fetch({
 			url: this.remoteURL+"/code/search?selector="+q.replace("#","%23")+"&outtype="+kind,
 			type: "get",
 			crossDomain: true,
@@ -716,7 +746,7 @@ Eden.DB.postComment = function(project, text, priv) {
 	var pid = (project) ? project.id : -1;
 	var vid = (project) ? project.vid : -1;
 	if (!Eden.DB.isLoggedIn()) return;
-	$.ajax({
+	Eden.DB.fetch({
 		url: this.remoteURL+"/comment/post",
 		type: "post",
 		crossDomain: true,
@@ -759,7 +789,7 @@ Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 	//if (cb) cb(dummycomments);
 	if (Eden.DB.isConnected()) {
 	waitingforcomment = true;
-	$.ajax({
+	Eden.DB.fetch({
 		url: this.remoteURL+"/comment/search?projectID="+pid+((last) ? "&newerThan="+last : "")+"&offset="+((page-1) * count)+"&limit="+count,
 		type: "get",
 		crossDomain: true,
@@ -788,7 +818,7 @@ Eden.DB.searchComments = function(project, q, page, count, last, cb) {
 
 Eden.DB.removeComment = function(commentid) {
 	if (!Eden.DB.isLoggedIn()) return;
-	$.ajax({
+	Eden.DB.fetch({
 		url: this.remoteURL+"/comment/delete",
 		type: "post",
 		crossDomain: true,
@@ -816,7 +846,7 @@ Eden.DB.removeComment = function(commentid) {
 
 Eden.DB.follow = function(pid, cb) {
 	if (!Eden.DB.isLoggedIn()) return;
-	$.ajax({
+	Eden.DB.fetch({
 		url: this.remoteURL+"/social/followproject?projectID="+pid,
 		type: "get",
 		crossDomain: true,
@@ -843,7 +873,7 @@ Eden.DB.follow = function(pid, cb) {
 
 Eden.DB.adminCommentActivity = function(newerthan, offset, cb) {
 	if (!Eden.DB.isLoggedIn()) return;
-	$.ajax({
+	Eden.DB.fetch({
 		url: this.remoteURL+"/comment/activity?limit=10&offset="+offset+((newerthan) ? "&newerThan="+newerthan : ""),
 		type: "get",
 		crossDomain: true,
@@ -884,7 +914,7 @@ Eden.DB.handleError = function(a, status, err) {
 
 Eden.DB.adminProjectActivity = function(newerthan, offset, cb) {
 	if (!Eden.DB.isLoggedIn()) return;
-	$.ajax({
+	Eden.DB.fetch({
 		url: this.remoteURL+"/project/activity?limit=30&offset="+offset+((newerthan) ? "&newerThan="+newerthan : ""),
 		type: "get",
 		crossDomain: true,
@@ -912,7 +942,7 @@ Eden.DB.adminProjectActivity = function(newerthan, offset, cb) {
 
 Eden.DB.getPopularTags = function(tag, cb) {
 	//if (!Eden.DB.isLoggedIn()) return;
-	$.ajax({
+	Eden.DB.fetch({
 		url: this.remoteURL+"/project/tags?tag="+tag,
 		type: "get",
 		crossDomain: true,
@@ -957,7 +987,7 @@ var sessionID = guid();
 Eden.DB.log = function(action, details) {
 	console.log("LOG", browserID, (Eden.DB.userid) ? Eden.DB.userid : -1, action, details);
 
-	$.ajax({
+	Eden.DB.fetch({
 		url: this.searchServer+"/jsedenlog/jsedenlog",
 		type: "post",
 		data:{	browserID: browserID,

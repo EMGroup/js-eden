@@ -1,3 +1,4 @@
+const { EdenUI } = require("./core/edenui.js");
 let CLIEden = {};
 CLIEden.EdenSymbol = function(){};
 CLIEden.EdenSymbol.prototype.value = function(){};
@@ -9,10 +10,6 @@ localStorage.getItem = function(key){
 localStorage.setItem = function(key, value){
     console.log("Setting Dummy Storage ", key, value);
 }
-function EdenUI(eden){
-
-}
-global.EdenUI = EdenUI;
 global.EdenSymbol = function(){};
 global.EdenSymbol.prototype.value = function(){};
 
@@ -23,14 +20,20 @@ CLIEden.Eden = require("./core/eden.js").Eden;
 require("./core/scope.js");
 require("./core/symbol.js");
 require("./core/context.js");
-// require("./core/database.js");
+require("./core/database.js");
+require("./core/edenui.js");
 require("./core/plugins.js");
+require("./util/url.js");
+require("./core/initialise.js");
+
 CLIEden.lex = require("./lex.js");
 CLIEden.EdenStream = CLIEden.lex.EdenStream;
 CLIEden.EdenSyntaxData = CLIEden.lex.EdenSyntaxData;
 CLIEden.lang = require("./language/lang.js");
 CLIEden.Language = CLIEden.lang.Language;
 CLIEden.en = require("./language/en.js");
+require("./util/misc.js");
+
 require("./index.js");  
 require("./selectors/selector.js");  
 require("./selectors/property.js");  
@@ -126,6 +129,57 @@ require("./grammar/while.js");
 require("./grammar/query.js");
 require("./grammar/section.js");
 require("./fragment.js");
+require("../plugins/canvas/canvas.js");
+// require("node-fetch");
+
+CLIEden.listenTo = function(eventName, target, callback) {
+	if (!this.listeners[eventName]) {
+		this.listeners[eventName] = [];
+	}
+	this.listeners[eventName].push({target: target, callback: callback});
+};
+
+CLIEden.emit = function(eventName,eventArgs){
+    var listenersForEvent = this.listeners[eventName];
+    if (!listenersForEvent) {
+        return;
+    }
+    var i;
+    for (i = 0; i < listenersForEvent.length; ++i) {
+        var target = listenersForEvent[i].target;
+        var callback = listenersForEvent[i].callback;
+        if (callback.apply(target, eventArgs)) return true;
+    }
+    return false;
+};
+
+CLIEden.initialise = function(){
+    let plugins = ["Canvas2D"];
+
+    let eden = CLIEden.eden;
+    eden.root.lookup("jseden_parser_cs3").assign(true,eden.root.scope,EdenSymbol.defaultAgent);
+    eden.root.lookup("jseden_parser_cs3").addJSObserver("parser",(sym, value) => {
+        if (value) {
+            Eden.AST.version = Eden.AST.VERSION_CS3;
+        } else {
+            Eden.AST.version = Eden.AST.VERSION_CS2;
+        }
+    });
+    // Eden.DB.fetch();
+
+    Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
+        console.log("DONE LOADING");
+        // doneLoading(true);
+        Eden.Project.load(41,undefined,undefined,function(){
+            console.log("Loaded");
+        });
+    });
+    EdenUI.prototype.listenTo = CLIEden.listenTo;
+    EdenUI.prototype.emit = CLIEden.emit;
+    CLIEden.edenUI.plugins = plugins;
+    // CLIEden.edenUI.loadPlugin("Canvas2D",function(){console.log("Loaded plugin");});
+};
+
 
 CLIEden.startCommandLine = function(){
     let readline = require('readline');
@@ -152,6 +206,9 @@ CLIEden.startCommandLine = function(){
         process.stdout.write("EDEN > ");
     }
     printPrompt();
+
+    CLIEden.edenUI = new EdenUI(CLIEden.eden);
+    CLIEden.initialise();
 
     rl.on('line',function(line){
         exec(line);

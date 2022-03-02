@@ -74,78 +74,8 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	};
 
 	this.thumbnail = function(cb) {
-		var canvas = canvases["picture"];
-		if (canvas === undefined) {
-			for (var x in canvases) {
-				canvas = canvases[x];
-				break;
-			}
-		}
+		console.log("Thumbnail generation is currently not supported");
 
-		if (canvas === undefined) {
-			if (cb) cb();
-			return;
-		}
-
-		var imgwidth = canvas.clientWidth;
-		var imgheight = canvas.clientHeight;
-		var canwidth = 200;
-		var canheight = 112;
-
-		var imageAspectRatio = imgwidth / imgheight;
-		var canvasAspectRatio = canwidth / canheight;
-		var renderableHeight, renderableWidth, xStart, yStart;
-
-		// If image's aspect ratio is less than canvas's we fit on height
-		// and place the image centrally along width
-		if(imageAspectRatio < canvasAspectRatio) {
-			renderableHeight = canheight;
-			renderableWidth = imgwidth * (renderableHeight / imgheight);
-			xStart = (canwidth - renderableWidth) / 2;
-			yStart = 0;
-		}
-
-		// If image's aspect ratio is greater than canvas's we fit on width
-		// and place the image centrally along height
-		else if(imageAspectRatio > canvasAspectRatio) {
-			renderableWidth = canwidth
-			renderableHeight = imgheight * (renderableWidth / imgwidth);
-			xStart = 0;
-			yStart = (canheight - renderableHeight) / 2;
-		}
-
-		// Happy path - keep aspect ratio
-		else {
-			renderableHeight = canheight;
-			renderableWidth = canwidth;
-			xStart = 0;
-			yStart = 0;
-		}
-		//context.drawImage(imageObj, xStart, yStart, renderableWidth, renderableHeight);
-
-		//$(document.body).append($('<div id="png-container" style="margin-top: 200px;"></div>'));
-
-		var tcanvas = document.createElement("canvas");
-		tcanvas.setAttribute("width","200");
-		tcanvas.setAttribute("height","112");
-		var ctx = tcanvas.getContext("2d");
-		//var DOMURL = self.URL || self.webkitURL || self;
-		//var img = new Image();
-		//var svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
-		//var url = DOMURL.createObjectURL(svg);
-		//img.onload = function() {
-			//console.log("SVG: " + svgele.clientWidth + "x" + svgele.clientHeight + " @ " + canvas.width + "," + canvas.height);
-		ctx.drawImage(canvas, xStart, yStart, renderableWidth, renderableHeight);
-		var png;
-		try {
-			png = tcanvas.toDataURL("image/png");
-		} catch(e) {
-		}
-			//DOMURL.revokeObjectURL(png);
-			if (cb) cb(png);
-			//document.querySelector('#png-container').innerHTML = '<img src="'+png+'"/>';
-		//};
-		//img.src = url;
 	}
 
 	this.drawPicture = function(viewName) {
@@ -1589,23 +1519,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	});
 
 	edenUI.views["Canvas2D"] = {dialog: this.createDialog, embedded: this.createEmbedded, title: "Canvas 2D", category: edenUI.viewCategories.visualization, holdsContent: true};
-
-	var jseSource;
-	if (document.location.pathname.slice(-15) == "/index-dev.html") {
-		jseSource = "canvas.js-e";
-	} else {
-		jseSource = "jseden-canvas.min.js-e";
-	}
-
-	/*edenUI.eden.include2("plugins/canvas-html5/" + jseSource, function() {
-		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
-		if (success) success();
-	});*/
-
-	/*Eden.Agent.importAgent("plugins/canvas", "default", ["enabled"], function() {
-		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
-		if (success) success();
-	});*/
 
 	Eden.Selectors.execute("plugins > canvas_merged", eden.root.scope, function() {
 		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
