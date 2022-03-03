@@ -26,6 +26,9 @@ URLUtil.getParameterByName = function (name) {
 }
 
 URLUtil.getParameters = function() {
+	if(typeof window === 'undefined'){
+		return {};
+	}
 	var url = window.location.href;
 	var params = url.split("?")[1];
 	if (!params) return {};

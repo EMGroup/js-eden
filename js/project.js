@@ -268,7 +268,7 @@ Eden.Project.load = function(pid, vid, readPassword, cb) {
 									vid: eden.project.vid,
 									r: (readPassword) ? readPassword : ""
 								});
-				if (document.location.search != url) {
+				if ((typeof document !== 'undefined') && document.location.search !== url) {
 					window.history.pushState({id: eden.project.id, vid: eden.project.vid},"",url);
 				}
 
