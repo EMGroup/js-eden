@@ -1,3 +1,5 @@
+// const { CLIEden } = require('../cli');
+
 (function() {
 
 Eden.Selectors = {
@@ -684,7 +686,7 @@ Eden.Selectors._query = function(s, o, options, cb) {
 			// check for URL
 			if (path.startsWith("plugins")) {
 				var urlparts = s.split(">");
-				var url = "";
+				var url = Eden.projectPath;
 				for (var i=0; i<urlparts.length; i++) {
 					urlparts[i] = urlparts[i].trim();
 					url += urlparts[i];
@@ -696,7 +698,9 @@ Eden.Selectors._query = function(s, o, options, cb) {
 					}
 				}
 
+				console.log(url);
 				Eden.Utils.getURL(url+".js-e").then(function(data) {
+					console.log(data);
 					var res = [(new Eden.AST(data, undefined, {name: urlparts[urlparts.length-1], remote: true})).script];
 					Eden.Selectors.cache[s] = res[0];
 					//Eden.Index.update(res[0]);
@@ -839,7 +843,9 @@ Eden.Selectors.queryPromise = function(s, o, options) {
 
 
 Eden.Selectors.execute = function(selector, scope, cb) {
+	console.log("Executing selector " + selector);
 	Eden.Selectors.query(selector, undefined, {minimum: 1}, function(stats) {
+		console.dir(stats);
 		function doStat(i) {
 			var p = stats[i];
 			while (p.parent) p = p.parent;

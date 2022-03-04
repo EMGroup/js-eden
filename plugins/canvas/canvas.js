@@ -1436,90 +1436,91 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 	//To catch when a mouse button is pressed down over a canvas window and then released outside of any
 	//canvas window.
-	document.addEventListener("mouseup", function (e) {
-		var followMouse = root.lookup("mouseFollow").value();
-		root.beginAutocalcOff();
+	// document.addEventListener("mouseup", function (e) {
+	// 	var followMouse = root.lookup("mouseFollow").value();
+	// 	root.beginAutocalcOff();
 
-		if (!mouseInfo.insideCanvas) {
-			var buttonName;
-			switch (e.button) {
-				case 0:
-					mouseInfo.leftButton = false;
-					buttonName = "Left";
-					break;
-				case 1:
-					mouseInfo.middleButton = false;
-					buttonName = "Middle";
-					break;
-				case 2:
-					mouseInfo.rightButton = false;
-					buttonName = "Right";
-					break;
-				case 3:
-					mouseInfo.button4 = false;
-					buttonName = "Button4";
-					break;
-				case 4:
-					mouseInfo.button5 = false;
-					buttonName = "Button5";
-					break;
-				default:
-					buttonName = "Unknown";
-			}
-			mouseInfo.buttonCount = mouseInfo.leftButton + mouseInfo.middleButton + mouseInfo.rightButton + mouseInfo.button4 + mouseInfo.button5;
-			var buttonsSym = root.lookup("mouseButtons");
-			if (mouseInfo.buttonCount == 0 && buttonsSym.value() != "") {
-				//Final button released outside of any canvas window.
-				var mousePressedSym = root.lookup("mousePressed");
-				var mousePressed = mousePressedSym.value();
+	// 	if (!mouseInfo.insideCanvas) {
+	// 		var buttonName;
+	// 		switch (e.button) {
+	// 			case 0:
+	// 				mouseInfo.leftButton = false;
+	// 				buttonName = "Left";
+	// 				break;
+	// 			case 1:
+	// 				mouseInfo.middleButton = false;
+	// 				buttonName = "Middle";
+	// 				break;
+	// 			case 2:
+	// 				mouseInfo.rightButton = false;
+	// 				buttonName = "Right";
+	// 				break;
+	// 			case 3:
+	// 				mouseInfo.button4 = false;
+	// 				buttonName = "Button4";
+	// 				break;
+	// 			case 4:
+	// 				mouseInfo.button5 = false;
+	// 				buttonName = "Button5";
+	// 				break;
+	// 			default:
+	// 				buttonName = "Unknown";
+	// 		}
+	// 		mouseInfo.buttonCount = mouseInfo.leftButton + mouseInfo.middleButton + mouseInfo.rightButton + mouseInfo.button4 + mouseInfo.button5;
+	// 		var buttonsSym = root.lookup("mouseButtons");
+	// 		if (mouseInfo.buttonCount == 0 && buttonsSym.value() != "") {
+	// 			//Final button released outside of any canvas window.
+	// 			var mousePressedSym = root.lookup("mousePressed");
+	// 			var mousePressed = mousePressedSym.value();
 
-				root.lookup("mouseButton").assign(buttonName + " up", root.scope, EdenSymbol.hciAgent, followMouse);
-				buttonsSym.assign("", root.scope, EdenSymbol.hciAgent, followMouse);
-				root.lookup('mousePosition').assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
-				if (mousePressed) {
-					mousePressedSym.assign(false, root.scope, EdenSymbol.hciAgent, followMouse);
-				}
-				root.lookup('mouseUp').assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
-				root.lookup('mouseView').assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
-				edenUI.plugins.Canvas2D.endClick();
-			}
-		}
-		root.endAutocalcOff();
-	});
+	// 			root.lookup("mouseButton").assign(buttonName + " up", root.scope, EdenSymbol.hciAgent, followMouse);
+	// 			buttonsSym.assign("", root.scope, EdenSymbol.hciAgent, followMouse);
+	// 			root.lookup('mousePosition').assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
+	// 			if (mousePressed) {
+	// 				mousePressedSym.assign(false, root.scope, EdenSymbol.hciAgent, followMouse);
+	// 			}
+	// 			root.lookup('mouseUp').assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
+	// 			root.lookup('mouseView').assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
+	// 			edenUI.plugins.Canvas2D.endClick();
+	// 		}
+	// 	}
+	// 	root.endAutocalcOff();
+	// });
 
-	document.addEventListener("mousedown", function (e) {
-		if (!mouseInfo.insideCanvas) {
-			var buttonName;
-			switch (e.button) {
-				case 0:
-					mouseInfo.leftButton = true;
-					break;
-				case 1:
-					mouseInfo.middleButton = true;
-					break;
-				case 2:
-					mouseInfo.rightButton = true;
-					break;
-				case 3:
-					mouseInfo.button4 = true;
-					break;
-				case 4:
-					mouseInfo.button5 = true;
-					break;
-			}
-			mouseInfo.buttonCount = mouseInfo.leftButton + mouseInfo.middleButton + mouseInfo.rightButton + mouseInfo.button4 + mouseInfo.button5;;
-		}
-	});
+	// document.addEventListener("mousedown", function (e) {
+	// 	if (!mouseInfo.insideCanvas) {
+	// 		var buttonName;
+	// 		switch (e.button) {
+	// 			case 0:
+	// 				mouseInfo.leftButton = true;
+	// 				break;
+	// 			case 1:
+	// 				mouseInfo.middleButton = true;
+	// 				break;
+	// 			case 2:
+	// 				mouseInfo.rightButton = true;
+	// 				break;
+	// 			case 3:
+	// 				mouseInfo.button4 = true;
+	// 				break;
+	// 			case 4:
+	// 				mouseInfo.button5 = true;
+	// 				break;
+	// 		}
+	// 		mouseInfo.buttonCount = mouseInfo.leftButton + mouseInfo.middleButton + mouseInfo.rightButton + mouseInfo.button4 + mouseInfo.button5;;
+	// 	}
+	// });
 
-	document.addEventListener("pointerlockchange", function (e) {
-		var locked = document.pointerLockElement !== null;
-		mouseInfo.capturing = locked;
-		var followMouse = root.lookup("mouseFollow").value();
-		root.lookup("mouseCaptured").assign(locked, root.scope, undefined, followMouse);
-	});
+	// document.addEventListener("pointerlockchange", function (e) {
+	// 	var locked = document.pointerLockElement !== null;
+	// 	mouseInfo.capturing = locked;
+	// 	var followMouse = root.lookup("mouseFollow").value();
+	// 	root.lookup("mouseCaptured").assign(locked, root.scope, undefined, followMouse);
+	// });
 
 	edenUI.views["Canvas2D"] = {dialog: this.createDialog, embedded: this.createEmbedded, title: "Canvas 2D", category: edenUI.viewCategories.visualization, holdsContent: true};
 
+	console.log("About to execute canvas_merged");
 	Eden.Selectors.execute("plugins > canvas_merged", eden.root.scope, function() {
 		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
 		if (success) success();

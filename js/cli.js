@@ -170,20 +170,20 @@ CLIEden.initialise = function(){
     Eden.DB.connect(Eden.DB.repositories[Eden.DB.repoindex], function() {
         console.log("DONE LOADING");
         // doneLoading(true);
-        Eden.Project.load(41,undefined,undefined,function(){
-            console.log("Loaded");
-        });
+        // Eden.Project.load(41,undefined,undefined,function(){
+        //     console.log("Loaded");
+        // });
     });
     EdenUI.prototype.listenTo = CLIEden.listenTo;
     EdenUI.prototype.emit = CLIEden.emit;
     CLIEden.edenUI.plugins = plugins;
-    // CLIEden.edenUI.loadPlugin("Canvas2D",function(){console.log("Loaded plugin");});
+    CLIEden.edenUI.loadPlugin("Canvas2D",function(){console.log("Loaded plugin");});
 };
 
 
 CLIEden.startCommandLine = function(){
     let readline = require('readline');
-    if(CLIEden.Eden.projectPath === undefined || CLIEden.Eden.projectPath == ""){
+    if(CLIEden.Eden.projectPath === undefined || CLIEden.Eden.projectPath === ""){
         CLIEden.Eden.projectPath = "./js-eden/";
     }
     CLIEden.eden = new CLIEden.Eden();
