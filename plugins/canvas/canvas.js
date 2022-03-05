@@ -1520,7 +1520,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 	edenUI.views["Canvas2D"] = {dialog: this.createDialog, embedded: this.createEmbedded, title: "Canvas 2D", category: edenUI.viewCategories.visualization, holdsContent: true};
 
-	console.log("About to execute canvas_merged");
 	Eden.Selectors.execute("plugins > canvas_merged", eden.root.scope, function() {
 		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
 		if (success) success();
