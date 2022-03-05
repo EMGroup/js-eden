@@ -5,14 +5,15 @@ CLIEden.EdenSymbol.prototype.value = function(){};
 CLIEden.edenFunctions = {};
 localStorage = {};
 localStorage.getItem = function(key){
-    console.log("Dummy Storage ", key);
-}
+    return localStorage[key];
+};
 localStorage.setItem = function(key, value){
-    console.log("Setting Dummy Storage ", key, value);
-}
+    localStorage[key] = value;
+};
 global.EdenSymbol = function(){};
 global.EdenSymbol.prototype.value = function(){};
 
+global.CLIEden = CLIEden;
 CLIEden.config ={};
 CLIEden.Eden = require("./core/eden.js").Eden;
 // global.Eden = CLIEden.Eden;
@@ -130,6 +131,7 @@ require("./grammar/query.js");
 require("./grammar/section.js");
 require("./fragment.js");
 require("../plugins/canvas/canvas.js");
+require("../plugins/canvas_merged.js");
 // require("node-fetch");
 
 CLIEden.listenTo = function(eventName, target, callback) {
@@ -191,6 +193,7 @@ CLIEden.startCommandLine = function(){
     
 
     global.root = CLIEden.eden.root;
+    CLIEden.setCanvasRoot();
     var rl = readline.createInterface({
         input: process.stdin,
         terminal: false
@@ -217,5 +220,5 @@ CLIEden.startCommandLine = function(){
         }
         printPrompt();
     });
-}
+};
 module.exports = {CLIEden};
