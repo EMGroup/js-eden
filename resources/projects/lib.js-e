@@ -13,7 +13,7 @@
 debug = ${{ {jsExceptions: edenUI.getOptionValue("developer") == "true" } }}$;
 
 #! Current version of the environment
-jseden_version is jseden_version_major*10000000+jseden_version_minor*100000+jseden_version_patch*1000+jseden_version_commit;
+jseden_version is jseden_version_major*10000000+jseden_version_minor*100000+jseden_version_patch*1000+jseden_version_commit // "_vscode";
 
 #! Force the maintainer to update dependencies
 proc eager:static {
@@ -1046,7 +1046,7 @@ func Point {
  */
 proc createView {
 	para name, type;
-	${{ edenUI.createView(name, type, this); }}$;
+	${{ CLIEden.edenUI.createView(name, type, this); }}$;
 }
 
 ${{
@@ -1172,17 +1172,8 @@ views_unit_y = ${{ edenUI.gridSizeY }}$;
 /** The maximum width a view can be if it fits within the browser window without scrolling.
  *  @oracle
  */
-screenWidth:number is ${{ document.getElementById("jseden-views").clientWidth }}$ || jseden_menu_visible || browser_resize;
-/** The maximum height a view can be if it fits within the browser window without scrolling.
- *  @oracle
- */
-screenHeight:number is ${{ document.getElementById("jseden-views").clientHeight }}$ || jseden_menu_visible || browser_resize;
-${{
-	window.addEventListener("resize", function (event) {
-		let root = scope.context;
-		root.lookup("browser_resize").assign(new Point(window.innerWidth,window.innerHeight), root.scope, Eden.EdenSymbol.defaultAgent);
-	});
-}}$;
+
+
 
 jseden_mobile_rotate is jseden_mobile && screenWidth > screenHeight;
 
@@ -3344,33 +3335,6 @@ func xorshiftRandomGenerator {
 
 randomSeed = @;
 randomGenerator is xorshiftRandomGenerator;
-
-/*${{
-	window.inRandomFunc = false;
-
-	root.lookup("randomSeed").addJSObserver("applySeed", function (obs, seed) {
-		root.lookup("randomGeneratorState").assign(seed, root.scope, obs);
-		root.lookup("randomIndex").assign(0, root.scope, obs);
-	});
-
-	root.lookup("randomGenerator").addJSObserver("applySeed", function (obs, generator) {
-		root.lookup("randomGeneratorState").assign(root.lookup("randomSeed").value(), root.scope, obs);		
-		root.lookup("randomIndex").assign(0, root.scope, obs);
-	});
-
-	root.lookup("randomIndex").addJSObserver("skipToIndex", function (obs, desiredIndex) {
-		if (inRandomFunc) {
-			return;
-		}
-		inRandomFunc = true;
-		var generator = root.lookup("randomGenerator").value();
-		root.lookup("randomGeneratorState").assign(root.lookup("randomSeed").value(), root.scope, obs);
-		for (var i = 0; i < desiredIndex; i++) {
-			generator();
-		}
-		inRandomFunc = false;
-	});
-}}$;*/
 	
 func random {
 	auto result;
@@ -3827,14 +3791,14 @@ ${{
 			};
 			var startClock = function (interval, target) {
 				if (target.definition !== undefined && /^proc\s/.test(target.eden_definition)) {
-					return window.setInterval(callClockProc, interval, target);
+					return setInterval(callClockProc, interval, target);
 				} else {
 					var currentValue = target.value();
 					if (currentValue === undefined) {
 						target.assign(0, root.scope, Eden.EdenSymbol.localJSAgent);
-						return window.setInterval(incrementClock, interval, target);
+						return setInterval(incrementClock, interval, target);
 					} else if (typeof(currentValue) == "number") {
-						return window.setInterval(incrementClock, interval, target);					
+						return setInterval(incrementClock, interval, target);					
 					} else {
 						var targetName = target.name.slice(1);
 						scope.error(new Error("edenclocks: edenclock observable " + targetName + " must be a procedure or have a numeric value assigned, not a " + typeof(currentValue) + ".  Paused edenclock " + targetName), "error");
@@ -3879,13 +3843,13 @@ ${{
 								existingClock.interval = clockInterval;
 							}					
 						} else if (clockInterval === undefined) {
-							window.clearInterval(existingClock.intervalID);
+							clearInterval(existingClock.intervalID);
 							if (debug) {
 								console.log("edenclocks: pause clock " + clockName);
 							}
 							existingClock.intervalID = undefined;
 						} else if (clockInterval != existingClock.interval) {
-							window.clearInterval(existingClock.intervalID);
+							clearInterval(existingClock.intervalID);
 							if (debug) {
 								console.log("edenclocks: change interval " + clockName + ", " + clockInterval + "ms");
 							}
@@ -3908,7 +3872,7 @@ ${{
 			if (!(clockName in newClockNames)) {
 				var existingClock = root.edenclocks[clockName];
 				if (existingClock.intervalID !== undefined) {
-					window.clearInterval(existingClock.intervalID);
+					clearInterval(existingClock.intervalID);
 					if (debug) {
 						console.log("edenclocks: delete clock " + clockName);
 					}
@@ -5054,63 +5018,7 @@ ${{
 action recovery {
 
 ${{
-
-(function() {
-	let ele = document.createElement("TEXTAREA");
-	ele.style.position = "absolute";
-	ele.style.top = "0px";
-	ele.style.bottom = "0px";
-	ele.style.left = "80px";
-	ele.style.width = "calc(100% - 80px)";
-	ele.style.lineHeight = "20px";
-	ele.style.boxSizing = "border-box";
-	ele.style.fontSize = "11pt";
-	ele.style.whiteSpace = "pre";
-	ele.value = eden.project.src;
-
-	let lines = eden.project.src.match(/\n/g).length;
-	let lineele = document.createElement("DIV");
-	for (let i=0; i<lines; ++i) {
-		let lineitem = document.createElement("DIV");
-		lineitem.textContent = "" + (i+1);
-		lineitem.style.paddingRight = "5px";
-
-		for (let j=0; j<eden.project.ast.script.errors.length; ++j) {
-			if (eden.project.ast.script.errors[j].line == (i+1)) {
-				lineitem.style.backgroundColor = "red";
-			}
-		}
-
-		lineele.appendChild(lineitem);
-	}
-	lineele.style.position = "absolute";
-	lineele.style.top = "0px";
-	lineele.style.bottom = "0px";
-	lineele.style.left = "0px";
-	lineele.style.width = "80px";
-	lineele.style.overflow = "hidden";
-	lineele.style.textAlign = "right";
-	lineele.style.lineHeight = "20px";
-	lineele.style.fontFamily = "mono";
-	lineele.style.fontSize = "11pt";
-	lineele.style.paddingTop = "3px";
-
-	ele.addEventListener("scroll", (e) => {
-		lineele.scrollTop = ele.scrollTop;
-	});
-
-	let content = document.getElementById("jseden-views");
-	content.appendChild(lineele);
-	content.appendChild(ele);
-
-	alert("Recovery Mode: There was an error in your construal, please correct it in the text below and save again");
-
-	ele.addEventListener("change", (e) => {
-		console.log("Text change");
-		eden.project.src = ele.value;
-	});
-})();
-
+	alert("Recovery mode is not supported");
 }}$;
 
 }
