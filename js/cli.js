@@ -1,5 +1,6 @@
 const { EdenUI } = require("./core/edenui.js");
 let CLIEden = {};
+CLIEden.EdenUI = EdenUI;
 CLIEden.EdenSymbol = function(){};
 CLIEden.EdenSymbol.prototype.value = function(){};
 CLIEden.edenFunctions = {};
@@ -180,6 +181,7 @@ CLIEden.initialise = function(){
     EdenUI.prototype.emit = CLIEden.emit;
     CLIEden.edenUI.plugins = plugins;
     CLIEden.edenUI.loadPlugin("Canvas2D",function(){console.log("Loaded plugin");});
+    CLIEden.eden.exec("do lib;");
 };
 
 
