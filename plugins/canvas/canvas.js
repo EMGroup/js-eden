@@ -49,6 +49,9 @@ const ContentsHandler = {
 
 const ContextHandler = {
     get(target,name){
+		if(typeof target[name] !== 'undefined'){
+			return target[name];
+		}
         console.log("Getting", name, "from",target);
 		if(name === 'setTransform'){
 			return function(...arguments){
@@ -620,7 +623,7 @@ class MockCanvas{
 
 
 			if(canvas === undefined){
-				let context = new Proxy({canvasID: name},ContextHandler);
+				let context = new Proxy({canvasID: name,lineWidth:4},ContextHandler);
 				canvas = new Proxy({canvasID:name, drawingQueued: false, drawingInProgress: false, rescale: false, context: context,
 				width: 400, height: 400},CanvasHandler);
 
