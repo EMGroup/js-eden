@@ -14,22 +14,24 @@ const myob = {};
 //See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
 const CanvasHandler = {
     get(target,name){
-        console.log("Getting", name, "from",target);
+        // console.log("Getting", name, "from",target);
 		if(typeof target[name] !== 'undefined'){
 			return target[name];
 		}
-		if(name === "setAttribute"){
-			return function(...arguments){
-				Eden.webview.postMessage({color: "#000066"});
-				console.log("Should now setAttribute with ",arguments);
-			};
-		}
+		// if(name === "setAttribute"){
+		// 	return function(...arguments){
+		// 		Eden.webview.postMessage({name: name, arguments: arguments});
+		// 		console.log("Should now setAttribute with ",arguments);
+		// 	};
+		// }
 		return function(...arguments){
+			Eden.webview.postMessage({objectType: "canvas", name: name, arguments: arguments});
 			console.log("Should now " + name + " with arguments",arguments);
 		};
     },
     set(obj,prop,value){
         obj[prop] = value;
+		Eden.webview.postMessage({objectType: "canvas", name: prop, value: value});
     }
 };
 
@@ -54,11 +56,13 @@ const ContextHandler = {
 			};
 		}
 		return function(...arguments){
+			Eden.webview.postMessage({objectType: "context", name: name, arguments: arguments});
 			console.log("Should now " + name + " with arguments",arguments);
 		};
     },
     set(obj,prop,value){
         obj[prop] = value;
+		Eden.webview.postMessage({objectType: "context", name: prop, value: value});
     }
 };
 
@@ -617,7 +621,8 @@ class MockCanvas{
 
 			if(canvas === undefined){
 				let context = new Proxy({canvasID: name},ContextHandler);
-				canvas = new Proxy({canvasID:name, drawingQueued: false, drawingInProgress: false, rescale: false, context: context},CanvasHandler);
+				canvas = new Proxy({canvasID:name, drawingQueued: false, drawingInProgress: false, rescale: false, context: context,
+				width: 400, height: 400},CanvasHandler);
 
 
 				
