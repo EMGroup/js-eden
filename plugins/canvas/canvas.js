@@ -63,7 +63,7 @@
 		var cleanupCanvas = function (canvasElement, previousElements) {
 			var hash;
 			for (hash in previousElements) {
-				if (previousElements[hash][0].getAttribute("data-garbage") == "false") {
+				if (previousElements[hash][0].getAttribute("data-garbage") === "false") {
 					continue;
 				}
 				var elementsToRemove = previousElements[hash];
@@ -78,7 +78,7 @@
 		this.thumbnail = function(cb) {
 			console.log("Thumbnail generation is currently not supported");
 	
-		}
+		};
 	
 		this.drawPicture = function(viewName) {
 			var canvas = canvases[viewName];
@@ -87,310 +87,249 @@
 				return;
 			}
 	
-			if (!canvas.drawingQueued) {
-				canvas.drawingQueued = true;
-	
-				if (!canvas.drawingInProgress) {
-					var redrawFunction = function () {
-						canvas.drawingInProgress = true;
-						canvas.drawingQueued = false;
-	
-						var previousElements = canvasNameToElements[viewName];
-						var nextElements = {};
-	
-						var pictureObsName = "view_" + viewName + "_content";
-						var pictureSym = root.lookup(pictureObsName);
-						var picture = pictureSym.value();
-						var context = canvas.getContext('2d');
-						var content = contents[viewName];
-						var contentindex = 0;
-						if (content === undefined) {
-							//View has been destroyed.
-							return;
+			if(canvas.drawingQueued || canvas.drawingInProgress ){ return; }
+			
+			canvas.drawingQueued = true;
+
+			var redrawFunction = function () {
+				canvas.drawingInProgress = true;
+				canvas.drawingQueued = false;
+
+				var previousElements = canvasNameToElements[viewName];
+				var nextElements = {};
+
+				var pictureObsName = "view_" + viewName + "_content";
+				var pictureSym = root.lookup(pictureObsName);
+				var picture = pictureSym.value();
+				//Get the context
+				var context = canvas.getContext('2d');
+				//Get the contents (are these two really independent?!)
+				var content = contents[viewName];
+				var contentindex = 0;
+				if (content === undefined) {
+					//View has been destroyed.
+					return;
+				}
+				
+				var backgroundColour = root.lookup("view_" + viewName + "_background_colour").value();
+				if (backgroundColour === undefined) {
+					backgroundColour = "white";
+				}
+				//Transform context
+				context.setTransform(1, 0, 0, 1, 0, 0);
+				me.setFillStyle(context, backgroundColour);
+				content.style.backgroundColor = backgroundColour;
+				context.fillRect(0, 0, canvas.width, canvas.height);
+
+				var hash;
+				for (hash in previousElements) {
+					previousElements[hash][0].setAttribute("data-garbage", true);
+				}
+				if (Array.isArray(picture)) {
+					var scale = root.lookup("view_" + viewName + "_scale").value();
+					if (typeof(scale) !== "number") {
+						scale = 1;
+					}
+					var zoom = root.lookup("view_" + viewName + "_zoom").value();
+					if (typeof(zoom) !== "number") {
+						zoom = 1;
+					}
+					var combinedScale = scale * zoom;
+					var invertedYAxis, absScale;
+					if (scale < 0) {
+						//Send context scale
+						context.scale(-combinedScale, combinedScale);
+						combinedScale = -combinedScale;
+						absScale = -scale;
+						invertedYAxis = true;
+					} else {
+						if (combinedScale !== 1) {
+							//Send context scale
+							context.scale(combinedScale, combinedScale);
 						}
-					  
-						var backgroundColour = root.lookup("view_" + viewName + "_background_colour").value();
-						if (backgroundColour === undefined) {
-							backgroundColour = "white";
+						absScale = scale;
+						invertedYAxis = false;
+					}
+					var origin = root.lookup("view_" + viewName + "_offset").value();
+					if (origin instanceof Point) {
+						if (invertedYAxis) {
+							//Canvas height
+							var originY = canvas.height / combinedScale - origin.y;
+							context.translate(origin.x, -originY);								
+							origin = new Point(origin.x, originY);
+						} else {
+							context.translate(origin.x, origin.y);
 						}
-						context.setTransform(1, 0, 0, 1, 0, 0);
-						me.setFillStyle(context, backgroundColour);
-						content.style.backgroundColor = backgroundColour;
-						context.fillRect(0, 0, canvas.width, canvas.height);
-	
-						var hash;
-						for (hash in previousElements) {
-							previousElements[hash][0].setAttribute("data-garbage", true);
+					} else {
+						origin = new Point(0, 0);
+					}
+					//Configure JS-EDEN default options that are different from the HTML canvas defaults.
+					//
+					me.configureContextDefaults(context, absScale);
+
+					var pictureLists = [picture];
+					var pictureListIndices = [0];
+					var cssTransforms = [];
+					var cssTransform = "";
+
+					while (pictureLists.length > 0) {
+						var currentPicture = pictureLists.pop();
+						var index = pictureListIndices.pop();
+						
+						if (index > 0 && currentPicture[index - 1] instanceof EdenUI.plugins.Canvas2D.Transform) {
+							//context
+							context.restore();
+							cssTransforms.pop();
+							cssTransform = cssTransforms.join(" ");
 						}
-						if (Array.isArray(picture)) {
-							var scale = root.lookup("view_" + viewName + "_scale").value();
-							if (typeof(scale) != "number") {
-								scale = 1;
-							}
-							var zoom = root.lookup("view_" + viewName + "_zoom").value();
-							if (typeof(zoom) != "number") {
-								zoom = 1;
-							}
-							var combinedScale = scale * zoom;
-							var invertedYAxis, absScale;
-							if (scale < 0) {
-								context.scale(-combinedScale, combinedScale);
-								combinedScale = -combinedScale;
-								absScale = -scale;
-								invertedYAxis = true;
-							} else {
-								if (combinedScale != 1) {
-									context.scale(combinedScale, combinedScale);
-								}
-								absScale = scale;
-								invertedYAxis = false;
-							}
-							var origin = root.lookup("view_" + viewName + "_offset").value();
-							if (origin instanceof Point) {
-								if (invertedYAxis) {
-									var originY = canvas.height / combinedScale - origin.y;
-									context.translate(origin.x, -originY);								
-									origin = new Point(origin.x, originY);
-								} else {
-									context.translate(origin.x, origin.y);
-								}
-							} else {
-								origin = new Point(0, 0);
-							}
-							//Configure JS-EDEN default options that are different from the HTML canvas defaults.
-							me.configureContextDefaults(context, absScale);
-	
-							var pictureLists = [picture];
-							var pictureListIndices = [0];
-							var cssTransforms = [];
-							var cssTransform = "";
-	
-							while (pictureLists.length > 0) {
-								var currentPicture = pictureLists.pop();
-								var index = pictureListIndices.pop();
-								
-								if (index > 0 && currentPicture[index - 1] instanceof EdenUI.plugins.Canvas2D.Transform) {
-									context.restore();
-									cssTransforms.pop();
-									cssTransform = cssTransforms.join(" ");
-								}
-	
-								while (index < currentPicture.length) {
-									var item = currentPicture[index];
-									if (!(item instanceof Object)) {
-										index++;
-										continue;
-									} else if (Array.isArray(item)) {
-										pictureLists.push(currentPicture);
-										pictureListIndices.push(index + 1);
-										currentPicture = item;
-										index = 0;
-										continue;
-									} else if (item instanceof EdenUI.plugins.Canvas2D.Transform) {
-										pictureLists.push(currentPicture);
-										pictureListIndices.push(index + 1);
-										context.save();
-										item.transform(context);
-										var newCSSTransform = item.getCSS(combinedScale);
-										cssTransform = cssTransform + newCSSTransform + " ";
-										cssTransforms.push(newCSSTransform);
-										currentPicture = item.items;
-										if (!Array.isArray(currentPicture)) {
-											currentPicture = [currentPicture];
-										}
-										index = 0;
-										continue;
-									}
-	
-									var elHash = item.hash && item.hash();
-									var existingEl = elHash && previousElements[elHash];
-	
-									if (existingEl) {
-										// if already existing hash, no need to draw, just set the elements
-										item.elements = existingEl;
-									} else {
-										context.save();
-										try {
-											var visible = me.configureContext(context, absScale, zoom, item.drawingOptions);
-											// expect draw() method to set .elements
-											if (visible) {
-												item.draw(context, scale, viewName);
-											}
-										} catch (e) {
-											if (item !== undefined) {
-												console.error(item, e);
-												//var debug = root.lookup("debug").value();
-												//if (typeof(debug) == "object" && debug.jsExceptions) {
-												//	debugger;
-												//}
-											}
-										}
-										context.restore();
-									}
-	
-									if (item.elements !== undefined) {
-										var parentEl = item.elements[0].parentElement;
-										if (parentEl && parentEl != content) {
-											//HTML item already present on another canvas.
-											var copiedEl = [];
-											for (var j = 0; j < item.elements.length; j++) {
-												copiedEl.push($(item.elements[j]).clone(true, true).get(0));
-											}
-											item.elements = copiedEl;
-											item.scale(combinedScale, zoom, origin);
-										} else if (!existingEl || canvas.rescale) {
-											item.scale(combinedScale, zoom, origin);
-										}
-									}
-									var htmlEl = item.elements;
-									if (htmlEl) {
-										//var htmlJQ = $(htmlEl);
-										//htmlJQ.css("transform", cssTransform);
-										htmlEl[0].style.transform = ((item.transformCSS) ? item.transformCSS+" " : "") + cssTransform;
-										htmlEl[0].setAttribute("data-garbage", false);
-										if (!existingEl) {
-											if (content.length <= contentindex) {
-												content.appendChild(htmlEl[0]);
-											} else {
-												content.insertBefore(htmlEl[0], content.childNodes[contentindex]);
-											}
-										}
-										nextElements[elHash] = htmlEl;
-										contentindex++;
-									}
-	
-									index++;
-								} //end of redraw loop (current list).
-							} // end of redraw loop (all nested lists).
-	
-							if (root.lookup("view_" + viewName + "_grid_visible").value() == true) {
-								//Draw grid lines.
-								var gridSpacing = root.lookup("view_" + viewName + "_grid_spacing").value();
-								var minX = -origin.x;
-								var maxX = canvas.width / combinedScale - origin.x;
-								var minY, maxY;
-								if (invertedYAxis) {
-									minY = origin.y - canvas.height /combinedScale; 
-									maxY = origin.y;
-								} else {
-									minY = -origin.y;
-									maxY = canvas.height /combinedScale - origin.y; 
-								}
-	
+
+						while (index < currentPicture.length) {
+							var item = currentPicture[index];
+							if (!(item instanceof Object)) {
+								index++;
+								continue;
+							} else if (Array.isArray(item)) {
+								pictureLists.push(currentPicture);
+								pictureListIndices.push(index + 1);
+								currentPicture = item;
+								index = 0;
+								continue;
+							} else if (item instanceof EdenUI.plugins.Canvas2D.Transform) {
+								pictureLists.push(currentPicture);
+								pictureListIndices.push(index + 1);
+								//context save
 								context.save();
-								//Minor grid lines.
-								context.lineWidth = 1 / combinedScale;
-								context.strokeStyle = "thistle";
-								me.drawGridLines(origin, combinedScale, gridSpacing, minX, minY, maxX, maxY, context);
-								//Major grid lines.
-								context.strokeStyle = "magenta";
-								me.drawGridLines(origin, combinedScale, gridSpacing * 3, minX, minY, maxX, maxY, context);
-	
-								//Origin marker.
-								context.beginPath();
-								context.strokeStyle = "blue";
-								context.fillStyle = "blue";
-								context.arc(0, 0, 9 / combinedScale, 0, 2 * Math.PI, false);
-								context.fill();
-	
-								//Axes direction arrows.
-								context.beginPath();
-								context.moveTo(3 * gridSpacing, 0);
-								context.lineTo(2 * gridSpacing, 0.4 * gridSpacing);
-								context.lineTo(2 * gridSpacing, -0.4 * gridSpacing);
-								context.moveTo(0, 3 * gridSpacing);
-								context.lineTo(0.4 * gridSpacing, 2 * gridSpacing);
-								context.lineTo(-0.4 * gridSpacing, 2 * gridSpacing);
-								context.fill();
-	
-								context.beginPath();
-								context.lineWidth = 4 / combinedScale;
-								context.moveTo(2 * gridSpacing, 0);
-								context.lineTo(0, 0);
-								context.lineTo(0, 3 * gridSpacing);
-								context.stroke();
-	
+								//Item transform with context
+								item.transform(context);
+								var newCSSTransform = item.getCSS(combinedScale);
+								cssTransform = cssTransform + newCSSTransform + " ";
+								cssTransforms.push(newCSSTransform);
+								currentPicture = item.items;
+								if (!Array.isArray(currentPicture)) {
+									currentPicture = [currentPicture];
+								}
+								index = 0;
+								continue;
+							}
+
+							var elHash = item.hash && item.hash();
+							var existingEl = elHash && previousElements[elHash];
+
+							if (existingEl) {
+								// if already existing hash, no need to draw, just set the elements
+								item.elements = existingEl;
+							} else {
+								//Save context
+								context.save();
+								try {
+									var visible = me.configureContext(context, absScale, zoom, item.drawingOptions);
+									// expect draw() method to set .elements
+									if (visible) {
+										item.draw(context, scale, viewName);
+									}
+								} catch (e) {
+									if (item !== undefined) {
+										console.error(item, e);
+										//var debug = root.lookup("debug").value();
+										//if (typeof(debug) == "object" && debug.jsExceptions) {
+										//	debugger;
+										//}
+									}
+								}
 								context.restore();
 							}
-	
-						} else { //end if picture observable is a list.
-	
-							var obsName = pictureObsName;
-							var definition = pictureSym.eden_definition;
-							if (definition) {
-								var re = new RegExp("^" + pictureObsName + "\\s+is\\s+([a-zA-Z0-9_]+)(;)?$");
-								var match = definition.match(re);
-								if (match !== null) {
-									obsName = match[1];
+
+							if (item.elements !== undefined) {
+								var parentEl = item.elements[0].parentElement;
+								if (parentEl && parentEl !== content) {
+									//HTML item already present on another canvas.
+									var copiedEl = [];
+									for (var j = 0; j < item.elements.length; j++) {
+										copiedEl.push($(item.elements[j]).clone(true, true).get(0));
+									}
+									item.elements = copiedEl;
+									item.scale(combinedScale, zoom, origin);
+								} else if (!existingEl || canvas.rescale) {
+									item.scale(combinedScale, zoom, origin);
 								}
 							}
-							context.save();
-							context.font = "18px sans-serif";
-							context.fillStyle = "black";
-							context.textAlign = "center";
-							content.textBaseline = "middle";
-							context.fillText(
-								"Give the observable named '" + obsName + "' a list-typed value",
-								canvas.width / 2,
-								canvas.height / 2
-							);
-							context.fillText(
-								"to create a picture here.",
-								canvas.width / 2,
-								canvas.height / 2 + 30
-							);
-							context.restore();
+							var htmlEl = item.elements;
+							if (htmlEl) {
+								//var htmlJQ = $(htmlEl);
+								//htmlJQ.css("transform", cssTransform);
+								//Setting style on elements
+								htmlEl[0].style.transform = ((item.transformCSS) ? item.transformCSS+" " : "") + cssTransform;
+								//Setting garbage on elements
+								htmlEl[0].setAttribute("data-garbage", false);
+								if (!existingEl) {
+									//Content manipulation
+									if (content.length <= contentindex) {
+										content.appendChild(htmlEl[0]);
+									} else {
+										content.insertBefore(htmlEl[0], content.childNodes[contentindex]);
+									}
+								}
+								nextElements[elHash] = htmlEl;
+								contentindex++;
+							}
+
+							index++;
+						} //end of redraw loop (current list).
+					} // end of redraw loop (all nested lists).
+
+				} else { //end if picture observable is a list.
+
+					var obsName = pictureObsName;
+					var definition = pictureSym.eden_definition;
+					if (definition) {
+						var re = new RegExp("^" + pictureObsName + "\\s+is\\s+([a-zA-Z0-9_]+)(;)?$");
+						var match = definition.match(re);
+						if (match !== null) {
+							obsName = match[1];
 						}
-						cleanupCanvas(content, previousElements);
-						canvasNameToElements[viewName] = nextElements;
-						canvas.drawingInProgress = false;
-						if (canvas.drawingQueued) {
-							setTimeout(redrawFunction, redrawDelay);
-						}
-					}; // end of redraw function.
+					}
+					//Save context
+					context.save();
+					//Context properties
+					context.font = "18px sans-serif";
+					context.fillStyle = "black";
+					context.textAlign = "center";
+					content.textBaseline = "middle";
+					context.fillText(
+						"Give the observable named '" + obsName + "' a list-typed value",
+						canvas.width / 2,
+						canvas.height / 2
+					);
+					context.fillText(
+						"to create a picture here.",
+						canvas.width / 2,
+						canvas.height / 2 + 30
+					);
+					context.restore();
+				}
+				cleanupCanvas(content, previousElements);
+				canvasNameToElements[viewName] = nextElements;
+				//Canvas properies
+				canvas.drawingInProgress = false;
+				if (canvas.drawingQueued) {
 					setTimeout(redrawFunction, redrawDelay);
-				} //end if drawing not already in progress.
-			} //end redraw only if not already queued.
+				}
+			}; // end of redraw function.
+			setTimeout(redrawFunction, redrawDelay);
 		};
-	
-		this.drawGridLines = function (origin, combinedScale, gridSpacing, minX, minY, maxX, maxY, context) {
-			context.beginPath();
-			for (var x = origin.x == 0? gridSpacing : 0; x <= maxX; x = x + gridSpacing) {
-				var roundedX = (Math.round(x * combinedScale) - 0.5) / combinedScale;
-				context.moveTo(roundedX, minY);
-				context.lineTo(roundedX, maxY);
-				context.stroke();
-			}
-			for (var x = -gridSpacing; x >= minX; x = x - gridSpacing) {
-				var roundedX = (Math.round(x * combinedScale) - 0.5) / combinedScale;
-				context.moveTo(roundedX, minY);
-				context.lineTo(roundedX, maxY);
-				context.stroke();
-			}
-			for (var y = origin.y == 0? gridSpacing : 0; y <= maxY; y = y + gridSpacing) {
-				var roundedY = (Math.round(y * combinedScale) - 0.5) / combinedScale;
-				context.moveTo(minX, roundedY);
-				context.lineTo(maxX, roundedY);
-				context.stroke();
-			}
-			for (var y = -gridSpacing; y >= minY; y = y - gridSpacing) {
-				var roundedY = (Math.round(y * combinedScale) - 0.5) / combinedScale;
-				context.moveTo(minX, roundedY);
-				context.lineTo(maxX, roundedY);
-				context.stroke();
-			}
-		}
 	
 		/**Configures JS-EDEN default drawing options that are different from the HTML canvas defaults.
 		 */
 		this.configureContextDefaults = function (context, scale) {
+			//Set context details
 			context.lineJoin = "bevel";
 			context.miterLimit = 429496656;
 			context.lineWidth = this.defaultLineWidth / scale;
-		}
+		};
 		
 		this.configureContext = function (context, scale, zoom, options) {
-			if (typeof(options) != "object") {
+			
+			if (typeof(options) !== "object") {
 				return true;
 			}
 			
@@ -399,12 +338,14 @@
 			}
 				
 			if (Array.isArray(options.dashes)) {
+				//Context method
 				context.setLineDash(options.dashes);
 				if ("dashOffset" in options) {
 					context.lineDashOffset = options.dashOffset;
 				}
 			}
 	
+			//Configure context properties...
 			if ("cap" in options) {
 				context.lineCap = options.cap;
 			}
@@ -425,7 +366,7 @@
 				context.globalAlpha = options.opacity;
 			}
 			
-			if (typeof(options.shadow) == "object") {
+			if (typeof(options.shadow) === "object") {
 				context.shadowColor = options.shadow.colour;
 				if (options.shadow.scale) {
 					var combinedScale = zoom * scale;
@@ -440,7 +381,7 @@
 			}
 	
 			return true;
-		}
+		};
 	
 		this.setFillStyle = function (context, style) {
 			if (style instanceof CanvasImage) {
@@ -474,7 +415,7 @@
 				}
 			}
 			return name;
-		}
+		};
 	
 		this.initZoneFromName = function (name, agentName) {
 			if (Eden.isValidIdentifier(name)) {
@@ -494,7 +435,7 @@
 				var scale = root.lookup("view_" + viewName + "_scale").value();
 				return this.findDrawableHitInList(picture, context, scale, x, y, fromBottom, testAll);
 			}
-		}
+		};
 		
 		this.findDrawableHitInList = function (picture, context, scale, x, y, fromBottom, testAll) {
 			if (!Array.isArray(picture)) {
@@ -511,12 +452,12 @@
 	
 			for (var i = beginIndex; fromBottom? i < picture.length : i >= 0; i = i + increment) {
 				var drawable = picture[i];
-				if (typeof(drawable) != "object") {
+				if (typeof(drawable) !== "object") {
 					continue;
 				} else if (Array.isArray(drawable)) {
 					var drawableHit = this.findDrawableHitInList(drawable, context, scale, x, y, fromBottom, testAll);
-					if (drawableHit) return drawableHit;
-					else continue;
+					if (drawableHit){ return drawableHit;}
+					else {continue;}
 				}
 	
 				var hitTest = drawable.isHit;
@@ -541,7 +482,7 @@
 				}
 			}
 			return undefined;
-		}
+		};
 	
 		this.findAllDrawablesHit = function (viewName, x, y, testAll) {
 			var picture = root.lookup("view_" + viewName + "_content").value();
@@ -549,7 +490,7 @@
 			var context = canvas.getContext("2d");
 			var scale = root.lookup("view_" + viewName + "_scale").value();
 			return this.findAllDrawablesHitInList(picture, context, scale, x, y, testAll);
-		}
+		};
 		
 		this.findAllDrawablesHitInList = function (picture, context, scale, x, y, testAll) {
 			if (!Array.isArray(picture)) {
@@ -559,7 +500,7 @@
 	
 			for (var i = 0; i < picture.length; i++) {
 				var drawable = picture[i];
-				if (typeof(drawable) != "object") {
+				if (typeof(drawable) !== "object") {
 					continue;
 				}
 	
@@ -585,7 +526,7 @@
 				}
 			}
 			return drawablesHit;
-		}
+		};
 	
 		var mouseInfo = {
 			leftButton: false, middleButton: false, rightButton: false, button4: false, button5: false,
@@ -602,16 +543,24 @@
 			if (canvas === undefined) {
 				let canvasOb = {};
 				
+				//code_entry should be a DOM object
+				//Basic HTML
 				code_entry = '<div id="' + name + '-canvascontent" class="canvashtml-content"><canvas class="canvashtml-canvas noselect" id="' + name + '-canvas" tabindex="1"></canvas></div>';
+				//Gets element
 				jqCanvas = code_entry.find(".canvashtml-canvas");
 				canvas = jqCanvas[0];
+				//Assigns element to canvases object
 				canvases[name] = canvas;
+				//Assigns element to contents object (why not just use the above?!)
 				contents[name] = code_entry[0];
+				//Stores HTML elements
 				canvasNameToElements[name] = {};
+
 				canvas.drawingQueued = false;
 				canvas.drawingInProgress = false;
 				canvas.rescale = false;
 			} else {
+				//Find existing DOM elements
 				code_entry = $("#" + name + "-canvascontent");
 				jqCanvas = code_entry.find(".canvashtml-canvas");
 			}
@@ -736,7 +685,7 @@
 			}
 			zoomSym.addJSObserver("refreshView", function (symbol, zoom) {
 				var zoomPercent = Math.round(zoom * 100);
-				if (zoom == 1) {
+				if (zoom === 1) {
 					// TODO FIX
 					//viewData.titleBarInfo = undefined;
 				} else {
@@ -758,11 +707,11 @@
 				offsetY = offset.y;
 			}
 			offsetSym.addJSObserver("refreshView", resizeCanvas);
-			if (widthSym.value() == undefined) {
+			if (widthSym.value() === undefined) {
 				widthSym.assign(undefined, root.scope, EdenSymbol.defaultAgent);
 			}
 			widthSym.addJSObserver("repaintView", resizeCanvas);
-			if (heightSym.value() == undefined) {
+			if (heightSym.value() === undefined) {
 				heightSym.assign(undefined, root.scope, EdenSymbol.defaultAgent);
 			}
 			heightSym.addJSObserver("repaintView", resizeCanvas);
@@ -842,7 +791,7 @@
 				root.lookup("mouseButtons").assign(buttonsStr, root.scope, EdenSymbol.hciAgent, followMouse);
 				root.lookup("mouseButton").assign(buttonName + " down", root.scope, EdenSymbol.hciAgent, followMouse);
 	
-				if (mouseInfo.buttonCount == 1) {
+				if (mouseInfo.buttonCount === 1) {
 					var mousePos = root.lookup('mousePosition').value();
 					root.lookup('mouseDownView').assign(canvasName, root.scope, EdenSymbol.hciAgent, followMouse);
 					root.lookup('mouseDown').assign(mousePos, root.scope, EdenSymbol.hciAgent, followMouse);
@@ -922,7 +871,7 @@
 	
 				root.lookup("mouseButton").assign(buttonName + " up", root.scope, EdenSymbol.hciAgent, followMouse);
 				
-				if (mouseInfo.buttonCount == 0) {
+				if (mouseInfo.buttonCount === 0) {
 					var mousePos = root.lookup('mousePosition').value();
 					root.lookup("mouseButtons").assign("", root.scope, EdenSymbol.hciAgent, followMouse);
 					root.lookup('mouseUp').assign(mousePos, root.scope, EdenSymbol.hciAgent, followMouse);
@@ -975,11 +924,11 @@
 				var e2 = e.originalEvent;
 				var wheelScale;
 				var height = viewHeightSym.value();
-				if (e2.deltaMode == WheelEvent.DOM_DELTA_LINE) {
+				if (e2.deltaMode === WheelEvent.DOM_DELTA_LINE) {
 					//Default font size of the canvas.  See css/eden.css
 					wheelScale =  me.defaultLineHeight;
-				} else if (e2.deltaMode == WheelEvent.DOM_DELTA_PAGE) {
-					if (e2.deltaX != 0) {
+				} else if (e2.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+					if (e2.deltaX !== 0) {
 						wheelScale = viewWidthSym.value();
 					} else {
 						wheelScale = height;
@@ -989,7 +938,7 @@
 				}
 	
 				var followMouse = root.lookup("mouseFollow").value();
-				if (e2.deltaY != 0 && e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+				if (e2.deltaY !== 0 && e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
 					e.preventDefault();
 					e.stopPropagation();
 					root.beginAutocalcOff();
@@ -1051,7 +1000,7 @@
 				if (!mouseInfo.insideCanvas) {
 					mouseInfo.insideCanvas = true;
 					var buttonsStr;
-					if (mouseInfo.buttonCount == 0) {
+					if (mouseInfo.buttonCount === 0) {
 						buttonsStr = "";
 					} else {
 						buttonsStr = "|";
@@ -1074,7 +1023,7 @@
 					
 					var buttonsSym = root.lookup("mouseButtons");
 					var prevButtons = buttonsSym.value();
-					if (buttonsStr != prevButtons) {
+					if (buttonsStr !== prevButtons) {
 						var followMouse = root.lookup("mouseFollow").value();
 						root.beginAutocalcOff();
 	
@@ -1082,10 +1031,10 @@
 						root.lookup("mouseButton").assign("Enter window", root.scope, EdenSymbol.hciAgent, followMouse);				
 	
 						var pressedSym = root.lookup("mousePressed");
-						if (pressedSym.value() != mouseInfo.leftButton) {
+						if (pressedSym.value() !== mouseInfo.leftButton) {
 							pressedSym.assign(mouseInfo.leftButton, root.scope, EdenSymbol.hciAgent, followMouse);
 						}
-						if (prevButtons == "" && buttonsStr != "") {
+						if (prevButtons === "" && buttonsStr !== "") {
 							root.lookup("mouseDown").assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
 							root.lookup("mouseDownView").assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
 						}
@@ -1134,7 +1083,7 @@
 	
 				var deltaTime;
 				var now = Date.now();
-				if (previousView == canvasName && mouseVelocityTimestamp !== undefined) {
+				if (previousView === canvasName && mouseVelocityTimestamp !== undefined) {
 					deltaTime = now - mouseVelocityTimestamp;
 	
 					if (deltaTime >= me.mouseVelocitySampleTime) {
@@ -1188,15 +1137,15 @@
 					//Zooming using Alt+, Alt- and Alt0
 					var zoomSym = root.lookup("view_" + canvasName + "_zoom");
 					var zoom = zoomSym.value();
-					if (keyCode == 61 || keyCode == 187) {
+					if (keyCode === 61 || keyCode === 187) {
 						//Alt + =
 						zoom = zoom * 1.25;
 						handled = true;
-					} else if (keyCode == 173 || keyCode == 189) {
+					} else if (keyCode === 173 || keyCode === 189) {
 						//Alt + -
 						zoom = zoom / 1.25;
 						handled = true;
-					} else if (keyCode == 48) {
+					} else if (keyCode === 48) {
 						//Alt + 0
 						zoom = 1;
 						handled = true;
@@ -1219,7 +1168,7 @@
 				heightSym: heightSym,
 				scaleSym: scaleSym,
 			};
-		}
+		};
 	
 		this.createEmbedded = function (name, mtitle, pictureobs) {
 			var canvasName = name;
@@ -1270,7 +1219,7 @@
 					} else {
 						neededWidth = Math.floor(width);
 					}
-					if (canvas.width != neededWidth) {
+					if (canvas.width !== neededWidth) {
 						canvas.width = neededWidth;
 						redraw = true;
 					}
@@ -1284,11 +1233,11 @@
 					} else {
 						neededHeight = height;
 						if (prescribedWidth !== undefined && prescribedWidth > neededHeight) {
-							neededHeight = neededHeight - edenUI.scrollBarSize
+							neededHeight = neededHeight - edenUI.scrollBarSize;
 						}
 						var neededHeight = Math.floor(neededHeight - 1);
 					}
-					if (neededHeight != canvas.height) {
+					if (neededHeight !== canvas.height) {
 						canvas.height = neededHeight;
 						redraw = true;
 					}
@@ -1300,7 +1249,7 @@
 			};
 	
 			return viewdata;
-		}
+		};
 	
 		this.createDialog = function (name, mtitle) {
 			var canvasName = name.slice(0, -7);
@@ -1375,7 +1324,7 @@
 						} else {
 							neededWidth = Math.floor(width);
 						}
-						if (canvas.width != neededWidth) {
+						if (canvas.width !== neededWidth) {
 							canvas.width = neededWidth;
 							redraw = true;
 						}
@@ -1389,11 +1338,11 @@
 						} else {
 							neededHeight = height;
 							if (prescribedWidth !== undefined && prescribedWidth > neededHeight) {
-								neededHeight = neededHeight - edenUI.scrollBarSize
+								neededHeight = neededHeight - edenUI.scrollBarSize;
 							}
 							var neededHeight = Math.floor(neededHeight - 1);
 						}
-						if (neededHeight != canvas.height) {
+						if (neededHeight !== canvas.height) {
 							canvas.height = neededHeight;
 							redraw = true;
 						}
@@ -1405,7 +1354,7 @@
 			};
 			me.drawPicture(canvasName);
 			return viewData;
-		}
+		};
 	
 		root.lookup("mouseDownZone").addJSObserver("recordClick", function (symbol, zone) {
 			if (Eden.isValidIdentifier(zone)) {
@@ -1429,7 +1378,7 @@
 		this.canvasNameFromElement = function (element) {
 			while (element) {
 				var id = element.id;
-				if (id.slice(-14) == "-canvascontent") {
+				if (id.slice(-14) === "-canvascontent") {
 					return id.slice(0, -14);
 				}
 				element = element.parentElement;
@@ -1525,23 +1474,23 @@
 	
 		Eden.Selectors.execute("plugins > canvas_merged", eden.root.scope, function() {
 			eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
-			if (success) success();
+			if (success){success();}
 		});
 	};
 	
 	EdenUI.plugins.Canvas2D.FillStyle = function () {
 		//Abstract superclass.
-	}
+	};
 	
 	EdenUI.plugins.Canvas2D.Transform = function () {
 		//Abstract superclass.
-	}
+	};
 	
 	EdenUI.plugins.Canvas2D.Transform.CSSInfo = function (css, scaleX, scaleY) {
 		this.css = css;
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
-	}
+	};
 	
 	EdenUI.plugins.Canvas2D.title = "Canvas 2D";
 	EdenUI.plugins.Canvas2D.description = "Provides the ability to draw two-dimensional shapes, images, text and user interface controls using EDEN dependencies.";
