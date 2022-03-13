@@ -126,8 +126,9 @@
 			viewData = {};
 		}
 		this.viewInstances[name] = viewData;
+		return;
 		var position = viewData.position;
-
+		
 		//Create and set behaviour for minimize, maximize and close buttons.
 		var collapseOnDblClick = edenUI.getOptionValue("optCollapseToTitleBar");
 		var titleBarAction;
