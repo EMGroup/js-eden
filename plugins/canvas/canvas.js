@@ -9,6 +9,8 @@ const { ProcessExecution } = require("vscode");
 
 
 const myob = {};
+
+
 //See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
 const CanvasHandler = {
     get(target,name){
@@ -18,9 +20,13 @@ const CanvasHandler = {
 		}
 		if(name === "setAttribute"){
 			return function(...arguments){
+				Eden.webview.postMessage({color: "#000066"});
 				console.log("Should now setAttribute with ",arguments);
 			};
 		}
+		return function(...arguments){
+			console.log("Should now " + name + " with arguments",arguments);
+		};
     },
     set(obj,prop,value){
         obj[prop] = value;
@@ -30,6 +36,9 @@ const CanvasHandler = {
 const ContentsHandler = {
     get(target,name){
         console.log("Getting", name, "from",target);
+		if(name === "style"){
+			return {};
+		}
     },
     set(obj,prop,value){
         obj[prop] = value;
@@ -44,6 +53,9 @@ const ContextHandler = {
 				console.log("Should now setTransform with ",arguments);
 			};
 		}
+		return function(...arguments){
+			console.log("Should now " + name + " with arguments",arguments);
+		};
     },
     set(obj,prop,value){
         obj[prop] = value;
