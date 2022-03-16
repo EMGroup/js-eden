@@ -100,8 +100,8 @@
 		var titleSym = view(name, "title");
 		var title = titleSym.value();
 
-		if (currentType == type) {
-			if (visibility != "visible") {
+		if (currentType === type) {
+			if (visibility !== "visible") {
 				visibilitySym.assign("visible", root.scope, agent);
 			}
 
@@ -111,13 +111,13 @@
 
 		this.eden.root.beginAutocalcOff();
 		if (currentType !== undefined) {
-			if (title == this.views[currentType].title) {
+			if (title === this.views[currentType].title) {
 				title = undefined;
 			}
 			this.destroyView(name, false);
 		}
 
-		this.titleBarHeight = (currentType == "ScriptView") ? this.largeTitleBar : this.titleBarHeight;
+		this.titleBarHeight = (currentType === "ScriptView") ? this.largeTitleBar : this.titleBarHeight;
 
 		var desktopTop = this.menuBarHeight;
 		var defaultTitle = this.views[type].title;
@@ -126,6 +126,8 @@
 			viewData = {};
 		}
 		this.viewInstances[name] = viewData;
+		
+		this.eden.root.endAutocalcOff();
 		return;
 		var position = viewData.position;
 		
