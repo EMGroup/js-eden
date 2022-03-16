@@ -133,6 +133,21 @@ require("./grammar/section.js");
 require("./fragment.js");
 require("../plugins/canvas/canvas.js");
 require("../plugins/canvas_merged.js");
+const myob = {};
+//See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
+const handler = {
+    get(target,name){
+        console.log("Getting", name, "from",target);
+    },
+    set(obj,prop,value){
+        obj[prop] = value;
+    }
+};
+const document = new Proxy(myob,handler);
+
+const window = new Proxy(myob,handler);
+
+
 // require("node-fetch");
 
 CLIEden.listenTo = function(eventName, target, callback) {
@@ -195,7 +210,6 @@ CLIEden.startCommandLine = function(){
     
 
     global.root = CLIEden.eden.root;
-    CLIEden.setCanvasRoot();
     var rl = readline.createInterface({
         input: process.stdin,
         terminal: false
@@ -213,6 +227,7 @@ CLIEden.startCommandLine = function(){
     printPrompt();
 
     CLIEden.edenUI = new EdenUI(CLIEden.eden);
+    CLIEden.setCanvasRoot();
     CLIEden.initialise();
 
     rl.on('line',function(line){
