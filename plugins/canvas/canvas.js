@@ -10,6 +10,9 @@ const { ProcessExecution } = require("vscode");
 
 const myob = {};
 
+let dummyToJSON = function(){
+	return "Proxy";
+};
 
 //See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
 const CanvasHandler = {
@@ -26,7 +29,15 @@ const CanvasHandler = {
 		// }
 		return function(...arguments){
 			Eden.webview.postMessage({objectType: "canvas", name: name, arguments: arguments});
-			console.log("Should now " + name + " with arguments",arguments);
+			if(name === "toJSON"){
+				// console.log("Got toJSON");
+				console.log("toJSON, should now " + name + " with arguments",arguments);
+			}else{
+				// console.log("'"+name+"' is not toJSON");
+				console.log("Now " + name + " with arguments",arguments);
+			}
+			// console.log("Should now " + name + " with arguments",arguments);
+			//Need to make this async and wait for the result (and maybe adjust every line of code that calls a function and expects a response)
 		};
     },
     set(obj,prop,value){
@@ -52,7 +63,7 @@ const ContextHandler = {
 		if(typeof target[name] !== 'undefined'){
 			return target[name];
 		}
-        console.log("Getting", name, "from",target);
+        // console.log("Getting", name, "from",target);
 		if(name === 'setTransform'){
 			return function(...arguments){
 				console.log("Should now setTransform with ",arguments);
@@ -192,10 +203,13 @@ class MockCanvas{
 					backgroundColour = "white";
 				}
 				//Transform context
-				context.setTransform(1, 0, 0, 1, 0, 0);
-				me.setFillStyle(context, backgroundColour);
-				content.style.backgroundColor = backgroundColour;
-				context.fillRect(0, 0, canvas.width, canvas.height);
+				// console.log("About to setTransform");
+				context.drawBackgroundRect();
+				// context.setTransform(1, 0, 0, 1, 0, 0);
+				// me.setFillStyle(context, backgroundColour);
+				// content.style.backgroundColor = backgroundColour;
+				// context.fillRect(0, 0, canvas.width, canvas.height);
+				// console.log("After fillRect on line 200");
 
 				var hash;
 				for (hash in previousElements) {
@@ -352,7 +366,6 @@ class MockCanvas{
 							index++;
 						} //end of redraw loop (current list).
 					} // end of redraw loop (all nested lists).
-
 				} else { //end if picture observable is a list.
 
 					var obsName = pictureObsName;
@@ -502,10 +515,6 @@ class MockCanvas{
 			}
 			return name;
 		};
-
-		this.getContextForCanvas = function(){
-			console.log("getContexForCanvas");
-		};
 	
 		this.findDrawableHit = function (viewName, x, y, fromBottom, testAll) {
 			var picture = root.lookup("view_" + viewName + "_content").value();
@@ -623,11 +632,9 @@ class MockCanvas{
 
 
 			if(canvas === undefined){
-				let context = new Proxy({canvasID: name,lineWidth:4},ContextHandler);
+				let context = new Proxy({canvasID: name,lineWidth:4,toJSON:dummyToJSON},ContextHandler);
 				canvas = new Proxy({canvasID:name, drawingQueued: false, drawingInProgress: false, rescale: false, context: context,
-				width: 400, height: 400},CanvasHandler);
-
-
+				width: 400, height: 400,toJSON: dummyToJSON},CanvasHandler);
 				
 				//Assigns element to canvases object
 				canvases[name] = canvas;

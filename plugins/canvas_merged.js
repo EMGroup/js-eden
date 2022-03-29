@@ -3284,7 +3284,7 @@ Rectangle = function(x, y, width, height, fillcolour, outlinecolour, drawingOpti
 	this.fillcolour = fillcolour;
 	this.outlinecolour = outlinecolour;
 	this.drawingOptions = drawingOptions;
-	this.name = CLIEden.edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Rectangle");
+	this.name = edenUI.plugins.Canvas2D.initZoneFromDrawingOpts(drawingOptions, "Rectangle");
 	this.obsName = root.currentObservableName();
 }
 
