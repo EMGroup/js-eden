@@ -10,6 +10,7 @@ const { ProcessExecution } = require("vscode");
 
 const myob = {};
 
+let messageQueue = [];
 let dummyToJSON = function(){
 	return "Proxy";
 };
@@ -28,21 +29,21 @@ const CanvasHandler = {
 		// 	};
 		// }
 		return function(...arguments){
-			Eden.webview.postMessage({objectType: "canvas", name: name, arguments: arguments});
-			if(name === "toJSON"){
-				// console.log("Got toJSON");
-				console.log("toJSON, should now " + name + " with arguments",arguments);
-			}else{
-				// console.log("'"+name+"' is not toJSON");
-				console.log("Now " + name + " with arguments",arguments);
-			}
+			sendMessage({objectType: "canvas", name: name, arguments: arguments},false);
+			// if(name === "toJSON"){
+			// 	// console.log("Got toJSON");
+			// 	console.log("toJSON, should now " + name + " with arguments",arguments);
+			// }else{
+			// 	// console.log("'"+name+"' is not toJSON");
+			// 	console.log("Now " + name + " with arguments",arguments);
+			// }
 			// console.log("Should now " + name + " with arguments",arguments);
 			//Need to make this async and wait for the result (and maybe adjust every line of code that calls a function and expects a response)
 		};
     },
     set(obj,prop,value){
         obj[prop] = value;
-		Eden.webview.postMessage({objectType: "canvas", name: prop, value: value});
+		sendMessage({objectType: "canvas", name: prop, value: value},false);
     }
 };
 
@@ -58,25 +59,44 @@ const ContentsHandler = {
     }
 };
 
+function sendMessage(msg, flush = false){
+	console.log("Adding msg to queue",msg);
+	messageQueue.push(msg);
+
+	let debug = true;
+
+	if(debug){
+
+		Eden.webview.postMessage([msg]);
+		return;
+	}
+
+	if(flush){
+		console.log("Sending %d messages",messageQueue.length);
+		Eden.webview.postMessage(messageQueue);
+		messageQueue = [];
+	}
+};
+
 const ContextHandler = {
     get(target,name){
 		if(typeof target[name] !== 'undefined'){
 			return target[name];
 		}
-        // console.log("Getting", name, "from",target);
-		if(name === 'setTransform'){
+		if(name === "restore" || name === "save"){
 			return function(...arguments){
-				console.log("Should now setTransform with ",arguments);
+				sendMessage({objectType: "context", name: name, arguments: arguments},true);
+			};
+		}else{
+			return function(...arguments){
+				sendMessage({objectType: "context", name: name, arguments: arguments},false);
 			};
 		}
-		return function(...arguments){
-			Eden.webview.postMessage({objectType: "context", name: name, arguments: arguments});
-			console.log("Should now " + name + " with arguments",arguments);
-		};
+
     },
     set(obj,prop,value){
         obj[prop] = value;
-		Eden.webview.postMessage({objectType: "context", name: prop, value: value});
+		sendMessage({objectType: "context", name: prop, value: value},false);
     }
 };
 

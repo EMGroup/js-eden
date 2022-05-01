@@ -128,6 +128,7 @@
 		this.viewInstances[name] = viewData;
 		
 		this.eden.root.endAutocalcOff();
+		this.emit('createView', [name, type]);
 		return;
 		var position = viewData.position;
 		
