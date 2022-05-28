@@ -17,6 +17,8 @@
 		this.root.base = this;
 		this.dictionary = {};	// Used to store doxy comments for symbols.
 
+        this.options = {};
+
 		/**
 		 * @type {number}
 		 * @public (Inspected and reset by the framework for testing EDEN code.)

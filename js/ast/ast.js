@@ -94,11 +94,13 @@ Eden.AST = function(code, imports, origin, options) {
 		this.next();
 		while (this.token === "STRING") {
 			// Read parser properties...
-			if (this.data.value === "use cs2;") {
-				this.version = Eden.AST.VERSION_CS2;
-			} else if (this.data.value === "use cs3;") {
-				this.version = Eden.AST.VERSION_CS3;
-			}
+            if (!options || options.version === undefined) {
+                if (this.data.value === "use cs2;") {
+                    this.version = Eden.AST.VERSION_CS2;
+                } else if (this.data.value === "use cs3;") {
+                    this.version = Eden.AST.VERSION_CS3;
+                }
+            }
 			this.next();
 		}
 
@@ -492,6 +494,25 @@ Eden.AST.parseScript = function(src, origin) {
 		}
 		ast.next();
 	}
+	var script = ast.pSCRIPT();
+	script.base = ast;
+	script.setSource(0,src.length, src);
+	script.stamp = ast.stamp;
+	var numlines = src.match("\n");
+	if (numlines === null) script.numlines = 0;
+	else script.numlines = numlines.length;
+	return script;
+}
+
+Eden.AST.parseScript3 = function(src, origin) {
+	if (typeof src != "string") return null;
+	var ast = new Eden.AST(src, undefined, (origin) ? origin : {}, {noparse: true, noindex: true});
+	ast.next();
+	while (ast.token === "STRING") {
+		// Read parser properties and ignore them.
+		ast.next();
+	}
+    ast.version = Eden.AST.VERSION_CS3;
 	var script = ast.pSCRIPT();
 	script.base = ast;
 	script.setSource(0,src.length, src);

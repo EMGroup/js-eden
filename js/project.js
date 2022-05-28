@@ -5,7 +5,16 @@ Eden.Project = function(id, name, source, eden) {
 	this.authorid = -1;
 	this.tags = name.toLowerCase().split(" ");
 	this.src = source;
-	this.ast = new Eden.AST(source, undefined, this, {autorecover: true, tolerant: true});
+
+    const options = {
+        autorecover: true,
+        tolerant: true,
+    };
+    if (eden.options.parser !== undefined) {
+        options.version = eden.options.parser;
+    }
+
+	this.ast = new Eden.AST(source, undefined, this, options);
 	//this.ast.script.lock = 1;
 	this.id = id;
 	this.vid = undefined;
