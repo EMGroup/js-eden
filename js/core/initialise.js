@@ -81,6 +81,9 @@ function Construit(options,callback) {
 	var readPassword = URLUtil.getParameterByName("r");
 	var writePassword = URLUtil.getParameterByName("w");
 	var api = URLUtil.getParameterByName("api");
+    var parser = URLUtil.getParameterByName("parser");
+
+    if (parser != "") eden.options.parser = parseInt(parser);
 
 	if (api) {
 		Eden.DB.repositories = [api];

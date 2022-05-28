@@ -5108,6 +5108,14 @@ ${{
 	ele.addEventListener("change", (e) => {
 		console.log("Text change");
 		eden.project.src = ele.value;
+        while (content.firstChild) {
+            content.removeChild(content.lastChild);
+        }
+        eden.project = new Eden.Project(eden.project.id, eden.project.name, ele.value, eden.project.instance);
+
+        if (eden.project.ast.errors.length == 0) {
+            eden.project.start();
+        }
 	});
 })();
 
