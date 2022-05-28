@@ -64,15 +64,18 @@ Eden.AST.BinaryOp.prototype.generate = function(ctx, scope, options) {
 
 	if (tval === Eden.AST.TYPE_NUMBER) {
 		if (this.l.typevalue === this.r.typevalue) {
-			opstr = "RAW";
+            // Raw ^ means XOR not power.
+            if (this.op !== "^") {
+			    opstr = "RAW";
+            }
 		} else {
-			if (this.op == "+") {
+			if (this.op === "+") {
 				opstr = "addA";
-			} else if (this.op == "-") {
+			} else if (this.op === "-") {
 				opstr = "subtractA";
-			} else if (this.op == "==") {
+			} else if (this.op === "==") {
 				opstr = "RAW";
-			} else if (this.op == "!=") {
+			} else if (this.op === "!=") {
 				opstr = "RAW";
 			} else {
 			}
