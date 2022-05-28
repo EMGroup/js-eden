@@ -82,41 +82,47 @@ export function setupPassport(passport,database){
 	//   Strategies in Passport require a `verify` function, which accept
 	//   credentials (in this case, an accessToken, refreshToken, and Google
 	//   profile), and invoke a callback with a user object.
-	passport.use(new GoogleStrategy({
-	    clientID: config.GOOGLE_CLIENT_ID,
-	    clientSecret: config.GOOGLE_CLIENT_SECRET,
-	callbackURL: config.BASEURL + "/auth/google/callback"
-	  },
-	  function(accessToken, refreshToken, profile, done) {
-	    process.nextTick(function () {
-		  return done(null,profile);
-	    });
-	  }
-	));
+    if (config.GOOGLE_CLIENT_ID) {
+        passport.use(new GoogleStrategy({
+            clientID: config.GOOGLE_CLIENT_ID,
+            clientSecret: config.GOOGLE_CLIENT_SECRET,
+        callbackURL: config.BASEURL + "/auth/google/callback"
+        },
+        function(accessToken, refreshToken, profile, done) {
+            process.nextTick(function () {
+            return done(null,profile);
+            });
+        }
+        ));
+    }
 
-	passport.use(new TwitterStrategy({
-	    consumerKey: config.TWITTER_CONSUMER_KEY,
-	    consumerSecret: config.TWITTER_CONSUMER_SECRET,
-	    callbackURL: config.BASEURL + "/auth/twitter/callback"
-	  },
-	  function(token, tokenSecret, profile, done) {
-		  process.nextTick(function () {
-//			  console.log(profile);
-			  return done(null,profile);
-		    });
-	  }
-	));
+    if (config.TWITTER_CONSUMER_KEY) {
+        passport.use(new TwitterStrategy({
+            consumerKey: config.TWITTER_CONSUMER_KEY,
+            consumerSecret: config.TWITTER_CONSUMER_SECRET,
+            callbackURL: config.BASEURL + "/auth/twitter/callback"
+        },
+        function(token, tokenSecret, profile, done) {
+            process.nextTick(function () {
+    //			  console.log(profile);
+                return done(null,profile);
+                });
+        }
+        ));
+    }
 
-	passport.use(new FacebookStrategy({
-		clientID: config.FACEBOOK_CLIENTID,
-		clientSecret: config.FACEBOOK_CLIENT_SECRET,
-		callbackURL: config.BASEURL + "/auth/facebook/callback"
-	}, function (token, tokenSecret, profile, done){
-		process.nextTick(function () {
-			  return done(null,profile);
-		    });
-	}
-	));
+    if (config.FACEBOOK_CLIENTID) {
+        passport.use(new FacebookStrategy({
+            clientID: config.FACEBOOK_CLIENTID,
+            clientSecret: config.FACEBOOK_CLIENT_SECRET,
+            callbackURL: config.BASEURL + "/auth/facebook/callback"
+        }, function (token, tokenSecret, profile, done){
+            process.nextTick(function () {
+                return done(null,profile);
+                });
+        }
+        ));
+    }
 	
 	passport.use('local-login',new LocalStrategy(
 			{passReqToCallback:true},

@@ -142,7 +142,7 @@ export default async function(app, options) {
 			}
 		}
 
-		if (sast.local) {
+		if (!sast || sast.local) {
 			res.json([]);
 		} else {
 			try {
@@ -169,7 +169,7 @@ export default async function(app, options) {
 	app.get('/code/get', async (req, res) => {
 		const sast = Eden.Selectors.parse(req.query.selector);
 
-		if (sast.local) {
+		if (!sast || sast.local) {
 			res.json([]);
 		} else {
 			try {
