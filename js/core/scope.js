@@ -51,13 +51,23 @@ function Scope(context, parent, overrides, range, cause, nobuild) {
 	this.cachearray = null;
 
 	if (this.depth > 50) {
-		console.error("Recursive scope detected : "+((cause) ? cause.name : ""));
+        if (context.instance) {
+            const err = new Eden.RuntimeError(this.root, Eden.RuntimeError.SCOPERECURSION, null, "");
+            context.instance.emit("error", [{name: ((cause) ? cause.name : "")}, err]);
+        } else {
+		    console.error("Recursive scope detected : "+((cause) ? cause.name : ""));
+        }
 		throw "Scope Depth Exceeded";
 	}
 
 	if (this.cause && this.cause.hasOwnProperty("scopecount")) {
 		if (++this.cause.scopecount > 100000) {
-			console.error("Scope limit exceeded", this.cause.name);
+            if (context.instance) {
+                const err = new Eden.RuntimeError(this.root, Eden.RuntimeError.SCOPELIMIT, null, "");
+                context.instance.emit("error", [{name: ((cause) ? cause.name : "")}, err]);
+            } else {
+                console.error("Scope limit exceeded", this.cause.name);
+            }
 			throw "Scope limit exceeded";
 		}
 	}

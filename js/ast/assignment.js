@@ -112,6 +112,7 @@ Eden.AST.Assignment.prototype.execute = function(ctx, base, scope, agent) {
 	try {
 		var sym = this.lvalue.getSymbol(ctx,base,scope);
 		this.compile(ctx, scope, sym);
+        sym.scopecount = 0;
 		var value;
 		if (this.lvalue.hasListIndices()) {
 			value = this.compiled.call(sym, scope.context, scope, scope.lookup(sym.name));

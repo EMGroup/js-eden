@@ -761,6 +761,8 @@ Eden.RuntimeError.ASSERTVALID = 19;
 Eden.RuntimeError.ASSERTTYPE = 20;
 Eden.RuntimeError.EXECUTESYNTAX = 21;
 Eden.RuntimeError.IDENTIFIER = 22;
+Eden.RuntimeError.SCOPERECURSION = 23;
+Eden.RuntimeError.SCOPELIMIT = 24;
 
 Eden.RuntimeError.prototype.messageText = function() {
 	var msg = (this.statement && (this.statement.type == "functioncall" || this.statement.type == "definition" || this.statement.type == "assignment")) ? "'" + this.statement.lvalue.name + "': " : "";
@@ -788,6 +790,8 @@ Eden.RuntimeError.prototype.messageText = function() {
 	case Eden.RuntimeError.INFINITERANGE	: return msg + "range scope is infinite";
 	case Eden.RuntimeError.NOLISTRANGE		: return msg + "range 'in' is not a list";
 	case Eden.RuntimeError.INFINITEWHEN		: return msg + "infinite when loop detected";
+    case Eden.RuntimeError.SCOPERECURSION   : return msg + "scope recursion limit hit";
+    case Eden.RuntimeError.SCOPELIMIT       : return msg + "scope limit hit";
 	default: break;
 	}
 
