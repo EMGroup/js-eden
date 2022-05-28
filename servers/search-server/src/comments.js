@@ -109,7 +109,7 @@ export default function(app) {
 					oauthuser: undefined,
 					project: undefined,
 					name: json.oauthuser && json.oauthuser.name,
-					title: json.project.title,
+					title: json.project?.title || "No Project",
 				};
 			});
 

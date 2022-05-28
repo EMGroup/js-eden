@@ -277,7 +277,7 @@ function processSelectorNode(t, criteria, req){
 			criteria.$title$ = {[Op.substring]: t.param};
 			break;
 		case ':me':
-			criteria.$owner$ = req.user.id;
+			criteria.$owner$ = req.user?.id;
 			break;
 		case '.author':
 			criteria.$owner$ = t.value;

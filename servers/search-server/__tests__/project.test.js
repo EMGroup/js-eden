@@ -8,10 +8,14 @@ let app;
 if (process.env.NODE_ENV !== 'test') process.exit(-1);
 
 beforeAll(async () => {
-	app = await start({
-		noparse: true,
-		user: {id: 1, admin: 1}
-	});
+    try {
+        app = await start({
+            noparse: true,
+            user: {id: 1, admin: 1}
+        });
+    } catch(e) {
+        console.error("Start failed", e);
+    }
 });
 
 describe("Project Service", () => {
