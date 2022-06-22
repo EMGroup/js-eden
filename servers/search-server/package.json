@@ -29,7 +29,7 @@
     "passport-twitter": "~1.0.2",
     "randomstring": "^1.1.5",
     "sequelize": "^6.5.0",
-    "sqlite3": "5.0.1"
+    "sqlite3": "5.0.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.16",
