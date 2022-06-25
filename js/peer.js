@@ -111,7 +111,7 @@ Eden.Peer = function(master, id) {
 	function processRegister(obj) {
 		console.log("Register peer",obj.id,obj.username);
 		Eden.Peer.emit("user", [obj.id,obj.username]);
-		eden.root.lookup("jseden_p2p_"+obj.id+"_name").assign(obj.username, eden.root.scope, EdenSymbol.localJSAgent);
+		eden.root.lookup("jseden_p2p_"+obj.id.replace(/\-/g, "_")+"_name").assign(obj.username, eden.root.scope, EdenSymbol.localJSAgent);
 		me.connections[obj.id].connection.send(JSON.stringify({cmd: "status", status: "Connected", code: 1}));
 	}
 
