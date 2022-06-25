@@ -81,7 +81,7 @@ Eden.Peer = function(master, id) {
 		/*Eden.DB.load(undefined, undefined, obj, function() {
 			me.loading = false;
 		});*/
-		eden.project = new Eden.Project(obj.pid, obj.name, obj.script);
+		eden.project = new Eden.Project(obj.pid, obj.name, obj.script,eden);
 		Eden.Project.emit("loading", [eden.project]);
 		eden.project.vid = obj.vid;
 		eden.project.title = obj.title;
