@@ -139,6 +139,16 @@ EdenUI.Sharebox = function(element) {
 		//});
 	});
 
+	this.sharebox.on("click",".p2p", function(e) {
+		if (typeof eden.peer === 'undefined'){
+			let newid = "jseden" + Eden.DB.userid + "d" + new Date().getTime().toString(36) + "r"+(Math.random()+1).toString(36).substr(2,5);
+			eden.peer = new Eden.Peer(undefined, newid);
+			eden.peer.init((Eden.DB.username) ? Eden.DB.username : "Anonymous");
+		}
+		let url = window.location.href.split("?")[0] + "?master="+eden.peer.id;
+		Eden.Peer.emit("quickp2p",[url]);
+		
+	});
 	this.sharebox.on("click",".fork", function(e) {
 		//var title = me.element.find(".jseden-title").get(0).textContent;
 		var title = me.title.textContent;
@@ -241,9 +251,9 @@ EdenUI.Sharebox.prototype.update = function() {
 
 	if (Eden.DB.isLoggedIn()) {
 		if (eden.project.authorid != Eden.DB.userid && eden.project.authorid != -1) {
-			me.sharebox.find("#projectuploadbox").html('<div id="projectthumb"></div><div style="margin-top: 40px; float: left"><input id="listpublic" type="checkbox">List publically</input></div>Thumbnail: <input id="thumbfile" type="file"></input><div class="sharebox-save-buttons"><button class="sharebox-button fork">Fork</button><span class="downloadurl"></span></div>'); //<button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');
+			me.sharebox.find("#projectuploadbox").html('<div id="projectthumb"></div><div style="margin-top: 40px; float: left"><input id="listpublic" type="checkbox">List publically</input></div>Thumbnail: <input id="thumbfile" type="file"></input><div class="sharebox-save-buttons"><button class="sharebox-button fork">Fork</button><button class="sharebox-button p2p"> P2P</button><span class="downloadurl"></span></div>'); //<button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');
 		} else {
-			me.sharebox.find("#projectuploadbox").html('<div id="projectthumb"></div><div style="margin-top: 40px; float: left"><input id="listpublic" type="checkbox">List publically</input></div><input id="thumbfile" type="file"></input><div class="sharebox-save-buttons"><button class="sharebox-button upload">Save</button><button class="sharebox-button fork">Fork</button><span class="downloadurl"></span></div>'); //<button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');
+			me.sharebox.find("#projectuploadbox").html('<div id="projectthumb"></div><div style="margin-top: 40px; float: left"><input id="listpublic" type="checkbox">List publically</input></div><input id="thumbfile" type="file"></input><div class="sharebox-save-buttons"><button class="sharebox-button upload">Save</button><button class="sharebox-button fork">Fork</button><button class="sharebox-button p2p">P2P</button><span class="downloadurl"></span></div>'); //<button class="sharebox-button publish" style="margin-top: 20px;">Publish</button>');
 		}		
 		me.sharebox.find("#projectoptions").show();
 	} else {

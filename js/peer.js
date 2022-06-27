@@ -442,6 +442,8 @@ Eden.Peer = function(master, id) {
 			me.broadcast(JSON.stringify({cmd: "execstatus", path: origin.name, saveID: saveID}));
 		});*/
 	}
+
+	this.init = init;
 	
 	Eden.DB.listenTo("login", this, init);
 	if (master || Eden.DB.isLoggedIn() && id) init((Eden.DB.username) ? Eden.DB.username : "Anonymous");

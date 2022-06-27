@@ -34,6 +34,11 @@ EdenUI.Notifications = function(element, jewel) {
 		}
 	});
 
+	Eden.Peer.listenTo("quickp2p",undefined,function(url){
+		let fullmsg = '<div class="notification-content">P2P Connection created - connect to this session with this link: <a target="_blank" href="'+url+'">'+url+'</a></div>';
+		me.notification("net", $(fullmsg));
+	});
+
 	Eden.Peer.listenTo("error", undefined, function(err) {
 		me.notification("error", $('<div class="notification-content">P2P: '+err+'</div>'));
 	});
