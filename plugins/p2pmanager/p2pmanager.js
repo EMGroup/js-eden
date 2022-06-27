@@ -45,6 +45,7 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 		content.html(generateHTML(name, type));
 
 		$dialog = $('<div id="' + name + '"></div>')
+			.append($('<button class="sharebox-button p2p"> P2P</button><br><input type="text" readonly class="p2purl"><br>'))
 			.append(content)
 			.dialog({
 				appendTo: "#jseden-views",
@@ -54,6 +55,17 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 				minHeight: 200,
 				minWidth: 200,
 				classes: {"ui-dialog": "P2PManager-dialog ui-front"}
+			});
+
+			$dialog.on("click",".p2p", function(e) {
+				if (typeof eden.peer === 'undefined'){
+					let newid = "jseden" + Eden.DB.userid + "d" + new Date().getTime().toString(36) + "r"+(Math.random()+1).toString(36).substr(2,5);
+					eden.peer = new Eden.Peer(undefined, newid);
+					eden.peer.init((Eden.DB.username) ? Eden.DB.username : "Anonymous");
+				}
+				let url = window.location.href.split("?")[0] + "?master="+eden.peer.id;
+				Eden.Peer.emit("quickp2p",[url]);
+				
 			});
 
 //		me.instances.push(symbollist);
@@ -67,6 +79,7 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 			var listTable = content.find(".p2pmanager-list").html("");
 			var row = $("<tr><th>ID</th><th>Name</th><th>Actions</th></tr>");
 			listTable.append(row);				
+			if(typeof eden.peer === 'undefined') return;
 			
 			let connections = Object.entries(eden.peer.connections);
 			for (const [key, value] of Object.entries(eden.peer.connections)) {
@@ -89,8 +102,15 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 				}
 			}
 		};
+
+		Eden.Peer.listenTo("quickp2p",undefined,function(url){
+			$dialog.find(".p2purl").val(url);
+		});
+
 		return viewData;
 	};
+
+
 
 	/**
 	 * Construct a dialog showing all symbols.
