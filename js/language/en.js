@@ -463,6 +463,7 @@ Language.ui = {
 		lookup: "Symbol Look-Up Table",
 		script: "Script View",
 		version: "Version List",
+		p2pmanager: "P2P Manager",
 		debug: "Debugger",
 		canvas: "Canvas 2D",
 		html: "HTML Content",

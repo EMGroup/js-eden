@@ -1,0 +1,47 @@
+.p2pmanager-outer table {
+  border-collapse: collapse;
+    width:100%;
+}
+
+.p2pmanager-outer table tr td{
+  text-align: center;
+  border: 1px solid black;
+}
+
+.p2pmanager-content {
+	box-sizing: border-box;
+	height: calc(100% - 2em);
+	font-size: 10.5pt;
+	line-height: 1.75;
+	padding: 0px;
+}
+
+.p2pmanager-dialog {
+	/*background: #f1f1f1;*/
+	/*background: none;*/
+	border-width: 1px;
+	border-color: #777;
+	border-style: solid;
+	padding: 0;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	box-shadow: 0 0 15px #4a6887;
+}
+
+div.p2pmanager-dialog .ui-dialog-titlebar {
+	border-top-width: 0;
+	border-left-width: 0;
+	border-right-width: 0;
+	border-bottom-color: #777;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	/*box-shadow: 0 0 10px #4a6887;*/
+	background: -webkit-linear-gradient(#fafafa, #cccccc); 
+	background: -o-linear-gradient(#fafafa, #cccccc); 
+	background: -moz-linear-gradient(#fafafa, #cccccc); 
+	background: linear-gradient(#fafafa, #cccccc); 
+}

@@ -120,7 +120,8 @@ function Construit(options,callback) {
 		"ScriptInput",
 		"SymbolLookUpTable",
 		"SymbolViewer",
-		"VersionViewer"
+		"VersionViewer",
+		"P2PManager"
 	];
 
 	//imports.push("lib/notifications");
