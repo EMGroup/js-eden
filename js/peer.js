@@ -1,4 +1,4 @@
-Eden.Peer = function(master, id) {
+Eden.Peer = function(master, id, password) {
 	this.connections = {};
 	this.id = id;
 	this.master = master;
@@ -6,6 +6,7 @@ Eden.Peer = function(master, id) {
 	this.roles = {};
 	this.enabled = false;
 	this.loading = false;
+	this.password = password;
 	this.config = {
 		control: true,
 		share: false,
@@ -110,7 +111,7 @@ Eden.Peer = function(master, id) {
 
 	function processRegister(obj) {
 		console.log("Register peer",obj.id,obj.username);
-		Eden.Peer.emit("user", [obj.id,obj.username]);
+		Eden.Peer.emit("user", [obj.id,obj.username, obj.password]);
 		eden.root.lookup("jseden_p2p_"+obj.id.replace(/\-/g, "_")+"_name").assign(obj.username, eden.root.scope, EdenSymbol.localJSAgent);
 		me.connections[obj.id].connection.send(JSON.stringify({cmd: "status", status: "Connected", code: 1}));
 	}
@@ -383,7 +384,7 @@ Eden.Peer = function(master, id) {
 						eden.root.lookup("jseden_p2p_newconnections").append(conn.peer, eden.root.scope, EdenSymbol.localJSAgent);
 
 						// Register
-						conn.send(JSON.stringify({cmd: "register", username: name, id: id}));
+						conn.send(JSON.stringify({cmd: "register", username: name, id: id, password: eden.peer.password}));
 					});
 				}
 			});

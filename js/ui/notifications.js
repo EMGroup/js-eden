@@ -18,8 +18,20 @@ EdenUI.Notifications = function(element, jewel) {
 
 	////////////////////////////////////////////////////////////////////////////
 
-	Eden.Peer.listenTo("user", undefined, function(id,username) {
-		me.notification("net", $('<div class="notification-content">User \'<a href="javascript:eden.peer.showConnection(\''+id+'\');">'+username+'</a>\' connected to you.<br/><a href="javascript: eden.peer.requestShare(\''+id+'\');">Watch</a> <a href="javascript: eden.peer.requestObserve(\''+id+'\');">Broadcast</a> <a href="javascript: eden.peer.requestCollaborate(\''+id+'\');">Collaborate</a></div>'));
+	Eden.Peer.listenTo("user", undefined, function(id,username,p2ppassword) {
+
+		let message = '<div class="notification-content">User \'<a href="javascript:eden.peer.showConnection(\''+id+'\');">'+username+'</a>\' connected to you';
+		console.log("Comparing " + eden.root.lookup("jseden_p2p_password").value() + " with " + p2ppassword)
+		let passwordPassed = (typeof eden.root.lookup("jseden_p2p_password").value() === 'undefined') || (p2ppassword == eden.root.lookup("jseden_p2p_password").value());
+
+		if(eden.root.lookup("jseden_p2p_automode").value() == 'broadcast' && passwordPassed){
+			eden.peer.requestObserve(id);
+			message += ', you are currently broadcasting.'
+		}
+
+		message += '.<br/><a href="javascript: eden.peer.requestShare(\''+id+'\');">Watch</a> <a href="javascript: eden.peer.requestObserve(\''+id+'\');">Broadcast</a> <a href="javascript: eden.peer.requestCollaborate(\''+id+'\');">Collaborate</a></div>';
+		me.notification("net", $(message));
+
 	});
 
 	Eden.Peer.listenTo("share", undefined, function(id,username) {

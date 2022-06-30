@@ -45,7 +45,9 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 		content.html(generateHTML(name, type));
 
 		$dialog = $('<div id="' + name + '"></div>')
-			.append($('<button class="sharebox-button p2p"> P2P</button><br><input type="text" readonly class="p2purl"><br>'))
+			.append($('<button class="sharebox-button p2p">Generate P2P URL</button><br><input type="text" readonly class="p2purl"><br>'))
+			.append($('<label for="autoaccept">Automatically Broadcast</label><input type="checkbox" id="autoaccept" name="autoaccept">'))
+			// .append($('Password:<input type="text" class="password"><br>'))
 			.append(content)
 			.dialog({
 				appendTo: "#jseden-views",
@@ -66,6 +68,14 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 				let url = window.location.href.split("?")[0] + "?master="+eden.peer.id;
 				Eden.Peer.emit("quickp2p",[url]);
 				
+			});
+
+			$dialog.on("click","#autoaccept", function(e) {
+				if(e.target.checked){
+					eden.root.lookup("jseden_p2p_automode").assign('broadcast',eden.root.scope,EdenSymbol.defaultAgent);
+				}else{
+					eden.root.lookup("jseden_p2p_automode").assign('none',eden.root.scope,EdenSymbol.defaultAgent);
+				}
 			});
 
 //		me.instances.push(symbollist);
@@ -89,6 +99,8 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 			}
 		};
 		
+		Eden.Peer.listenTo("peer", undefined, function(){setTimeout(updateP2PList,1000)});
+
 		updateP2PList();
 		
 		var viewData = {

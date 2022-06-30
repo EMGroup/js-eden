@@ -91,6 +91,7 @@ function Construit(options,callback) {
 	
 	var roles = URLUtil.getParameterByName("roles");
 	var master = URLUtil.getParameterByName("master");
+	var p2ppassword = URLUtil.getParameterByName("password");
 	var myid = URLUtil.getParameterByName("id");
 	var query = URLUtil.getParameterByName("q");
 	var mode = URLUtil.getParameterByName("mode");
@@ -293,7 +294,7 @@ function Construit(options,callback) {
 
 			// Set up P2P networking
 			if (myid != "" || master != "") {
-				eden.peer = new Eden.Peer((master != "") ? master : undefined, (myid != "") ? myid : undefined);
+				eden.peer = new Eden.Peer((master != "") ? master : undefined, (myid != "") ? myid : undefined,p2ppassword);
 				if (roles) {
 					roles = roles.split(",");
 					for (var i=0; i<roles.length; i++) {
