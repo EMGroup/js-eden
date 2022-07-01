@@ -347,6 +347,9 @@ Eden.Peer = function(master, id, password) {
 		case "callback"		: processCallback(obj); break;
 		case "reqshare"		: processReqShare(obj); break;
 		case "reqobserve"	: processReqObserve(obj); break;
+
+		//TODO: Should the below cases also have if(pconn.observe)?!
+
 		case "patch"		: processPatch(obj); break;
 		case "when"			: processWhen(obj); break;
 		case "require"		: processRequire(obj); break;
@@ -618,39 +621,42 @@ Eden.Peer.prototype.getSnapshot = function(id, cb) {
 
 Eden.Peer.prototype.requestShare = function(id, cb) {
 	var pconn = this.connections[id];
-
 	if (pconn) {
 		pconn.observe = true;
 		pconn.connection.send(JSON.stringify({cmd: "reqshare", value: true, cbid: this.addCallback(cb)}));
 	}
+	Eden.Peer.emit("peerupdate");
 }
 
 Eden.Peer.prototype.requestUnShare = function(id, cb) {
 	var pconn = this.connections[id];
 
 	// TODO Only share one at a time unless collaborating...
-
+	
 	if (pconn) {
 		pconn.observe = false;
 		pconn.connection.send(JSON.stringify({cmd: "reqshare", value: false, cbid: this.addCallback(cb)}));
 	}
+	Eden.Peer.emit("peerupdate");
 }
 
 Eden.Peer.prototype.requestObserve = function(id, cb) {
 	var pconn = this.connections[id];
 
+	
 	if (pconn) {
 		pconn.share = true;
 		pconn.connection.send(JSON.stringify({cmd: "reqobserve", value: true, cbid: this.addCallback(cb)}));
 		// Auto share state.
-
+		
 		if (eden.project && this.clone) {
 			var script = eden.project.generate(); //Eden.Generator.getScript();
 			pconn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
-				vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
-				name: eden.project.name, title: eden.project.title}));
+			vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
+			name: eden.project.name, title: eden.project.title}));
 		}
 	}
+	Eden.Peer.emit("peerupdate");
 }
 
 Eden.Peer.prototype.requestUnObserve = function(id, cb) {
@@ -660,6 +666,7 @@ Eden.Peer.prototype.requestUnObserve = function(id, cb) {
 		pconn.share = false;
 		pconn.connection.send(JSON.stringify({cmd: "reqobserve", value: false, cbid: this.addCallback(cb)}));
 	}
+	Eden.Peer.emit("peerupdate");
 }
 
 Eden.Peer.prototype.requestCollaborate = function(id, cb) {
@@ -673,19 +680,20 @@ Eden.Peer.prototype.requestCollaborate = function(id, cb) {
 			pconn.observe = true;
 			me.requestObserve(id, cb);
 		})}));
-
+		
 		if (eden.project && me.clone) {
 			// Auto share state.
 			var script = eden.project.generate(); //Eden.Generator.getScript();
 			pconn.connection.send(JSON.stringify({cmd: "restore", script: script, pid: eden.project.id,
-				vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
-				name: eden.project.name, title: eden.project.title}));
+			vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
+			name: eden.project.name, title: eden.project.title}));
 		}
 	}
+	Eden.Peer.emit("peerupdate");
 }
 
 Eden.Peer.prototype.requestUnCollaborate = function(id, cb) {
-	
+	Eden.Peer.emit("peerupdate");
 }
 
 

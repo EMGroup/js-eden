@@ -26,7 +26,7 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 	var numInstances = 0;
 
 	var generateHTML = function (viewName, viewType) {
-		var html = "<table class=\"p2pmanager-list\"></table>";
+		var html = "<table border=\"1\" style=\"width: 100%\" class=\"p2pmanager-list\"></table>";
 		return html;
 	};
 
@@ -45,7 +45,8 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 		content.html(generateHTML(name, type));
 
 		$dialog = $('<div id="' + name + '"></div>')
-			.append($('<button class="sharebox-button p2p">Generate P2P URL</button><br><input type="text" readonly class="p2purl"><br>'))
+			.append($('<a class="p2p-gen-url" href="#">Generate P2P URL</a>'))
+			.append($('<br><a target="_blank" class="p2p-url">P2P URL</a><br>'))
 			.append($('<label for="autoaccept">Automatically Broadcast</label><input type="checkbox" id="autoaccept" name="autoaccept">'))
 			// .append($('Password:<input type="text" class="password"><br>'))
 			.append(content)
@@ -59,7 +60,7 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 				classes: {"ui-dialog": "P2PManager-dialog ui-front"}
 			});
 
-			$dialog.on("click",".p2p", function(e) {
+			$dialog.on("click",".p2p-gen-url", function(e) {
 				if (typeof eden.peer === 'undefined'){
 					let newid = "jseden" + Eden.DB.userid + "d" + new Date().getTime().toString(36) + "r"+(Math.random()+1).toString(36).substr(2,5);
 					eden.peer = new Eden.Peer(undefined, newid);
@@ -87,19 +88,32 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 
 
 			var listTable = content.find(".p2pmanager-list").html("");
-			var row = $("<tr><th>ID</th><th>Name</th><th>Actions</th></tr>");
+			var row = $("<tr><th width=\"25%\">Name</th><th>Status</th><th>Actions</th></tr>");
 			listTable.append(row);				
 			if(typeof eden.peer === 'undefined') return;
 			
 			let connections = Object.entries(eden.peer.connections);
 			for (const [key, value] of Object.entries(eden.peer.connections)) {
 				let name = root.lookup(("jseden_p2p_"+key+"_name").replace(/\-/g, "_")).value();
-				row = $("<tr><td>"+key+"</td><td>"+name+"</td>");
+				let thisObject = eden.peer.connections[key];
+				let status = "";
+				if(thisObject.share && thisObject.observe)
+					status = "Collaborating";
+				else{
+					if(thisObject.share)
+						status = "Broadcasting";
+					if(thisObject.observe)
+						status = "Watching";
+				}
+
+
+				row = $("<tr><td>"+name+'</td><td>'+status+'</td><td><a href="javascript: eden.peer.requestObserve(\''+key+'\');">Broadcast</a> <a href="javascript: eden.peer.requestCollaborate(\''+key+'\');">Collaborate</a> <a href="javascript: eden.peer.requestUnObserve(\''+key+'\');">Remove</a></td>');
 				listTable.append(row);
 			}
 		};
 		
-		Eden.Peer.listenTo("peer", undefined, function(){setTimeout(updateP2PList,1000)});
+		Eden.Peer.listenTo("peer", undefined, function(){setTimeout(updateP2PList,500)});
+		Eden.Peer.listenTo("peerupdate", undefined, function(){setTimeout(updateP2PList,500)});
 
 		updateP2PList();
 		
@@ -116,7 +130,20 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 		};
 
 		Eden.Peer.listenTo("quickp2p",undefined,function(url){
-			$dialog.find(".p2purl").val(url);
+
+			$dialog.find(".p2p-gen-url").hide();
+			$dialog.find(".p2p-url").show();
+			$dialog.find(".p2p-url").text("P2P URL");
+			$dialog.find(".p2p-url").attr("href",url);
+
+			var copyText = document.createElement("input");
+			copyText.value = url;
+			document.body.appendChild(copyText);
+			copyText.select();
+			copyText.setSelectionRange(0, 99999);
+			navigator.clipboard.writeText(copyText.value);
+			document.body.removeChild(copyText);
+
 		});
 
 		return viewData;

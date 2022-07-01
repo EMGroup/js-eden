@@ -46,6 +46,6 @@ div.p2pmanager-dialog .ui-dialog-titlebar {
 	background: linear-gradient(#fafafa, #cccccc); 
 }
 
-.p2purl{
-	width: 100%;
+.p2p-url{
+	display: none;
 }
