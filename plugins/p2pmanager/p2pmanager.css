@@ -49,3 +49,15 @@ div.p2pmanager-dialog .ui-dialog-titlebar {
 .p2p-url{
 	display: none;
 }
+
+.p2prow button.active{
+	background-color: black;
+	color: white;
+	border: none;
+}
+
+.p2prow button{
+	color: black;
+	background-color: white;
+	border: none;
+}

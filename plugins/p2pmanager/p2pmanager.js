@@ -79,6 +79,30 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 				}
 			});
 
+			$dialog.on("click",".broadcast", function(e) {
+				let k = $(e.target).closest("tr").attr("data-key");
+				if(eden.peer.connections[k].observe && eden.peer.connections[k].share){
+					eden.peer.requestUnShare(k);
+				}
+				
+				if(!eden.peer.connections[k].share){
+					eden.peer.requestObserve(k);
+				}
+			});
+			$dialog.on("click",".collaborate", function(e) {
+				let k = $(e.target).closest("tr").attr("data-key");
+				eden.peer.requestCollaborate(k);
+			});
+			$dialog.on("click",".remove", function(e) {
+				let k = $(e.target).closest("tr").attr("data-key");
+				eden.peer.requestUnObserve(k);
+			});
+
+			$dialog.on("click",".p2prow button", function(e) {
+				$(e.target).closest("tr .active").removeClass("active");
+				// $(e.target).addClass("active");
+			});
+
 //		me.instances.push(symbollist);
 
 		var searchStrSym = root.lookup("view_" + edenName + "_search_string");
@@ -97,17 +121,26 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 				let name = root.lookup(("jseden_p2p_"+key+"_name").replace(/\-/g, "_")).value();
 				let thisObject = eden.peer.connections[key];
 				let status = "";
-				if(thisObject.share && thisObject.observe)
+
+				let broadcastActive = "";
+				let collabActive = "";
+				let removeActive = "";
+				if(thisObject.share && thisObject.observe){
 					status = "Collaborating";
-				else{
-					if(thisObject.share)
+					collabActive = " active";
+				}else{
+					if(thisObject.share){
 						status = "Broadcasting";
-					if(thisObject.observe)
+						broadcastActive = " active";
+					}else if(thisObject.observe)
 						status = "Watching";
+					else
+						removeActive = " active";
 				}
 
+				let rowstr = "<tr class=\"p2prow\" data-key=\""+key+"\"><td>"+name+'</td><td>'+status+'</td><td style="white-space: nowrap"><button class="broadcast' + broadcastActive + '" type="button">Broadcast</button><button class="collaborate'+collabActive+'" type="button">Collaborate</button><button class="remove'+removeActive+'" type="button">Remove</button></td></tr>';
 
-				row = $("<tr><td>"+name+'</td><td>'+status+'</td><td><a href="javascript: eden.peer.requestObserve(\''+key+'\');">Broadcast</a> <a href="javascript: eden.peer.requestCollaborate(\''+key+'\');">Collaborate</a> <a href="javascript: eden.peer.requestUnObserve(\''+key+'\');">Remove</a></td>');
+				row = $(rowstr);
 				listTable.append(row);
 			}
 		};
