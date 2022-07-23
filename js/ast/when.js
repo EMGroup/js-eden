@@ -123,6 +123,7 @@ Eden.AST.When.prototype.getScope = function(ctx) {
 		} else {
 			// Just create an empty scope
 			this.compScope = function(context, scope) {
+                if (Object.keys(scope.cache).length === 0) return scope;
 				return new Eden.Scope(context, scope, [], false, null, false);
 			};
 		}
