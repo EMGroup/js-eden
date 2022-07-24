@@ -414,6 +414,12 @@ Eden.Peer = function(master, id, password) {
 							name: eden.project.name, title: eden.project.title}));
 					}
 				});
+				conn.on('error', function(e){
+					console.error(e);
+				});
+				conn.on('close', function(e){
+					console.warn('Closing connection ', e);
+				});
 			});
 
 			peer.on('error', function(err) {
