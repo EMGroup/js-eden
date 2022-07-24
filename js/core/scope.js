@@ -50,7 +50,9 @@ function Scope(context, parent, overrides, range, cause, nobuild) {
 
 	this.cachearray = null;
 
-	if (this.depth > 50) {
+    const depthLimit = (parent && context.lookup("jseden_scope_depth").value(parent)) || 50;
+
+	if (this.depth > depthLimit) {
         if (context.instance) {
             const err = new Eden.RuntimeError(this.root, Eden.RuntimeError.SCOPERECURSION, null, "");
             context.instance.emit("error", [{name: ((cause) ? cause.name : "")}, err]);
@@ -61,7 +63,9 @@ function Scope(context, parent, overrides, range, cause, nobuild) {
 	}
 
 	if (this.cause && this.cause.hasOwnProperty("scopecount")) {
-		if (++this.cause.scopecount > 100000) {
+        const scopeLimit = (parent && context.lookup("jseden_scope_limit").value(parent)) || 100000;
+
+		if (++this.cause.scopecount > scopeLimit) {
             if (context.instance) {
                 const err = new Eden.RuntimeError(this.root, Eden.RuntimeError.SCOPELIMIT, null, "");
                 context.instance.emit("error", [{name: ((cause) ? cause.name : "")}, err]);

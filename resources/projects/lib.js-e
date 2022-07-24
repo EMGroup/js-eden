@@ -15,6 +15,9 @@ debug = ${{ {jsExceptions: edenUI.getOptionValue("developer") == "true" } }}$;
 #! Current version of the environment
 jseden_version is jseden_version_major*10000000+jseden_version_minor*100000+jseden_version_patch*1000+jseden_version_commit;
 
+jseden_scope_limit = 100000;
+jseden_scope_depth = 50;
+
 #! Force the maintainer to update dependencies
 proc eager:static {
 	if (autocalc == 0) {
