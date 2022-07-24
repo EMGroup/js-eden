@@ -409,6 +409,12 @@ Eden.Peer = function(master, id, password) {
 						// Register
 						conn.send(JSON.stringify({cmd: "register", username: name, id: id, password: eden.peer.password}));
 					});
+					conn.on('error',function(e){
+						console.error(e);
+					});
+					conn.on('close',function(e){
+						console.warn('Closing connection ', e);
+					});
 				}
 			});
 
@@ -427,6 +433,12 @@ Eden.Peer = function(master, id, password) {
 							vid: eden.project.vid, ownername: eden.project.author, owner: eden.project.authorid,
 							name: eden.project.name, title: eden.project.title}));
 					}
+				});
+				conn.on('error', function(e){
+					console.error(e);
+				});
+				conn.on('close', function(e){
+					console.warn('Closing connection ', e);
 				});
 			});
 
@@ -469,7 +481,7 @@ Eden.Peer = function(master, id, password) {
 
 	this.init = init;
 	
-	Eden.DB.listenTo("login", this, init);
+	Eden.DB.listenTo("login", this, () => {init((Eden.DB.username) ? Eden.DB.username : "Anonymous")});
 	if (master || Eden.DB.isLoggedIn() && id) init((Eden.DB.username) ? Eden.DB.username : "Anonymous");
 
 	var capInSym = eden.root.lookup("jseden_p2p_captureinput");
