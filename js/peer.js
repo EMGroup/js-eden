@@ -389,6 +389,12 @@ Eden.Peer = function(master, id, password) {
 						// Register
 						conn.send(JSON.stringify({cmd: "register", username: name, id: id, password: eden.peer.password}));
 					});
+					conn.on('error',function(e){
+						console.error(e);
+					});
+					conn.on('close',function(e){
+						console.warn('Closing connection ', e);
+					});
 				}
 			});
 
