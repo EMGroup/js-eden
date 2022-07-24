@@ -449,7 +449,7 @@ Eden.Peer = function(master, id, password) {
 
 	this.init = init;
 	
-	Eden.DB.listenTo("login", this, init);
+	Eden.DB.listenTo("login", this, () => {init((Eden.DB.username) ? Eden.DB.username : "Anonymous")});
 	if (master || Eden.DB.isLoggedIn() && id) init((Eden.DB.username) ? Eden.DB.username : "Anonymous");
 
 	var capInSym = eden.root.lookup("jseden_p2p_captureinput");
