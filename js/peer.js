@@ -190,19 +190,25 @@ Eden.Peer = function(master, id, password) {
 	}
 
 	function removePatchParts(obj){
+        console.log("Patch", obj);
 		// First remove old
-		removePatchPart(0,obj, function(){
-			for (var i=0; i<this.todorm.length; i++) {
-				this.todorm[i][0].removeChild(this.todorm[i][1]);
-			}
-			addPatchParts(obj);	
-		});
+        if (obj.remove.length > 0) {
+            removePatchPart(0,obj, function(){
+                for (var i=0; i<this.todorm.length; i++) {
+                    this.todorm[i][0].removeChild(this.todorm[i][1]);
+                }
+                addPatchParts(obj);	
+            });
+        } else {
+            addPatchParts(obj);
+        } 
 	}
 
 	function removePatchPart(i,obj,callback){
 		Eden.Selectors.query(obj.remove[i].path,undefined,undefined,function(nodeList){
 			var node = nodeList[0];
 			if (!node){
+                console.error("Failed to remove path: ", obj.remove[i].path);
 				if(i < obj.remove.length - 1)
 					removePatchPart(i+1,obj,callback);
 				else{
@@ -210,6 +216,9 @@ Eden.Peer = function(master, id, password) {
 				}
 				return;
 			}
+            if (nodeList.length > 1) {
+                console.warn("Too many nodes");
+            }
 			this.frags[obj.remove[i].path] = node;
 			
 			var stat = undefined; // = Eden.Index.getByID(obj.remove[i].id)[0];
@@ -253,18 +262,26 @@ Eden.Peer = function(master, id, password) {
 
 	function addPatchParts(obj){
 		// Second, add new
-		addPatchPart(0,obj,function(){
-			for (var x in this.frags) {
-				Eden.Fragment.emit("patch", [undefined, this.frags[x]]);
-			}	
-			me.broadcastExcept(obj.id, obj);
-		});
+        if (obj.add.length === 0) {
+            for (var x in this.frags) {
+                Eden.Fragment.emit("patch", [undefined, this.frags[x]]);
+            }	
+            me.broadcastExcept(obj.id, obj);
+        } else {
+            addPatchPart(0,obj,function(){
+                for (var x in this.frags) {
+                    Eden.Fragment.emit("patch", [undefined, this.frags[x]]);
+                }	
+                me.broadcastExcept(obj.id, obj);
+            });
+        }
 	}
 	
 	function addPatchPart(i,obj,callback){
 		Eden.Selectors.query(obj.add[i].path,undefined,undefined,function(nodeList){
 			var node = nodeList[0];
 			if (!node){
+                console.error("Node not found during add", obj.add[i].path);
 				if(i < obj.add.length -1){
 					addPatchPart(i+1,obj,callback);
 				}else{
@@ -272,6 +289,9 @@ Eden.Peer = function(master, id, password) {
 				}
 				return;
 			}
+            if (nodeList.length > 1) {
+                console.warn("Too many nodes");
+            }
 			this.frags[obj.add[i].path] = node;
 			if (!obj.add[i].ws) {
 				var stat = Eden.AST.parseStatement(obj.add[i].source);
@@ -425,7 +445,7 @@ Eden.Peer = function(master, id, password) {
 
 		Eden.Fragment.listenTo('patch',this,function(frag,ast,changes){
 			if(changes && changes.length > 0 && me.capturepatch) {
-				var data = {cmd: "patch", remove: changes[1], add: changes[0]};
+				var data = {cmd: "patch", stamp: ast.parseCount, remove: changes[1], add: changes[0]};
 				me.broadcast(data);
 				//console.log("Patch changes", data);
 			}

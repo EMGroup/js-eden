@@ -39,6 +39,8 @@
  * @see translator2.js for the parser that generates the tree from these nodes.
  */
 
+let counter = 0;
+
 /**
  * Abstract Syntax Tree generator for JS-Eden code.
  * Each production in the grammar has a function in this class. It makes use
@@ -66,6 +68,7 @@ Eden.AST = function(code, imports, origin, options) {
 	this.depth = 0;
 	this.localStatus = false;
 	this.last_error = null;
+    this.parseCount = counter++;
 
 	// Keep dependency records for some statements.
 	//this.dependencies = Object.create(null);
