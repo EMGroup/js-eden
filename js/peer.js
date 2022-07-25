@@ -479,7 +479,7 @@ Eden.Peer = function(master, id, password) {
 
 		Eden.Fragment.listenTo('patch',this,function(frag,ast,changes){
 			if(changes && changes.length > 0 && me.capturepatch) {
-				var data = {cmd: "patch", stamp: patchCount++, remove: changes[1], add: changes[0]};
+				var data = {cmd: "patch", timestamp: frag.ast.stamp, stamp: patchCount++, remove: changes[1], add: changes[0]};
 				me.broadcast(data);
 				//console.log("Patch changes", data);
 			}
