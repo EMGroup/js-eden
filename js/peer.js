@@ -197,7 +197,7 @@ Eden.Peer = function(master, id, password) {
         console.log("Patch", obj);
 		// First remove old
         if (obj.remove.length > 0) {
-            removePatchPart(0,obj, function(){
+            removePatchPart(obj.remove.length - 1,obj, function(){
                 for (var i=0; i<me.todorm.length; i++) {
                     me.todorm[i][0].removeChild(me.todorm[i][1]);
                 }
@@ -213,8 +213,8 @@ Eden.Peer = function(master, id, password) {
 			var node = nodeList[0];
 			if (!node){
                 console.error("Failed to remove path: ", obj.remove[i].path);
-				if(i < obj.remove.length - 1)
-					removePatchPart(i+1,obj,callback);
+				if(i > 0)
+					removePatchPart(i-1,obj,callback);
 				else{
 					callback();
 				}
@@ -229,6 +229,7 @@ Eden.Peer = function(master, id, password) {
 			if (obj.remove[i].id == 0) {
 				stat = node.statements[0];
 			} else {
+                let removed = false;
 				for (var j=0; j<node.statements.length; j++) {
 					if (node.statements[j].id == obj.remove[i].id) {
 						if (obj.remove[i].ws) {
@@ -238,9 +239,13 @@ Eden.Peer = function(master, id, password) {
 						} else {
 							stat = node.statements[j];
 						}
+                        removed = true;
 						break;
 					}
 				}
+                if (!removed) {
+                    console.error("Remove failed");
+                }
 			}
 			//console.log("Remove stat", stat);
 			if (stat) {
@@ -256,8 +261,8 @@ Eden.Peer = function(master, id, password) {
 				//node.removeChild(stat);
 				me.todorm.push([node,stat]);
 			}	
-			if(i < obj.remove.length - 1)
-				removePatchPart(i+1,obj,callback);
+			if(i > 0)
+				removePatchPart(i-1,obj,callback);
 			else{
 				callback();
 			}
@@ -479,6 +484,7 @@ Eden.Peer = function(master, id, password) {
 
 		Eden.Fragment.listenTo('patch',this,function(frag,ast,changes){
 			if(changes && changes.length > 0 && me.capturepatch) {
+                console.log('Patch count = ', patchCount);
 				var data = {cmd: "patch", timestamp: frag.ast.stamp, stamp: patchCount++, remove: changes[1], add: changes[0]};
 				me.broadcast(data);
 				//console.log("Patch changes", data);
