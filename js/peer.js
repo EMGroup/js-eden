@@ -1,3 +1,5 @@
+let patchCount = 0;
+
 Eden.Peer = function(master, id, password) {
 	this.connections = {};
 	this.id = id;
@@ -20,6 +22,8 @@ Eden.Peer = function(master, id, password) {
 	this.clone = true;
 	this.startrecordtime = 0;
 	this.log = null;
+    this.lastPatch = new Map();
+    this.patchQueue = new Map();
 
 	this.frags = {};
 	this.todorm = [];
@@ -194,8 +198,8 @@ Eden.Peer = function(master, id, password) {
 		// First remove old
         if (obj.remove.length > 0) {
             removePatchPart(0,obj, function(){
-                for (var i=0; i<this.todorm.length; i++) {
-                    this.todorm[i][0].removeChild(this.todorm[i][1]);
+                for (var i=0; i<me.todorm.length; i++) {
+                    me.todorm[i][0].removeChild(me.todorm[i][1]);
                 }
                 addPatchParts(obj);	
             });
@@ -219,7 +223,7 @@ Eden.Peer = function(master, id, password) {
             if (nodeList.length > 1) {
                 console.warn("Too many nodes");
             }
-			this.frags[obj.remove[i].path] = node;
+			me.frags[obj.remove[i].path] = node;
 			
 			var stat = undefined; // = Eden.Index.getByID(obj.remove[i].id)[0];
 			if (obj.remove[i].id == 0) {
@@ -250,7 +254,7 @@ Eden.Peer = function(master, id, password) {
 				// TODO Adding new may be relative to removed node ... fix this
 	
 				//node.removeChild(stat);
-				this.todorm.push([node,stat]);
+				me.todorm.push([node,stat]);
 			}	
 			if(i < obj.remove.length - 1)
 				removePatchPart(i+1,obj,callback);
@@ -263,14 +267,14 @@ Eden.Peer = function(master, id, password) {
 	function addPatchParts(obj){
 		// Second, add new
         if (obj.add.length === 0) {
-            for (var x in this.frags) {
-                Eden.Fragment.emit("patch", [undefined, this.frags[x]]);
+            for (var x in me.frags) {
+                Eden.Fragment.emit("patch", [undefined, me.frags[x]]);
             }	
             me.broadcastExcept(obj.id, obj);
         } else {
             addPatchPart(0,obj,function(){
-                for (var x in this.frags) {
-                    Eden.Fragment.emit("patch", [undefined, this.frags[x]]);
+                for (var x in me.frags) {
+                    Eden.Fragment.emit("patch", [undefined, me.frags[x]]);
                 }	
                 me.broadcastExcept(obj.id, obj);
             });
@@ -292,7 +296,7 @@ Eden.Peer = function(master, id, password) {
             if (nodeList.length > 1) {
                 console.warn("Too many nodes");
             }
-			this.frags[obj.add[i].path] = node;
+			me.frags[obj.add[i].path] = node;
 			if (!obj.add[i].ws) {
 				var stat = Eden.AST.parseStatement(obj.add[i].source);
 				if (node.statements[obj.add[i].index]) node.insertBefore(node.statements[obj.add[i].index], stat);
@@ -339,10 +343,28 @@ Eden.Peer = function(master, id, password) {
 
 	function processPatch(obj) {
 		//console.log("Patching", obj);
-		this.frags = {};
-		this.todorm = [];
-		
-		removePatchParts(obj);
+		me.frags = {};
+		me.todorm = [];
+
+        if (!me.lastPatch.has(obj.id)) {
+            me.lastPatch.set(obj.id, obj.stamp - 1);
+        }
+
+        const lastPatch = me.lastPatch.get(obj.id);
+
+        if (lastPatch + 1 == obj.stamp) {
+            me.lastPatch.set(obj.id, obj.stamp);
+		    removePatchParts(obj);
+            const newKey = obj.id + '--' + (obj.stamp + 1);
+            if (me.patchQueue.has(newKey)) {
+                processPatch(me.patchQueue.get(newKey));
+                me.patchQueue.delete(newKey);
+            }
+        } else {
+            console.warn("Queue patch", obj.stamp);
+            const key = obj.id + '--' + obj.stamp;
+            me.patchQueue.set(key, obj);
+        }
 
 		//Eden.Agent.importAgent(obj.name, "default", ["noexec","create"], function(ag) { ag.applyPatch(obj.patch, obj.lineno) });
 	}
@@ -457,7 +479,7 @@ Eden.Peer = function(master, id, password) {
 
 		Eden.Fragment.listenTo('patch',this,function(frag,ast,changes){
 			if(changes && changes.length > 0 && me.capturepatch) {
-				var data = {cmd: "patch", stamp: frag.ast.parseCount, remove: changes[1], add: changes[0]};
+				var data = {cmd: "patch", stamp: patchCount++, remove: changes[1], add: changes[0]};
 				me.broadcast(data);
 				//console.log("Patch changes", data);
 			}
@@ -482,7 +504,8 @@ Eden.Peer = function(master, id, password) {
 	this.init = init;
 	
 	Eden.DB.listenTo("login", this, () => {init((Eden.DB.username) ? Eden.DB.username : "Anonymous")});
-	if (master || Eden.DB.isLoggedIn() && id) init((Eden.DB.username) ? Eden.DB.username : "Anonymous");
+	// if (master || Eden.DB.isLoggedIn() && id) init((Eden.DB.username) ? Eden.DB.username : "Anonymous");
+    if (master || id) init((Eden.DB.username) ? Eden.DB.username : "Anonymous");
 
 	var capInSym = eden.root.lookup("jseden_p2p_captureinput");
 	capInSym.addJSObserver("p2p", function(sym, value) {
