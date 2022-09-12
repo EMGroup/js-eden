@@ -245,7 +245,7 @@ Eden.Peer = function(master, id, password) {
 					}
 				}
                 if (!removed) {
-                    console.error("Remove failed", JSON.stringify(node.statements, " ", 4), obj.remove[i].id);
+                    console.error("Remove failed", JSON.stringify(node.statements, (key) => (key == "parent") ? undefined : key, " ", 4), obj.remove[i].id);
                 }
 			}
 			//console.log("Remove stat", stat);
