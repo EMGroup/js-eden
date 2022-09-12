@@ -361,9 +361,8 @@ Eden.Peer = function(master, id, password) {
             me.lastPatch.set(obj.id, obj.stamp - 1);
         }
 
+        const lastPatch = Math.max(patchCount - 1, me.lastPatch.get(obj.id));
         patchCount = Math.max(patchCount, obj.stamp + 1);
-
-        const lastPatch = me.lastPatch.get(obj.id);
 
         if (lastPatch + 1 == obj.stamp && !me.busy) {
             me.busy = true;
