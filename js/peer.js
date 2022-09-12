@@ -24,6 +24,7 @@ Eden.Peer = function(master, id, password) {
 	this.log = null;
     this.lastPatch = new Map();
     this.patchQueue = new Map();
+    this.busy = false;
 
 	this.frags = {};
 	this.todorm = [];
@@ -193,7 +194,7 @@ Eden.Peer = function(master, id, password) {
 		// TODO BroadcastExcept
 	}
 
-	function removePatchParts(obj){
+	function removePatchParts(obj, cb){
         console.log("Patch", obj);
 		// First remove old
         if (obj.remove.length > 0) {
@@ -201,10 +202,10 @@ Eden.Peer = function(master, id, password) {
                 for (var i=0; i<me.todorm.length; i++) {
                     me.todorm[i][0].removeChild(me.todorm[i][1]);
                 }
-                addPatchParts(obj);	
+                addPatchParts(obj, cb);	
             });
         } else {
-            addPatchParts(obj);
+            addPatchParts(obj, cb);
         } 
 	}
 
@@ -269,19 +270,21 @@ Eden.Peer = function(master, id, password) {
 		});		
 	}
 
-	function addPatchParts(obj){
+	function addPatchParts(obj, cb){
 		// Second, add new
         if (obj.add.length === 0) {
             for (var x in me.frags) {
                 Eden.Fragment.emit("patch", [undefined, me.frags[x]]);
             }	
             me.broadcastExcept(obj.id, obj);
+            cb();
         } else {
             addPatchPart(0,obj,function(){
                 for (var x in me.frags) {
                     Eden.Fragment.emit("patch", [undefined, me.frags[x]]);
                 }	
                 me.broadcastExcept(obj.id, obj);
+                cb();
             });
         }
 	}
@@ -360,14 +363,17 @@ Eden.Peer = function(master, id, password) {
 
         const lastPatch = me.lastPatch.get(obj.id);
 
-        if (lastPatch + 1 == obj.stamp) {
+        if (lastPatch + 1 == obj.stamp && !me.busy) {
+            me.busy = true;
             me.lastPatch.set(obj.id, obj.stamp);
-		    removePatchParts(obj);
-            const newKey = obj.id + '--' + (obj.stamp + 1);
-            if (me.patchQueue.has(newKey)) {
-                processPatch(me.patchQueue.get(newKey));
-                me.patchQueue.delete(newKey);
-            }
+		    removePatchParts(obj, () => {
+                me.busy = false;
+                const newKey = obj.id + '--' + (obj.stamp + 1);
+                if (me.patchQueue.has(newKey)) {
+                    processPatch(me.patchQueue.get(newKey));
+                    me.patchQueue.delete(newKey);
+                }
+            });
         } else {
             console.warn("Queue patch", obj.stamp);
             const key = obj.id + '--' + obj.stamp;
