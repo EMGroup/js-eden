@@ -210,7 +210,7 @@ Eden.Peer = function(master, id, password) {
 	}
 
 	function removePatchPart(i,obj,callback){
-		Eden.Selectors.query(obj.remove[i].path,undefined,undefined,function(nodeList){
+		Eden.Selectors.query(obj.remove[i].path,undefined,{minimum: 1, options: {local: true, remote: false}},function(nodeList){
 			var node = nodeList[0];
 			if (!node){
                 console.error("Failed to remove path: ", obj.remove[i].path);
@@ -290,7 +290,7 @@ Eden.Peer = function(master, id, password) {
 	}
 	
 	function addPatchPart(i,obj,callback){
-		Eden.Selectors.query(obj.add[i].path,undefined,undefined,function(nodeList){
+		Eden.Selectors.query(obj.add[i].path,undefined,{minimum: 1, options: {local: true, remote: false}},function(nodeList){
 			var node = nodeList[0];
 			if (!node){
                 console.error("Node not found during add", obj.add[i].path);
