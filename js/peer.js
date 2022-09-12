@@ -245,7 +245,7 @@ Eden.Peer = function(master, id, password) {
 					}
 				}
                 if (!removed) {
-                    console.error("Remove failed", JSON.stringify(node.statements, (key, value) => (key == "base" || key == "parent" || key == "nextSibling" || key == "previousSibling") ? undefined : value, " ", 4), obj.remove[i].id);
+                    console.error("Remove failed");
                 }
 			}
 			//console.log("Remove stat", stat);
@@ -360,6 +360,8 @@ Eden.Peer = function(master, id, password) {
         if (!me.lastPatch.has(obj.id)) {
             me.lastPatch.set(obj.id, obj.stamp - 1);
         }
+
+        patchCount = Math.max(patchCount, obj.stamp + 1);
 
         const lastPatch = me.lastPatch.get(obj.id);
 
