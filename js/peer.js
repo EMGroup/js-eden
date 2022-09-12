@@ -222,7 +222,7 @@ Eden.Peer = function(master, id, password) {
 				return;
 			}
             if (nodeList.length > 1) {
-                console.warn("Too many nodes");
+                console.warn("Too many nodes", nodeList);
             }
 			me.frags[obj.remove[i].path] = node;
 			
@@ -302,7 +302,7 @@ Eden.Peer = function(master, id, password) {
 				return;
 			}
             if (nodeList.length > 1) {
-                console.warn("Too many nodes");
+                console.warn("Too many nodes", nodeList);
             }
 			me.frags[obj.add[i].path] = node;
 			if (!obj.add[i].ws) {
