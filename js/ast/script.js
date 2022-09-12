@@ -59,7 +59,7 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 		if (statindex[stat.id] === undefined) statindex[stat.id] = [];
 		statindex[stat.id].push(stat);
 	}
-    console.log("Patch inner", this.statements, ast.statements);
+    //console.log("Patch inner", this.statements, ast.statements);
 	for (var i=0; i<ast.statements.length; i++) {
 		var stat = ast.statements[i];
 		stat.buildID();
