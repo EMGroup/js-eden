@@ -28,7 +28,6 @@ Eden.Project = function(id, name, source, eden) {
 	this.instance = eden;
 
 	if (this.ast && this.ast.script.errors.length == 0) {
-        this.ast.script.addIndex();
 	} else {
 		console.error("Project Error", this.ast.script.errors);
 		//this.ast = null;
@@ -356,6 +355,8 @@ Eden.Project.prototype.start = function(cb) {
 		});
 		return;
 	}
+
+    this.ast.script.addIndex();
 
 	this.ast.execute(this, eden.root.scope, function() {
 		if (me.ast.scripts["ACTIVE"]) {
