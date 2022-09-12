@@ -45,7 +45,7 @@ EdenUI.plugins.P2PManager = function (edenUI, success) {
 		content.html(generateHTML(name, type));
 
 		$dialog = $('<div id="' + name + '"></div>')
-			.append($('<a class="p2p-gen-url" href="#">Generate P2P URL</a>'))
+			.append($('<button class="p2p-gen-url">Generate P2P URL</button>'))
 			.append($('<br><a target="_blank" class="p2p-url">P2P URL</a><br>'))
 			.append($('<label for="autoaccept">Automatically Broadcast</label><input type="checkbox" id="autoaccept" name="autoaccept">'))
 			// .append($('Password:<input type="text" class="password"><br>'))
