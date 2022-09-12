@@ -195,7 +195,7 @@ Eden.Peer = function(master, id, password) {
 	}
 
 	function removePatchParts(obj, cb){
-        console.log("Patch", obj);
+        // console.log("Patch", obj);
 		// First remove old
         if (obj.remove.length > 0) {
             removePatchPart(obj.remove.length - 1,obj, function(){
@@ -309,7 +309,7 @@ Eden.Peer = function(master, id, password) {
 				var stat = Eden.AST.parseStatement(obj.add[i].source);
 				if (node.statements[obj.add[i].index]) node.insertBefore(node.statements[obj.add[i].index], stat);
 				else node.appendChild(stat);
-                console.log('Added', stat);
+                // console.log('Added', stat);
 			} else {
 				var stat = new Eden.AST.DummyStatement();
 				stat.source = obj.add[i].source;
@@ -319,7 +319,7 @@ Eden.Peer = function(master, id, password) {
 					if (node.statements[0]) node.insertBefore(node.statements[0], stat);
 					else node.appendChild(stat);
 					stat.buildID();
-                    console.log('Added', stat);
+                    // console.log('Added', stat);
 				} else {
 					for (var j=0; j<node.statements.length; j++) {
 						if (node.statements[j].id == obj.add[i].id) {
@@ -336,7 +336,7 @@ Eden.Peer = function(master, id, password) {
 					if (stat) {
 						node.appendChild(stat);
 						stat.buildID();
-                        console.log('Added', stat);
+                        // console.log('Added', stat);
 					}
 				}
 	
@@ -493,7 +493,7 @@ Eden.Peer = function(master, id, password) {
 
 		Eden.Fragment.listenTo('patch',this,function(frag,ast,changes){
 			if(changes && changes.length > 0 && me.capturepatch) {
-                console.log('Send patch for', ast);
+                // console.log('Send patch for', ast, changes);
 				var data = {cmd: "patch", timestamp: frag.ast.stamp, stamp: patchCount++, remove: changes[1], add: changes[0]};
 				me.broadcast(data);
 				//console.log("Patch changes", data);

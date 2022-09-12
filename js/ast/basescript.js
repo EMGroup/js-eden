@@ -164,7 +164,8 @@ Eden.AST.BaseScript.addIndex = function() {
 	if (this.indexed) return;
 	if (this.id == 0) this.buildID();
 	for (var i=0; i<this.statements.length; i++) {
-		if (this.statements[i].type != "dummy") this.statements[i].addIndex();
+		// if (this.statements[i].type != "dummy")
+        this.statements[i].addIndex();
 	}
 	this.indexed = true;
 	Eden.Index.update(this);
