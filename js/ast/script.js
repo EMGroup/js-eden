@@ -94,7 +94,7 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 				eden.project.removeAgent(stat);
 			}
 			if (stat.type == "dummy") {
-				removed.push({path: path, index: stats[i][1], id: (stat.previousSibling) ? stat.previousSibling.id : 0, ws: true});
+				removed.push({path: path, index: stats[i][1] + 1, id: (stat.previousSibling) ? stat.previousSibling.id : 0, ws: true});
 			} else {
 				removed.push({path: path, index: stats[i][1], id: stat.id, ws: false});
 			}
