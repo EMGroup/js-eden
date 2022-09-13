@@ -210,7 +210,7 @@ Eden.Peer = function(master, id, password) {
 	}
 
 	function removePatchPart(i,obj,callback){
-		Eden.Selectors.query(obj.remove[i].path,undefined,{minimum: 1, options: {local: true, remote: false}},function(nodeList){
+		Eden.Selectors.query(obj.remove[i].path,undefined,{options: {local: true, remote: false}},function(nodeList){
 			var node = nodeList[0];
 			if (!node){
                 console.error("Failed to remove path: ", obj.remove[i].path);
@@ -222,7 +222,7 @@ Eden.Peer = function(master, id, password) {
 				return;
 			}
             if (nodeList.length > 1) {
-                console.warn("Too many nodes", nodeList);
+                console.warn("Too many nodes", nodeList, obj);
             }
 			me.frags[obj.remove[i].path] = node;
 			

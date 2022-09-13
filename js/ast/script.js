@@ -57,7 +57,8 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 	for (var i=0; i<this.statements.length; i++) {
 		var stat = this.statements[i];
 		if (statindex[stat.id] === undefined) statindex[stat.id] = [];
-		statindex[stat.id].push(stat);
+        let a = statindex[stat.id];
+		a.push([stat, a.length]);
 	}
     //console.log("Patch inner", this.statements, ast.statements);
 	for (var i=0; i<ast.statements.length; i++) {
@@ -67,7 +68,7 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 		// Replace existing ... no change
 		if (statindex[stat.id] && statindex[stat.id].length > 0) {
 			//this.ast.script.statements[i] = statindex[stat.id];
-			ast.replaceChild(i, statindex[stat.id][0]);
+			ast.replaceChild(i, statindex[stat.id][0][0]);
 			statindex[stat.id].shift();
 			if (statindex[stat.id].length == 0) delete statindex[stat.id];
 		// Insert new statement
@@ -88,21 +89,22 @@ Eden.AST.Script.prototype.patchInner = function(ast) {
 	for (var x in statindex) {
 		var stats = statindex[x];
 		for (var i=0; i<stats.length; i++) {
-			if (stats[i].type == "when" && stats[i].enabled) {
-				eden.project.removeAgent(stats[i]);
+            let stat = stats[i][0];
+			if (stat.type == "when" && stat.enabled) {
+				eden.project.removeAgent(stat);
 			}
-			if (stats[i].type == "dummy") {
-				removed.push({path: path, id: (stats[i].previousSibling) ? stats[i].previousSibling.id : 0, ws: true});
+			if (stat.type == "dummy") {
+				removed.push({path: path, index: stats[i][1], id: (stat.previousSibling) ? stat.previousSibling.id : 0, ws: true});
 			} else {
-				removed.push({path: path, id: stats[i].id, ws: false});
+				removed.push({path: path, index: stats[i][1], id: stat.id, ws: false});
 			}
-			if (this.indexed && stats[i].executed == 0) {
+			if (this.indexed && stat.executed == 0) {
 				//console.log("Remove index for",statindex[x]);
-				stats[i].removeIndex();
+				stat.removeIndex();
 				//var stats = Eden.Selectors.queryWithin([statindex[x]], ">>");
 				//for (var j=0; j<stats.length; j++) Eden.Index.remove(stats[j]);
 			} else {
-				stats[i].destroy();
+				stat.destroy();
 			}
 		}
 	}
