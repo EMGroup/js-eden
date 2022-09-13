@@ -210,7 +210,7 @@ Eden.Peer = function(master, id, password) {
 	}
 
 	function removePatchPart(i,obj,callback){
-		Eden.Selectors.query(obj.remove[i].path,undefined,{options: {local: true, remote: false}},function(nodeList){
+		Eden.Selectors.query(obj.remove[i].path,undefined,{minimum: 1, options: {local: true, remote: false}},function(nodeList){
 			var node = nodeList[0];
 			if (!node){
                 console.error("Failed to remove path: ", obj.remove[i].path);
@@ -222,7 +222,7 @@ Eden.Peer = function(master, id, password) {
 				return;
 			}
             if (nodeList.length > 1) {
-                console.warn("Too many nodes", nodeList, obj);
+                console.warn("Too many nodes", nodeList);
             }
 			me.frags[obj.remove[i].path] = node;
 			
@@ -231,17 +231,23 @@ Eden.Peer = function(master, id, password) {
 				stat = node.statements[0];
 			} else {
                 let removed = false;
+                let ix = 0;
 				for (var j=0; j<node.statements.length; j++) {
 					if (node.statements[j].id == obj.remove[i].id) {
-						if (obj.remove[i].ws) {
-							stat = node.statements[j].nextSibling;
-							//console.log("STAT BEING REMOVED", stat);
-							if (stat && stat.type != "dummy") stat = undefined;
-						} else {
-							stat = node.statements[j];
-						}
-                        removed = true;
-						break;
+                        if (obj.remove[i].index === ix) {
+                            if (obj.remove[i].ws) {
+                                stat = node.statements[j].nextSibling;
+                                //console.log("STAT BEING REMOVED", stat);
+                                if (stat && stat.type != "dummy") stat = undefined;
+                            } else {
+                                stat = node.statements[j];
+                            }
+                            removed = true;
+                            break;
+                        } else {
+                            console.warn("Duplicate id", obj.remove[i].id);
+                            ++ix;
+                        }
 					}
 				}
                 if (!removed) {
