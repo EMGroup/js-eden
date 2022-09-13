@@ -474,8 +474,11 @@ Eden.Peer = function(master, id, password) {
 				conn.on('error', function(e){
 					console.error(e);
 				});
-				conn.on('close', function(e){
-					console.warn('Closing connection ', e);
+				conn.on('close', function(){
+					console.warn('Closing connection ');
+                    Eden.Peer.emit("disconnect", [conn.peer, (me.connections[conn.peer]) ? me.connections[conn.peer].username : undefined]);
+                    delete me.connections[conn.peer];
+                    eden.root.lookup("jseden_p2p_newdisconnections").append(conn.peer, eden.root.scope, EdenSymbol.localJSAgent);
 				});
 			});
 
@@ -494,7 +497,6 @@ Eden.Peer = function(master, id, password) {
 
 		Eden.Fragment.listenTo('patch',this,function(frag,ast,changes){
 			if(changes && changes.length > 0 && me.capturepatch) {
-                console.log('Send patch for', patchCount);
 				var data = {cmd: "patch", timestamp: frag.ast.stamp, stamp: patchCount++, remove: changes[1], add: changes[0]};
 				me.broadcast(data);
 				//console.log("Patch changes", data);
