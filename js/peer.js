@@ -359,7 +359,7 @@ Eden.Peer = function(master, id, password) {
 	}
 
 	function processPatch(obj) {
-		//console.log("Patching", obj);
+		console.log("Patching", obj);
 		me.frags = {};
 		me.todorm = [];
 
