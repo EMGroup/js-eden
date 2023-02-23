@@ -28,7 +28,7 @@
     "passport-local": "~0.1.6",
     "passport-twitter": "~1.0.2",
     "randomstring": "^1.1.5",
-    "sequelize": "^6.5.0",
+    "sequelize": "^6.28.2",
     "sqlite3": "5.0.1"
   },
   "devDependencies": {
