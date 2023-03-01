@@ -375,17 +375,42 @@ EdenStream.prototype.parseCharacter = function(data) {
 EdenStream.prototype.parseNumber = function(data) {
 	var result = "";
 
-	while (this.valid() && this.isNumeric(this.peek())) {
+    let next = this.peek();
+
+	while (this.valid() && this.isNumeric(next)) {
 		result += String.fromCharCode(this.get());
+        next = this.peek();
 	}
 
-	if (this.peek() === 46 && this.isNumeric(this.peek2())) {
+    // Parse the decimal
+	if (next === 46 && this.isNumeric(this.peek2())) {
 		this.skip();
 		result += ".";
-		while (this.valid() && this.isNumeric(this.peek())) {
+        next = this.peek();
+		while (this.valid() && this.isNumeric(next)) {
 			result += String.fromCharCode(this.get());
+            next = this.peek();
 		}
 	}
+    
+    // Parse an option "e" component
+    if (next === 101 || next === 69) {
+        const next2 = this.peek2();
+        if (this.isNumeric(next2) || next2 === 45) {
+            result += "e";
+            this.skip();
+            if (next2 === 45 && this.isNumeric(this.peek2())) {
+                result += "-";
+                this.skip();
+            }
+            next = this.peek();
+            
+            while (this.valid() && this.isNumeric(next)) {
+                result += String.fromCharCode(this.get());
+                next = this.peek();
+            }
+        }
+    }
 
 	data.value = parseFloat(result);
 };
