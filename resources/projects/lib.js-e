@@ -1829,7 +1829,7 @@ func tail {
  *
  */
 
-func unique{
+func unique {
 	para inList;
 	auto argc;
 	argc = ${{ arguments.length }}$;
@@ -1838,11 +1838,26 @@ func unique{
 		return @;
 	}
 	${{
-		var inList = arguments[0];
-inList = inList.filter( function( item, index, inputArray ) {
-           return inputArray.indexOf(item) == index;
-    });
-		return inList;
+		const set = new Set();
+		const arrays = [];
+		for (let value of inList) {
+			if (Array.isArray(value)) {
+				let found = false;
+				for (let array of arrays) {
+					if (arrayCompare(value, array)) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					arrays.push(value);
+					set.add(value);
+				}
+			} else {
+				set.add(value);
+			}
+		}
+		return [...set];
 	}}$;
 }
 }
@@ -2702,6 +2717,22 @@ func splitString {
  */
 action math {
 PI = ${{ Math.PI }}$;
+
+/**This observable determines how many units of angular measurement a semicircle turns through.
+ * You can use it to tell the environment which units your construal uses for its observables
+ * which represent angles and all of the trigonometric functions will alter their results so
+ * that they conform with your chosen measuring system. By default semicircleAngle is set to
+ * 180 and the trigonometry functions will accept arguments in degrees and the inverse
+ * trigonometry functions will return values in degrees.
+ *
+ * Other sensible values for this observable include:
+ * * PI  = angles measured in radians
+ * * 200 = angles measured in grads, where 0 represents horizontal/no incline and 100
+ * represents a vertical incline.
+ * * 0.5 = angles as fractions of a full turn
+ * * 50  = angles measured as percentages of a full turn (perhaps useful for making pie charts?)
+ * * a power of 2 = compass points mapped to integers
+ */
 semicircleAngle = 180;
 
 #Rounding functions
@@ -3016,9 +3047,10 @@ func abs {
 }
 
 /**
- * Get the arccosine of x in degrees.
+ * Get the arccosine of x. The result is in degrees by default but this can be changed by
+ * redefining the semicircleAngle observable.
  *   @param x
- *   @return Arccosine in degrees.
+ *   @return The arccosine in the construal's chosen unit of angular measure.
  *   #library #math #arc #cosine
  */
 func acos {
@@ -3034,9 +3066,10 @@ func acos {
 }
 
 /**
- * Get the arcsine of x in degrees.
+ * Get the arcsine of x. The result is in degrees by default but this can be changed by
+ * redefining the semicircleAngle observable.
  *   @param x
- *   @return Arcsine in degrees.
+ *   @return The arcsine in the construal's chosen unit of angular measure.
  *   #library #math #arc #sine
  */
 func asin {
@@ -3052,6 +3085,13 @@ func asin {
 }
 
 
+/**
+ * Get the arctangent of x. The result is in degrees by default but this can be changed by
+ * redefining the semicircleAngle observable.
+ *   @param x
+ *   @return The arctangent in the construal's chosen unit of angular measure.
+ *   #library #math #arc #sine
+ */
 func atan {
 	${{
 		var x = arguments[0];
@@ -3062,7 +3102,9 @@ func atan {
 
 /**
  * Returns the cosine of a given angle.
- *   @param angle Angle in degrees.
+ *   @param angle An angle measured in the construal's chosen unit of angular measure.
+ * Construals use degrees by default but this can be changed by redefining the semicircleAngle
+ * observable.
  *   @return Cosine (between -1 and 1).
  * #cosine
  */
@@ -3142,10 +3184,8 @@ func log {
 	}}$;
 }
 
-#The same remarks apply as for min, mutatis mutandis.
-
 /**
- * Maximum value in a list or of the arguments given.
+ * Maximum value in a list or of the arguments given. The same remarks apply as for min, mutatis mutandis.
  *   @param a A number or a list of numbers.
  *   @param [b...] If param a is not a list then use b and so on.
  *   #library #math #maximum #largest
@@ -3348,9 +3388,11 @@ ${{
 }}$;
 
 /**
- * Returns the cosine of a given angle.
- *   @param angle Angle in degrees.
- *   @return Cosine (between -1 and 1).
+ * Returns the sine of a given angle.
+ *   @param angle An angle measured in the construal's chosen unit of angular measure.
+ * Construals use degrees by default but this can be changed by redefining the semicircleAngle
+ * observable.
+ *   @return Sine (between -1 and 1).
  */
 func sin {
 	${{
@@ -3426,7 +3468,9 @@ func sum {
 
 /**
  * Get the tangent of an angle.
- *   @param x Angle in degrees.
+ *   @param angle An angle measured in the construal's chosen unit of angular measure.
+ * Construals use degrees by default but this can be changed by redefining the semicircleAngle
+ * observable.
  *   @return Tangent of angle.
  *   #library #math #tangent
  */
@@ -3461,6 +3505,150 @@ semicircleAngle ~> [sin, cos, tan, asin, acos, atan];
 }
 
 action colour {
+
+# Functions for constructing colour values.  Useful in conjunction with both canvas shapes and
+# CSS binding procedures.
+
+
+/**Converts three numbers representing the red, green and blue values of a colour
+ * (range 0-255) into a string that can be used as a colour value for canvas
+ * drawables or for appropriate CSS properties.  If four arguments are supplied
+ * then the forth value determines the opacity (range 0.0 to 1.0).
+ */
+func rgbColour {
+	para p1,p2,p3,p4;
+	auto r, g, b, a;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 3 || argc > 4) {
+		error("rgb: This function requires at least 3 arguments and at most 4 arguments.");
+		return "black";
+	}
+
+	r = p1; g = p2; b = p3; a = @;
+
+	if (r == @) {
+		r = 0;
+	} else if (!isNumber(r)) {
+		error("rgb: The first argument must be a number, not a " // type(r));
+		return "black";
+	} else {
+		r = round(r);
+	}
+
+	if (g == @) {
+		g = 0;
+	} else if (!isNumber(g)) {
+		error("rgb: The second argument must be a number, not a " // type(g));
+		return "black";
+	} else {
+		g = round(g);
+	}
+
+	if (b == @) {
+		b = 0;
+	} else if (!isNumber(b)) {
+		error("rgb: The third argument must be a number, not a " // type(b));
+		return "black";
+	} else {
+		b = round(b);
+	}
+
+	if (argc == 4) {
+		a = p4;
+		if (isNumber(a)) {
+			if (a < 0) {
+				a = 0;
+			} else if (a > 1) {
+				a = 1;
+			}
+		} else if (a != @) {
+			error("rgb: The forth argument must be a number, not a " // type(a));
+			return "black";
+		}
+	}
+
+	if (a == @) {
+		return "rgb(" // str(r) // "," // str(g) // "," // str(b) // ")";
+	} else {
+		return "rgba(" // str(r) // "," // str(g) // "," // str(b) // "," // str(a) // ")";
+	}
+}
+
+/**Converts three numbers representing the hue, saturation and lightness values
+ * of a colour (ranges 0-360, 0-100 and 0-100 respectively) into a string that
+ * can be used as a colour value for canvas drawables or for appropriate CSS
+ * properties.  If four arguments are supplied then the forth value determines
+ * the opacity (range 0.0 to 1.0).
+ */
+func hslColour {
+	para p1,p2,p3,p4;
+	auto h, s, l, a;
+	auto argc;
+	argc = ${{ arguments.length }}$;
+
+	if (argc < 3 || argc > 4) {
+		error("hsl: This function requires at least 3 arguments and at most 4 arguments.");
+		return "black";
+	}
+
+	h = p1; s = p2; l = p3; a = @;
+
+	if (h == @) {
+		h = 0;
+	} else if (!isNumber(h)) {
+		error("hsl: The first argument must be a number, not a " // type(h));
+		return "black";
+	} else if (h < 0) {
+		h = 0;
+	} else if (h > 360) {
+		h = 360;
+	}
+
+	if (s == @) {
+		s = 0;
+	} else if (!isNumber(s)) {
+		error("hsl: The second argument must be a number, not a " // type(s));
+		return "black";
+	} else if (s < 0) {
+		s = 0;
+	} else if (s > 100) {
+		s = 100;
+	}
+
+	if (l == @) {
+		l = 0;
+	} else if (!isNumber(l)) {
+		error("hsl: The third argument must be a number, not a " // type(l));
+		return "black";
+	} else if (l < 0) {
+		l = 0;
+	} else if (l > 100) {
+		l = 100;
+	}
+
+	if (argc == 4) {
+		a = p4;
+		if (isNumber(a)) {
+			if (a < 0) {
+				a = 0;
+			} else if (a > 1) {
+				a = 1;
+			}
+		} else if (a != @) {
+			error("hsl: The forth argument must be a number, not a " // type(a));
+			return "black";
+		}
+	}
+
+	if (a == @) {
+		return "hsl(" // str(h) // "," // str(s) // "%," // str(l) // "%)";
+	} else {
+		return "hsla(" // str(h) // "," // str(s) // "%," // str(l) // "%," // str(a) // ")";
+	}
+}
+
 
 }
 
@@ -3537,10 +3725,6 @@ do lib > notifications;
 do lib > defaults;
 do lib > extend_javascript;
 do lib > dynamic;
-
-action algebra {
-
-}
 
 action geometry {
 /**
