@@ -38,14 +38,14 @@ Slider.prototype.hash = function () {
 
 /**
  * Create a slider input control
- * 
+ *
  * @param [name] Prefix for _value and _preview observables.  Default is the name of the observable being defined.
  * @param min Minimum value of the slider
  * @param max Maximum value of the slider
  * @param [step Step interval
  * @param [label_interval How frequently to display labels
  * @param [tick_mark_interval How frequently to display tick marks
- * @param [label_divisor]]]] Each label is divided by label_divisor before display 
+ * @param [label_divisor]]]] Each label is divided by label_divisor before display
  * @param x X-position
  * @param y Y-position
  * @param size Size in pixels
@@ -53,7 +53,7 @@ Slider.prototype.hash = function () {
  * @param [enabled] Boolean True or False
  *
  * #canvas #input #slider
- * 
+ *
  */
 func Slider { ${{
 	var argsProcessed;
@@ -136,7 +136,6 @@ Slider.prototype.draw = function (context) {
 	if (this.elements === undefined) {
 		var name = this.name;
 		var me = this;
-		var agent = root.lookup("Slider");
 
 		var cssClass;
 		if (this.orientation == "down"){
@@ -153,7 +152,7 @@ Slider.prototype.draw = function (context) {
 			'min="' + this.min + '" ' +
 			'max="' + this.max + '" ';
 		if (this.step === undefined) {
-			inputHTML = inputHTML + 'step="0.0000001"';		
+			inputHTML = inputHTML + 'step="0.0000001"';
 		} else {
 			inputHTML = inputHTML + 'step="' + this.step + '"';
 		}
@@ -172,27 +171,18 @@ Slider.prototype.draw = function (context) {
 			var previewSym = root.lookup(name + "_preview");
 			var previewValue = previewSym.value();
 			if (previewValue !== value || force) {
-				var roundedValue;
+				inputElem.value = value;
+				var roundedValue = value;
 				if (value >= me.min && value <= me.max) {
-					inputElem.value = value;
 					roundedValue = parseFloat(inputElem.value);
 					if (roundedValue != value) {
-						//Value didn't match the step size.
-						obs.assign(roundedValue, root.scope, agent);
+						// Value didn't match the step size.
+						obs.assign(roundedValue, root.scope, EdenSymbol.hciAgent);
 					}
-				} else {
-					if (value < me.min) {
-						inputElem.value = me.min;
-					} else {
-						inputElem.value = me.max;
-					}
-					if (me.step !== undefined) {
-						roundedValue = Math.round(((value - me.min) / me.step).toPrecision(16)) * me.step + me.min;
-						if (roundedValue != value) {
-							obs.assign(roundedValue, root.scope, agent);
-						}
-					} else {
-						roundedValue = value;
+				} else if (me.step !== undefined) {
+					roundedValue = Math.round(((value - me.min) / me.step).toPrecision(16)) * me.step + me.min;
+					if (roundedValue != value) {
+						obs.assign(roundedValue, root.scope, EdenSymbol.hciAgent);
 					}
 				}
 				if (previewValue != roundedValue) {
@@ -206,33 +196,22 @@ Slider.prototype.draw = function (context) {
 			if (typeof(preview) != "number") {
 				return;
 			}
-			var previewSym = root.lookup(name + "_preview");
-			var valueSym = root.lookup(name + "_value");
-			if (previewSym.last_modified_by !== EdenSymbol.hciAgent.name) {
-				var roundedValue;
+			if (obs.origin !== EdenSymbol.hciAgent) {
+				inputElem.value = preview;
+				var roundedValue = preview;
 				if (preview >= me.min && preview <= me.max) {
-					inputElem.value = preview;
 					roundedValue = parseFloat(inputElem.value);
 					if (roundedValue != preview) {
-						//Value didn't match the step size.
-						obs.assign(roundedValue, root.scope, agent);
+						// Value didn't match the step size.
+						obs.assign(roundedValue, root.scope, EdenSymbol.hciAgent);
 					}
-				} else {
-					if (preview < me.min) {
-						inputElem.value = me.min;
-					} else {
-						inputElem.value = me.max;
-					}
-					if (me.step !== undefined) {
-						roundedValue = Math.round(((preview - me.min) / me.step).toPrecision(16)) * me.step + me.min;
-						if (roundedValue != value) {
-							obs.assign(roundedValue, root.scope, agent);
-						}
-					} else {
-						roundedValue = preview;
+				} else if (me.step !== undefined) {
+					roundedValue = Math.round(((preview - me.min) / me.step).toPrecision(16)) * me.step + me.min;
+					if (roundedValue != value) {
+						obs.assign(roundedValue, root.scope, EdenSymbol.hciAgent);
 					}
 				}
-				valueSym.assign(roundedValue, root.scope, agent);
+				root.lookup(name + "_value").assign(roundedValue, root.scope, EdenSymbol.defaultAgent);
 			}
 		});
 
@@ -249,7 +228,7 @@ Slider.prototype.draw = function (context) {
 			edenUI.plugins.Canvas2D.endClick();
 		})
 		.on("keyup", function () {
-			root.lookup(name + "_value").assign(parseFloat(this.value), root.scope, EdenSymbol.hciAgent, true);		
+			root.lookup(name + "_value").assign(parseFloat(this.value), root.scope, EdenSymbol.hciAgent, true);
 		})
 		.on("mouseenter", function () {
 			var mouseFollow = root.lookup("mouseFollow").value();
@@ -291,7 +270,7 @@ Slider.prototype.draw = function (context) {
 						var offset = Math.round((50 - percentage) / 100 * 10);
 						var labelText = i / this.labelDivisor;
 						var label = $(
-							'<div ' + 
+							'<div ' +
 								'class="slider-label" ' +
 								'style="left: calc(' + percentage + '% + ' + offset + 'px); width: ' + labelWidth + '%"' +
 							'>' +
@@ -333,10 +312,10 @@ Slider.prototype.draw = function (context) {
 		if (value === undefined) {
 			if (previewValue === undefined) {
 				var defaultValue = (this.max - this.min) / 2 + this.min;
-				valueSym.assign(defaultValue, root.scope, agent);
+				valueSym.assign(defaultValue, root.scope, EdenSymbol.defaultAgent);
 				setValue(valueSym, defaultValue, true);
 			} else {
-				valueSym.assign(previewValue, root.scope, agent);
+				valueSym.assign(previewValue, root.scope, EdenSymbol.defaultAgent);
 				setValue(valueSym, previewValue, true);
 			}
 		} else {
@@ -360,7 +339,7 @@ Slider.prototype.scale = function (scale, zoom, origin) {
 		sliderStyle.width = width + "px";
 		divStyle.height = width + "px";
 	} else {
-		divStyle.width = width + "px";	
+		divStyle.width = width + "px";
 	}
 
 	divStyle.fontSize = zoom + "em";

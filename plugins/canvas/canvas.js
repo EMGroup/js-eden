@@ -150,275 +150,282 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 
 	this.drawPicture = function(viewName) {
 		var canvas = canvases[viewName];
-		if (canvas === undefined) {
-			//View has been destroyed.
+		if (canvas === undefined || canvas.drawingQueued) {
+			//View has been destroyed or is already scheduled to be redrawn.
 			return;
 		}
 
-		if (!canvas.drawingQueued) {
-			canvas.drawingQueued = true;
+		var redrawFunction = function () {
+			canvas.drawingQueued = false;
 
-			if (!canvas.drawingInProgress) {
-				var redrawFunction = function () {
-					canvas.drawingInProgress = true;
-					canvas.drawingQueued = false;
+			var previousElements = canvasNameToElements[viewName];
+			var nextElements = {};
 
-					var previousElements = canvasNameToElements[viewName];
-					var nextElements = {};
+			var pictureObsName = "view_" + viewName + "_content";
+			var pictureSym = root.lookup(pictureObsName);
+			var picture = pictureSym.value();
+			var context = canvas.getContext('2d');
+			var content = contents[viewName];
+			var contentindex = 0;
+			if (content === undefined) {
+				//View has been destroyed.
+				return;
+			}
 
-					var pictureObsName = "view_" + viewName + "_content";
-					var pictureSym = root.lookup(pictureObsName);
-					var picture = pictureSym.value();
-					var context = canvas.getContext('2d');
-					var content = contents[viewName];
-					var contentindex = 0;
-					if (content === undefined) {
-						//View has been destroyed.
-						return;
+			var backgroundColour = root.lookup("view_" + viewName + "_background_colour").value();
+			if (backgroundColour === undefined) {
+				backgroundColour = "white";
+			}
+			context.setTransform(1, 0, 0, 1, 0, 0);
+			me.setFillStyle(context, backgroundColour);
+			content.style.backgroundColor = backgroundColour;
+			context.fillRect(0, 0, canvas.width, canvas.height);
+
+			var hash;
+			for (hash in previousElements) {
+				previousElements[hash][0].setAttribute("data-garbage", true);
+			}
+			if (Array.isArray(picture)) {
+				var scale = root.lookup("view_" + viewName + "_scale").value();
+				if (typeof(scale) != "number") {
+					scale = 1;
+				}
+				var zoom = root.lookup("view_" + viewName + "_zoom").value();
+				if (typeof(zoom) != "number") {
+					zoom = 1;
+				}
+				var combinedScale = scale * zoom;
+				var invertedYAxis, absScale;
+				if (scale < 0) {
+					context.scale(-combinedScale, combinedScale);
+					combinedScale = -combinedScale;
+					absScale = -scale;
+					invertedYAxis = true;
+				} else {
+					if (combinedScale != 1) {
+						context.scale(combinedScale, combinedScale);
 					}
-				  
-					var backgroundColour = root.lookup("view_" + viewName + "_background_colour").value();
-					if (backgroundColour === undefined) {
-						backgroundColour = "white";
+					absScale = scale;
+					invertedYAxis = false;
+				}
+				var origin = root.lookup("view_" + viewName + "_offset").value();
+				if (origin instanceof Point) {
+					if (invertedYAxis) {
+						var originY = canvas.height / combinedScale - origin.y;
+						context.translate(origin.x, -originY);
+						origin = new Point(origin.x, originY);
+					} else {
+						context.translate(origin.x, origin.y);
 					}
-					context.setTransform(1, 0, 0, 1, 0, 0);
-					me.setFillStyle(context, backgroundColour);
-					content.style.backgroundColor = backgroundColour;
-					context.fillRect(0, 0, canvas.width, canvas.height);
+				} else {
+					origin = new Point(0, 0);
+				}
+				//Configure JS-EDEN default options that are different from the HTML canvas defaults.
+				me.configureContextDefaults(context, absScale);
 
-					var hash;
-					for (hash in previousElements) {
-						previousElements[hash][0].setAttribute("data-garbage", true);
+				var pictureLists = [picture];
+				var pictureListIndices = [0];
+				var cssTransforms = [];
+				var cssTransform = "";
+
+				while (pictureLists.length > 0) {
+					var currentPicture = pictureLists.pop();
+					var index = pictureListIndices.pop();
+
+					if (index > 0 && currentPicture[index - 1] instanceof EdenUI.plugins.Canvas2D.Transform) {
+						context.restore();
+						cssTransforms.pop();
+						cssTransform = cssTransforms.join(" ");
 					}
-					if (Array.isArray(picture)) {
-						var scale = root.lookup("view_" + viewName + "_scale").value();
-						if (typeof(scale) != "number") {
-							scale = 1;
-						}
-						var zoom = root.lookup("view_" + viewName + "_zoom").value();
-						if (typeof(zoom) != "number") {
-							zoom = 1;
-						}
-						var combinedScale = scale * zoom;
-						var invertedYAxis, absScale;
-						if (scale < 0) {
-							context.scale(-combinedScale, combinedScale);
-							combinedScale = -combinedScale;
-							absScale = -scale;
-							invertedYAxis = true;
-						} else {
-							if (combinedScale != 1) {
-								context.scale(combinedScale, combinedScale);
-							}
-							absScale = scale;
-							invertedYAxis = false;
-						}
-						var origin = root.lookup("view_" + viewName + "_offset").value();
-						if (origin instanceof Point) {
-							if (invertedYAxis) {
-								var originY = canvas.height / combinedScale - origin.y;
-								context.translate(origin.x, -originY);								
-								origin = new Point(origin.x, originY);
-							} else {
-								context.translate(origin.x, origin.y);
-							}
-						} else {
-							origin = new Point(0, 0);
-						}
-						//Configure JS-EDEN default options that are different from the HTML canvas defaults.
-						me.configureContextDefaults(context, absScale);
 
-						var pictureLists = [picture];
-						var pictureListIndices = [0];
-						var cssTransforms = [];
-						var cssTransform = "";
-
-						while (pictureLists.length > 0) {
-							var currentPicture = pictureLists.pop();
-							var index = pictureListIndices.pop();
-							
-							if (index > 0 && currentPicture[index - 1] instanceof EdenUI.plugins.Canvas2D.Transform) {
-								context.restore();
-								cssTransforms.pop();
-								cssTransform = cssTransforms.join(" ");
-							}
-
-							while (index < currentPicture.length) {
-								var item = currentPicture[index];
-								if (!(item instanceof Object)) {
-									index++;
-									continue;
-								} else if (Array.isArray(item)) {
-									pictureLists.push(currentPicture);
-									pictureListIndices.push(index + 1);
-									currentPicture = item;
-									index = 0;
-									continue;
-								} else if (item instanceof EdenUI.plugins.Canvas2D.Transform) {
-									pictureLists.push(currentPicture);
-									pictureListIndices.push(index + 1);
-									context.save();
-									item.transform(context);
-									var newCSSTransform = item.getCSS(combinedScale);
-									cssTransform = cssTransform + newCSSTransform + " ";
-									cssTransforms.push(newCSSTransform);
-									currentPicture = item.items;
-									if (!Array.isArray(currentPicture)) {
-										currentPicture = [currentPicture];
-									}
-									index = 0;
-									continue;
-								}
-
-								var elHash = item.hash && item.hash();
-								var existingEl = elHash && previousElements[elHash];
-
-								if (existingEl) {
-									// if already existing hash, no need to draw, just set the elements
-									item.elements = existingEl;
-								} else {
-									context.save();
-									try {
-										var visible = me.configureContext(context, absScale, zoom, item.drawingOptions);
-										// expect draw() method to set .elements
-										if (visible) {
-											item.draw(context, scale, viewName);
-										}
-									} catch (e) {
-										if (item !== undefined) {
-											console.error(item, e);
-											//var debug = root.lookup("debug").value();
-											//if (typeof(debug) == "object" && debug.jsExceptions) {
-											//	debugger;
-											//}
-										}
-									}
-									context.restore();
-								}
-
-								if (item.elements !== undefined) {
-									var parentEl = item.elements[0].parentElement;
-									if (parentEl && parentEl != content) {
-										//HTML item already present on another canvas.
-										var copiedEl = [];
-										for (var j = 0; j < item.elements.length; j++) {
-											copiedEl.push($(item.elements[j]).clone(true, true).get(0));
-										}
-										item.elements = copiedEl;
-										item.scale(combinedScale, zoom, origin);
-									} else if (!existingEl || canvas.rescale) {
-										item.scale(combinedScale, zoom, origin);
-									}
-								}
-								var htmlEl = item.elements;
-								if (htmlEl) {
-									//var htmlJQ = $(htmlEl);
-									//htmlJQ.css("transform", cssTransform);
-									htmlEl[0].style.transform = ((item.transformCSS) ? item.transformCSS+" " : "") + cssTransform;
-									htmlEl[0].setAttribute("data-garbage", false);
-									if (!existingEl) {
-										if (content.length <= contentindex) {
-											content.appendChild(htmlEl[0]);
-										} else {
-											content.insertBefore(htmlEl[0], content.childNodes[contentindex]);
-										}
-									}
-									nextElements[elHash] = htmlEl;
-									contentindex++;
-								}
-
-								index++;
-							} //end of redraw loop (current list).
-						} // end of redraw loop (all nested lists).
-
-						if (root.lookup("view_" + viewName + "_grid_visible").value() == true) {
-							//Draw grid lines.
-							var gridSpacing = root.lookup("view_" + viewName + "_grid_spacing").value();
-							var minX = -origin.x;
-							var maxX = canvas.width / combinedScale - origin.x;
-							var minY, maxY;
-							if (invertedYAxis) {
-								minY = origin.y - canvas.height /combinedScale; 
-								maxY = origin.y;
-							} else {
-								minY = -origin.y;
-								maxY = canvas.height /combinedScale - origin.y; 
-							}
-
+					while (index < currentPicture.length) {
+						var item = currentPicture[index];
+						if (!(item instanceof Object)) {
+							index++;
+							continue;
+						} else if (Array.isArray(item)) {
+							pictureLists.push(currentPicture);
+							pictureListIndices.push(index + 1);
+							currentPicture = item;
+							index = 0;
+							continue;
+						} else if (item instanceof EdenUI.plugins.Canvas2D.Transform) {
+							pictureLists.push(currentPicture);
+							pictureListIndices.push(index + 1);
 							context.save();
-							//Minor grid lines.
-							context.lineWidth = 1 / combinedScale;
-							context.strokeStyle = "thistle";
-							me.drawGridLines(origin, combinedScale, gridSpacing, minX, minY, maxX, maxY, context);
-							//Major grid lines.
-							context.strokeStyle = "magenta";
-							me.drawGridLines(origin, combinedScale, gridSpacing * 3, minX, minY, maxX, maxY, context);
+							item.transform(context);
+							var newCSSTransform = item.getCSS(combinedScale);
+							cssTransform = cssTransform + newCSSTransform + " ";
+							cssTransforms.push(newCSSTransform);
+							currentPicture = item.items;
+							if (!Array.isArray(currentPicture)) {
+								currentPicture = [currentPicture];
+							}
+							index = 0;
+							continue;
+						}
 
-							//Origin marker.
-							context.beginPath();
-							context.strokeStyle = "blue";
-							context.fillStyle = "blue";
-							context.arc(0, 0, 9 / combinedScale, 0, 2 * Math.PI, false);
-							context.fill();
+						var elHash = item.hash && item.hash();
+						var existingEl = elHash && previousElements[elHash];
 
-							//Axes direction arrows.
-							context.beginPath();
-							context.moveTo(3 * gridSpacing, 0);
-							context.lineTo(2 * gridSpacing, 0.4 * gridSpacing);
-							context.lineTo(2 * gridSpacing, -0.4 * gridSpacing);
-							context.moveTo(0, 3 * gridSpacing);
-							context.lineTo(0.4 * gridSpacing, 2 * gridSpacing);
-							context.lineTo(-0.4 * gridSpacing, 2 * gridSpacing);
-							context.fill();
-
-							context.beginPath();
-							context.lineWidth = 4 / combinedScale;
-							context.moveTo(2 * gridSpacing, 0);
-							context.lineTo(0, 0);
-							context.lineTo(0, 3 * gridSpacing);
-							context.stroke();
-
+						if (existingEl) {
+							// if already existing hash, no need to draw, just set the elements
+							item.elements = existingEl;
+						} else {
+							context.save();
+							try {
+								var visible = me.configureContext(context, absScale, zoom, item.drawingOptions);
+								// expect draw() method to set .elements
+								if (visible) {
+									item.draw(context, scale, viewName);
+								}
+							} catch (e) {
+								if (item !== undefined) {
+									console.error(item, e);
+									//var debug = root.lookup("debug").value();
+									//if (typeof(debug) == "object" && debug.jsExceptions) {
+									//	debugger;
+									//}
+								}
+							}
 							context.restore();
 						}
 
-					} else { //end if picture observable is a list.
-
-						var obsName = pictureObsName;
-						var definition = pictureSym.eden_definition;
-						if (definition) {
-							var re = new RegExp("^" + pictureObsName + "\\s+is\\s+([a-zA-Z0-9_]+)(;)?$");
-							var match = definition.match(re);
-							if (match !== null) {
-								obsName = match[1];
+						if (item.elements !== undefined) {
+							var parentEl = item.elements[0].parentElement;
+							if (parentEl && parentEl != content) {
+								//HTML item already present on another canvas.
+								var copiedEl = [];
+								for (var j = 0; j < item.elements.length; j++) {
+									copiedEl.push($(item.elements[j]).clone(true, true).get(0));
+								}
+								item.elements = copiedEl;
+								item.scale(combinedScale, zoom, origin);
+							} else if (!existingEl || canvas.rescale) {
+								item.scale(combinedScale, zoom, origin);
 							}
 						}
-						context.save();
-						context.font = "18px sans-serif";
-						context.fillStyle = "black";
-						context.textAlign = "center";
-						content.textBaseline = "middle";
-						context.fillText(
-							"Give the observable named '" + obsName + "' a list-typed value",
-							canvas.width / 2,
-							canvas.height / 2
-						);
-						context.fillText(
-							"to create a picture here.",
-							canvas.width / 2,
-							canvas.height / 2 + 30
-						);
-						context.restore();
+						var htmlEl = item.elements;
+						if (htmlEl) {
+							htmlEl[0].style.transform = (item.transformCSS ? item.transformCSS + " " : "") + cssTransform;
+							htmlEl[0].setAttribute("data-garbage", false);
+							if (!existingEl) {
+								if (content.length <= contentindex) {
+									content.appendChild(htmlEl[0]);
+								} else {
+									content.insertBefore(htmlEl[0], content.childNodes[contentindex]);
+								}
+							}
+							nextElements[elHash] = htmlEl;
+							contentindex++;
+						}
+
+						index++;
+					} // end of redraw loop (current list).
+				} // end of redraw loop (all nested lists).
+
+				 /* Check that the mouse pointer hasn't "left" or "entered" a named zone as a
+				  result of the picture changing. */
+				if (root.lookup("mouseView").value() == viewName) {
+					var zoneSym = root.lookup("mouseZone");
+					var previousZone = zoneSym.value();
+					var mousePosition = root.lookup("mousePosition").value();
+					var newZone = me.findDrawableHitInList(picture, context, scale,
+						mousePosition.x, mousePosition.y, false, false);
+					if (newZone !== previousZone) {
+						var followMouse = root.lookup("mouseFollow").value();
+						root.beginAutocalcOff();
+						zoneSym.assign(newZone, root.scope, EdenSymbol.hciAgent, followMouse);
+						me.endClick();
+						root.endAutocalcOff();
 					}
-					cleanupCanvas(content, previousElements);
-					canvasNameToElements[viewName] = nextElements;
-					canvas.drawingInProgress = false;
-					if (canvas.drawingQueued) {
-						setTimeout(redrawFunction, redrawDelay);
+				}
+
+				if (root.lookup("view_" + viewName + "_grid_visible").value() == true) {
+					//Draw grid lines.
+					var gridSpacing = root.lookup("view_" + viewName + "_grid_spacing").value();
+					var minX = -origin.x;
+					var maxX = canvas.width / combinedScale - origin.x;
+					var minY, maxY;
+					if (invertedYAxis) {
+						minY = origin.y - canvas.height /combinedScale;
+						maxY = origin.y;
+					} else {
+						minY = -origin.y;
+						maxY = canvas.height /combinedScale - origin.y;
 					}
-				}; // end of redraw function.
+
+					context.save();
+					//Minor grid lines.
+					context.lineWidth = 1 / combinedScale;
+					context.strokeStyle = "thistle";
+					me.drawGridLines(origin, combinedScale, gridSpacing, minX, minY, maxX, maxY, context);
+					//Major grid lines.
+					context.strokeStyle = "magenta";
+					me.drawGridLines(origin, combinedScale, gridSpacing * 3, minX, minY, maxX, maxY, context);
+
+					//Origin marker.
+					context.beginPath();
+					context.strokeStyle = "blue";
+					context.fillStyle = "blue";
+					context.arc(0, 0, 9 / combinedScale, 0, 2 * Math.PI, false);
+					context.fill();
+
+					//Axes direction arrows.
+					context.beginPath();
+					context.moveTo(3 * gridSpacing, 0);
+					context.lineTo(2 * gridSpacing, 0.4 * gridSpacing);
+					context.lineTo(2 * gridSpacing, -0.4 * gridSpacing);
+					context.moveTo(0, 3 * gridSpacing);
+					context.lineTo(0.4 * gridSpacing, 2 * gridSpacing);
+					context.lineTo(-0.4 * gridSpacing, 2 * gridSpacing);
+					context.fill();
+
+					context.beginPath();
+					context.lineWidth = 4 / combinedScale;
+					context.moveTo(2 * gridSpacing, 0);
+					context.lineTo(0, 0);
+					context.lineTo(0, 3 * gridSpacing);
+					context.stroke();
+
+					context.restore();
+				}
+
+			} else { //end if picture observable is a list.
+
+				var obsName = pictureObsName;
+				var definition = pictureSym.eden_definition;
+				if (definition) {
+					var re = new RegExp("^" + pictureObsName + "\\s+is\\s+([a-zA-Z0-9_]+)(;)?$");
+					var match = definition.match(re);
+					if (match !== null) {
+						obsName = match[1];
+					}
+				}
+				context.save();
+				context.font = "18px sans-serif";
+				context.fillStyle = "black";
+				context.textAlign = "center";
+				content.textBaseline = "middle";
+				context.fillText(
+					"Give the observable named '" + obsName + "' a list-typed value",
+					canvas.width / 2,
+					canvas.height / 2
+				);
+				context.fillText(
+					"to create a picture here.",
+					canvas.width / 2,
+					canvas.height / 2 + 30
+				);
+				context.restore();
+			}
+			cleanupCanvas(content, previousElements);
+			canvasNameToElements[viewName] = nextElements;
+			if (canvas.drawingQueued) {
 				setTimeout(redrawFunction, redrawDelay);
-			} //end if drawing not already in progress.
-		} //end redraw only if not already queued.
+			}
+		}; // end of redraw function.
+		setTimeout(redrawFunction, redrawDelay);
 	};
 
 	this.drawGridLines = function (origin, combinedScale, gridSpacing, minX, minY, maxX, maxY, context) {
@@ -456,16 +463,16 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		context.miterLimit = 429496656;
 		context.lineWidth = this.defaultLineWidth / scale;
 	}
-	
+
 	this.configureContext = function (context, scale, zoom, options) {
 		if (typeof(options) != "object") {
 			return true;
 		}
-		
+
 		if (options.visible === false) {
 			return false;
 		}
-			
+
 		if (Array.isArray(options.dashes)) {
 			context.setLineDash(options.dashes);
 			if ("dashOffset" in options) {
@@ -476,15 +483,15 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if ("cap" in options) {
 			context.lineCap = options.cap;
 		}
-		
+
 		if ("join" in options) {
 			context.lineJoin = options.join;
 		}
-		
+
 		if ("miterLimit" in options) {
 			context.miterLimit = options.miterLimit;
 		}
-		
+
 		if ("lineWidth" in options) {
 			context.lineWidth = options.lineWidth / scale;
 		}
@@ -492,7 +499,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		if ("opacity" in options) {
 			context.globalAlpha = options.opacity;
 		}
-		
+
 		if (typeof(options.shadow) == "object") {
 			context.shadowColor = options.shadow.colour;
 			if (options.shadow.scale) {
@@ -563,7 +570,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			return this.findDrawableHitInList(picture, context, scale, x, y, fromBottom, testAll);
 		}
 	}
-	
+
 	this.findDrawableHitInList = function (picture, context, scale, x, y, fromBottom, testAll) {
 		if (!Array.isArray(picture)) {
 			return undefined;
@@ -618,7 +625,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		var scale = root.lookup("view_" + viewName + "_scale").value();
 		return this.findAllDrawablesHitInList(picture, context, scale, x, y, testAll);
 	}
-	
+
 	this.findAllDrawablesHitInList = function (picture, context, scale, x, y, testAll) {
 		if (!Array.isArray(picture)) {
 			return [];
@@ -659,7 +666,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		leftButton: false, middleButton: false, rightButton: false, button4: false, button5: false,
 		buttonCount: 0, insideCanvas: false, capturing: false
 	};
-	
+
 	this.createCommon = function(name, mtitle) {
 		//Remove -dialog name suffix.
 		var agent = {name: "*Default"};
@@ -683,7 +690,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			jqCanvas = code_entry.find(".canvashtml-canvas");
 		}
 		function redraw() {
-			me.drawPicture(canvasName);			
+			me.drawPicture(canvasName);
 		}
 
 		// Add associated observables to canvas
@@ -856,13 +863,13 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			gridSpacingSym.assign(20, root.scope, EdenSymbol.defaultAgent);
 		}
 		gridSpacingSym.addJSObserver("refreshView", redraw);
-				
+
 		function mouseDown(e){
 			var followMouse = root.lookup("mouseFollow").value();
 			root.beginAutocalcOff();
 			mouseInfo.insideCanvas = true;
 
-			var buttonName;			
+			var buttonName;
 			switch (e.button) {
 				case 0:
 					mouseInfo.leftButton = true;
@@ -944,11 +951,11 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				root.lookup("mouseDownZone").assign(zoneHit, root.scope, EdenSymbol.hciAgent, followMouse);
 			}
 			root.endAutocalcOff();
-			
+
 		}
 
 		jqCanvas.on("mousedown",mouseDown);
-		
+
 		jqCanvas.on("mouseup",function(e) {
 			var followMouse = root.lookup("mouseFollow").value();
 			root.beginAutocalcOff();
@@ -988,7 +995,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			mouseInfo.buttonCount = mouseInfo.leftButton + mouseInfo.middleButton + mouseInfo.rightButton + mouseInfo.button4 + mouseInfo.button5;
 
 			root.lookup("mouseButton").assign(buttonName + " up", root.scope, EdenSymbol.hciAgent, followMouse);
-			
+
 			if (mouseInfo.buttonCount == 0) {
 				var mousePos = root.lookup('mousePosition').value();
 				root.lookup("mouseButtons").assign("", root.scope, EdenSymbol.hciAgent, followMouse);
@@ -1026,7 +1033,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				e.preventDefault();
 				e.stopPropagation();
 			}
-		
+
 		}).on("click", function (e) {
 			if (root.lookup("mouseCapture").value()) {
 				this.requestPointerLock();
@@ -1037,7 +1044,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			var dblClickSym = root.lookup("mouseDoubleClicks");
 			var numClicks = dblClickSym.value();
 			dblClickSym.assign(numClicks + 1, root.scope, EdenSymbol.hciAgent, followMouse);
-		
+
 		}).on("wheel", function (e) {
 			var e2 = e.originalEvent;
 			var wheelScale;
@@ -1113,7 +1120,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			mouseInfo.insideCanvas = false;
 			var followMouse = root.lookup("mouseFollow").value();
 			root.lookup("mouseZone").assign(undefined, root.scope, EdenSymbol.hciAgent, followMouse);
-		
+
 		}).on("mouseenter", function (e) {
 			if (!mouseInfo.insideCanvas) {
 				mouseInfo.insideCanvas = true;
@@ -1138,7 +1145,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 						buttonsStr = buttonsStr + "Button5|";
 					}
 				}
-				
+
 				var buttonsSym = root.lookup("mouseButtons");
 				var prevButtons = buttonsSym.value();
 				if (buttonsStr != prevButtons) {
@@ -1146,7 +1153,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					root.beginAutocalcOff();
 
 					buttonsSym.assign(buttonsStr, root.scope, EdenSymbol.hciAgent, followMouse);
-					root.lookup("mouseButton").assign("Enter window", root.scope, EdenSymbol.hciAgent, followMouse);				
+					root.lookup("mouseButton").assign("Enter window", root.scope, EdenSymbol.hciAgent, followMouse);
 
 					var pressedSym = root.lookup("mousePressed");
 					if (pressedSym.value() != mouseInfo.leftButton) {
@@ -1159,7 +1166,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 					root.endAutocalcOff();
 				}
 			}
-		
+
 		}).on("mousemove",function(e) {
 			newMouseMovement = true;
 			var followMouse = root.lookup("mouseFollow").value();
@@ -1174,7 +1181,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 				previousX = previousPosition.x;
 				previousY = previousPosition.y;
 			}
-			
+
 			var scale = root.lookup("view_" + canvasName + "_scale").value();
 			var zoom = root.lookup("view_" + canvasName + "_zoom").value();
 			var combinedScale = scale * zoom;
@@ -1245,7 +1252,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			if (zoneHit !== previousZone) {
 				zoneSym.assign(zoneHit, root.scope, EdenSymbol.hciAgent, followMouse);
 			}
-			
+
 			root.endAutocalcOff();
 
 		}).on("keyup", function (e) {
@@ -1482,7 +1489,7 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 			}
 		}
 	});
-	
+
 	this.endClick = function () {
 		var zoneDown = root.lookup("mouseDownZone").value();
 		if (Eden.isValidIdentifier(zoneDown)) {
@@ -1589,23 +1596,6 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 	});
 
 	edenUI.views["Canvas2D"] = {dialog: this.createDialog, embedded: this.createEmbedded, title: "Canvas 2D", category: edenUI.viewCategories.visualization, holdsContent: true};
-
-	var jseSource;
-	if (document.location.pathname.slice(-15) == "/index-dev.html") {
-		jseSource = "canvas.js-e";
-	} else {
-		jseSource = "jseden-canvas.min.js-e";
-	}
-
-	/*edenUI.eden.include2("plugins/canvas-html5/" + jseSource, function() {
-		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
-		if (success) success();
-	});*/
-
-	/*Eden.Agent.importAgent("plugins/canvas", "default", ["enabled"], function() {
-		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);
-		if (success) success();
-	});*/
 
 	Eden.Selectors.execute("plugins > canvas_merged", eden.root.scope, function() {
 		eden.root.lookup("plugins_canvas_loaded").assign(true, eden.root.scope);

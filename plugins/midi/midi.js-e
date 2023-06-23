@@ -389,7 +389,7 @@ proc bindMIDINote {
 			eden.error(new Error("bindMIDINote: The procedure requires at least 1 argument and most 6 arguments."), "error");
 			return;
 		}
-		
+
 		var name, noteSym, velocitySym, strikeSym, device, channel;
 		var argsProcessed = 0;
 		var arg = arguments[0];
@@ -446,7 +446,7 @@ proc bindMIDINote {
 		} else {
 			channel = 0;
 		}
-		
+
 		if (argsProcessed < numArgs) {
 			eden.error(new Error("Invalid arguments."), "error");
 			return;
@@ -533,7 +533,7 @@ proc bindMIDIControl {
 			device = arguments[argsLeft];
 			argsLeft--;
 		}
-		
+
 		try {
 			edenUI.plugins.MIDI.bindControlChange(symbol, device, channel, control);
 		} catch (e) {
@@ -584,7 +584,7 @@ func pianoKeyNumber {
 		} else if (letter == "G") {
 			keyNumber = 11;
 		}
-		
+
 		if (keyNumber < 4) {
 			keyNumber = keyNumber + octave * 12;
 		} else {
@@ -593,7 +593,7 @@ func pianoKeyNumber {
 
 		if (semitoneAdjustmentSymbol == "#") {
 			keyNumber = keyNumber + 1;
-		} else if (semitoneAdjustmentSymbol) {
+		} else if (semitoneAdjustmentSymbol == "x") {
 			keyNumber = keyNumber + 2;
 		} else {
 			keyNumber = keyNumber - semitoneAdjustmentSymbol.length;
