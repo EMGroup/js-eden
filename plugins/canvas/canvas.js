@@ -1295,10 +1295,9 @@ EdenUI.plugins.Canvas2D = function (edenUI, success) {
 		};
 	}
 
-	this.createEmbedded = function (name, mtitle, pictureobs) {
-		var canvasName = name;
-		eden.execute2("view_" + canvasName + "_content is " + pictureobs + ";");
-		var canvasdata = me.createCommon(name, mtitle);
+	this.createEmbedded = function (canvasName, mtitle) {
+		eden.execute2("view_" + canvasName + "_content is " + canvasName + ";");
+		var canvasdata = me.createCommon(canvasName, mtitle);
 		var initialWidth = canvasdata.initialWidth;
 		var initialHeight = canvasdata.initialHeight;
 		var code_entry = canvasdata.code_entry;
