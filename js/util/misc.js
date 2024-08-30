@@ -264,6 +264,9 @@ if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	const fs = require('fs');
 
 	Utils.getURL = function (url) {
+		if(url.startsWith("plugins") || url.startsWith("resources")){
+			url = URLUtil.prefix + url;
+		}
 		return new Promise((resolve, reject) => {
 			fs.readFile(url, 'utf8', function(err, data) {
 				if (err) reject(err);
@@ -273,6 +276,9 @@ if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 	}
 } else {
 	Utils.getURL = function (url) {
+		if(url.startsWith("plugins") || url.startsWith("resources")){
+			url =  URLUtil.prefix + url;
+		}
 		return ajaxGet(url);
 	}
 }

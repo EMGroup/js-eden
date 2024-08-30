@@ -177,3 +177,4 @@ URLUtil.updateQueryString = function(changes) {
 	return res;
 }
 
+URLUtil.prefix = "";
