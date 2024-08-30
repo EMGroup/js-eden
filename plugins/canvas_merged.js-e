@@ -24,7 +24,7 @@ Arc = function(x, y, r, sAngle, eAngle, colour, drawingOptions) {
 	}
 	this.sRadians = sRadians;
 	this.eRadians = eRadians;
-
+	
 	this.colour = colour
 	this.drawingOptions = drawingOptions;
 }
@@ -99,7 +99,7 @@ Arc.prototype.draw = function(context, scale) {
 			anticlockwise = true;
 		}
 	} else {
-		//Default to "auto"
+		//Default to "auto" 
 		anticlockwise = this.sAngle < this.eAngle;
 	}
 	var sRadians = this.sRadians;
@@ -145,7 +145,7 @@ Arc.prototype.toString = function() {
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
-
+	
 	s = s + ")";
 	return s;
 }
@@ -334,7 +334,7 @@ ${{
 # @param length Length of the arrowhead
 # @param width Width of the arrowhead. IF undefined, a proportional value is automatically chosen.
 # @param [filled] Whether to fill the arrowhead or just draw an outline. Defaults to true.
-#
+# 
 #  #canvas #arrow #arrowhead #shape #arrow #library #draw
 func Arrowhead {
 	${{
@@ -403,7 +403,7 @@ func Arrowhead {
 # @param [width] Default fits the size of the label
 # @param [height] Default fits the size of the label
 # @param [enabled]
-#
+# 
 #  #canvas #button
 func Button {
 ${{
@@ -452,7 +452,7 @@ ${{
 		if (name === undefined) {
 			eden.error(new Error("Button: The button defined by observable " + obsName + " must have a name."), "error");
 			return undefined;
-		}
+		}	
 	}
 
 	var x = arguments[argsProcessed];
@@ -482,7 +482,7 @@ ${{
 		enabled = arg;
 		argsProcessed++;
 		arg = arguments[argsProcessed];
-		argType = typeof(arg);
+		argType = typeof(arg);	
 	} else {
 		enabled = true;
 	}
@@ -694,7 +694,7 @@ ${{
 	});
 }}$;
 
-/**
+/** 
 * Attempts to capture the mouse pointer so the it cannot leave the current canvas window.  This
 * allows the mouse to be used as a pure sensor and the mousePosition observable becomes able to take
 * on any value, free from the constraints of the size of the window.  Note that this procedure will
@@ -733,15 +733,15 @@ proc attemptMouseCapture {
 * is the name of the observable that provides the list of drawables.  The
 * second, optional parameter, is the text to place into the window's title bar.
 *
-*
+* 
 * If three parameters are provided, the first is the viewName, the second is the
 * observable that stores the list of drawables. The third parameter is the text to place
 * into the window's title bar.
-*
+* 
 * @param [viewName]
 * @param observableName
 * @param viewTitle
-*
+* 
 */
 func createCanvas {
 	para p1, p2, p3;
@@ -770,8 +770,8 @@ func createCanvas {
 		return;
 	}
 
-
-
+	
+	
 	if (isPointer(obsName)) {
 		obsName = nameof(obsName);
 	} else if (!isString(obsName)) {
@@ -782,7 +782,7 @@ func createCanvas {
 	if (viewName == @) {
 		viewName = obsName;
 	}
-
+	
 	if (viewTitle != @ && !isString(viewTitle)) {
 		error("createCanvas: The window title must be a string, not a " // type(viewTitle));
 		return;
@@ -807,9 +807,9 @@ func createCanvas {
 * HTML view.  The image with the special URL returned by this function is a snapshot of the contents
 * of the canvas at the time this function was called.
 * Optional parameter can be used to select which canvas should be used to take the snapshot.
-*
+* 
 * @param [canvasName]
-*
+* 
 */
 func canvasURL {
 	${{
@@ -832,7 +832,7 @@ func canvasURL {
 				return "";
 			}
 		}
-
+		
 		return canvases[canvasName].toDataURL();
 	}}$;
 }
@@ -874,11 +874,11 @@ func shapeOnTopAt {
 				target = match[1];
 			}
 		} else if (typeof(target) != "string") {
-			eden.error(new Error("shapeOnTopAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");
+			eden.error(new Error("shapeOnTopAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
 			return undefined;
 		}
 		if (typeof(x) != "number") {
-			eden.error(new Error("shapeOnTopAt: The x-coordinate must be a number, not a " + typeof(x)), "error");
+			eden.error(new Error("shapeOnTopAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
 			return undefined;
 		} else if (typeof(y) != "number") {
 			eden.error(new Error("shapeOnTopAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
@@ -925,11 +925,11 @@ func shapeOnBottomAt {
 				target = match[1];
 			}
 		} else if (typeof(target) != "string") {
-			eden.error(new Error("shapeOnBottomAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");
+			eden.error(new Error("shapeOnBottomAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
 			return undefined;
 		}
 		if (typeof(x) != "number") {
-			eden.error(new Error("shapeOnBottomAt: The x-coordinate must be a number, not a " + typeof(x)), "error");
+			eden.error(new Error("shapeOnBottomAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
 			return undefined;
 		} else if (typeof(y) != "number") {
 			eden.error(new Error("shapeOnBottomAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
@@ -1047,11 +1047,11 @@ func shapesAt {
 				target = match[1];
 			}
 		} else if (typeof(target) != "string") {
-			eden.error(new Error("shapesAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");
+			eden.error(new Error("shapesAt: The first argument must be either a string or a pointer, not a " + typeof(target)), "error");		
 			return undefined;
 		}
 		if (typeof(x) != "number") {
-			eden.error(new Error("shapesAt: The x-coordinate must be a number, not a " + typeof(x)), "error");
+			eden.error(new Error("shapesAt: The x-coordinate must be a number, not a " + typeof(x)), "error");		
 			return undefined;
 		} else if (typeof(y) != "number") {
 			eden.error(new Error("shapesAt: The y-coordinate must be a number, not a " + typeof(y)), "error");
@@ -1131,7 +1131,7 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 	this.originalDHeight = dHeight;
 	this.originalSX2 = sx2;
 	this.originalSY2 = sy2;
-
+	
 	this.dx = dx;
 	this.dy = dy;
 	this.dWidth = dWidth;
@@ -1157,7 +1157,7 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 			}
 			if (me.dWidth === undefined && me.dHeight === undefined) {
 				me.dWidth = me.sWidth;
-				me.dHeight = me.sHeight;
+				me.dHeight = me.sHeight;		
 			} else if (me.dWidth === undefined) {
 				me.dWidth = me.sWidth * me.dHeight / me.sHeight;
 			} else if (me.dHeight === undefined) {
@@ -1166,11 +1166,11 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 		}
 	} else {
 		this.image = new Image();
-		//this.image.setAttribute("crossorigin","anonymous");
+		//this.image.setAttribute("crossorigin","anonymous");	
 		this.loaded = false;
-
+	
 		var me = this;
-
+	
 		this.image.onload = function() {
 			if (me.sWidth === undefined) {
 				me.sWidth = me.image.width - me.sx;
@@ -1180,7 +1180,7 @@ CanvasImage = function (name, dx, dy, dWidth, dHeight, sx1, sy1, sx2, sy2, smoot
 			}
 			if (me.dWidth === undefined && me.dHeight === undefined) {
 				me.dWidth = me.sWidth;
-				me.dHeight = me.sHeight;
+				me.dHeight = me.sHeight;		
 			} else if (me.dWidth === undefined) {
 				me.dWidth = me.sWidth * me.dHeight / me.sHeight;
 			} else if (me.dHeight === undefined) {
@@ -1412,7 +1412,7 @@ Checkbox.prototype.draw = function(context) {
 		element.className = "canvashtml-item";
 
 		inputElement.disabled = (this.enabled === false);
-
+		
 		var valueSym = root.lookup(name + "_checked");
 		var value = valueSym.value();
 		if (value === undefined) {
@@ -1491,7 +1491,7 @@ Checkbox.prototype.toString = function() {
 	if (this.name == this.obsName) {
 		return "Checkbox(" + Eden.edenCodeForValues(this.x, this.y, this.tristate, this.enabled) + ")";
 	} else {
-		return "Checkbox(" + Eden.edenCodeForValues(this.name, this.x, this.y, this.tristate, this.enabled) + ")";
+		return "Checkbox(" + Eden.edenCodeForValues(this.name, this.x, this.y, this.tristate, this.enabled) + ")";	
 	}
 };
 
@@ -1527,14 +1527,14 @@ Circle = function(x, y, radius, fillcolour, outlinecolour, drawingOptions) {
 # ##Usage Example
 #  `Circle(x, y, radius, "purple");`
 #  `Circle(x, y, radius, "green", "red");`
-#
+# 
 # @param x x position of center of the circle
 # @param y y position of center of the circle
 # @param radius radius of the circle
 # @param [fillColour]
 # @param [outlineColour] defaults to black
 # @param [drawingOptions] object of drawingOptions
-#
+# 
 #  #canvas #circle #shape #draw #library
 func Circle {
 ${{
@@ -1607,11 +1607,11 @@ Circle.prototype.isHit = function (context, scale, x, y) {
 
 Circle.prototype.toString = function(p) {
 	var s = "Circle(" + Eden.edenCodeForValuesP(p, this.x, this.y, this.radius, this.fillcolour, this.outlinecolour);
-
+	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
-
+	
 	s = s + ")";
 	return s;
 };
@@ -1669,7 +1669,7 @@ Combobox.prototype.hash = function () {
  * @param [placeholder] string to display before choice is made. Defaults to observable name.
  * @param [maxlength] Maximum length allowed in input
  * @param [enabled] defaults to true.
- *
+ * 
  * #canvas #combobox #input #select
  */
 
@@ -1785,7 +1785,7 @@ Combobox.prototype.draw = function(context) {
 
 		input.value = valueSym.value();
 
-		if (this.enabled === false) {
+		if (this.enabled === false) { 
 			input.disabled = true;
 		} else {
 			input.disabled = false;
@@ -1835,7 +1835,7 @@ ${{
 		this.xMin = xMin;
 		this.yMin = yMin;
 		this.zMin = zMin;
-		this.xMax = xMax;
+		this.xMax = xMax;	
 		this.yMax = yMax;
 		this.zMax = zMax;
 	}
@@ -1846,7 +1846,7 @@ ${{
 				this.yMax) + ")";
 		} else {
 			return "EuclideanSpace(" + Eden.edenCodeForValues(this.xMin, this.yMin, this.zMin,
-				this.xMax, this.yMax, this.zMax) + ")";
+				this.xMax, this.yMax, this.zMax) + ")";		
 		}
 	}
 
@@ -1964,7 +1964,7 @@ ${{
 			for (var j = 0; j < numRows; j++) {
 				var pattern =
 					15 -
-					(thresholdValues[i][j] * 8 +
+					(thresholdValues[i][j] * 8 + 
 					thresholdValues[i+1][j] * 4 +
 					thresholdValues[i+1][j+1] * 2 +
 					thresholdValues[i][j+1]);
@@ -2337,7 +2337,7 @@ ${{
 						outX = 1 - 0.5 / sum;
 						outY = 1;
 						nextJ = 1;
-						completed[i][j] = completed[i][j] + 0.4;
+						completed[i][j] = completed[i][j] + 0.4;					
 					}
 					nextI = 0;
 				}
@@ -2394,7 +2394,7 @@ ${{
 						outX = 1 - (0.5 + val) / sum;
 						outY = 1;
 						nextJ = 1;
-						completed[i][j] = completed[i][j] + 0.4;
+						completed[i][j] = completed[i][j] + 0.4;					
 					}
 					nextI = 0;
 				}
@@ -2587,7 +2587,7 @@ ${{
 						overflowX = 0;
 						overflowY = check == 0? 1 : -1;
 						val = 0;
-					}
+					}					
 				}
 
 				prevVal = val;
@@ -2657,7 +2657,7 @@ ${{
 		var cellWidth = this.cellWidth;
 		var cellHeight = this.cellHeight;
 		var timeBetweenKeyframes = (tMax - tMin) / (this.numT - 1);
-
+		
 		for (var k = 0; k < this.numT; k++) {
 			var minVal = Infinity;
 			var maxVal = -Infinity;
@@ -2669,7 +2669,7 @@ ${{
 				var column = new Array(this.numY);
 				field[i] = column;
 				var x = xMin + (i + 0.5) * cellWidth;
-
+			
 				for (var j = 0; j < this.numY; j++) {
 					var y = yMin + (j + 0.5) * cellHeight;
 					var value = f(x, y, t);
@@ -2722,7 +2722,7 @@ ${{
 				var afterMax = this.maxVals[frameNumberAfter];
 				var weightedMin = beforeMin * proportionBefore + afterMin * proportionAfter;
 				var weightedMax = beforeMax * proportionBefore + afterMax * proportionAfter;
-
+				
 				for (var i = 0; i < numX; i++) {
 					var column = new Array(numY);
 					var columnBefore = keyFrameBefore[i];
@@ -2784,7 +2784,7 @@ ${{
 			var column = new Array(this.numY);
 			field[i] = column;
 			var x = xMin + (i + 0.5) * cellWidth;
-
+		
 			for (var j = 0; j < this.numY; j++) {
 				var y = yMin + (j + 0.5) * cellHeight;
 				column[j] = f(x, y, t);
@@ -2941,7 +2941,7 @@ ${{
 	}
 
 	ContourLine.prototype.getEdenCode = ContourLine.prototype.toString;
-
+	
 }}$;
 /**
  * Creates a EuclideanSpace object
@@ -2974,9 +2974,9 @@ func EuclideanSpace {
 }
 
 /**
- *
+ * 
  * Creates object to hold Scalar Field values
- * For more details, please see:
+ * For more details, please see: 
  * <a target="_blank" href="http://jseden.dcs.warwick.ac.uk/latest-master/index-dev.html?import=plugins/canvas/contourLine/guide">Contour Line Guide</a>
  * @param dataPtr
  * @param space
@@ -3034,9 +3034,9 @@ func ScalarField2D {
 }
 
 /**
- *
+ * 
  * Applies a threshold and traces the outline of a shape.
- * For more details, please see:
+ * For more details, please see: 
  * <a target="_blank" href="http://jseden.dcs.warwick.ac.uk/latest-master/index-dev.html?import=plugins/canvas/contourLine/guide">Contour Line Guide</a>
  * @param scalar_field_2d ScalarField object providing the function values
  * @param [iso_value The threshold value that determines which function values fall inside the boundary of the shape
@@ -3059,9 +3059,9 @@ func ContourData {
 
 /**
  * Creates a contoured shape object with size, position, colour, etc. from the mathematical description (ContourData).
- * For more details, please see:
+ * For more details, please see: 
  * <a target="_blank" href="http://jseden.dcs.warwick.ac.uk/latest-master/index-dev.html?import=plugins/canvas/contourLine/guide">Contour Line Guide</a>
- *
+ * 
  * @param x
  * @param y
  * @param width
@@ -3070,9 +3070,9 @@ func ContourData {
  * @param [fill_colour
  * @param [outline_colour]]
  * @param [drawing_options] A drawingOptions object
- *
+ * 
  * #canvas #contour #line #drawingOptions
- *
+ * 
  */
 func ContourLine {
 	${{
@@ -3196,7 +3196,7 @@ ${{
 
 /**
  * Create a Curve
- *
+ * 
  * @param x1
  * @param y1
  * @param x2
@@ -3210,7 +3210,7 @@ ${{
  * @param [is_flipped]
  * @param [colour(s)]
  * @param [drawing_options]
- *
+ * 
  * #canvas #curve #drawingOptions
  */
 
@@ -3314,7 +3314,7 @@ ${{
 	Curve.prototype.toString = function () {
 		return "Curve(" + Eden.edenCodeForValues(this.x1, this.y1, this.x2, this.y2, this.r, this.elasticity, this.theta1, this.theta2, this.mid, this.overshoot, this.dirSwitch, this.colours, this.drawingOptions) + ")";
 	}
-
+	
 	Curve.prototype.getEdenCode = Curve.prototype.toString;
 }}$;
 ## Copyright (c) 2013, Empirical Modelling Group
@@ -3393,7 +3393,7 @@ Div.prototype.hash = function () {
 
 /**
  * Create a Div tag to display HTML
- *
+ * 
  * @param html
  * @param x X-coordinate
  * @param y Y-coordinate
@@ -3412,14 +3412,14 @@ func Div { ${{
 	var width, height;   //Number of pixels, string (e.g. "50%") or undefined (automatic)
 	var id, classNames;
 	var style = "";
-
+	
 	var argsProcessed = 3;
 	var argType = typeof(arguments[3]);
-
+	
 	if (argType == "number" || argType == "undefined") {
 		width = arguments[3];
 		argsProcessed++;
-
+		
 		argType = typeof(arguments[4]);
 		if (argType == "number" || argType == "undefined") {
 			height = arguments[4];
@@ -3455,7 +3455,7 @@ func Div { ${{
 				}
 			}
 		}
-	}
+	}	
 	return new Div(html, x, y, width, height, id, classNames, style);
 }}$; }
 
@@ -3505,7 +3505,7 @@ Div.prototype.draw = function(context) {
 	//Create object properties that record the automatically generated width and/or height.
 	if (this.width === undefined || this.name !== undefined) {
 		var objectElement = document.createElement("object");
-		objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; " +
+		objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; " + 
 			"height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
 
 		objectElement.onload = function () {
@@ -3745,7 +3745,7 @@ DropDownList.prototype.draw = function(context) {
 
 		dropDownList.value = valueSym.value();
 
-		if (this.enabled === false) {
+		if (this.enabled === false) { 
 			dropDownList.disabled = true;
 		} else {
 			dropDownList.disabled = false;
@@ -3796,7 +3796,7 @@ Ellipse = function(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOpt
 
 /**
  * Create an Ellipse
- *
+ * 
  * @param x Centre X-coordinate
  * @param y Centre Y-coordinate
  * @param x_radius Ellipse x-axis radius from centre
@@ -3804,7 +3804,7 @@ Ellipse = function(x, y, xradius, yradius, fillcolour, outlinecolour, drawingOpt
  * @param [fill_colour Fill colour for the ellipse on the canvas
  * @param [outline_colour]] Outline colour of the ellipse on the canvas
  * @param [drawing_options] A drawingOptions object
- *
+ * 
  * #canvas #ellipse #drawingOptions
  */
 
@@ -3907,11 +3907,11 @@ Ellipse.prototype.isHit = function (context, scale, x, y) {
 
 Ellipse.prototype.toString = function() {
 	var s = "Ellipse(" + Eden.edenCodeForValues(this.x, this.y, this.xradius, this.yradius, this.fillcolour, this.outlinecolour);
-
+	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
-
+	
 	s = s + ")";
 	return s;
 };
@@ -3932,9 +3932,9 @@ FillPattern = function (url) {
 	this.image = new Image();
 	this.canvasesToRepaint = {};
 	this.loaded = false;
-
+	
 	var me = this;
-
+	
 	this.image.onload = function(){
 		me.loaded = true;
 		for (var viewName in me.canvasesToRepaint) {
@@ -3958,7 +3958,7 @@ func FillPattern {
 
 ${{
 	FillPattern.prototype = new EdenUI.plugins.Canvas2D.FillStyle();
-
+	
 	FillPattern.prototype.getColour = function (context) {
 		return context.createPattern(this.image, 'repeat');
 	}
@@ -4256,7 +4256,7 @@ ${{
  *
  * The multipliers all default to 1 and the additions all default to adding nothing, i.e. a pure
  * grayscale image is created without a tint.
- *
+ * 
  * Example:
  * ````
  * func greyMap {
@@ -4357,7 +4357,7 @@ GreyPixelList.prototype.draw = function(context) {
 	var dataArrayLen = dataArr.length;
 	var imageArrayLen = dataArrayLen * 4;
 	var offset;
-
+	
 	offset = 0;
 	for (var i = 0; i < dataArrayLen; i++) {
 		imageArr[offset] = this.redMultiply * dataArr[i] + this.redAdd;
@@ -4427,7 +4427,7 @@ HTMLImage = function (name, x, y, width, height, asPercent, scaleFactor, url, im
 	this.scaledWidth = width;
 	this.scaledHeight = height;
 	this.url = url;
-	this.imageMap = imageMap;
+	this.imageMap = imageMap;	
 }
 
 HTMLImage.prototype.hash = function () {
@@ -4445,7 +4445,7 @@ HTMLImage.prototype.hash = function () {
 
 /**
  * Create drawable image for a canvas
- *
+ * 
  * @param name Name for click events
  * @param x X-coordinate
  * @param y Y-coordinate
@@ -4455,13 +4455,13 @@ HTMLImage.prototype.hash = function () {
  * @param [at_scale]] The value of _view_xxx_scale needed to make 1 virtual pixel equal 1 real pixel
  * @param url Source file for the image
  * @param [zones] List of two element lists. The first element of each is the name of an image area. The second is a Circle, Rectangle or Polygon object.
- *
+ * 
  * #canvas #image #htmlimage
  */
 func HTMLImage { ${{
 	var numArgs = arguments.length;
 	var argsProcessedFirst, arg, argType;
-
+	
 	var name;
 	if (typeof(arguments[0]) == "string") {
 		name = arguments[0];
@@ -4590,7 +4590,7 @@ HTMLImage.prototype.draw = function(context) {
 			root.lookup("mouseZone").assign(name, root.scope, EdenSymbol.hciAgent, mouseFollow);
 		});
 	}
-
+	
 	if (this.imageMap !== undefined) {
 		var mapJQ = $("<map name=\"" + id + "-map\" id=\"" + id + "-map\"></map>");
 
@@ -4760,7 +4760,7 @@ Line = function(x1, y1, x2, y2, colours, drawingOptions) {
 # @param y2 End y-position
 # @param [colour(s)] A HTML colour value for the whole line or a list of HTML colour values to create a gradient
 # @param [drawing_options] list of drawing options
-#
+# 
 #  #canvas #line #drawingoptions #draw
 func Line {
 ${{
@@ -4843,13 +4843,13 @@ Line.prototype.toString = function(p) {
 	if (this.colours.length > 1) {
 		s = s + Eden.edenCodeForValue(this.colours, undefined, p);
 	} else {
-		s = s + Eden.edenCodeForValue(this.colours[0], undefined, p);
+		s = s + Eden.edenCodeForValue(this.colours[0], undefined, p);	
 	}
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions, undefined, p);
 	}
-
+	
 	s = s + ")";
 	return s;
 };
@@ -4951,9 +4951,9 @@ semicircleAngle ~> [angleTurned];
  * @param [start_colour Start Colour
  * @param end_colour] End Colour
  * @param [extra_colour_stops] A list of two item lists.  The first element of each is a point along the gradient (0.0-1.0).  The second is the colour.
- *
- * Usage example:
- *
+ * 
+ * Usage example: 
+ * 
  * ```
  * 	x = 50;
  * 	y = 50;
@@ -4981,17 +4981,17 @@ func LinearGradient {
 			} else {
 				colourStops = [];
 			}
-
+			
 			var start_colour = arguments[4];
 			if (typeof(start_colour) != "string") {
 				start_colour = "black";
 			}
-
+			
 			var end_colour = arguments[5];
 			if (typeof(end_colour) != "string") {
 				end_colour = "white";
 			}
-
+			
 			colourStops.push([0, start_colour]);
 			colourStops.push([1, end_colour]);
 		}
@@ -5007,9 +5007,9 @@ ${{
 		this.y2 = y2;
 		this.colourStops = colourStops;
 	}
-
+	
 	LinearGradient.prototype = new EdenUI.plugins.Canvas2D.FillStyle();
-
+	
 	LinearGradient.prototype.getColour = function (context) {
 		var gradient = context.createLinearGradient(this.x1, this.y1, this.x2, this.y2);
 		var colourStop;
@@ -5022,7 +5022,7 @@ ${{
 
 	LinearGradient.prototype.toString = function() {
 		return "LinearGradient(" + Eden.edenCodeForValues(this.x1, this.y1, this.x2, this.y2, this.colourStops) + ")";
-
+		
 	};
 
 	LinearGradient.prototype.getEdenCode = LinearGradient.prototype.toString;
@@ -5060,7 +5060,7 @@ LineSequence = function(vertices, colours, drawingOptions) {
 }}$;
 
 #! Creates a sequence of joined lines for display on the canvas from a list of Points. This produces a better visual result than just using normal lines. See [drawing options](@external CanvasExamples > drawingoptions) for more style options.
-#
+# 
 # ##Usage Example
 #  `LineSequence(pointslist, "blue");`
 #  `LineSequence([Point(ax,ay),Point(bx,by),Point(cx,cy)]);`
@@ -5068,7 +5068,7 @@ LineSequence = function(vertices, colours, drawingOptions) {
 # @param points List of coordinates in the form Point(x, y) from the top left corner of the canvas
 # @param [colour(s)] Colour of the line as a HTML colour value, or a list of such colour values
 # @param [drawing_options] List of drawingOptions
-#
+# 
 #  #canvas #line #linesequence #drawingoptions #draw
 func LineSequence {
 ${{
@@ -5119,7 +5119,7 @@ LineSequence.prototype.draw = function(context, scale) {
 	for (var i = 1; i <= maxVertex; i++) {
 		context.lineTo(this.vertices[i].x, this.vertices[i].y);
 	}
-
+	
 	context.stroke();
 
 	if (this.drawingOptions !== undefined && this.drawingOptions.arrowhead instanceof Arrowhead) {
@@ -5133,22 +5133,22 @@ LineSequence.prototype.draw = function(context, scale) {
 		var reverse2 = vertexNMinus1.x > vertexN.x;
 		this.drawingOptions.arrowhead.draw(context, scale, vertex0.x, vertex0.y, gradient1, reverse1,
 			vertexN.x, vertexN.y, gradient2, reverse2);
-	}
+	}	
 };
 
 LineSequence.prototype.toString = function() {
 	var s = "LineSequence(" + Eden.edenCodeForValue(this.vertices) + ",";
-
+	
 	if (this.colours.length > 1) {
 		s = s + Eden.edenCodeForValue(this.colours);
 	} else {
-		s = s + Eden.edenCodeForValue(this.colours[0]);
+		s = s + Eden.edenCodeForValue(this.colours[0]);	
 	}
 
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
-
+	
 	s = s + ")";
 	return s;
 };
@@ -5172,11 +5172,11 @@ Pixel = function(x, y, colour) {
 
 /*
  * Creates a pixel that can be displayed on a canvas
- *
+ * 
  * @param x x-position
  * @param y y-position
  * @param colour colour
- *
+ * 
  */
 func Pixel { ${{
   var x = arguments[0];
@@ -5213,11 +5213,11 @@ Pixel.prototype.draw = function(context) {
  * of rows of the specified width.  Although cumbersome a PixelList performs far
  * faster than trying to map each pixel to an individual EDEN observable for a
  * block of any significant size.
- *
+ * 
  * N.B. Unfortunately the alpha values are not true transparency.  That is, you
  * you can't see through to other objects drawn underneath on the canvas.  Alpha
  * values less than 255 just make the colours lighter.
- *
+ * 
  * Example:
  * ```
  * 	func colourMap {
@@ -5234,18 +5234,18 @@ Pixel.prototype.draw = function(context) {
  * 		}
  * 	return data;
  *  }
- *
+ *  
  *  blue = 50;
  *  pixelData is colourMap(blue);
  *  pixels is PixelList(&pixelData, 20, 20, 256);
  *  picture is [pixels];
- *
+ *  
  *  @param [name]
  *  @param ptrToData pointer to list of R,G,B,Alpha values
  *  @param x x-position
  *  @param y y-position
  *  @param width
- *
+ *  
  * #canvas #pixellist
  */
 
@@ -5339,7 +5339,7 @@ Polygon = function(vertices, fillcolour, outlinecolour, drawingOptions, centreY)
 # @param [fill_colour Colour of the polygon (fill) in HTML form
 # @param [outline_colour]]
 # @param [drawing_options] List of drawing options
-#
+# 
 #  #canvas #polygon #drawingoptions #shape #area #triangle #octagon #hexagon #pentagon #poly #draw
 func Polygon {
 ${{
@@ -5386,7 +5386,7 @@ Polygon.prototype.draw = function (context, scale) {
 		edenUI.plugins.Canvas2D.setFillStyle(context, this.fillcolour);
 		context.fill();
 	}
-
+	
 	if (this.outlinecolour !== undefined) {
 		context.strokeStyle = this.outlinecolour;
 		context.stroke();
@@ -5421,7 +5421,7 @@ Polygon.prototype.toString = function() {
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
-
+	
 	s = s + ")";
 	return s;
 };
@@ -5461,25 +5461,25 @@ Polygon.prototype.centre = function () {
 
 /*
  * Creates a radial gradient that can be used to colour shapes
- *
+ * 
  * @param x
  * @param y
  * @param [r radius
  * @param [colourStops]] List of colourStops
- *
+ * 
  * ```
  * g is RadialGradient(300, 240, 230, [[0, "red"], [0.5, "orange"], [1, "cyan"]]);
  * c is Circle(300,240,230,g);
  * picture is [c];
  * ```
  */
-
+	
 func RadialGradient {
 	${{
 		var x1, y1, r1, x2, y2, r2, colourStops;
 		x1 = arguments[0];
 		y1 = arguments[1];
-
+		
 		switch (arguments.length) {
 			case 4:
 				r1 = 0;
@@ -5503,7 +5503,7 @@ ${{
 		this.r2 = r2;
 		this.colourStops = colourStops;
 	}
-
+	
 	RadialGradient.prototype = new EdenUI.plugins.Canvas2D.FillStyle();
 
 	RadialGradient.prototype.getColour = function (context) {
@@ -5518,7 +5518,7 @@ ${{
 
 	RadialGradient.prototype.toString = function() {
 		return "RadialGradient(" + Eden.edenCodeForValues(this.x1, this.y1, this.r1, this.x2, this.y2, this.r2, this.colourStops) + ")";
-
+		
 	};
 
 	RadialGradient.prototype.getEdenCode = RadialGradient.prototype.toString;
@@ -5557,7 +5557,7 @@ RadioButtons.prototype.hash = function () {
 
 /**
  * Generates a set of radio buttons
- *
+ * 
  * @param [name] Prefix for _value observable.  Default is the name of the observable being defined.
  * @param values A list of strings providing the options
  * @param [labels]
@@ -5646,7 +5646,7 @@ RadioButtons.prototype.draw = function (context) {
 					buttonGroup[i].checked = false;
 				}
 			}
-
+		
 		};
 		var valueSym = root.lookup(name + "_value");
 		var initialValue = valueSym.value();
@@ -5737,7 +5737,7 @@ Rectangle = function(x, y, width, height, fillcolour, outlinecolour, drawingOpti
 # @param [fill_colour
 # @param [outline_colour]] Colour of the rectangle outline in HTML form
 # @param [drawing_options] List of drawing options
-#
+# 
 #  #canvas #rectangle #drawingoptions #square #box #shape #draw
 func Rectangle {
 ${{
@@ -5805,7 +5805,7 @@ Rectangle.prototype.toString = function() {
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
-
+	
 	s = s + ")";
 	return s;
 };
@@ -5923,9 +5923,9 @@ ${{
 		) {
 			separatePolygonsPossiblyNeeded = true;
 		} else {
-			separatePolygonsPossiblyNeeded = false;
+			separatePolygonsPossiblyNeeded = false;		
 		}
-
+		
 		var pointsDone = new Array(this.n);
 		var currentPolygonVertices, currentPoint;
 		for (var i = 0; i < this.n; i++) {
@@ -5991,13 +5991,13 @@ ${{
 			 * Solution: One set of polygons that paint either the fill or the outline (the shape doesn't have both).
 			 */
 			this.filledPolygons = polygons;
-		}
+		}	
 	}
 }}$;
 
 /**
  * Creates a polygon for display on a canvas
- *
+ * 
  * centre_x
  * centre_y
  * radius
@@ -6008,8 +6008,8 @@ ${{
  * [fill_colour Colour to fill the interior of the polygon with
  * [outline_colour]] Colour of the outline
  * [drawing_options] List of drawing options
- *
- *
+ * 			
+ * 
  * #canvas #drawingOptions #regularPolygon #polygon #drawingOptions
  */
 
@@ -6085,7 +6085,7 @@ func RegularPolygon {
 				drawingOptions.join = "round";
 			}
 		}
-
+		
 		if (n === Infinity) {
 			return new Circle(x, y, r, fillcolour, outlinecolour, drawingOptions);
 		} else {
@@ -6163,7 +6163,7 @@ RegularPolygon.prototype.toString = function () {
 }
 
 RegularPolygon.prototype.getEdenCode = RegularPolygon.prototype.toString;
-
+	
 RegularPolygon.prototype.imageMapArea = function () {
 	return this.filledPolygons[0].imageMapArea();
 }
@@ -6203,7 +6203,7 @@ ${{
 	}
 
 	Rotation.prototype = new EdenUI.plugins.Canvas2D.Transform();
-
+	
 	Rotation.prototype.transform = function (context) {
 		var origin = this.origin;
 		var centre = this.centre;
@@ -6298,7 +6298,7 @@ ${{
 
 func Rotate {
 	para item, angle;
-
+	
 	${{
 		if (item instanceof CanvasImage) {
 			return new Rotation(angle, new Point(item.dx + item.dWidth/2, item.dy + item.dHeight/2), new Point(item.dx,item.dy), 0, undefined, [item]);
@@ -6325,7 +6325,7 @@ func CombinedRotation {
 		} else {
 			angle2 = angle;
 			radius = arguments[3];
-			items = arguments[4];
+			items = arguments[4];		
 		}
 
 		if (!(centre instanceof Point)) {
@@ -6430,7 +6430,7 @@ RoundedRectangle = function(x, y, width, height, radius, fillcolour, outlinecolo
 # @param [fillColour
 # @param [outlineColour]]
 # @param [drawingOptions]
-#
+# 
 #  #canvas #roundedRectangle #rounded #rectangle #drawingOptions #shape #box #draw
 func RoundedRectangle {
 ${{
@@ -6492,7 +6492,7 @@ RoundedRectangle.prototype.tracePath = function (context, scale) {
 		y2 = y1;
 		y1 = temp;
 	}
-
+	
 	context.beginPath();
     context.moveTo(x1 + this.radius, y1);
     context.lineTo(x2 - this.radius, y1);
@@ -6513,7 +6513,7 @@ RoundedRectangle.prototype.isHit = function (context, scale, x, y) {
 
 RoundedRectangle.prototype.toString = function() {
 	var s = "RoundedRectangle(" + Eden.edenCodeForValues(this.x1, this.y1) + ", ";
-
+	
 	if (this.x2 === undefined || this.x1 === undefined) {
 		s = s + "@, ";
 	} else {
@@ -6525,11 +6525,11 @@ RoundedRectangle.prototype.toString = function() {
 		s = s + String(this.y2 - this.y1) + ", ";
 	}
 	s = s + Eden.edenCodeForValues(this.radius, this.fillcolour, this.outlinecolour);
-
+	
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
-
+	
 	s = s + ")";
 	return s;
 };
@@ -6599,7 +6599,7 @@ ${{
 
 	Scaling.prototype.inverse = function (x, y) {
 		var invX = x, invY = y;
-
+		
 		var translateX = this.translateX;
 		if (translateX) {
 			invX = invX - translateX;
@@ -6779,7 +6779,7 @@ Sector.prototype.tracePath = function (context, scale) {
 			anticlockwise = true;
 		}
 	} else {
-		//Default to "auto"
+		//Default to "auto" 
 		anticlockwise = this.sAngle < this.eAngle;
 	}
 
@@ -6818,7 +6818,7 @@ Sector.prototype.toString = function() {
 	if (this.drawingOptions !== undefined) {
 		s = s + ", " + Eden.edenCodeForValue(this.drawingOptions);
 	}
-
+	
 	s = s + ")";
 	return s;
 }
@@ -6882,11 +6882,6 @@ ${{
 	Shadow.prototype.getEdenCode = Shadow.prototype.toString;
 
 }}$;
-
-## Copyright (c) 2013, Empirical Modelling Group
-## All rights reserved.
-##
-## See LICENSE.txt
 
 ## Copyright (c) 2013, Empirical Modelling Group
 ## All rights reserved.
@@ -7257,7 +7252,6 @@ Slider.prototype.getEdenCode = Slider.prototype.toString;
 
 }}$;
 
-
 ## Copyright (c) 2016, Empirical Modelling Group
 ## All rights reserved.
 ##
@@ -7526,7 +7520,7 @@ Text = function(text, x, y, size, fillcolour, outlinecolour, options, valign, al
 // RegExp groups: (valign) (align) (style) (size) (font)
 Text.cssRegExp = new RegExp(
 		"^\\s*(" +
-		"?:(top|middle|baseline|alphabetic|ideographic|bottom)?\\s*" +
+		"?:(top|middle|baseline|alphabetic|ideographic|bottom)?\\s*" + 
 		"(\\b(?:left|right|center|centre))?\\s*" +
 		"((?:\\bitalic)?\\s*" +
 		"(?:\\bsmall-caps)?\\s*" +
@@ -7539,7 +7533,7 @@ Text.cssRegExp = new RegExp(
 }}$;
 
 #! Create a drawable text object for a canvas. See [drawing options](@external CanvasExamples > drawingoptions) for more font and style options.
-#
+# 
 # ##Usage Example
 #  `Text("Message", x, y);`
 #  `Text("Hello", x, y, 20, "red");`
@@ -7551,7 +7545,7 @@ Text.cssRegExp = new RegExp(
 # @param [fill_colour Text colour in HTML form
 # @param [outline_colour]]
 # @param [options] Options, in string or object format
-#
+# 
 #  #canvas #text #label #draw
 func Text {
 	${{
@@ -7668,7 +7662,7 @@ Text.prototype.draw = function (context, scale) {
 	if (this.outlinecolour !== undefined) {
 		context.lineWidth = lineWidth * scale;
 		context.strokeStyle = this.outlinecolour;
-		context.strokeText(this.text, x, y);
+		context.strokeText(this.text, x, y);	
 	}
 };
 
@@ -7676,7 +7670,7 @@ Text.prototype.isHit = function (context, scale, px, py) {
 	var x = this.x + 1 / scale;
 	var y = this.y + 1 / scale;
 	var width, height;
-
+	
 	if (this.width === undefined) {
 		var div = document.createElement("div");
 		div.innerHTML = this.text;
@@ -7939,7 +7933,7 @@ Textbox.prototype.hash = function () {
 
 /**
  * Creates a text input box for drawing on the canvas
- *
+ * 
  * @param [name] Prefix for _value observable.  Default is the name of the observable being defined.
  * @param x X-position
  * @param y Y-position
@@ -7948,11 +7942,11 @@ Textbox.prototype.hash = function () {
  * @param [placeholder_text] Text to be displayed by default
  * @param [max_characters] Maximum number of characters allowed in input box
  * @param [enabled] Boolean (true or false) to enable or disable input
- *
+ * 
  * #canvas #input #text #textbox
  */
 
-
+	
 func Textbox { ${{
 	var argsProcesssed;
 
@@ -8007,7 +8001,7 @@ func Textbox { ${{
 }}$; }
 
 ${{
-Textbox.prototype.draw = function(context) {
+Textbox.prototype.draw = function(context) {	
 
 	if(this.elements === undefined) {
 		var me = this;
@@ -8084,7 +8078,7 @@ Textbox.prototype.toString = function() {
 			this.height, this.placeholder, this.enabled) + ")";
 	} else {
 		return "Textbox(" + Eden.edenCodeForValues(this.name, this.x, this.y, this.width,
-			this.height, this.placeholder, this.enabled) + ")";
+			this.height, this.placeholder, this.enabled) + ")";	
 	}
 };
 
@@ -8112,7 +8106,7 @@ ${{
 	Translation.prototype.transform = function (context) {
 		context.translate(this.x - this.centreX, this.y - this.centreY);
 	}
-
+	
 	Translation.prototype.getCSS = function (scale) {
 		var x = (this.x - this.centreX) * scale;
 		var y = (this.y - this.centreY) * scale;
@@ -8163,7 +8157,7 @@ func Translate {
 				argNum--;
 				centreX = arguments[argNum];
 				argNum--;
-			}
+			}		
 		}
 		if (argNum >= 0) {
 			eden.error(new Error("Translate: invalid parameters."), "error");
@@ -8345,7 +8339,7 @@ ${{
 		this.type = type;
 		this.preload = preload;
 		this.atEnd = false;
-
+		
 		Object.defineProperty(this, "duration", {
 			enumerable: true,
 			get: function () {
@@ -8357,7 +8351,7 @@ ${{
 			}
 		});
 	}
-
+	
 	Audiovisual.prototype.hash = function () {
 		return this.name;
 	}
@@ -8446,7 +8440,7 @@ ${{
 				chapterNames = [];
 				chapterIndex = -1;
 				nextChapterAt = undefined;
-
+				
 				if (chapters instanceof Object) {
 					for (var chapterName in chapters) {
 						var beginsAt = chapters[chapterName];
@@ -8460,7 +8454,7 @@ ${{
 						chapterMarks.splice(i, 0, beginsAt);
 						chapterNames.splice(i, 0, chapterName);
 					}
-
+					
 					if (!me.atEnd) {
 						var currentPos = timeSym.value();
 						while (chapterIndex < chapterMarks.length - 1 &&
@@ -8583,7 +8577,7 @@ ${{
 				});
 
 			} else {
-
+			
 			}
 
 
@@ -8670,7 +8664,7 @@ ${{
 				var newTimeIndex = Math.floor(currentTime);
 				if (newTimeIndex != me.timeIndex) {
 					timeSym.assign(newTimeIndex, root.scope, EdenSymbol.localJSAgent);
-					me.timeIndex = newTimeIndex;
+					me.timeIndex = newTimeIndex;					
 				}
 				if (nextChapterAt !== undefined && currentTime >= nextChapterAt) {
 					chapterIndex++;
@@ -8718,7 +8712,7 @@ ${{
 					if (speed > 0) {
 						mediaElement.defaultPlaybackRate = speed;
 					} else {
-						mediaElement.defaultPlaybackRate = 1;
+						mediaElement.defaultPlaybackRate = 1;					
 					}
 					mediaElement.playbackRate = speed;
 				}
@@ -8746,7 +8740,7 @@ ${{
 			} else if (volume == 0) {
 				mediaElement.muted = true;
 			} else {
-				mediaElement.volume = volume;
+				mediaElement.volume = volume;			
 			}
 			this.volumeChanging = false;
 			volumeSym.addJSObserver("adjustVolume", function (symbol, volume) {
@@ -8880,10 +8874,10 @@ ${{
 		if (this.name == this.obsName) {
 			return this.type + "(" + Eden.edenCodeForValues(this.preload) + ")";
 		} else {
-			return this.type + "(" + Eden.edenCodeForValues(this.name, this.preload) + ")";
+			return this.type + "(" + Eden.edenCodeForValues(this.name, this.preload) + ")";		
 		}
 	}
-
+	
 	Audiovisual.prototype.getEdenCode = Audiovisual.prototype.toString;
 
 	//Create an observable for background sounds.
@@ -8930,7 +8924,7 @@ View.prototype.hash = function () {
 
 /**
  * Create a View tag to display an embedded view
- *
+ * 
  * @param name
  * @param type
  * @param x X-coordinate
@@ -8945,14 +8939,14 @@ func View { ${{
 	var x = arguments[2];
 	var y = arguments[3];
 	var width, height;   //Number of pixels, string (e.g. "50%") or undefined (automatic)
-
+	
 	var argsProcessed = 4;
 	var argType = typeof(arguments[4]);
-
+	
 	if (argType == "number" || argType == "undefined") {
 		width = arguments[4];
 		argsProcessed++;
-
+		
 		argType = typeof(arguments[5]);
 		if (argType == "number" || argType == "undefined") {
 			height = arguments[5];
@@ -8988,7 +8982,7 @@ View.prototype.draw = function(context) {
 	//Create object properties that record the automatically generated width and/or height.
 	if (this.width === undefined || this.name !== undefined) {
 		var objectElement = document.createElement("object");
-		objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; " +
+		objectElement.setAttribute("style", "display: block; position: absolute; top: 0px; left: 0px; " + 
 			"height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;");
 
 		objectElement.onload = function () {
