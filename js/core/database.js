@@ -14,13 +14,13 @@ Eden.DB = {
 	userid: undefined,
 	// Note: reverse order, last is popped off to try first
 	repositories: [
-		document.location.protocol+"//jseden.dcs.warwick.ac.uk/construalmanager",
+		(document.location.protocol === 'file:' ? 'https:' : document.location.protocol)+"//jseden.dcs.warwick.ac.uk/construalmanager",
 		"http://localhost:18882"
 	],
 	repoindex: 0,
 	retrycount: 0,
 	connected: false,
-	searchServer: document.location.protocol+"//jseden.dcs.warwick.ac.uk",
+	searchServer: (document.location.protocol === 'file:' ? 'https:' : document.location.protocol)+"//jseden.dcs.warwick.ac.uk",
 	querycache: null,
 	qcacheloaded: false,
 	qcachetimeout: undefined

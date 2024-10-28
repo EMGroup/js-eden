@@ -48,8 +48,8 @@ See LICENSE.txt
 	<link rel="stylesheet" type="text/css" href="plugins/veden/veden.css" />
 	<link rel="stylesheet" type="text/css" href="plugins/script-generator/script-generator.css" />
 	<link rel="stylesheet" type="text/css" href="plugins/observable-palette/observable-palette.css" />
-	<link rel="stylesheet" type="text/css" href="plugins/debugger/debugger.css" />
-	<link rel="stylesheet" type="text/css" media="print" href="css/print.css" />
+	<link rel="stylesheet" type="text/css" href="css/debugger.css" />
+    <link rel="stylesheet" type="text/css" media="print" href="css/print.css" />
 	<link rel="stylesheet" type="text/css" href="css/home.css">
 
 	<script type="text/javascript" src="js/lib/jquery-1.8.3.min.js"></script>
@@ -117,17 +117,19 @@ See LICENSE.txt
 <script src="js/lib/json2.js"></script>
 <script src="js/lib/diff_match_patch.js"></script>
 <!--script src="js/lib/showdown.min.js"></script-->
-<script src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
+<script src="js/lib/peer.min.js"></script>
 <script src="js/util/misc.js"></script>
 <script src="js/util/diff.js"></script>
 <script src="js/core/runtime.js"></script>
 <script src="js/dummyconsole.js"></script>
 <script src="js/arrayCompareFix.js"></script>
 <script src="js/core/window-highlighter.js"></script>
+<script src="js/core/eden.js"></script>
+<script src="js/language/lang.js"></script>
+<script src="js/core/edenui.js"></script>
 <script src="js/core/scope.js"></script>
 <script src="js/core/symbol.js"></script>
 <script src="js/core/context.js"></script>
-<script src="js/core/eden.js"></script>
 <script src="js/core/database.js"></script>
 <script src="js/core/plugins.js"></script>
 <script src="js/util/url.js"></script>
@@ -147,7 +149,9 @@ See LICENSE.txt
 <script src="js/ast/basestatement.js"></script>
 <script src="js/ast/basescript.js"></script>
 <script src="js/ast/basecontext.js"></script>
+<script src="js/ast/baseexpression.js"></script>
 <script src="js/ast/append.js"></script>
+<script src="js/ast/shift.js"></script>
 <script src="js/ast/assignment.js"></script>
 <script src="js/ast/after.js"></script>
 <script src="js/ast/binaryop.js"></script>
@@ -186,6 +190,7 @@ See LICENSE.txt
 <script src="js/ast/scope.js"></script>
 <script src="js/ast/scopedscript.js"></script>
 <script src="js/ast/scopepath.js"></script>
+<script src="js/ast/substatement.js"></script>
 <script src="js/ast/scopepattern.js"></script>
 <script src="js/ast/script.js"></script>
 <script src="js/ast/virtual.js"></script>
@@ -201,6 +206,9 @@ See LICENSE.txt
 <script src="js/ast/alias.js"></script>
 <script src="js/ast/indexed.js"></script>
 <script src="js/ast/section.js"></script>
+<script src="js/ast/customblock.js"></script>
+<script src="js/ast/async.js"></script>
+<script src="js/ast/cs3_html.js"></script>
 <script src="js/grammar/actionbody.js"></script>
 <script src="js/grammar/after.js"></script>
 <script src="js/grammar/declarations.js"></script>
@@ -227,8 +235,8 @@ See LICENSE.txt
 <script src="js/grammar/while.js"></script>
 <script src="js/grammar/query.js"></script>
 <script src="js/grammar/section.js"></script>
+<script src="js/grammar/cs3_html.js"></script>
 <script src="js/core/engine.js"></script>
-<script src="js/language/lang.js"></script>
 <script src="js/project.js"></script>
 <script src="js/fragment.js"></script>
 <script src="js/util/css.js"></script>
@@ -257,6 +265,7 @@ See LICENSE.txt
 <script src="js/ui/explorer.js"></script>
 <script src="js/ui/explorer-state.js"></script>
 <script src="js/ui/explorer-script.js"></script>
+<script src="js/ui/debugger.js"></script>
 <script src="js/ui/scriptbox.js"></script>
 <script src="js/ui/presentation.js"></script>
 <script src="js/ui/markdown.js"></script>
@@ -303,14 +312,13 @@ See LICENSE.txt
 <script src="plugins/veden/list.js"></script>
 <script src="plugins/speech-synthesis/speech-synthesis.js"></script>
 <script src="plugins/observable-palette/observable-palette.js"></script>
-<script src="plugins/debugger/debugger.js"></script>
 
 <script type="text/javascript">
 	var projects;
 
 	showdown = require('showdown');
 
-	SerialPort = require("serialport");
+	SerialPort = require("serialport").SerialPort;
 
 	function changePage(name) {
 		$.get("pages/"+name+"-"+Language.language+".html", function(data) {
@@ -318,7 +326,7 @@ See LICENSE.txt
 		}, "text");
 	}
 
-	if (mobilecheck()) document.location = "mobile-dev.html";
+	//if (mobilecheck()) document.location = "mobile-dev.html";
 
 	$(".loadmodal").show();
 	Construit(undefined, function(loaded) {

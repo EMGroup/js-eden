@@ -19,7 +19,7 @@ if (process.resourcesPath) {
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1280, height: 720})
+  mainWindow = new BrowserWindow({width: 1280, height: 720, webPreferences: {nodeIntegration: true, contextIsolation: false}})
 	Menu.setApplicationMenu(null);
 
   // and load the index.html of the app.
@@ -30,7 +30,7 @@ function createWindow () {
   }))
 
   // Open the DevTools.
-  //mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
