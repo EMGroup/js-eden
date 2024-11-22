@@ -93,3 +93,21 @@ unstable version. Then, with nodejs installed, do an `npm install`.
 You can then either test using the local app version with `npm start` or use
 `npm run devserver` to start a local web server on port 8000.
 
+## CLI Experiment
+
+This branch shows an experiment with a CLI version.
+
+To get started with this, run the `npm install` as described above.
+
+You should then be able to run `node demo.js`. This will show an `EDEN>` prompt, where you can provide definitions, and then query values of observables. For instance:
+
+```
+EDEN > DONE LOADING
+EDEN > a = 5;
+EDEN > b is a * 2;
+EDEN > ?a
+5
+EDEN > ?b  
+10
+EDEN > 
+```

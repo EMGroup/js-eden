@@ -131,8 +131,8 @@ require("./grammar/while.js");
 require("./grammar/query.js");
 require("./grammar/section.js");
 require("./fragment.js");
-require("../plugins/canvas/canvas.js");
-require("../plugins/canvas_merged.js");
+// require("../plugins/canvas/canvas.js");
+// require("../plugins/canvas_merged.js");
 const myob = {};
 //See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
 const handler = {
@@ -194,9 +194,9 @@ CLIEden.initialise = function(){
     });
     EdenUI.prototype.listenTo = CLIEden.listenTo;
     EdenUI.prototype.emit = CLIEden.emit;
-    CLIEden.edenUI.plugins = plugins;
-    CLIEden.edenUI.loadPlugin("Canvas2D",function(){console.log("Loaded plugin");});
-    CLIEden.eden.exec("do lib;");
+    // CLIEden.edenUI.plugins = plugins;
+    // CLIEden.edenUI.loadPlugin("Canvas2D",function(){console.log("Loaded plugin");});
+    // CLIEden.eden.exec("do lib;");
 };
 
 
@@ -207,7 +207,7 @@ CLIEden.startCommandLine = function(){
     }
     CLIEden.eden = new CLIEden.Eden();
     global.eden = CLIEden.eden;
-    
+    CLIEden.Eden.projectPath = "./"
 
     global.root = CLIEden.eden.root;
     var rl = readline.createInterface({
@@ -226,8 +226,8 @@ CLIEden.startCommandLine = function(){
     }
     printPrompt();
 
-    CLIEden.edenUI = new EdenUI(CLIEden.eden);
-    CLIEden.setCanvasRoot();
+    // CLIEden.edenUI = new EdenUI(CLIEden.eden);
+    // CLIEden.setCanvasRoot();
     CLIEden.initialise();
 
     rl.on('line',function(line){

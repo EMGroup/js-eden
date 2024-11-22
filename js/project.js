@@ -86,7 +86,7 @@ Eden.Project.init = function(eden) {
 	//Eden.Fragment.listenTo("status", this, function() {
 	//	if (eden.project) eden.project.autosave();
 	//});
-
+	Eden.projectPath = "./";
 	return Eden.Utils.getURL(Eden.projectPath + "resources/projects.db.json").then(function(data) {
 		Eden.Project.local = JSON.parse(data);
 		if(Eden.projectPath != ""){
